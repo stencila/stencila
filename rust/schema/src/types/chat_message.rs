@@ -35,6 +35,7 @@ pub struct ChatMessage {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Under which circumstances the node should be executed.

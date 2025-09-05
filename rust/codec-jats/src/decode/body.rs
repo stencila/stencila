@@ -287,6 +287,10 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/supplementary-material.html
 fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let id = node.attribute("id").map(String::from);
+
+    record_attrs_lost(path, node, ["id"], losses);
+
     let mut work_type = None;
 
     let target = node
@@ -353,6 +357,8 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
                     work_type = Some(CreativeWorkType::ImageObject);
                 } else if rest_lower.starts_with("video") {
                     work_type = Some(CreativeWorkType::VideoObject);
+                } else if rest_lower.starts_with("dataset") {
+                    work_type = Some(CreativeWorkType::Dataset);
                 }
 
                 rest.to_string()
@@ -388,6 +394,8 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
             work_type = Some(CreativeWorkType::ImageObject);
         } else if rest_lower.starts_with("video") {
             work_type = Some(CreativeWorkType::VideoObject);
+        } else if rest_lower.starts_with("dataset") {
+            work_type = Some(CreativeWorkType::Dataset);
         }
     }
 
@@ -402,9 +410,8 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
         }
     }
 
-    record_attrs_lost(path, node, [], losses);
-
     Block::Supplement(Supplement {
+        id,
         work_type,
         label,
         caption,
@@ -424,11 +431,13 @@ fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fig.html
 fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let id = node.attribute("id").map(String::from);
+
     let label_automatically = node
         .attribute("label-automatically")
         .and_then(|string| string.parse().ok());
 
-    record_attrs_lost(path, node, ["label-automatically"], losses);
+    record_attrs_lost(path, node, ["id", "label-automatically"], losses);
 
     let label = node
         .children()
@@ -453,6 +462,7 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
     );
 
     Block::Figure(Figure {
+        id,
         content,
         caption,
         label_automatically,
@@ -552,6 +562,8 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
 fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
+    let id = node.attribute("id").map(String::from);
+
     let mut code = node
         .attribute("code")
         .and_then(|code| code.into())
@@ -577,9 +589,10 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
         .collect_vec();
     let images = (!images.is_empty()).then_some(images);
 
-    record_attrs_lost(path, node, ["code", "language"], losses);
+    record_attrs_lost(path, node, ["id", "code", "language"], losses);
 
     Block::MathBlock(MathBlock {
+        id,
         code: code.into(),
         math_language,
         options: Box::new(MathBlockOptions {
@@ -647,11 +660,13 @@ fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/table-wrap.html
 fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let id = node.attribute("id").map(String::from);
+
     let label_automatically = node
         .attribute("label-automatically")
         .and_then(|string| string.parse().ok());
 
-    record_attrs_lost(path, node, ["label-automatically"], losses);
+    record_attrs_lost(path, node, ["id", "label-automatically"], losses);
 
     let label = node
         .children()
@@ -711,6 +726,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         });
 
     Block::Table(Table {
+        id,
         label,
         label_automatically,
         caption,
@@ -870,9 +886,14 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
                 "xref" => match child.attribute("ref-type") {
-                    Some("bibr" | "ref") => decode_xref_bibr(&child_path, &child, losses),
+                    Some("bibr" | "ref") => decode_xref_citation(&child_path, &child, losses),
+                    Some("sec" | "fig" | "table" | "disp-formula" | "supplementary-material") => {
+                        decode_xref_block(&child_path, &child, losses)
+                    }
                     _ => {
+                        // Record the xref as lost but decode its content
                         record_node_lost(path, &child, losses);
+                        inlines.append(&mut decode_inlines(path, child.children(), losses));
                         continue;
                     }
                 },
@@ -1199,7 +1220,7 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<xref>` with `ref-type` of "bibr" or "ref" to a [`Inline::Citation`]
-fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_xref_citation(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node.attribute("rid").map(String::from).unwrap_or_default();
 
     record_attrs_lost(path, node, ["ref-type", "rid"], losses);
@@ -1214,6 +1235,24 @@ fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             content,
             ..Default::default()
         }),
+        ..Default::default()
+    })
+}
+
+/// Decode a `<xref>` to a [`Inline::Link`] with a target to an internal block
+fn decode_xref_block(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let target = node
+        .attribute("rid")
+        .map(|id| ["#", id].concat())
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["ref-type", "rid"], losses);
+
+    let content = decode_inlines(path, node.children(), losses);
+
+    Inline::Link(Link {
+        target,
+        content,
         ..Default::default()
     })
 }

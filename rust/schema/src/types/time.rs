@@ -22,6 +22,7 @@ pub struct Time {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.

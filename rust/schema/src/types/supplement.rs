@@ -23,6 +23,7 @@ pub struct Supplement {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The `CreativeWork` type of the supplement.

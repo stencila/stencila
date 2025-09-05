@@ -39,6 +39,7 @@ pub struct MediaObject {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The type of `CreativeWork` (e.g. article, book, software application).

@@ -21,6 +21,7 @@ pub struct AuthorRole {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The entity acting as an author.

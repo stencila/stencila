@@ -29,6 +29,7 @@ pub struct Reference {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The index (1-based) of appearance order of the reference in the work.

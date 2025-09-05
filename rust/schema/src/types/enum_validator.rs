@@ -19,6 +19,7 @@ pub struct EnumValidator {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// A node is valid if it is equal to any of these values.

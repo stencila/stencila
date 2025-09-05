@@ -6708,6 +6708,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), (3) by monitoring nuclear division by DAPI staining of nuclei, and (4) by assaying Rad53 phosphorylation by western blot "
@@ -6736,6 +6748,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig1",
               "label": "1",
               "caption": [
                 {
@@ -7001,6 +7014,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 1.",
                   "caption": [
@@ -7015,6 +7029,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 1C"
+                              }
+                            }
+                          ],
+                          "target": "#fig1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -7027,6 +7053,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 2.",
                   "caption": [
@@ -7041,6 +7068,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 1C"
+                              }
+                            }
+                          ],
+                          "target": "#fig1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -7053,6 +7092,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig1sdata3",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 3.",
                   "caption": [
@@ -7067,6 +7107,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 1F"
+                              }
+                            }
+                          ],
+                          "target": "#fig1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -7079,6 +7131,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig1sdata4",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 4.",
                   "caption": [
@@ -7091,6 +7144,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 1F"
+                              }
+                            }
+                          ],
+                          "target": "#fig1"
                         },
                         {
                           "type": "Text",
@@ -7138,16 +7203,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1B and E"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") and DAPI staining ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1D and G"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). In agreement, western blot analysis showed that Rad53 was hyperphosphorylated ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1C and F"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -7173,6 +7274,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1B"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). The timing of Rad53 dephosphorylation following the induction of a single irreparable DSB correlated with the timing of adaptation and escape from the G"
@@ -7194,6 +7307,18 @@ expression: article
                   "value": {
                     "string": "/M arrest ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1C"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -7236,6 +7361,18 @@ expression: article
                   "value": {
                     "string": "/M with persistently hyper-phosphorylated Rad53 throughout the 24 hr time course ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1E–G"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -7434,10 +7571,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2—figure supplement 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fig2s1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This premature escape from the cell cycle arrest was dependent on the presence of TIR1 ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2—figure supplement 1B"
+                      }
+                    }
+                  ],
+                  "target": "#fig2s1"
                 },
                 {
                   "type": "Text",
@@ -7465,10 +7626,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2—figure supplement 2A"
+                      }
+                    }
+                  ],
+                  "target": "#fig2s2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), illustrating that IAA treatment by itself does not alter response to DNA damage. However, rapid degradation of Ddc2-AID, Rad9-AID, Rad24-AID, and Rad53-AID by IAA treatment 2 hr prior to the induction of DSBs largely prevented cell cycle arrest as well as DDC signaling, evident from the absence of detectible Rad53 hyperphosphorylation ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2—figure supplement 2B–E"
+                      }
+                    }
+                  ],
+                  "target": "#fig2s2"
                 },
                 {
                   "type": "Text",
@@ -7649,10 +7834,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2A–C"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), demonstrating that AID tagging of these proteins did not impair their function. Within 1 hr after IAA treatment, Ddc2-AID, Rad9-AID, or Rad24-AID were all rapidly depleted, which caused a gradual Rad53 dephosphorylation, as detected by western blotting ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2A–C"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -7695,6 +7904,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2—figure supplement 3A"
+                      }
+                    }
+                  ],
+                  "target": "#fig2s3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). These findings illustrate that the upstream DDC factors Ddc2, Rad9, and Rad24 are essential for initiating and sustaining the cell cycle arrest in response to DNA damage."
@@ -7704,6 +7925,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig2",
               "label": "2",
               "caption": [
                 {
@@ -7952,6 +8174,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata1",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 1.",
                   "caption": [
@@ -7964,6 +8187,18 @@ expression: article
                           "value": {
                             "string": "Original membranes corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2A"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
                         },
                         {
                           "type": "Text",
@@ -7989,6 +8224,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata2",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 2.",
                   "caption": [
@@ -8003,6 +8239,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2A"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8015,6 +8263,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata3",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 3.",
                   "caption": [
@@ -8029,6 +8278,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2B"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8041,6 +8302,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata4",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 4.",
                   "caption": [
@@ -8055,6 +8317,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2B"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8067,6 +8341,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata5",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 5.",
                   "caption": [
@@ -8081,6 +8356,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2C"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8093,6 +8380,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata6",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 6.",
                   "caption": [
@@ -8107,6 +8395,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2C"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8119,6 +8419,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata7",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 7.",
                   "caption": [
@@ -8133,6 +8434,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2D"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8145,6 +8458,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2sdata8",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 8.",
                   "caption": [
@@ -8157,6 +8471,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2D"
+                              }
+                            }
+                          ],
+                          "target": "#fig2"
                         },
                         {
                           "type": "Text",
@@ -8179,6 +8505,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig2s1",
               "label": "2—figure supplement 1",
               "caption": [
                 {
@@ -8503,6 +8830,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig2s2",
               "label": "2—figure supplement 2",
               "caption": [
                 {
@@ -8734,6 +9062,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata1",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 1.",
                   "caption": [
@@ -8748,6 +9077,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2A"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8760,6 +9101,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata2",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 2.",
                   "caption": [
@@ -8774,6 +9116,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2A"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8786,6 +9140,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata3",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 3.",
                   "caption": [
@@ -8800,6 +9155,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2B"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8812,6 +9179,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata4",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 4.",
                   "caption": [
@@ -8826,6 +9194,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2B"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8838,6 +9218,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata5",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 5.",
                   "caption": [
@@ -8852,6 +9233,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2C"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8864,6 +9257,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata6",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 6.",
                   "caption": [
@@ -8878,6 +9272,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2C"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8890,6 +9296,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata7",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 7.",
                   "caption": [
@@ -8904,6 +9311,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2D"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8916,6 +9335,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata8",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 8.",
                   "caption": [
@@ -8930,6 +9350,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2D"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8942,6 +9374,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata9",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 9.",
                   "caption": [
@@ -8956,6 +9389,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2E"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -8968,6 +9413,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig2s2sdata10",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 10.",
                   "caption": [
@@ -8980,6 +9426,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 2—figure supplement 2E"
+                              }
+                            }
+                          ],
+                          "target": "#fig2s2"
                         },
                         {
                           "type": "Text",
@@ -9002,6 +9460,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig2s3",
               "label": "2—figure supplement 3",
               "caption": [
                 {
@@ -9215,10 +9674,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2D"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). In contrast to Ddc2-AID depletion, cell cycle analysis by DAPI staining showed that Rad53 depletion led to a more gradual transition into late anaphase ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2—figure supplement 3B"
+                      }
+                    }
+                  ],
+                  "target": "#fig2s3"
                 },
                 {
                   "type": "Text",
@@ -9326,6 +9809,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3A"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "); however, it inhibited the permanent cell cycle arrest as >95% of "
@@ -9349,6 +9844,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3B"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). We then asked whether the delay in cell cycle re-entry observed when Rad53 was degraded was due to Chk1’s independent role in maintaining arrest. To test this, we induced 2 DSBs in "
@@ -9370,6 +9877,18 @@ expression: article
                   "value": {
                     "string": " cells for 4 hr and then added IAA to deplete Rad53. Compared to the depletion of Rad53-AID alone ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2D"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -9412,6 +9931,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3C"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). These results suggest that Chk1 functions in conjunction with Rad53 to sustain cell cycle arrest in response to DNA damage."
@@ -9421,6 +9952,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig3",
               "label": "3",
               "caption": [
                 {
@@ -9737,6 +10269,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata1",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 1.",
                   "caption": [
@@ -9751,6 +10284,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3A"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9763,6 +10308,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata2",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 2.",
                   "caption": [
@@ -9777,6 +10323,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3A"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9789,6 +10347,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata3",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 3.",
                   "caption": [
@@ -9803,6 +10362,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3C"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9815,6 +10386,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata4",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 4.",
                   "caption": [
@@ -9829,6 +10401,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3C"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9841,6 +10425,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata5",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 5.",
                   "caption": [
@@ -9855,6 +10440,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3D"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9867,6 +10464,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata6",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 6.",
                   "caption": [
@@ -9881,6 +10479,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3D"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9893,6 +10503,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata7",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 7.",
                   "caption": [
@@ -9907,6 +10518,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3E"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9919,6 +10542,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata8",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 8.",
                   "caption": [
@@ -9933,6 +10557,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3E"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9945,6 +10581,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata9",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 9.",
                   "caption": [
@@ -9959,6 +10596,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3F"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -9971,6 +10620,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3sdata10",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 10.",
                   "caption": [
@@ -9983,6 +10633,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3F"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
                         },
                         {
                           "type": "Text",
@@ -10005,6 +10667,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig3s1",
               "label": "3—figure supplement 1",
               "caption": [
                 {
@@ -10117,6 +10780,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3s1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 3—figure supplement 1—source data 1.",
                   "caption": [
@@ -10131,6 +10795,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3—figure supplement 1B"
+                              }
+                            }
+                          ],
+                          "target": "#fig3s1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -10143,6 +10819,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig3s1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 3—figure supplement 1—source data 2.",
                   "caption": [
@@ -10155,6 +10832,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3—figure supplement 1B"
+                              }
+                            }
+                          ],
+                          "target": "#fig3s1"
                         },
                         {
                           "type": "Text",
@@ -10219,10 +10908,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3D–F"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") compared to the depletion of DDC factors alone ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2A–C"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -10364,6 +11077,18 @@ expression: article
                   "value": {
                     "string": " deletion did not affect either the establishment of the DDC or the maintenance of checkpoint arrest up to 24 hr ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3—figure supplement 1"
+                      }
+                    }
+                  ],
+                  "target": "#fig3s1"
                 },
                 {
                   "type": "Text",
@@ -10551,6 +11276,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4A"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Additionally, depletion of Dun1-AID 4 hr after damage induction did not cause a significant change in the proportion of G"
@@ -10572,6 +11309,18 @@ expression: article
                   "value": {
                     "string": "/M arrested in these otherwise wild-type cells, nor did it affect Rad53 phosphorylation ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4B"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -10597,6 +11346,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4C"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), further demonstrating the role of Chk1 in checkpoint maintenance. These results suggest that Dun1 is required for the initiation of DDC and concomitant cell cycle arrest but is dispensable for maintenance."
@@ -10606,6 +11367,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig4",
               "label": "4",
               "caption": [
                 {
@@ -10696,6 +11458,18 @@ expression: article
                       "value": {
                         "string": "/M arrest was determined based on cell morphology as shown in "
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 1A"
+                          }
+                        }
+                      ],
+                      "target": "#fig1"
                     },
                     {
                       "type": "Text",
@@ -10809,6 +11583,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig4sdata1",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 1.",
                   "caption": [
@@ -10823,6 +11598,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 4A"
+                              }
+                            }
+                          ],
+                          "target": "#fig4"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -10835,6 +11622,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig4sdata2",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 2.",
                   "caption": [
@@ -10849,6 +11637,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 4A"
+                              }
+                            }
+                          ],
+                          "target": "#fig4"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -10861,6 +11661,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig4sdata3",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 3.",
                   "caption": [
@@ -10875,6 +11676,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 4B"
+                              }
+                            }
+                          ],
+                          "target": "#fig4"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -10887,6 +11700,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig4sdata4",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 4.",
                   "caption": [
@@ -10901,6 +11715,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 4B"
+                              }
+                            }
+                          ],
+                          "target": "#fig4"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -10913,6 +11739,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig4sdata5",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 5.",
                   "caption": [
@@ -10927,6 +11754,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 4C"
+                              }
+                            }
+                          ],
+                          "target": "#fig4"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -10939,6 +11778,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig4sdata6",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 6.",
                   "caption": [
@@ -10951,6 +11791,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 4C"
+                              }
+                            }
+                          ],
+                          "target": "#fig4"
                         },
                         {
                           "type": "Text",
@@ -11053,10 +11905,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5—figure supplement 1"
+                      }
+                    }
+                  ],
+                  "target": "#fig5s1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), even though cells adapt to 1 DSBs and remained terminally arrested after 2 DSBs ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1A–D"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -11074,6 +11950,18 @@ expression: article
                   "value": {
                     "string": "If Ddc2 activity is essential to maintain the cell cycle arrest in the 2-DSB strain, then degradation of Ddc2-AID around the time wild-type cells adapt to a single DNA break should interrupt the permanent cell cycle arrest and trigger cell cycle re-entry. We find that complete depletion of Ddc2-AID 15 hr after the induction of 2 DSBs leads to diminished Rad53 hyperphosphorylation ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5A"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
                 },
                 {
                   "type": "Text",
@@ -11099,6 +11987,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5A"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Furthermore, despite the diminished Rad53 phosphorylation, Ddc2-AID cells mostly remained arrested in G"
@@ -11122,10 +12022,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5B"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), in contrast to Ddc2-AID depletion soon after induction of 2 DSBs, which causes cells to rapidly resume mitosis ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2A"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -11137,6 +12061,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig5",
               "label": "5",
               "caption": [
                 {
@@ -11385,6 +12310,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata1",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 1.",
                   "caption": [
@@ -11397,6 +12323,18 @@ expression: article
                           "value": {
                             "string": "Original membranes corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 5A"
+                              }
+                            }
+                          ],
+                          "target": "#fig5"
                         },
                         {
                           "type": "Text",
@@ -11422,6 +12360,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata2",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 2.",
                   "caption": [
@@ -11436,6 +12375,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 5A"
+                              }
+                            }
+                          ],
+                          "target": "#fig5"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11448,6 +12399,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata3",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 3.",
                   "caption": [
@@ -11462,6 +12414,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3C"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11474,6 +12438,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata4",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 4.",
                   "caption": [
@@ -11488,6 +12453,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3C"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11500,6 +12477,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata5",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 5.",
                   "caption": [
@@ -11514,6 +12492,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3D"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11526,6 +12516,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata6",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 6.",
                   "caption": [
@@ -11540,6 +12531,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3D"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11552,6 +12555,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata7",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 7.",
                   "caption": [
@@ -11566,6 +12570,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3E"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11578,6 +12594,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5sdata8",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 8.",
                   "caption": [
@@ -11590,6 +12607,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 3E"
+                              }
+                            }
+                          ],
+                          "target": "#fig3"
                         },
                         {
                           "type": "Text",
@@ -11612,6 +12641,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig5s1",
               "label": "5—figure supplement 1",
               "caption": [
                 {
@@ -11673,6 +12703,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5s1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 1.",
                   "caption": [
@@ -11687,6 +12718,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 5—figure supplement 1A"
+                              }
+                            }
+                          ],
+                          "target": "#fig5s1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11699,6 +12742,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5s1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 2.",
                   "caption": [
@@ -11713,6 +12757,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 5—figure supplement 1A"
+                              }
+                            }
+                          ],
+                          "target": "#fig5s1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11725,6 +12781,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5s1sdata3",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 3.",
                   "caption": [
@@ -11739,6 +12796,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 5—figure supplement 1B"
+                              }
+                            }
+                          ],
+                          "target": "#fig5s1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -11751,6 +12820,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig5s1sdata4",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 4.",
                   "caption": [
@@ -11763,6 +12833,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 5—figure supplement 1B"
+                              }
+                            }
+                          ],
+                          "target": "#fig5s1"
                         },
                         {
                           "type": "Text",
@@ -11880,6 +12962,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2—figure supplement 1C"
+                      }
+                    }
+                  ],
+                  "target": "#fig2s1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Using Rad53-AID2, we then asked whether Rad53 is required for extended G"
@@ -11937,10 +13031,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figures 2D"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "5C"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
                 },
                 {
                   "type": "Text",
@@ -11949,16 +13067,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5D"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", "
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 1"
+                      }
+                    }
+                  ],
+                  "target": "#table1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), akin to what we observe following the depletion of Ddc2-AID ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5A and B"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
                 },
                 {
                   "type": "Text",
@@ -11970,6 +13124,7 @@ expression: article
             },
             {
               "type": "Table",
+              "id": "table1",
               "label": "1",
               "caption": [
                 {
@@ -12032,6 +13187,12 @@ expression: article
                               "value": {
                                 "string": "Timepoint comparison"
                               }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "*"
+                              }
                             }
                           ]
                         }
@@ -12080,6 +13241,17 @@ expression: article
                               "value": {
                                 "string": "Post hoc test"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "†"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -12093,7 +13265,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 2A"
+                                  }
+                                }
+                              ],
+                              "target": "#fig2"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 5
                     },
                     {
@@ -12465,7 +13655,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 3D"
+                                  }
+                                }
+                              ],
+                              "target": "#fig3"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 5
                     },
                     {
@@ -12837,7 +14045,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 2B"
+                                  }
+                                }
+                              ],
+                              "target": "#fig2"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 5
                     },
                     {
@@ -13209,7 +14435,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 3E"
+                                  }
+                                }
+                              ],
+                              "target": "#fig3"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 3
                     },
                     {
@@ -13443,7 +14687,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 2C"
+                                  }
+                                }
+                              ],
+                              "target": "#fig2"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 5
                     },
                     {
@@ -13815,7 +15077,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 3F"
+                                  }
+                                }
+                              ],
+                              "target": "#fig3"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 3
                     },
                     {
@@ -14049,7 +15329,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 5D"
+                                  }
+                                }
+                              ],
+                              "target": "#fig5"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 3
                     },
                     {
@@ -14289,7 +15587,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 5E"
+                                  }
+                                }
+                              ],
+                              "target": "#fig5"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 3
                     },
                     {
@@ -14523,7 +15839,25 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [],
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 6—figure supplement 3A"
+                                  }
+                                }
+                              ],
+                              "target": "#fig6s3"
+                            }
+                          ]
+                        }
+                      ],
                       "rowSpan": 3
                     },
                     {
@@ -14873,16 +16207,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5E"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", "
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 1"
+                      }
+                    }
+                  ],
+                  "target": "#table1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). However, unlike degradation of Ddc2-AID or Rad53-AID2 in this same situation, Rad53 remained hyperphosphorylated up to 9 hr after adding IAA ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5E"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
                 },
                 {
                   "type": "Text",
@@ -15025,6 +16395,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6—figure supplement 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fig6s1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). To explore whether deletion of "
@@ -15082,6 +16464,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6—figure supplement 1B"
+                      }
+                    }
+                  ],
+                  "target": "#fig6s1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Based on these data, we concluded that mitotic inhibition is enforced by the SAC proteins as DDC factors become dispensable 12–15 hr after the induction of damage."
@@ -15097,6 +16491,18 @@ expression: article
                   "value": {
                     "string": "If SAC proteins are only required at later stages of cell cycle arrest when DDC proteins are dispensable, then the depletion of SAC protein Mad2 or its binding partner Mad1 soon after the induction of DNA damage should not affect DDC or cell cycle arrest up to 12–15 hr. In agreement with this idea, after Mad1-AID or Mad2-AID depletion at 4 hr, cells remained arrested up to 15 hr following DSB induction, with persistent Rad53 hyperphosphorylation ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6—figure supplement 2"
+                      }
+                    }
+                  ],
+                  "target": "#fig6s2"
                 },
                 {
                   "type": "Text",
@@ -15133,16 +16539,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6A–C"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). DAPI staining confirmed that Mad1-AID or Mad2-AID-deplete cells re-entered the cell cycle, evident from an increase in the G1 cell population as well as an increase in percentage of large-budded cells with 2 DAPI foci ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6B and D"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Similar to what we observe following Mad1-AID and Mad2-AID depletion 4 hr after damage, this cell cycle re-entry occurred despite persistent Rad53 hyperphosphorylation ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6A and C"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
                 },
                 {
                   "type": "Text",
@@ -15154,6 +16596,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig6",
               "label": "6",
               "caption": [
                 {
@@ -15368,6 +16811,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6sdata1",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 1.",
                   "caption": [
@@ -15382,6 +16826,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6A"
+                              }
+                            }
+                          ],
+                          "target": "#fig6"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -15394,6 +16850,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6sdata2",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 2.",
                   "caption": [
@@ -15408,6 +16865,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6A"
+                              }
+                            }
+                          ],
+                          "target": "#fig6"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -15420,6 +16889,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6sdata3",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 3.",
                   "caption": [
@@ -15434,6 +16904,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6C"
+                              }
+                            }
+                          ],
+                          "target": "#fig6"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -15446,6 +16928,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6sdata4",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 4.",
                   "caption": [
@@ -15458,6 +16941,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6C"
+                              }
+                            }
+                          ],
+                          "target": "#fig6"
                         },
                         {
                           "type": "Text",
@@ -15480,6 +16975,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig6s1",
               "label": "6—figure supplement 1",
               "caption": [
                 {
@@ -15583,6 +17079,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig6s2",
               "label": "6—figure supplement 2",
               "caption": [
                 {
@@ -15712,6 +17209,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6s2sdata1",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 1.",
                   "caption": [
@@ -15726,6 +17224,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6—figure supplement 2B"
+                              }
+                            }
+                          ],
+                          "target": "#fig6s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -15738,6 +17248,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6s2sdata2",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 2.",
                   "caption": [
@@ -15752,6 +17263,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6—figure supplement 2B"
+                              }
+                            }
+                          ],
+                          "target": "#fig6s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -15764,6 +17287,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6s2sdata3",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 3.",
                   "caption": [
@@ -15778,6 +17302,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6—figure supplement 2C"
+                              }
+                            }
+                          ],
+                          "target": "#fig6s2"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -15790,6 +17326,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6s2sdata4",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 4.",
                   "caption": [
@@ -15802,6 +17339,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6—figure supplement 2C"
+                              }
+                            }
+                          ],
+                          "target": "#fig6s2"
                         },
                         {
                           "type": "Text",
@@ -15824,6 +17373,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig6s3",
               "label": "6—figure supplement 3",
               "caption": [
                 {
@@ -15936,6 +17486,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6s3sdata1",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 3—source data 1.",
                   "caption": [
@@ -15950,6 +17501,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6—figure supplement 3A"
+                              }
+                            }
+                          ],
+                          "target": "#fig6s3"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -15962,6 +17525,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig6s3sdata2",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 3—source data 2.",
                   "caption": [
@@ -15974,6 +17538,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 6—figure supplement 3A"
+                              }
+                            }
+                          ],
+                          "target": "#fig6s3"
                         },
                         {
                           "type": "Text",
@@ -16038,10 +17614,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6—figure supplement 3"
+                      }
+                    }
+                  ],
+                  "target": "#fig6s3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 1"
+                      }
+                    }
+                  ],
+                  "target": "#table1"
                 },
                 {
                   "type": "Text",
@@ -16095,16 +17695,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7A"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", "
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7—figure supplement 1A and B"
+                      }
+                    }
+                  ],
+                  "target": "#fig7s1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), akin to what we observe following Mad1-AID or Mad2-AID depletion ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6A and B"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
                 },
                 {
                   "type": "Text",
@@ -16130,10 +17766,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7B"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7—figure supplement 1C–E"
+                      }
+                    }
+                  ],
+                  "target": "#fig7s1"
                 },
                 {
                   "type": "Text",
@@ -16142,10 +17802,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7B and D"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7—figure supplement 1B, D, and F"
+                      }
+                    }
+                  ],
+                  "target": "#fig7s1"
                 },
                 {
                   "type": "Text",
@@ -16157,6 +17841,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig7",
               "label": "7",
               "caption": [
                 {
@@ -16371,6 +18056,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7sdata1",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 1.",
                   "caption": [
@@ -16385,6 +18071,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7A"
+                              }
+                            }
+                          ],
+                          "target": "#fig7"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -16397,6 +18095,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7sdata2",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 2.",
                   "caption": [
@@ -16411,6 +18110,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7A"
+                              }
+                            }
+                          ],
+                          "target": "#fig7"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -16423,6 +18134,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7sdata3",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 3.",
                   "caption": [
@@ -16437,6 +18149,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7C"
+                              }
+                            }
+                          ],
+                          "target": "#fig7"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -16449,6 +18173,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7sdata4",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 4.",
                   "caption": [
@@ -16461,6 +18186,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7C"
+                              }
+                            }
+                          ],
+                          "target": "#fig7"
                         },
                         {
                           "type": "Text",
@@ -16483,6 +18220,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig7s1",
               "label": "7—figure supplement 1",
               "caption": [
                 {
@@ -16782,6 +18520,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7s1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 1.",
                   "caption": [
@@ -16796,6 +18535,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7—figure supplement 1A"
+                              }
+                            }
+                          ],
+                          "target": "#fig7s1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -16808,6 +18559,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7s1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 2.",
                   "caption": [
@@ -16822,6 +18574,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7—figure supplement 1A"
+                              }
+                            }
+                          ],
+                          "target": "#fig7s1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -16834,6 +18598,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7s1sdata3",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 3.",
                   "caption": [
@@ -16848,6 +18613,18 @@ expression: article
                           }
                         },
                         {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7—figure supplement 1C"
+                              }
+                            }
+                          ],
+                          "target": "#fig7s1"
+                        },
+                        {
                           "type": "Text",
                           "value": {
                             "string": "."
@@ -16860,6 +18637,7 @@ expression: article
                 },
                 {
                   "type": "Supplement",
+                  "id": "fig7s1sdata4",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 4.",
                   "caption": [
@@ -16872,6 +18650,18 @@ expression: article
                           "value": {
                             "string": "Original files corresponding to "
                           }
+                        },
+                        {
+                          "type": "Link",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure 7—figure supplement 1C"
+                              }
+                            }
+                          ],
+                          "target": "#fig7s1"
                         },
                         {
                           "type": "Text",
@@ -17189,6 +18979,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 8"
+                      }
+                    }
+                  ],
+                  "target": "#fig8"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Strain YSL53, which has a second DSB at chromosome V, 86 kb away from "
@@ -17321,6 +19123,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig8",
               "label": "8",
               "caption": [
                 {
@@ -17559,6 +19362,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 9"
+                      }
+                    }
+                  ],
+                  "target": "#fig9"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", there was no effect on the growth rate of either the single or the double mutants, suggesting that cells did not experience a SAC-dependent delay in entering mitosis because of these modifications."
@@ -17568,6 +19383,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig9",
               "label": "9",
               "caption": [
                 {
@@ -17665,6 +19481,18 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 10"
+                  }
+                }
+              ],
+              "target": "#fig10"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ")."
@@ -17674,6 +19502,7 @@ expression: article
         },
         {
           "type": "Figure",
+          "id": "fig10",
           "label": "10",
           "caption": [
             {
@@ -18967,10 +20796,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary file 1a"
+                      }
+                    }
+                  ],
+                  "target": "#supp1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary file 1b"
+                      }
+                    }
+                  ],
+                  "target": "#supp1"
                 },
                 {
                   "type": "Text",
@@ -19314,6 +21167,18 @@ expression: article
                   "value": {
                     "string": "/M-arrested) cells at different timepoints listed in "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 1"
+                      }
+                    }
+                  ],
+                  "target": "#table1"
                 },
                 {
                   "type": "Text",

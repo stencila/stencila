@@ -19,6 +19,7 @@ pub struct CompilationDigest {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// A digest of the state of a node.

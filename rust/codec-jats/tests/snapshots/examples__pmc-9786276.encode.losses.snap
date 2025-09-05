@@ -2,4 +2,5 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
+MathBlock.id: 9
 Supplement: 10

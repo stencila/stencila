@@ -20,6 +20,7 @@ pub struct DatatableHint {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The number of rows of data.

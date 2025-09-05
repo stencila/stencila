@@ -19,6 +19,7 @@ pub struct ConstantValidator {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The value that the node must have.

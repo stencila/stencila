@@ -21,6 +21,7 @@ pub struct PropertyValue {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// A commonly used identifier for the characteristic represented by the property.

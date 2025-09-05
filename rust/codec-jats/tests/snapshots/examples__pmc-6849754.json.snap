@@ -8483,6 +8483,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "discussion"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-sec-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " of the limitations of this method in the Supplementary\n          Information). The dataset includes latitude, longitude and leaf temperature at the time of\n          measurement for each point and, for a subset of the data, leaf nitrogen content per unit\n          leaf area ("
@@ -9332,6 +9344,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "(20)"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-disp-0020"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " below)."
@@ -9533,6 +9557,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0001",
               "code": {
                 "string": "<math id=\"nlm-math-8\">\n            <mrow>\n              <mi>χ</mi>\n              <mo>=</mo>\n              <mfrac>\n                <msup>\n                  <mrow>\n                    <mi mathvariant=\"normal\">Γ</mi>\n                  </mrow>\n                  <mo>∗</mo>\n                </msup>\n                <msub>\n                  <mi>C</mi>\n                  <mi>a</mi>\n                </msub>\n              </mfrac>\n              <mo>+</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mfrac>\n                    <msup>\n                      <mrow>\n                        <mi mathvariant=\"normal\">Γ</mi>\n                      </mrow>\n                      <mo>∗</mo>\n                    </msup>\n                    <msub>\n                      <mi>C</mi>\n                      <mi>a</mi>\n                    </msub>\n                  </mfrac>\n                </mrow>\n              </mfenced>\n              <mfrac>\n                <mi mathvariant=\"normal\">ξ</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">ξ</mi>\n                  <mo>+</mo>\n                  <msqrt>\n                    <msub>\n                      <mi>D</mi>\n                      <mi>g</mi>\n                    </msub>\n                  </msqrt>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -9551,6 +9576,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0002",
               "code": {
                 "string": "<math id=\"nlm-math-9\">\n            <mrow>\n              <mi mathvariant=\"normal\">ξ</mi>\n              <mo>=</mo>\n              <msqrt>\n                <mrow>\n                  <mi mathvariant=\"normal\">β</mi>\n                  <mfrac>\n                    <mrow>\n                      <mi>K</mi>\n                      <mo>+</mo>\n                      <msup>\n                        <mrow>\n                          <mi mathvariant=\"normal\">Γ</mi>\n                        </mrow>\n                        <mo>∗</mo>\n                      </msup>\n                    </mrow>\n                    <mrow>\n                      <mn>1.6</mn>\n                      <msup>\n                        <mi>η</mi>\n                        <mo>∗</mo>\n                      </msup>\n                    </mrow>\n                  </mfrac>\n                </mrow>\n              </msqrt>\n            </mrow>\n          </math>"
               },
@@ -9735,6 +9761,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0003",
               "code": {
                 "string": "<math id=\"nlm-math-12\">\n            <mrow>\n              <mi>K</mi>\n              <mo>=</mo>\n              <msub>\n                <mi>K</mi>\n                <mi>c</mi>\n              </msub>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <mfrac>\n                    <msub>\n                      <mi>O</mi>\n                      <mi>i</mi>\n                    </msub>\n                    <msub>\n                      <mi>K</mi>\n                      <mi>o</mi>\n                    </msub>\n                  </mfrac>\n                </mrow>\n              </mfenced>\n            </mrow>\n          </math>"
               },
@@ -10031,6 +10058,18 @@ expression: article
                   "value": {
                     "string": " (unitless) in\n          equation "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "(2)"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-disp-0002"
                 },
                 {
                   "type": "Text",
@@ -10481,6 +10520,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0001"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "A.ext.txt)."
@@ -10490,6 +10541,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "ele13210-fig-0001",
               "label": "1",
               "caption": [
                 {
@@ -11058,6 +11110,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0004",
               "code": {
                 "string": "<math id=\"nlm-math-21\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>c</mi>\n              </msub>\n              <mo>=</mo>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n            </mrow>\n          </math>"
               },
@@ -11212,6 +11265,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0005",
               "code": {
                 "string": "<math id=\"nlm-math-22\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>c</mi>\n              </msub>\n              <mo>=</mo>\n              <msub>\n                <mi>V</mi>\n                <mi mathvariant=\"normal\">cmax</mi>\n              </msub>\n              <msub>\n                <mi>m</mi>\n                <mi>c</mi>\n              </msub>\n            </mrow>\n          </math>"
               },
@@ -11230,6 +11284,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0006",
               "code": {
                 "string": "<math id=\"nlm-math-23\">\n            <mrow>\n              <msub>\n                <mi>m</mi>\n                <mi>c</mi>\n              </msub>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>−</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">Γ</mi>\n                    </mrow>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>+</mo>\n                  <mi>K</mi>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -11438,6 +11493,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0007",
               "code": {
                 "string": "<math id=\"nlm-math-26\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n              <mo>=</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>J</mi>\n                  <mn>4</mn>\n                </mfrac>\n              </mfenced>\n              <mi>m</mi>\n            </mrow>\n          </math>"
               },
@@ -11456,6 +11512,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0008",
               "code": {
                 "string": "<math id=\"nlm-math-27\">\n            <mrow>\n              <mi>m</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>−</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">Γ</mi>\n                    </mrow>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>+</mo>\n                  <mn>2</mn>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">Γ</mi>\n                    </mrow>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -11559,6 +11616,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0009",
               "code": {
                 "string": "<math id=\"nlm-math-28\">\n            <mrow>\n              <mi>θ</mi>\n              <msup>\n                <mi>J</mi>\n                <mn>2</mn>\n              </msup>\n              <mo>−</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mi>φ</mi>\n                  <mi>I</mi>\n                  <mo>+</mo>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                </mrow>\n              </mfenced>\n              <mi>J</mi>\n              <mo>+</mo>\n              <mi>φ</mi>\n              <mi>I</mi>\n              <msub>\n                <mi>J</mi>\n                <mi mathvariant=\"normal\">max</mi>\n              </msub>\n              <mo>=</mo>\n              <mn>0</mn>\n            </mrow>\n          </math>"
               },
@@ -11885,10 +11943,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "(9)"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-disp-0009"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " can be substituted into eqn "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "(7)"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-disp-0007"
                 },
                 {
                   "type": "Text",
@@ -11900,6 +11982,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0010",
               "code": {
                 "string": "<math id=\"nlm-math-35\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n              <mo>=</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>m</mi>\n                  <mn>4</mn>\n                </mfrac>\n              </mfenced>\n              <mfrac>\n                <mrow>\n                  <mi>φ</mi>\n                  <mi>I</mi>\n                  <mo>+</mo>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                  <mo>±</mo>\n                  <msqrt>\n                    <mrow>\n                      <msup>\n                        <mrow>\n                          <mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mrow>\n                              <mi>φ</mi>\n                              <mi>I</mi>\n                              <mo>+</mo>\n                              <msub>\n                                <mi>J</mi>\n                                <mi mathvariant=\"normal\">max</mi>\n                              </msub>\n                            </mrow>\n                          </mfenced>\n                        </mrow>\n                        <mn>2</mn>\n                      </msup>\n                      <mo>−</mo>\n                      <mn>4</mn>\n                      <mi>θ</mi>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                    </mrow>\n                  </msqrt>\n                </mrow>\n                <mrow>\n                  <mn>2</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -12115,6 +12198,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "(10)"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-disp-0010"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") with respect to "
@@ -12192,6 +12287,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0011",
               "code": {
                 "string": "<math id=\"nlm-math-36\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <mi>∂</mi>\n                  <msub>\n                    <mi>A</mi>\n                    <mi>j</mi>\n                  </msub>\n                </mrow>\n                <mrow>\n                  <mi>∂</mi>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -12227,6 +12323,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0012",
               "code": {
                 "string": "<math id=\"nlm-math-37\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>m</mi>\n                  <mn>4</mn>\n                </mfrac>\n              </mfenced>\n              <mfrac>\n                <mi>∂</mi>\n                <mrow>\n                  <mi>∂</mi>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                </mrow>\n              </mfrac>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mrow>\n                    <mi>φ</mi>\n                    <mi>I</mi>\n                    <mo>+</mo>\n                    <msub>\n                      <mi>J</mi>\n                      <mi mathvariant=\"normal\">max</mi>\n                    </msub>\n                    <mo>−</mo>\n                    <msqrt>\n                      <mrow>\n                        <msup>\n                          <mrow>\n                            <mfenced close=\")\" open=\"(\" separators=\"\">\n                              <mrow>\n                                <mi>φ</mi>\n                                <mi>I</mi>\n                                <mo>+</mo>\n                                <msub>\n                                  <mi>J</mi>\n                                  <mi mathvariant=\"normal\">max</mi>\n                                </msub>\n                              </mrow>\n                            </mfenced>\n                          </mrow>\n                          <mn>2</mn>\n                        </msup>\n                        <mo>−</mo>\n                        <mn>4</mn>\n                        <mi>θ</mi>\n                        <mi>φ</mi>\n                        <mi>I</mi>\n                        <msub>\n                          <mi>J</mi>\n                          <mi mathvariant=\"normal\">max</mi>\n                        </msub>\n                      </mrow>\n                    </msqrt>\n                  </mrow>\n                  <mrow>\n                    <mn>2</mn>\n                    <mi>θ</mi>\n                  </mrow>\n                </mfrac>\n              </mfenced>\n            </mrow>\n          </math>"
               },
@@ -12245,6 +12342,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0013",
               "code": {
                 "string": "<math id=\"nlm-math-38\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mi>m</mi>\n                <mrow>\n                  <mn>8</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mfrac>\n                    <mi>∂</mi>\n                    <mrow>\n                      <mi>∂</mi>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                    </mrow>\n                  </mfrac>\n                  <msqrt>\n                    <mrow>\n                      <msup>\n                        <mrow>\n                          <mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mrow>\n                              <mi>φ</mi>\n                              <mi>I</mi>\n                              <mo>+</mo>\n                              <msub>\n                                <mi>J</mi>\n                                <mi mathvariant=\"normal\">max</mi>\n                              </msub>\n                            </mrow>\n                          </mfenced>\n                        </mrow>\n                        <mn>2</mn>\n                      </msup>\n                      <mo>−</mo>\n                      <mn>4</mn>\n                      <mi>θ</mi>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                    </mrow>\n                  </msqrt>\n                </mrow>\n              </mfenced>\n            </mrow>\n          </math>"
               },
@@ -12263,6 +12361,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0014",
               "code": {
                 "string": "<math id=\"nlm-math-39\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mi>m</mi>\n                <mrow>\n                  <mn>8</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mfrac>\n                    <mrow>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                      <mo>+</mo>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                      <mo>−</mo>\n                      <mn>2</mn>\n                      <mi>θ</mi>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                    </mrow>\n                    <msqrt>\n                      <mrow>\n                        <msup>\n                          <mrow>\n                            <mfenced close=\")\" open=\"(\" separators=\"\">\n                              <mrow>\n                                <mi>φ</mi>\n                                <mi>I</mi>\n                                <mo>+</mo>\n                                <msub>\n                                  <mi>J</mi>\n                                  <mi mathvariant=\"normal\">max</mi>\n                                </msub>\n                              </mrow>\n                            </mfenced>\n                          </mrow>\n                          <mn>2</mn>\n                        </msup>\n                        <mo>−</mo>\n                        <mn>4</mn>\n                        <mi>θ</mi>\n                        <mi>φ</mi>\n                        <mi>I</mi>\n                        <msub>\n                          <mi>J</mi>\n                          <mi mathvariant=\"normal\">max</mi>\n                        </msub>\n                      </mrow>\n                    </msqrt>\n                  </mfrac>\n                </mrow>\n              </mfenced>\n            </mrow>\n          </math>"
               },
@@ -12278,6 +12377,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "(14)"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-disp-0014"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " can be rearranged to:"
@@ -12287,6 +12398,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0015",
               "code": {
                 "string": "<math id=\"nlm-math-40\">\n            <mrow>\n              <msub>\n                <mi>J</mi>\n                <mi mathvariant=\"normal\">max</mi>\n              </msub>\n              <mo>=</mo>\n              <mi>φ</mi>\n              <mi>I</mi>\n              <mi>ϖ</mi>\n            </mrow>\n          </math>"
               },
@@ -12305,6 +12417,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0016",
               "code": {
                 "string": "<math id=\"nlm-math-41\">\n            <mrow>\n              <mi>ϖ</mi>\n              <mo>=</mo>\n              <mo>−</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mn>2</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfenced>\n              <mo>+</mo>\n              <msqrt>\n                <mrow>\n                  <mfenced close=\")\" open=\"(\" separators=\"\">\n                    <mrow>\n                      <mn>1</mn>\n                      <mo>−</mo>\n                      <mi>θ</mi>\n                    </mrow>\n                  </mfenced>\n                  <mfenced close=\")\" open=\"(\" separators=\"\">\n                    <mrow>\n                      <mfrac>\n                        <mn>1</mn>\n                        <mrow>\n                          <mfrac>\n                            <mrow>\n                              <mn>4</mn>\n                              <mi>c</mi>\n                            </mrow>\n                            <mi>m</mi>\n                          </mfrac>\n                          <mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mrow>\n                              <mn>1</mn>\n                              <mo>−</mo>\n                              <mi>θ</mi>\n                              <mfrac>\n                                <mrow>\n                                  <mn>4</mn>\n                                  <mi>c</mi>\n                                </mrow>\n                                <mi>m</mi>\n                              </mfrac>\n                            </mrow>\n                          </mfenced>\n                        </mrow>\n                      </mfrac>\n                      <mo>−</mo>\n                      <mn>4</mn>\n                      <mi>θ</mi>\n                    </mrow>\n                  </mfenced>\n                </mrow>\n              </msqrt>\n            </mrow>\n          </math>"
               },
@@ -12384,6 +12497,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "(10)"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-disp-0010"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and solved for "
@@ -12427,6 +12552,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0017",
               "code": {
                 "string": "<math id=\"nlm-math-43\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <mi>φ</mi>\n                  <mi>I</mi>\n                  <mi>m</mi>\n                  <msup>\n                    <mi>ϖ</mi>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <mn>8</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -12445,6 +12571,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0018",
               "code": {
                 "string": "<math id=\"nlm-math-44\">\n            <mrow>\n              <msup>\n                <mi>ϖ</mi>\n                <mo>∗</mo>\n              </msup>\n              <mo>=</mo>\n              <mn>1</mn>\n              <mo>+</mo>\n              <mi>ϖ</mi>\n              <mo>−</mo>\n              <msqrt>\n                <mrow>\n                  <msup>\n                    <mrow>\n                      <mfenced close=\")\" open=\"(\" separators=\"\">\n                        <mrow>\n                          <mn>1</mn>\n                          <mo>+</mo>\n                          <mi>ϖ</mi>\n                        </mrow>\n                      </mfenced>\n                    </mrow>\n                    <mn>2</mn>\n                  </msup>\n                  <mo>−</mo>\n                  <mn>4</mn>\n                  <mi>θ</mi>\n                  <mi>ϖ</mi>\n                </mrow>\n              </msqrt>\n            </mrow>\n          </math>"
               },
@@ -12633,6 +12760,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0019",
               "code": {
                 "string": "<math id=\"nlm-math-45\">\n            <mrow>\n              <msup>\n                <mrow>\n                  <msub>\n                    <mi>V</mi>\n                    <mi mathvariant=\"normal\">cmax</mi>\n                  </msub>\n                </mrow>\n                <mo>∗</mo>\n              </msup>\n              <mo>=</mo>\n              <mi>φ</mi>\n              <mi>I</mi>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>m</mi>\n                  <msub>\n                    <mi>m</mi>\n                    <mi>c</mi>\n                  </msub>\n                </mfrac>\n              </mfenced>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <msup>\n                    <mi>ϖ</mi>\n                    <mo>∗</mo>\n                  </msup>\n                  <mrow>\n                    <mn>8</mn>\n                    <mi>θ</mi>\n                  </mrow>\n                </mfrac>\n              </mfenced>\n            </mrow>\n          </math>"
               },
@@ -12802,6 +12930,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0020",
               "code": {
                 "string": "<math id=\"nlm-math-47\">\n            <mrow>\n              <msubsup>\n                <mi>V</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">cmax</mi>\n                  <mfenced close=\"]\" open=\"[\">\n                    <mi mathvariant=\"normal\">pred</mi>\n                  </mfenced>\n                </mrow>\n                <mo>′</mo>\n              </msubsup>\n              <mo>=</mo>\n              <mrow>\n                <mo stretchy=\"false\">(</mo>\n                <msup>\n                  <mrow>\n                    <msub>\n                      <mi>V</mi>\n                      <mi mathvariant=\"normal\">cmax</mi>\n                    </msub>\n                  </mrow>\n                  <mo>∗</mo>\n                </msup>\n                <mo stretchy=\"false\">)</mo>\n              </mrow>\n              <msup>\n                <mrow>\n                  <mi mathvariant=\"normal\">e</mi>\n                </mrow>\n                <mfrac>\n                  <mrow>\n                    <msub>\n                      <mi>H</mi>\n                      <mi mathvariant=\"normal\">a</mi>\n                    </msub>\n                    <mfenced close=\")\" open=\"(\" separators=\"\">\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">o</mi>\n                        </msub>\n                      </mrow>\n                    </mfenced>\n                  </mrow>\n                  <mrow>\n                    <mi>R</mi>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">g</mi>\n                    </msub>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">o</mi>\n                    </msub>\n                  </mrow>\n                </mfrac>\n              </msup>\n              <mfrac>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">o</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">o</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -13213,6 +13342,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0021",
               "code": {
                 "string": "<math id=\"nlm-math-48\">\n            <mrow>\n              <msub>\n                <mi>T</mi>\n                <mi>o</mi>\n              </msub>\n              <mo>=</mo>\n              <mn>177.884</mn>\n              <mo>+</mo>\n              <mn>0.44</mn>\n              <msub>\n                <mi>T</mi>\n                <mi>g</mi>\n              </msub>\n            </mrow>\n          </math>"
               },
@@ -13630,6 +13760,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0022",
               "code": {
                 "string": "<math id=\"nlm-math-54\">\n            <mrow>\n              <msubsup>\n                <mi>V</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">cmax</mi>\n                  <mfenced close=\"]\" open=\"[\">\n                    <mi mathvariant=\"normal\">obs</mi>\n                  </mfenced>\n                </mrow>\n                <mo>′</mo>\n              </msubsup>\n              <mo>=</mo>\n              <msub>\n                <mi mathvariant=\"normal\">V</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">cmax</mi>\n                  <mfenced close=\"]\" open=\"[\">\n                    <mi mathvariant=\"normal\">meas</mi>\n                  </mfenced>\n                </mrow>\n              </msub>\n              <msup>\n                <mrow>\n                  <mi mathvariant=\"normal\">e</mi>\n                </mrow>\n                <mfrac>\n                  <mrow>\n                    <msub>\n                      <mi>H</mi>\n                      <mi mathvariant=\"normal\">a</mi>\n                    </msub>\n                    <mfenced close=\")\" open=\"(\" separators=\"\">\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">meas</mi>\n                        </msub>\n                      </mrow>\n                    </mfenced>\n                  </mrow>\n                  <mrow>\n                    <mi>R</mi>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">g</mi>\n                    </msub>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">meas</mi>\n                    </msub>\n                  </mrow>\n                </mfrac>\n              </msup>\n              <mfrac>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">meas</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">meas</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
@@ -14235,6 +14366,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "ele13210-disp-0023",
               "code": {
                 "string": "<math id=\"nlm-math-66\">\n            <mrow>\n              <mi>B</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <msubsup>\n                    <mi>V</mi>\n                    <mrow>\n                      <mi mathvariant=\"normal\">cmax</mi>\n                      <mfenced close=\"]\" open=\"[\">\n                        <mi mathvariant=\"normal\">pred</mi>\n                      </mfenced>\n                    </mrow>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>−</mo>\n                  <msubsup>\n                    <mi>V</mi>\n                    <mrow>\n                      <mi mathvariant=\"normal\">cmax</mi>\n                      <mfenced close=\"]\" open=\"[\">\n                        <mi mathvariant=\"normal\">obs</mi>\n                      </mfenced>\n                    </mrow>\n                    <mo>′</mo>\n                  </msubsup>\n                </mrow>\n                <msubsup>\n                  <mi>V</mi>\n                  <mrow>\n                    <mi mathvariant=\"normal\">cmax</mi>\n                    <mfenced close=\"]\" open=\"[\">\n                      <mi mathvariant=\"normal\">obs</mi>\n                    </mfenced>\n                  </mrow>\n                  <mo>′</mo>\n                </msubsup>\n              </mfrac>\n              <mrow></mrow>\n              <mo>∗</mo>\n              <mn>100</mn>\n            </mrow>\n          </math>"
               },
@@ -15134,6 +15266,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0001"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This was the result of an increase in electron transport with\n          temperature as well as an increased affinity of Rubisco for O"
@@ -15196,6 +15340,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0001"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ")."
@@ -15241,6 +15397,18 @@ expression: article
                   "value": {
                     "string": " values\n          (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0002"
                 },
                 {
                   "type": "Text",
@@ -15399,6 +15567,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0002"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and Figure S3)."
@@ -15408,6 +15588,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "ele13210-fig-0002",
               "label": "2",
               "caption": [
                 {
@@ -15615,6 +15796,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0003"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and Table S1; "
@@ -15670,6 +15863,18 @@ expression: article
                   "value": {
                     "string": " < 0.01). This was driven by an\n          overprediction in wet, tropical regions (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0002"
                 },
                 {
                   "type": "Text",
@@ -15794,6 +15999,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "ele13210-fig-0003",
               "label": "3",
               "caption": [
                 {
@@ -16033,6 +16239,18 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ],
+                      "target": "#ele13210-fig-0002"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "."
@@ -16103,6 +16321,18 @@ expression: article
                   "value": {
                     "string": ", leading to a\n          slight negative bias overall (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0003"
                 },
                 {
                   "type": "Text",
@@ -16190,6 +16420,18 @@ expression: article
                   "value": {
                     "string": " at elevations\n          above c. 1500 m (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0003"
                 },
                 {
                   "type": "Text",
@@ -16281,6 +16523,18 @@ expression: article
                   "value": {
                     "string": "\n          (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0003"
                 },
                 {
                   "type": "Text",
@@ -16481,6 +16735,18 @@ expression: article
                   "value": {
                     "string": "\n          sites (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0004"
                 },
                 {
                   "type": "Text",
@@ -16992,6 +17258,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and Table S3; "
@@ -17052,6 +17330,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "ele13210-fig-0004",
               "label": "4",
               "caption": [
                 {
@@ -17243,6 +17522,18 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ],
+                      "target": "#ele13210-fig-0002"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "."
@@ -17283,6 +17574,18 @@ expression: article
                   "value": {
                     "string": "For the 193 sites with soil data, we used a linear model to explore the relative\n          influence of soil nutrient and water supply on bias in our theory. Of six indices of soil\n          nutrient and water availability (soil cation exchange capacity (CEC), soil C:N ratio, soil\n          pH, soil silt content, soil clay content and α), only soil pH had a significant\n          influence (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "5"
+                      }
+                    }
+                  ],
+                  "target": "#ele13210-fig-0005"
                 },
                 {
                   "type": "Text",
@@ -17602,6 +17905,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "ele13210-fig-0005",
               "label": "5",
               "caption": [
                 {
@@ -17779,6 +18083,18 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ],
+                      "target": "#ele13210-fig-0002"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "."
@@ -17837,10 +18153,34 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "6"
+                  }
+                }
+              ],
+              "target": "#ele13210-fig-0006"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "), where temperatures and incoming solar radiation are highest. This\n        effect not only follows from the observations presented here (Fig. "
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ],
+              "target": "#ele13210-fig-0002"
             },
             {
               "type": "Text",
@@ -17977,6 +18317,7 @@ expression: article
         },
         {
           "type": "Figure",
+          "id": "ele13210-fig-0006",
           "label": "6",
           "caption": [
             {
@@ -18557,6 +18898,18 @@ expression: article
               "value": {
                 "string": " rates (Figure "
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ],
+              "target": "#ele13210-fig-0001"
             },
             {
               "type": "Text",
@@ -20145,6 +20498,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "ele13210-sup-0001",
           "caption": [],
           "target": "ELE-22-506-s001.docx"
         }

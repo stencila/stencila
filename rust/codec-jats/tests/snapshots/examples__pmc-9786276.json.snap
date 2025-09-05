@@ -4869,6 +4869,18 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ],
+              "target": "#inz212599-fig-0001"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). However, the incorrectly shaped reconstructions became a popular basis for further scientific inferences. For instance, the assumption of flattened head in "
@@ -5054,6 +5066,7 @@ expression: article
         },
         {
           "type": "Figure",
+          "id": "inz212599-fig-0001",
           "label": "1",
           "caption": [
             {
@@ -6628,6 +6641,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-tbl-0001"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Body lengths were measured with an accuracy of half a centimeter, and body masses with an accuracy of 1 g. Four specimens of "
@@ -6654,6 +6679,7 @@ expression: article
             },
             {
               "type": "Table",
+              "id": "inz212599-tbl-0001",
               "label": "1",
               "caption": [
                 {
@@ -7907,6 +7933,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0002"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Fishes were placed on the podium, sometimes several together, and were awaited to walk by their own will, but from time to time, it became necessary to gently stimulate them with a thin bamboo twig. Additional recordings were performed in close vicinity of the podium, easily accessible by fishes, on short grass and on compressed dry soil, sometimes even on sand or a cement road. Two mini‐DV digital video cameras by JVC (Victor Company of Japan, Ltd., Yokohama, Japan) were used—GR‐DVL9600 and GR‐DVL9800. Distance between the camera and target animal was approximately 1.5 m. Recording was performed in 2 ways: (1) close‐up with a handheld camera GR‐DVL9600 in a standard PAL format—50 fields per second at a frame size of 720 × 576 pixels with a frame exposure (shutter speed) of 1/500 s; (2) from fixed tripods in 2 projections simultaneously—from above with GR‐DVL9800 camera in standard PAL format with a frame exposure of 1/250 s and from the side with GR‐DVL9600 camera in a slow‐motion format of 100 fields per second at a frame size of 720 × 256 pixels with a frame exposure of 1/500 s."
@@ -7916,6 +7954,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "inz212599-fig-0002",
               "label": "2",
               "caption": [
                 {
@@ -8190,6 +8229,18 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3"
+                  }
+                }
+              ],
+              "target": "#inz212599-fig-0003"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). Regression equations indicate that the meter‐long fishes would have a mass about 10.9 kg in "
@@ -8337,6 +8388,7 @@ expression: article
         },
         {
           "type": "Figure",
+          "id": "inz212599-fig-0003",
           "label": "3",
           "caption": [
             {
@@ -8417,6 +8469,18 @@ expression: article
               "value": {
                 "string": "When filming terrestrial locomotion of the 4 genera of fishes, an observation of travel directionality was made as a side effect. Each fish was placed on a podium in a random place and it was impossible to guess in which direction it would start moving (though it was not convenient for video recording). Some started moving in the same direction the head was pointing at the moment of placement; some turned up to reverse direction. All filmed individuals probably have chosen an initial direction at random, but after they started moving, they continued in a more or less straight line. After short natural pauses, fishes resumed their movement in roughly the same direction. Circular movement occurred only in few cases (Supporting video "
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "S1"
+                  }
+                }
+              ],
+              "target": "#inz212599-supitem-0001"
             },
             {
               "type": "Text",
@@ -8619,16 +8683,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S1"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0001"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") and in trackways (Fig. "
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4a"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Between pits, left by pectoral spines on soft clay, a distinct wavy groove is left by tail dragging behind (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4b"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
                 },
                 {
                   "type": "Text",
@@ -8657,6 +8757,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "inz212599-fig-0004",
               "label": "4",
               "caption": [
                 {
@@ -8684,6 +8785,18 @@ expression: article
                       "value": {
                         "string": " on hard clay; body length 26.5 cm, mass 135 g; video record of this walk is represented in Supporting video "
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "S1"
+                          }
+                        }
+                      ],
+                      "target": "#inz212599-supitem-0001"
                     },
                     {
                       "type": "Text",
@@ -8743,6 +8856,18 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "S6"
+                          }
+                        }
+                      ],
+                      "target": "#inz212599-supitem-0006"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "; the anchoring points of the anal fin are poorly visible on the hard clay, but some arc‐like marks were left by the anal and caudal fins when the tail was swung from side to side. (e) "
@@ -8781,6 +8906,18 @@ expression: article
                       "value": {
                         "string": "; body length 45.5 cm, mass 900 g; reconstruction of contact points of the anal (blue arrowheads) and pectoral (red circles for the left one, magenta circles for the right one) fins based on the video record represented in Supporting video "
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "S7"
+                          }
+                        }
+                      ],
+                      "target": "#inz212599-supitem-0007"
                     },
                     {
                       "type": "Text",
@@ -8823,6 +8960,18 @@ expression: article
                   "value": {
                     "string": " lacking pectoral fins was purchased after deconstruction of the clay podium. Therefore, video recording of its locomotion was performed on a cement road (Supporting video "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S2"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0002"
                 },
                 {
                   "type": "Text",
@@ -9016,6 +9165,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S3"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0003"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Body weight, being concentrated on supporting areas of the abdominal surface, provides them with additional friction, which in turn allows for sufficient horizontal propulsion even on slippery surfaces. This highly coordinated type of movement is not available for all snakes and was completely unknown outside Serpentes suborder—neither for Amphisbaenia and legless lizards, nor for legless salamanders and especially not for eel‐shaped fishes (Gans "
@@ -9056,6 +9217,18 @@ expression: article
                   "value": {
                     "string": " has acquired sidewinding ability, though not in a rapid form (Supporting video "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S4"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0004"
                 },
                 {
                   "type": "Text",
@@ -9262,10 +9435,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S5"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0005"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Angle of inclination to the side is variable, but fishes usually prefer greater inclination, especially on a troublesome substrate, such as slippery clay. In this position, the fish inserts its opercular spines into soil and pulls the tail forward by laterally bending its body. Since the body lies more or less on the side, lateral bending of the body raises it above the ground in a high arc. Next, a relaxation stage ensues: with no apparent involvement of muscles, body, by elasticity, returns to a straight pose, traveling slightly forward by inertia of the previous movement. Several propulsions are performed with one operculum; then the fish flops to the other flank. Imprints left by either left or right opercular spines alternate every few steps, creating an asymmetric track, relative to the imprint left by the trunk, which is dragged along on one or the other side (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4c"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
                 },
                 {
                   "type": "Text",
@@ -9364,10 +9561,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S6"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0006"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). After that, the body straightens sharply and lepidotrichii become inserted into clay thus preventing the caudal part of the body from sliding backwards (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "5"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0005"
                 },
                 {
                   "type": "Text",
@@ -9376,10 +9597,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4d"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Imprints of propulsion are only visible on a soft clay—they are the pits made by the spiny anal fin at the left and right sides of the body pathway in strict alternation (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4e"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
                 },
                 {
                   "type": "Text",
@@ -9405,10 +9650,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4f"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; Supporting video "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S7"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0007"
                 },
                 {
                   "type": "Text",
@@ -9420,6 +9689,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "inz212599-fig-0005",
               "label": "5",
               "caption": [
                 {
@@ -9449,6 +9719,18 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "S6"
+                          }
+                        }
+                      ],
+                      "target": "#inz212599-supitem-0006"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). In all 4 images, the blue arrow has the same length and the same position on the substrate to indicate that the tips of the anal fin spiny lepidotrichii are fixed on the substrate making a fulcrum for body progression. Note that the body moves forward while the tail slips backward turning around the fulcrum. The anal lepidotrichii deflect backward a little from stage 1 through 4, which indicates that their muscles add some mechanical work to the great work of the muscles straightening the body. The deflection of the anal fin is accompanied with the same movement of the dorsal fin which is useless out of water. The anal fin makes propulsion from the left side; so the support is provided by the pectoral fin on the right side, which is invisible here. The left pectoral fin is visible but rests passively on the ground in this half of the locomotor cycle."
@@ -9474,16 +9756,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S6"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0006"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "–"
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S9"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0009"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). However, in a smaller individual (0.18 kg), both pectoral fins often acted together (Supporting video "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S10"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0010"
                 },
                 {
                   "type": "Text",
@@ -9529,6 +9847,18 @@ expression: article
                   "value": {
                     "string": "In snakeheads, respiratory movements were noticed before and after walking. Passive ventilation of suprabranchial organs during walking cannot be excluded, since both opercula were slightly open (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "5"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0005"
                 },
                 {
                   "type": "Text",
@@ -10118,6 +10448,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4a,b"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). By the presence of the continuous tail‐dragging mark, this pattern sharply differs from metalocomotor‐produced trackways exemplified by "
@@ -10139,6 +10481,18 @@ expression: article
                   "value": {
                     "string": " (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4e"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
                 },
                 {
                   "type": "Text",
@@ -10340,6 +10694,18 @@ expression: article
                   "value": {
                     "string": " (Supporting video "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S10"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0010"
                 },
                 {
                   "type": "Text",
@@ -10554,6 +10920,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0003"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), "
@@ -10575,6 +10953,18 @@ expression: article
                   "value": {
                     "string": " of such body length should have weighed about 290 g. A difference of 70 g equals almost a third of that amelic specimen's true weight and almost a quarter of expected normal weight. It is much more than the absent pectoral fins could have weighed. A more plausible explanation for the difference in mass lies in its general body constitution, more slender than normal (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "6"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0006"
                 },
                 {
                   "type": "Text",
@@ -10639,6 +11029,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "inz212599-fig-0006",
               "label": "6",
               "caption": [
                 {
@@ -11040,6 +11431,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S8"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0008"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " in Bressman "
@@ -11131,6 +11534,18 @@ expression: article
                   "value": {
                     "string": ", was recorded only for one specimen of medium size (Supplementary Video "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S2"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0002"
                 },
                 {
                   "type": "Text",
@@ -11328,6 +11743,18 @@ expression: article
                   "value": {
                     "string": " (Supplementary Video "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "S5"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-supitem-0005"
                 },
                 {
                   "type": "Text",
@@ -11568,6 +11995,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7a"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). It is the same as the position of pelvic fins: the fin lies flat in the frontal plane of the abdomen, one side looking down, another looking up. Accordingly, the former is called primary ventral, the latter primary dorsal. Ventral side muscles are called flexors; dorsal side muscles, extensors. Fin surfaces are sometimes called accordingly—flexor side and extensor side. Along with 2 surfaces, each fin has 2 ends and 2 edges. Proximal end is rooted in the body; distal is free. From one end to another, a theoretical longitudinal middle axis could be drawn. If the fin is retaining frontal orientation and its longitudinal axis is at a right angle to the body, one edge will be anterior, another posterior. Using the axis as a basis for fin's own coordinate system, the former is called preaxial, the latter postaxial. The more common position of the paired fins in fishes is not at a right angle to the body, but parallel to it, free end turned posteriorly. In that case, preaxial edge becomes lateral and postaxial—medial, pressed closely to the body, provided that the fin is still kept in the frontal plane with its ventral side facing ventrally."
@@ -11577,6 +12016,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "inz212599-fig-0007",
               "label": "7",
               "caption": [
                 {
@@ -11979,6 +12419,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7g"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). It lies along the body not in the frontal plane of the abdomen, but flat against the flank, in the same way as operculum. Thus, it is turned at a right angle to its initial plane—preaxial edge turned upwards, postaxial downwards, flexor side turned outward, and extensor side inward. Accordingly, flexor muscles are renamed by ichthyologists as abductors (abducting pectoral fin away from the body) and extensor muscles as adductors (adducting it back to the body) (Winterbottom "
@@ -12015,10 +12467,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7a"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), it would have already been oriented with its flexor surface ventrally, towards the ground, so it was enough to simply abduct it from the body and reposition fingers forward by curving the pectoral fin axis in the preaxial direction (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7m"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12046,6 +12522,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7g"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), when the pectoral fin is positioned in a vertical plane, flexor surface outward, simple abduction would lead to its touching the ground with the postaxial edge, as it does in "
@@ -12069,10 +12557,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7h"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Therefore, to reorient the flexor surface downwards, an additional 90° pronation in the forearm region would be needed (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7i,j"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12100,10 +12612,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7b"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "–"
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "f,l"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12127,6 +12663,18 @@ expression: article
                   "value": {
                     "string": " (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7l"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12169,6 +12717,18 @@ expression: article
                   "value": {
                     "string": " (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7c"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12283,6 +12843,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7b"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Such pronated positioning seems quite unusual when compared with other fishes. However, one must take into account that paired fins of sarcopterygian fishes are articulated to the girdles with only one basal element, which provides a wide rotational mobility of the fin around its longitudinal axis in shoulder or hip joint. Such mobility greatly reduces the severity of the fin positioning problem. Axial rotations of pectoral fins in shoulder joints could easily bring them from frontal position, like in "
@@ -12304,6 +12876,18 @@ expression: article
                   "value": {
                     "string": " (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7l"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12329,6 +12913,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7c"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") or 90° pronated position of "
@@ -12350,6 +12946,18 @@ expression: article
                   "value": {
                     "string": " (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7b"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12405,6 +13013,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7d"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), adult "
@@ -12428,6 +13048,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7e"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") (like in "
@@ -12449,6 +13081,18 @@ expression: article
                   "value": {
                     "string": "), or pronate it by 90° till it is turned preaxial edge down (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7f"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12491,10 +13135,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7b"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ","
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "d"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12567,16 +13235,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7g"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). If a fin in such a position is lowered onto the substrate, it meets it with the postaxial edge (Fig. "
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7h"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). For firm contact, one possible option of fin repositioning in this case is to pronate it by 90° without significant abduction from the flank (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7i"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12691,6 +13395,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7j"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). As a result, the pectoral fin still touches the ground with its flexor side, but in this case with distal end turned anteriorly. Positioning of the preaxial edge of the fin changes from dorsal, in the proximal part, to medial, at the end. This option is used for underwater walking by antennariid frogfishes (Edwards "
@@ -12733,6 +13449,18 @@ expression: article
                   "value": {
                     "string": ". The third option for repositioning the actinopterygian pectoral fin on the ground combines abduction from the body flank and turning of its end anteriorly not with 90° pronation (as in the former option), but with 90° supination (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7k"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -12828,10 +13556,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7i"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ","
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "k"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -13353,6 +14105,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0003"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Perfect isometry implies that cross‐sectional areas of all organs remain proportional to each other, including "
@@ -13455,6 +14219,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "8"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0008"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). А is a fish that is able to hold its belly above substrate out of water at the very limit of its force; it is the fish whose size estimation is the final task of this analysis. B is a bigger fish that is able to do the same only while partly submerged, not on dry land, but in shallows; this one is needed to highlight some additional aspects of water‐land transition. C is smaller than A, so force limitations allow it not only to lift its belly above the ground, but also to jump. Theoretical formula for jumping height of fish C, supplied with known height values of real jumps of small fishes, will finally allow us to quantify the size of fish A."
@@ -13464,6 +14240,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "inz212599-fig-0008",
               "label": "8",
               "caption": [
                 {
@@ -13617,6 +14394,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0001",
               "code": {
                 "string": "<math id=\"jats-math-1\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi>k</mi>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>m</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>g</mi>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>V</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -13635,6 +14413,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0002",
               "code": {
                 "string": "<math id=\"jats-math-2\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi>k</mi>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -13840,6 +14619,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0003",
               "code": {
                 "string": "<math id=\"jats-math-3\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi>k</mi>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mi mathvariant=\"normal\">\n                    Δ\n                  </mi>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -13872,10 +14652,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-disp-0002"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") into ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-disp-0003"
                 },
                 {
                   "type": "Text",
@@ -13887,6 +14691,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0004",
               "code": {
                 "string": "<math id=\"jats-math-4\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi mathvariant=\"normal\">\n                    Δ\n                  </mi>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -14457,6 +15262,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0005",
               "code": {
                 "string": "<math id=\"jats-math-5\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msubsup>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                    <mo>\n                      ′\n                    </mo>\n                  </msubsup>\n                  <mi>k</mi>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mo>/</mo>\n                  <mn>3</mn>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>m</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mi>g</mi>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>V</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -14489,10 +15295,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-disp-0002"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") into ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "5"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-disp-0005"
                 },
                 {
                   "type": "Text",
@@ -14504,6 +15334,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0006",
               "code": {
                 "string": "<math id=\"jats-math-6\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <msubsup>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                    <mo>\n                      ′\n                    </mo>\n                  </msubsup>\n                  <mo>/</mo>\n                  <mn>3</mn>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -14556,6 +15387,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0007",
               "code": {
                 "string": "<math id=\"jats-math-7\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mfenced separators=\"\" open=\"(\" close=\")\">\n                    <mn>3</mn>\n                    <msub>\n                      <mi>h</mi>\n                      <mi mathvariant=\"normal\">C</mi>\n                    </msub>\n                    <mo>/</mo>\n                    <msubsup>\n                      <mi>h</mi>\n                      <mi mathvariant=\"normal\">C</mi>\n                      <mo>\n                        ′\n                      </mo>\n                    </msubsup>\n                  </mfenced>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -14661,6 +15493,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0008",
               "code": {
                 "string": "<math id=\"jats-math-8\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mn>3</mn>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mo>/</mo>\n                  <msubsup>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                    <mo>\n                      ′\n                    </mo>\n                  </msubsup>\n                  <mo linebreak=\"goodbreak\">\n                    ≈\n                  </mo>\n                  <mn>1</mn>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -14676,6 +15509,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-disp-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") can be approximated by a simple relation:\n"
@@ -14685,6 +15530,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "inz212599-disp-0009",
               "code": {
                 "string": "<math id=\"jats-math-9\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">\n                    ≈\n                  </mo>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
@@ -14857,6 +15703,18 @@ expression: article
                   "value": {
                     "string": " = 20 cm. According to our theoretical formula ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "8"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-disp-0009"
                 },
                 {
                   "type": "Text",
@@ -15562,6 +16420,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4f"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Consequently, it moves forward in a prominently zigzagging line. Therefore, this type of progression is quite efficient and biologically justified for large fishes."
@@ -15823,6 +16693,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7i"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Similarly, as argued by Vorobyeva and Kuznetsov "
@@ -15863,6 +16745,18 @@ expression: article
                   "value": {
                     "string": " prevented abduction of the pectoral fin from the body (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7l"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -16178,6 +17072,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "5"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0005"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Apparently, this is necessary for the best positioning of the anal fin anchoring point relative to the pectoral fin of the convex flank, as that pectoral fin is going to become a fulcrum around which the body will rotate during the metalocomotor push. We have already mentioned that our earlier measurements of overlaps between rhomboid scale rows of "
@@ -16396,6 +17302,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7l"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Thus, tetrapodomorphs could carry out the metalocomotor anchoring point laterally not only by bending the body, but also by abducting the pelvic fin further away. Although the pelvic fin of "
@@ -16436,6 +17354,18 @@ expression: article
                   "value": {
                     "string": " and, hence, could serve as a reliable propulsor. For efficient anchoring to the substrate, the pelvic fin should be placed on the ground with its stiff preaxial edge, not with the wide flexor (plantar) surface. Therefore, the initial posture on land of the pelvic and pectoral fins of tetrapodomorphs could be quite different (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7l"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
                 },
                 {
                   "type": "Text",
@@ -16569,6 +17499,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7m"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Second, this edge is unusually reinforced. The first 3 digits, although they are individually weaker than the next 4, are tightly packed together forming a strong syndactyl unit, a kind of superhallux. In addition, preaxial to them, the tibia is overbuilt with an enigmatic “poorly ossified mass” (Coates & Clack "
@@ -16658,6 +17600,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "9"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0009"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This kind of diagonal coupling of walking limbs is a characteristic feature of trot. Therefore, the preceding consideration leads to the conclusion that the first terrestrial gait of tetrapodomorphs was a trot, not a walk with sequential placement of 4 limbs one by one, as was suggested for an abstract first tetrapod by Gray "
@@ -16721,6 +17675,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
+                    "string": "1"
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
                     "string": "."
                   }
                 }
@@ -16728,6 +17688,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "inz212599-fig-0009",
               "label": "9",
               "caption": [
                 {
@@ -16789,6 +17750,18 @@ expression: article
                       "value": {
                         "string": " in Fig. "
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "5"
+                          }
+                        }
+                      ],
+                      "target": "#inz212599-fig-0005"
                     },
                     {
                       "type": "Text",
@@ -17081,10 +18054,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4e"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). On a softer substrate, additional pits could be produced by the pectoral fins (circles on Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4f"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
                 },
                 {
                   "type": "Text",
@@ -17125,6 +18122,18 @@ expression: article
                   "value": {
                     "string": "’s trackway (Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4f"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0004"
                 },
                 {
                   "type": "Text",
@@ -17212,10 +18221,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "9"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0009"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). In fact, with some size adjustment, it could be also shown walking along the same trackway in the opposite direction. The true direction could be only found out by means of thorough analysis of depth profile of the pits. I would suggest that the posterior edge of the pelvic fin pits (pale blue on Fig. "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "9"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0009"
                 },
                 {
                   "type": "Text",
@@ -17779,9 +18812,27 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7m"
+                      }
+                    }
+                  ],
+                  "target": "#inz212599-fig-0007"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ")"
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
                   }
                 },
                 {
@@ -17920,6 +18971,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0001",
           "workType": "VideoObject",
           "caption": [
             {
@@ -17989,6 +19041,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0002",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18058,6 +19111,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0003",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18110,6 +19164,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0004",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18162,6 +19217,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0005",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18214,6 +19270,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0006",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18266,6 +19323,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0007",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18318,6 +19376,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0008",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18370,6 +19429,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0009",
           "workType": "VideoObject",
           "caption": [
             {
@@ -18422,6 +19482,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "inz212599-supitem-0010",
           "workType": "VideoObject",
           "caption": [
             {

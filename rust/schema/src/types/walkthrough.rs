@@ -21,6 +21,7 @@ pub struct Walkthrough {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Whether the walkthrough is collapsed

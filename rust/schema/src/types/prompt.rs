@@ -51,6 +51,7 @@ pub struct Prompt {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// A description of the item.

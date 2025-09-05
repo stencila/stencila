@@ -19,6 +19,7 @@ pub struct TupleValidator {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// An array of validators specifying the constraints on each successive item in the array.

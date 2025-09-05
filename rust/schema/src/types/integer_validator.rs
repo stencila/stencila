@@ -19,6 +19,7 @@ pub struct IntegerValidator {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The inclusive lower limit for a numeric node.

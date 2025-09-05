@@ -40,6 +40,7 @@ pub struct CodeExpression {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be executed.

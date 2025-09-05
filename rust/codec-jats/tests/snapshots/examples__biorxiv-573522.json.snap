@@ -4241,6 +4241,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 1"
+                      }
+                    }
+                  ],
+                  "target": "#tbl1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "."
@@ -4250,6 +4262,7 @@ expression: article
             },
             {
               "type": "Table",
+              "id": "tbl1",
               "label": "1",
               "caption": [
                 {
@@ -4277,6 +4290,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 2"
+                      }
+                    }
+                  ],
+                  "target": "#tbl2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "."
@@ -4286,6 +4311,7 @@ expression: article
             },
             {
               "type": "Table",
+              "id": "tbl2",
               "label": "2",
               "caption": [
                 {
@@ -4666,10 +4692,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). We performed whole cell recordings using the current clamp mode to study resting membrane parameters and firing properties ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1B"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -4678,16 +4728,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1C"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). At rest, NLOT neurons were quiescent and typically required a depolarization of a little over 10 mV to reach action potential threshold (11.1 ± 3.9 mV, median ± MAD, n=22). When supra-threshold currents were injected, NLOT neurons fired bursts of action potentials ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1B,D-F"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). These bursts had an average firing rate of over 30Hz and rode over a slower depolarization ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1G"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -4711,6 +4797,18 @@ expression: article
                   "value": {
                     "string": " channel blocker TTX ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3D-E"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
                 },
                 {
                   "type": "Text",
@@ -4768,6 +4866,18 @@ expression: article
                   "value": {
                     "string": " also reduced the burstiness of NLOT neurons as indicated by its effect on action potential threshold, the number of spikes evoked by just suprathreshold currents, the firing rate within a burst, and the duration of the burst ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1F-G"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -4849,6 +4959,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig1",
               "label": "1",
               "caption": [
                 {
@@ -5014,6 +5125,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig3",
               "label": "3",
               "caption": [
                 {
@@ -5136,6 +5248,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2A,B"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). We used this approach to either label NLOT neurons and their projections and identify putative output targets, or to express helper viruses for monosynaptic rabies-based tracing of input sources."
@@ -5145,6 +5269,7 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig2",
               "label": "2",
               "caption": [
                 {
@@ -5378,10 +5503,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2C"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). This was true in both the ipsilateral and the contralateral OBs, but stronger labeling was evident in the ipsilateral side. Retrograde labeling from a single OB labeled neurons in the NLOT of both hemispheres but many more cells were labeled in the ipsilateral side ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2D"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
                     },
                     {
                       "type": "Text",
@@ -5409,10 +5558,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2E"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). This pattern was bilateral and was verified by unilateral retrograde AAV injection into the OT that labeled the NLOT in both hemispheres ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2F"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
                     },
                     {
                       "type": "Text",
@@ -5421,10 +5594,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2G"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). Unilateral Injection of retrograde AAV into the pPC confirmed this cross-hemispheric connection by labeling NLOT cells only in the contralateral side ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2H"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
                     },
                     {
                       "type": "Text",
@@ -5433,10 +5630,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2I"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "), as was also confirmed by unilateral injection of retrograde AAV into the BLA ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 2J"
+                          }
+                        }
+                      ],
+                      "target": "#fig2"
                     },
                     {
                       "type": "Text",
@@ -5484,10 +5705,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3A"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). 5-7 days later, we fixed the brains and made histological sections. As expected, we found starter cells (expressing both GFP and mCherry) only in the NLOT ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3B"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
                     },
                     {
                       "type": "Text",
@@ -5518,10 +5763,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3C"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). Their soma was in the mitral cell layer, a single apical dendrite projected to the glomerular layer where it formed a tuft, and lateral dendrites transverse the external plexiform layer. All labeled cells were in the ipsilateral OB. TT is a brain region that has been little studied. It is divided into dorsal and ventral parts that differ in their connectivity and presumably also in their function. Most cells that were labeled by the rabies virus were in the dorsal TT ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3D"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
                     },
                     {
                       "type": "Text",
@@ -5530,10 +5799,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3E"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). Mostly layer-2 but also some layer-3 neurons were labeled. Labeled cells were only found in the ipsilateral PC. Additionally, we found labeled cells in two cholinergic centers – the nucleus of the diagonal band (NDB, "
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3E"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
                     },
                     {
                       "type": "Text",
@@ -5542,16 +5835,52 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3F"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). In both of these regions labeled cells were only found in the ipsilateral hemisphere. The BLA was the main brain region that provides bilateral input into the NLOT. We found labeled cells in both the ipsilateral and the contralateral BLA without any apparent spatial organization ("
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3G"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). Functionally, most of the labeled cells were within brain regions that are part of the olfactory system with the other two major sources being amygdalar nuclei (including the NLOT itself) and cholinergic centers ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 3H"
+                          }
+                        }
+                      ],
+                      "target": "#fig3"
                     },
                     {
                       "type": "Text",
@@ -5618,10 +5947,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4A"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": ", Tbet-ChR2 mice were obtained by crossing Tbet-Cre mice with ai32 mice). The lateral olfactory tract (LOT), containing the axons of OB mitral cells, was evident in these mice in the ventral most part of layer 1 ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4B-C"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
                     },
                     {
                       "type": "Text",
@@ -5630,10 +5983,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4C"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). Brief light pulses (0.1-1 ms) evoked synaptic currents that were blocked by CNQX and APV, indicating that these are glutamatergic synapses ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4D"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
                     },
                     {
                       "type": "Text",
@@ -5642,10 +6019,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4D-F"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). When evoked in the current clamp mode, OB inputs were never sufficient to evoke action potentials on their own. Only when combined with current injection that brought cells close to their firing threshold were OB inputs able to elicit spikes ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4G"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
                     },
                     {
                       "type": "Text",
@@ -5654,10 +6055,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4H"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). These were all-or-none in nature, as evident by the bimodal responses to repeated presentations of the same stimulus. Furthermore, these regenerative responses were more often elicited when the cell was depolarized. These features are suggestive of local dendritic spikes. Second, the OB input is facilitating as indicated by pairs of stimuli ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 4D"
+                          }
+                        }
+                      ],
+                      "target": "#fig4"
                     },
                     {
                       "type": "Text",
@@ -5669,6 +6094,7 @@ expression: article
                 },
                 {
                   "type": "Figure",
+                  "id": "fig4",
                   "label": "4",
                   "caption": [
                     {
@@ -5893,10 +6319,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 5A"
+                          }
+                        }
+                      ],
+                      "target": "#fig5"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). We found no differences between the inputs from the anterior and posterior PC and combined them for the following description. PC axons were visible in the dorsal part of layer 1 and surrounding layer 3 where they could make contact with proximal dendrites of NLOT axons ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 5B"
+                          }
+                        }
+                      ],
+                      "target": "#fig5"
                     },
                     {
                       "type": "Text",
@@ -5905,10 +6355,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 5C"
+                          }
+                        }
+                      ],
+                      "target": "#fig5"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). EPSC amplitudes ranged between a few hundred pA and 2 nA (713 ± 106 pA, mean ± SEM, n=24) and the reversal potential of PC inputs was typical for glutamatergic synapses (9 ± 7 mV, mean ± SEM, n=11, "
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 5D-E"
+                          }
+                        }
+                      ],
+                      "target": "#fig5"
                     },
                     {
                       "type": "Text",
@@ -5917,10 +6391,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 5F-G"
+                          }
+                        }
+                      ],
+                      "target": "#fig5"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). Importantly, PC inputs were sufficient to evoke action potential bursts similar to those seen with current injection ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 5H"
+                          }
+                        }
+                      ],
+                      "target": "#fig5"
                     },
                     {
                       "type": "Text",
@@ -5932,6 +6430,7 @@ expression: article
                 },
                 {
                   "type": "Figure",
+                  "id": "fig5",
                   "label": "5",
                   "caption": [
                     {
@@ -6122,10 +6621,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 6A"
+                          }
+                        }
+                      ],
+                      "target": "#fig6"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). The TT is a narrow brain region and our injections often also infected the medial part of the anterior olfactory nucleus (AON). Injections that completely missed the TT and infected lateral parts of the AON failed to evoke synaptic input in NLOT neurons. Additionally, the rabies experiment showed many more labeled cells in the TT compared to the AON. However, as we could not isolate expression in either the medial AON or the TT, we treat these two possible inputs combined. TT/AON axons were visible within layer 2, suggesting that they contact NLOT neurons proximal to the soma ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 6B"
+                          }
+                        }
+                      ],
+                      "target": "#fig6"
                     },
                     {
                       "type": "Text",
@@ -6134,16 +6657,52 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 6C"
+                          }
+                        }
+                      ],
+                      "target": "#fig6"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). These inputs were reversibly blocked by glutamatergic blockers, reversed at normal glutamatergic reversal potential (11 ± 4 mV, mean ± SEM, n=13), and showed paired-pulse depression ("
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 6D-G"
+                          }
+                        }
+                      ],
+                      "target": "#fig6"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). In the current clamp mode, light pulses readily evoked action potential bursts ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 6H"
+                          }
+                        }
+                      ],
+                      "target": "#fig6"
                     },
                     {
                       "type": "Text",
@@ -6155,6 +6714,7 @@ expression: article
                 },
                 {
                   "type": "Figure",
+                  "id": "fig6",
                   "label": "6",
                   "caption": [
                     {
@@ -6356,10 +6916,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 7A"
+                          }
+                        }
+                      ],
+                      "target": "#fig7"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). Similar to the AON/TT axons, BLA axons were visible within layer 2 of the NLOT, suggesting that they innervate NLOT neurons at their proximal dendrites ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 7B"
+                          }
+                        }
+                      ],
+                      "target": "#fig7"
                     },
                     {
                       "type": "Text",
@@ -6368,10 +6952,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 7C"
+                          }
+                        }
+                      ],
+                      "target": "#fig7"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). These were reversibly blocked by glutamatergic blockers (APV, CNQX), and reversed at -9 ± 12 mV (mean ± SEM, n=7, "
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 7D-E"
+                          }
+                        }
+                      ],
+                      "target": "#fig7"
                     },
                     {
                       "type": "Text",
@@ -6380,10 +6988,34 @@ expression: article
                       }
                     },
                     {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 7F-G"
+                          }
+                        }
+                      ],
+                      "target": "#fig7"
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). BLA input was sufficient to evoke action potential bursts in NLOT neurons, but these tended to be limited to early stimuli within stimulation trains ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Figure 7H"
+                          }
+                        }
+                      ],
+                      "target": "#fig7"
                     },
                     {
                       "type": "Text",
@@ -6395,6 +7027,7 @@ expression: article
                 },
                 {
                   "type": "Figure",
+                  "id": "fig7",
                   "label": "7",
                   "caption": [
                     {

@@ -18,6 +18,7 @@ pub struct Unknown {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// A unique identifier for a node within a document

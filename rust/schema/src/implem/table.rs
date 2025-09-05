@@ -8,11 +8,14 @@ impl Table {
     pub fn to_jats_special(&self) -> (String, Losses) {
         use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
-        let mut losses = lost_options!(self, id);
+        let mut losses = Losses::none();
 
         let mut attrs = Vec::new();
+        if let Some(value) = &self.id {
+            attrs.push(("id", value.to_string()));
+        }
         if let Some(value) = &self.label_automatically {
-            attrs.push(("label-automatically", value));
+            attrs.push(("label-automatically", value.to_string()));
         }
 
         let mut table_wrap = String::new();
