@@ -94,6 +94,10 @@ export abstract class MediaObject extends Entity {
 
   // @ts-expect-error TemplateResult return type differences
   override render(): TemplateResult {
+    if (this.parentNodeIs('Paragraph') || this.parentNodeIs('Heading')) {
+      return this.renderMediaElem()
+    }
+
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderErrorOrContent()
     }
@@ -102,14 +106,7 @@ export abstract class MediaObject extends Entity {
       return this.renderCardWithChatAction()
     }
 
-    return this.renderCard()
-  }
-
-  // @ts-expect-error TemplateResult return type differences
-  override renderCard(): TemplateResult {
-    return this.parentNodeIs('Paragraph') || this.parentNodeIs('Heading')
-      ? this.renderMediaElem()
-      : this.renderBlockOnDemand()
+    return this.renderBlockOnDemand()
   }
 
   protected renderBlockOnDemand() {
