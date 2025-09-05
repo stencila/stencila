@@ -31,6 +31,30 @@ impl Tool for Agg {
     }
 }
 
+pub struct Ffmpeg;
+
+impl Tool for Ffmpeg {
+    fn name(&self) -> &'static str {
+        "ffmpeg"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://ffmpeg.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "A complete, cross-platform solution to record, convert and stream audio and video"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Conversion
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Mise), Box::new(Devbox), Box::new(Apt)]
+    }
+}
+
 pub struct MarkerPdf;
 
 impl Tool for MarkerPdf {
