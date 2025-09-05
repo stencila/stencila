@@ -168,6 +168,12 @@ stencila-code-chunk:not([root]) {
 stencila-table,
 stencila-figure,
 stencila-code-chunk {
+  /* Remove browser's horizontal margin on <figure> element so that they can
+  occupy parent width 100% */
+  figure {
+    @apply m-0;
+  }
+
   caption {
     @apply text-left;
   }
@@ -215,12 +221,23 @@ stencila-video-object:not([root]):not(stencila-figure *, stencila-paragraph *, s
   @apply block my-12;
 }
 
-/* Style caption (note this will apply to images etc within figures and so it intentionally smaller
-than the figure caption text and centered below the image. */
 stencila-audio-object,
 stencila-image-object,
 stencila-video-object {
-  & [slot='caption'] {
+  /* Restrict media width to 100% of parent. Note that this applies to the media
+  element in the light DOM and web components may create their own media
+  elements in the shadow DOM where necessary (e.g. when url needs to be
+  re-written */
+  img,
+  audio,
+  video {
+    max-width: 100%;
+  }
+
+  /* Style caption (note this will apply to images etc within figures and so it
+  intentionally smaller than the figure caption text and centered below the
+  image. */
+  [slot='caption'] {
     @apply block text-center text-xs;
   }
 }
