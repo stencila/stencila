@@ -169,6 +169,7 @@ impl Visitor for Inspector<'_, '_> {
             RawBlock,
             Section,
             StyledBlock,
+            Supplement,
             Table,
             ThematicBreak,
             VideoObject,
@@ -852,6 +853,7 @@ default!(
     QuoteBlock,
     Reference,
     Section,
+    Supplement,
     ThematicBreak,
     // Inlines
     Annotation,
