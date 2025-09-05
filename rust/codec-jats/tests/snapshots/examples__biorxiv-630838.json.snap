@@ -12539,6 +12539,7 @@ expression: article
         },
         {
           "type": "Section",
+          "sectionType": "StatisticalAnalysis",
           "content": [
             {
               "type": "Heading",
@@ -12580,6 +12581,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "SupplementaryMaterials",
       "content": [
         {
           "type": "Heading",
@@ -12589,6 +12591,40 @@ expression: article
               "type": "Text",
               "value": {
                 "string": "Supporting information"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Supplement",
+          "label": "Modelling supplemental text",
+          "target": "supplements/630838_file02.docx"
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Acknowledgements",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 0,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Acknowledgements and funding"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "We thank the Waterman Lab especially William Shin, Dr. Ana Pasapera, the National Heart, Lung, and Blood Institute (NHLBI), the NHLBI light microscopy (Xufeng) and flow cytometry core facilities. We would also like to thank Dr. Tamas Balla, Dr. Senthil Arumugam, Dr. Valentine Jaumouille for their feedbacks and discussions on this work. This work was funded by the NHLBI Division of Intramural Research (DIR) (AJ and CMW), National Institute of General Medical Sciences under award number R01 GM141691 (JMH), the National Institute of Biomedical Imaging and Bioengineering of the National Institutes of Health under award number U01 EB018816 (JMH), NIH grant 5R01GM144362 and a Vallee Scholar award (JET)."
               }
             }
           ]

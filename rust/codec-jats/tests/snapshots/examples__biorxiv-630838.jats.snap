@@ -385,14 +385,18 @@ expression: jats
           <sup>-0.2<italic>x</italic>
           </sup>(μm/s) was taken optimum. Following retrograde flow velocities were considered: 0.01, 0.05, 0.1 (optimum), 0.15, 0.2 (μm/s).<italic>E<sub>1</sub>(x)</italic>which reflect the ‘strengths’ of protein mobility restriction was set to 0.1 (weak) while<italic>E<sub>2</sub>(x)</italic>which reflect the interaction with flowing F-actin was set constant to 0.5 (strong)</p>
       </sec>
-      <sec>
+      <sec sec-type="StatisticalAnalysis">
         <title level="2">Statistical analysis</title>
         <p>Statistical analysis was performed in Prism (GraphPad). Graphs represent mean values ± SD as indicated in the figure legends of atleast three independent experiments. Statistical significance was obtained using student t-test with Welch’s, Kolmogorov-Smirnov or Mann-Whitney correction as indicated in the figure legends.</p>
         <p>Significance is reported in the figure legends with P&gt;0.05 being n.s.</p>
       </sec>
     </sec>
-    <sec>
+    <sec sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
+    </sec>
+    <sec sec-type="Acknowledgements">
+      <title level="0">Acknowledgements and funding</title>
+      <p>We thank the Waterman Lab especially William Shin, Dr. Ana Pasapera, the National Heart, Lung, and Blood Institute (NHLBI), the NHLBI light microscopy (Xufeng) and flow cytometry core facilities. We would also like to thank Dr. Tamas Balla, Dr. Senthil Arumugam, Dr. Valentine Jaumouille for their feedbacks and discussions on this work. This work was funded by the NHLBI Division of Intramural Research (DIR) (AJ and CMW), National Institute of General Medical Sciences under award number R01 GM141691 (JMH), the National Institute of Biomedical Imaging and Bioengineering of the National Institutes of Health under award number U01 EB018816 (JMH), NIH grant 5R01GM144362 and a Vallee Scholar award (JET).</p>
     </sec>
   </body>
 </article>

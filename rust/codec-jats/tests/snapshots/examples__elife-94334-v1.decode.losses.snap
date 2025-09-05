@@ -2,7 +2,7 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ack: 1
+//article/back/ack/@id: 1
 //article/back/app-group: 1
 //article/back/ref-list/ref/@publication-type: 68
 //article/back/sec: 3
@@ -18,14 +18,14 @@ expression: info.losses
 //article/body/sec/sec/fig-group/fig/@specific-use: 9
 //article/body/sec/sec/fig-group/fig/graphic/@mime-subtype: 14
 //article/body/sec/sec/fig-group/fig/graphic/@mimetype: 14
-//article/body/sec/sec/fig-group/fig/p/supplementary-material: 60
-//article/body/sec/sec/fig-group/fig/p/supplementary-material/@id: 60
+//article/body/sec/sec/fig-group/fig/p/@id: 60
+//article/body/sec/sec/fig-group/fig/p/title/xref: 60
 //article/body/sec/sec/fig/@id: 4
 //article/body/sec/sec/fig/@position: 4
 //article/body/sec/sec/fig/graphic/@mime-subtype: 4
 //article/body/sec/sec/fig/graphic/@mimetype: 4
-//article/body/sec/sec/fig/p/supplementary-material: 10
-//article/body/sec/sec/fig/p/supplementary-material/@id: 10
+//article/body/sec/sec/fig/p/@id: 10
+//article/body/sec/sec/fig/p/title/xref: 10
 //article/body/sec/sec/fig/p/xref: 1
 //article/body/sec/sec/p/xref: 61
 //article/body/sec/sec/table-wrap/@id: 1

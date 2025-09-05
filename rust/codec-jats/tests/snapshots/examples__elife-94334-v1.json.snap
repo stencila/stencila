@@ -6998,6 +6998,110 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 1—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig1-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 1—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig1-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 1—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig1-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 1—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig1-data4-v1.zip"
                 }
               ],
               "content": [
@@ -7845,6 +7949,225 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "The 7 hr ± IAA samples were added to the last two wells."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data4-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 5.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data5-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 6.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data6-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 7.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data7-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—source data 8.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-data8-v1.zip"
                 }
               ],
               "content": [
@@ -8408,6 +8731,266 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data4-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 5.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data5-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 6.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data6-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 7.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data7-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 8.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data8-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 9.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data9-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 2—figure supplement 2—source data 10.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig2-figsupp2-data10-v1.zip"
                 }
               ],
               "content": [
@@ -9151,6 +9734,266 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data4-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 5.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data5-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 6.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data6-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 7.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data7-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 8.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data8-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 9.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data9-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—source data 10.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-data10-v1.zip"
                 }
               ],
               "content": [
@@ -9271,6 +10114,58 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—figure supplement 1—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-figsupp1-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 3—figure supplement 1—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig3-figsupp1-data2-v1.zip"
                 }
               ],
               "content": [
@@ -9911,6 +10806,162 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 4—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig4-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 4—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig4-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 4—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig4-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 4—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig4-data4-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 4—source data 5.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig4-data5-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 4—source data 6.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig4-data6-v1.zip"
                 }
               ],
               "content": [
@@ -10331,6 +11382,225 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "The 24 hr ± IAA samples were added to the last two wells."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data4-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 5.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data5-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 6.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data6-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 7.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data7-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—source data 8.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-data8-v1.zip"
                 }
               ],
               "content": [
@@ -10400,6 +11670,110 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—figure supplement 1—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-figsupp1-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—figure supplement 1—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-figsupp1-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—figure supplement 1—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-figsupp1-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 5—figure supplement 1—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig5-figsupp1-data4-v1.zip"
                 }
               ],
               "content": [
@@ -14231,6 +15605,110 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-data4-v1.zip"
                 }
               ],
               "content": [
@@ -14471,6 +15949,110 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—figure supplement 2—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-figsupp2-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—figure supplement 2—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-figsupp2-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—figure supplement 2—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-figsupp2-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—figure supplement 2—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-figsupp2-data4-v1.zip"
                 }
               ],
               "content": [
@@ -14591,6 +16173,58 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—figure supplement 3—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-figsupp3-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 6—figure supplement 3—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig6-figsupp3-data2-v1.zip"
                 }
               ],
               "content": [
@@ -14974,6 +16608,110 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-data4-v1.zip"
                 }
               ],
               "content": [
@@ -15281,6 +17019,110 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—figure supplement 1—source data 1.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-figsupp1-data1-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—figure supplement 1—source data 2.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-figsupp1-data2-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—figure supplement 1—source data 3.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original membranes corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-figsupp1-data3-v1.zip"
+                },
+                {
+                  "type": "Supplement",
+                  "workType": "Dataset",
+                  "label": "Figure 7—figure supplement 1—source data 4.",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 0,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Original files corresponding to "
+                          }
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "target": "elife-94334-fig7-figsupp1-data4-v1.zip"
                 }
               ],
               "content": [
@@ -16910,7 +18752,7 @@ expression: article
     },
     {
       "type": "Section",
-      "sectionType": "Methods",
+      "sectionType": "Materials",
       "content": [
         {
           "type": "Heading",
@@ -17720,6 +19562,35 @@ expression: article
                   }
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Acknowledgements",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 0,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Acknowledgements"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "We thank Helle Ulrich for the AID and TIR1 plasmid and Masato Kanemaki for the TIR1(F74G) plasmid. We also thank Nikita Alimov, Jessie Ang, and Astré Bouchier for their assistance."
+              }
             }
           ]
         }

@@ -2,7 +2,9 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ack: 1
+//article/back/ack/@id: 1
+//article/back/ack/p/@id: 1
+//article/back/ack/title/@id: 1
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/@citation-type: 88
 //article/back/ref-list/ref/@id: 176
@@ -51,7 +53,9 @@ expression: info.losses
 //article/body/sec/sec/sec/p/sup/xref/@rel-id: 5
 //article/body/sec/sec/sec/title/@id: 13
 //article/body/sec/sec/title/@id: 24
-//article/body/sec/supplementary-material: 1
+//article/body/sec/supplementary-material/@id: 1
+//article/body/sec/supplementary-material/@orientation: 1
+//article/body/sec/supplementary-material/@position: 1
 //article/body/sec/title/@id: 5
 //article/front/article-meta/abstract/@id: 1
 //article/front/article-meta/abstract/p/@id: 1

@@ -833,7 +833,7 @@ expression: jats
       <p>In addition to blocking the metaphase to anaphase transition, components of the SAC also block mitotic exit (reviewed by (<xref ref-type="bibr" rid="bib33">Matellán and Monje-Casas, 2020</xref>). We examined the role of Bub2/Bfa1 heterodimer, the most upstream components of the MEN pathway (<xref ref-type="bibr" rid="bib33">Matellán and Monje-Casas, 2020</xref>). Much like Mad1 and Mad2, we found that neither Bub2 nor Bfa1 was required for the establishment of cell cycle arrest in response to DNA damage; but our study revealed a surprising result: Bub2, but not its partner Bfa1, is essential to prolong cell cycle arrest, indicating that Bub2 has a Bfa1-independent role.</p>
       <p>By using conditional depletion of various proteins that contribute to cell cycle arrest, we show that the establishment, maintenance, and inactivation stages of DNA damage-provoked cell cycle arrest involve different sets of factors following DNA damage. After the DNA damage checkpoint is established, its maintenance proves to be divided into two distinct phases. Arrest up to about 15 hr requires the constant presence of most of the identified DDC proteins, including Ddc2, Rad9, Rad24, and Rad53, with Dun1 playing an important but nonessential role. Although Chk1 was not required either to establish or initially to maintain cell cycle arrest, its absence shortened arrest, most notably when Rad53 was depleted. Surprisingly, neither Ddc2, Rad9, nor Rad53 (and we suggest likely Rad24) are necessary for the prolongation of cell cycle arrest lasting longer than 15–24 hr. Instead, this prolonged arrest is enforced by SAC proteins Mad1, Mad2, and Bub2.</p>
     </sec>
-    <sec sec-type="Methods">
+    <sec sec-type="Materials">
       <title level="1">Materials and methods</title>
       <sec>
         <title level="2">Yeast strain and plasmid construction</title>
@@ -865,6 +865,10 @@ expression: jats
         <title level="2">Quantification and data analysis</title>
         <p>Graphs were prepared using GraphPad Prism 10 (Dotmatics). Statistical analysis for differences in the percentage of large budded (G<sub>2</sub>/M-arrested) cells at different timepoints listed in  was done using a one-way ANOVA in GraphPad Prism 10. Protein quantification of Ddc2-myc blots was done using ImageLab 6.1 (Bio-Rad). To categorize DAPI-stained cells based on their morphology and number of DAPI signals, images were captured as described above and viewed using ImageJ with the Fiji addon.</p>
       </sec>
+    </sec>
+    <sec sec-type="Acknowledgements">
+      <title level="0">Acknowledgements</title>
+      <p>We thank Helle Ulrich for the AID and TIR1 plasmid and Masato Kanemaki for the TIR1(F74G) plasmid. We also thank Nikita Alimov, Jessie Ang, and Astré Bouchier for their assistance.</p>
     </sec>
   </body>
 </article>

@@ -19,6 +19,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "NonTechnicalSummary",
       "content": [
         {
           "type": "Heading",
@@ -7086,6 +7087,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "SupplementaryMaterials",
       "content": [
         {
           "type": "Heading",
@@ -7098,6 +7100,12 @@ expression: article
               }
             }
           ]
+        },
+        {
+          "type": "Supplement",
+          "workType": "Table",
+          "label": "1",
+          "target": "supplements/573522_file02.xlsx"
         }
       ]
     }
