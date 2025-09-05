@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { InlineTypeList } from '@stencila/types'
+import { BlockTypeList, InlineTypeList } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html } from 'lit'
 import { state, property } from 'lit/decorators'
@@ -129,9 +129,10 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
     }
 
     protected renderMarker() {
-      const nodeDisplay = InlineTypeList.includes(this.type)
-        ? 'inline'
-        : 'block'
+      // Use membership of `BlockTypeList` because image, audio and video are in both
+      // block and inline lists but markers are only shown when they are blocks
+      const nodeDisplay = BlockTypeList.includes(this.type)
+        ? 'block' : 'inline'
 
       let offset = BASE_OFFSET
       if (nodeDisplay === 'block') {
