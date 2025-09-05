@@ -1,24 +1,24 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { Entity } from "./Entity.js";
+import { CreativeWork } from "./CreativeWork.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
  * A file on the file system.
  */
-export class File extends Entity {
+export class File extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "File";
 
   /**
    * The name of the file.
    */
-  name: string;
+  declare name: string;
 
   /**
    * The path (absolute or relative) of the file on the file system
    */
-  path: string;
+  declare path: string;
 
   /**
    * IANA media type (MIME type).

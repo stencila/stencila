@@ -16,6 +16,7 @@ export type CreativeWorkType =
   'Datatable' |
   'Drawing' |
   'Figure' |
+  'File' |
   'ImageObject' |
   'Legislation' |
   'Manuscript' |

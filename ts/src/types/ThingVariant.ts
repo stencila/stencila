@@ -12,6 +12,7 @@ import { type Datatable } from "./Datatable.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type Figure } from "./Figure.js";
+import { type File } from "./File.js";
 import { type Grant } from "./Grant.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type ListItem } from "./ListItem.js";
@@ -49,6 +50,7 @@ export type ThingVariant =
   DefinedTerm |
   Enumeration |
   Figure |
+  File |
   Grant |
   ImageObject |
   ListItem |

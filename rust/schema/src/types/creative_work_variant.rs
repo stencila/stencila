@@ -10,6 +10,7 @@ use super::collection::Collection;
 use super::comment::Comment;
 use super::datatable::Datatable;
 use super::figure::Figure;
+use super::file::File;
 use super::image_object::ImageObject;
 use super::media_object::MediaObject;
 use super::periodical::Periodical;
@@ -42,6 +43,8 @@ pub enum CreativeWorkVariant {
     Datatable(Datatable),
 
     Figure(Figure),
+
+    File(File),
 
     ImageObject(ImageObject),
 
