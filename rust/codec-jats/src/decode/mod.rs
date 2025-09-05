@@ -2,7 +2,7 @@ use roxmltree::{Document, ParsingOptions};
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses,
-    eyre::{Result, bail},
+    eyre::{OptionExt, Result},
     stencila_schema::{Article, Node},
 };
 
@@ -34,10 +34,17 @@ pub fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, Deco
             ..Default::default()
         },
     )?;
-    let root = if !dom.root_element().has_tag_name("article") {
-        bail!("XML document does not have an <article> root element")
-    } else {
+
+    // Find the <article> element
+    let root = if dom.root_element().has_tag_name("article") {
+        // <article> is the root node
         dom.root_element()
+    } else {
+        // Search for <article> in DOM (e.g. within a <pmc-articleset>)
+        dom.root()
+            .descendants()
+            .find(|elem| elem.tag_name().name() == "article")
+            .ok_or_eyre("XML document does not have an <article> element")?
     };
 
     let path = "//article";
