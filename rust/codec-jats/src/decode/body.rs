@@ -5,17 +5,19 @@ use roxmltree::Node;
 
 use stencila_codec::{
     Losses,
+    stencila_format::Format,
     stencila_schema::{
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
-        Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
-        Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions, MediaObject,
-        MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType, StyledInline, Table,
-        TableCell, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
-        VideoObjectOptions,
+        CreativeWorkType, Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject,
+        ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
+        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType,
+        StyledInline, Supplement, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        Time, Timestamp, VideoObject, VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
 };
+use stencila_codec_text_trait::to_text;
 
 use crate::encode::serialize_node;
 
@@ -78,8 +80,14 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
                 blocks.append(&mut decode_p(&child_path, &child, losses));
                 continue;
             }
-            "sec" => decode_sec(&child_path, &child, losses, depth + 1),
+            "sec" => {
+                blocks.append(&mut decode_sec(&child_path, &child, losses, depth + 1));
+                continue;
+            }
             "statement" => decode_statement(&child_path, &child, losses, depth),
+            "supplementary-material" => {
+                decode_supplementary_material(&child_path, &child, losses, depth)
+            }
             "title" => decode_title(&child_path, &child, losses, depth),
             "table-wrap" => decode_table_wrap(&child_path, &child, losses, depth),
             _ => {
@@ -136,8 +144,8 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
 
 /// Decode a <p> element to a vector of blocks
 ///
-/// In addition to [`Paragraph`]nodes, this function may return [`MathBlock`] nodes,
-/// which in JATS can be within a <p> element.
+/// In addition to [`Paragraph`] nodes, this function may return [`MathBlock`]
+/// or [`Supplement`] nodes, which in JATS can be within a <p> element.
 fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
@@ -161,13 +169,17 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     let mut children = Vec::new();
     for child in node.children() {
         let child_tag = child.tag_name().name();
-        if child_tag == "disp-formula" {
+        if matches!(child_tag, "disp-formula" | "supplementary-material") {
             if let Some(para) = para(path, children, losses) {
                 blocks.push(para);
             }
             children = Vec::new();
 
-            let math_block = decode_disp_formula(path, &child, losses, 0);
+            let math_block = match child_tag {
+                "disp-formula" => decode_disp_formula(path, &child, losses, 0),
+                "supplementary-material" => decode_supplementary_material(path, &child, losses, 0),
+                _ => unreachable!(),
+            };
             blocks.push(math_block);
         } else {
             children.push(child);
@@ -189,40 +201,38 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 }
 
 /// Decode a `<sec>` to a [`Block::Section`]
-fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    fn parse_section_type(section_type: &str) -> Option<SectionType> {
-        section_type
-            .parse()
-            .ok()
-            .or_else(|| match section_type.to_lowercase().as_str() {
-                "intro" => Some(SectionType::Introduction),
-                section_type => {
-                    if section_type.contains("methods") {
-                        Some(SectionType::Methods)
-                    } else {
-                        None
-                    }
-                }
-            })
-    }
-
+///
+/// Some JATS has `<sec>` elements that are merely wrappers with an `id` but
+/// no `sec-type` or `<title>` child. These are ignored to avoid unnecessary
+/// sections and their content returned instead.
+fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
     let section_type = node
         .attribute("sec-type")
-        .and_then(parse_section_type)
+        .and_then(|value| SectionType::from_text(value).ok())
         .or_else(|| {
             node.children()
                 .find(|child| child.tag_name().name() == "title")
                 .and_then(|node| node.text())
-                .and_then(parse_section_type)
+                .and_then(|value| SectionType::from_text(value).ok())
         });
 
     record_attrs_lost(path, node, ["sec-type"], losses);
 
-    Block::Section(Section {
-        section_type,
-        content: decode_blocks(path, node.children(), losses, depth),
-        ..Default::default()
-    })
+    let content = decode_blocks(path, node.children(), losses, depth);
+
+    if section_type.is_none()
+        && !content
+            .iter()
+            .any(|block| matches!(block, Block::Heading(..)))
+    {
+        content
+    } else {
+        vec![Block::Section(Section {
+            section_type,
+            content,
+            ..Default::default()
+        })]
+    }
 }
 
 /// Decode a `<title>` to a [`Block::Heading`]
@@ -273,6 +283,136 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
     })
 }
 
+/// Decode a `<supplementary-material>` element to a Stencila [`Block::Supplement`]
+///
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/supplementary-material.html
+fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let mut work_type = None;
+
+    let target = node
+        .children()
+        .find(|child| child.tag_name().name() == "media")
+        .and_then(|node| node.attribute((XLINK, "href")))
+        .map(String::from);
+
+    let format = target
+        .as_ref()
+        .map(|target| Format::from_name(target))
+        .unwrap_or_default();
+
+    let target_is_archive = target
+        .as_ref()
+        .map(|target| target.ends_with(".zip") || target.ends_with(".gz"))
+        .unwrap_or_default();
+
+    let target_is_datatable = matches!(
+        format,
+        Format::Csv | Format::Tsv | Format::Xlsx | Format::Xls
+    );
+
+    // Get any label, clean it and try to infer the work type
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(|label| {
+            let rest = label
+                .trim()
+                .trim_start_matches("Supplement")
+                .trim_start_matches("supplement")
+                .trim_start_matches("ary")
+                .trim_start_matches("al")
+                .trim_start_matches("Supporting")
+                .trim_start_matches("supporting")
+                .trim();
+
+            let rest_lower = rest.to_lowercase();
+
+            if rest_lower.contains("source data") || target_is_archive {
+                // Handle labels such as "Figure 2—figure supplement 2—source data 2." (real example)
+                // as data not figures: treat as dataset and do not "clean" label
+                work_type = Some(CreativeWorkType::Dataset);
+
+                rest.to_string()
+            } else if rest_lower.starts_with("table") {
+                work_type = Some(if target_is_datatable {
+                    CreativeWorkType::Datatable
+                } else {
+                    CreativeWorkType::Table
+                });
+
+                clean_table_label(rest)
+            } else if rest_lower.starts_with("fig") {
+                work_type = Some(CreativeWorkType::Figure);
+
+                clean_figure_label(rest)
+            } else {
+                if rest_lower.starts_with("audio") {
+                    work_type = Some(CreativeWorkType::AudioObject);
+                } else if rest_lower.starts_with("image") {
+                    work_type = Some(CreativeWorkType::ImageObject);
+                } else if rest_lower.starts_with("video") {
+                    work_type = Some(CreativeWorkType::VideoObject);
+                }
+
+                rest.to_string()
+            }
+        });
+
+    let caption = node
+        .descendants() // Use descendants because sometimes the caption is nested in <media>
+        .find(|child| child.tag_name().name() == "caption")
+        .map(|node| decode_blocks(path, node.children(), losses, depth));
+
+    // If work type is still none, attempt to infer from the caption (often
+    // there will be no label, only a caption)
+    if work_type.is_none()
+        && let Some(caption) = &caption
+    {
+        let caption_lower = to_text(caption).trim().to_lowercase();
+
+        let rest_lower = caption_lower
+            .trim_start_matches("supplement")
+            .trim_start_matches("ary")
+            .trim_start_matches("al")
+            .trim_start_matches("supporting")
+            .trim();
+
+        if rest_lower.starts_with("figure") {
+            work_type = Some(CreativeWorkType::Figure);
+        } else if rest_lower.starts_with("table") {
+            work_type = Some(CreativeWorkType::Table);
+        } else if rest_lower.starts_with("audio") {
+            work_type = Some(CreativeWorkType::AudioObject);
+        } else if rest_lower.starts_with("image") {
+            work_type = Some(CreativeWorkType::ImageObject);
+        } else if rest_lower.starts_with("video") {
+            work_type = Some(CreativeWorkType::VideoObject);
+        }
+    }
+
+    // If work type is still none, attempt to infer from the format of the target
+    if work_type.is_none() {
+        if format.is_audio() {
+            work_type = Some(CreativeWorkType::AudioObject);
+        } else if format.is_image() {
+            work_type = Some(CreativeWorkType::ImageObject);
+        } else if format.is_video() {
+            work_type = Some(CreativeWorkType::VideoObject);
+        }
+    }
+
+    record_attrs_lost(path, node, [], losses);
+
+    Block::Supplement(Supplement {
+        work_type,
+        label,
+        caption,
+        target,
+        ..Default::default()
+    })
+}
+
 /// Decode a `<fig-group>` element to a vector of Stencila [`Block::Figure`]s
 fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
@@ -294,12 +434,7 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
-        .map(|label| {
-            label
-                .trim_start_matches("Figure ")
-                .trim_end_matches(['.', ':', ' '])
-        })
-        .map(String::from);
+        .map(clean_figure_label);
 
     let caption = node
         .children()
@@ -522,12 +657,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
-        .map(|label| {
-            label
-                .trim_start_matches("Table ")
-                .trim_end_matches(['.', ':', ' '])
-        })
-        .map(String::from);
+        .map(clean_table_label);
 
     let caption = node
         .children()
@@ -1054,4 +1184,28 @@ fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         }),
         ..Default::default()
     })
+}
+
+/// Clean a figure label by removing unnecessary leading and trailing content
+fn clean_figure_label(label: &str) -> String {
+    label
+        .trim_start_matches("Figure")
+        .trim_start_matches("figure")
+        .trim_start_matches("Fig")
+        .trim_start_matches("fig")
+        .trim_start_matches(['.', ':', ' '])
+        .trim_end_matches(['.', ':', ' '])
+        .to_string()
+}
+
+/// Clean a table label by removing unnecessary leading and trailing content
+fn clean_table_label(label: &str) -> String {
+    label
+        .trim_start_matches("Table")
+        .trim_start_matches("table")
+        .trim_start_matches("Tab")
+        .trim_start_matches("tab")
+        .trim_start_matches(['.', ':', ' '])
+        .trim_end_matches(['.', ':', ' '])
+        .to_string()
 }
