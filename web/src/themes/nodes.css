@@ -159,23 +159,22 @@ stencila-datatable {
   }
 }
 
+/* Give vertical margin to tables, figures and code chunks */
 stencila-table:not([root]),
 stencila-figure:not([root]),
-stencila-code-chunk:not([root]) {
+stencila-code-chunk:not([root]),
+stencila-supplement:not([root]) {
   @apply block my-12;
 }
 
 stencila-table,
 stencila-figure,
-stencila-code-chunk {
+stencila-code-chunk,
+stencila-supplement {
   /* Remove browser's horizontal margin on <figure> element so that they can
   occupy parent width 100% */
   figure {
     @apply m-0;
-  }
-
-  caption {
-    @apply text-left;
   }
 
   [slot='caption'] {
@@ -183,12 +182,12 @@ stencila-code-chunk {
 
     stencila-paragraph {
       p {
-        @apply mt-4;
-        @apply text-sm text-black text-left;
+        @apply mt-4 text-sm text-black text-left;
       }
 
       .table-label,
-      .figure-label {
+      .figure-label,
+      .supplement-label {
         @apply font-bold after:content-[":"];
       }
     }
@@ -213,25 +212,29 @@ stencila-code-chunk {
 
 /* Media objects */
 
-/* For block media objects (i.e. not inline within a paragraph or heading) that are not within
-a figure, give vertical margin */
-stencila-audio-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *),
-stencila-image-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *),
-stencila-video-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *) {
-  @apply block my-12;
+/* Give vertical margin to media objects that are not in figures (they have
+their own margin) or are inline withing paragraphs or headings */
+stencila-audio-object:not([root]),
+stencila-image-object:not([root]),
+stencila-video-object:not([root]) {
+  &:not(stencila-figure *, stencila-supplement *, stencila-paragraph *, stencila-heading *) {
+    @apply block my-12;
+  }
 }
 
 stencila-audio-object,
 stencila-image-object,
 stencila-video-object {
-  /* Restrict media width to 100% of parent. Note that this applies to the media
-  element in the light DOM and web components may create their own media
-  elements in the shadow DOM where necessary (e.g. when url needs to be
-  re-written */
+  /* Restrict width of block media (not in paragraph or heading) to 100% of
+  parent. Note that this applies to the media element in the light DOM and web
+  components may create their own media elements in the shadow DOM where
+  necessary (e.g. when url needs to be re-written */
   img,
   audio,
   video {
-    max-width: 100%;
+    &:not(stencila-paragraph *, stencila-heading *) {
+      @apply block max-w-full mx-auto;
+    }
   }
 
   /* Style caption (note this will apply to images etc within figures and so it
