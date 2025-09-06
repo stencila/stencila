@@ -244,11 +244,11 @@ expression: jats
         <sec>
           <title level="3">Cell migration analysis</title>
           <p>Migration analysis of the cells under confinement was performed on time-lapse phase contrast image series (acquired every 1min for 60 min) in Fiji using “Manual Tracking plug-in” (MTrackJ; (<xref ref-type="bibr" rid="c83">83</xref>) where each step was manually tracked following the center of the cell body. The tracking coordinates were then exported to the Microsoft Excel plug-in Diper (<xref ref-type="bibr" rid="c84">84</xref>) and mean squared displacement over time and speed were computed according to:&#10;</p>
-          <disp-formula code="">
+          <disp-formula code="" id="eqn7">
           </disp-formula>
           <p>&#10;by utilizing overlapping time intervals. MSD is computed for a given cell for step size<italic>n</italic>with N being the total number of displacements per trajectory and<italic>Δt</italic>is the minimum time interval between the adjacent points in the trajectory.</p>
           <p>The MSD from each track was utilized and the data was fitted to Furth’s formula according to persistent random walk (PRW) model of migration and is described in equation 8 to obtain persistence time P and diffusion coefficient D.&#10;</p>
-          <disp-formula code="">
+          <disp-formula code="" id="eqn8">
           </disp-formula>
           <p>&#10;Fittings were performed in Origin (Pro) using the non-linear curve function with orthogonal distance regression. Persistence and diffusion coefficient values were then plotted using GraphPad Prism.</p>
         </sec>
@@ -288,10 +288,10 @@ expression: jats
           <title level="3">Spot FRAP and analysis</title>
           <p>For spot fluorescence recovery after photobleaching (FRAP) experiments, the intensity recovery over time was extracted from small area of ∼1 micron diameter where photobleaching was performed. Intensity data was extracted from this region pre- and post-bleaching. Two other similar sized ROIs were used to extract intensities from the background of the image and another region in the cell used for bleaching control. The extracted intensities from each ROI was then uploaded in EasyFRAP-web FRAP analysis tool (<xref ref-type="bibr" rid="c85">85</xref>). Intensity values were normalized and fit with a single term exponential equation. The web tool computes t<sub>1/2</sub>(half-time of maximal recovery) for each of the of the recovery profiles and plotted for different conditions.</p>
           <p>EGFR diffusion coefficient was computed by averaging the normalized recovery intensity and the average was fitted with one phase association, least squares fit to compute t<sub>1/2</sub>&#10;</p>
-          <disp-formula code="">
+          <disp-formula code="" id="eqn10">
           </disp-formula>
           <p>&#10;t<sub>1/2</sub>was used to calculate the diffusion coefficient of EGFR-GFP on the membrane using Soumpasis equation (<xref ref-type="bibr" rid="c86">86</xref>;<xref ref-type="bibr" rid="c87">87</xref>) and K was the rate constant.&#10;</p>
-          <disp-formula code="">
+          <disp-formula code="" id="eqn11">
           </disp-formula>
           <p>&#10;Where D is the diffusion coefficient, r is the radius of the circular FRAP area and t<sub>1/2</sub>half maximal recovery time.</p>
         </sec>
@@ -299,7 +299,7 @@ expression: jats
       <sec>
         <title level="2">Rectangular FRAP and flow analysis</title>
         <p>A rectangular area spanning the width of the leader bleb was bleached in the rear quadrant of the bleb and intensity recovery was analyzed by drawing a line perpendicular to the long axis of the rectangle in Fiji. The intensity linescans were measured over time and each was fitted with an inverse non-linear gaussian curve fit using a Gaussian amplitude (GaussAMp) function in Origin Lab to find the minima of the fitted inverse gaussian, where the function is given by&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="eqn12">
         </disp-formula>
         <p>&#10;xC= center of the peak, y<sub>0</sub>= offset, w=width, A=amplitude of the gaussian, the position of the center of the minima of the gaussian was tracked in the images taken in the first few seconds of intensity recovery and then averaged across several blebs.</p>
       </sec>

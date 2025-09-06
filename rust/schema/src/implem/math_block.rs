@@ -33,18 +33,15 @@ impl MathBlock {
             .unwrap_or_default();
 
         let mut attrs = vec![("code", self.code.as_str())];
+        if let Some(id) = &self.id {
+            attrs.push(("id", id.as_str()));
+        }
         if let Some(lang) = &self.math_language {
             attrs.push(("language", lang.as_str()));
         }
 
         let jats = elem("disp-formula", attrs, [label, mathml].concat());
-
-        let mut losses = lost_options!(self, id);
-        losses.merge(lost_options!(
-            self.options,
-            compilation_digest,
-            compilation_messages
-        ));
+        let losses = lost_options!(self.options, compilation_digest, compilation_messages);
 
         (jats, losses)
     }
