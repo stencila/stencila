@@ -65,6 +65,21 @@ impl DomCodec for MathBlock {
             context.push_attr("math-language", math_language);
         }
 
+        if let Some(label) = &self.label {
+            context.push_attr("label", label);
+        }
+
+        if let Some(label_automatically) = &self.label_automatically {
+            context.push_attr("label-automatically", &label_automatically.to_string());
+        }
+
+        if let Some(id) = &self.id {
+            context
+                .enter_slot("div", "id")
+                .push_attr("id", id)
+                .exit_slot();
+        }
+
         if let Some(messages) = &self.options.compilation_messages {
             context.push_slot_fn("div", "compilation-messages", |context| {
                 messages.to_dom(context)
