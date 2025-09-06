@@ -2,6 +2,61 @@ use stencila_codec_info::lost_options;
 
 use crate::{Supplement, prelude::*};
 
+use super::utils::caption_to_dom;
+
+impl DomCodec for Supplement {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        if let Some(work_type) = &self.work_type {
+            context.push_attr("work-type", &work_type.to_string());
+        }
+
+        if let Some(label) = &self.label {
+            context.push_attr("label", label);
+        }
+
+        if let Some(label_automatically) = &self.label_automatically {
+            context.push_attr("label-automatically", &label_automatically.to_string());
+        }
+
+        if let Some(target) = &self.target {
+            context.push_attr("target", target);
+        }
+
+        if let Some(id) = &self.id {
+            context
+                .enter_slot("div", "id")
+                .push_attr("id", id)
+                .exit_slot();
+        }
+
+        if let Some(messages) = &self.options.compilation_messages {
+            context.push_slot_fn("div", "compilation-messages", |context| {
+                messages.to_dom(context)
+            });
+        }
+
+        if self.label.is_some() || self.caption.is_some() {
+            context.push_slot_fn("div", "caption", |context| {
+                caption_to_dom(
+                    context,
+                    "supplement-label",
+                    "Supplement",
+                    &self.label,
+                    &self.caption,
+                )
+            });
+        }
+
+        if let Some(work) = &self.options.work {
+            context.push_slot_fn("div", "work", |context| work.to_dom(context));
+        }
+
+        context.exit_node();
+    }
+}
+
 impl MarkdownCodec for Supplement {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

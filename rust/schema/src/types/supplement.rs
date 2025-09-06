@@ -12,7 +12,7 @@ use super::string::String;
 /// A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("Supplement")]
@@ -45,7 +45,6 @@ pub struct Supplement {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[dom(elem = "div")]
     #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
@@ -67,20 +66,18 @@ pub struct Supplement {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct SupplementOptions {
     /// Any messages generated while embedding the supplement.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(compilation)]
-    #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `CreativeWork` that constitutes the supplement.
     #[strip(content)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[dom(elem = "div")]
     pub work: Option<CreativeWorkVariant>,
 }
 
