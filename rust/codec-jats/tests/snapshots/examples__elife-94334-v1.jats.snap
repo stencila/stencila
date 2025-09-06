@@ -28,6 +28,30 @@ expression: jats
           <caption>
             <title level="2">Measuring checkpoint arrest in 1-DSB and 2-DSB strains.</title>
             <p>(<bold>A</bold>) Morphological categories of budding yeast cells using brightfield microscopy and DAPI staining were used to determine G<sub>2</sub>/M arrest. Cells that arrest at G2/M shift toward a large bud state. G<sub>2</sub>/M-arrested cells that progress into anaphase. (<bold>B</bold>) Adaptation assay with 1-DSB strain on a YEP-Gal plate. G<sub>2</sub>/M arrest was determined based on cell morphology as shown in (<bold>A</bold>). Data are shown from three independent experiments, error bars represent standard error of the mean (SEM). (<bold>C</bold>) Profile of DAPI-stained cells in a 1-DSB strain after DNA damage induction in liquid culture. Cells were grouped based on cell morphology and DAPI staining profiles, as explained below the graphs. (<bold>D</bold>) Rad53 phosphorylation kinetics in 1-DSB strain by western blotting. Samples collected after the induction of DNA damage during the time-course experiment and blotted with α-Rad53 to monitor DDC signaling. α-Rad53 can both detect unphosphorylated and hyperphosphorylated Rad53 species. TIR1-Myc was detected with α-Myc and serves as a loading control. (<bold>E</bold>) Same as (<bold>B</bold>) for a 2-DSB strain. (<bold>F</bold>) Same as (<bold>C</bold>) with a 2-DSB strain. (<bold>G</bold>) Same as (<bold>D</bold>) with a 2-DSB strain.</p>
+            <supplementary-material id="fig1sdata1" href="elife-94334-fig1-data1-v1.zip">
+              <label>Figure 1—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig1">Figure 1C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig1sdata2" href="elife-94334-fig1-data2-v1.zip">
+              <label>Figure 1—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig1">Figure 1C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig1sdata3" href="elife-94334-fig1-data3-v1.zip">
+              <label>Figure 1—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig1">Figure 1F</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig1sdata4" href="elife-94334-fig1-data4-v1.zip">
+              <label>Figure 1—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig1">Figure 1F</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig1-v1.tif">
           </inline-graphic>
@@ -44,6 +68,55 @@ expression: jats
           <caption>
             <title level="2">Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity.</title>
             <p>(<bold>A</bold>) Above: percentage of G<sub>2</sub>/M-arrested cells in a 2-DSB<italic>DDC2-AID</italic>strain after DNA damage induction in a liquid culture. Cultures were split 4 hr after galactose treatment to induce DNA damage by GAL::HO and treated either with auxin (+IAA) (1 mM) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing standard error of the mean (SEM). The asterisk marks the timepoint when the percentage of large-budded G<sub>2</sub>/M cells returned to pre-damage levels. Below: western blots ran with samples collected at various timepoints during the same time course, probed with α-Rad53, to determine DDC status, and α-Myc, to determine Ddc2-AID-Myc protein abundance and TIR1-Myc as a loading control. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD9-AID</italic>. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD24-AID</italic>. (<bold>D</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
+            <supplementary-material id="fig2sdata1" href="elife-94334-fig2-data1-v1.zip">
+              <label>Figure 2—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2">Figure 2A</ext-link>.</title>
+                <p>The 7 hr ± IAA samples were added to the last two wells.</p>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2sdata2" href="elife-94334-fig2-data2-v1.zip">
+              <label>Figure 2—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2">Figure 2A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2sdata3" href="elife-94334-fig2-data3-v1.zip">
+              <label>Figure 2—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2">Figure 2B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2sdata4" href="elife-94334-fig2-data4-v1.zip">
+              <label>Figure 2—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2">Figure 2B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2sdata5" href="elife-94334-fig2-data5-v1.zip">
+              <label>Figure 2—source data 5.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2">Figure 2C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2sdata6" href="elife-94334-fig2-data6-v1.zip">
+              <label>Figure 2—source data 6.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2">Figure 2C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2sdata7" href="elife-94334-fig2-data7-v1.zip">
+              <label>Figure 2—source data 7.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2">Figure 2D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2sdata8" href="elife-94334-fig2-data8-v1.zip">
+              <label>Figure 2—source data 8.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2">Figure 2D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig2-v1.tif">
           </inline-graphic>
@@ -62,6 +135,66 @@ expression: jats
           <caption>
             <title level="2">AID-tagged checkpoint proteins readily degrade with auxin.</title>
             <p>(<bold>A</bold>) Morphological profile of a 2-DSB background where 1 mM auxin (IAA) was added 2 hr before DSB induction with galactose. Western blot of a 2-DSB strain probed with α-Rad53. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. (<bold>B</bold>) Morphological profile of<italic>DDC2-AID</italic>in a 2-DSB background where IAA was added 2 hr before galactose. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>C</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD9-AID</italic>. α-Myc probe shows Rad9-AID degradation with IAA. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD24-AID</italic>. α-Myc probe shows Rad24-AID degradation with IAA. (<bold>E</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD53-AID</italic>. α-Myc probe shows Rad53-AID degradation with IAA.</p>
+            <supplementary-material id="fig2s2sdata1" href="elife-94334-fig2-figsupp2-data1-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata2" href="elife-94334-fig2-figsupp2-data2-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata3" href="elife-94334-fig2-figsupp2-data3-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata4" href="elife-94334-fig2-figsupp2-data4-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata5" href="elife-94334-fig2-figsupp2-data5-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 5.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata6" href="elife-94334-fig2-figsupp2-data6-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 6.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata7" href="elife-94334-fig2-figsupp2-data7-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 7.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata8" href="elife-94334-fig2-figsupp2-data8-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 8.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata9" href="elife-94334-fig2-figsupp2-data9-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 9.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2E</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig2s2sdata10" href="elife-94334-fig2-figsupp2-data10-v1.zip">
+              <label>Figure 2—figure supplement 2—source data 10.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig2s2">Figure 2—figure supplement 2E</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig2-figsupp2-v1.tif">
           </inline-graphic>
@@ -85,6 +218,66 @@ expression: jats
           <caption>
             <title level="2">Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance.</title>
             <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M cells in a 2-DSB<italic>chk1∆</italic>strain following DNA damage. Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Rad53 to determine the status of DDC and α-Myc to determine TIR1-Myc protein abundance. (<bold>B</bold>) Adaptation assay with 2-DSB<italic>chk1</italic>∆ strain. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells a 2-DSB<italic>chk1∆ RAD53-AID</italic>strain after DNA damage. Cultures were split 4 hr after DSB induction and treated with 1 mM auxin (+IAA) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Myc for Rad53-AID and TIR1-Myc as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) for 2-DSB<italic>chk1∆ DDC2-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. The asterisk shows when the percentage of large-budded cells returned to pre-damage levels. (<bold>E</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD9-AID</italic>. (<bold>F</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD24-AID</italic>.</p>
+            <supplementary-material id="fig3sdata1" href="elife-94334-fig3-data1-v1.zip">
+              <label>Figure 3—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata2" href="elife-94334-fig3-data2-v1.zip">
+              <label>Figure 3—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata3" href="elife-94334-fig3-data3-v1.zip">
+              <label>Figure 3—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata4" href="elife-94334-fig3-data4-v1.zip">
+              <label>Figure 3—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata5" href="elife-94334-fig3-data5-v1.zip">
+              <label>Figure 3—source data 5.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata6" href="elife-94334-fig3-data6-v1.zip">
+              <label>Figure 3—source data 6.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata7" href="elife-94334-fig3-data7-v1.zip">
+              <label>Figure 3—source data 7.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3E</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata8" href="elife-94334-fig3-data8-v1.zip">
+              <label>Figure 3—source data 8.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3E</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata9" href="elife-94334-fig3-data9-v1.zip">
+              <label>Figure 3—source data 9.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3F</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3sdata10" href="elife-94334-fig3-data10-v1.zip">
+              <label>Figure 3—source data 10.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3F</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig3-v1.tif">
           </inline-graphic>
@@ -94,6 +287,18 @@ expression: jats
           <caption>
             <title level="2">Tel1 is not required for DDC activation or Rad53 phosphorylation.</title>
             <p>(<bold>A</bold>) Adaptation assay for a<italic>tel1∆</italic>strain. Cultures were grown in YEP-Lac and put on a YEP-Gal plate. 50 G<sub>1</sub>cells were selected to monitor their morphology after 4 and 24 hr on the YEP-Gal plate. (<bold>B</bold>) Western blot probing α-Rad53 in a 2-DSB<italic>tel1∆</italic>. α-Pgk1 probed as a loading control.</p>
+            <supplementary-material id="fig3s1sdata1" href="elife-94334-fig3-figsupp1-data1-v1.zip">
+              <label>Figure 3—figure supplement 1—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3s1">Figure 3—figure supplement 1B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig3s1sdata2" href="elife-94334-fig3-figsupp1-data2-v1.zip">
+              <label>Figure 3—figure supplement 1—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3s1">Figure 3—figure supplement 1B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig3-figsupp1-v1.tif">
           </inline-graphic>
@@ -109,6 +314,42 @@ expression: jats
           <caption>
             <title level="2">Dun1 is not required for checkpoint maintenance.</title>
             <p>(<bold>A</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate with 2-DSB<italic>dun1∆</italic>. G<sub>2</sub>/M arrest was determined based on cell morphology as shown in<ext-link xlink:href="#fig1">Figure 1A</ext-link>. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc for TIR1-Myc as a loading control. (<bold>B</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>DUN1-AID</italic>after HO induction. Data are shown from three trials with standard error of the mean (SEM). Cultures were split 4 hr after DSB induction; with auxin (1 mM) (+IAA). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Dun1-AID degradation and TIR1-Myc as a loading control. (<bold>C</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>chk1∆ DUN1-AID</italic>. The asterisk marks when the percentage of large-budded cells returned to pre-damage levels.</p>
+            <supplementary-material id="fig4sdata1" href="elife-94334-fig4-data1-v1.zip">
+              <label>Figure 4—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig4">Figure 4A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig4sdata2" href="elife-94334-fig4-data2-v1.zip">
+              <label>Figure 4—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig4">Figure 4A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig4sdata3" href="elife-94334-fig4-data3-v1.zip">
+              <label>Figure 4—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig4">Figure 4B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig4sdata4" href="elife-94334-fig4-data4-v1.zip">
+              <label>Figure 4—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig4">Figure 4B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig4sdata5" href="elife-94334-fig4-data5-v1.zip">
+              <label>Figure 4—source data 5.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig4">Figure 4C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig4sdata6" href="elife-94334-fig4-data6-v1.zip">
+              <label>Figure 4—source data 6.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig4">Figure 4C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig4-v1.tif">
           </inline-graphic>
@@ -123,6 +364,55 @@ expression: jats
           <caption>
             <title level="2">Ddc2 and Rad53 are dispensable for &gt;24 hr checkpoint arrest.</title>
             <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>DDC2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cells were categorized based on cell morphology and number of DAPI signals. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD53-AID TIR1(F74G</italic>) after HO induction. 5-Ph-IAA was added 4 hr after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53, α-Myc, and α-Pgk1. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad53-AID degradation. α-Pgk1 probed as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) where 5-Ph-IAA was added 15 hr after HO induction. (<bold>E</bold>) Percentage G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD9-AID</italic>plus pRad9-AID after HO induction. Data shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad9-AID degradation and TIR1-Myc as a loading control. α-Pgk1 probed as a loading control.</p>
+            <supplementary-material id="fig5sdata1" href="elife-94334-fig5-data1-v1.zip">
+              <label>Figure 5—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig5">Figure 5A</ext-link>.</title>
+                <p>The 24 hr ± IAA samples were added to the last two wells.</p>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5sdata2" href="elife-94334-fig5-data2-v1.zip">
+              <label>Figure 5—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig5">Figure 5A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5sdata3" href="elife-94334-fig5-data3-v1.zip">
+              <label>Figure 5—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5sdata4" href="elife-94334-fig5-data4-v1.zip">
+              <label>Figure 5—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5sdata5" href="elife-94334-fig5-data5-v1.zip">
+              <label>Figure 5—source data 5.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5sdata6" href="elife-94334-fig5-data6-v1.zip">
+              <label>Figure 5—source data 6.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3D</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5sdata7" href="elife-94334-fig5-data7-v1.zip">
+              <label>Figure 5—source data 7.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig3">Figure 3E</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5sdata8" href="elife-94334-fig5-data8-v1.zip">
+              <label>Figure 5—source data 8.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig3">Figure 3E</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig5-v1.tif">
           </inline-graphic>
@@ -132,6 +422,30 @@ expression: jats
           <caption>
             <title level="2">Relative levels of Ddc2 decrease after DSB induction.</title>
             <p>(<bold>A, B</bold>) Western blots probed with α-Myc for Ddc2-9xMyc and Ddc2-9xMyc-AID in a 1-DSB and 2-DSB, respectively. α-Pgk1 is used as a loading control. (<bold>C</bold>) Relative levels of Ddc2 in a 1-DSB and 2-DSB strain up to 24 hr after DSB induction.</p>
+            <supplementary-material id="fig5s1sdata1" href="elife-94334-fig5-figsupp1-data1-v1.zip">
+              <label>Figure 5—figure supplement 1—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig5s1">Figure 5—figure supplement 1A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5s1sdata2" href="elife-94334-fig5-figsupp1-data2-v1.zip">
+              <label>Figure 5—figure supplement 1—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig5s1">Figure 5—figure supplement 1A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5s1sdata3" href="elife-94334-fig5-figsupp1-data3-v1.zip">
+              <label>Figure 5—figure supplement 1—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig5s1">Figure 5—figure supplement 1B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig5s1sdata4" href="elife-94334-fig5-figsupp1-data4-v1.zip">
+              <label>Figure 5—figure supplement 1—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig5s1">Figure 5—figure supplement 1B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig5-figsupp1-v1.tif">
           </inline-graphic>
@@ -765,6 +1079,30 @@ expression: jats
           <caption>
             <title level="2">Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest.</title>
             <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>MAD2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>MAD2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>MAD1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>MAD1-AID</italic>.</p>
+            <supplementary-material id="fig6sdata1" href="elife-94334-fig6-data1-v1.zip">
+              <label>Figure 6—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig6">Figure 6A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig6sdata2" href="elife-94334-fig6-data2-v1.zip">
+              <label>Figure 6—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig6">Figure 6A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig6sdata3" href="elife-94334-fig6-data3-v1.zip">
+              <label>Figure 6—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig6">Figure 6C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig6sdata4" href="elife-94334-fig6-data4-v1.zip">
+              <label>Figure 6—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig6">Figure 6C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig6-v1.tif">
           </inline-graphic>
@@ -783,6 +1121,30 @@ expression: jats
           <caption>
             <title level="2">Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain.</title>
             <p>(<bold>A</bold>) Morphological profile of<italic>MAD2-AID</italic>after HO induction on a YEP-Gal or YEP-Gal-IAA plate. Galactose was added to an overnight culture of Mad2-AID in YEP-Lac. 4 hr after adding galactose, cells were added to a YEP-Gal plate or a YEP-Gal-IAA (1 mM IAA) plate. The morphology of cells was measured for up to 24 hr on each plate. (<bold>B</bold>) Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. The top western blot samples were treated with ethanol and bottom western blot samples were treated with IAA. (<bold>C</bold>) Same as (<bold>A</bold>) for<italic>MAD1-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad1-AID degradation and TIR1-Myc as a loading control.</p>
+            <supplementary-material id="fig6s2sdata1" href="elife-94334-fig6-figsupp2-data1-v1.zip">
+              <label>Figure 6—figure supplement 2—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig6s2">Figure 6—figure supplement 2B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig6s2sdata2" href="elife-94334-fig6-figsupp2-data2-v1.zip">
+              <label>Figure 6—figure supplement 2—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig6s2">Figure 6—figure supplement 2B</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig6s2sdata3" href="elife-94334-fig6-figsupp2-data3-v1.zip">
+              <label>Figure 6—figure supplement 2—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig6s2">Figure 6—figure supplement 2C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig6s2sdata4" href="elife-94334-fig6-figsupp2-data4-v1.zip">
+              <label>Figure 6—figure supplement 2—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig6s2">Figure 6—figure supplement 2C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig6-figsupp2-v1.tif">
           </inline-graphic>
@@ -792,6 +1154,18 @@ expression: jats
           <caption>
             <title level="2">Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest.</title>
             <p>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>MAD2-AID</italic>and<italic>DDC2-AID MAD2-AID</italic>strains after HO induction. Cultures were added onto YEP-Gal ± IAA plates 15 hr after adding HO induction. Ctrl samples were plated on a YEP-Gal plate and IAA samples were plated on a YEP-GAL-IAA plate. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID MAD2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals.</p>
+            <supplementary-material id="fig6s3sdata1" href="elife-94334-fig6-figsupp3-data1-v1.zip">
+              <label>Figure 6—figure supplement 3—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig6s3">Figure 6—figure supplement 3A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig6s3sdata2" href="elife-94334-fig6-figsupp3-data2-v1.zip">
+              <label>Figure 6—figure supplement 3—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig6s3">Figure 6—figure supplement 3A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig6-figsupp3-v1.tif">
           </inline-graphic>
@@ -806,6 +1180,30 @@ expression: jats
           <caption>
             <title level="2">Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest.</title>
             <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>BUB2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>BFA1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>BFA1-AID</italic>.</p>
+            <supplementary-material id="fig7sdata1" href="elife-94334-fig7-data1-v1.zip">
+              <label>Figure 7—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig7">Figure 7A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig7sdata2" href="elife-94334-fig7-data2-v1.zip">
+              <label>Figure 7—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig7">Figure 7A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig7sdata3" href="elife-94334-fig7-data3-v1.zip">
+              <label>Figure 7—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig7">Figure 7C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig7sdata4" href="elife-94334-fig7-data4-v1.zip">
+              <label>Figure 7—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig7">Figure 7C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig7-v1.tif">
           </inline-graphic>
@@ -815,6 +1213,30 @@ expression: jats
           <caption>
             <title level="2">Bub2 but not Bfa1 is required for prolonged arrest.</title>
             <p>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>BUB2-AID</italic>strain with the auxin-Gal plating assay. Cultures were added onto YEP-Gal ± IAA plates 4 hr after HO induction. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>D</bold>) Same as (<bold>B</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>E</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>bfa1∆</italic>strain. (<bold>F</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>bfa1∆</italic>strain.</p>
+            <supplementary-material id="fig7s1sdata1" href="elife-94334-fig7-figsupp1-data1-v1.zip">
+              <label>Figure 7—figure supplement 1—source data 1.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig7s1">Figure 7—figure supplement 1A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig7s1sdata2" href="elife-94334-fig7-figsupp1-data2-v1.zip">
+              <label>Figure 7—figure supplement 1—source data 2.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig7s1">Figure 7—figure supplement 1A</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig7s1sdata3" href="elife-94334-fig7-figsupp1-data3-v1.zip">
+              <label>Figure 7—figure supplement 1—source data 3.</label>
+              <caption>
+                <title level="0">Original membranes corresponding to<ext-link xlink:href="#fig7s1">Figure 7—figure supplement 1C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
+            <supplementary-material id="fig7s1sdata4" href="elife-94334-fig7-figsupp1-data4-v1.zip">
+              <label>Figure 7—figure supplement 1—source data 4.</label>
+              <caption>
+                <title level="0">Original files corresponding to<ext-link xlink:href="#fig7s1">Figure 7—figure supplement 1C</ext-link>.</title>
+              </caption>
+            </supplementary-material>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig7-figsupp1-v1.tif">
           </inline-graphic>

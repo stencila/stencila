@@ -179,6 +179,9 @@ expression: jats
     </sec>
     <sec sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
+      <supplementary-material href="supplements/573522_file02.xlsx">
+        <label>1</label>
+      </supplementary-material>
     </sec>
   </body>
 </article>

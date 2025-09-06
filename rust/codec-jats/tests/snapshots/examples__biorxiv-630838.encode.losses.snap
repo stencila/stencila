@@ -3,4 +3,3 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 MathBlock.id: 5
-Supplement: 1

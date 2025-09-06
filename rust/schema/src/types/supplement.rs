@@ -16,6 +16,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("Supplement")]
+#[jats(elem = "supplementary-material")]
 pub struct Supplement {
     /// The type of this item.
     pub r#type: MustBe!("Supplement"),
@@ -32,6 +33,7 @@ pub struct Supplement {
 
     /// A short identifier or title for the supplement (e.g., "S1").
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Whether the supplement label should be automatically generated and updated.
@@ -44,10 +46,12 @@ pub struct Supplement {
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "div")]
+    #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
     /// A reference to the supplement.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[jats(attr = "href")]
     pub target: Option<String>,
 
     /// Non-core optional fields

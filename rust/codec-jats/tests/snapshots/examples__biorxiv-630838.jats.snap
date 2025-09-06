@@ -394,6 +394,9 @@ expression: jats
     </sec>
     <sec sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
+      <supplementary-material href="supplements/630838_file02.docx">
+        <label>Modelling supplemental text</label>
+      </supplementary-material>
     </sec>
     <sec sec-type="Acknowledgements">
       <title level="0">Acknowledgements and funding</title>
