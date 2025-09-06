@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use eyre::{Result, bail};
 use itertools::Itertools;
@@ -269,23 +269,23 @@ fn generate_migration_operations(
     let mut operations = Vec::new();
 
     // Create maps for efficient lookups
-    let old_tables: HashMap<String, &NodeTable> = old_schema
+    let old_tables: BTreeMap<String, &NodeTable> = old_schema
         .node_tables
         .iter()
         .map(|t| (t.name.clone(), t))
         .collect();
-    let new_tables: HashMap<String, &NodeTable> = new_schema
+    let new_tables: BTreeMap<String, &NodeTable> = new_schema
         .node_tables
         .iter()
         .map(|t| (t.name.clone(), t))
         .collect();
 
-    let old_rel_tables: HashMap<String, &RelationshipTable> = old_schema
+    let old_rel_tables: BTreeMap<String, &RelationshipTable> = old_schema
         .relationship_tables
         .iter()
         .map(|t| (t.name.clone(), t))
         .collect();
-    let new_rel_tables: HashMap<String, &RelationshipTable> = new_schema
+    let new_rel_tables: BTreeMap<String, &RelationshipTable> = new_schema
         .relationship_tables
         .iter()
         .map(|t| (t.name.clone(), t))
@@ -335,17 +335,20 @@ fn generate_migration_operations(
 }
 
 /// Compare two node tables and generate operations for differences
+///
+/// This, and other functions in this module, use [BTreeMap] and [BTreeSet] so that
+/// the generated Cypher for the migration has a deterministic order of operations.
 fn compare_node_tables(old_table: &NodeTable, new_table: &NodeTable) -> Vec<MigrationOperation> {
     let mut operations = Vec::new();
     let table_name = &new_table.name;
 
     // Compare columns
-    let old_columns: HashMap<String, &Column> = old_table
+    let old_columns: BTreeMap<String, &Column> = old_table
         .columns
         .iter()
         .map(|c| (c.name.clone(), c))
         .collect();
-    let new_columns: HashMap<String, &Column> = new_table
+    let new_columns: BTreeMap<String, &Column> = new_table
         .columns
         .iter()
         .map(|c| (c.name.clone(), c))
@@ -386,12 +389,12 @@ fn compare_node_tables(old_table: &NodeTable, new_table: &NodeTable) -> Vec<Migr
     }
 
     // Compare derived properties
-    let old_props: HashMap<String, &DerivedProperty> = old_table
+    let old_props: BTreeMap<String, &DerivedProperty> = old_table
         .derived_properties
         .iter()
         .map(|p| (p.name.clone(), p))
         .collect();
-    let new_props: HashMap<String, &DerivedProperty> = new_table
+    let new_props: BTreeMap<String, &DerivedProperty> = new_table
         .derived_properties
         .iter()
         .map(|p| (p.name.clone(), p))
@@ -438,8 +441,8 @@ fn compare_indices(old_indices: &[Index], new_indices: &[Index]) -> Vec<Migratio
     let mut operations = Vec::new();
 
     // Create sets for comparison (indices are compared by their properties)
-    let old_set: HashSet<&Index> = old_indices.iter().collect();
-    let new_set: HashSet<&Index> = new_indices.iter().collect();
+    let old_set: BTreeSet<&Index> = old_indices.iter().collect();
+    let new_set: BTreeSet<&Index> = new_indices.iter().collect();
 
     // Find new indices
     for index in new_set.difference(&old_set) {
