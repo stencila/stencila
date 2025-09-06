@@ -594,6 +594,7 @@ impl From<Block> for Node {
             Claim,
             CodeBlock,
             CodeChunk,
+            Datatable,
             Excerpt,
             Figure,
             File,

@@ -11,6 +11,7 @@ export type BlockType =
   | "Claim"
   | "CodeBlock"
   | "CodeChunk"
+  | "Datatable"
   | "Excerpt"
   | "Figure"
   | "File"
@@ -49,6 +50,7 @@ export const BlockTypeList = [
   "Claim",
   "CodeBlock",
   "CodeChunk",
+  "Datatable",
   "Excerpt",
   "Figure",
   "File",

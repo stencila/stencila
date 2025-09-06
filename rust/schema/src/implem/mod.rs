@@ -26,7 +26,7 @@ mod compilation_message;
 mod cord;
 mod creative_work_type;
 mod datatable;
-mod datatable_columns;
+mod datatable_column;
 mod date;
 mod date_time;
 mod duration;

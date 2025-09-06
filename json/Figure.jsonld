@@ -697,6 +697,9 @@
           "@id": "stencila:CodeChunk"
         },
         {
+          "@id": "stencila:Datatable"
+        },
+        {
           "@id": "stencila:Figure"
         },
         {
@@ -730,6 +733,9 @@
         },
         {
           "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Datatable"
         },
         {
           "@id": "stencila:Figure"
@@ -768,6 +774,9 @@
         },
         {
           "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Datatable"
         },
         {
           "@id": "stencila:Figure"

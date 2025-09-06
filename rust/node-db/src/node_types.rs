@@ -429,7 +429,8 @@ impl DatabaseNode for Datatable {
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
             (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
-            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value())
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
+            (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value())
         ]
     }
 
@@ -2060,6 +2061,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.node_type(),
             Block::CodeBlock(node) => node.node_type(),
             Block::CodeChunk(node) => node.node_type(),
+            Block::Datatable(node) => node.node_type(),
             Block::Figure(node) => node.node_type(),
             Block::File(node) => node.node_type(),
             Block::ForBlock(node) => node.node_type(),
@@ -2089,6 +2091,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.node_id(),
             Block::CodeBlock(node) => node.node_id(),
             Block::CodeChunk(node) => node.node_id(),
+            Block::Datatable(node) => node.node_id(),
             Block::Figure(node) => node.node_id(),
             Block::File(node) => node.node_id(),
             Block::ForBlock(node) => node.node_id(),
@@ -2118,6 +2121,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.primary_key(),
             Block::CodeBlock(node) => node.primary_key(),
             Block::CodeChunk(node) => node.primary_key(),
+            Block::Datatable(node) => node.primary_key(),
             Block::Figure(node) => node.primary_key(),
             Block::File(node) => node.primary_key(),
             Block::ForBlock(node) => node.primary_key(),
@@ -2147,6 +2151,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.node_table(),
             Block::CodeBlock(node) => node.node_table(),
             Block::CodeChunk(node) => node.node_table(),
+            Block::Datatable(node) => node.node_table(),
             Block::Figure(node) => node.node_table(),
             Block::File(node) => node.node_table(),
             Block::ForBlock(node) => node.node_table(),
@@ -2176,6 +2181,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.rel_tables(),
             Block::CodeBlock(node) => node.rel_tables(),
             Block::CodeChunk(node) => node.rel_tables(),
+            Block::Datatable(node) => node.rel_tables(),
             Block::Figure(node) => node.rel_tables(),
             Block::File(node) => node.rel_tables(),
             Block::ForBlock(node) => node.rel_tables(),

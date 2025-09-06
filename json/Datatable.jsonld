@@ -679,6 +679,117 @@
       ]
     },
     {
+      "@id": "stencila:label",
+      "@type": "rdfs:Property",
+      "rdfs:label": "label",
+      "rdfs:comment": "A short label for the datatable.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Datatable"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Supplement"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:labelAutomatically",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelAutomatically",
+      "rdfs:comment": "Whether the datatable label should be automatically updated.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Datatable"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        },
+        {
+          "@id": "stencila:Supplement"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "schema:caption",
+      "@type": "rdfs:Property",
+      "rdfs:label": "caption",
+      "rdfs:comment": "A caption for the datatable.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:AudioObject"
+        },
+        {
+          "@id": "schema:ImageObject"
+        },
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "schema:VideoObject"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Datatable"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Supplement"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
       "@id": "stencila:columns",
       "@type": "rdfs:Property",
       "rdfs:label": "columns",
@@ -693,6 +804,23 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:DatatableColumn"
+      }
+    },
+    {
+      "@id": "schema:notes",
+      "@type": "rdfs:Property",
+      "rdfs:label": "notes",
+      "rdfs:comment": "Notes for the datatable.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:Datatable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
       }
     }
   ]

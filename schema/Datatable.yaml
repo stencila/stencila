@@ -10,10 +10,41 @@ markdown:
   derive: false
 required:
   - columns
+core:
+  - label
+  - labelAutomatically
+  - caption
+  - notes
 properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the datatable.
+    type: string
+  labelAutomatically:
+    '@id': stencila:labelAutomatically
+    description: Whether the datatable label should be automatically updated.
+    type: boolean
+  caption:
+    '@id': schema:caption
+    description: A caption for the datatable.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    dom:
+      elem: div
   columns:
     '@id': stencila:columns
     description: The columns of data.
     type: array
     items:
       $ref: DatatableColumn
+  notes:
+    '@id': schema:notes
+    description: Notes for the datatable.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    dom:
+      elem: div

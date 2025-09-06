@@ -694,6 +694,12 @@
           "dataType": "String",
           "nullable": true,
           "onOptions": true
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
         }
       ],
       "primaryKey": null,
@@ -2565,6 +2571,10 @@
         },
         {
           "from": "Annotation",
+          "to": "Datatable"
+        },
+        {
+          "from": "Annotation",
           "to": "Figure"
         },
         {
@@ -2693,6 +2703,10 @@
         },
         {
           "from": "Admonition",
+          "to": "Datatable"
+        },
+        {
+          "from": "Admonition",
           "to": "Figure"
         },
         {
@@ -2845,6 +2859,10 @@
         },
         {
           "from": "Article",
+          "to": "Datatable"
+        },
+        {
+          "from": "Article",
           "to": "Figure"
         },
         {
@@ -2937,6 +2955,10 @@
         },
         {
           "from": "Claim",
+          "to": "Datatable"
+        },
+        {
+          "from": "Claim",
           "to": "Figure"
         },
         {
@@ -3029,6 +3051,10 @@
         },
         {
           "from": "Figure",
+          "to": "Datatable"
+        },
+        {
+          "from": "Figure",
           "to": "Figure"
         },
         {
@@ -3118,6 +3144,10 @@
         {
           "from": "ForBlock",
           "to": "CodeChunk"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Datatable"
         },
         {
           "from": "ForBlock",
@@ -3273,6 +3303,10 @@
         },
         {
           "from": "IfBlockClause",
+          "to": "Datatable"
+        },
+        {
+          "from": "IfBlockClause",
           "to": "Figure"
         },
         {
@@ -3362,6 +3396,10 @@
         {
           "from": "IncludeBlock",
           "to": "CodeChunk"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Datatable"
         },
         {
           "from": "IncludeBlock",
@@ -3517,6 +3555,10 @@
         },
         {
           "from": "ListItem",
+          "to": "Datatable"
+        },
+        {
+          "from": "ListItem",
           "to": "Figure"
         },
         {
@@ -3606,6 +3648,10 @@
         {
           "from": "Note",
           "to": "CodeChunk"
+        },
+        {
+          "from": "Note",
+          "to": "Datatable"
         },
         {
           "from": "Note",
@@ -3761,6 +3807,10 @@
         },
         {
           "from": "QuoteBlock",
+          "to": "Datatable"
+        },
+        {
+          "from": "QuoteBlock",
           "to": "Figure"
         },
         {
@@ -3910,6 +3960,10 @@
         {
           "from": "Section",
           "to": "CodeChunk"
+        },
+        {
+          "from": "Section",
+          "to": "Datatable"
         },
         {
           "from": "Section",
@@ -4062,6 +4116,10 @@
         {
           "from": "StyledBlock",
           "to": "CodeChunk"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Datatable"
         },
         {
           "from": "StyledBlock",

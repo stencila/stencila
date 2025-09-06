@@ -697,6 +697,9 @@
           "@id": "stencila:CodeChunk"
         },
         {
+          "@id": "stencila:Datatable"
+        },
+        {
           "@id": "stencila:Figure"
         },
         {
@@ -730,6 +733,9 @@
         },
         {
           "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Datatable"
         },
         {
           "@id": "stencila:Figure"
@@ -770,6 +776,9 @@
           "@id": "stencila:CodeChunk"
         },
         {
+          "@id": "stencila:Datatable"
+        },
+        {
           "@id": "stencila:Figure"
         },
         {
@@ -802,9 +811,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "notes",
       "rdfs:comment": "Notes for the table.",
-      "schema:domainIncludes": {
-        "@id": "schema:Table"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:Datatable"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
       }

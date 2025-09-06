@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::block::Block;
+use super::boolean::Boolean;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
@@ -48,10 +49,28 @@ pub struct Datatable {
     /// The work's Digital Object Identifier (https://doi.org/).
     pub doi: Option<String>,
 
+    /// A short label for the datatable.
+    pub label: Option<String>,
+
+    /// Whether the datatable label should be automatically updated.
+    #[serde(alias = "label-automatically", alias = "label_automatically")]
+    pub label_automatically: Option<Boolean>,
+
+    /// A caption for the datatable.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    pub caption: Option<Vec<Block>>,
+
     /// The columns of data.
     #[serde(alias = "column")]
     #[serde(deserialize_with = "one_or_many")]
     pub columns: Vec<DatatableColumn>,
+
+    /// Notes for the datatable.
+    #[serde(alias = "note")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    pub notes: Option<Vec<Block>>,
 
     /// Non-core optional fields
     #[serde(flatten)]

@@ -106,6 +106,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `Datatable` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "Datatable.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `Excerpt` nodes in block content.",
           "skip": true
         }

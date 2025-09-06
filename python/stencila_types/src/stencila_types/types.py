@@ -1657,8 +1657,20 @@ class Datatable(CreativeWork):
 
     type: Literal["Datatable"] = "Datatable"
 
+    label: str | None = None
+    """A short label for the datatable."""
+
+    label_automatically: bool | None = None
+    """Whether the datatable label should be automatically updated."""
+
+    caption: list[Block] | None = None
+    """A caption for the datatable."""
+
     columns: list[DatatableColumn]
     """The columns of data."""
+
+    notes: list[Block] | None = None
+    """Notes for the datatable."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3382,6 +3394,7 @@ Block = Union[
     Claim,
     CodeBlock,
     CodeChunk,
+    Datatable,
     Excerpt,
     Figure,
     File,

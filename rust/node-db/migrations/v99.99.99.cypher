@@ -10,6 +10,8 @@ CREATE NODE TABLE IF NOT EXISTS `Supplement` (
 
 ALTER TABLE `CodeChunk` DROP `labelAutomatically`;
 
+ALTER TABLE `Datatable` ADD `label` STRING DEFAULT NULL;
+
 ALTER TABLE `Figure` DROP `labelAutomatically`;
 
 ALTER TABLE `File` ADD `commit` STRING DEFAULT NULL;

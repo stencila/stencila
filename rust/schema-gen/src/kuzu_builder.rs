@@ -76,6 +76,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "TableCell.horizontalAlignment",
                 "TableCell.horizontalAlignmentCharacter",
                 "TableCell.verticalAlignment",
+                // Datatable exclusions
+                "Datatable.notes",
                 // List exclusions
                 "ListItem.position",
                 // Citation exclusions
