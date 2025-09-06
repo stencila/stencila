@@ -9562,7 +9562,7 @@ expression: article
                 "string": "<math id=\"nlm-math-8\">\n            <mrow>\n              <mi>χ</mi>\n              <mo>=</mo>\n              <mfrac>\n                <msup>\n                  <mrow>\n                    <mi mathvariant=\"normal\">Γ</mi>\n                  </mrow>\n                  <mo>∗</mo>\n                </msup>\n                <msub>\n                  <mi>C</mi>\n                  <mi>a</mi>\n                </msub>\n              </mfrac>\n              <mo>+</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mfrac>\n                    <msup>\n                      <mrow>\n                        <mi mathvariant=\"normal\">Γ</mi>\n                      </mrow>\n                      <mo>∗</mo>\n                    </msup>\n                    <msub>\n                      <mi>C</mi>\n                      <mi>a</mi>\n                    </msub>\n                  </mfrac>\n                </mrow>\n              </mfenced>\n              <mfrac>\n                <mi mathvariant=\"normal\">ξ</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">ξ</mi>\n                  <mo>+</mo>\n                  <msqrt>\n                    <msub>\n                      <mi>D</mi>\n                      <mi>g</mi>\n                    </msub>\n                  </msqrt>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(1)",
+              "label": "1",
               "labelAutomatically": false
             },
             {
@@ -9583,7 +9583,7 @@ expression: article
                 "string": "<math id=\"nlm-math-9\">\n            <mrow>\n              <mi mathvariant=\"normal\">ξ</mi>\n              <mo>=</mo>\n              <msqrt>\n                <mrow>\n                  <mi mathvariant=\"normal\">β</mi>\n                  <mfrac>\n                    <mrow>\n                      <mi>K</mi>\n                      <mo>+</mo>\n                      <msup>\n                        <mrow>\n                          <mi mathvariant=\"normal\">Γ</mi>\n                        </mrow>\n                        <mo>∗</mo>\n                      </msup>\n                    </mrow>\n                    <mrow>\n                      <mn>1.6</mn>\n                      <msup>\n                        <mi>η</mi>\n                        <mo>∗</mo>\n                      </msup>\n                    </mrow>\n                  </mfrac>\n                </mrow>\n              </msqrt>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(2)",
+              "label": "2",
               "labelAutomatically": false
             },
             {
@@ -9770,7 +9770,7 @@ expression: article
                 "string": "<math id=\"nlm-math-12\">\n            <mrow>\n              <mi>K</mi>\n              <mo>=</mo>\n              <msub>\n                <mi>K</mi>\n                <mi>c</mi>\n              </msub>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <mfrac>\n                    <msub>\n                      <mi>O</mi>\n                      <mi>i</mi>\n                    </msub>\n                    <msub>\n                      <mi>K</mi>\n                      <mi>o</mi>\n                    </msub>\n                  </mfrac>\n                </mrow>\n              </mfenced>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(3)",
+              "label": "3",
               "labelAutomatically": false
             },
             {
@@ -11122,7 +11122,7 @@ expression: article
                 "string": "<math id=\"nlm-math-21\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>c</mi>\n              </msub>\n              <mo>=</mo>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(4)",
+              "label": "4",
               "labelAutomatically": false
             },
             {
@@ -11279,7 +11279,7 @@ expression: article
                 "string": "<math id=\"nlm-math-22\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>c</mi>\n              </msub>\n              <mo>=</mo>\n              <msub>\n                <mi>V</mi>\n                <mi mathvariant=\"normal\">cmax</mi>\n              </msub>\n              <msub>\n                <mi>m</mi>\n                <mi>c</mi>\n              </msub>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(5)",
+              "label": "5",
               "labelAutomatically": false
             },
             {
@@ -11300,7 +11300,7 @@ expression: article
                 "string": "<math id=\"nlm-math-23\">\n            <mrow>\n              <msub>\n                <mi>m</mi>\n                <mi>c</mi>\n              </msub>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>−</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">Γ</mi>\n                    </mrow>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>+</mo>\n                  <mi>K</mi>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(6)",
+              "label": "6",
               "labelAutomatically": false
             },
             {
@@ -11511,7 +11511,7 @@ expression: article
                 "string": "<math id=\"nlm-math-26\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n              <mo>=</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>J</mi>\n                  <mn>4</mn>\n                </mfrac>\n              </mfenced>\n              <mi>m</mi>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(7)",
+              "label": "7",
               "labelAutomatically": false
             },
             {
@@ -11532,7 +11532,7 @@ expression: article
                 "string": "<math id=\"nlm-math-27\">\n            <mrow>\n              <mi>m</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>−</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">Γ</mi>\n                    </mrow>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <msubsup>\n                    <mi>C</mi>\n                    <mi>i</mi>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>+</mo>\n                  <mn>2</mn>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">Γ</mi>\n                    </mrow>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(8)",
+              "label": "8",
               "labelAutomatically": false
             },
             {
@@ -11638,7 +11638,7 @@ expression: article
                 "string": "<math id=\"nlm-math-28\">\n            <mrow>\n              <mi>θ</mi>\n              <msup>\n                <mi>J</mi>\n                <mn>2</mn>\n              </msup>\n              <mo>−</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mi>φ</mi>\n                  <mi>I</mi>\n                  <mo>+</mo>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                </mrow>\n              </mfenced>\n              <mi>J</mi>\n              <mo>+</mo>\n              <mi>φ</mi>\n              <mi>I</mi>\n              <msub>\n                <mi>J</mi>\n                <mi mathvariant=\"normal\">max</mi>\n              </msub>\n              <mo>=</mo>\n              <mn>0</mn>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(9)",
+              "label": "9",
               "labelAutomatically": false
             },
             {
@@ -12006,7 +12006,7 @@ expression: article
                 "string": "<math id=\"nlm-math-35\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n              <mo>=</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>m</mi>\n                  <mn>4</mn>\n                </mfrac>\n              </mfenced>\n              <mfrac>\n                <mrow>\n                  <mi>φ</mi>\n                  <mi>I</mi>\n                  <mo>+</mo>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                  <mo>±</mo>\n                  <msqrt>\n                    <mrow>\n                      <msup>\n                        <mrow>\n                          <mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mrow>\n                              <mi>φ</mi>\n                              <mi>I</mi>\n                              <mo>+</mo>\n                              <msub>\n                                <mi>J</mi>\n                                <mi mathvariant=\"normal\">max</mi>\n                              </msub>\n                            </mrow>\n                          </mfenced>\n                        </mrow>\n                        <mn>2</mn>\n                      </msup>\n                      <mo>−</mo>\n                      <mn>4</mn>\n                      <mi>θ</mi>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                    </mrow>\n                  </msqrt>\n                </mrow>\n                <mrow>\n                  <mn>2</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(10)",
+              "label": "10",
               "labelAutomatically": false
             },
             {
@@ -12313,7 +12313,7 @@ expression: article
                 "string": "<math id=\"nlm-math-36\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <mi>∂</mi>\n                  <msub>\n                    <mi>A</mi>\n                    <mi>j</mi>\n                  </msub>\n                </mrow>\n                <mrow>\n                  <mi>∂</mi>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(11)",
+              "label": "11",
               "labelAutomatically": false
             },
             {
@@ -12351,7 +12351,7 @@ expression: article
                 "string": "<math id=\"nlm-math-37\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>m</mi>\n                  <mn>4</mn>\n                </mfrac>\n              </mfenced>\n              <mfrac>\n                <mi>∂</mi>\n                <mrow>\n                  <mi>∂</mi>\n                  <msub>\n                    <mi>J</mi>\n                    <mi mathvariant=\"normal\">max</mi>\n                  </msub>\n                </mrow>\n              </mfrac>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mrow>\n                    <mi>φ</mi>\n                    <mi>I</mi>\n                    <mo>+</mo>\n                    <msub>\n                      <mi>J</mi>\n                      <mi mathvariant=\"normal\">max</mi>\n                    </msub>\n                    <mo>−</mo>\n                    <msqrt>\n                      <mrow>\n                        <msup>\n                          <mrow>\n                            <mfenced close=\")\" open=\"(\" separators=\"\">\n                              <mrow>\n                                <mi>φ</mi>\n                                <mi>I</mi>\n                                <mo>+</mo>\n                                <msub>\n                                  <mi>J</mi>\n                                  <mi mathvariant=\"normal\">max</mi>\n                                </msub>\n                              </mrow>\n                            </mfenced>\n                          </mrow>\n                          <mn>2</mn>\n                        </msup>\n                        <mo>−</mo>\n                        <mn>4</mn>\n                        <mi>θ</mi>\n                        <mi>φ</mi>\n                        <mi>I</mi>\n                        <msub>\n                          <mi>J</mi>\n                          <mi mathvariant=\"normal\">max</mi>\n                        </msub>\n                      </mrow>\n                    </msqrt>\n                  </mrow>\n                  <mrow>\n                    <mn>2</mn>\n                    <mi>θ</mi>\n                  </mrow>\n                </mfrac>\n              </mfenced>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(12)",
+              "label": "12",
               "labelAutomatically": false
             },
             {
@@ -12372,7 +12372,7 @@ expression: article
                 "string": "<math id=\"nlm-math-38\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mi>m</mi>\n                <mrow>\n                  <mn>8</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mfrac>\n                    <mi>∂</mi>\n                    <mrow>\n                      <mi>∂</mi>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                    </mrow>\n                  </mfrac>\n                  <msqrt>\n                    <mrow>\n                      <msup>\n                        <mrow>\n                          <mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mrow>\n                              <mi>φ</mi>\n                              <mi>I</mi>\n                              <mo>+</mo>\n                              <msub>\n                                <mi>J</mi>\n                                <mi mathvariant=\"normal\">max</mi>\n                              </msub>\n                            </mrow>\n                          </mfenced>\n                        </mrow>\n                        <mn>2</mn>\n                      </msup>\n                      <mo>−</mo>\n                      <mn>4</mn>\n                      <mi>θ</mi>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                    </mrow>\n                  </msqrt>\n                </mrow>\n              </mfenced>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(13)",
+              "label": "13",
               "labelAutomatically": false
             },
             {
@@ -12393,7 +12393,7 @@ expression: article
                 "string": "<math id=\"nlm-math-39\">\n            <mrow>\n              <mi>c</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mi>m</mi>\n                <mrow>\n                  <mn>8</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mfrac>\n                    <mrow>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                      <mo>+</mo>\n                      <msub>\n                        <mi>J</mi>\n                        <mi mathvariant=\"normal\">max</mi>\n                      </msub>\n                      <mo>−</mo>\n                      <mn>2</mn>\n                      <mi>θ</mi>\n                      <mi>φ</mi>\n                      <mi>I</mi>\n                    </mrow>\n                    <msqrt>\n                      <mrow>\n                        <msup>\n                          <mrow>\n                            <mfenced close=\")\" open=\"(\" separators=\"\">\n                              <mrow>\n                                <mi>φ</mi>\n                                <mi>I</mi>\n                                <mo>+</mo>\n                                <msub>\n                                  <mi>J</mi>\n                                  <mi mathvariant=\"normal\">max</mi>\n                                </msub>\n                              </mrow>\n                            </mfenced>\n                          </mrow>\n                          <mn>2</mn>\n                        </msup>\n                        <mo>−</mo>\n                        <mn>4</mn>\n                        <mi>θ</mi>\n                        <mi>φ</mi>\n                        <mi>I</mi>\n                        <msub>\n                          <mi>J</mi>\n                          <mi mathvariant=\"normal\">max</mi>\n                        </msub>\n                      </mrow>\n                    </msqrt>\n                  </mfrac>\n                </mrow>\n              </mfenced>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(14)",
+              "label": "14",
               "labelAutomatically": false
             },
             {
@@ -12432,7 +12432,7 @@ expression: article
                 "string": "<math id=\"nlm-math-40\">\n            <mrow>\n              <msub>\n                <mi>J</mi>\n                <mi mathvariant=\"normal\">max</mi>\n              </msub>\n              <mo>=</mo>\n              <mi>φ</mi>\n              <mi>I</mi>\n              <mi>ϖ</mi>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(15)",
+              "label": "15",
               "labelAutomatically": false
             },
             {
@@ -12453,7 +12453,7 @@ expression: article
                 "string": "<math id=\"nlm-math-41\">\n            <mrow>\n              <mi>ϖ</mi>\n              <mo>=</mo>\n              <mo>−</mo>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mrow>\n                  <mn>1</mn>\n                  <mo>−</mo>\n                  <mn>2</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfenced>\n              <mo>+</mo>\n              <msqrt>\n                <mrow>\n                  <mfenced close=\")\" open=\"(\" separators=\"\">\n                    <mrow>\n                      <mn>1</mn>\n                      <mo>−</mo>\n                      <mi>θ</mi>\n                    </mrow>\n                  </mfenced>\n                  <mfenced close=\")\" open=\"(\" separators=\"\">\n                    <mrow>\n                      <mfrac>\n                        <mn>1</mn>\n                        <mrow>\n                          <mfrac>\n                            <mrow>\n                              <mn>4</mn>\n                              <mi>c</mi>\n                            </mrow>\n                            <mi>m</mi>\n                          </mfrac>\n                          <mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mrow>\n                              <mn>1</mn>\n                              <mo>−</mo>\n                              <mi>θ</mi>\n                              <mfrac>\n                                <mrow>\n                                  <mn>4</mn>\n                                  <mi>c</mi>\n                                </mrow>\n                                <mi>m</mi>\n                              </mfrac>\n                            </mrow>\n                          </mfenced>\n                        </mrow>\n                      </mfrac>\n                      <mo>−</mo>\n                      <mn>4</mn>\n                      <mi>θ</mi>\n                    </mrow>\n                  </mfenced>\n                </mrow>\n              </msqrt>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(16)",
+              "label": "16",
               "labelAutomatically": false
             },
             {
@@ -12590,7 +12590,7 @@ expression: article
                 "string": "<math id=\"nlm-math-43\">\n            <mrow>\n              <msub>\n                <mi>A</mi>\n                <mi>j</mi>\n              </msub>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <mi>φ</mi>\n                  <mi>I</mi>\n                  <mi>m</mi>\n                  <msup>\n                    <mi>ϖ</mi>\n                    <mo>∗</mo>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <mn>8</mn>\n                  <mi>θ</mi>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(17)",
+              "label": "17",
               "labelAutomatically": false
             },
             {
@@ -12611,7 +12611,7 @@ expression: article
                 "string": "<math id=\"nlm-math-44\">\n            <mrow>\n              <msup>\n                <mi>ϖ</mi>\n                <mo>∗</mo>\n              </msup>\n              <mo>=</mo>\n              <mn>1</mn>\n              <mo>+</mo>\n              <mi>ϖ</mi>\n              <mo>−</mo>\n              <msqrt>\n                <mrow>\n                  <msup>\n                    <mrow>\n                      <mfenced close=\")\" open=\"(\" separators=\"\">\n                        <mrow>\n                          <mn>1</mn>\n                          <mo>+</mo>\n                          <mi>ϖ</mi>\n                        </mrow>\n                      </mfenced>\n                    </mrow>\n                    <mn>2</mn>\n                  </msup>\n                  <mo>−</mo>\n                  <mn>4</mn>\n                  <mi>θ</mi>\n                  <mi>ϖ</mi>\n                </mrow>\n              </msqrt>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(18)",
+              "label": "18",
               "labelAutomatically": false
             },
             {
@@ -12802,7 +12802,7 @@ expression: article
                 "string": "<math id=\"nlm-math-45\">\n            <mrow>\n              <msup>\n                <mrow>\n                  <msub>\n                    <mi>V</mi>\n                    <mi mathvariant=\"normal\">cmax</mi>\n                  </msub>\n                </mrow>\n                <mo>∗</mo>\n              </msup>\n              <mo>=</mo>\n              <mi>φ</mi>\n              <mi>I</mi>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <mi>m</mi>\n                  <msub>\n                    <mi>m</mi>\n                    <mi>c</mi>\n                  </msub>\n                </mfrac>\n              </mfenced>\n              <mfenced close=\")\" open=\"(\" separators=\"\">\n                <mfrac>\n                  <msup>\n                    <mi>ϖ</mi>\n                    <mo>∗</mo>\n                  </msup>\n                  <mrow>\n                    <mn>8</mn>\n                    <mi>θ</mi>\n                  </mrow>\n                </mfrac>\n              </mfenced>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(19)",
+              "label": "19",
               "labelAutomatically": false
             },
             {
@@ -12974,7 +12974,7 @@ expression: article
                 "string": "<math id=\"nlm-math-47\">\n            <mrow>\n              <msubsup>\n                <mi>V</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">cmax</mi>\n                  <mfenced close=\"]\" open=\"[\">\n                    <mi mathvariant=\"normal\">pred</mi>\n                  </mfenced>\n                </mrow>\n                <mo>′</mo>\n              </msubsup>\n              <mo>=</mo>\n              <mrow>\n                <mo stretchy=\"false\">(</mo>\n                <msup>\n                  <mrow>\n                    <msub>\n                      <mi>V</mi>\n                      <mi mathvariant=\"normal\">cmax</mi>\n                    </msub>\n                  </mrow>\n                  <mo>∗</mo>\n                </msup>\n                <mo stretchy=\"false\">)</mo>\n              </mrow>\n              <msup>\n                <mrow>\n                  <mi mathvariant=\"normal\">e</mi>\n                </mrow>\n                <mfrac>\n                  <mrow>\n                    <msub>\n                      <mi>H</mi>\n                      <mi mathvariant=\"normal\">a</mi>\n                    </msub>\n                    <mfenced close=\")\" open=\"(\" separators=\"\">\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">o</mi>\n                        </msub>\n                      </mrow>\n                    </mfenced>\n                  </mrow>\n                  <mrow>\n                    <mi>R</mi>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">g</mi>\n                    </msub>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">o</mi>\n                    </msub>\n                  </mrow>\n                </mfrac>\n              </msup>\n              <mfrac>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">o</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">o</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(20)",
+              "label": "20",
               "labelAutomatically": false
             },
             {
@@ -13388,7 +13388,7 @@ expression: article
                 "string": "<math id=\"nlm-math-48\">\n            <mrow>\n              <msub>\n                <mi>T</mi>\n                <mi>o</mi>\n              </msub>\n              <mo>=</mo>\n              <mn>177.884</mn>\n              <mo>+</mo>\n              <mn>0.44</mn>\n              <msub>\n                <mi>T</mi>\n                <mi>g</mi>\n              </msub>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(21)",
+              "label": "21",
               "labelAutomatically": false
             },
             {
@@ -13808,7 +13808,7 @@ expression: article
                 "string": "<math id=\"nlm-math-54\">\n            <mrow>\n              <msubsup>\n                <mi>V</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">cmax</mi>\n                  <mfenced close=\"]\" open=\"[\">\n                    <mi mathvariant=\"normal\">obs</mi>\n                  </mfenced>\n                </mrow>\n                <mo>′</mo>\n              </msubsup>\n              <mo>=</mo>\n              <msub>\n                <mi mathvariant=\"normal\">V</mi>\n                <mrow>\n                  <mi mathvariant=\"normal\">cmax</mi>\n                  <mfenced close=\"]\" open=\"[\">\n                    <mi mathvariant=\"normal\">meas</mi>\n                  </mfenced>\n                </mrow>\n              </msub>\n              <msup>\n                <mrow>\n                  <mi mathvariant=\"normal\">e</mi>\n                </mrow>\n                <mfrac>\n                  <mrow>\n                    <msub>\n                      <mi>H</mi>\n                      <mi mathvariant=\"normal\">a</mi>\n                    </msub>\n                    <mfenced close=\")\" open=\"(\" separators=\"\">\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">meas</mi>\n                        </msub>\n                      </mrow>\n                    </mfenced>\n                  </mrow>\n                  <mrow>\n                    <mi>R</mi>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">g</mi>\n                    </msub>\n                    <msub>\n                      <mi>T</mi>\n                      <mi mathvariant=\"normal\">meas</mi>\n                    </msub>\n                  </mrow>\n                </mfrac>\n              </msup>\n              <mfrac>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">meas</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">meas</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n                <mrow>\n                  <mn>1</mn>\n                  <mo>+</mo>\n                  <msup>\n                    <mrow>\n                      <mi mathvariant=\"normal\">e</mi>\n                    </mrow>\n                    <mfrac>\n                      <mrow>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                        <mrow>\n                          <mo stretchy=\"false\">(</mo>\n                          <mi mathvariant=\"normal\">Δ</mi>\n                          <mi>S</mi>\n                          <mo stretchy=\"false\">)</mo>\n                        </mrow>\n                        <mo>−</mo>\n                        <msub>\n                          <mi>H</mi>\n                          <mi mathvariant=\"normal\">d</mi>\n                        </msub>\n                      </mrow>\n                      <mrow>\n                        <mi>R</mi>\n                        <msub>\n                          <mi>T</mi>\n                          <mi mathvariant=\"normal\">g</mi>\n                        </msub>\n                      </mrow>\n                    </mfrac>\n                  </msup>\n                </mrow>\n              </mfrac>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(22)",
+              "label": "22",
               "labelAutomatically": false
             },
             {
@@ -14416,7 +14416,7 @@ expression: article
                 "string": "<math id=\"nlm-math-66\">\n            <mrow>\n              <mi>B</mi>\n              <mo>=</mo>\n              <mfrac>\n                <mrow>\n                  <msubsup>\n                    <mi>V</mi>\n                    <mrow>\n                      <mi mathvariant=\"normal\">cmax</mi>\n                      <mfenced close=\"]\" open=\"[\">\n                        <mi mathvariant=\"normal\">pred</mi>\n                      </mfenced>\n                    </mrow>\n                    <mo>′</mo>\n                  </msubsup>\n                  <mo>−</mo>\n                  <msubsup>\n                    <mi>V</mi>\n                    <mrow>\n                      <mi mathvariant=\"normal\">cmax</mi>\n                      <mfenced close=\"]\" open=\"[\">\n                        <mi mathvariant=\"normal\">obs</mi>\n                      </mfenced>\n                    </mrow>\n                    <mo>′</mo>\n                  </msubsup>\n                </mrow>\n                <msubsup>\n                  <mi>V</mi>\n                  <mrow>\n                    <mi mathvariant=\"normal\">cmax</mi>\n                    <mfenced close=\"]\" open=\"[\">\n                      <mi mathvariant=\"normal\">obs</mi>\n                    </mfenced>\n                  </mrow>\n                  <mo>′</mo>\n                </msubsup>\n              </mfrac>\n              <mrow></mrow>\n              <mo>∗</mo>\n              <mn>100</mn>\n            </mrow>\n          </math>"
               },
               "mathLanguage": "mathml",
-              "label": "(23)",
+              "label": "23",
               "labelAutomatically": false
             },
             {

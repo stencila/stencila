@@ -574,7 +574,7 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
-        .map(String::from);
+        .map(clean_math_block_label);
 
     let label_automatically = label.is_some().then_some(false);
 
@@ -1272,5 +1272,13 @@ fn clean_table_label(label: &str) -> String {
         .trim_start_matches("tab")
         .trim_start_matches(['.', ':', ' '])
         .trim_end_matches(['.', ':', ' '])
+        .to_string()
+}
+
+/// Clean a match block label by removing unnecessary leading and trailing content
+fn clean_math_block_label(label: &str) -> String {
+    label
+        .trim_start_matches(['(', ' '])
+        .trim_end_matches([')', ' '])
         .to_string()
 }
