@@ -19,10 +19,26 @@ impl MathBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
         use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
+        let mut attrs = vec![("code", self.code.as_str())];
+        if let Some(id) = &self.id {
+            attrs.push(("id", id.as_str()));
+        }
+        if let Some(lang) = &self.math_language {
+            attrs.push(("language", lang.as_str()));
+        }
+
         let label = self
             .label
             .as_ref()
-            .map(|label| elem_no_attrs("label", label))
+            .map(|label| {
+                // Add parentheses if necessary as is usually the case for disp-formula in JATS
+                let label = if label.trim().starts_with("(") {
+                    label.to_string()
+                } else {
+                    ["(", label, ")"].concat()
+                };
+                elem_no_attrs("label", label)
+            })
             .unwrap_or_default();
 
         let mathml = self
@@ -31,14 +47,6 @@ impl MathBlock {
             .as_ref()
             .map(|mathml| elem_no_attrs("mml:math", mathml))
             .unwrap_or_default();
-
-        let mut attrs = vec![("code", self.code.as_str())];
-        if let Some(id) = &self.id {
-            attrs.push(("id", id.as_str()));
-        }
-        if let Some(lang) = &self.math_language {
-            attrs.push(("language", lang.as_str()));
-        }
 
         let jats = elem("disp-formula", attrs, [label, mathml].concat());
         let losses = lost_options!(self.options, compilation_digest, compilation_messages);
