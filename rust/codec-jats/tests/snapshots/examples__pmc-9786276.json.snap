@@ -5068,6 +5068,7 @@ expression: article
           "type": "Figure",
           "id": "inz212599-fig-0001",
           "label": "1",
+          "labelAutomatically": false,
           "caption": [
             {
               "type": "Paragraph",
@@ -6681,6 +6682,7 @@ expression: article
               "type": "Table",
               "id": "inz212599-tbl-0001",
               "label": "1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -7956,6 +7958,7 @@ expression: article
               "type": "Figure",
               "id": "inz212599-fig-0002",
               "label": "2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -8390,6 +8393,7 @@ expression: article
           "type": "Figure",
           "id": "inz212599-fig-0003",
           "label": "3",
+          "labelAutomatically": false,
           "caption": [
             {
               "type": "Paragraph",
@@ -8759,6 +8763,7 @@ expression: article
               "type": "Figure",
               "id": "inz212599-fig-0004",
               "label": "4",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -9691,6 +9696,7 @@ expression: article
               "type": "Figure",
               "id": "inz212599-fig-0005",
               "label": "5",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -11031,6 +11037,7 @@ expression: article
               "type": "Figure",
               "id": "inz212599-fig-0006",
               "label": "6",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -12018,6 +12025,7 @@ expression: article
               "type": "Figure",
               "id": "inz212599-fig-0007",
               "label": "7",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -14242,6 +14250,7 @@ expression: article
               "type": "Figure",
               "id": "inz212599-fig-0008",
               "label": "8",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -14398,7 +14407,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-1\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi>k</mi>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>m</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>g</mi>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>V</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(1)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -14417,7 +14428,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-2\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi>k</mi>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(2)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -14623,7 +14636,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-3\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi>k</mi>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mi mathvariant=\"normal\">\n                    Δ\n                  </mi>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(3)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -14695,7 +14710,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-4\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <mi mathvariant=\"normal\">\n                    Δ\n                  </mi>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">B</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(4)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15266,7 +15283,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-5\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msubsup>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                    <mo>\n                      ′\n                    </mo>\n                  </msubsup>\n                  <mi>k</mi>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mo>/</mo>\n                  <mn>3</mn>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>m</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mi>g</mi>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>V</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>S</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mi>\n                    ρ\n                  </mi>\n                  <mi>g</mi>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(5)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15338,7 +15357,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-6\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <msubsup>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                    <mo>\n                      ′\n                    </mo>\n                  </msubsup>\n                  <mo>/</mo>\n                  <mn>3</mn>\n                  <mo linebreak=\"goodbreak\">=</mo>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(6)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15391,7 +15412,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-7\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">=</mo>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                  <mfenced separators=\"\" open=\"(\" close=\")\">\n                    <mn>3</mn>\n                    <msub>\n                      <mi>h</mi>\n                      <mi mathvariant=\"normal\">C</mi>\n                    </msub>\n                    <mo>/</mo>\n                    <msubsup>\n                      <mi>h</mi>\n                      <mi mathvariant=\"normal\">C</mi>\n                      <mo>\n                        ′\n                      </mo>\n                    </msubsup>\n                  </mfenced>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(7)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15534,7 +15557,9 @@ expression: article
               "code": {
                 "string": "<math id=\"jats-math-9\" display=\"block\">\n              <mrow>\n                <mrow>\n                  <msub>\n                    <mi>h</mi>\n                    <mi mathvariant=\"normal\">A</mi>\n                  </msub>\n                  <mo linebreak=\"badbreak\">\n                    ≈\n                  </mo>\n                  <msub>\n                    <mi>H</mi>\n                    <mi mathvariant=\"normal\">C</mi>\n                  </msub>\n                </mrow>\n              </mrow>\n            </math>"
               },
-              "mathLanguage": "mathml"
+              "mathLanguage": "mathml",
+              "label": "(8)",
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -17690,6 +17715,7 @@ expression: article
               "type": "Figure",
               "id": "inz212599-fig-0009",
               "label": "9",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",

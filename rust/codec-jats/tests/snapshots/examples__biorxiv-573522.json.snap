@@ -4264,6 +4264,7 @@ expression: article
               "type": "Table",
               "id": "tbl1",
               "label": "1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -4313,6 +4314,7 @@ expression: article
               "type": "Table",
               "id": "tbl2",
               "label": "2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -4961,6 +4963,7 @@ expression: article
               "type": "Figure",
               "id": "fig1",
               "label": "1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -5127,6 +5130,7 @@ expression: article
               "type": "Figure",
               "id": "fig3",
               "label": "3",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -5271,6 +5275,7 @@ expression: article
               "type": "Figure",
               "id": "fig2",
               "label": "2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -6096,6 +6101,7 @@ expression: article
                   "type": "Figure",
                   "id": "fig4",
                   "label": "4",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -6432,6 +6438,7 @@ expression: article
                   "type": "Figure",
                   "id": "fig5",
                   "label": "5",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -6716,6 +6723,7 @@ expression: article
                   "type": "Figure",
                   "id": "fig6",
                   "label": "6",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -7029,6 +7037,7 @@ expression: article
                   "type": "Figure",
                   "id": "fig7",
                   "label": "7",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",

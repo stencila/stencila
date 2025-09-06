@@ -433,17 +433,15 @@ fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     let id = node.attribute("id").map(String::from);
 
-    let label_automatically = node
-        .attribute("label-automatically")
-        .and_then(|string| string.parse().ok());
-
-    record_attrs_lost(path, node, ["id", "label-automatically"], losses);
+    record_attrs_lost(path, node, ["id"], losses);
 
     let label = node
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
         .map(clean_figure_label);
+
+    let label_automatically = label.is_some().then_some(false);
 
     let caption = node
         .children()
@@ -510,27 +508,15 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
             .attribute("label-type")
             .and_then(|string| string.parse().ok());
 
-        let label_automatically = node
-            .attribute("label-automatically")
-            .and_then(|string| string.parse().ok());
-
-        record_attrs_lost(
-            path,
-            node,
-            [
-                "language",
-                "executable",
-                "label-type",
-                "label-automatically",
-            ],
-            losses,
-        );
+        record_attrs_lost(path, node, ["language", "executable", "label-type"], losses);
 
         let label = node
             .children()
             .find(|child| child.tag_name().name() == "label")
             .and_then(|node| node.text())
             .map(String::from);
+
+        let label_automatically = label.is_some().then_some(false);
 
         let caption = node
             .children()
@@ -564,11 +550,11 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
     let id = node.attribute("id").map(String::from);
 
-    let mut code = node
+    let mut code: Cord = node
         .attribute("code")
         .and_then(|code| code.into())
         .unwrap_or_default()
-        .to_string();
+        .into();
 
     let mut math_language = node.attribute("language").map(|lang| lang.to_string());
 
@@ -578,9 +564,19 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
             .find(|child| child.tag_name().name() == "math")
             .and_then(|node| serialize_node(node).ok())
     {
-        code = mathml;
+        code = mathml.into();
         math_language = Some("mathml".into());
     }
+
+    record_attrs_lost(path, node, ["id", "code", "language"], losses);
+
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(String::from);
+
+    let label_automatically = label.is_some().then_some(false);
 
     let images = node
         .children()
@@ -589,12 +585,12 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
         .collect_vec();
     let images = (!images.is_empty()).then_some(images);
 
-    record_attrs_lost(path, node, ["id", "code", "language"], losses);
-
     Block::MathBlock(MathBlock {
         id,
-        code: code.into(),
+        code,
         math_language,
+        label,
+        label_automatically,
         options: Box::new(MathBlockOptions {
             images,
             ..Default::default()
@@ -662,17 +658,15 @@ fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     let id = node.attribute("id").map(String::from);
 
-    let label_automatically = node
-        .attribute("label-automatically")
-        .and_then(|string| string.parse().ok());
-
-    record_attrs_lost(path, node, ["id", "label-automatically"], losses);
+    record_attrs_lost(path, node, ["id"], losses);
 
     let label = node
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
         .map(clean_table_label);
+
+    let label_automatically = label.is_some().then_some(false);
 
     let caption = node
         .children()

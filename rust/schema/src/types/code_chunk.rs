@@ -117,7 +117,6 @@ pub struct CodeChunk {
     #[serde(alias = "label-automatically", alias = "label_automatically")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[jats(attr = "label-automatically")]
     pub label_automatically: Option<Boolean>,
 
     /// A caption for the chunk.

@@ -719,9 +719,6 @@
           "qmd"
         ]
       },
-      "jats": {
-        "attr": "label-automatically"
-      },
       "type": "boolean"
     },
     "caption": {

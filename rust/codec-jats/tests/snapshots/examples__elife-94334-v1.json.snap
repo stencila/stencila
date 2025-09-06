@@ -6750,6 +6750,7 @@ expression: article
               "type": "Figure",
               "id": "fig1",
               "label": "1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -7927,6 +7928,7 @@ expression: article
               "type": "Figure",
               "id": "fig2",
               "label": "2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -8507,6 +8509,7 @@ expression: article
               "type": "Figure",
               "id": "fig2s1",
               "label": "2—figure supplement 1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -8832,6 +8835,7 @@ expression: article
               "type": "Figure",
               "id": "fig2s2",
               "label": "2—figure supplement 2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -9462,6 +9466,7 @@ expression: article
               "type": "Figure",
               "id": "fig2s3",
               "label": "2—figure supplement 3",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -9954,6 +9959,7 @@ expression: article
               "type": "Figure",
               "id": "fig3",
               "label": "3",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -10669,6 +10675,7 @@ expression: article
               "type": "Figure",
               "id": "fig3s1",
               "label": "3—figure supplement 1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -11369,6 +11376,7 @@ expression: article
               "type": "Figure",
               "id": "fig4",
               "label": "4",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -12063,6 +12071,7 @@ expression: article
               "type": "Figure",
               "id": "fig5",
               "label": "5",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -12643,6 +12652,7 @@ expression: article
               "type": "Figure",
               "id": "fig5s1",
               "label": "5—figure supplement 1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -13126,6 +13136,7 @@ expression: article
               "type": "Table",
               "id": "table1",
               "label": "1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -16598,6 +16609,7 @@ expression: article
               "type": "Figure",
               "id": "fig6",
               "label": "6",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -16977,6 +16989,7 @@ expression: article
               "type": "Figure",
               "id": "fig6s1",
               "label": "6—figure supplement 1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -17081,6 +17094,7 @@ expression: article
               "type": "Figure",
               "id": "fig6s2",
               "label": "6—figure supplement 2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -17375,6 +17389,7 @@ expression: article
               "type": "Figure",
               "id": "fig6s3",
               "label": "6—figure supplement 3",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -17843,6 +17858,7 @@ expression: article
               "type": "Figure",
               "id": "fig7",
               "label": "7",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -18222,6 +18238,7 @@ expression: article
               "type": "Figure",
               "id": "fig7s1",
               "label": "7—figure supplement 1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -19125,6 +19142,7 @@ expression: article
               "type": "Figure",
               "id": "fig8",
               "label": "8",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -19385,6 +19403,7 @@ expression: article
               "type": "Figure",
               "id": "fig9",
               "label": "9",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Heading",
@@ -19504,6 +19523,7 @@ expression: article
           "type": "Figure",
           "id": "fig10",
           "label": "10",
+          "labelAutomatically": false,
           "caption": [
             {
               "type": "Heading",

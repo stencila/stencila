@@ -45,8 +45,6 @@ properties:
     type: boolean
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-    jats:
-      attr: label-automatically
   caption:
     '@id': schema:caption
     description: A caption for the figure.

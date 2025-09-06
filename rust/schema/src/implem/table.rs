@@ -14,9 +14,6 @@ impl Table {
         if let Some(value) = &self.id {
             attrs.push(("id", value.to_string()));
         }
-        if let Some(value) = &self.label_automatically {
-            attrs.push(("label-automatically", value.to_string()));
-        }
 
         let mut table_wrap = String::new();
 
