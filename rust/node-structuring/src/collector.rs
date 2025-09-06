@@ -13,9 +13,9 @@ use stencila_codec_biblio::decode::{
 use stencila_codec_links::decode_inlines as text_with_links;
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
-    Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,
-    MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock, Text,
-    VisitorMut, WalkControl, shortcuts::t,
+    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IncludeBlock, Inline, List,
+    ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock,
+    Table, Text, VisitorMut, WalkControl, shortcuts::t,
 };
 
 use crate::{CitationStyle, StructuringOptions};
@@ -40,6 +40,9 @@ pub(super) enum BlockReplacement {
 
     /// Remove references (including header) from the content
     References,
+
+    /// Transform a [Table] to a [Datatable] if possible
+    TableToDatatable,
 }
 
 /// A type of potential inline replacement
@@ -143,6 +146,7 @@ impl VisitorMut for Collector {
             Block::Heading(heading) => self.visit_heading(heading),
             Block::Paragraph(paragraph) => self.visit_paragraph(paragraph),
             Block::List(list) => self.visit_list(list),
+            Block::Table(table) => self.visit_table(table),
 
             // Process nested block content for figure detection
             Block::Admonition(Admonition { content, .. })
@@ -567,6 +571,32 @@ impl Collector {
         } else {
             WalkControl::Continue
         }
+    }
+
+    /// Visit a [`Table`] node
+    ///
+    /// Converts the table (row-oriented) to a [`Datatable`] (column-oriented) if:
+    ///
+    /// - it has a uniform shape (i.e. all rows have the same number of cells
+    ///   and there are no rowspans or colspans)
+    ///
+    /// - there is a row of header cells that can be used as names
+    ///
+    /// - all the cells have values that can be parsed as [`Primitive`] nodes
+    ///   (i.e. only has a single paragraph that only contains text)
+    fn visit_table(&mut self, table: &Table) -> WalkControl {
+        // Use the shared uniform table validation and conversion
+        if let Some(datatable) = Datatable::from_table_if_uniform(table) {
+            self.block_replacements.insert(
+                table.node_id(),
+                (
+                    BlockReplacement::TableToDatatable,
+                    vec![Block::Datatable(datatable)],
+                ),
+            );
+            return WalkControl::Break;
+        }
+        WalkControl::Continue
     }
 
     /// Visit a [`MathInline`] node
