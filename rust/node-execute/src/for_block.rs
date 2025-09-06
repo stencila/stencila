@@ -1,5 +1,5 @@
 use stencila_codec_cbor::r#trait::CborCodec;
-use stencila_schema::{Block, ExecutionMode, ForBlock, Section, SectionType, replicate};
+use stencila_schema::{Block, ExecutionMode, ForBlock, Object, Section, SectionType, replicate};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -194,7 +194,10 @@ impl Executable for ForBlock {
                         Node::Array(Array(vec![Primitive::String(key.clone()), value.clone()]))
                     })
                     .collect(),
-                Node::Datatable(dt) => dt.to_values().into_iter().map(Node::Object).collect(),
+                Node::Datatable(datatable) => Vec::<Object>::from(datatable)
+                    .into_iter()
+                    .map(Node::Object)
+                    .collect(),
                 _ => {
                     messages.push(ExecutionMessage::new(
                         MessageLevel::Warning,
