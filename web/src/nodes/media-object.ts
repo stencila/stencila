@@ -51,8 +51,11 @@ export abstract class MediaObject extends Entity {
 
   private async resolveMediaUrl() {
     if (this.contentUrl.startsWith('data:')) {
-      // Data URLs can be used directly
-      this.mediaSrc = this.contentUrl
+      // Do not set contentUrl for dataURIs because we want the original
+      // <img> <audio> or <video> within the <slot> to be used (there is
+      // no need for any transformation or prefetch check)
+      this.mediaSrc = undefined
+      return
     } else if (
       this.contentUrl.startsWith('https://') ||
       this.contentUrl.startsWith('http://')

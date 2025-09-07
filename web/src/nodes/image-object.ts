@@ -384,7 +384,9 @@ export class ImageObject extends MediaObject {
         display: inline;
       }
     `
-    return html`<img class=${imgStyles} src=${this.mediaSrc} />`
+    return this.mediaSrc ?
+      html`<img class=${imgStyles} src=${this.mediaSrc} />` :
+      html`<slot></slot>`
   }
 
   override renderCardContent() {
@@ -455,7 +457,9 @@ export class ImageObject extends MediaObject {
     `
     return html`
       <div slot="content">
-        ${this.mediaSrc ? html`<img class=${imgStyles} src=${this.mediaSrc} />` : html`<slot></slot>`}
+        ${this.mediaSrc ?
+          html`<img class=${imgStyles} src=${this.mediaSrc} />` :
+          html`<slot></slot>`}
         <div>
           <slot name="caption"></slot>
         </div>
