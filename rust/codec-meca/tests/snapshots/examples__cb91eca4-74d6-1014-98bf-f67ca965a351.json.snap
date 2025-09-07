@@ -2499,6 +2499,18 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 1A"
+                  }
+                }
+              ],
+              "target": "#fig1"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). The repair template also included a mutation in a nearby EcoRI cut site to facilitate detection of the edit. I screened 124 "
@@ -2554,6 +2566,18 @@ expression: article
               "value": {
                 "string": " differed significantly from the original repair template; the d10 sequence was partially inserted and there was no adjacent PAM ("
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 1A"
+                  }
+                }
+              ],
+              "target": "#fig1"
             },
             {
               "type": "Text",
@@ -2665,6 +2689,18 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 1B"
+                  }
+                }
+              ],
+              "target": "#fig1"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). By targeting the synthetic guide sequence in the "
@@ -2708,7 +2744,9 @@ expression: article
         },
         {
           "type": "Figure",
+          "id": "fig1",
           "label": "1",
+          "labelAutomatically": false,
           "caption": [
             {
               "type": "Heading",
@@ -2930,10 +2968,34 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 1C"
+                  }
+                }
+              ],
+              "target": "#fig1"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). The efficiency of knock-in strains generated with this guide has ranged from 1% to 10% ("
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 1D"
+                  }
+                }
+              ],
+              "target": "#fig1"
             },
             {
               "type": "Text",
@@ -3866,6 +3928,52 @@ expression: article
                   }
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Acknowledgements",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 0,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Acknowledgements"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "I would like to acknowledge Oliver Blacque for supporting this project which began when was a postdoctoral researcher in his group. The "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "C. elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " optimised mNeonGreen plasmid was a gift from Dominique Glauser (University of Fribourg, Switzerland). Some worms were provided by the Caenorhabditis Genetics Center, which is funded by NIH Office of Research Infrastructure Programs (P40 OD010440)."
+              }
             }
           ]
         }
