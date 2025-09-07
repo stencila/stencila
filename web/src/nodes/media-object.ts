@@ -98,7 +98,7 @@ export abstract class MediaObject extends Entity {
 
   // @ts-expect-error TemplateResult return type differences
   override render(): TemplateResult {
-    if (this.parentNodeIs('Paragraph') || this.parentNodeIs('Heading')) {
+    if (this.isWithin('Paragraph') || this.isWithin('Heading')) {
       return this.renderMediaElem()
     }
 

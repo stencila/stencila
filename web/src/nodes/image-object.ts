@@ -377,16 +377,17 @@ export class ImageObject extends MediaObject {
   }
 
   override renderMediaElem() {
-    // This inline style is necessary to override a constructed stylesheet
-    // somewhere that is causing <img> to be displayed as block
-    const imgStyles = css`
-      & {
+    const spanStyles = css`
+      & img,
+      & ::slotted(img) {
         display: inline;
+        max-height: 1.2em;
+        vertical-align: middle;
       }
     `
     return this.mediaSrc ?
-      html`<img class=${imgStyles} src=${this.mediaSrc} />` :
-      html`<slot></slot>`
+      html`<span class=${spanStyles}><img src=${this.mediaSrc} /></span>` :
+      html`<span class=${spanStyles}><slot></slot></span>`
   }
 
   override renderCardContent() {
