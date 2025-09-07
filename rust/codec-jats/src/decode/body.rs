@@ -144,8 +144,9 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
 
 /// Decode a <p> element to a vector of blocks
 ///
-/// In addition to [`Paragraph`] nodes, this function may return [`MathBlock`]
-/// or [`Supplement`] nodes, which in JATS can be within a <p> element.
+/// In addition to [`Paragraph`] nodes, this function may return [`Figure`],
+/// [`Table`], [`MathBlock`] or [`Supplement`] nodes, which in JATS can be
+/// within a <p> element.
 fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
@@ -169,18 +170,23 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     let mut children = Vec::new();
     for child in node.children() {
         let child_tag = child.tag_name().name();
-        if matches!(child_tag, "disp-formula" | "supplementary-material") {
+        if matches!(
+            child_tag,
+            "fig" | "table-wrap" | "disp-formula" | "supplementary-material"
+        ) {
             if let Some(para) = para(path, children, losses) {
                 blocks.push(para);
             }
             children = Vec::new();
 
-            let math_block = match child_tag {
+            let block = match child_tag {
+                "table-wrap" => decode_table_wrap(path, &child, losses, 0),
+                "fig" => decode_fig(path, &child, losses, 0),
                 "disp-formula" => decode_disp_formula(path, &child, losses, 0),
                 "supplementary-material" => decode_supplementary_material(path, &child, losses, 0),
                 _ => unreachable!(),
             };
-            blocks.push(math_block);
+            blocks.push(block);
         } else {
             children.push(child);
         }
@@ -881,9 +887,14 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
                 "xref" => match child.attribute("ref-type") {
                     Some("bibr" | "ref") => decode_xref_citation(&child_path, &child, losses),
-                    Some("sec" | "fig" | "table" | "disp-formula" | "supplementary-material") => {
-                        decode_xref_block(&child_path, &child, losses)
-                    }
+                    Some(
+                        "sec"
+                        | "fig"
+                        | "table"
+                        | "disp-formula"
+                        | "supplementary-material"
+                        | "media",
+                    ) => decode_xref_block(&child_path, &child, losses),
                     _ => {
                         // Record the xref as lost but decode its content
                         record_node_lost(path, &child, losses);
