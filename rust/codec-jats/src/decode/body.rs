@@ -1264,25 +1264,35 @@ fn decode_xref_block(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
 /// Clean a figure label by removing unnecessary leading and trailing content
 fn clean_figure_label(label: &str) -> String {
-    label
-        .trim_start_matches("Figure")
-        .trim_start_matches("figure")
-        .trim_start_matches("Fig")
-        .trim_start_matches("fig")
-        .trim_start_matches(['.', ':', ' '])
-        .trim_end_matches(['.', ':', ' '])
+    const PREFIXES: &[&str] = &["Figure", "figure", "FIGURE", "Fig", "fig", "FIG"];
+    
+    let mut cleaned = label;
+    for prefix in PREFIXES {
+        if let Some(stripped) = cleaned.strip_prefix(prefix) {
+            cleaned = stripped;
+            break;
+        }
+    }
+    
+    cleaned
+        .trim_matches(['.', ':', ' '])
         .to_string()
 }
 
 /// Clean a table label by removing unnecessary leading and trailing content
 fn clean_table_label(label: &str) -> String {
-    label
-        .trim_start_matches("Table")
-        .trim_start_matches("table")
-        .trim_start_matches("Tab")
-        .trim_start_matches("tab")
-        .trim_start_matches(['.', ':', ' '])
-        .trim_end_matches(['.', ':', ' '])
+    const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
+    
+    let mut cleaned = label;
+    for prefix in PREFIXES {
+        if let Some(stripped) = cleaned.strip_prefix(prefix) {
+            cleaned = stripped;
+            break;
+        }
+    }
+    
+    cleaned
+        .trim_matches(['.', ':', ' '])
         .to_string()
 }
 
