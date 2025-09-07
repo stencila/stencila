@@ -77,6 +77,11 @@ impl Embedder {
         }
     }
 
+    /// Embed a vector of images
+    fn embed_images(&self, images: &mut Vec<ImageObject>) {
+        images.iter_mut().for_each(|image| self.embed_image(image));
+    }
+
     /// Embed an image by converting to a data URI using optimized settings
     fn embed_image(&self, image: &mut ImageObject) {
         const IMAGE_EXTENSIONS: &[&str] = &["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"];
@@ -350,6 +355,11 @@ impl VisitorMut for Embedder {
             Block::AudioObject(audio) => self.embed_audio(audio),
             Block::ImageObject(image) => self.embed_image(image),
             Block::VideoObject(video) => self.embed_video(video),
+            Block::MathBlock(math) => {
+                if let Some(images) = &mut math.options.images {
+                    self.embed_images(images)
+                }
+            }
             _ => {}
         }
         WalkControl::Continue
@@ -360,6 +370,11 @@ impl VisitorMut for Embedder {
             Inline::AudioObject(audio) => self.embed_audio(audio),
             Inline::ImageObject(image) => self.embed_image(image),
             Inline::VideoObject(video) => self.embed_video(video),
+            Inline::MathInline(math) => {
+                if let Some(images) = &mut math.options.images {
+                    self.embed_images(images)
+                }
+            }
             _ => {}
         }
         WalkControl::Continue
