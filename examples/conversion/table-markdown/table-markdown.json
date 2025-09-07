@@ -214,7 +214,6 @@
           "cells": [
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignLeft",
               "content": [
                 {
                   "type": "Paragraph",
@@ -227,11 +226,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignLeft"
             },
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -244,11 +243,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignRight",
               "content": [
                 {
                   "type": "Paragraph",
@@ -261,7 +260,8 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignRight"
             }
           ],
           "rowType": "HeaderRow"
@@ -271,7 +271,6 @@
           "cells": [
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignLeft",
               "content": [
                 {
                   "type": "Paragraph",
@@ -284,11 +283,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignLeft"
             },
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -301,11 +300,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignRight",
               "content": [
                 {
                   "type": "Paragraph",
@@ -318,7 +317,8 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignRight"
             }
           ]
         },
@@ -327,7 +327,6 @@
           "cells": [
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignLeft",
               "content": [
                 {
                   "type": "Paragraph",
@@ -340,11 +339,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignLeft"
             },
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -357,11 +356,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
-              "horizontalAlignment": "AlignRight",
               "content": [
                 {
                   "type": "Paragraph",
@@ -374,7 +373,8 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignRight"
             }
           ]
         }

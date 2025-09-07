@@ -96,79 +96,79 @@ content:
   - type: TableRow
     cells:
     - type: TableCell
-      horizontalAlignment: AlignLeft
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: Left
+      horizontalAlignment: AlignLeft
     - type: TableCell
-      horizontalAlignment: AlignCenter
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: Center
+      horizontalAlignment: AlignCenter
     - type: TableCell
-      horizontalAlignment: AlignRight
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: Right
+      horizontalAlignment: AlignRight
     rowType: HeaderRow
   - type: TableRow
     cells:
     - type: TableCell
-      horizontalAlignment: AlignLeft
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: L1
+      horizontalAlignment: AlignLeft
     - type: TableCell
-      horizontalAlignment: AlignCenter
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: C1
+      horizontalAlignment: AlignCenter
     - type: TableCell
-      horizontalAlignment: AlignRight
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: R1
+      horizontalAlignment: AlignRight
   - type: TableRow
     cells:
     - type: TableCell
-      horizontalAlignment: AlignLeft
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: L2
+      horizontalAlignment: AlignLeft
     - type: TableCell
-      horizontalAlignment: AlignCenter
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: C2
+      horizontalAlignment: AlignCenter
     - type: TableCell
-      horizontalAlignment: AlignRight
       content:
       - type: Paragraph
         content:
         - type: Text
           value:
             string: R2
+      horizontalAlignment: AlignRight
