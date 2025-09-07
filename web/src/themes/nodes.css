@@ -210,6 +210,20 @@ stencila-supplement {
   }
 }
 
+stencila-figure,
+stencila-code-chunk,
+stencila-supplement {
+  /* Restrict width of media within figures etc to 100% of parent. This is
+  applied below in rule for stencila-image-object etc but this ensures this
+  restriction if, for example, a figure has a paragraph with an inline image,
+  rather than a block image. */
+  img,
+  audio,
+  video {
+    @apply block max-w-full mx-auto;
+  }
+}
+
 /* Media objects */
 
 /* Give vertical margin to media objects that are not in figures (they have

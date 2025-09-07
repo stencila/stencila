@@ -4,7 +4,6 @@ import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Entity } from './entity'
 
@@ -46,11 +45,25 @@ export class Supplement extends Entity {
 
   private renderContent() {
     return html`
-      <div>
+      <slot name="id"></slot>
+
+      <div class="flex items-end justify-between">
         <slot name="caption"></slot>
-        ${this.renderWorkToggle()}
-        ${this.showWork ? html`<slot name="work"></slot>` : ''}
+        <stencila-ui-chevron-button
+          default-pos=${this.showWork ? 'down' : 'left'}
+          custom-class="flex items-center"
+          .clickEvent=${(e: Event) => {
+            e.stopImmediatePropagation()
+            this.showWork = !this.showWork
+          }}
+        ></stencila-ui-chevron-button>
       </div>
+
+      <stencila-ui-collapsible-animation
+        class=${this.showWork ? 'opened' : ''}
+      >
+        <slot name="work"></slot>
+      </stencila-ui-collapsible-animation>
     `
   }
 
@@ -68,22 +81,7 @@ export class Supplement extends Entity {
         header-title=${title}
       >
         <div slot="content">
-          <div class="flex items-end justify-between">
-            <slot name="caption"></slot>
-            <stencila-ui-chevron-button
-              default-pos=${this.showWork ? 'down' : 'left'}
-              custom-class="flex items-center"
-              .clickEvent=${(e: Event) => {
-                e.stopImmediatePropagation()
-                this.showWork = !this.showWork
-              }}
-            ></stencila-ui-chevron-button>
-          </div>
-          <stencila-ui-collapsible-animation
-            class=${this.showWork ? 'opened' : ''}
-          >
-            <slot name="work"></slot>
-          </stencila-ui-collapsible-animation>
+          ${this.renderContent()}
         </div>
       </stencila-ui-block-on-demand>
     `
