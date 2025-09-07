@@ -167,21 +167,24 @@ impl Embedder {
             };
 
             // If the decoded node is an article, it has only one node, and that
-            // node matches the expected work type then use that inner node
-            // (e.g. a docx with a table or image + caption in it)
+            // node is consistent the expected work type then use that inner
+            // node (e.g. a docx with a table or image + caption in it)
             if let Some(work_type) = supplement.work_type
                 && let Node::Article(Article { content, .. }) = &node
                 && content.len() == 1
                 && let Some(block) = content.first()
             {
-                let extracted = match (work_type, block) {
+                match (work_type, block) {
                     (CreativeWorkType::Table, Block::Table(table)) => {
-                        Some(Node::Table(table.clone()))
+                        node = Node::Table(table.clone());
                     }
-                    _ => None,
-                };
-                if let Some(extracted) = extracted {
-                    node = extracted;
+                    (CreativeWorkType::Table, Block::Datatable(table)) => {
+                        node = Node::Datatable(table.clone());
+                    }
+                    (CreativeWorkType::Datatable, Block::Datatable(table)) => {
+                        node = Node::Datatable(table.clone());
+                    }
+                    _ => {}
                 }
             }
 
