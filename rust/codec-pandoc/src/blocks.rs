@@ -101,8 +101,8 @@ pub fn block_from_pandoc(block: pandoc::Block, context: &mut PandocDecodeContext
 
     match block {
         // Structure
-        pandoc::Block::Header(level, attrs, inlines) =>  heading_from_pandoc(level, attrs, inlines, context),
-        pandoc::Block::Para(inlines) | pandoc::Block::Plain(inlines)=> paragraph_from_pandoc(inlines, context),
+        pandoc::Block::Header(level, attrs, inlines) => heading_from_pandoc(level, attrs, inlines, context),
+        pandoc::Block::Para(inlines) | pandoc::Block::Plain(inlines) => paragraph_from_pandoc(inlines, context),
         pandoc::Block::HorizontalRule => Block::ThematicBreak(ThematicBreak::new()),
 
         // Lists
@@ -245,6 +245,8 @@ fn paragraph_to_pandoc(para: &Paragraph, context: &mut PandocEncodeContext) -> p
 fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecodeContext) -> Block {
     let mut inlines = inlines_from_pandoc(inlines, context);
 
+    // If the paragraph only has a single inline media object, unwrap it into a
+    // block level media object. This is consistent with Markdown codec and elsewhere.
     if let (1, Some(Inline::ImageObject(..) | Inline::AudioObject(..) | Inline::VideoObject(..))) =
         (inlines.len(), inlines.first())
     {
