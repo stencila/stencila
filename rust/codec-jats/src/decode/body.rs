@@ -585,12 +585,16 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
 
     let label_automatically = label.is_some().then_some(false);
 
-    let images = node
-        .descendants() // Use descendants because graphics may be nested in <alternatives>
-        .filter(|child| child.tag_name().name() == "graphic")
-        .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
-        .collect_vec();
-    let images = (!images.is_empty()).then_some(images);
+    let images = if code.is_empty() {
+        let images = node
+            .descendants() // Use descendants because graphics may be nested in <alternatives>
+            .filter(|child| child.tag_name().name() == "graphic")
+            .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
+            .collect_vec();
+        (!images.is_empty()).then_some(images)
+    } else {
+        None
+    };
 
     Block::MathBlock(MathBlock {
         id,
@@ -1154,12 +1158,16 @@ fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline
         lang = Some("mathml");
     }
 
-    let images = node
-        .descendants() // Use descendants because graphics may be nested in <alternatives>
-        .filter(|child| child.tag_name().name() == "inline-graphic")
-        .map(|graphic| decode_graphic(&extend_path(path, "inline-graphic"), &graphic, losses))
-        .collect_vec();
-    let images = (!images.is_empty()).then_some(images);
+    let images = if code.is_empty() {
+        let images = node
+            .descendants() // Use descendants because graphics may be nested in <alternatives>
+            .filter(|child| child.tag_name().name() == "inline-graphic")
+            .map(|graphic| decode_graphic(&extend_path(path, "inline-graphic"), &graphic, losses))
+            .collect_vec();
+        (!images.is_empty()).then_some(images)
+    } else {
+        None
+    };
 
     Inline::MathInline(MathInline {
         code: code.into(),
