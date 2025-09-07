@@ -74,25 +74,26 @@ export abstract class MediaObject extends Entity {
     }
 
     // Prefetch to check that URL is valid
+    let message: string | undefined
     try {
       const response = await fetch(this.mediaSrc, { method: 'HEAD' })
       if (response.ok) {
         this.error = undefined
-      } else {
-        let src = this.contentUrl
-        if (src.length > 40) {
-          src = src.slice(0, 40) + '\u2026'
-        }
-        const message = await response.text()
-        this.error = `Error fetching media '${src}': ${message}`
+        return
       }
+      
+      const text = await response.text()
+      message = text || response.statusText
     } catch (fetchError) {
-      let src = this.contentUrl
-      if (src.length > 40) {
-        src = src.slice(0, 40) + '\u2026'
-      }
-      this.error = `Error fetching media '${src}': ${fetchError.message || fetchError}`
+      message = fetchError instanceof Error ? fetchError.message : String(fetchError)
     }
+
+    let src = this.contentUrl
+    if (src.length > 40) {
+      src = src.slice(0, 40) + '\u2026'
+    }
+    
+    this.error = `Error fetching '${src}': ${message}`
   }
 
   // @ts-expect-error TemplateResult return type differences
@@ -138,7 +139,7 @@ export abstract class MediaObject extends Entity {
     const classes = apply(
       'overflow-x-auto px-2 py-1',
       'rounded border border-red-200 bg-red-100',
-      'text-red-900 text-sm whitespace-pre'
+      'text-red-900 text-xs whitespace-pre'
     )
 
     return html`<div slot="content">
