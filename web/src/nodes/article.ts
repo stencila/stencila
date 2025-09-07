@@ -153,6 +153,7 @@ export class Article extends Entity {
           >
             <div class="text-sm">
               <slot name="abstract"></slot>
+              <slot name="content"></slot>
             </div>
           </stencila-ui-collapsible-animation>
         </div>

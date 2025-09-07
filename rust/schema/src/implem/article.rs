@@ -128,7 +128,7 @@ impl DomCodec for Article {
 
         self.options.is_part_of.to_dom_attr("is-part-of", context);
         self.options.page_start.to_dom_attr("page-start", context);
-        self.options.page_end.to_dom_attr("page_end", context);
+        self.options.page_end.to_dom_attr("page-end", context);
 
         self.options.repository.to_dom_attr("repository", context);
         self.options.path.to_dom_attr("path", context);
@@ -157,13 +157,11 @@ impl DomCodec for Article {
             context.push_slot_fn("section", "abstract", |context| r#abstract.to_dom(context));
         }
 
-        if let Some(headings) = &self.options.headings {
+        if context.is_root() && let Some(headings) = &self.options.headings {
             context.push_slot_fn("nav", "headings", |context| headings.to_dom(context));
         }
 
-        if context.is_root() && !self.content.is_empty() {
-            // Do not show content for articles that are not the root (they
-            // usually don't have any content anyway)
+        if !self.content.is_empty() {
             context.push_slot_fn("section", "content", |context| self.content.to_dom(context));
         }
 
