@@ -585,7 +585,7 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
     let label_automatically = label.is_some().then_some(false);
 
     let images = node
-        .children()
+        .descendants() // Use descendants because graphics may be nested in <alternatives>
         .filter(|child| child.tag_name().name() == "graphic")
         .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
         .collect_vec();
@@ -1265,7 +1265,7 @@ fn decode_xref_block(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 /// Clean a figure label by removing unnecessary leading and trailing content
 fn clean_figure_label(label: &str) -> String {
     const PREFIXES: &[&str] = &["Figure", "figure", "FIGURE", "Fig", "fig", "FIG"];
-    
+
     let mut cleaned = label;
     for prefix in PREFIXES {
         if let Some(stripped) = cleaned.strip_prefix(prefix) {
@@ -1273,16 +1273,14 @@ fn clean_figure_label(label: &str) -> String {
             break;
         }
     }
-    
-    cleaned
-        .trim_matches(['.', ':', ' '])
-        .to_string()
+
+    cleaned.trim_matches(['.', ':', ' ']).to_string()
 }
 
 /// Clean a table label by removing unnecessary leading and trailing content
 fn clean_table_label(label: &str) -> String {
     const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
-    
+
     let mut cleaned = label;
     for prefix in PREFIXES {
         if let Some(stripped) = cleaned.strip_prefix(prefix) {
@@ -1290,10 +1288,8 @@ fn clean_table_label(label: &str) -> String {
             break;
         }
     }
-    
-    cleaned
-        .trim_matches(['.', ':', ' '])
-        .to_string()
+
+    cleaned.trim_matches(['.', ':', ' ']).to_string()
 }
 
 /// Clean a match block label by removing unnecessary leading and trailing content
