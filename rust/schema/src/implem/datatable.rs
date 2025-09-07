@@ -294,22 +294,20 @@ impl From<&Table> for Datatable {
                 continue;
             }
 
-            for col_index in 0..num_columns {
+            for (column_index, column) in column_data.iter_mut().enumerate().take(num_columns) {
                 let cell_text = row
                     .cells
-                    .get(col_index)
+                    .get(column_index)
                     .map(|cell| to_text(&cell.content).trim().to_string())
                     .unwrap_or_else(String::new);
 
-                column_data[col_index].push(cell_text);
+                column.push(cell_text);
             }
         }
 
         // Create column tuples and use shared functionality
-        let columns: Vec<(String, Vec<String>)> = column_names
-            .into_iter()
-            .zip(column_data.into_iter())
-            .collect();
+        let columns: Vec<(String, Vec<String>)> =
+            column_names.into_iter().zip(column_data).collect();
 
         Datatable::from_string_columns(columns)
     }

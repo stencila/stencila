@@ -165,14 +165,12 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             if field_name == "label_automatically" {
                 // Do not record loss for derived properties
                 quote!()
+            } else if field_type == "Option" {
+                quote! { if self.#field_name.is_some() { #record_loss }}
+            } else if field_type == "Vec" {
+                quote! { if !self.#field_name.is_empty() { #record_loss }}
             } else {
-                if field_type == "Option" {
-                    quote! { if self.#field_name.is_some() { #record_loss }}
-                } else if field_type == "Vec" {
-                    quote! { if !self.#field_name.is_empty() { #record_loss }}
-                } else {
-                    record_loss
-                }
+                record_loss
             }
         };
         fields.extend(field_tokens)

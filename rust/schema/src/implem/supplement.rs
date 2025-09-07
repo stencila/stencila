@@ -72,7 +72,7 @@ impl MarkdownCodec for Supplement {
                     .push_str("[")
                     .push_str(label)
                     .push_str("](")
-                    .push_str(&target)
+                    .push_str(target)
                     .push_str(")");
             } else {
                 context.push_str(label);
@@ -108,7 +108,7 @@ impl MarkdownCodec for Supplement {
             }
 
             if let Some(target) = &self.target {
-                context.push_str("[](").push_str(&target).push_str(")\n\n");
+                context.push_str("[](").push_str(target).push_str(")\n\n");
             }
 
             context.push_colons().push_str("\n\n");
