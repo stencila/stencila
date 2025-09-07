@@ -11,9 +11,10 @@ use stencila_codec::{
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
         CreativeWorkType, Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject,
         ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
-        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType,
-        StyledInline, Supplement, Table, TableCell, TableCellOptions, TableRow, TableRowType, Text,
-        ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        MathInline, MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
+        Section, SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions,
+        TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
+        VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
 };
@@ -1141,6 +1142,8 @@ fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline
     let mut code = node.attribute("code").unwrap_or_default().to_string();
     let mut lang = node.attribute("language");
 
+    record_attrs_lost(path, node, ["code", "language"], losses);
+
     if code.is_empty()
         && let Some(mathml) = node
             .children()
@@ -1151,9 +1154,22 @@ fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline
         lang = Some("mathml");
     }
 
-    record_attrs_lost(path, node, ["code", "language"], losses);
+    let images = node
+        .descendants() // Use descendants because graphics may be nested in <alternatives>
+        .filter(|child| child.tag_name().name() == "inline-graphic")
+        .map(|graphic| decode_graphic(&extend_path(path, "inline-graphic"), &graphic, losses))
+        .collect_vec();
+    let images = (!images.is_empty()).then_some(images);
 
-    mi(code, lang)
+    Inline::MathInline(MathInline {
+        code: code.into(),
+        math_language: lang.map(String::from),
+        options: Box::new(MathInlineOptions {
+            images,
+            ..Default::default()
+        }),
+        ..Default::default()
+    })
 }
 
 /// Decode a inline `<mml::math>` element to a [`Inline::MathInline`]
