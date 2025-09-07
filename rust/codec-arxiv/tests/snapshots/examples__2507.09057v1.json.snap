@@ -9282,7 +9282,6 @@ expression: article
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9295,12 +9294,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9313,12 +9312,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9331,12 +9330,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9349,12 +9348,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9367,12 +9366,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9385,7 +9384,8 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             }
           ],
           "rowType": "HeaderRow"
@@ -9396,7 +9396,6 @@ expression: article
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignLeft",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9409,12 +9408,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignLeft"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9427,12 +9426,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9445,12 +9444,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9463,12 +9462,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9481,12 +9480,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9499,12 +9498,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9517,7 +9516,8 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             }
           ],
           "rowType": "BodyRow"
@@ -9528,7 +9528,6 @@ expression: article
             {
               "type": "TableCell",
               "cellType": "HeaderCell",
-              "horizontalAlignment": "AlignLeft",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9541,12 +9540,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignLeft"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9559,12 +9558,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9577,12 +9576,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9595,12 +9594,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9613,12 +9612,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9631,12 +9630,12 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             },
             {
               "type": "TableCell",
               "cellType": "DataCell",
-              "horizontalAlignment": "AlignCenter",
               "content": [
                 {
                   "type": "Paragraph",
@@ -9649,7 +9648,8 @@ expression: article
                     }
                   ]
                 }
-              ]
+              ],
+              "horizontalAlignment": "AlignCenter"
             }
           ],
           "rowType": "BodyRow"
