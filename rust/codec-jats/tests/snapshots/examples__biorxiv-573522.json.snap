@@ -7754,6 +7754,7 @@ expression: article
           "type": "Supplement",
           "workType": "Table",
           "label": "1",
+          "labelAutomatically": false,
           "target": "supplements/573522_file02.xlsx"
         }
       ]

@@ -16974,6 +16974,7 @@ expression: article
         {
           "type": "Supplement",
           "label": "material",
+          "labelAutomatically": false,
           "target": "supplements/465267_file02.pdf"
         }
       ]

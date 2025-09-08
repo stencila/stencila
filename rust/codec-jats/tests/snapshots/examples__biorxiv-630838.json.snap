@@ -13947,6 +13947,7 @@ expression: article
         {
           "type": "Supplement",
           "label": "Modelling supplemental text",
+          "labelAutomatically": false,
           "target": "supplements/630838_file02.docx"
         }
       ]

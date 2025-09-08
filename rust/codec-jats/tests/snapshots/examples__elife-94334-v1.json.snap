@@ -7017,6 +7017,7 @@ expression: article
                   "id": "fig1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -7056,6 +7057,7 @@ expression: article
                   "id": "fig1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -7095,6 +7097,7 @@ expression: article
                   "id": "fig1sdata3",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -7134,6 +7137,7 @@ expression: article
                   "id": "fig1sdata4",
                   "workType": "Dataset",
                   "label": "Figure 1—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8177,6 +8181,7 @@ expression: article
                   "id": "fig2sdata1",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8227,6 +8232,7 @@ expression: article
                   "id": "fig2sdata2",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8266,6 +8272,7 @@ expression: article
                   "id": "fig2sdata3",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8305,6 +8312,7 @@ expression: article
                   "id": "fig2sdata4",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8344,6 +8352,7 @@ expression: article
                   "id": "fig2sdata5",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 5.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8383,6 +8392,7 @@ expression: article
                   "id": "fig2sdata6",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 6.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8422,6 +8432,7 @@ expression: article
                   "id": "fig2sdata7",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 7.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -8461,6 +8472,7 @@ expression: article
                   "id": "fig2sdata8",
                   "workType": "Dataset",
                   "label": "Figure 2—source data 8.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9065,6 +9077,7 @@ expression: article
                   "id": "fig2s2sdata1",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9104,6 +9117,7 @@ expression: article
                   "id": "fig2s2sdata2",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9143,6 +9157,7 @@ expression: article
                   "id": "fig2s2sdata3",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9182,6 +9197,7 @@ expression: article
                   "id": "fig2s2sdata4",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9221,6 +9237,7 @@ expression: article
                   "id": "fig2s2sdata5",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 5.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9260,6 +9277,7 @@ expression: article
                   "id": "fig2s2sdata6",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 6.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9299,6 +9317,7 @@ expression: article
                   "id": "fig2s2sdata7",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 7.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9338,6 +9357,7 @@ expression: article
                   "id": "fig2s2sdata8",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 8.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9377,6 +9397,7 @@ expression: article
                   "id": "fig2s2sdata9",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 9.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -9416,6 +9437,7 @@ expression: article
                   "id": "fig2s2sdata10",
                   "workType": "Dataset",
                   "label": "Figure 2—figure supplement 2—source data 10.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10272,6 +10294,7 @@ expression: article
                   "id": "fig3sdata1",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10311,6 +10334,7 @@ expression: article
                   "id": "fig3sdata2",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10350,6 +10374,7 @@ expression: article
                   "id": "fig3sdata3",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10389,6 +10414,7 @@ expression: article
                   "id": "fig3sdata4",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10428,6 +10454,7 @@ expression: article
                   "id": "fig3sdata5",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 5.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10467,6 +10494,7 @@ expression: article
                   "id": "fig3sdata6",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 6.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10506,6 +10534,7 @@ expression: article
                   "id": "fig3sdata7",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 7.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10545,6 +10574,7 @@ expression: article
                   "id": "fig3sdata8",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 8.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10584,6 +10614,7 @@ expression: article
                   "id": "fig3sdata9",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 9.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10623,6 +10654,7 @@ expression: article
                   "id": "fig3sdata10",
                   "workType": "Dataset",
                   "label": "Figure 3—source data 10.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10783,6 +10815,7 @@ expression: article
                   "id": "fig3s1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 3—figure supplement 1—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -10822,6 +10855,7 @@ expression: article
                   "id": "fig3s1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 3—figure supplement 1—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -11586,6 +11620,7 @@ expression: article
                   "id": "fig4sdata1",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -11625,6 +11660,7 @@ expression: article
                   "id": "fig4sdata2",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -11664,6 +11700,7 @@ expression: article
                   "id": "fig4sdata3",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -11703,6 +11740,7 @@ expression: article
                   "id": "fig4sdata4",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -11742,6 +11780,7 @@ expression: article
                   "id": "fig4sdata5",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 5.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -11781,6 +11820,7 @@ expression: article
                   "id": "fig4sdata6",
                   "workType": "Dataset",
                   "label": "Figure 4—source data 6.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12313,6 +12353,7 @@ expression: article
                   "id": "fig5sdata1",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12363,6 +12404,7 @@ expression: article
                   "id": "fig5sdata2",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12402,6 +12444,7 @@ expression: article
                   "id": "fig5sdata3",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12441,6 +12484,7 @@ expression: article
                   "id": "fig5sdata4",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12480,6 +12524,7 @@ expression: article
                   "id": "fig5sdata5",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 5.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12519,6 +12564,7 @@ expression: article
                   "id": "fig5sdata6",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 6.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12558,6 +12604,7 @@ expression: article
                   "id": "fig5sdata7",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 7.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12597,6 +12644,7 @@ expression: article
                   "id": "fig5sdata8",
                   "workType": "Dataset",
                   "label": "Figure 5—source data 8.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12706,6 +12754,7 @@ expression: article
                   "id": "fig5s1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12745,6 +12794,7 @@ expression: article
                   "id": "fig5s1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12784,6 +12834,7 @@ expression: article
                   "id": "fig5s1sdata3",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -12823,6 +12874,7 @@ expression: article
                   "id": "fig5s1sdata4",
                   "workType": "Dataset",
                   "label": "Figure 5—figure supplement 1—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -16814,6 +16866,7 @@ expression: article
                   "id": "fig6sdata1",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -16853,6 +16906,7 @@ expression: article
                   "id": "fig6sdata2",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -16892,6 +16946,7 @@ expression: article
                   "id": "fig6sdata3",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -16931,6 +16986,7 @@ expression: article
                   "id": "fig6sdata4",
                   "workType": "Dataset",
                   "label": "Figure 6—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -17212,6 +17268,7 @@ expression: article
                   "id": "fig6s2sdata1",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -17251,6 +17308,7 @@ expression: article
                   "id": "fig6s2sdata2",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -17290,6 +17348,7 @@ expression: article
                   "id": "fig6s2sdata3",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -17329,6 +17388,7 @@ expression: article
                   "id": "fig6s2sdata4",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 2—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -17489,6 +17549,7 @@ expression: article
                   "id": "fig6s3sdata1",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 3—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -17528,6 +17589,7 @@ expression: article
                   "id": "fig6s3sdata2",
                   "workType": "Dataset",
                   "label": "Figure 6—figure supplement 3—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18059,6 +18121,7 @@ expression: article
                   "id": "fig7sdata1",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18098,6 +18161,7 @@ expression: article
                   "id": "fig7sdata2",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18137,6 +18201,7 @@ expression: article
                   "id": "fig7sdata3",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18176,6 +18241,7 @@ expression: article
                   "id": "fig7sdata4",
                   "workType": "Dataset",
                   "label": "Figure 7—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18523,6 +18589,7 @@ expression: article
                   "id": "fig7s1sdata1",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 1.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18562,6 +18629,7 @@ expression: article
                   "id": "fig7s1sdata2",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 2.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18601,6 +18669,7 @@ expression: article
                   "id": "fig7s1sdata3",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 3.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
@@ -18640,6 +18709,7 @@ expression: article
                   "id": "fig7s1sdata4",
                   "workType": "Dataset",
                   "label": "Figure 7—figure supplement 1—source data 4.",
+                  "labelAutomatically": false,
                   "caption": [
                     {
                       "type": "Heading",
