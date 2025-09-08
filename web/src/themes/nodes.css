@@ -162,9 +162,16 @@ stencila-datatable {
 /* Give vertical margin to tables, figures and code chunks */
 stencila-table:not([root]),
 stencila-figure:not([root]),
-stencila-code-chunk:not([root]),
-stencila-supplement:not([root]) {
+stencila-code-chunk:not([root]) {
   @apply block my-12;
+}
+
+/* Give vertical margin to supplements - less than for tables & figures because
+supplements are usually collapsed (so too much margin creates too much
+whitespace) and they usually contain tables and figures etc that already have
+vertical margin*/
+stencila-supplement:not([root]) {
+  @apply block my-3;
 }
 
 stencila-table,
@@ -188,7 +195,7 @@ stencila-supplement {
       .table-label,
       .figure-label,
       .supplement-label {
-        @apply font-bold after:content-[":"];
+        @apply font-bold;
       }
     }
   }
@@ -227,12 +234,12 @@ stencila-supplement {
 /* Media objects */
 
 /* Give vertical margin to media objects that are not in figures, tables, math,
-or supplements (they have their own margin; yes tables can have images in them)
-or are inline withing paragraphs or headings */
+(they have their own margin; yes tables can have images in them) or are inline
+within paragraphs or headings */
 stencila-audio-object:not([root]),
 stencila-image-object:not([root]),
 stencila-video-object:not([root]) {
-  &:not(stencila-figure *, stencila-table *, stencila-math-block *, stencila-supplement *,
+  &:not(stencila-figure *, stencila-table *, stencila-math-block *,
        stencila-paragraph *, stencila-heading *) {
     @apply block my-12;
   }

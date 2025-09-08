@@ -23,11 +23,16 @@ pub(super) fn caption_to_dom(
         context
             .enter_node(NodeType::Paragraph, NodeId::random(*b"pgh"))
             .enter_elem_attrs("p", [("slot", "content")])
-            .enter_elem_attrs("span", [("class", class)])
-            .push_text(kind);
+            .enter_elem_attrs("span", [("class", class)]);
 
         if let Some(label) = label {
-            context.push_text(" ").push_text(label);
+            if !label.to_lowercase().contains(&kind.to_lowercase()) {
+                context.push_text(kind).push_text(" ").push_text(label);
+            } else {
+                context.push_text(label);
+            }
+        } else {
+            context.push_text(kind);
         }
 
         context.exit_elem().exit_elem().exit_node();
@@ -49,12 +54,19 @@ pub(super) fn caption_to_dom(
 
             context
                 .enter_elem_attrs("p", [("slot", "content")])
-                .enter_elem_attrs("span", [("class", class)])
-                .push_text(kind);
+                .enter_elem_attrs("span", [("class", class)]);
+
             if let Some(label) = label {
-                context.push_text(" ").push_text(label);
+                if !label.to_lowercase().contains(&kind.to_lowercase()) {
+                    context.push_text(kind).push_text(" ").push_text(label);
+                } else {
+                    context.push_text(label);
+                }
+            } else {
+                context.push_text(kind);
             }
-            context.exit_elem().push_text(" ");
+
+            context.exit_elem().push_text(": ");
 
             paragraph.content.to_dom(context);
             context.exit_elem().exit_node();
