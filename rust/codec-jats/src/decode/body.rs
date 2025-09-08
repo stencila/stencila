@@ -13,7 +13,7 @@ use stencila_codec::{
         ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
         MathInline, MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
         Section, SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions,
-        TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
+        TableOptions, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
         VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
@@ -716,7 +716,18 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
                 })
                 .collect::<Vec<TableRow>>()
         })
-        .collect();
+        .collect_vec();
+
+    let images = if rows.is_empty() {
+        let images = node
+            .descendants() // Use descendants because graphics may be nested in <alternatives>
+            .filter(|child| child.tag_name().name() == "graphic")
+            .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
+            .collect_vec();
+        (!images.is_empty()).then_some(images)
+    } else {
+        None
+    };
 
     let notes = node
         .children()
@@ -737,6 +748,10 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         caption,
         rows,
         notes,
+        options: Box::new(TableOptions {
+            images,
+            ..Default::default()
+        }),
         ..Default::default()
     })
 }

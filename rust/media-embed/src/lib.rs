@@ -345,6 +345,21 @@ impl VisitorMut for Embedder {
             Node::AudioObject(audio) => self.embed_audio(audio),
             Node::ImageObject(image) => self.embed_image(image),
             Node::VideoObject(video) => self.embed_video(video),
+            Node::MathBlock(math) => {
+                if let Some(images) = &mut math.options.images {
+                    self.embed_images(images)
+                }
+            }
+            Node::MathInline(math) => {
+                if let Some(images) = &mut math.options.images {
+                    self.embed_images(images)
+                }
+            }
+            Node::Table(table) => {
+                if let Some(images) = &mut table.options.images {
+                    self.embed_images(images)
+                }
+            }
             _ => {}
         }
         WalkControl::Continue
@@ -357,6 +372,11 @@ impl VisitorMut for Embedder {
             Block::VideoObject(video) => self.embed_video(video),
             Block::MathBlock(math) => {
                 if let Some(images) = &mut math.options.images {
+                    self.embed_images(images)
+                }
+            },
+            Block::Table(table) => {
+                if let Some(images) = &mut table.options.images {
                     self.embed_images(images)
                 }
             }

@@ -57,6 +57,7 @@ export class Table extends Entity {
       <slot name="caption"></slot>
       <div class="overflow-x-auto">
         <slot name="rows"></slot>
+        <slot name="images"></slot>
       </div>
     `
   }
