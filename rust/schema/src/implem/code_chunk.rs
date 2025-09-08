@@ -425,7 +425,7 @@ impl MarkdownCodec for CodeChunk {
                                     LabelType::FigureLabel => "figure",
                                     LabelType::TableLabel => "table",
                                     // Should be unreachable, but in case it is reached..
-                                    LabelType::AppendixLabel => "chunk",
+                                    _ => "chunk",
                                 },
                             );
                         }
@@ -513,7 +513,7 @@ impl MarkdownCodec for CodeChunk {
                             LabelType::FigureLabel => " figure",
                             LabelType::TableLabel => " table",
                             // Should be unreachable, but in case it is reached..
-                            LabelType::AppendixLabel => " chunk",
+                            _ => " chunk",
                         });
                     } else {
                         context.push_str(" chunk");

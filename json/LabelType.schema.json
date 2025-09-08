@@ -139,6 +139,10 @@
       "const": "FigureLabel"
     },
     {
+      "@id": "stencila:SupplementLabel",
+      "const": "SupplementLabel"
+    },
+    {
       "@id": "stencila:TableLabel",
       "const": "TableLabel"
     }

@@ -12,5 +12,7 @@ pub enum LabelType {
     #[default]
     FigureLabel,
 
+    SupplementLabel,
+
     TableLabel,
 }

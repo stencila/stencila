@@ -5,6 +5,7 @@
 export type LabelType =
   'AppendixLabel' |
   'FigureLabel' |
+  'SupplementLabel' |
   'TableLabel';
 
 

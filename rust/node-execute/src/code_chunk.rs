@@ -15,8 +15,10 @@ impl Executable for CodeChunk {
             let label = match label_type {
                 LabelType::FigureLabel => executor.figure_label(),
                 LabelType::TableLabel => executor.table_label(),
-                // Should be unreachable, but in case it is reached..
-                LabelType::AppendixLabel => executor.appendix_label(),
+                _ => {
+                    tracing::error!("Should be unreachable");
+                    String::new()
+                }
             };
 
             if Some(&label) != self.label.as_ref() {

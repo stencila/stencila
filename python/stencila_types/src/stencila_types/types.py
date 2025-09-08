@@ -406,6 +406,7 @@ class LabelType(StrEnum):
 
     AppendixLabel = "AppendixLabel"
     FigureLabel = "FigureLabel"
+    SupplementLabel = "SupplementLabel"
     TableLabel = "TableLabel"
 
 

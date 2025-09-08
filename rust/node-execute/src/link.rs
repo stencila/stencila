@@ -92,6 +92,7 @@ impl Executable for Link {
                     LabelType::TableLabel => "Table",
                     LabelType::FigureLabel => "Figure",
                     LabelType::AppendixLabel => "Appendix",
+                    LabelType::SupplementLabel => "Supplement",
                 };
 
                 let content = if self.label_only.unwrap_or_default() {

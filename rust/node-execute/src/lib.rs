@@ -53,6 +53,7 @@ mod raw_block;
 mod styled_block;
 mod styled_inline;
 mod suggestion_block;
+mod supplement;
 mod table;
 mod text;
 
@@ -201,17 +202,20 @@ pub struct Executor {
     /// Information on the headings in the document
     headings: Vec<HeadingInfo>,
 
-    /// The count of level 1 `Heading`s after the first `AppendixBreak`
+    /// The count of level 1 `Heading` nodes after the first `AppendixBreak`
     appendix_count: Option<u32>,
 
-    /// The count of `Table`s and `CodeChunk`s with a table `labelType`
+    /// The count of `Table` nodes and `CodeChunk` nodes with a table `labelType`
     table_count: u32,
 
-    /// The count of `Figure`s and `CodeChunk`s with a figure `labelType`
+    /// The count of `Figure` nodes and `CodeChunk` nodes with a figure `labelType`
     figure_count: u32,
 
-    /// The count of `MathBlock`s
+    /// The count of `MathBlock` nodes
     equation_count: u32,
+
+    /// The count of `Supplement` nodes
+    supplement_count: u32,
 
     /// Labels that may be the target of internal `Link`s
     labels: HashMap<String, (LabelType, String)>,
@@ -441,6 +445,7 @@ impl Executor {
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
+            supplement_count: 0,
             labels: Default::default(),
             bibliography: Default::default(),
             references: Default::default(),
@@ -450,6 +455,27 @@ impl Executor {
             is_last: false,
             config: None,
             execute_options: None,
+        }
+    }
+
+    /// Create a fork of the executor for supplementary works
+    ///
+    /// Resets counters etc so that the supplemental work has separate series for
+    /// tables, figures etc.
+    fn fork_for_supplement(&self) -> Self {
+        Self {
+            walk_position: 0,
+            walk_ancestors: Default::default(),
+            headings: Vec::new(),
+            appendix_count: None,
+            table_count: 0,
+            figure_count: 0,
+            equation_count: 0,
+            supplement_count: 0,
+            labels: Default::default(),
+            bibliography: Default::default(),
+            references: Default::default(),
+            ..self.clone()
         }
     }
 
@@ -525,6 +551,7 @@ impl Executor {
         self.table_count = 0;
         self.figure_count = 0;
         self.equation_count = 0;
+        self.supplement_count = 0;
         self.bibliography.clear();
         self.linting_context.clear();
         self.walk_position = 0;
@@ -1028,6 +1055,13 @@ impl Executor {
         [self.appendix_label(), self.equation_count.to_string()].concat()
     }
 
+    /// Updates the supplement count and returns the current supplement label
+    pub fn supplement_label(&mut self) -> String {
+        self.supplement_count += 1;
+
+        self.supplement_count.to_string()
+    }
+
     /// Get the execution status for a node based on state of node
     /// and options of the executor
     pub fn node_execution_status(
@@ -1216,19 +1250,11 @@ impl VisitorAsync for Executor {
         })
     }
 
-    async fn visit_suggestion_block(&mut self, block: &mut SuggestionBlock) -> Result<WalkControl> {
-        Ok(self.visit_executable(block).await)
-    }
-
-    async fn visit_if_block_clause(&mut self, block: &mut IfBlockClause) -> Result<WalkControl> {
-        Ok(self.visit_executable(block).await)
-    }
-
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         self.walk_position += 1;
 
         use Block::*;
-        let walk_control = match block {
+        Ok(match block {
             AppendixBreak(node) => self.visit_executable(node).await,
             CallBlock(node) => self.visit_executable(node).await,
             Chat(node) => self.visit_executable(node).await,
@@ -1245,11 +1271,18 @@ impl VisitorAsync for Executor {
             RawBlock(node) => self.visit_executable(node).await,
             StyledBlock(node) => self.visit_executable(node).await,
             SuggestionBlock(node) => self.visit_executable(node).await,
+            Supplement(node) => self.visit_executable(node).await,
             Table(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
-        };
+        })
+    }
 
-        Ok(walk_control)
+    async fn visit_suggestion_block(&mut self, block: &mut SuggestionBlock) -> Result<WalkControl> {
+        Ok(self.visit_executable(block).await)
+    }
+
+    async fn visit_if_block_clause(&mut self, block: &mut IfBlockClause) -> Result<WalkControl> {
+        Ok(self.visit_executable(block).await)
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
