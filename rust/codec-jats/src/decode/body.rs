@@ -372,6 +372,8 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
             }
         });
 
+    let label_automatically = label.is_some().then_some(false);
+
     let caption = node
         .descendants() // Use descendants because sometimes the caption is nested in <media>
         .find(|child| child.tag_name().name() == "caption")
@@ -421,6 +423,7 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
         id,
         work_type,
         label,
+        label_automatically,
         caption,
         target,
         ..Default::default()
