@@ -226,12 +226,14 @@ stencila-supplement {
 
 /* Media objects */
 
-/* Give vertical margin to media objects that are not in figures (they have
-their own margin) or are inline withing paragraphs or headings */
+/* Give vertical margin to media objects that are not in figures, tables, math,
+or supplements (they have their own margin; yes tables can have images in them)
+or are inline withing paragraphs or headings */
 stencila-audio-object:not([root]),
 stencila-image-object:not([root]),
 stencila-video-object:not([root]) {
-  &:not(stencila-figure *, stencila-supplement *, stencila-paragraph *, stencila-heading *) {
+  &:not(stencila-figure *, stencila-table *, stencila-math-block *, stencila-supplement *,
+       stencila-paragraph *, stencila-heading *) {
     @apply block my-12;
   }
 }
@@ -256,6 +258,23 @@ stencila-video-object {
   image. */
   [slot='caption'] {
     @apply block text-center text-xs;
+  }
+}
+
+/* Math */
+
+/* Give vertical margin to math blocks */
+stencila-math-block:not([root]) {
+  @apply block my-4;
+}
+
+/* Apply math font to MathML */
+stencila-math-block,
+stencila-math-inline {
+  [slot='mathml'] {
+    math {
+      font-family: var(--mathml-font-family);
+    }
   }
 }
 
@@ -356,19 +375,6 @@ stencila-code-inline {
     &::before,
     &::after {
       content: '';
-    }
-  }
-}
-
-/* ------------ */
-
-/* math elements */
-
-stencila-math-block,
-stencila-math-inline {
-  [slot='mathml'] {
-    math {
-      font-family: var(--mathml-font-family);
     }
   }
 }
