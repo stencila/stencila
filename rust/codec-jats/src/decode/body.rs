@@ -453,7 +453,8 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
     let caption = node
         .children()
         .find(|child| child.tag_name().name() == "caption")
-        .map(|node| decode_blocks(path, node.children(), losses, depth));
+        .map(|node| decode_blocks(path, node.children(), losses, depth))
+        .map(clean_caption);
 
     // Decode remaining blocks (not <label> or <caption>)
     let content = decode_blocks(
@@ -689,7 +690,8 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
                 losses,
                 depth,
             )
-        });
+        })
+        .map(clean_caption);
 
     let rows = node
         .children()
@@ -1337,4 +1339,45 @@ fn clean_math_block_label(label: &str) -> String {
         .trim_start_matches(['(', ' '])
         .trim_end_matches([')', ' '])
         .to_string()
+}
+
+/// Clean table & figure captions
+///
+/// Sometimes a <caption> will have a <title>, which will be decoded to a
+/// [Heading]. While a heading is valid content for a caption, that can break
+/// downstream assumptions in document structuring and display.
+/// 
+/// As such, if the caption starts with a title then we append its content as
+/// bolded text to the start of the first paragraph. If there is only a title,
+/// then it becomes a paragraph.
+fn clean_caption(mut caption: Vec<Block>) -> Vec<Block> {
+    if let (Some(Block::Heading(..)), Some(Block::Paragraph(..))) =
+        (caption.first(), caption.get(1))
+    {
+        if let (
+            Block::Heading(Heading {
+                content: mut heading,
+                ..
+            }),
+            Some(Block::Paragraph(paragraph)),
+        ) = (caption.remove(0), caption.get_mut(0))
+        {
+            if let Some(Inline::Text(text)) = heading.last_mut() {
+                if !text.value.ends_with(" ") {
+                    text.value.push(' ');
+                }
+            } else {
+                heading.push(t(" "));
+            }
+            paragraph.content.insert(0, stg(heading));
+        }
+    } else if caption.len() == 1
+        && let Some(Block::Heading(..)) = caption.first()
+    {
+        if let Block::Heading(Heading { content, .. }) = caption.remove(0) {
+            caption.push(p(content))
+        }
+    }
+
+    caption
 }

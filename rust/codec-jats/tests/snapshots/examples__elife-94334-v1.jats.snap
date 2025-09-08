@@ -26,8 +26,8 @@ expression: jats
         <fig id="fig1">
           <label>1</label>
           <caption>
-            <title level="2">Measuring checkpoint arrest in 1-DSB and 2-DSB strains.</title>
-            <p>(<bold>A</bold>) Morphological categories of budding yeast cells using brightfield microscopy and DAPI staining were used to determine G<sub>2</sub>/M arrest. Cells that arrest at G2/M shift toward a large bud state. G<sub>2</sub>/M-arrested cells that progress into anaphase. (<bold>B</bold>) Adaptation assay with 1-DSB strain on a YEP-Gal plate. G<sub>2</sub>/M arrest was determined based on cell morphology as shown in (<bold>A</bold>). Data are shown from three independent experiments, error bars represent standard error of the mean (SEM). (<bold>C</bold>) Profile of DAPI-stained cells in a 1-DSB strain after DNA damage induction in liquid culture. Cells were grouped based on cell morphology and DAPI staining profiles, as explained below the graphs. (<bold>D</bold>) Rad53 phosphorylation kinetics in 1-DSB strain by western blotting. Samples collected after the induction of DNA damage during the time-course experiment and blotted with α-Rad53 to monitor DDC signaling. α-Rad53 can both detect unphosphorylated and hyperphosphorylated Rad53 species. TIR1-Myc was detected with α-Myc and serves as a loading control. (<bold>E</bold>) Same as (<bold>B</bold>) for a 2-DSB strain. (<bold>F</bold>) Same as (<bold>C</bold>) with a 2-DSB strain. (<bold>G</bold>) Same as (<bold>D</bold>) with a 2-DSB strain.</p>
+            <p>
+              <bold>Measuring checkpoint arrest in 1-DSB and 2-DSB strains.</bold>(<bold>A</bold>) Morphological categories of budding yeast cells using brightfield microscopy and DAPI staining were used to determine G<sub>2</sub>/M arrest. Cells that arrest at G2/M shift toward a large bud state. G<sub>2</sub>/M-arrested cells that progress into anaphase. (<bold>B</bold>) Adaptation assay with 1-DSB strain on a YEP-Gal plate. G<sub>2</sub>/M arrest was determined based on cell morphology as shown in (<bold>A</bold>). Data are shown from three independent experiments, error bars represent standard error of the mean (SEM). (<bold>C</bold>) Profile of DAPI-stained cells in a 1-DSB strain after DNA damage induction in liquid culture. Cells were grouped based on cell morphology and DAPI staining profiles, as explained below the graphs. (<bold>D</bold>) Rad53 phosphorylation kinetics in 1-DSB strain by western blotting. Samples collected after the induction of DNA damage during the time-course experiment and blotted with α-Rad53 to monitor DDC signaling. α-Rad53 can both detect unphosphorylated and hyperphosphorylated Rad53 species. TIR1-Myc was detected with α-Myc and serves as a loading control. (<bold>E</bold>) Same as (<bold>B</bold>) for a 2-DSB strain. (<bold>F</bold>) Same as (<bold>C</bold>) with a 2-DSB strain. (<bold>G</bold>) Same as (<bold>D</bold>) with a 2-DSB strain.</p>
             <supplementary-material id="fig1sdata1" href="elife-94334-fig1-data1-v1.zip">
               <label>Figure 1—source data 1.</label>
               <caption>
@@ -66,8 +66,8 @@ expression: jats
         <fig id="fig2">
           <label>2</label>
           <caption>
-            <title level="2">Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity.</title>
-            <p>(<bold>A</bold>) Above: percentage of G<sub>2</sub>/M-arrested cells in a 2-DSB<italic>DDC2-AID</italic>strain after DNA damage induction in a liquid culture. Cultures were split 4 hr after galactose treatment to induce DNA damage by GAL::HO and treated either with auxin (+IAA) (1 mM) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing standard error of the mean (SEM). The asterisk marks the timepoint when the percentage of large-budded G<sub>2</sub>/M cells returned to pre-damage levels. Below: western blots ran with samples collected at various timepoints during the same time course, probed with α-Rad53, to determine DDC status, and α-Myc, to determine Ddc2-AID-Myc protein abundance and TIR1-Myc as a loading control. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD9-AID</italic>. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD24-AID</italic>. (<bold>D</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
+            <p>
+              <bold>Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity.</bold>(<bold>A</bold>) Above: percentage of G<sub>2</sub>/M-arrested cells in a 2-DSB<italic>DDC2-AID</italic>strain after DNA damage induction in a liquid culture. Cultures were split 4 hr after galactose treatment to induce DNA damage by GAL::HO and treated either with auxin (+IAA) (1 mM) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing standard error of the mean (SEM). The asterisk marks the timepoint when the percentage of large-budded G<sub>2</sub>/M cells returned to pre-damage levels. Below: western blots ran with samples collected at various timepoints during the same time course, probed with α-Rad53, to determine DDC status, and α-Myc, to determine Ddc2-AID-Myc protein abundance and TIR1-Myc as a loading control. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD9-AID</italic>. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD24-AID</italic>. (<bold>D</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
             <supplementary-material id="fig2sdata1" href="elife-94334-fig2-data1-v1.zip">
               <label>Figure 2—source data 1.</label>
               <caption>
@@ -124,8 +124,8 @@ expression: jats
         <fig id="fig2s1">
           <label>2—figure supplement 1</label>
           <caption>
-            <title level="2">Adaptation assay of AID-tagged checkpoint activation proteins.</title>
-            <p>(<bold>A</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>with TIR1. (<bold>B</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>without TIR1. (<bold>C</bold>) Adaptation assay of 50 G<sub>1</sub>cells on YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>RAD9-AID</italic>TIR1 (F74G), 2-DSB<italic>RAD24-AID</italic>(F74G), and 2-DSB<italic>RAD53-AID</italic>TIR1 (F74G).</p>
+            <p>
+              <bold>Adaptation assay of AID-tagged checkpoint activation proteins.</bold>(<bold>A</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>with TIR1. (<bold>B</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>without TIR1. (<bold>C</bold>) Adaptation assay of 50 G<sub>1</sub>cells on YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>RAD9-AID</italic>TIR1 (F74G), 2-DSB<italic>RAD24-AID</italic>(F74G), and 2-DSB<italic>RAD53-AID</italic>TIR1 (F74G).</p>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig2-figsupp1-v1.tif">
           </inline-graphic>
@@ -133,8 +133,8 @@ expression: jats
         <fig id="fig2s2">
           <label>2—figure supplement 2</label>
           <caption>
-            <title level="2">AID-tagged checkpoint proteins readily degrade with auxin.</title>
-            <p>(<bold>A</bold>) Morphological profile of a 2-DSB background where 1 mM auxin (IAA) was added 2 hr before DSB induction with galactose. Western blot of a 2-DSB strain probed with α-Rad53. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. (<bold>B</bold>) Morphological profile of<italic>DDC2-AID</italic>in a 2-DSB background where IAA was added 2 hr before galactose. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>C</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD9-AID</italic>. α-Myc probe shows Rad9-AID degradation with IAA. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD24-AID</italic>. α-Myc probe shows Rad24-AID degradation with IAA. (<bold>E</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD53-AID</italic>. α-Myc probe shows Rad53-AID degradation with IAA.</p>
+            <p>
+              <bold>AID-tagged checkpoint proteins readily degrade with auxin.</bold>(<bold>A</bold>) Morphological profile of a 2-DSB background where 1 mM auxin (IAA) was added 2 hr before DSB induction with galactose. Western blot of a 2-DSB strain probed with α-Rad53. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. (<bold>B</bold>) Morphological profile of<italic>DDC2-AID</italic>in a 2-DSB background where IAA was added 2 hr before galactose. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>C</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD9-AID</italic>. α-Myc probe shows Rad9-AID degradation with IAA. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD24-AID</italic>. α-Myc probe shows Rad24-AID degradation with IAA. (<bold>E</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD53-AID</italic>. α-Myc probe shows Rad53-AID degradation with IAA.</p>
             <supplementary-material id="fig2s2sdata1" href="elife-94334-fig2-figsupp2-data1-v1.zip">
               <label>Figure 2—figure supplement 2—source data 1.</label>
               <caption>
@@ -202,8 +202,8 @@ expression: jats
         <fig id="fig2s3">
           <label>2—figure supplement 3</label>
           <caption>
-            <title level="2">Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose.</title>
-            <p>(<bold>A</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cultures were split 4 hr after Gal-HO induction. Cells were divided based on cell morphology and number of DAPI signals. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
+            <p>
+              <bold>Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose.</bold>(<bold>A</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cultures were split 4 hr after Gal-HO induction. Cells were divided based on cell morphology and number of DAPI signals. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig2-figsupp3-v1.tif">
           </inline-graphic>
@@ -216,8 +216,8 @@ expression: jats
         <fig id="fig3">
           <label>3</label>
           <caption>
-            <title level="2">Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance.</title>
-            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M cells in a 2-DSB<italic>chk1∆</italic>strain following DNA damage. Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Rad53 to determine the status of DDC and α-Myc to determine TIR1-Myc protein abundance. (<bold>B</bold>) Adaptation assay with 2-DSB<italic>chk1</italic>∆ strain. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells a 2-DSB<italic>chk1∆ RAD53-AID</italic>strain after DNA damage. Cultures were split 4 hr after DSB induction and treated with 1 mM auxin (+IAA) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Myc for Rad53-AID and TIR1-Myc as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) for 2-DSB<italic>chk1∆ DDC2-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. The asterisk shows when the percentage of large-budded cells returned to pre-damage levels. (<bold>E</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD9-AID</italic>. (<bold>F</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD24-AID</italic>.</p>
+            <p>
+              <bold>Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance.</bold>(<bold>A</bold>) Percentage of G<sub>2</sub>/M cells in a 2-DSB<italic>chk1∆</italic>strain following DNA damage. Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Rad53 to determine the status of DDC and α-Myc to determine TIR1-Myc protein abundance. (<bold>B</bold>) Adaptation assay with 2-DSB<italic>chk1</italic>∆ strain. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells a 2-DSB<italic>chk1∆ RAD53-AID</italic>strain after DNA damage. Cultures were split 4 hr after DSB induction and treated with 1 mM auxin (+IAA) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Myc for Rad53-AID and TIR1-Myc as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) for 2-DSB<italic>chk1∆ DDC2-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. The asterisk shows when the percentage of large-budded cells returned to pre-damage levels. (<bold>E</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD9-AID</italic>. (<bold>F</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD24-AID</italic>.</p>
             <supplementary-material id="fig3sdata1" href="elife-94334-fig3-data1-v1.zip">
               <label>Figure 3—source data 1.</label>
               <caption>
@@ -285,8 +285,8 @@ expression: jats
         <fig id="fig3s1">
           <label>3—figure supplement 1</label>
           <caption>
-            <title level="2">Tel1 is not required for DDC activation or Rad53 phosphorylation.</title>
-            <p>(<bold>A</bold>) Adaptation assay for a<italic>tel1∆</italic>strain. Cultures were grown in YEP-Lac and put on a YEP-Gal plate. 50 G<sub>1</sub>cells were selected to monitor their morphology after 4 and 24 hr on the YEP-Gal plate. (<bold>B</bold>) Western blot probing α-Rad53 in a 2-DSB<italic>tel1∆</italic>. α-Pgk1 probed as a loading control.</p>
+            <p>
+              <bold>Tel1 is not required for DDC activation or Rad53 phosphorylation.</bold>(<bold>A</bold>) Adaptation assay for a<italic>tel1∆</italic>strain. Cultures were grown in YEP-Lac and put on a YEP-Gal plate. 50 G<sub>1</sub>cells were selected to monitor their morphology after 4 and 24 hr on the YEP-Gal plate. (<bold>B</bold>) Western blot probing α-Rad53 in a 2-DSB<italic>tel1∆</italic>. α-Pgk1 probed as a loading control.</p>
             <supplementary-material id="fig3s1sdata1" href="elife-94334-fig3-figsupp1-data1-v1.zip">
               <label>Figure 3—figure supplement 1—source data 1.</label>
               <caption>
@@ -312,8 +312,8 @@ expression: jats
         <fig id="fig4">
           <label>4</label>
           <caption>
-            <title level="2">Dun1 is not required for checkpoint maintenance.</title>
-            <p>(<bold>A</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate with 2-DSB<italic>dun1∆</italic>. G<sub>2</sub>/M arrest was determined based on cell morphology as shown in<ext-link xlink:href="#fig1">Figure 1A</ext-link>. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc for TIR1-Myc as a loading control. (<bold>B</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>DUN1-AID</italic>after HO induction. Data are shown from three trials with standard error of the mean (SEM). Cultures were split 4 hr after DSB induction; with auxin (1 mM) (+IAA). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Dun1-AID degradation and TIR1-Myc as a loading control. (<bold>C</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>chk1∆ DUN1-AID</italic>. The asterisk marks when the percentage of large-budded cells returned to pre-damage levels.</p>
+            <p>
+              <bold>Dun1 is not required for checkpoint maintenance.</bold>(<bold>A</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate with 2-DSB<italic>dun1∆</italic>. G<sub>2</sub>/M arrest was determined based on cell morphology as shown in<ext-link xlink:href="#fig1">Figure 1A</ext-link>. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc for TIR1-Myc as a loading control. (<bold>B</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>DUN1-AID</italic>after HO induction. Data are shown from three trials with standard error of the mean (SEM). Cultures were split 4 hr after DSB induction; with auxin (1 mM) (+IAA). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Dun1-AID degradation and TIR1-Myc as a loading control. (<bold>C</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>chk1∆ DUN1-AID</italic>. The asterisk marks when the percentage of large-budded cells returned to pre-damage levels.</p>
             <supplementary-material id="fig4sdata1" href="elife-94334-fig4-data1-v1.zip">
               <label>Figure 4—source data 1.</label>
               <caption>
@@ -362,8 +362,8 @@ expression: jats
         <fig id="fig5">
           <label>5</label>
           <caption>
-            <title level="2">Ddc2 and Rad53 are dispensable for &gt;24 hr checkpoint arrest.</title>
-            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>DDC2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cells were categorized based on cell morphology and number of DAPI signals. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD53-AID TIR1(F74G</italic>) after HO induction. 5-Ph-IAA was added 4 hr after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53, α-Myc, and α-Pgk1. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad53-AID degradation. α-Pgk1 probed as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) where 5-Ph-IAA was added 15 hr after HO induction. (<bold>E</bold>) Percentage G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD9-AID</italic>plus pRad9-AID after HO induction. Data shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad9-AID degradation and TIR1-Myc as a loading control. α-Pgk1 probed as a loading control.</p>
+            <p>
+              <bold>Ddc2 and Rad53 are dispensable for &gt;24 hr checkpoint arrest.</bold>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>DDC2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cells were categorized based on cell morphology and number of DAPI signals. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD53-AID TIR1(F74G</italic>) after HO induction. 5-Ph-IAA was added 4 hr after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53, α-Myc, and α-Pgk1. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad53-AID degradation. α-Pgk1 probed as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) where 5-Ph-IAA was added 15 hr after HO induction. (<bold>E</bold>) Percentage G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD9-AID</italic>plus pRad9-AID after HO induction. Data shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad9-AID degradation and TIR1-Myc as a loading control. α-Pgk1 probed as a loading control.</p>
             <supplementary-material id="fig5sdata1" href="elife-94334-fig5-data1-v1.zip">
               <label>Figure 5—source data 1.</label>
               <caption>
@@ -420,8 +420,8 @@ expression: jats
         <fig id="fig5s1">
           <label>5—figure supplement 1</label>
           <caption>
-            <title level="2">Relative levels of Ddc2 decrease after DSB induction.</title>
-            <p>(<bold>A, B</bold>) Western blots probed with α-Myc for Ddc2-9xMyc and Ddc2-9xMyc-AID in a 1-DSB and 2-DSB, respectively. α-Pgk1 is used as a loading control. (<bold>C</bold>) Relative levels of Ddc2 in a 1-DSB and 2-DSB strain up to 24 hr after DSB induction.</p>
+            <p>
+              <bold>Relative levels of Ddc2 decrease after DSB induction.</bold>(<bold>A, B</bold>) Western blots probed with α-Myc for Ddc2-9xMyc and Ddc2-9xMyc-AID in a 1-DSB and 2-DSB, respectively. α-Pgk1 is used as a loading control. (<bold>C</bold>) Relative levels of Ddc2 in a 1-DSB and 2-DSB strain up to 24 hr after DSB induction.</p>
             <supplementary-material id="fig5s1sdata1" href="elife-94334-fig5-figsupp1-data1-v1.zip">
               <label>Figure 5—figure supplement 1—source data 1.</label>
               <caption>
@@ -454,7 +454,7 @@ expression: jats
         <table-wrap id="table1">
           <label>1</label>
           <caption>
-            <title level="2">Comparison of the percentage of large-budded cells back to baseline levels.</title>
+            <p>Comparison of the percentage of large-budded cells back to baseline levels.</p>
           </caption>
           <table>
             <thead>
@@ -1077,8 +1077,8 @@ expression: jats
         <fig id="fig6">
           <label>6</label>
           <caption>
-            <title level="2">Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest.</title>
-            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>MAD2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>MAD2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>MAD1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>MAD1-AID</italic>.</p>
+            <p>
+              <bold>Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest.</bold>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>MAD2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>MAD2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>MAD1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>MAD1-AID</italic>.</p>
             <supplementary-material id="fig6sdata1" href="elife-94334-fig6-data1-v1.zip">
               <label>Figure 6—source data 1.</label>
               <caption>
@@ -1110,8 +1110,8 @@ expression: jats
         <fig id="fig6s1">
           <label>6—figure supplement 1</label>
           <caption>
-            <title level="2">Mad2 is required for permanent arrest in a 2-DSB strain.</title>
-            <p>(<bold>A</bold>) Adaptation assay of 1-DSB and 2-DSB where morphology is measured for up to 24 hr and 48 hr, respectively. A second copy of Ddc2 with a GAL1,10 promotor, Ddc2 overexpression (Ddc2oe), was integrated into the 1-DSB and 2-DSB strains.<italic>MAD2</italic>was deleted in both backgrounds with the second copy of Ddc2. (<bold>B</bold>) Adaptation assay for a<italic>mad2∆</italic>in a 2-DSB strain.</p>
+            <p>
+              <bold>Mad2 is required for permanent arrest in a 2-DSB strain.</bold>(<bold>A</bold>) Adaptation assay of 1-DSB and 2-DSB where morphology is measured for up to 24 hr and 48 hr, respectively. A second copy of Ddc2 with a GAL1,10 promotor, Ddc2 overexpression (Ddc2oe), was integrated into the 1-DSB and 2-DSB strains.<italic>MAD2</italic>was deleted in both backgrounds with the second copy of Ddc2. (<bold>B</bold>) Adaptation assay for a<italic>mad2∆</italic>in a 2-DSB strain.</p>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig6-figsupp1-v1.tif">
           </inline-graphic>
@@ -1119,8 +1119,8 @@ expression: jats
         <fig id="fig6s2">
           <label>6—figure supplement 2</label>
           <caption>
-            <title level="2">Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain.</title>
-            <p>(<bold>A</bold>) Morphological profile of<italic>MAD2-AID</italic>after HO induction on a YEP-Gal or YEP-Gal-IAA plate. Galactose was added to an overnight culture of Mad2-AID in YEP-Lac. 4 hr after adding galactose, cells were added to a YEP-Gal plate or a YEP-Gal-IAA (1 mM IAA) plate. The morphology of cells was measured for up to 24 hr on each plate. (<bold>B</bold>) Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. The top western blot samples were treated with ethanol and bottom western blot samples were treated with IAA. (<bold>C</bold>) Same as (<bold>A</bold>) for<italic>MAD1-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad1-AID degradation and TIR1-Myc as a loading control.</p>
+            <p>
+              <bold>Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain.</bold>(<bold>A</bold>) Morphological profile of<italic>MAD2-AID</italic>after HO induction on a YEP-Gal or YEP-Gal-IAA plate. Galactose was added to an overnight culture of Mad2-AID in YEP-Lac. 4 hr after adding galactose, cells were added to a YEP-Gal plate or a YEP-Gal-IAA (1 mM IAA) plate. The morphology of cells was measured for up to 24 hr on each plate. (<bold>B</bold>) Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. The top western blot samples were treated with ethanol and bottom western blot samples were treated with IAA. (<bold>C</bold>) Same as (<bold>A</bold>) for<italic>MAD1-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad1-AID degradation and TIR1-Myc as a loading control.</p>
             <supplementary-material id="fig6s2sdata1" href="elife-94334-fig6-figsupp2-data1-v1.zip">
               <label>Figure 6—figure supplement 2—source data 1.</label>
               <caption>
@@ -1152,8 +1152,8 @@ expression: jats
         <fig id="fig6s3">
           <label>6—figure supplement 3</label>
           <caption>
-            <title level="2">Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest.</title>
-            <p>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>MAD2-AID</italic>and<italic>DDC2-AID MAD2-AID</italic>strains after HO induction. Cultures were added onto YEP-Gal ± IAA plates 15 hr after adding HO induction. Ctrl samples were plated on a YEP-Gal plate and IAA samples were plated on a YEP-GAL-IAA plate. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID MAD2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals.</p>
+            <p>
+              <bold>Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest.</bold>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>MAD2-AID</italic>and<italic>DDC2-AID MAD2-AID</italic>strains after HO induction. Cultures were added onto YEP-Gal ± IAA plates 15 hr after adding HO induction. Ctrl samples were plated on a YEP-Gal plate and IAA samples were plated on a YEP-GAL-IAA plate. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID MAD2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals.</p>
             <supplementary-material id="fig6s3sdata1" href="elife-94334-fig6-figsupp3-data1-v1.zip">
               <label>Figure 6—figure supplement 3—source data 1.</label>
               <caption>
@@ -1178,8 +1178,8 @@ expression: jats
         <fig id="fig7">
           <label>7</label>
           <caption>
-            <title level="2">Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest.</title>
-            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>BUB2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>BFA1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>BFA1-AID</italic>.</p>
+            <p>
+              <bold>Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest.</bold>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>BUB2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>BFA1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>BFA1-AID</italic>.</p>
             <supplementary-material id="fig7sdata1" href="elife-94334-fig7-data1-v1.zip">
               <label>Figure 7—source data 1.</label>
               <caption>
@@ -1211,8 +1211,8 @@ expression: jats
         <fig id="fig7s1">
           <label>7—figure supplement 1</label>
           <caption>
-            <title level="2">Bub2 but not Bfa1 is required for prolonged arrest.</title>
-            <p>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>BUB2-AID</italic>strain with the auxin-Gal plating assay. Cultures were added onto YEP-Gal ± IAA plates 4 hr after HO induction. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>D</bold>) Same as (<bold>B</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>E</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>bfa1∆</italic>strain. (<bold>F</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>bfa1∆</italic>strain.</p>
+            <p>
+              <bold>Bub2 but not Bfa1 is required for prolonged arrest.</bold>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>BUB2-AID</italic>strain with the auxin-Gal plating assay. Cultures were added onto YEP-Gal ± IAA plates 4 hr after HO induction. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>D</bold>) Same as (<bold>B</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>E</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>bfa1∆</italic>strain. (<bold>F</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>bfa1∆</italic>strain.</p>
             <supplementary-material id="fig7s1sdata1" href="elife-94334-fig7-figsupp1-data1-v1.zip">
               <label>Figure 7—figure supplement 1—source data 1.</label>
               <caption>
@@ -1249,8 +1249,8 @@ expression: jats
         <fig id="fig8">
           <label>8</label>
           <caption>
-            <title level="2">Adaptation assay of different 2-DSB strains.</title>
-            <p>(<bold>A</bold>) Adaptation assay of 1-DSB and 2-DSB strains tracking the morphology of 50 G<sub>1</sub>cells on a YEP-Gal plate. The percentage of G<sub>2</sub>/M-arrested cells was shown 4 hr and 24 hr after placement of YEP-Gal plates. JKM179 is a 1-DSB strain with an HO-cut site in the<italic>MAT</italic>locus on chromosome III 86 kb away from the centromere. DW417 is a 2-DSB strain derived from JKM179 with an additional HO-cut site on chromosome VI 52 kb away from the centromere. YSL53 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at the<italic>URA3</italic>locus on chromosome V 36 kb away from the centromere (<xref ref-type="bibr" rid="bib25">Lee et al., 1998</xref>). GEM188 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at<italic>LYS2</italic>on chromosome II 230 kb away from the centromere. (<bold>B</bold>) Cartoon representations of strains showing the location of the HO-cut sites relative to their respective centromeres.</p>
+            <p>
+              <bold>Adaptation assay of different 2-DSB strains.</bold>(<bold>A</bold>) Adaptation assay of 1-DSB and 2-DSB strains tracking the morphology of 50 G<sub>1</sub>cells on a YEP-Gal plate. The percentage of G<sub>2</sub>/M-arrested cells was shown 4 hr and 24 hr after placement of YEP-Gal plates. JKM179 is a 1-DSB strain with an HO-cut site in the<italic>MAT</italic>locus on chromosome III 86 kb away from the centromere. DW417 is a 2-DSB strain derived from JKM179 with an additional HO-cut site on chromosome VI 52 kb away from the centromere. YSL53 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at the<italic>URA3</italic>locus on chromosome V 36 kb away from the centromere (<xref ref-type="bibr" rid="bib25">Lee et al., 1998</xref>). GEM188 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at<italic>LYS2</italic>on chromosome II 230 kb away from the centromere. (<bold>B</bold>) Cartoon representations of strains showing the location of the HO-cut sites relative to their respective centromeres.</p>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig8-v1.tif">
           </inline-graphic>
@@ -1259,8 +1259,8 @@ expression: jats
         <fig id="fig9">
           <label>9</label>
           <caption>
-            <title level="2">Phosphomimetic and non-phosphorylatable mutants of histone H2A and H2B do not affect the growth rate of cells.</title>
-            <p>Growth rate of strains were measured in YPD (2% dextrose) in H2A and H2B mutants for up to 10 hr. Cultures were grown in YPD until they reached an OD<sub>600</sub>of 0.1. The OD of each strain was then measured at 3, 5, 7, and 10 hr.</p>
+            <p>
+              <bold>Phosphomimetic and non-phosphorylatable mutants of histone H2A and H2B do not affect the growth rate of cells.</bold>Growth rate of strains were measured in YPD (2% dextrose) in H2A and H2B mutants for up to 10 hr. Cultures were grown in YPD until they reached an OD<sub>600</sub>of 0.1. The OD of each strain was then measured at 3, 5, 7, and 10 hr.</p>
           </caption>
           <inline-graphic xlink:href="elife-94334-fig9-v1.tif">
           </inline-graphic>
@@ -1273,8 +1273,8 @@ expression: jats
       <fig id="fig10">
         <label>10</label>
         <caption>
-          <title level="1">Activation and maintenance of checkpoint arrest in response to a DSB.</title>
-          <p>The Mre11-Rad50-Xrs2 (MRX) complex is one of the first complexes recruited to DSBs and initiates the resection of dsDNA to ssDNA. ssDNA is then coated with RPA which recruits Ddc2. Mec1 is the primary kinase responsible for checkpoint arrest in budding yeast and is activated by Ddc2 and Ddc1 from the 9-1-1 clamp. Proteins in green (Ddc2, Rad9, Rad24, and Rad53) were required for the activation and maintenance of checkpoint arrest. While Chk1 was not required for establishment of G<sub>2</sub>/M arrest, it contributed to the maintenance of arrest. In contrast, Dun1 was required for checkpoint activation but was dispensable 4 hr after DSB induction. Prolonged arrest &gt;24 hr in a 2-DSB strain was dependent on the SAC proteins Mad2, Mad1, and Bub2 as well as the distance between the second HO-cut site and the centromere.</p>
+          <p>
+            <bold>Activation and maintenance of checkpoint arrest in response to a DSB.</bold>The Mre11-Rad50-Xrs2 (MRX) complex is one of the first complexes recruited to DSBs and initiates the resection of dsDNA to ssDNA. ssDNA is then coated with RPA which recruits Ddc2. Mec1 is the primary kinase responsible for checkpoint arrest in budding yeast and is activated by Ddc2 and Ddc1 from the 9-1-1 clamp. Proteins in green (Ddc2, Rad9, Rad24, and Rad53) were required for the activation and maintenance of checkpoint arrest. While Chk1 was not required for establishment of G<sub>2</sub>/M arrest, it contributed to the maintenance of arrest. In contrast, Dun1 was required for checkpoint activation but was dispensable 4 hr after DSB induction. Prolonged arrest &gt;24 hr in a 2-DSB strain was dependent on the SAC proteins Mad2, Mad1, and Bub2 as well as the distance between the second HO-cut site and the centromere.</p>
         </caption>
         <inline-graphic xlink:href="elife-94334-fig10-v1.tif">
         </inline-graphic>

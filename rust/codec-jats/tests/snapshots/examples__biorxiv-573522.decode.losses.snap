@@ -48,6 +48,9 @@ expression: info.losses
 //article/body/sec/sec/table-wrap/@position: 2
 //article/body/sec/sec/table-wrap/@rev-id: 2
 //article/body/sec/sec/table-wrap/caption/title/@id: 2
+//article/body/sec/sec/table-wrap/graphic/@id: 3
+//article/body/sec/sec/table-wrap/graphic/@orientation: 3
+//article/body/sec/sec/table-wrap/graphic/@position: 3
 //article/body/sec/sec/title/@id: 6
 //article/body/sec/supplementary-material/@orientation: 1
 //article/body/sec/supplementary-material/@position: 1

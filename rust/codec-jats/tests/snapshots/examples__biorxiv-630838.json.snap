@@ -6377,20 +6377,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Leader bleb-based migration requires EGFR signaling."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Leader bleb-based migration requires EGFR signaling. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -6414,20 +6413,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR signals via PI3K to maintain leader bleb-based migration in non-adhesive confinement."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR signals via PI3K to maintain leader bleb-based migration in non-adhesive confinement. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -7219,20 +7217,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR, PI3K and Rac1 activities form rear-to-front gradients in leader blebs."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR, PI3K and Rac1 activities form rear-to-front gradients in leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -7544,20 +7541,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR and Rac1 activity at the rear of the bleb is required for bleb stability."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR and Rac1 activity at the rear of the bleb is required for bleb stability. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8095,20 +8091,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR and other transmembrane proteins form rear-to-front gradients on leader blebs."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR and other transmembrane proteins form rear-to-front gradients on leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8348,20 +8343,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Experiment and modeling indicate neither cortical nor membrane flow mediate EGFR gradient formation in leader blebs."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Experiment and modeling indicate neither cortical nor membrane flow mediate EGFR gradient formation in leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8889,20 +8883,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR has restricted diffusion at the rear of the leader bleb."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR has restricted diffusion at the rear of the leader bleb. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -9140,20 +9133,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "A dense actin meshwork forms close to the plasma membrane at the rear of leader blebs."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A dense actin meshwork forms close to the plasma membrane at the rear of leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -9414,20 +9406,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "CD44 corralling is independent of its receptor activity."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "CD44 corralling is independent of its receptor activity. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -9451,20 +9442,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "CD44 restricts the diffusion of EGFR at the rear of the leader bleb."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "CD44 restricts the diffusion of EGFR at the rear of the leader bleb. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -9833,20 +9823,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Model of molecular regulation of EGFR polarity during leader bleb-based migration under non-adhesive confinement."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Model of molecular regulation of EGFR polarity during leader bleb-based migration under non-adhesive confinement. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -9888,20 +9877,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "CD44 is required for rear-to-front Rac1 activity gradient and leader bleb stability and persistent migration under confinement."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "CD44 is required for rear-to-front Rac1 activity gradient and leader bleb stability and persistent migration under confinement. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {

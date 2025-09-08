@@ -6753,20 +6753,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Measuring checkpoint arrest in 1-DSB and 2-DSB strains."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Measuring checkpoint arrest in 1-DSB and 2-DSB strains. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -7931,20 +7930,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8512,20 +8510,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Adaptation assay of AID-tagged checkpoint activation proteins."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Adaptation assay of AID-tagged checkpoint activation proteins. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8838,20 +8835,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "AID-tagged checkpoint proteins readily degrade with auxin."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "AID-tagged checkpoint proteins readily degrade with auxin. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -9469,20 +9465,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -9962,20 +9957,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -10678,20 +10672,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Tel1 is not required for DDC activation or Rad53 phosphorylation."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Tel1 is not required for DDC activation or Rad53 phosphorylation. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -11379,20 +11372,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Dun1 is not required for checkpoint maintenance."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Dun1 is not required for checkpoint maintenance. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -12074,20 +12066,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Ddc2 and Rad53 are dispensable for >24 hr checkpoint arrest."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Ddc2 and Rad53 are dispensable for >24 hr checkpoint arrest. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -12655,20 +12646,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Relative levels of Ddc2 decrease after DSB induction."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Relative levels of Ddc2 decrease after DSB induction. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -13139,8 +13129,7 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
+                  "type": "Paragraph",
                   "content": [
                     {
                       "type": "Text",
@@ -16612,20 +16601,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -16992,20 +16980,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Mad2 is required for permanent arrest in a 2-DSB strain."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Mad2 is required for permanent arrest in a 2-DSB strain. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -17097,20 +17084,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -17392,20 +17378,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -17861,20 +17846,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -18241,20 +18225,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Bub2 but not Bfa1 is required for prolonged arrest."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Bub2 but not Bfa1 is required for prolonged arrest. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -19145,20 +19128,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Adaptation assay of different 2-DSB strains."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Adaptation assay of different 2-DSB strains. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -19406,20 +19388,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Phosphomimetic and non-phosphorylatable mutants of histone H2A and H2B do not affect the growth rate of cells."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Phosphomimetic and non-phosphorylatable mutants of histone H2A and H2B do not affect the growth rate of cells. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -19526,20 +19507,19 @@ expression: article
           "labelAutomatically": false,
           "caption": [
             {
-              "type": "Heading",
-              "level": 1,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Activation and maintenance of checkpoint arrest in response to a DSB."
-                  }
-                }
-              ]
-            },
-            {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Activation and maintenance of checkpoint arrest in response to a DSB. "
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {

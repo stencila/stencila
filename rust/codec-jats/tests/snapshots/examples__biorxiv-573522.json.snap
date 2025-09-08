@@ -4267,8 +4267,7 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
+                  "type": "Paragraph",
                   "content": [
                     {
                       "type": "Text",
@@ -4279,7 +4278,13 @@ expression: article
                   ]
                 }
               ],
-              "rows": []
+              "rows": [],
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "573522v1_tbl1"
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -4317,8 +4322,7 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
+                  "type": "Paragraph",
                   "content": [
                     {
                       "type": "Text",
@@ -4329,7 +4333,17 @@ expression: article
                   ]
                 }
               ],
-              "rows": []
+              "rows": [],
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "573522v1_tbl2"
+                },
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "573522v1_tbl2a"
+                }
+              ]
             }
           ]
         },
@@ -4966,20 +4980,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Calcium currents underly bursting in NLOT neurons."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Calcium currents underly bursting in NLOT neurons. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Strong",
                       "content": [
@@ -5133,20 +5146,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Inputs into the NLOT as revealed with g-deleted rabies monosynaptic tracing."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Inputs into the NLOT as revealed with g-deleted rabies monosynaptic tracing. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Strong",
                       "content": [
@@ -5278,20 +5290,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Axonal projections of NLOT neurons."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Axonal projections of NLOT neurons. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Strong",
                       "content": [
@@ -6104,20 +6115,19 @@ expression: article
                   "labelAutomatically": false,
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 3,
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "OB inputs are weak and insufficient to elicit NLOT firing."
-                          }
-                        }
-                      ]
-                    },
-                    {
                       "type": "Paragraph",
                       "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "OB inputs are weak and insufficient to elicit NLOT firing. "
+                              }
+                            }
+                          ]
+                        },
                         {
                           "type": "Strong",
                           "content": [
@@ -6441,20 +6451,19 @@ expression: article
                   "labelAutomatically": false,
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 3,
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "Piriform inputs into NLOT."
-                          }
-                        }
-                      ]
-                    },
-                    {
                       "type": "Paragraph",
                       "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Piriform inputs into NLOT. "
+                              }
+                            }
+                          ]
+                        },
                         {
                           "type": "Strong",
                           "content": [
@@ -6726,20 +6735,19 @@ expression: article
                   "labelAutomatically": false,
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 3,
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "AON/TT inputs into NLOT."
-                          }
-                        }
-                      ]
-                    },
-                    {
                       "type": "Paragraph",
                       "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "AON/TT inputs into NLOT. "
+                              }
+                            }
+                          ]
+                        },
                         {
                           "type": "Strong",
                           "content": [
@@ -7040,20 +7048,19 @@ expression: article
                   "labelAutomatically": false,
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 3,
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "BLA inputs into NLOT."
-                          }
-                        }
-                      ]
-                    },
-                    {
                       "type": "Paragraph",
                       "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "BLA inputs into NLOT. "
+                              }
+                            }
+                          ]
+                        },
                         {
                           "type": "Strong",
                           "content": [
