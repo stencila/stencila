@@ -1,7 +1,7 @@
 import { provide } from '@lit/context'
 import { NodeType } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import {
@@ -40,22 +40,6 @@ export class Article extends Entity {
 
   @property()
   commit?: string
-
-  /**
-   * Toggle show/hide abstract
-   *
-   * Defaults to false, and then is toggled off/on by user. Currently, only
-   * observed for non-root articles
-   */
-  @state()
-  private showAbstract?: boolean = false
-
-
-  public static shouldExpand(_card: HTMLElement, nodeType: NodeType): boolean {
-    return (
-      nodeType == 'Article'
-    )
-  }
 
   /**
    * Context provider for the visibility of the article's headings
@@ -113,9 +97,7 @@ export class Article extends Entity {
       </stencila-ui-article-headings>
 
       <slot name="title"></slot>
-      
       <slot name="abstract"></slot>
-      
       <slot name="content"></slot>
 
       <stencila-ui-article-references>
@@ -131,51 +113,13 @@ export class Article extends Entity {
         node-id=${this.id}
         depth=${this.depth}
         ?has-root=${this.hasRoot()}
-        no-content-padding
       >
-        <div slot="body" class="p-3">
-          <slot name="reference"></slot>
-          
-          <div class="flex items-center justify-between mt-2">
-            ${this.renderShowHideContent()}
-          </div>
-        </div>
-
-        <div
-          slot="content"
-          class="px-3 transition-[padding-top,padding-bottom] duration-500 ease-in-out ${this
-            .showAbstract
-            ? 'py-3'
-            : 'py-0'}"
-        >
-          <stencila-ui-collapsible-animation
-            class=${this.showAbstract ? 'opened' : ''}
-          >
-            <div class="text-sm">
-              <slot name="abstract"></slot>
-              <slot name="content"></slot>
-            </div>
-          </stencila-ui-collapsible-animation>
+        <div slot="content">
+          <slot name="title"></slot>
+          <slot name="abstract"></slot>
+          <slot name="content"></slot>
         </div>
       </stencila-ui-block-on-demand>
     `
-  }
-
-    private renderShowHideContent() {
-    return html`<sl-tooltip
-      content=${this.showAbstract
-        ? 'Hide excerpt content'
-        : 'Show excerpt content'}
-    >
-      <stencila-ui-icon-button
-        class="text-sm"
-        name=${this.showAbstract ? 'eyeSlash' : 'eye'}
-        @click=${(e: Event) => {
-          // Stop the click behavior of the card header parent element
-          e.stopImmediatePropagation()
-          this.showAbstract = !this.showAbstract
-        }}
-      ></stencila-ui-icon-button>
-    </sl-tooltip>`
   }
 }
