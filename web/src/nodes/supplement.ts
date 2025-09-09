@@ -23,6 +23,9 @@ export class Supplement extends Entity {
   @property({ attribute: 'work-type' })
   workType?: string
 
+  @property()
+  target?: string
+
   /**
    * Toggle show/hide work content
    *
@@ -30,6 +33,46 @@ export class Supplement extends Entity {
    */
   @state()
   private showWork?: boolean = false
+
+  /**
+   * Whether the supplement has any work content
+   *
+   * Used to determine whether to show the chevron button or external link.
+   */
+  @state()
+  private hasWork = false
+
+  /**
+   * A mutation observer to update the `hasWork` state when
+   * the `work` slot changes
+   */
+  private workObserver: MutationObserver
+
+  /**
+   * Handle a change, including on initial load, of the `work` slot
+   */
+  private onWorkSlotChange(event: Event) {
+    // Get the slot element
+    const workElem = (event.target as HTMLSlotElement).assignedElements({
+      flatten: true,
+    })[0]
+
+    // Set current state
+    this.hasWork = workElem && workElem.childElementCount > 0
+
+    // Update the state when the slot is mutated
+    if (this.workObserver) {
+      this.workObserver.disconnect()
+    }
+    if (workElem) {
+      this.workObserver = new MutationObserver(() => {
+        this.hasWork = workElem.childElementCount > 0
+      })
+      this.workObserver.observe(workElem, {
+        childList: true,
+      })
+    }
+  }
 
   override render() {
     if (this.isWithin('StyledBlock')) {
@@ -47,22 +90,27 @@ export class Supplement extends Entity {
     return html`
       <slot name="id"></slot>
 
-      <div class="flex items-end justify-between">
+      <div class="flex items-end justify-between items-center">
         <slot name="caption"></slot>
-        <stencila-ui-chevron-button
-          default-pos=${this.showWork ? 'down' : 'left'}
-          custom-class="flex items-center"
-          .clickEvent=${(e: Event) => {
-            e.stopImmediatePropagation()
-            this.showWork = !this.showWork
-          }}
-        ></stencila-ui-chevron-button>
+
+        ${this.hasWork
+          ? html`<stencila-ui-chevron-button
+              default-pos=${this.showWork ? 'down' : 'left'}
+              custom-class="flex items-center"
+              .clickEvent=${(e: Event) => {
+                e.stopImmediatePropagation()
+                this.showWork = !this.showWork
+              }}
+            ></stencila-ui-chevron-button>`
+          : html`<div class="text-sm text-blue-700">
+              <a href=${this.target} target="_blank"><stencila-ui-icon name="externalLink"></stencila-ui-icon></a>
+            </div>`}
       </div>
 
       <stencila-ui-collapsible-animation
         class=${this.showWork ? 'opened' : ''}
       >
-        <slot name="work"></slot>
+        <slot name="work" @slotchange=${this.onWorkSlotChange}></slot>
       </stencila-ui-collapsible-animation>
     `
   }
