@@ -10,7 +10,7 @@ stencila-codec-latex = { path = "../codec-latex" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-convert = { path = "../convert" }
-stencila-media-embed = { path = "../media-embed" }
+stencila-node-media = { path = "../node-media" }
 stencila-node-structuring = { path = "../node-structuring" }
 
 [lints]

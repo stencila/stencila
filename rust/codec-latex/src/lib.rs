@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use stencila_media_extract::extract_media;
+use stencila_node_media::extract_media;
 use tokio::fs::{create_dir_all, write};
 
 use stencila_codec::{

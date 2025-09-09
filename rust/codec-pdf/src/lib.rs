@@ -12,7 +12,7 @@ use stencila_codec_latex::LatexCodec;
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_utils::git_info;
 use stencila_convert::{html_to_pdf, latex_to_pdf, pdf_to_md};
-use stencila_media_embed::embed_media;
+use stencila_node_media::embed_media;
 use stencila_node_structuring::structuring;
 
 /// A codec for PDF

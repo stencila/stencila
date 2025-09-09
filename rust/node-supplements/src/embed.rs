@@ -9,7 +9,7 @@ use stencila_codec_ipynb::IpynbCodec;
 use stencila_codec_latex::LatexCodec;
 use stencila_codec_pdf::PdfCodec;
 use stencila_codec_xlsx::XlsxCodec;
-use stencila_media_embed::embed_media;
+use stencila_node_media::embed_media;
 use stencila_schema::{
     Article, AudioObject, Block, CompilationMessage, CreativeWorkType, CreativeWorkVariant, Figure,
     File, ImageObject, MessageLevel, Node, Supplement, VideoObject, VisitorAsync, WalkControl,
@@ -41,7 +41,7 @@ pub async fn embed_supplements<T: WalkNode>(node: &mut T, path: &Path) -> Result
 }
 
 struct Embedder {
-    /// The directory from which relative targets are resolved
+    /// The directory from which relative paths to supplements are resolved
     dir: PathBuf,
 }
 
@@ -66,6 +66,12 @@ impl VisitorAsync for Embedder {
 }
 
 impl Embedder {
+    /// Embed a supplement by resolving its target file and converting it to appropriate content.
+    ///
+    /// Validates the supplement has a target, resolves the file path, determines the format,
+    /// and processes content accordingly - creating media objects for audio/video/images or
+    /// using codecs to decode structured documents (CSV, DOCX, etc.). Handles errors gracefully
+    /// by recording compilation messages and maps the result to the correct work type and variant.
     async fn embed(&self, supplement: &mut Supplement) {
         let Some(target) = &supplement.target else {
             supplement.options.compilation_messages = Some(vec![CompilationMessage::new(

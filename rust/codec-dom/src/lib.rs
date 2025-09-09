@@ -15,8 +15,7 @@ use stencila_codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
-use stencila_media_embed::embed_media;
-use stencila_media_extract::extract_media;
+use stencila_node_media::{embed_media, extract_media};
 use stencila_version::STENCILA_VERSION;
 
 /// A codec for DOM HTML

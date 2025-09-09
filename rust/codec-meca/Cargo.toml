@@ -8,7 +8,7 @@ glob = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-jats = { path = "../codec-jats" }
 stencila-dirs = { path = "../dirs" }
-stencila-media-embed = { path = "../media-embed" }
+stencila-node-media = { path = "../node-media" }
 stencila-node-supplements = { path = "../node-supplements" }
 tempfile = { workspace = true }
 tracing = { workspace = true }

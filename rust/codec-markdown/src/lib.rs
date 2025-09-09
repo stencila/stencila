@@ -18,8 +18,7 @@ pub use decode::preprocess;
 
 mod encode;
 pub use encode::encode;
-use stencila_media_embed::embed_media;
-use stencila_media_extract::extract_media;
+use stencila_node_media::{embed_media, extract_media};
 
 /// A codec for Markdown
 pub struct MarkdownCodec;

@@ -10,7 +10,7 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 use stencila_codec_jats::JatsCodec;
-use stencila_media_embed::embed_media;
+use stencila_node_media::embed_media;
 
 /// Decode a MECA file to a Stencila [`Node`]
 #[tracing::instrument]

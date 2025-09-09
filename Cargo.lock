@@ -10343,8 +10343,11 @@ dependencies = [
 name = "stencila-media-extract"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
  "eyre",
- "stencila-images",
+ "itertools 0.14.0",
+ "seahash",
+ "stencila-format",
  "stencila-schema",
  "tracing",
 ]
@@ -10753,6 +10756,7 @@ dependencies = [
  "stencila-codec-pdf",
  "stencila-codec-xlsx",
  "stencila-media-embed",
+ "stencila-media-extract",
  "stencila-schema",
  "tracing",
 ]

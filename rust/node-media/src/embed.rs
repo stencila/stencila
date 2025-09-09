@@ -79,7 +79,7 @@ impl Embedder {
     }
 
     /// Embed a vector of images
-    fn embed_images(&self, images: &mut Vec<ImageObject>) {
+    fn embed_images(&self, images: &mut [ImageObject]) {
         images.iter_mut().for_each(|image| self.embed_image(image));
     }
 

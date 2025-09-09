@@ -14,7 +14,7 @@ stencila-codec-json = { path = "../codec-json" }
 stencila-codec-pandoc = { path = "../codec-pandoc" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-dirs = { path = "../dirs" }
-stencila-media-embed = { path = "../media-embed" }
+stencila-node-media = { path = "../node-media" }
 stencila-node-reconstitute = { path = "../node-reconstitute" }
 stencila-version = { path = "../version" }
 tempfile = { workspace = true }
