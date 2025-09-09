@@ -1,6 +1,6 @@
-use std::path::Path;
+use std::{env::current_dir, path::Path};
 
-use stencila_media_extract::extract_media;
+use stencila_node_media::extract_media;
 use tokio::fs::{create_dir_all, write};
 
 use stencila_codec::{
@@ -71,7 +71,11 @@ impl Codec for LatexCodec {
         if options.tool.is_none() {
             if let Some(media) = options.extract_media.as_ref() {
                 let mut copy = node.clone();
-                extract_media(&mut copy, media)?;
+                let to_path = match options.to_path.as_ref() {
+                    Some(path) => path,
+                    None => &current_dir()?,
+                };
+                extract_media(&mut copy, to_path, media)?;
                 encode(&copy, options)
             } else {
                 encode(node, options)

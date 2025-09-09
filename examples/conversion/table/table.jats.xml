@@ -75,7 +75,7 @@
       </table>
     </table-wrap>
     <p>Table with label, caption &amp; notes</p>
-    <table-wrap label-automatically="false">
+    <table-wrap>
       <label>3</label>
       <caption>
         <p>The caption.</p>

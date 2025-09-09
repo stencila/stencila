@@ -11,7 +11,7 @@ directories = { workspace = true }
 eyre = { workspace = true }
 itertools = { workspace = true }
 mcp-types = "0.1.1"
-pathdiff = "0.2.3"
+pathdiff = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
 semver = { workspace = true }

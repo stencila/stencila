@@ -9,7 +9,7 @@ regex = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-latex-trait = { path = "../codec-latex-trait" }
 stencila-codec-pandoc = { path = "../codec-pandoc" }
-stencila-media-extract = { path = "../media-extract" }
+stencila-node-media = { path = "../node-media" }
 tokio = { workspace = true }
 
 [dev-dependencies]

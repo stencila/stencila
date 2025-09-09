@@ -2,22 +2,21 @@
 source: rust/codec-meca/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ack: 1
+//article/back/ack/label: 1
 //article/back/glossary: 1
 //article/back/ref-list/ref/@publication-type: 62
-//article/back/sec: 3
+//article/back/sec/@id: 3
+//article/back/sec/label: 3
+//article/back/sec/table-wrap/@orientation: 1
+//article/back/sec/table-wrap/@position: 1
 //article/body/sec/@id: 4
 //article/body/sec/fig/@fig-type: 1
-//article/body/sec/fig/@id: 1
 //article/body/sec/fig/@position: 1
 //article/body/sec/label: 4
-//article/body/sec/p/xref: 2
 //article/body/sec/sec/@id: 8
 //article/body/sec/sec/fig/@fig-type: 2
-//article/body/sec/sec/fig/@id: 2
 //article/body/sec/sec/fig/@position: 2
 //article/body/sec/sec/label: 8
-//article/body/sec/sec/p/xref: 3
 //article/front/article-meta/author-notes: 1
 //article/front/article-meta/contrib-group/@contrib-type: 3
 //article/front/article-meta/contrib-group/@corresp: 1

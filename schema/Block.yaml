@@ -73,6 +73,12 @@ anyOf:
         description: Generate `CodeChunk` nodes in block content.
         skip: false
 
+  - $ref: Datatable
+    proptest:
+      min:
+        description: Do not generate `Datatable` nodes in block content.
+        skip: true
+
   - $ref: Excerpt
     proptest:
       min:
@@ -184,6 +190,12 @@ anyOf:
     proptest:
       min:
         description: Do not generate `SuggestionBlock` nodes in block content.
+        skip: true
+
+  - $ref: Supplement
+    proptest:
+      min:
+        description: Do not generate `Supplement` nodes in block content.
         skip: true
 
   - $ref: Table

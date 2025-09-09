@@ -170,6 +170,7 @@
     "SuggestionInline": "stencila:SuggestionInline",
     "SuggestionStatus": "stencila:SuggestionStatus",
     "Superscript": "stencila:Superscript",
+    "Supplement": "stencila:Supplement",
     "Table": "schema:Table",
     "TableCell": "stencila:TableCell",
     "TableCellType": "stencila:TableCellType",
@@ -230,7 +231,7 @@
     "code": "stencila:code",
     "codeLocation": "stencila:codeLocation",
     "codeSampleType": "schema:codeSampleType",
-    "columnSpan": "stencila:colspan",
+    "columnSpan": "stencila:columnSpan",
     "columns": "stencila:columns",
     "commentAspect": "stencila:commentAspect",
     "comments": "schema:comment",
@@ -421,7 +422,7 @@
     "role": "stencila:role",
     "roleName": "schema:roleName",
     "ror": "stencila:ror",
-    "rowSpan": "stencila:rowspan",
+    "rowSpan": "stencila:rowSpan",
     "rowType": "stencila:rowType",
     "rows": "stencila:rows",
     "runtimePlatform": "schema:runtimePlatform",
@@ -466,6 +467,7 @@
     "version": "schema:version",
     "verticalAlignment": "stencila:verticalAlignment",
     "volumeNumber": "schema:volumeNumber",
+    "work": "stencila:work",
     "workType": "stencila:workType"
   }
 }

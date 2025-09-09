@@ -15,9 +15,6 @@ required:
   - content
 core:
   - cellType
-  - horizontalAlignment
-  - horizontalAlignmentCharacter
-  - verticalAlignment
 properties:
   cellType:
     "@id": stencila:cellType
@@ -32,19 +29,23 @@ properties:
       with an explicit name, e.g. `rate`.
     type: string
   columnSpan:
-    "@id": stencila:colspan
+    "@id": stencila:columnSpan
     description: |
       How many columns the cell extends.
     $comment: Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    dom:
+      attr: colspan
     html:
       attr: colspan
     type: integer
     minimum: 0
     maximum: 1000
   rowSpan:
-    "@id": stencila:rowspan
+    "@id": stencila:rowSpan
     description: How many columns the cell extends.
     $comment: Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    dom:
+      attr: rowspan
     html:
       attr: rowspan
     type: integer

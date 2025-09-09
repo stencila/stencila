@@ -218,7 +218,6 @@
           "stencila:cells": [
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignLeft",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -231,11 +230,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignLeft"
             },
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignCenter",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -248,11 +247,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignCenter"
             },
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignRight",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -265,7 +264,8 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignRight"
             }
           ],
           "stencila:rowType": "HeaderRow"
@@ -275,7 +275,6 @@
           "stencila:cells": [
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignLeft",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -288,11 +287,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignLeft"
             },
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignCenter",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -305,11 +304,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignCenter"
             },
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignRight",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -322,7 +321,8 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignRight"
             }
           ]
         },
@@ -331,7 +331,6 @@
           "stencila:cells": [
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignLeft",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -344,11 +343,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignLeft"
             },
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignCenter",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -361,11 +360,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignCenter"
             },
             {
               "@type": "stencila:TableCell",
-              "stencila:horizontalAlignment": "AlignRight",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -378,7 +377,8 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "stencila:horizontalAlignment": "AlignRight"
             }
           ]
         }

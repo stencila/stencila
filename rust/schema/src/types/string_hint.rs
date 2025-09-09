@@ -19,6 +19,7 @@ pub struct StringHint {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The number of characters in the string.

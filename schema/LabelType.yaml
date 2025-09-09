@@ -10,5 +10,7 @@ anyOf:
     "@id": stencila:AppendixLabel
   - const: FigureLabel
     "@id": stencila:FigureLabel
+  - const: SupplementLabel
+    "@id": stencila:SupplementLabel
   - const: TableLabel
     "@id": stencila:TableLabel

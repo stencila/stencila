@@ -32,6 +32,9 @@
       "html": {
         "attr": "id"
       },
+      "jats": {
+        "attr": "id"
+      },
       "type": "string"
     },
     "alternateNames": {
@@ -178,6 +181,10 @@
     {
       "@id": "stencila:FigureCreativeWorkType",
       "const": "Figure"
+    },
+    {
+      "@id": "stencila:FileCreativeWorkType",
+      "const": "File"
     },
     {
       "@id": "stencila:ImageObjectCreativeWorkType",

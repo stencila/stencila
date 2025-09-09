@@ -41,6 +41,7 @@ export class MathInline extends Math {
         </div>
         <span slot="content">
           <slot name="mathml"></slot>
+          <slot name="images"></slot>
         </span>
       </stencila-ui-inline-on-demand>
     `

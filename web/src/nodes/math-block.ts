@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
@@ -14,6 +14,9 @@ import { Math } from './math'
 @customElement('stencila-math-block')
 @withTwind()
 export class MathBlock extends Math {
+  @property()
+  label?: string
+
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
@@ -62,10 +65,17 @@ export class MathBlock extends Math {
   }
 
   private renderContent() {
+    const label = this.label ? html`(${this.label})` : ''
+
     return html`
-      <div class="px-4 py-6 text-base flex justify-center">
-        <slot name="mathml"></slot>
-        <slot name="images"></slot>
+      <slot name="id"></slot>
+      <div class="px-4 py-6 text-base flex justify-between items-center">
+        <div></div>
+        <div class="flex justify-center">
+          <slot name="mathml"></slot>
+          <slot name="images"></slot>
+        </div>
+        <label class="flex-shrink-0">${label}</label>
       </div>
     `
   }

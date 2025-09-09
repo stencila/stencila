@@ -352,7 +352,6 @@ impl DatabaseNode for CodeChunk {
             (NodeProperty::ExecutionBounded, self.options.execution_bounded.to_kuzu_type(), self.options.execution_bounded.to_kuzu_value()),
             (NodeProperty::LabelType, self.label_type.to_kuzu_type(), self.label_type.to_kuzu_value()),
             (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
-            (NodeProperty::LabelAutomatically, self.label_automatically.to_kuzu_type(), self.label_automatically.to_kuzu_value()),
             (NodeProperty::IsEchoed, self.is_echoed.to_kuzu_type(), self.is_echoed.to_kuzu_value()),
             (NodeProperty::IsHidden, self.is_hidden.to_kuzu_type(), self.is_hidden.to_kuzu_value()),
             (NodeProperty::ExecutionPure, self.options.execution_pure.to_kuzu_type(), self.options.execution_pure.to_kuzu_value()),
@@ -430,7 +429,8 @@ impl DatabaseNode for Datatable {
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
             (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
-            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value())
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
+            (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value())
         ]
     }
 
@@ -528,7 +528,6 @@ impl DatabaseNode for Figure {
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
-            (NodeProperty::LabelAutomatically, self.label_automatically.to_kuzu_type(), self.label_automatically.to_kuzu_value()),
             (NodeProperty::Caption, LogicalType::String, to_text(&self.caption).to_kuzu_value())
         ]
     }
@@ -559,8 +558,20 @@ impl DatabaseNode for File {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
+            (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.name.to_kuzu_type(), self.name.to_kuzu_value()),
+            (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, self.doi.to_kuzu_type(), self.doi.to_kuzu_value()),
+            (NodeProperty::DateCreated, self.options.date_created.to_kuzu_type(), self.options.date_created.to_kuzu_value()),
+            (NodeProperty::DateReceived, self.options.date_received.to_kuzu_type(), self.options.date_received.to_kuzu_value()),
+            (NodeProperty::DateAccepted, self.options.date_accepted.to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
+            (NodeProperty::DateModified, self.options.date_modified.to_kuzu_type(), self.options.date_modified.to_kuzu_value()),
+            (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
+            (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
+            (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.path.to_kuzu_type(), self.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::MediaType, self.media_type.to_kuzu_type(), self.media_type.to_kuzu_value()),
             (NodeProperty::Size, self.size.to_kuzu_type(), self.size.to_kuzu_value()),
             (NodeProperty::Content, self.content.to_kuzu_type(), self.content.to_kuzu_value())
@@ -569,7 +580,10 @@ impl DatabaseNode for File {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::References, relations(self.options.references.iter().flatten()))
         ]
     }
 }
@@ -913,8 +927,7 @@ impl DatabaseNode for MathBlock {
         vec![
             (NodeProperty::Code, self.code.to_kuzu_type(), self.code.to_kuzu_value()),
             (NodeProperty::MathLanguage, self.math_language.to_kuzu_type(), self.math_language.to_kuzu_value()),
-            (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
-            (NodeProperty::LabelAutomatically, self.label_automatically.to_kuzu_type(), self.label_automatically.to_kuzu_value())
+            (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value())
         ]
     }
 
@@ -1514,6 +1527,33 @@ impl DatabaseNode for StyledInline {
     }
 }
 
+impl DatabaseNode for Supplement {
+    fn node_type(&self) -> NodeType {
+        NodeType::Supplement
+    }
+
+    fn node_id(&self) -> NodeId {
+        Supplement::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
+            (NodeProperty::Target, self.target.to_kuzu_type(), self.target.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
+        vec![
+            
+        ]
+    }
+}
+
 impl DatabaseNode for Table {
     fn node_type(&self) -> NodeType {
         NodeType::Table
@@ -1544,7 +1584,6 @@ impl DatabaseNode for Table {
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
-            (NodeProperty::LabelAutomatically, self.label_automatically.to_kuzu_type(), self.label_automatically.to_kuzu_value()),
             (NodeProperty::Caption, LogicalType::String, to_text(&self.caption).to_kuzu_value()),
             (NodeProperty::Notes, LogicalType::String, to_text(&self.notes).to_kuzu_value())
         ]
@@ -1765,6 +1804,7 @@ impl DatabaseNode for Node {
             Node::SoftwareSourceCode(node) => node.node_type(),
             Node::StyledBlock(node) => node.node_type(),
             Node::StyledInline(node) => node.node_type(),
+            Node::Supplement(node) => node.node_type(),
             Node::Table(node) => node.node_type(),
             Node::TableCell(node) => node.node_type(),
             Node::TableRow(node) => node.node_type(),
@@ -1823,6 +1863,7 @@ impl DatabaseNode for Node {
             Node::SoftwareSourceCode(node) => node.node_id(),
             Node::StyledBlock(node) => node.node_id(),
             Node::StyledInline(node) => node.node_id(),
+            Node::Supplement(node) => node.node_id(),
             Node::Table(node) => node.node_id(),
             Node::TableCell(node) => node.node_id(),
             Node::TableRow(node) => node.node_id(),
@@ -1881,6 +1922,7 @@ impl DatabaseNode for Node {
             Node::SoftwareSourceCode(node) => node.primary_key(),
             Node::StyledBlock(node) => node.primary_key(),
             Node::StyledInline(node) => node.primary_key(),
+            Node::Supplement(node) => node.primary_key(),
             Node::Table(node) => node.primary_key(),
             Node::TableCell(node) => node.primary_key(),
             Node::TableRow(node) => node.primary_key(),
@@ -1939,6 +1981,7 @@ impl DatabaseNode for Node {
             Node::SoftwareSourceCode(node) => node.node_table(),
             Node::StyledBlock(node) => node.node_table(),
             Node::StyledInline(node) => node.node_table(),
+            Node::Supplement(node) => node.node_table(),
             Node::Table(node) => node.node_table(),
             Node::TableCell(node) => node.node_table(),
             Node::TableRow(node) => node.node_table(),
@@ -1997,6 +2040,7 @@ impl DatabaseNode for Node {
             Node::SoftwareSourceCode(node) => node.rel_tables(),
             Node::StyledBlock(node) => node.rel_tables(),
             Node::StyledInline(node) => node.rel_tables(),
+            Node::Supplement(node) => node.rel_tables(),
             Node::Table(node) => node.rel_tables(),
             Node::TableCell(node) => node.rel_tables(),
             Node::TableRow(node) => node.rel_tables(),
@@ -2017,6 +2061,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.node_type(),
             Block::CodeBlock(node) => node.node_type(),
             Block::CodeChunk(node) => node.node_type(),
+            Block::Datatable(node) => node.node_type(),
             Block::Figure(node) => node.node_type(),
             Block::File(node) => node.node_type(),
             Block::ForBlock(node) => node.node_type(),
@@ -2031,6 +2076,7 @@ impl DatabaseNode for Block {
             Block::RawBlock(node) => node.node_type(),
             Block::Section(node) => node.node_type(),
             Block::StyledBlock(node) => node.node_type(),
+            Block::Supplement(node) => node.node_type(),
             Block::Table(node) => node.node_type(),
             Block::ThematicBreak(node) => node.node_type(),
             Block::VideoObject(node) => node.node_type(),
@@ -2045,6 +2091,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.node_id(),
             Block::CodeBlock(node) => node.node_id(),
             Block::CodeChunk(node) => node.node_id(),
+            Block::Datatable(node) => node.node_id(),
             Block::Figure(node) => node.node_id(),
             Block::File(node) => node.node_id(),
             Block::ForBlock(node) => node.node_id(),
@@ -2059,6 +2106,7 @@ impl DatabaseNode for Block {
             Block::RawBlock(node) => node.node_id(),
             Block::Section(node) => node.node_id(),
             Block::StyledBlock(node) => node.node_id(),
+            Block::Supplement(node) => node.node_id(),
             Block::Table(node) => node.node_id(),
             Block::ThematicBreak(node) => node.node_id(),
             Block::VideoObject(node) => node.node_id(),
@@ -2073,6 +2121,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.primary_key(),
             Block::CodeBlock(node) => node.primary_key(),
             Block::CodeChunk(node) => node.primary_key(),
+            Block::Datatable(node) => node.primary_key(),
             Block::Figure(node) => node.primary_key(),
             Block::File(node) => node.primary_key(),
             Block::ForBlock(node) => node.primary_key(),
@@ -2087,6 +2136,7 @@ impl DatabaseNode for Block {
             Block::RawBlock(node) => node.primary_key(),
             Block::Section(node) => node.primary_key(),
             Block::StyledBlock(node) => node.primary_key(),
+            Block::Supplement(node) => node.primary_key(),
             Block::Table(node) => node.primary_key(),
             Block::ThematicBreak(node) => node.primary_key(),
             Block::VideoObject(node) => node.primary_key(),
@@ -2101,6 +2151,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.node_table(),
             Block::CodeBlock(node) => node.node_table(),
             Block::CodeChunk(node) => node.node_table(),
+            Block::Datatable(node) => node.node_table(),
             Block::Figure(node) => node.node_table(),
             Block::File(node) => node.node_table(),
             Block::ForBlock(node) => node.node_table(),
@@ -2115,6 +2166,7 @@ impl DatabaseNode for Block {
             Block::RawBlock(node) => node.node_table(),
             Block::Section(node) => node.node_table(),
             Block::StyledBlock(node) => node.node_table(),
+            Block::Supplement(node) => node.node_table(),
             Block::Table(node) => node.node_table(),
             Block::ThematicBreak(node) => node.node_table(),
             Block::VideoObject(node) => node.node_table(),
@@ -2129,6 +2181,7 @@ impl DatabaseNode for Block {
             Block::Claim(node) => node.rel_tables(),
             Block::CodeBlock(node) => node.rel_tables(),
             Block::CodeChunk(node) => node.rel_tables(),
+            Block::Datatable(node) => node.rel_tables(),
             Block::Figure(node) => node.rel_tables(),
             Block::File(node) => node.rel_tables(),
             Block::ForBlock(node) => node.rel_tables(),
@@ -2143,6 +2196,7 @@ impl DatabaseNode for Block {
             Block::RawBlock(node) => node.rel_tables(),
             Block::Section(node) => node.rel_tables(),
             Block::StyledBlock(node) => node.rel_tables(),
+            Block::Supplement(node) => node.rel_tables(),
             Block::Table(node) => node.rel_tables(),
             Block::ThematicBreak(node) => node.rel_tables(),
             Block::VideoObject(node) => node.rel_tables(),

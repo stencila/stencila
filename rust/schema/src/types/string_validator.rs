@@ -19,6 +19,7 @@ pub struct StringValidator {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The minimum length for a string node.

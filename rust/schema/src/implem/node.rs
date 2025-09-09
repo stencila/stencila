@@ -1,6 +1,6 @@
 use stencila_node_store::{ReadNode, ReadStore, automerge::ObjId, get_node_type};
 
-use crate::{Array, Block, Inline, Node, Null, Object, Primitive, prelude::*};
+use crate::{Array, Block, CreativeWorkVariant, Inline, Node, Null, Object, Primitive, prelude::*};
 
 impl Node {
     pub fn node_type(&self) -> NodeType {
@@ -132,6 +132,7 @@ impl Node {
             SuggestionBlock,
             SuggestionInline,
             Superscript,
+            Supplement,
             Table,
             TableCell,
             TableRow,
@@ -284,6 +285,7 @@ impl Node {
             SuggestionBlock,
             SuggestionInline,
             Superscript,
+            Supplement,
             Table,
             TableCell,
             TableRow,
@@ -479,6 +481,7 @@ impl ReadNode for Node {
             SuggestionBlock,
             SuggestionInline,
             Superscript,
+            Supplement,
             Table,
             TableCell,
             TableRow,
@@ -591,6 +594,7 @@ impl From<Block> for Node {
             Claim,
             CodeBlock,
             CodeChunk,
+            Datatable,
             Excerpt,
             Figure,
             File,
@@ -612,10 +616,48 @@ impl From<Block> for Node {
             Section,
             StyledBlock,
             SuggestionBlock,
+            Supplement,
             Table,
             ThematicBreak,
             VideoObject,
             Walkthrough
+        )
+    }
+}
+
+impl From<CreativeWorkVariant> for Node {
+    fn from(work: CreativeWorkVariant) -> Self {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match work {
+                    $(
+                        CreativeWorkVariant::$variant(node) => Node::$variant(node),
+                    )*
+                }
+            };
+        }
+
+        variants!(
+            Article,
+            AudioObject,
+            Chat,
+            Claim,
+            Collection,
+            Comment,
+            Datatable,
+            Figure,
+            File,
+            ImageObject,
+            MediaObject,
+            Periodical,
+            Prompt,
+            PublicationIssue,
+            PublicationVolume,
+            Review,
+            SoftwareApplication,
+            SoftwareSourceCode,
+            Table,
+            VideoObject
         )
     }
 }

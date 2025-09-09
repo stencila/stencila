@@ -24,6 +24,7 @@ pub struct ThematicBreak {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// A unique identifier for a node within a document

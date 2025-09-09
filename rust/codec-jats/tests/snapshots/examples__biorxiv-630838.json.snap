@@ -6237,10 +6237,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This included a minor population (∼9 percent) of cells that exhibited small transient round blebs around their peripheries with a lifetime of less than a minute (("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6266,6 +6290,18 @@ expression: article
                   "value": {
                     "string": ". Confinement also induced elongated blebs ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Fig 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6336,23 +6372,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fige1",
               "label": "Extended Figure 1",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Leader bleb-based migration requires EGFR signaling."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Leader bleb-based migration requires EGFR signaling. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -6371,23 +6408,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig1",
               "label": "1",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR signals via PI3K to maintain leader bleb-based migration in non-adhesive confinement."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR signals via PI3K to maintain leader bleb-based migration in non-adhesive confinement. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -6448,16 +6486,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1B"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Cells with single elongated blebs exhibited two distinct types that we will refer to as dynamic elongated blebs ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), which were those that extended and retracted with a lifetime of <25 minutes (∼35 percent) and leader blebs, which were stable and had a lifetime of >25 min (∼40 percent of cells; "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1A"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6485,10 +6559,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1C"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), migration persistence ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1D"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6497,10 +6595,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1B"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Indeed, plotting the lifetime of elongated blebs before their retraction vs either their migration persistence ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1E"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6509,16 +6631,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1C"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") showed significantly positive correlations. In contrast, similar analysis of bleb lifetime vs speed showed that cells with an elongated bleb moved at similar speeds, independent of bleb lifetime ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1D"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1E"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6573,16 +6731,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1F"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", G). Analysis of cell motility parameters showed that serum starvation strongly reduced migratory range ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1H"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") and the few cells that exhibited leader bleb morphology had reduced migration persistence, but no effect on cell speed ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1I"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
                 },
                 {
                   "type": "Text",
@@ -6626,10 +6820,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1K"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), we reasoned that EGF could be the serum factor responsible for promoting leader bleb-based migration in non-adhesive confinement. Importantly, addition of EGF to serum-starved cells partially rescued the leader bleb morphology ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1F"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
                 },
                 {
                   "type": "Text",
@@ -6638,10 +6856,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1G"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; Movie 2) and increased the migratory range and migration persistence ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1H"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
                 },
                 {
                   "type": "Text",
@@ -6650,10 +6892,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1J"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). We found that pharmacological inhibition of either EGFR tyrosine kinase activity using erlotinib (10μM) or inhibition of its downstream target phosphatidylinositol 3-kinase (Pi3K) with wortmannin (10nM) strongly decreased the proportion of cells with stable leader blebs ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1F"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6662,10 +6928,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1G"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; Movie 3) and their migratory range ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1L"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
                 },
                 {
                   "type": "Text",
@@ -6674,10 +6964,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1H"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), without a change in migration speed ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended figure 1M"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
                 },
                 {
                   "type": "Text",
@@ -6686,10 +7000,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1N"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This showed that compared to non-targeting siRNAs (NT), EGFR-KD strongly inhibited the formation of both dynamic and stable elongated blebs ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1I"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
                 },
                 {
                   "type": "Text",
@@ -6698,16 +7036,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 1O"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Though the EGFR-KD cells exhibiting leader bleb morphology had both reduced migration persistence ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 1K"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") and speed ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended figure 1P"
+                      }
+                    }
+                  ],
+                  "target": "#fige1"
                 },
                 {
                   "type": "Text",
@@ -6744,10 +7118,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2A,B"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Quantification of the polarity index across the bleb confirmed this rear-to-front gradient, with the bleb base exhibiting an average ∼2.5 fold enrichment of EGFR-GFP compared to the bleb tip ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2C"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -6775,10 +7173,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2D"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", 2E). Quantification of the ratio of ZtSH2-CLV to EGFR-CD3-FR showed that while there appeared to be a slight elevation in the fraction of activated receptor towards the bleb tip, the polarity index of the ratio was close to zero, indicating that there was no spatial bias in sensitivity of EGFR ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2F"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -6790,23 +7212,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig2",
               "label": "2",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR, PI3K and Rac1 activities form rear-to-front gradients in leader blebs."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR, PI3K and Rac1 activities form rear-to-front gradients in leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -6871,6 +7294,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2H"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ")."
@@ -6888,10 +7323,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2H"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", left panel, 2I). In contrast, PLC-delta-PH-GFP (PIP2) revealed a front-to-rear gradient the inverse of that of PIP3, with highest concentration at the tip of the leader bleb ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2H"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -6938,10 +7397,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2J"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", left panel, 2K). In contrast, like PLC-delta-PH-GFP, Rhotekin-RBD-GFP, and thus RhoA activity, localized toward the bleb tip ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2J"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -6978,10 +7461,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3A-C"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This showed that although bleb aspect ratio did not appear to correlate with EGFR polarity for either transient or stable elongated blebs, stable leader blebs generally exhibited greater EGFR polarity than transient elongated blebs ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3B"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
                 },
                 {
                   "type": "Text",
@@ -6990,10 +7497,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3B"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Direct comparison of EGFR polarity index for transient elongated blebs versus stabilized leader blebs confirmed this, with leader blebs showing significantly higher EGFR polarity than transient blebs ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3C"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
                 },
                 {
                   "type": "Text",
@@ -7005,23 +7536,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig3",
               "label": "3",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR and Rac1 activity at the rear of the bleb is required for bleb stability."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR and Rac1 activity at the rear of the bleb is required for bleb stability. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -7119,10 +7651,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3D"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ").Time-lapse imaging showed that light exposure on the bleb tip in cells expressing Opto-EGFR caused a significant decrease in leader bleb length after 25 min compared to similar light exposure on the bleb tip of cells expressing EGFR-FR ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3E"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
                 },
                 {
                   "type": "Text",
@@ -7196,10 +7752,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3G"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), cause local disassembly of the actin bundles that reduced actin coherence at the bleb tip ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Fig 3F"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
                 },
                 {
                   "type": "Text",
@@ -7208,16 +7788,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3F"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), and eventually retract the blebs ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3G"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This was compared to the lack of actin remodeling or retraction in response to similar light exposure at bleb tips in cells expressing the non-photoactivatable control (PA-Rac450A) ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3F-H"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
                 },
                 {
                   "type": "Text",
@@ -7378,16 +7994,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2A"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This showed that recovery was very slow ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2B"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") and occurred directionally from the cell body ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2C"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
                 },
                 {
                   "type": "Text",
@@ -7434,23 +8086,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fige2",
               "label": "Extended Figure 2",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR and other transmembrane proteins form rear-to-front gradients on leader blebs."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR and other transmembrane proteins form rear-to-front gradients on leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -7488,6 +8141,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2D"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", E), EGFR has an apparent diffusivity (("
@@ -7520,6 +8185,18 @@ expression: article
                   "value": {
                     "string": "), "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2F"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
                 },
                 {
                   "type": "Text",
@@ -7640,6 +8317,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4A"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ")."
@@ -7649,23 +8338,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig4",
               "label": "4",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Experiment and modeling indicate neither cortical nor membrane flow mediate EGFR gradient formation in leader blebs."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Experiment and modeling indicate neither cortical nor membrane flow mediate EGFR gradient formation in leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -7722,10 +8412,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2H"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2I"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -7769,10 +8483,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2J"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", 2K; Movie 7). Modeling the effect of this actin retrograde flow profile on EFGR distribution produced a rear-to-front gradient of EGFR, similar to the measured distribution. Increasing or decreasing the actin retrograde flow speed changed the slope of the gradient ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2L"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
                 },
                 {
                   "type": "Text",
@@ -7819,16 +8557,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4B"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", Movie 8). PIV analysis confirmed that jasplakinolide strongly hindered actin retrograde flow along the leader bleb compared to DMSO control ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4B"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", C). Surprisingly, however, analysis of EGFR localization showed that inhibition of actin flow did not destroy the rear-to-front EGFR gradient, and had no significant effect on the polarity index of EGFR distribution along the bleb ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4D"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -7848,10 +8622,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4E"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", upper panel) or the membrane marker, GFP fused to the CAAX prenylation signal sequence (CAAX-GFP, "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4E"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -7860,10 +8658,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2M and N"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This analysis showed that photobleached stripes in either EGFR-GFP or CAAX-GFP exhibited anterograde movement from the bleb base towards the tip ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4F"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -7872,10 +8694,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4G"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; Movie 9), but with different apparent velocities with CAAX-GFP moving significantly faster than EGFR-GFP ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4H"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -7912,6 +8758,18 @@ expression: article
                   "value": {
                     "string": ". Imaging and analysis of polarity index of these markers in leader blebs showed that, similar to EGFR-GFP, the transmembrane proteins LAT-GFP and Gt46-GFP formed rear-to-front gradients, accumulating towards the base of the bleb. In contrast, the inner and outer leaflet membrane markers CAAX-GFP and GPI-GFP were evenly distributed along the bleb ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 4I"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -7999,6 +8857,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5A"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This suggests that local restriction of EGFR mobility could allow the protein to resist anterograde membrane flow and cause its accumulation in a rear-to-front gradient."
@@ -8008,23 +8878,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig5",
               "label": "5",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "EGFR has restricted diffusion at the rear of the leader bleb."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "EGFR has restricted diffusion at the rear of the leader bleb. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8049,6 +8920,18 @@ expression: article
                   "value": {
                     "string": "To test this prediction, we analyzed the evolution of EGFR-GFP distribution during initial formation of an elongated bleb. We found that as the bleb elongated, EGFR-GFP accumulated at the base of the bleb and never advanced towards the bleb tip, suggesting that EGFR-GFP was corralled at the rear ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5B"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
                 },
                 {
                   "type": "Text",
@@ -8104,10 +8987,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5D"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Similarly, leader blebs in cells expressing CD44-GFP ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5E"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
                 },
                 {
                   "type": "Text",
@@ -8116,10 +9023,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5F"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). To determine if cells undergoing bleb-based migration in more physiologically-relevant confined microenvironments exhibited similar protein organization, we assessed by immunostaining the distribution of CD44 and EGFR in melanoma cells migrating in a 3D fluorescently-labeled collagen fibril matrix. 3D confocal imaging showed that in collagen matrices, melanoma cells formed leader blebs in which CD44 and EGFR formed rear-to-front gradients ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5G"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
                 },
                 {
                   "type": "Text",
@@ -8137,6 +9068,18 @@ expression: article
                   "value": {
                     "string": "We next examined whether actin organization was conducive to corral formation in leader blebs by analyzing actin architecture and proximity to the bleb membrane. Analysis of actin filament organization showed that actin coherence was low towards the bleb base, indicating a dense actin meshwork, and increased towards the bleb tip where filaments formed bundles ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 3A"
+                      }
+                    }
+                  ],
+                  "target": "#fige3"
                 },
                 {
                   "type": "Text",
@@ -8164,6 +9107,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 3C"
+                      }
+                    }
+                  ],
+                  "target": "#fige3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", 3D)."
@@ -8173,23 +9128,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fige3",
               "label": "Extended Figure 3",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "A dense actin meshwork forms close to the plasma membrane at the rear of leader blebs."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A dense actin meshwork forms close to the plasma membrane at the rear of leader blebs. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8227,10 +9183,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6A"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; Movie 11). This showed that EGFR-GFP intensity recovery at the bleb base was significantly slower than at the bleb tip, indicating a locally reduced mobility of EGFR in the region of CD44 concentration ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6B"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
                 },
                 {
                   "type": "Text",
@@ -8239,10 +9219,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6D"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Analysis showed that CD44-KD caused flattening of the EGFR-GFP rear-to-front gradient and significantly skewed the polarity index towards zero compared to NT control ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6E"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
                 },
                 {
                   "type": "Text",
@@ -8251,16 +9255,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6F"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", 6G and 6H; Movie 12). We next tested the involvement of CD44’s link to the extracellular glycocalyx in maintaining the EGFR gradient by treating cells expressing EGFR-GFP in non-adhesive confinement with hyaluronidase (HAase) to degrade polyhyaluronic acid. We found that, compared to DMSO controls, hyaluronidase treatment had no significant impact on the EGFR-GFP rear-to-front gradient or polarity index in leader blebs ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 4A"
+                      }
+                    }
+                  ],
+                  "target": "#fige4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4B"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -8304,16 +9344,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 4C"
+                      }
+                    }
+                  ],
+                  "target": "#fige4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", 4D). Importantly, neither CD44-KD nor ezrin-KD caused changes to the organization of actin at the rear of the bleb ("
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 4E"
+                      }
+                    }
+                  ],
+                  "target": "#fige4"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4F"
+                      }
+                    }
+                  ],
+                  "target": "#fig4"
                 },
                 {
                   "type": "Text",
@@ -8325,23 +9401,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fige4",
               "label": "Extended Figure 4",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "CD44 corralling is independent of its receptor activity."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "CD44 corralling is independent of its receptor activity. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8360,23 +9437,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig6",
               "label": "6",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "CD44 restricts the diffusion of EGFR at the rear of the leader bleb."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "CD44 restricts the diffusion of EGFR at the rear of the leader bleb. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8403,10 +9481,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6I"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") showed that, like EGFR, CD44-GFP accumulated at the base of the bleb and never advanced towards the bleb tip as the bleb elongated, suggesting it was trapped towards the bleb rear ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6J"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
                 },
                 {
                   "type": "Text",
@@ -8415,10 +9517,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6K"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This showed that EM-KD altered the distribution of CD44 in leader blebs compared to non-targeting controls ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6K"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
                 },
                 {
                   "type": "Text",
@@ -8427,10 +9553,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "6L"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), causing flattening of the CD44-GFP intensity gradient and significantly skewing the CD44 polarity index towards zero ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 6L"
+                      }
+                    }
+                  ],
+                  "target": "#fig6"
                 },
                 {
                   "type": "Text",
@@ -8467,10 +9617,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7A"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7B"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
                 },
                 {
                   "type": "Text",
@@ -8479,10 +9653,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7C"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": " and "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7D"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
                 },
                 {
                   "type": "Text",
@@ -8491,10 +9689,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 5A"
+                      }
+                    }
+                  ],
+                  "target": "#fige5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). However, cells that managed to undergo leader bleb-based migration exhibited persistent migration with similar velocity ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7E"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
                 },
                 {
                   "type": "Text",
@@ -8503,10 +9725,34 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 5B"
+                      }
+                    }
+                  ],
+                  "target": "#fige5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; Movie 15). Notably, reintroducing CD44-GFP into the knockdown cells rescued the percentage of cells undergoing leader bleb-based migration ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7D"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
                 },
                 {
                   "type": "Text",
@@ -8515,16 +9761,52 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 7E"
+                      }
+                    }
+                  ],
+                  "target": "#fig7"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", "
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 5A"
+                      }
+                    }
+                  ],
+                  "target": "#fige5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Together, our results show that during non-adhesive confinement, melanoma cells protrude elongated blebs that trap CD44 at their base due to its interaction with the underlying actin cortex via ezrin, that in turn restricts EGFR mobility to mediate polarized signaling within the bleb to stabilize bleb morphology and promote persistent leader-bleb based migration ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 5C"
+                      }
+                    }
+                  ],
+                  "target": "#fige5"
                 },
                 {
                   "type": "Text",
@@ -8536,28 +9818,41 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fige5",
               "label": "Extended Figure 5",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Model of molecular regulation of EGFR polarity during leader bleb-based migration under non-adhesive confinement."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Model of molecular regulation of EGFR polarity during leader bleb-based migration under non-adhesive confinement. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
                         "string": "(A, B) Quantitative analysis of cell migration tracks from time-lapse phase contrast movies of A375M cells under non-adhesive confinement to 3 Lm like those shown in ("
                       }
+                    },
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Fig 7C"
+                          }
+                        }
+                      ],
+                      "target": "#fig7"
                     },
                     {
                       "type": "Text",
@@ -8577,23 +9872,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig7",
               "label": "7",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "CD44 is required for rear-to-front Rac1 activity gradient and leader bleb stability and persistent migration under confinement."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "CD44 is required for rear-to-front Rac1 activity gradient and leader bleb stability and persistent migration under confinement. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -8777,6 +10073,18 @@ expression: article
               "value": {
                 "string": "Using high-resolution microscopy and biosensors, we observed a unique rear-to-front gradient of EGFR/PI3K activity, promoting PIP3 and Rac1 accumulation at the bleb rear, with its antagonists PIP2 and RhoA concentrated at the bleb tip. Optogenetic experiments showed that mislocalizing EGFR and Rac1 activities causes bleb retraction, underscoring the role of this signaling gradient in bleb stability. Mathematical modeling and experiments identified a mechanism where, as the bleb initiates, CD44 and ERM proteins restrict EGFR mobility in a membrane-apposed cortical actin meshwork in the bleb rear, establishing a rear-to-front EGF-PI3K-Rac gradient. Thus, our study reveals the biophysical and molecular underpinnings of cell polarity in bleb-based migration of metastatic cells in confined microenvironments ("
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Extended Figure 5C"
+                  }
+                }
+              ],
+              "target": "#fige5"
             },
             {
               "type": "Text",
@@ -9883,6 +11191,7 @@ expression: article
                 },
                 {
                   "type": "MathBlock",
+                  "id": "eqn7",
                   "code": {
                     "string": ""
                   },
@@ -9951,6 +11260,7 @@ expression: article
                 },
                 {
                   "type": "MathBlock",
+                  "id": "eqn8",
                   "code": {
                     "string": ""
                   },
@@ -10290,6 +11600,7 @@ expression: article
                 },
                 {
                   "type": "MathBlock",
+                  "id": "eqn10",
                   "code": {
                     "string": ""
                   },
@@ -10365,6 +11676,7 @@ expression: article
                 },
                 {
                   "type": "MathBlock",
+                  "id": "eqn11",
                   "code": {
                     "string": ""
                   },
@@ -10435,6 +11747,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "eqn12",
               "code": {
                 "string": ""
               },
@@ -10517,6 +11830,18 @@ expression: article
                   "value": {
                     "string": ". Intensity values were normalized, and the rate constant was computed from the average by fitting with one phase association, least squares fit to compute K (as from "
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "equation 10"
+                      }
+                    }
+                  ],
+                  "target": "#eqn10"
                 },
                 {
                   "type": "Text",
@@ -12213,6 +13538,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 5a"
+                      }
+                    }
+                  ],
+                  "target": "#fig5"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ", EGFR density (P) with changes in "
@@ -12375,6 +13712,18 @@ expression: article
             {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Extended Figure 2l"
+                      }
+                    }
+                  ],
+                  "target": "#fige2"
+                },
                 {
                   "type": "Text",
                   "value": {
@@ -12539,6 +13888,7 @@ expression: article
         },
         {
           "type": "Section",
+          "sectionType": "StatisticalAnalysis",
           "content": [
             {
               "type": "Heading",
@@ -12580,6 +13930,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "SupplementaryMaterials",
       "content": [
         {
           "type": "Heading",
@@ -12589,6 +13940,69 @@ expression: article
               "type": "Text",
               "value": {
                 "string": "Supporting information"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Supplement",
+          "label": "Modelling supplemental text",
+          "labelAutomatically": false,
+          "target": "supplements/630838_file02.docx"
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Scientific illustrations"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Illustrations and cartoons were made using Adobe illustrator and BioRender."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Acknowledgements",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Acknowledgements and funding"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "We thank the Waterman Lab especially William Shin, Dr. Ana Pasapera, the National Heart, Lung, and Blood Institute (NHLBI), the NHLBI light microscopy (Xufeng) and flow cytometry core facilities. We would also like to thank Dr. Tamas Balla, Dr. Senthil Arumugam, Dr. Valentine Jaumouille for their feedbacks and discussions on this work. This work was funded by the NHLBI Division of Intramural Research (DIR) (AJ and CMW), National Institute of General Medical Sciences under award number R01 GM141691 (JMH), the National Institute of Biomedical Imaging and Bioengineering of the National Institutes of Health under award number U01 EB018816 (JMH), NIH grant 5R01GM144362 and a Vallee Scholar award (JET)."
               }
             }
           ]

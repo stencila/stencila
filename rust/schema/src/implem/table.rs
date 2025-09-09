@@ -8,11 +8,11 @@ impl Table {
     pub fn to_jats_special(&self) -> (String, Losses) {
         use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
-        let mut losses = lost_options!(self, id);
+        let mut losses = Losses::none();
 
         let mut attrs = Vec::new();
-        if let Some(value) = &self.label_automatically {
-            attrs.push(("label-automatically", value));
+        if let Some(value) = &self.id {
+            attrs.push(("id", value.to_string()));
         }
 
         let mut table_wrap = String::new();
@@ -136,6 +136,10 @@ impl DomCodec for Table {
         }
 
         context.push_slot_fn("table", "rows", |context| self.rows.to_dom(context));
+
+        if let Some(images) = &self.options.images {
+            context.push_slot_fn("div", "images", |context| images.to_dom(context));
+        }
 
         if let Some(notes) = &self.notes {
             context.push_slot_fn("aside", "notes", |context| notes.to_dom(context));
@@ -270,11 +274,11 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
             // Column alignment determined by the first cell with a non-None alignment
             match column_alignments.get_mut(column) {
                 Some(column_alignment) => {
-                    if column_alignment.is_none() && cell.horizontal_alignment.is_some() {
-                        *column_alignment = cell.horizontal_alignment;
+                    if column_alignment.is_none() && cell.options.horizontal_alignment.is_some() {
+                        *column_alignment = cell.options.horizontal_alignment;
                     }
                 }
-                None => column_alignments.push(cell.horizontal_alignment),
+                None => column_alignments.push(cell.options.horizontal_alignment),
             }
 
             cells.push(cell_md);

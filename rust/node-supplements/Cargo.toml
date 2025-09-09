@@ -1,0 +1,22 @@
+[package]
+name = "stencila-node-supplements"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+eyre = { workspace = true }
+pathdiff = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-cbor = { path = "../codec-cbor" }
+stencila-codec-csv = { path = "../codec-csv" }
+stencila-codec-docx = { path = "../codec-docx" }
+stencila-codec-ipynb = { path = "../codec-ipynb" }
+stencila-codec-latex = { path = "../codec-latex" }
+stencila-codec-pdf = { path = "../codec-pdf" }
+stencila-codec-xlsx = { path = "../codec-xlsx" }
+stencila-node-media = { path = "../node-media" }
+stencila-schema = { path = "../schema" }
+tracing = { workspace = true }
+
+[lints]
+workspace = true

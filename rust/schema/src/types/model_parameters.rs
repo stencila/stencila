@@ -22,6 +22,7 @@ pub struct ModelParameters {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The ids of the models to select.

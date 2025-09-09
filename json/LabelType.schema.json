@@ -32,6 +32,9 @@
       "html": {
         "attr": "id"
       },
+      "jats": {
+        "attr": "id"
+      },
       "type": "string"
     },
     "alternateNames": {
@@ -134,6 +137,10 @@
     {
       "@id": "stencila:FigureLabel",
       "const": "FigureLabel"
+    },
+    {
+      "@id": "stencila:SupplementLabel",
+      "const": "SupplementLabel"
     },
     {
       "@id": "stencila:TableLabel",

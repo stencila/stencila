@@ -35,14 +35,12 @@ start     end        offsets   node_type+property                   authorship
    882    908       (18, 27)   MathBlock
    912    933       (30, 25)   Paragraph
    910    933        (-2, 0)   QuoteBlock
-   948    965       (38, 32)   Paragraph
-   935    970       (-13, 5)   Section
-   972   1086      (37, 116)   StyledBlock
-  1088   1095       (116, 9)   TableCell
-  1088   1095         (0, 0)   TableRow
-  1104   1111       (16, 16)   TableCell
-  1104   1111         (0, 0)   TableRow
-  1088   1111       (-16, 0)   Table
-  1113   1116        (25, 5)   ThematicBreak
-  1124   1134       (11, 18)   Paragraph
-     0   1135     (-1124, 1)   Article
+   935   1049      (25, 116)   StyledBlock
+  1051   1058       (116, 9)   TableCell
+  1051   1058         (0, 0)   TableRow
+  1067   1074       (16, 16)   TableCell
+  1067   1074         (0, 0)   TableRow
+  1051   1074       (-16, 0)   Table
+  1076   1079        (25, 5)   ThematicBreak
+  1087   1097       (11, 18)   Paragraph
+     0   1098     (-1087, 1)   Article

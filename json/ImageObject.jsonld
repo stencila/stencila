@@ -152,6 +152,9 @@
         },
         {
           "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -765,7 +768,13 @@
           "@id": "stencila:CodeChunk"
         },
         {
+          "@id": "stencila:Datatable"
+        },
+        {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

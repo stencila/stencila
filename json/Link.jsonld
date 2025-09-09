@@ -150,6 +150,9 @@
         },
         {
           "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -232,6 +235,9 @@
         },
         {
           "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

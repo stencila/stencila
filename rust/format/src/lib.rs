@@ -108,9 +108,11 @@ pub enum Format {
     // Video formats
     Avi,
     Mkv,
+    Mov,
     Mp4,
     Ogv,
     WebM,
+    Wmv,
     // Directories, bundles and archives
     Directory,
     Swb,
@@ -170,6 +172,7 @@ impl Format {
             Meca => "Meca",
             Mermaid => "Mermaid",
             Mkv => "Matroska",
+            Mov => "QuickTime",
             Mp3 => "MPEG-3",
             Mp4 => "MPEG-4",
             Myst => "MyST Markdown",
@@ -200,6 +203,7 @@ impl Format {
             Wav => "WAV",
             WebM => "WebM",
             WebP => "WebP",
+            Wmv => "Windows Media Video",
             Xls => "Microsoft Excel XLS",
             Xlsx => "Microsoft Excel XLSX",
             Yaml => "YAML",
@@ -282,7 +286,7 @@ impl Format {
     /// Is this a video format?
     pub fn is_video(&self) -> bool {
         use Format::*;
-        matches!(self, Avi | Mkv | Mp4 | Ogv | WebM)
+        matches!(self, Avi | Mkv | Mov | Mp4 | Ogv | WebM | Wmv)
     }
 
     /// Is this format a flavor of JSON?
@@ -317,7 +321,7 @@ impl Format {
             "bash" => Bash,
             "bibtex" | "bib" => Bibtex,
             "cbor" => Cbor,
-            "cborzstd" | "cbor.zstd" => CborZstd,
+            "czst" | "cborzstd" | "cbor.zstd" => CborZstd,
             "cff" => Cff,
             "csl" => Csl,
             "css" => Css,
@@ -350,6 +354,7 @@ impl Format {
             "meca" => Meca,
             "mermaid" => Mermaid,
             "mkv" => Mkv,
+            "mov" => Mov,
             "mp3" => Mp3,
             "mp4" => Mp4,
             "myst" => Myst,
@@ -381,6 +386,7 @@ impl Format {
             "wav" => Wav,
             "webm" => WebM,
             "webp" => WebP,
+            "wmv" => Wmv,
             "xls" => Xls,
             "xlsx" => Xlsx,
             "yaml" | "yml" => Yaml,
@@ -435,19 +441,22 @@ impl Format {
 
         use Format::*;
         match media_type {
-            "application/cbor" => Ok(Cbor),
+            // Only include explicit mappings where Format::from_name would not match
+            // the part after the slash, or where there are special cases
             "application/cbor+zstd" => Ok(CborZstd),
-            "application/json" => Ok(Json),
             "application/json+zip" => Ok(JsonZip),
             "application/ld+json" => Ok(JsonLd),
-            "application/yaml" => Ok(Yaml),
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => Ok(Xlsx),
+            "application/vnd.citationstyles.csl+json" => Ok(Csl),
             "application/vnd.ms-excel" => Ok(Xls),
             "application/vnd.oasis.opendocument.spreadsheet" => Ok(Ods),
-            "application/vnd.citationstyles.csl+json" => Ok(Csl),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => Ok(Xlsx),
+            "audio/mp4" => Ok(Aac), // M4A files use audio/mp4 MIME type but are AAC format
+            "audio/mpeg" => Ok(Mp3),
+            "image/svg+xml" => Ok(Svg),
             "text/jats+xml" => Ok(Jats),
-            "text/markdown" => Ok(Markdown),
             "text/plain" => Ok(Text),
+            "video/quicktime" => Ok(Mov),
+            "video/x-msvideo" => Ok(Avi),
             _ => {
                 let name = if let Some((.., name)) = media_type.split_once('/') {
                     name
@@ -532,7 +541,7 @@ impl Display for Format {
             Bash => "bash",
             Bibtex => "bibtex",
             Cbor => "cbor",
-            CborZstd => "cbor.zstd",
+            CborZstd => "czst",
             Cff => "cff",
             Csl => "csl",
             Css => "css",
@@ -565,6 +574,7 @@ impl Display for Format {
             Meca => "meca",
             Mermaid => "mermaid",
             Mkv => "mkv",
+            Mov => "mov",
             Mp3 => "mp3",
             Mp4 => "mp4",
             Myst => "myst",
@@ -595,6 +605,7 @@ impl Display for Format {
             Wav => "wav",
             WebM => "webm",
             WebP => "webp",
+            Wmv => "wmv",
             Xls => "xls",
             Xlsx => "xlsx",
             Yaml => "yaml",
@@ -687,6 +698,62 @@ mod test {
             Format::Other("octet-stream".to_string())
         );
         assert_eq!(Format::from_content_type("application/pdf")?, Format::Pdf);
+
+        Ok(())
+    }
+
+    #[test]
+    fn from_media_type() -> Result<()> {
+        // Test cases: (mime_type, expected_format)
+        let test_cases = vec![
+            // Explicit mappings where Format::from_name wouldn't match
+            ("application/cbor+zstd", Format::CborZstd),
+            ("application/json+zip", Format::JsonZip),
+            ("application/ld+json", Format::JsonLd),
+            ("application/vnd.citationstyles.csl+json", Format::Csl),
+            ("application/vnd.ms-excel", Format::Xls),
+            (
+                "application/vnd.oasis.opendocument.spreadsheet",
+                Format::Ods,
+            ),
+            (
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Format::Xlsx,
+            ),
+            ("audio/mp4", Format::Aac),
+            ("audio/mpeg", Format::Mp3),
+            ("image/jpeg", Format::Jpeg),
+            ("image/svg+xml", Format::Svg),
+            ("text/jats+xml", Format::Jats),
+            ("text/plain", Format::Text),
+            ("video/quicktime", Format::Mov),
+            ("video/x-msvideo", Format::Avi),
+            // Fallback cases that should work via Format::from_name
+            ("application/cbor", Format::Cbor),
+            ("application/json", Format::Json),
+            ("application/yaml", Format::Yaml),
+            ("text/markdown", Format::Markdown),
+            ("text/html", Format::Html),
+            ("image/png", Format::Png),
+            ("image/gif", Format::Gif),
+            ("image/webp", Format::WebP),
+            ("audio/wav", Format::Wav),
+            ("audio/ogg", Format::Ogg),
+            ("audio/aac", Format::Aac),
+            ("audio/flac", Format::Flac),
+            ("video/mp4", Format::Mp4),
+            ("video/webm", Format::WebM),
+            ("video/avi", Format::Avi),
+        ];
+
+        for (mime_type, expected) in test_cases {
+            let result = Format::from_media_type(mime_type)?;
+            assert_eq!(
+                result, expected,
+                "Failed for mime type '{}': expected {:?}, got {:?}",
+                mime_type, expected, result
+            );
+        }
 
         Ok(())
     }

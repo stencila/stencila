@@ -25,6 +25,7 @@ pub struct SuggestionBlock {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The status of the suggestion including whether it is the original, or is accepted, or rejected.

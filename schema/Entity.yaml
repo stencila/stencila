@@ -24,5 +24,7 @@ properties:
       This is a special property analogous to JSON-LD's `@id` keyword.
     html:
       attr: id
+    jats:
+      attr: id
     type: string
     strip: [metadata]

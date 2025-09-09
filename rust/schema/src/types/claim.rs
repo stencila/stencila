@@ -42,6 +42,7 @@ pub struct Claim {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The type of `CreativeWork` (e.g. article, book, software application).

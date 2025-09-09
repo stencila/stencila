@@ -12,6 +12,7 @@ use super::chat_message_group::ChatMessageGroup;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
+use super::datatable::Datatable;
 use super::excerpt::Excerpt;
 use super::figure::Figure;
 use super::file::File;
@@ -33,6 +34,7 @@ use super::raw_block::RawBlock;
 use super::section::Section;
 use super::styled_block::StyledBlock;
 use super::suggestion_block::SuggestionBlock;
+use super::supplement::Supplement;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
 use super::video_object::VideoObject;
@@ -86,6 +88,12 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CodeChunk(CodeChunk),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Datatable(Datatable),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
@@ -170,6 +178,12 @@ pub enum Block {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
     SuggestionBlock(SuggestionBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Supplement(Supplement),
 
     Table(Table),
 

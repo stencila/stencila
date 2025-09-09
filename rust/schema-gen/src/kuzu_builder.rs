@@ -39,7 +39,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "alternateNames",
                 "archive",
                 "bitrate",
-                "caption",
+                "caption", // Derived text field used instead
                 "config",
                 "embedUrl",
                 "executionInstance",
@@ -47,6 +47,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "frontmatter",
                 "headings",
                 "images",
+                "labelAutomatically",
                 "labelOnly",
                 "mathml",
                 "pageEnd",
@@ -66,6 +67,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Article.executionStatus",
                 "Article.executionEnded",
                 "Article.executionDuration",
+                // Table exclusions
                 "Table.notes",
                 "TableCell.content",
                 "TableCell.name",
@@ -74,6 +76,9 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "TableCell.horizontalAlignment",
                 "TableCell.horizontalAlignmentCharacter",
                 "TableCell.verticalAlignment",
+                // Datatable exclusions
+                "Datatable.notes",
+                // List exclusions
                 "ListItem.position",
                 // Citation exclusions
                 "Citation.citationPrefix",

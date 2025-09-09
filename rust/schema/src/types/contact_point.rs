@@ -20,6 +20,7 @@ pub struct ContactPoint {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Email address for correspondence.

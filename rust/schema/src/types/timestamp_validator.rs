@@ -20,6 +20,7 @@ pub struct TimestampValidator {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The time units that the timestamp can have.

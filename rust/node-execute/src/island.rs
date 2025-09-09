@@ -14,6 +14,7 @@ impl Executable for Island {
                 LabelType::FigureLabel => executor.figure_label(),
                 LabelType::TableLabel => executor.table_label(),
                 LabelType::AppendixLabel => executor.appendix_label(),
+                LabelType::SupplementLabel => executor.supplement_label(),
             };
 
             if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {

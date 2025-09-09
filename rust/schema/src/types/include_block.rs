@@ -34,6 +34,7 @@ pub struct IncludeBlock {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Under which circumstances the node should be executed.

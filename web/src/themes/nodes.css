@@ -159,17 +159,29 @@ stencila-datatable {
   }
 }
 
+/* Give vertical margin to tables, figures and code chunks */
 stencila-table:not([root]),
 stencila-figure:not([root]),
 stencila-code-chunk:not([root]) {
   @apply block my-12;
 }
 
+/* Give vertical margin to supplements - less than for tables & figures because
+supplements are usually collapsed (so too much margin creates too much
+whitespace) and they usually contain tables and figures etc that already have
+vertical margin*/
+stencila-supplement:not([root]) {
+  @apply block my-3;
+}
+
 stencila-table,
 stencila-figure,
-stencila-code-chunk {
-  caption {
-    @apply text-left;
+stencila-code-chunk,
+stencila-supplement {
+  /* Remove browser's horizontal margin on <figure> element so that they can
+  occupy parent width 100% */
+  figure {
+    @apply m-0;
   }
 
   [slot='caption'] {
@@ -177,13 +189,13 @@ stencila-code-chunk {
 
     stencila-paragraph {
       p {
-        @apply mt-4;
-        @apply text-sm text-black text-left;
+        @apply mt-4 text-sm text-black text-left;
       }
 
       .table-label,
-      .figure-label {
-        @apply font-bold after:content-[":"];
+      .figure-label,
+      .supplement-label {
+        @apply font-bold;
       }
     }
   }
@@ -205,23 +217,71 @@ stencila-code-chunk {
   }
 }
 
-/* Media objects */
-
-/* For block media objects (i.e. not inline within a paragraph or heading) that are not within
-a figure, give vertical margin */
-stencila-audio-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *),
-stencila-image-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *),
-stencila-video-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *) {
-  @apply block my-12;
+stencila-figure,
+stencila-code-chunk,
+stencila-supplement {
+  /* Restrict width of media within figures etc to 100% of parent. This is
+  applied below in rule for stencila-image-object etc but this ensures this
+  restriction if, for example, a figure has a paragraph with an inline image,
+  rather than a block image. */
+  img,
+  audio,
+  video {
+    @apply block max-w-full mx-auto;
+  }
 }
 
-/* Style caption (note this will apply to images etc within figures and so it intentionally smaller
-than the figure caption text and centered below the image. */
+/* Media objects */
+
+/* Give vertical margin to media objects that are not in figures, tables, math,
+(they have their own margin; yes tables can have images in them) or are inline
+within paragraphs or headings */
+stencila-audio-object:not([root]),
+stencila-image-object:not([root]),
+stencila-video-object:not([root]) {
+  &:not(stencila-figure *, stencila-table *, stencila-math-block *,
+       stencila-paragraph *, stencila-heading *) {
+    @apply block my-12;
+  }
+}
+
 stencila-audio-object,
 stencila-image-object,
 stencila-video-object {
-  & [slot='caption'] {
+  /* Restrict width of block media (not in paragraph or heading) to 100% of
+  parent. Note that this applies to the media element in the light DOM and web
+  components may create their own media elements in the shadow DOM where
+  necessary (e.g. when url needs to be re-written */
+  img,
+  audio,
+  video {
+    &:not(stencila-paragraph *, stencila-heading *) {
+      @apply block max-w-full mx-auto;
+    }
+  }
+
+  /* Style caption (note this will apply to images etc within figures and so it
+  intentionally smaller than the figure caption text and centered below the
+  image. */
+  [slot='caption'] {
     @apply block text-center text-xs;
+  }
+}
+
+/* Math */
+
+/* Give vertical margin to math blocks */
+stencila-math-block:not([root]) {
+  @apply block my-4;
+}
+
+/* Apply math font to MathML */
+stencila-math-block,
+stencila-math-inline {
+  [slot='mathml'] {
+    math {
+      font-family: var(--mathml-font-family);
+    }
   }
 }
 
@@ -322,19 +382,6 @@ stencila-code-inline {
     &::before,
     &::after {
       content: '';
-    }
-  }
-}
-
-/* ------------ */
-
-/* math elements */
-
-stencila-math-block,
-stencila-math-inline {
-  [slot='mathml'] {
-    math {
-      font-family: var(--mathml-font-family);
     }
   }
 }

@@ -20,6 +20,7 @@ pub struct ExecutionMessage {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The severity level of the message.

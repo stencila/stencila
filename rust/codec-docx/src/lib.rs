@@ -16,7 +16,7 @@ use stencila_codec_pandoc::{
     coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
     root_to_pandoc,
 };
-use stencila_media_embed::embed_media;
+use stencila_node_media::embed_media;
 use stencila_node_reconstitute::reconstitute;
 use stencila_version::STENCILA_VERSION;
 

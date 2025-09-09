@@ -23,7 +23,9 @@ export class AudioObject extends MediaObject {
         border-radius: 3px;
       }
     `
-    return html`<audio class=${audioStyles} src=${this.mediaSrc} controls></audio>`
+    return this.mediaSrc ?
+      html`<audio class=${audioStyles} src=${this.mediaSrc} controls></audio>` :
+      html`<slot></slot>`
   }
 
   override renderCardContent() {
@@ -38,7 +40,9 @@ export class AudioObject extends MediaObject {
     `
     return html`
       <div slot="content" class="text-center">
-        ${this.mediaSrc ?  html`<audio class=${audioStyles} src=${this.mediaSrc} controls></audio>` : html`<slot></slot>`}
+        ${this.mediaSrc ? 
+          html`<audio class=${audioStyles} src=${this.mediaSrc} controls></audio>` :
+          html`<slot></slot>`}
         <div>
           <slot name="caption"></slot>
         </div>

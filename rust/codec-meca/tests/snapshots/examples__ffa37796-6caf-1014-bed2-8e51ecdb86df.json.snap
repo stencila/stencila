@@ -3131,10 +3131,34 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 3"
+                  }
+                }
+              ],
+              "target": "#fig3"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": " (see Methods for details), and our main insights are summarized in "
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Figure 1"
+                  }
+                }
+              ],
+              "target": "#fig1"
             },
             {
               "type": "Text",
@@ -3146,23 +3170,24 @@ expression: article
         },
         {
           "type": "Figure",
+          "id": "fig1",
           "label": "1",
+          "labelAutomatically": false,
           "caption": [
-            {
-              "type": "Heading",
-              "level": 1,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Summary figure of the most common methodologies involving representation learning and cancer studies."
-                  }
-                }
-              ]
-            },
             {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Summary figure of the most common methodologies involving representation learning and cancer studies. "
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {
@@ -3220,6 +3245,18 @@ expression: article
                   "value": {
                     "string": "The most common applications of Deep Representation Learning (DRL) or Deep Learning (DL) in cancer are related to diagnosis, prognosis, or subtyping ("
                   }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
                 },
                 {
                   "type": "Text",
@@ -3361,23 +3398,24 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig2",
               "label": "2",
+              "labelAutomatically": false,
               "caption": [
-                {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Results from queries."
-                      }
-                    }
-                  ]
-                },
                 {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Results from queries. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -4942,6 +4980,18 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 3"
+                      }
+                    }
+                  ],
+                  "target": "#fig3"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). One reviewer conducted the systematic review process, and a second reviewer assessed the results."
@@ -4951,7 +5001,9 @@ expression: article
             },
             {
               "type": "Figure",
+              "id": "fig3",
               "label": "3",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -4999,12 +5051,138 @@ expression: article
                   }
                 },
                 {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Figure 2"
+                      }
+                    }
+                  ],
+                  "target": "#fig2"
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). This trend is an expected outcome since there exists a great effort toward the early detection of cancers."
                   }
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Dictionary of Terms"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Table",
+          "id": "utbl1",
+          "rows": [],
+          "images": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "redacted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing Interest"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "None declared."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Authors Contribution"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "G.P.C. developed the systematic literature review, and wrote and revised earlier and consolidated versions of the manuscript. A.V. and D.C. conceived the study and oversaw its execution. All authors reviewed and contributed to the final manuscript."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Acknowledgements",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Acknowledgements"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This work has been supported by the EU project EVENFLOW under Horizon Europe agreement No. 101070430."
+              }
             }
           ]
         }

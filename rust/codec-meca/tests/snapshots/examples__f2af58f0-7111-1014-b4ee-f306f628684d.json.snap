@@ -1578,7 +1578,20 @@ expression: article
             },
             {
               "type": "Strong",
-              "content": []
+              "content": [
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Fig. 1B"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                }
+              ]
             },
             {
               "type": "Text",
@@ -1605,7 +1618,20 @@ expression: article
             },
             {
               "type": "Strong",
-              "content": []
+              "content": [
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Fig. 1C"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                }
+              ]
             },
             {
               "type": "Text",
@@ -1649,7 +1675,20 @@ expression: article
             },
             {
               "type": "Strong",
-              "content": []
+              "content": [
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Fig. 1D"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                }
+              ]
             },
             {
               "type": "Text",
@@ -1695,7 +1734,9 @@ expression: article
         },
         {
           "type": "Figure",
+          "id": "fig1",
           "label": "1",
+          "labelAutomatically": false,
           "caption": [
             {
               "type": "Paragraph",
@@ -1947,6 +1988,18 @@ expression: article
               }
             },
             {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Fig. 1E"
+                  }
+                }
+              ],
+              "target": "#fig1"
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). These results suggest that MUA-3 is not required for proper swimming in healthy or dystrophic worms. Although downregulating "
@@ -1982,7 +2035,20 @@ expression: article
             },
             {
               "type": "Strong",
-              "content": []
+              "content": [
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Fig. 1F/G"
+                      }
+                    }
+                  ],
+                  "target": "#fig1"
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2546,6 +2612,133 @@ expression: article
                   }
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Acknowledgements",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Acknowledgements"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Strains were provided by the Caenorhabditis Genetics Center (funded by NIH grant P40 OD010440)."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Funding",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Funding"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Funding was provided by the National Institutes of Health, National Institute of Arthritis and Musculoskeletal and Skin Diseases award 2R15AR068583-02."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "AuthorContributions",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Author Contributions"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Damiano Marchiafava: Conceptualization, Project administration, Methodology, Visualization, Writing original draft."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Andres Vidal-Gadea: Conceptualization, Project administration, Resources, Funding acquisition, Supervision, Writing (review & editing)."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Conflict of Interest"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors declare no conflict of interest."
+              }
             }
           ]
         }

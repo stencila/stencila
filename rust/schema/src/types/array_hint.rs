@@ -20,6 +20,7 @@ pub struct ArrayHint {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The length (number of items) of the array.

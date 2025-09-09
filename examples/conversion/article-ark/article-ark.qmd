@@ -41,12 +41,6 @@ $$
 
 > This is a quote block
 
-::: section
-
-This is a section
-
-:::
-
 ::: style text-red-800 bg-indigo-100
 
 This is a styled block

@@ -23,6 +23,7 @@ pub struct Person {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The person's Open Researcher and Contributor ID (https://orcid.org/).

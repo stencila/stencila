@@ -46,6 +46,9 @@
         },
         {
           "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

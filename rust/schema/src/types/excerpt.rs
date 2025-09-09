@@ -20,6 +20,7 @@ pub struct Excerpt {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// A `Reference` to the `CreativeWork` that the excerpt was taken from.

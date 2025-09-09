@@ -44,6 +44,9 @@
       "html": {
         "attr": "id"
       },
+      "jats": {
+        "attr": "id"
+      },
       "type": "string"
     },
     "cells": {

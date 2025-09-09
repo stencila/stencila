@@ -1,12 +1,8 @@
 title: File
 '@id': stencila:File
-extends: Entity
+extends: CreativeWork
 category: works
 description: A file on the file system.
-$comment: |
-  Previously this type extended `CreativeWork`.
-  However, to avoid consuming more memory than necessary when creating directory listings
-  with many files, it now extends `Entity`.
 required:
   - name
   - path

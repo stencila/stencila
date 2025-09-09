@@ -255,6 +255,7 @@ class CreativeWorkType(StrEnum):
     Datatable = "Datatable"
     Drawing = "Drawing"
     Figure = "Figure"
+    File = "File"
     ImageObject = "ImageObject"
     Legislation = "Legislation"
     Manuscript = "Manuscript"
@@ -405,6 +406,7 @@ class LabelType(StrEnum):
 
     AppendixLabel = "AppendixLabel"
     FigureLabel = "FigureLabel"
+    SupplementLabel = "SupplementLabel"
     TableLabel = "TableLabel"
 
 
@@ -1656,8 +1658,20 @@ class Datatable(CreativeWork):
 
     type: Literal["Datatable"] = "Datatable"
 
+    label: str | None = None
+    """A short label for the datatable."""
+
+    label_automatically: bool | None = None
+    """Whether the datatable label should be automatically updated."""
+
+    caption: list[Block] | None = None
+    """A caption for the datatable."""
+
     columns: list[DatatableColumn]
     """The columns of data."""
+
+    notes: list[Block] | None = None
+    """Notes for the datatable."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1991,7 +2005,7 @@ class Figure(CreativeWork):
 
 
 @dataclass(kw_only=True, repr=False)
-class File(Entity):
+class File(CreativeWork):
     """
     A file on the file system.
     """
@@ -3056,6 +3070,36 @@ class Superscript(Mark):
 
 
 @dataclass(kw_only=True, repr=False)
+class Supplement(Entity):
+    """
+    A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
+    """
+
+    type: Literal["Supplement"] = "Supplement"
+
+    work_type: CreativeWorkType | None = None
+    """The `CreativeWork` type of the supplement."""
+
+    label: str | None = None
+    """A short identifier or title for the supplement (e.g., "S1")."""
+
+    label_automatically: bool | None = None
+    """Whether the supplement label should be automatically generated and updated."""
+
+    caption: list[Block] | None = None
+    """A brief caption or description for the supplement."""
+
+    target: str | None = None
+    """A reference to the supplement."""
+
+    compilation_messages: list[CompilationMessage] | None = None
+    """Any messages generated while embedding the supplement."""
+
+    work: CreativeWorkVariant | None = None
+    """The `CreativeWork` that constitutes the supplement."""
+
+
+@dataclass(kw_only=True, repr=False)
 class Table(CreativeWork):
     """
     A table.
@@ -3351,6 +3395,7 @@ Block = Union[
     Claim,
     CodeBlock,
     CodeChunk,
+    Datatable,
     Excerpt,
     Figure,
     File,
@@ -3372,6 +3417,7 @@ Block = Union[
     Section,
     StyledBlock,
     SuggestionBlock,
+    Supplement,
     Table,
     ThematicBreak,
     VideoObject,
@@ -3391,6 +3437,7 @@ CreativeWorkVariant = Union[
     Comment,
     Datatable,
     Figure,
+    File,
     ImageObject,
     MediaObject,
     Periodical,
@@ -3597,6 +3644,7 @@ Node = Union[
     SuggestionBlock,
     SuggestionInline,
     Superscript,
+    Supplement,
     Table,
     TableCell,
     TableRow,
@@ -3636,6 +3684,7 @@ ThingVariant = Union[
     DefinedTerm,
     Enumeration,
     Figure,
+    File,
     Grant,
     ImageObject,
     ListItem,
@@ -3804,6 +3853,7 @@ TYPES = [
     SuggestionBlock,
     SuggestionInline,
     Superscript,
+    Supplement,
     Table,
     TableCell,
     TableRow,

@@ -21,6 +21,7 @@ pub struct ArrayValidator {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Whether items can have the value `Node::Null`

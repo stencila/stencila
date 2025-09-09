@@ -2,10 +2,7 @@ use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
-    stencila_schema::{
-        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node,
-        NodeType, Null, NumberValidator, Primitive, StringValidator, Validator,
-    },
+    stencila_schema::{Datatable, DatatableColumn, Node, NodeType, Primitive},
 };
 
 /// A codec for tabular data formats (CSV, TSV)
@@ -81,19 +78,18 @@ impl Codec for CsvCodec {
         }
 
         // Create columns with type inference
-        let mut columns = Vec::new();
-        for (col_index, column_name) in column_names.iter().enumerate() {
-            let column_values: Vec<&str> = raw_data
-                .iter()
-                .map(|row| row.get(col_index).map(|s| s.as_str()).unwrap_or(""))
-                .collect();
+        let columns: Vec<DatatableColumn> = column_names
+            .iter()
+            .enumerate()
+            .map(|(col_index, column_name)| {
+                let column_values = raw_data
+                    .iter()
+                    .map(|row| row.get(col_index).map(|s| s.as_str()).unwrap_or(""))
+                    .collect();
 
-            let (values, validator) = infer_column_type_and_parse(&column_values)?;
-
-            let mut column = DatatableColumn::new(column_name.clone(), values);
-            column.validator = Some(validator);
-            columns.push(column);
-        }
+                DatatableColumn::from_strings(column_name.clone(), column_values)
+            })
+            .collect();
 
         let datatable = Datatable::new(columns);
         Ok((Node::Datatable(datatable), DecodeInfo::none()))
@@ -155,132 +151,6 @@ impl Codec for CsvCodec {
         let string = String::from_utf8(bytes)?;
         Ok((string, EncodeInfo::none()))
     }
-}
-
-/// Infer the column type from sample values and parse them into Primitives.
-///
-/// Examines all non-empty values to determine the most specific type that can
-/// accommodate all values. Returns both the parsed values and an appropriate validator.
-fn infer_column_type_and_parse(values: &[&str]) -> Result<(Vec<Primitive>, ArrayValidator)> {
-    let mut has_integers = false;
-    let mut has_floats = false;
-    let mut has_booleans = false;
-    let mut non_null_count = 0;
-
-    // First pass: analyze types
-    for value in values {
-        if value.trim().is_empty() {
-            continue;
-        }
-
-        non_null_count += 1;
-
-        if value.parse::<bool>().is_ok() && (*value == "true" || *value == "false") {
-            has_booleans = true;
-        } else if value.parse::<i64>().is_ok() {
-            has_integers = true;
-        } else if value.parse::<f64>().is_ok() {
-            has_floats = true;
-        }
-    }
-
-    // Determine the most appropriate type
-    let (parsed_values, validator) = if non_null_count == 0 {
-        // All null/empty values - default to string
-        let vals: Vec<Primitive> = values
-            .iter()
-            .map(|v| {
-                if v.trim().is_empty() {
-                    Primitive::Null(Null)
-                } else {
-                    Primitive::String(v.to_string())
-                }
-            })
-            .collect();
-        let mut validator = ArrayValidator::new();
-        validator.items_validator =
-            Some(Box::new(Validator::StringValidator(StringValidator::new())));
-        (vals, validator)
-    } else if has_booleans
-        && non_null_count == values.iter().filter(|v| v.parse::<bool>().is_ok()).count()
-    {
-        // All non-null values are booleans
-        let vals: Vec<Primitive> = values
-            .iter()
-            .map(|v| {
-                if v.trim().is_empty() {
-                    Primitive::Null(Null)
-                } else {
-                    match v.parse::<bool>() {
-                        Ok(b) => Primitive::Boolean(b),
-                        Err(_) => Primitive::String(v.to_string()),
-                    }
-                }
-            })
-            .collect();
-        let mut validator = ArrayValidator::new();
-        validator.items_validator = Some(Box::new(Validator::BooleanValidator(
-            BooleanValidator::new(),
-        )));
-        (vals, validator)
-    } else if has_floats {
-        // Has floating point numbers
-        let vals: Vec<Primitive> = values
-            .iter()
-            .map(|v| {
-                if v.trim().is_empty() {
-                    Primitive::Null(Null)
-                } else {
-                    match v.parse::<f64>() {
-                        Ok(n) => Primitive::Number(n),
-                        Err(_) => Primitive::String(v.to_string()),
-                    }
-                }
-            })
-            .collect();
-        let mut validator = ArrayValidator::new();
-        validator.items_validator =
-            Some(Box::new(Validator::NumberValidator(NumberValidator::new())));
-        (vals, validator)
-    } else if has_integers {
-        // Only integers
-        let vals: Vec<Primitive> = values
-            .iter()
-            .map(|v| {
-                if v.trim().is_empty() {
-                    Primitive::Null(Null)
-                } else {
-                    match v.parse::<i64>() {
-                        Ok(i) => Primitive::Integer(i),
-                        Err(_) => Primitive::String(v.to_string()),
-                    }
-                }
-            })
-            .collect();
-        let mut validator = ArrayValidator::new();
-        validator.items_validator = Some(Box::new(Validator::IntegerValidator(
-            IntegerValidator::new(),
-        )));
-        (vals, validator)
-    } else {
-        // Default to string
-        let vals: Vec<Primitive> = values
-            .iter()
-            .map(|v| {
-                if v.trim().is_empty() {
-                    Primitive::Null(Null)
-                } else {
-                    Primitive::String(v.to_string())
-                }
-            })
-            .collect();
-        let mut validator = ArrayValidator::new();
-        validator.items_validator =
-            Some(Box::new(Validator::StringValidator(StringValidator::new())));
-        (vals, validator)
-    };
-
-    Ok((parsed_values, validator))
 }
 
 /// Convert a Primitive value to its string representation for CSV output.

@@ -1,4 +1,6 @@
 use stencila_codec_dom_trait::{DomCodec, DomEncodeContext};
+use stencila_node_id::NodeId;
+use stencila_node_type::NodeType;
 
 use crate::Block;
 
@@ -13,20 +15,27 @@ pub(super) fn caption_to_dom(
     caption: &Option<Vec<Block>>,
 ) {
     let Some(caption) = caption else {
-        // No caption so just render label type and label. Render within a pseudo-<stencila-paragraph>
-        // element for styling consistency with when there is a caption (the usual case)
-
+        // No caption so just render label type and label. Render within a
+        // pseudo-<stencila-paragraph> element for styling consistency with when
+        // there is a caption (the usual case) It is best to use enter & exit
+        // node here so that custom elements have expected attributes e.g. depth
+        // & ancestors.
         context
-            .enter_elem("stencila-paragraph")
+            .enter_node(NodeType::Paragraph, NodeId::random(*b"pgh"))
             .enter_elem_attrs("p", [("slot", "content")])
-            .enter_elem_attrs("span", [("class", class)])
-            .push_text(kind);
+            .enter_elem_attrs("span", [("class", class)]);
 
         if let Some(label) = label {
-            context.push_text(" ").push_text(label);
+            if !label.to_lowercase().contains(&kind.to_lowercase()) {
+                context.push_text(kind).push_text(" ").push_text(label);
+            } else {
+                context.push_text(label);
+            }
+        } else {
+            context.push_text(kind);
         }
 
-        context.exit_elem().exit_elem().exit_elem();
+        context.exit_elem().exit_elem().exit_node();
 
         return;
     };
@@ -45,12 +54,19 @@ pub(super) fn caption_to_dom(
 
             context
                 .enter_elem_attrs("p", [("slot", "content")])
-                .enter_elem_attrs("span", [("class", class)])
-                .push_text(kind);
+                .enter_elem_attrs("span", [("class", class)]);
+
             if let Some(label) = label {
-                context.push_text(" ").push_text(label);
+                if !label.to_lowercase().contains(&kind.to_lowercase()) {
+                    context.push_text(kind).push_text(" ").push_text(label);
+                } else {
+                    context.push_text(label);
+                }
+            } else {
+                context.push_text(kind);
             }
-            context.exit_elem().push_text(" ");
+
+            context.exit_elem().push_text(": ");
 
             paragraph.content.to_dom(context);
             context.exit_elem().exit_node();

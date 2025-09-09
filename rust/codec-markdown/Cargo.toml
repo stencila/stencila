@@ -15,8 +15,7 @@ stencila-codec = { path = "../codec" }
 stencila-codec-json5-trait = { path = "../codec-json5-trait" }
 stencila-codec-markdown-trait = { path = "../codec-markdown-trait" }
 stencila-codec-text-trait = { path = "../codec-text-trait" }
-stencila-media-embed = { path = "../media-embed" }
-stencila-media-extract = { path = "../media-extract" }
+stencila-node-media = { path = "../node-media" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

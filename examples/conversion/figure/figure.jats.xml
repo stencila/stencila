@@ -5,7 +5,7 @@
       <inline-graphic xlink:href="https://example.org/cat.jpg">
       </inline-graphic>
     </fig>
-    <fig label-automatically="false">
+    <fig>
       <label>2</label>
       <caption>
         <p>A dog.</p>

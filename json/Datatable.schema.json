@@ -22,7 +22,11 @@
   "core": [
     "id",
     "workType",
-    "doi"
+    "doi",
+    "label",
+    "labelAutomatically",
+    "caption",
+    "notes"
   ],
   "properties": {
     "type": {
@@ -39,6 +43,9 @@
         "metadata"
       ],
       "html": {
+        "attr": "id"
+      },
+      "jats": {
         "attr": "id"
       },
       "type": "string"
@@ -658,6 +665,32 @@
         }
       ]
     },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the datatable.",
+      "type": "string"
+    },
+    "labelAutomatically": {
+      "@id": "stencila:labelAutomatically",
+      "description": "Whether the datatable label should be automatically updated.",
+      "aliases": [
+        "label-automatically",
+        "label_automatically"
+      ],
+      "type": "boolean"
+    },
+    "caption": {
+      "@id": "schema:caption",
+      "description": "A caption for the datatable.",
+      "walk": true,
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
     "columns": {
       "@id": "stencila:columns",
       "description": "The columns of data.",
@@ -667,6 +700,21 @@
       "type": "array",
       "items": {
         "$ref": "DatatableColumn.schema.json"
+      }
+    },
+    "notes": {
+      "@id": "schema:notes",
+      "description": "Notes for the datatable.",
+      "aliases": [
+        "note"
+      ],
+      "walk": true,
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
       }
     }
   }

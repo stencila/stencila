@@ -101,8 +101,8 @@ pub fn block_from_pandoc(block: pandoc::Block, context: &mut PandocDecodeContext
 
     match block {
         // Structure
-        pandoc::Block::Header(level, attrs, inlines) =>  heading_from_pandoc(level, attrs, inlines, context),
-        pandoc::Block::Para(inlines) | pandoc::Block::Plain(inlines)=> paragraph_from_pandoc(inlines, context),
+        pandoc::Block::Header(level, attrs, inlines) => heading_from_pandoc(level, attrs, inlines, context),
+        pandoc::Block::Para(inlines) | pandoc::Block::Plain(inlines) => paragraph_from_pandoc(inlines, context),
         pandoc::Block::HorizontalRule => Block::ThematicBreak(ThematicBreak::new()),
 
         // Lists
@@ -245,6 +245,8 @@ fn paragraph_to_pandoc(para: &Paragraph, context: &mut PandocEncodeContext) -> p
 fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecodeContext) -> Block {
     let mut inlines = inlines_from_pandoc(inlines, context);
 
+    // If the paragraph only has a single inline media object, unwrap it into a
+    // block level media object. This is consistent with Markdown codec and elsewhere.
     if let (1, Some(Inline::ImageObject(..) | Inline::AudioObject(..) | Inline::VideoObject(..))) =
         (inlines.len(), inlines.first())
     {
@@ -423,7 +425,7 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
 }
 
 fn table_cell_to_pandoc(cell: &TableCell, context: &mut PandocEncodeContext) -> pandoc::Cell {
-    let align = match cell.horizontal_alignment {
+    let align = match cell.options.horizontal_alignment {
         Some(HorizontalAlignment::AlignLeft) => pandoc::Alignment::AlignLeft,
         Some(HorizontalAlignment::AlignCenter) => pandoc::Alignment::AlignCenter,
         Some(HorizontalAlignment::AlignRight) => pandoc::Alignment::AlignRight,
@@ -549,10 +551,10 @@ fn table_cell_from_pandoc(cell: pandoc::Cell, context: &mut PandocDecodeContext)
 
     TableCell {
         content,
-        horizontal_alignment,
         options: Box::new(TableCellOptions {
             row_span,
             column_span,
+            horizontal_alignment,
             ..Default::default()
         }),
         ..Default::default()

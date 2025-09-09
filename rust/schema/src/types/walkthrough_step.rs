@@ -20,6 +20,7 @@ pub struct WalkthroughStep {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Whether this step is active (i.e. is encoded in source format and can be edited)

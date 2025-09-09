@@ -1,6 +1,6 @@
 use stencila_codecs::Format;
 use stencila_linters::LintingOptions;
-use stencila_schema::{CompilationMessage, LabelType, Link, NodeType, shortcuts::t};
+use stencila_schema::{CompilationMessage, Inline, LabelType, Link, NodeType, shortcuts::t};
 
 use crate::{CompileOptions, prelude::*};
 
@@ -71,13 +71,28 @@ impl Executable for Link {
         let node_id = self.node_id();
         tracing::trace!("Linking Link {node_id}");
 
-        // Update the content of the link if it has an internal target
-        if let Some(target) = self.target.strip_prefix("#") {
+        // Update the content of the link if it has an internal target, the
+        // content is empty, or ends with zero-width-space character
+        // indicating it is generated. This avoids overwriting link content that
+        // comes from places like JATS (e.g. "7g" when link is to Figure 7)
+        const ZERO_WIDTH_SPACE: &str = "\u{200B}";
+        let is_generated_or_empty = self
+            .content
+            .last()
+            .map(|last| match last {
+                Inline::Text(last) => last.value.as_str() == ZERO_WIDTH_SPACE,
+                _ => false,
+            })
+            .unwrap_or(true);
+        if let Some(target) = self.target.strip_prefix("#")
+            && is_generated_or_empty
+        {
             if let Some((label_type, label)) = executor.labels.get(target) {
                 let label_type = match label_type {
                     LabelType::TableLabel => "Table",
                     LabelType::FigureLabel => "Figure",
                     LabelType::AppendixLabel => "Appendix",
+                    LabelType::SupplementLabel => "Supplement",
                 };
 
                 let content = if self.label_only.unwrap_or_default() {
@@ -85,7 +100,7 @@ impl Executable for Link {
                 } else {
                     [label_type, " ", label].concat()
                 };
-                let content = vec![t(content)];
+                let content = vec![t(content), t(ZERO_WIDTH_SPACE)];
 
                 self.content = content.clone();
                 executor.patch(

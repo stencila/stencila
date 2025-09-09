@@ -15,7 +15,9 @@ import { MediaObject } from './media-object'
 @withTwind()
 export class VideoObject extends MediaObject {
   override renderMediaElem() {
-    return html`<video src=${this.mediaSrc} controls></video>` 
+    return this.mediaSrc ? 
+      html`<video src=${this.mediaSrc} controls></video>`  :
+      html`<slot></slot>`
   }
 
   override renderCardContent() {
@@ -31,7 +33,9 @@ export class VideoObject extends MediaObject {
     
     return html`
       <div slot="content">
-        ${this.mediaSrc ?  html`<video class=${videoStyles} src=${this.mediaSrc} controls></video>` : html`<slot></slot>`}
+        ${this.mediaSrc ?
+          html`<video class=${videoStyles} src=${this.mediaSrc} controls></video>` :
+          html`<slot></slot>`}
         <div>
           <slot name="caption"></slot>
         </div>

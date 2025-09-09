@@ -61,6 +61,9 @@
       "html": {
         "attr": "id"
       },
+      "jats": {
+        "attr": "id"
+      },
       "type": "string"
     },
     "executionMode": {
@@ -534,9 +537,6 @@
           "ipynb",
           "qmd"
         ]
-      },
-      "jats": {
-        "attr": "label-automatically"
       },
       "type": "boolean"
     },

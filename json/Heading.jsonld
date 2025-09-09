@@ -56,6 +56,9 @@
           "@id": "stencila:CodeChunk"
         },
         {
+          "@id": "stencila:Datatable"
+        },
+        {
           "@id": "stencila:Figure"
         },
         {
@@ -69,6 +72,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

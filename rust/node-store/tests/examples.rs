@@ -33,7 +33,7 @@ async fn examples() -> Result<()> {
         let name = name.to_string_lossy();
 
         // TODO: Do not skip these examples
-        if name == "primitives.json" || name == "article-sunflowers.json" {
+        if name == "primitives.json" {
             continue;
         }
 

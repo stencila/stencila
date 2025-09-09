@@ -20,6 +20,7 @@ pub struct CitationGroup {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// One or more `Citation`s to be referenced in the same surrounding text.

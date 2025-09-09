@@ -8,7 +8,7 @@ use stencila_codec::{
 
 use stencila_codec_meca::MecaCodec;
 
-/// Decode each example of a PMC OA Package and create JSON snapshots (including for losses)
+/// Decode each example of a MECA and create JSON snapshots (including for losses)
 #[tokio::test]
 async fn examples() -> Result<()> {
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -27,12 +27,9 @@ async fn examples() -> Result<()> {
             .and_then(|name| name.strip_suffix(".meca").map(String::from))
             .ok_or_eyre("should have .meca suffix")?;
 
-        // Redact inlined image dataURIs which can be very large
+        // Redact embedded media dataURIs which can be very large
         assert_json_snapshot!(format!("{id}.json"), article, {
-            ".content[].contentUrl" => "redacted",
-            ".content[].content[].contentUrl" => "redacted",
-            ".content[].content[].content[].contentUrl" => "redacted",
-            ".content[].content[].content[].content[].contentUrl" => "redacted"
+            ".**.contentUrl" => "redacted",
         });
 
         assert_yaml_snapshot!(format!("{id}.decode.losses"), info.losses);

@@ -160,16 +160,7 @@ export class Reference extends Entity {
       ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
       : ''
 
-    const url = createUrl(this)
-    const link = url
-      ? html` <a href="${url}" target="_blank"
-          ><stencila-ui-icon
-            class="inline-block"
-            name="externalLink"
-          ></stencila-ui-icon
-        ></a>`
-      : ''
-
+    const link = getLink(this)
     return html`<div class="font-sans text-xs">
       ${authors}${year}${title}${isPartOf}${link}
     </div>`
@@ -249,10 +240,10 @@ export class Reference extends Entity {
     const volume = this.isPartOf?.volumeNumber ? html`, <em>${this.isPartOf.volumeNumber}</em>` : ''
     const issue = this.isPartOf?.issueNumber ? html`(${this.isPartOf.issueNumber})` : ''
     const pages = formatPagesAPA(this.pageStart, this.pageEnd, this.pagination)
-    const doi = this.doi ? html`. https://doi.org/${this.doi}` : ''
+    const link = getLink(this)
 
     return html`<div class="mt-3">
-      ${authors}${year}${title}${journal}${volume}${issue}${pages}${doi}
+      ${authors}${year}${title}${journal}${volume}${issue}${pages}${link}.
     </div>`
   }
 
@@ -276,9 +267,10 @@ export class Reference extends Entity {
     const issue = this.isPartOf?.issueNumber ? html`, no. ${this.isPartOf.issueNumber}` : ''
     const date = this.date ? html`, ${dateYear(this.date)}` : ''
     const pages = formatPagesMLA(this.pageStart, this.pageEnd, this.pagination)
+    const link = getLink(this)
 
     return html`<div class="mt-3">
-      ${authors}${title}${journal}${volume}${issue}${date}${pages}.
+      ${authors}${title}${journal}${volume}${issue}${date}${pages}${link}.
     </div>`
   }
 
@@ -302,9 +294,10 @@ export class Reference extends Entity {
     const issue = this.isPartOf?.issueNumber ? html`, no. ${this.isPartOf.issueNumber}` : ''
     const date = this.date ? html` (${dateYear(this.date)})` : ''
     const pages = formatPagesChicago(this.pageStart, this.pageEnd, this.pagination)
+    const link = getLink(this)
 
     return html`<div class="mt-3">
-      ${authors}${title}${journal}${volume}${issue}${date}${pages}.
+      ${authors}${title}${journal}${volume}${issue}${date}${pages}${link}.
     </div>`
   }
 
@@ -326,9 +319,10 @@ export class Reference extends Entity {
     const volume = this.isPartOf?.volumeNumber ? html`;${this.isPartOf.volumeNumber}` : ''
     const issue = this.isPartOf?.issueNumber ? html`(${this.isPartOf.issueNumber})` : ''
     const pages = formatPagesVancouver(this.pageStart, this.pageEnd, this.pagination)
+    const link = getLink(this)
 
     return html`<div class="mt-3">
-      ${index}. ${authors}${title}${journal}${date}${volume}${issue}${pages}.
+      ${index}. ${authors}${title}${journal}${date}${volume}${issue}${pages}${link}.
     </div>`
   }
 
@@ -353,9 +347,10 @@ export class Reference extends Entity {
     const issue = this.isPartOf?.issueNumber ? html`, no. ${this.isPartOf.issueNumber}` : ''
     const pages = formatPagesIEEE(this.pageStart, this.pageEnd, this.pagination)
     const date = this.date ? html`, ${dateYear(this.date)}` : ''
+    const link = getLink(this)
 
     return html`<div class="mt-3">
-      [${index}] ${authors}${title}${journal}${volume}${issue}${pages}${date}.
+      [${index}] ${authors}${title}${journal}${volume}${issue}${pages}${date}${link}.
     </div>`
   }
 
@@ -379,9 +374,10 @@ export class Reference extends Entity {
     const volume = this.isPartOf?.volumeNumber ? html`, ${this.isPartOf.volumeNumber}` : ''
     const issue = this.isPartOf?.issueNumber ? html`(${this.isPartOf.issueNumber})` : ''
     const pages = formatPagesHarvard(this.pageStart, this.pageEnd, this.pagination)
+    const link = getLink(this)
 
     return html`<div class="mt-3">
-      ${authors}${year}${title}${journal}${volume}${issue}${pages}.
+      ${authors}${year}${title}${journal}${volume}${issue}${pages}${link}.
     </div>`
   }
 }
@@ -515,20 +511,29 @@ function pagesEndashed(
 }
 
 /*
- * Generate appropriate URL for a reference based on available identifiers.
+ * Generate appropriate Link for a reference based on available identifiers.
+
  * Prioritizes DOI links over other URLs, filters out placeholder DOIs.
  * Returns null if no valid URL can be constructed.
  */
-function createUrl(reference: Reference): string | null {
+function getLink(reference: Reference) {
+  let url
+  
   if (reference.doi && !reference.doi.startsWith('10.0000')) {
-    return `https://doi.org/${reference.doi}`
+    url = `https://doi.org/${reference.doi}`
+  }
+
+  if (reference.url) {
+    url = reference.url
   }
 
   if (reference.isPartOf?.url) {
-    return reference.isPartOf.url
+    url = reference.isPartOf.url
   }
 
-  return null
+  return url
+    ? html`. <a href="${url}" target="_blank">${url}</a>`
+    : ''
 }
 
 /*

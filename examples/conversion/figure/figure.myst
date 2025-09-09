@@ -9,12 +9,8 @@ A dog.
 
 :::
 
-::: section
-
-:::::{figure} https://example.org/mouse.jpg
+:::{figure} https://example.org/mouse.jpg
 
 A figure of a mouse inside a section.
-
-:::::
 
 :::

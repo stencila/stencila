@@ -23,6 +23,7 @@ pub struct InstructionMessage {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The role of the message in the conversation.

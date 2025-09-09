@@ -12,6 +12,7 @@ import { type ChatMessageGroup } from "./ChatMessageGroup.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
+import { type Datatable } from "./Datatable.js";
 import { type Excerpt } from "./Excerpt.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
@@ -33,6 +34,7 @@ import { type RawBlock } from "./RawBlock.js";
 import { type Section } from "./Section.js";
 import { type StyledBlock } from "./StyledBlock.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
+import { type Supplement } from "./Supplement.js";
 import { type Table } from "./Table.js";
 import { type ThematicBreak } from "./ThematicBreak.js";
 import { type VideoObject } from "./VideoObject.js";
@@ -52,6 +54,7 @@ export type Block =
   Claim |
   CodeBlock |
   CodeChunk |
+  Datatable |
   Excerpt |
   Figure |
   File |
@@ -73,6 +76,7 @@ export type Block =
   Section |
   StyledBlock |
   SuggestionBlock |
+  Supplement |
   Table |
   ThematicBreak |
   VideoObject |
@@ -93,6 +97,7 @@ export function block(other: Block): Block {
     case "Claim":
     case "CodeBlock":
     case "CodeChunk":
+    case "Datatable":
     case "Excerpt":
     case "Figure":
     case "File":
@@ -114,6 +119,7 @@ export function block(other: Block): Block {
     case "Section":
     case "StyledBlock":
     case "SuggestionBlock":
+    case "Supplement":
     case "Table":
     case "ThematicBreak":
     case "VideoObject":

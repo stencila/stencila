@@ -7,6 +7,7 @@ edition = "2024"
 ciborium = "0.2.2"
 serde = { workspace = true }
 stencila-codec = { path = "../codec" }
+stencila-node-media = { path = "../node-media" }
 zstd = "0.13.3"
 
 [lints]

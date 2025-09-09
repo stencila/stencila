@@ -19,10 +19,26 @@ impl MathBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
         use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
+        let mut attrs = vec![("code", self.code.as_str())];
+        if let Some(id) = &self.id {
+            attrs.push(("id", id.as_str()));
+        }
+        if let Some(lang) = &self.math_language {
+            attrs.push(("language", lang.as_str()));
+        }
+
         let label = self
             .label
             .as_ref()
-            .map(|label| elem_no_attrs("label", label))
+            .map(|label| {
+                // Add parentheses if necessary as is usually the case for disp-formula in JATS
+                let label = if label.trim().starts_with("(") {
+                    label.to_string()
+                } else {
+                    ["(", label, ")"].concat()
+                };
+                elem_no_attrs("label", label)
+            })
             .unwrap_or_default();
 
         let mathml = self
@@ -32,19 +48,8 @@ impl MathBlock {
             .map(|mathml| elem_no_attrs("mml:math", mathml))
             .unwrap_or_default();
 
-        let mut attrs = vec![("code", self.code.as_str())];
-        if let Some(lang) = &self.math_language {
-            attrs.push(("language", lang.as_str()));
-        }
-
         let jats = elem("disp-formula", attrs, [label, mathml].concat());
-
-        let mut losses = lost_options!(self, id);
-        losses.merge(lost_options!(
-            self.options,
-            compilation_digest,
-            compilation_messages
-        ));
+        let losses = lost_options!(self.options, compilation_digest, compilation_messages);
 
         (jats, losses)
     }
@@ -58,6 +63,21 @@ impl DomCodec for MathBlock {
 
         if let Some(math_language) = &self.math_language {
             context.push_attr("math-language", math_language);
+        }
+
+        if let Some(label) = &self.label {
+            context.push_attr("label", label);
+        }
+
+        if let Some(label_automatically) = &self.label_automatically {
+            context.push_attr("label-automatically", &label_automatically.to_string());
+        }
+
+        if let Some(id) = &self.id {
+            context
+                .enter_slot("div", "id")
+                .push_attr("id", id)
+                .exit_slot();
         }
 
         if let Some(messages) = &self.options.compilation_messages {

@@ -1,6 +1,8 @@
-# TODO: Support the following codec/node type combinations
-
 compact.jats.xml:
+  encode:
+    strip-types:
+      # Sections without a section type, as in this example, are nto supported
+      - Section
   decode:
     strip-types:
       - CallBlock
@@ -30,6 +32,7 @@ myst:
       # As for SMD
       - Figure
       - InstructionInline
+      - Section
 
 qmd:
   encode:
@@ -37,6 +40,7 @@ qmd:
       # As for SMD
       - Figure
       - InstructionInline
+      - Section
   decode:
     skip: true
 

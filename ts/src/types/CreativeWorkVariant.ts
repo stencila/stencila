@@ -10,6 +10,7 @@ import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type Datatable } from "./Datatable.js";
 import { type Figure } from "./Figure.js";
+import { type File } from "./File.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type Periodical } from "./Periodical.js";
@@ -34,6 +35,7 @@ export type CreativeWorkVariant =
   Comment |
   Datatable |
   Figure |
+  File |
   ImageObject |
   MediaObject |
   Periodical |
@@ -59,6 +61,7 @@ export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVar
     case "Comment":
     case "Datatable":
     case "Figure":
+    case "File":
     case "ImageObject":
     case "MediaObject":
     case "Periodical":

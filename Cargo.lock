@@ -8906,6 +8906,7 @@ dependencies = [
  "stencila-node-diagnostics",
  "stencila-node-execute",
  "stencila-node-strip",
+ "stencila-node-supplements",
  "stencila-prompts",
  "stencila-publish",
  "stencila-schema",
@@ -9037,6 +9038,7 @@ dependencies = [
  "ciborium",
  "serde",
  "stencila-codec",
+ "stencila-node-media",
  "zstd",
 ]
 
@@ -9113,7 +9115,7 @@ dependencies = [
  "stencila-codec-pandoc",
  "stencila-codec-utils",
  "stencila-dirs",
- "stencila-media-embed",
+ "stencila-node-media",
  "stencila-node-reconstitute",
  "stencila-version",
  "tempfile",
@@ -9145,8 +9147,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-dom-trait",
  "stencila-codec-text-trait",
- "stencila-media-embed",
- "stencila-media-extract",
+ "stencila-node-media",
  "stencila-version",
  "tokio",
 ]
@@ -9362,7 +9363,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-latex-trait",
  "stencila-codec-pandoc",
- "stencila-media-extract",
+ "stencila-node-media",
  "tokio",
  "which",
 ]
@@ -9441,8 +9442,7 @@ dependencies = [
  "stencila-codec-json5-trait",
  "stencila-codec-markdown-trait",
  "stencila-codec-text-trait",
- "stencila-media-embed",
- "stencila-media-extract",
+ "stencila-node-media",
  "strum 0.27.2",
  "tokio",
  "tracing",
@@ -9480,7 +9480,8 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-jats",
  "stencila-dirs",
- "stencila-media-embed",
+ "stencila-node-media",
+ "stencila-node-supplements",
  "tempfile",
  "tokio",
  "tracing",
@@ -9563,7 +9564,7 @@ dependencies = [
  "stencila-codec-markdown",
  "stencila-codec-utils",
  "stencila-convert",
- "stencila-media-embed",
+ "stencila-node-media",
  "stencila-node-structuring",
 ]
 
@@ -9580,7 +9581,8 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-jats",
  "stencila-dirs",
- "stencila-media-embed",
+ "stencila-node-media",
+ "stencila-node-supplements",
  "stencila-version",
  "tar",
  "tempfile",
@@ -10324,27 +10326,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-media-embed"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "stencila-format",
- "stencila-images",
- "stencila-schema",
- "tracing",
-]
-
-[[package]]
-name = "stencila-media-extract"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "stencila-images",
- "stencila-schema",
- "tracing",
-]
-
-[[package]]
 name = "stencila-model"
 version = "0.0.0"
 dependencies = [
@@ -10608,8 +10589,16 @@ dependencies = [
 name = "stencila-node-media"
 version = "0.0.0"
 dependencies = [
- "stencila-images",
+ "base64 0.22.1",
+ "eyre",
+ "image",
+ "itertools 0.14.0",
+ "pathdiff",
+ "seahash",
+ "stencila-format",
  "stencila-schema",
+ "stencila-tools",
+ "tempfile",
  "tracing",
 ]
 
@@ -10732,6 +10721,25 @@ dependencies = [
  "stencila-codec-text-trait",
  "stencila-schema",
  "strum 0.27.2",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-supplements"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "pathdiff",
+ "stencila-codec",
+ "stencila-codec-cbor",
+ "stencila-codec-csv",
+ "stencila-codec-docx",
+ "stencila-codec-ipynb",
+ "stencila-codec-latex",
+ "stencila-codec-pdf",
+ "stencila-codec-xlsx",
+ "stencila-node-media",
+ "stencila-schema",
  "tracing",
 ]
 

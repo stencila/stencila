@@ -24,6 +24,7 @@ pub struct Timestamp {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z).

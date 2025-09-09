@@ -563,6 +563,25 @@ pub struct EncodeOptions {
     /// Should not be used together with `embed_media`.
     pub extract_media: Option<PathBuf>,
 
+    /// Whether to embed supplement files as embedded supplemental works
+    ///
+    /// When enabled, supplemental files (e.g. images, audio, video, CSV, DOCX)
+    /// referenced in the document will be decoded and embedded in the document
+    /// as the `work` property of the `Supplement`. This creates a
+    /// self-contained document but may increase file size significantly. Should
+    /// not be used together with `extract_supplements`.
+    pub embed_supplements: Option<bool>,
+
+    /// Path to extract embedded supplemental works to
+    ///
+    /// When provided, any supplemental works embedded in `Supplement` nodes (in
+    /// the `work` property) will be extracted to files in the specified
+    /// directory. Supplements are saved as `supplement-<N>.cbor.zstd` files
+    /// with the specified directory. This reduces document size but creates
+    /// external dependencies. Should not be used together with
+    /// `embed_supplements`.
+    pub extract_supplements: Option<PathBuf>,
+
     /// The type and name of alternate files
     ///
     /// A codec may encode a document in several formats by delegating to other codecs.

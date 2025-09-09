@@ -204,8 +204,8 @@ pub struct EncodeOptions {
     /// When enabled, external media files (images, audio, video) referenced in
     /// the document will be converted to data URIs and embedded directly in the
     /// output. This creates a self-contained document but may increase file
-    /// size significantly. Currently respected for Markdown-flavors and HTML.
-    /// Should not be used with `--extract-media`.
+    /// size significantly. Currently respected for Markdown-flavors, LaTeX,
+    /// HTML, and CBOR. Should not be used with `--extract-media`.
     #[arg(
         long,
         conflicts_with = "extract_media",
@@ -219,8 +219,8 @@ pub struct EncodeOptions {
     /// files. When provided, any data URIs in the document will be extracted to
     /// files in the specified directory, and the references will be updated to
     /// point to these external files. This reduces document size but creates
-    /// external dependencies. Currently respected for Markdown-flavors, LaTeX
-    /// and HTML. Should not be used with `--embed-media`.
+    /// external dependencies. Currently respected for Markdown-flavors, LaTeX,
+    /// HTML, and CBOR. Should not be used with `--embed-media`.
     #[arg(
         long,
         conflicts_with = "embed_media",
@@ -230,6 +230,37 @@ pub struct EncodeOptions {
         help_heading = "Encoding Options"
     )]
     extract_media: Option<String>,
+
+    /// Embed supplemental files directly into the document
+    ///
+    /// When enabled, supplemental files referenced in the document will be
+    /// decoded and embedded directly into the output. Supports CSV, DOCX, XLSX,
+    /// PDF, Jupyter notebooks, LaTeX, and media files. This creates a
+    /// self-contained document but may increase file size significantly.
+    /// Should not be used with `--extract-supplements`.
+    #[arg(
+        long,
+        conflicts_with = "extract_supplements",
+        help_heading = "Encoding Options"
+    )]
+    embed_supplements: bool,
+
+    /// Extract embedded supplemental content to separate files
+    ///
+    /// When provided, any supplemental content embedded in the document will be
+    /// extracted to files in the specified directory. Supplements are saved as
+    /// `supplement-<N>.czst` files. This reduces document size but creates
+    /// external file dependencies. Should not be used with
+    /// `--embed-supplements`.
+    #[arg(
+        long,
+        conflicts_with = "embed_supplements",
+        num_args = 0..=1,
+        default_missing_value = "<OUTPUT>.supplements",
+        value_name = "FOLDER",
+        help_heading = "Encoding Options"
+    )]
+    extract_supplements: Option<String>,
 
     /// Recursively encode the content of `IncludeBlock`s to their source file
     ///
@@ -317,6 +348,19 @@ impl EncodeOptions {
             }
         });
 
+        let embed_supplements = self.embed_supplements.then_some(true);
+
+        let extract_supplements = self.extract_supplements.as_ref().map(|path| {
+            if path == "<OUTPUT>.supplements" {
+                // Construct default path based on output
+                output
+                    .map(|p| p.with_extension("supplements"))
+                    .unwrap_or_else(|| PathBuf::from("output.supplements"))
+            } else {
+                PathBuf::from(path)
+            }
+        });
+
         stencila_codecs::EncodeOptions {
             codec,
             format,
@@ -327,11 +371,14 @@ impl EncodeOptions {
             standalone,
             embed_media,
             extract_media,
+            embed_supplements,
+            extract_supplements,
             recurse,
             from_path,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
+            losses: self.output_losses.clone(),
             ..Default::default()
         }
     }

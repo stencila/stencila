@@ -15,8 +15,7 @@ use stencila_codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
-use stencila_media_embed::embed_media;
-use stencila_media_extract::extract_media;
+use stencila_node_media::{embed_media, extract_media};
 use stencila_version::STENCILA_VERSION;
 
 /// A codec for DOM HTML
@@ -49,7 +48,11 @@ impl Codec for DomCodec {
             .and_then(|opts| opts.extract_media.as_ref())
         {
             let mut copy = node.clone();
-            extract_media(&mut copy, media)?;
+            let to_path = match options.as_ref().and_then(|opts| opts.to_path.as_ref()) {
+                Some(path) => path,
+                None => &current_dir()?,
+            };
+            extract_media(&mut copy, to_path, media)?;
             encode(&copy, options)
         } else if options
             .as_ref()

@@ -23,7 +23,7 @@ impl LatexCodec for Island {
                     LabelType::FigureLabel => Some("figure"),
                     LabelType::TableLabel => Some("table"),
                     // This should not usually happen
-                    LabelType::AppendixLabel => None,
+                    _ => None,
                 }
             {
                 // For islands within appendices (label starts with uppercase number) we need
@@ -144,6 +144,7 @@ impl LatexCodec for Island {
                                     LabelType::FigureLabel => "fig",
                                     LabelType::TableLabel => "tab",
                                     LabelType::AppendixLabel => "app",
+                                    LabelType::SupplementLabel => "sup",
                                 },
                             ]
                             .concat(),

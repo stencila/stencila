@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use glob::glob;
+use stencila_node_supplements::embed_supplements;
 use zip::ZipArchive;
 
 use stencila_codec::{
@@ -9,7 +10,7 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 use stencila_codec_jats::JatsCodec;
-use stencila_media_embed::embed_media;
+use stencila_node_media::embed_media;
 
 /// Decode a MECA file to a Stencila [`Node`]
 #[tracing::instrument]
@@ -40,8 +41,9 @@ pub(super) async fn decode_path(
     // Decode the JATS
     let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
 
-    // Embed any images
+    // Embed media and supplements
     embed_media(&mut node, &dir)?;
+    embed_supplements(&mut node, &dir).await?;
 
     Ok((node, None, info))
 }

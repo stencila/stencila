@@ -21,6 +21,7 @@ impl Block {
             Claim,
             CodeBlock,
             CodeChunk,
+            Datatable,
             Excerpt,
             Figure,
             File,
@@ -42,6 +43,7 @@ impl Block {
             Section,
             StyledBlock,
             SuggestionBlock,
+            Supplement,
             Table,
             ThematicBreak,
             VideoObject,
@@ -69,6 +71,7 @@ impl Block {
             Claim,
             CodeBlock,
             CodeChunk,
+            Datatable,
             Excerpt,
             Figure,
             File,
@@ -90,6 +93,7 @@ impl Block {
             Section,
             StyledBlock,
             SuggestionBlock,
+            Supplement,
             Table,
             ThematicBreak,
             VideoObject,
@@ -102,6 +106,55 @@ impl TryFrom<Node> for Block {
     type Error = ErrReport;
 
     fn try_from(node: Node) -> Result<Self> {
+        // Blocks are directly convertible. Handle these first for efficiency,
+        // but also because media object nodes should be converted to blocks
+        // directly rather than being made inline and wrapped in a paragraph.
+        macro_rules! blocks {
+            ($( $variant:ident ),*) => {
+                match node {
+                    $(Node::$variant(node) => return Ok(Block::$variant(node)),)*
+                    _ => {}
+                }
+            };
+        }
+        blocks!(
+            Admonition,
+            AppendixBreak,
+            AudioObject,
+            CallBlock,
+            Chat,
+            ChatMessage,
+            ChatMessageGroup,
+            Claim,
+            CodeBlock,
+            CodeChunk,
+            Datatable,
+            Excerpt,
+            Figure,
+            ForBlock,
+            Form,
+            Heading,
+            IfBlock,
+            IncludeBlock,
+            InstructionBlock,
+            ImageObject,
+            Island,
+            List,
+            MathBlock,
+            Paragraph,
+            PromptBlock,
+            QuoteBlock,
+            RawBlock,
+            Section,
+            StyledBlock,
+            SuggestionBlock,
+            Supplement,
+            Table,
+            ThematicBreak,
+            VideoObject,
+            Walkthrough
+        );
+
         // Wrap parts of blocks (e.g. table cells, table rows, list items) accordingly
         match node {
             Node::TableCell(cell) => {
@@ -165,47 +218,7 @@ impl TryFrom<Node> for Block {
             Number
         );
 
-        // Blocks are directly convertible
-        macro_rules! blocks {
-            ($( $variant:ident ),*) => {
-                match node {
-                    $(Node::$variant(node) => Ok(Block::$variant(node)),)*
-                    _ => bail!("Unable to convert Node::{} to Block", node.node_type())
-                }
-            };
-        }
-        blocks!(
-            Admonition,
-            AppendixBreak,
-            CallBlock,
-            Chat,
-            ChatMessage,
-            ChatMessageGroup,
-            Claim,
-            CodeBlock,
-            CodeChunk,
-            Excerpt,
-            Figure,
-            ForBlock,
-            Form,
-            Heading,
-            IfBlock,
-            IncludeBlock,
-            InstructionBlock,
-            Island,
-            List,
-            MathBlock,
-            Paragraph,
-            PromptBlock,
-            QuoteBlock,
-            RawBlock,
-            Section,
-            StyledBlock,
-            SuggestionBlock,
-            Table,
-            ThematicBreak,
-            Walkthrough
-        )
+        bail!("Unable to convert Node::{} to Block", node.node_type())
     }
 }
 

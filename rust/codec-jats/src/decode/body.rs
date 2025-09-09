@@ -5,17 +5,20 @@ use roxmltree::Node;
 
 use stencila_codec::{
     Losses,
+    stencila_format::Format,
     stencila_schema::{
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
-        Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
-        Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions, MediaObject,
-        MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType, StyledInline, Table,
-        TableCell, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
+        CreativeWorkType, Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject,
+        ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
+        MathInline, MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
+        Section, SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions,
+        TableOptions, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
         VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
 };
+use stencila_codec_text_trait::to_text;
 
 use crate::encode::serialize_node;
 
@@ -78,8 +81,14 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
                 blocks.append(&mut decode_p(&child_path, &child, losses));
                 continue;
             }
-            "sec" => decode_sec(&child_path, &child, losses, depth + 1),
+            "sec" => {
+                blocks.append(&mut decode_sec(&child_path, &child, losses, depth + 1));
+                continue;
+            }
             "statement" => decode_statement(&child_path, &child, losses, depth),
+            "supplementary-material" => {
+                decode_supplementary_material(&child_path, &child, losses, depth)
+            }
             "title" => decode_title(&child_path, &child, losses, depth),
             "table-wrap" => decode_table_wrap(&child_path, &child, losses, depth),
             _ => {
@@ -136,8 +145,9 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
 
 /// Decode a <p> element to a vector of blocks
 ///
-/// In addition to [`Paragraph`]nodes, this function may return [`MathBlock`] nodes,
-/// which in JATS can be within a <p> element.
+/// In addition to [`Paragraph`] nodes, this function may return [`Figure`],
+/// [`Table`], [`MathBlock`] or [`Supplement`] nodes, which in JATS can be
+/// within a <p> element.
 fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
@@ -161,14 +171,23 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     let mut children = Vec::new();
     for child in node.children() {
         let child_tag = child.tag_name().name();
-        if child_tag == "disp-formula" {
+        if matches!(
+            child_tag,
+            "fig" | "table-wrap" | "disp-formula" | "supplementary-material"
+        ) {
             if let Some(para) = para(path, children, losses) {
                 blocks.push(para);
             }
             children = Vec::new();
 
-            let math_block = decode_disp_formula(path, &child, losses, 0);
-            blocks.push(math_block);
+            let block = match child_tag {
+                "table-wrap" => decode_table_wrap(path, &child, losses, 0),
+                "fig" => decode_fig(path, &child, losses, 0),
+                "disp-formula" => decode_disp_formula(path, &child, losses, 0),
+                "supplementary-material" => decode_supplementary_material(path, &child, losses, 0),
+                _ => unreachable!(),
+            };
+            blocks.push(block);
         } else {
             children.push(child);
         }
@@ -189,40 +208,38 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 }
 
 /// Decode a `<sec>` to a [`Block::Section`]
-fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    fn parse_section_type(section_type: &str) -> Option<SectionType> {
-        section_type
-            .parse()
-            .ok()
-            .or_else(|| match section_type.to_lowercase().as_str() {
-                "intro" => Some(SectionType::Introduction),
-                section_type => {
-                    if section_type.contains("methods") {
-                        Some(SectionType::Methods)
-                    } else {
-                        None
-                    }
-                }
-            })
-    }
-
+///
+/// Some JATS has `<sec>` elements that are merely wrappers with an `id` but
+/// no `sec-type` or `<title>` child. These are ignored to avoid unnecessary
+/// sections and their content returned instead.
+pub fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
     let section_type = node
         .attribute("sec-type")
-        .and_then(parse_section_type)
+        .and_then(|value| SectionType::from_text(value).ok())
         .or_else(|| {
             node.children()
                 .find(|child| child.tag_name().name() == "title")
                 .and_then(|node| node.text())
-                .and_then(parse_section_type)
+                .and_then(|value| SectionType::from_text(value).ok())
         });
 
     record_attrs_lost(path, node, ["sec-type"], losses);
 
-    Block::Section(Section {
-        section_type,
-        content: decode_blocks(path, node.children(), losses, depth),
-        ..Default::default()
-    })
+    let content = decode_blocks(path, node.children(), losses, depth);
+
+    if section_type.is_none()
+        && !content
+            .iter()
+            .any(|block| matches!(block, Block::Heading(..)))
+    {
+        content
+    } else {
+        vec![Block::Section(Section {
+            section_type,
+            content,
+            ..Default::default()
+        })]
+    }
 }
 
 /// Decode a `<title>` to a [`Block::Heading`]
@@ -273,6 +290,146 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
     })
 }
 
+/// Decode a `<supplementary-material>` element to a Stencila [`Block::Supplement`]
+///
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/supplementary-material.html
+fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let id = node.attribute("id").map(String::from);
+
+    record_attrs_lost(path, node, ["id"], losses);
+
+    let mut work_type = None;
+
+    let target = node
+        .children()
+        .find(|child| child.tag_name().name() == "media")
+        .and_then(|node| node.attribute((XLINK, "href")))
+        .map(String::from);
+
+    let format = target
+        .as_ref()
+        .map(|target| Format::from_name(target))
+        .unwrap_or_default();
+
+    let target_is_archive = target
+        .as_ref()
+        .map(|target| target.ends_with(".zip") || target.ends_with(".gz"))
+        .unwrap_or_default();
+
+    let target_is_datatable = matches!(
+        format,
+        Format::Csv | Format::Tsv | Format::Xlsx | Format::Xls
+    );
+
+    // Get any label, clean it and try to infer the work type
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(|label| {
+            let rest = label
+                .trim()
+                .trim_start_matches("Supplement")
+                .trim_start_matches("supplement")
+                .trim_start_matches("ary")
+                .trim_start_matches("al")
+                .trim_start_matches("Supporting")
+                .trim_start_matches("supporting")
+                .trim();
+
+            let rest_lower = rest.to_lowercase();
+
+            if rest_lower.contains("source data") || target_is_archive {
+                // Handle labels such as "Figure 2—figure supplement 2—source data 2." (real example)
+                // as data not figures: treat as dataset and do not "clean" label
+                work_type = Some(CreativeWorkType::Dataset);
+
+                rest.to_string()
+            } else if rest_lower.starts_with("table") {
+                work_type = Some(if target_is_datatable {
+                    CreativeWorkType::Datatable
+                } else {
+                    CreativeWorkType::Table
+                });
+
+                clean_table_label(rest)
+            } else if rest_lower.starts_with("fig") {
+                work_type = Some(CreativeWorkType::Figure);
+
+                clean_figure_label(rest)
+            } else {
+                if rest_lower.starts_with("audio") {
+                    work_type = Some(CreativeWorkType::AudioObject);
+                } else if rest_lower.starts_with("image") {
+                    work_type = Some(CreativeWorkType::ImageObject);
+                } else if rest_lower.starts_with("video") {
+                    work_type = Some(CreativeWorkType::VideoObject);
+                } else if rest_lower.starts_with("dataset") {
+                    work_type = Some(CreativeWorkType::Dataset);
+                }
+
+                rest.to_string()
+            }
+        });
+
+    let label_automatically = label.is_some().then_some(false);
+
+    let caption = node
+        .descendants() // Use descendants because sometimes the caption is nested in <media>
+        .find(|child| child.tag_name().name() == "caption")
+        .map(|node| decode_blocks(path, node.children(), losses, depth));
+
+    // If work type is still none, attempt to infer from the caption (often
+    // there will be no label, only a caption)
+    if work_type.is_none()
+        && let Some(caption) = &caption
+    {
+        let caption_lower = to_text(caption).trim().to_lowercase();
+
+        let rest_lower = caption_lower
+            .trim_start_matches("supplement")
+            .trim_start_matches("ary")
+            .trim_start_matches("al")
+            .trim_start_matches("supporting")
+            .trim();
+
+        if rest_lower.starts_with("figure") {
+            work_type = Some(CreativeWorkType::Figure);
+        } else if rest_lower.starts_with("table") {
+            work_type = Some(CreativeWorkType::Table);
+        } else if rest_lower.starts_with("audio") {
+            work_type = Some(CreativeWorkType::AudioObject);
+        } else if rest_lower.starts_with("image") {
+            work_type = Some(CreativeWorkType::ImageObject);
+        } else if rest_lower.starts_with("video") {
+            work_type = Some(CreativeWorkType::VideoObject);
+        } else if rest_lower.starts_with("dataset") {
+            work_type = Some(CreativeWorkType::Dataset);
+        }
+    }
+
+    // If work type is still none, attempt to infer from the format of the target
+    if work_type.is_none() {
+        if format.is_audio() {
+            work_type = Some(CreativeWorkType::AudioObject);
+        } else if format.is_image() {
+            work_type = Some(CreativeWorkType::ImageObject);
+        } else if format.is_video() {
+            work_type = Some(CreativeWorkType::VideoObject);
+        }
+    }
+
+    Block::Supplement(Supplement {
+        id,
+        work_type,
+        label,
+        label_automatically,
+        caption,
+        target,
+        ..Default::default()
+    })
+}
+
 /// Decode a `<fig-group>` element to a vector of Stencila [`Block::Figure`]s
 fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
@@ -284,27 +441,23 @@ fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fig.html
 fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    let label_automatically = node
-        .attribute("label-automatically")
-        .and_then(|string| string.parse().ok());
+    let id = node.attribute("id").map(String::from);
 
-    record_attrs_lost(path, node, ["label-automatically"], losses);
+    record_attrs_lost(path, node, ["id"], losses);
 
     let label = node
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
-        .map(|label| {
-            label
-                .trim_start_matches("Figure ")
-                .trim_end_matches(['.', ':', ' '])
-        })
-        .map(String::from);
+        .map(clean_figure_label);
+
+    let label_automatically = label.is_some().then_some(false);
 
     let caption = node
         .children()
         .find(|child| child.tag_name().name() == "caption")
-        .map(|node| decode_blocks(path, node.children(), losses, depth));
+        .map(|node| decode_blocks(path, node.children(), losses, depth))
+        .map(clean_caption);
 
     // Decode remaining blocks (not <label> or <caption>)
     let content = decode_blocks(
@@ -318,6 +471,7 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
     );
 
     Block::Figure(Figure {
+        id,
         content,
         caption,
         label_automatically,
@@ -365,27 +519,15 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
             .attribute("label-type")
             .and_then(|string| string.parse().ok());
 
-        let label_automatically = node
-            .attribute("label-automatically")
-            .and_then(|string| string.parse().ok());
-
-        record_attrs_lost(
-            path,
-            node,
-            [
-                "language",
-                "executable",
-                "label-type",
-                "label-automatically",
-            ],
-            losses,
-        );
+        record_attrs_lost(path, node, ["language", "executable", "label-type"], losses);
 
         let label = node
             .children()
             .find(|child| child.tag_name().name() == "label")
             .and_then(|node| node.text())
             .map(String::from);
+
+        let label_automatically = label.is_some().then_some(false);
 
         let caption = node
             .children()
@@ -417,11 +559,13 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
 fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
-    let mut code = node
+    let id = node.attribute("id").map(String::from);
+
+    let mut code: Cord = node
         .attribute("code")
         .and_then(|code| code.into())
         .unwrap_or_default()
-        .to_string();
+        .into();
 
     let mut math_language = node.attribute("language").map(|lang| lang.to_string());
 
@@ -431,22 +575,37 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
             .find(|child| child.tag_name().name() == "math")
             .and_then(|node| serialize_node(node).ok())
     {
-        code = mathml;
+        code = mathml.into();
         math_language = Some("mathml".into());
     }
 
-    let images = node
-        .children()
-        .filter(|child| child.tag_name().name() == "graphic")
-        .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
-        .collect_vec();
-    let images = (!images.is_empty()).then_some(images);
+    record_attrs_lost(path, node, ["id", "code", "language"], losses);
 
-    record_attrs_lost(path, node, ["code", "language"], losses);
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(clean_math_block_label);
+
+    let label_automatically = label.is_some().then_some(false);
+
+    let images = if code.is_empty() {
+        let images = node
+            .descendants() // Use descendants because graphics may be nested in <alternatives>
+            .filter(|child| child.tag_name().name() == "graphic")
+            .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
+            .collect_vec();
+        (!images.is_empty()).then_some(images)
+    } else {
+        None
+    };
 
     Block::MathBlock(MathBlock {
-        code: code.into(),
+        id,
+        code,
         math_language,
+        label,
+        label_automatically,
         options: Box::new(MathBlockOptions {
             images,
             ..Default::default()
@@ -512,22 +671,17 @@ fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/table-wrap.html
 fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    let label_automatically = node
-        .attribute("label-automatically")
-        .and_then(|string| string.parse().ok());
+    let id = node.attribute("id").map(String::from);
 
-    record_attrs_lost(path, node, ["label-automatically"], losses);
+    record_attrs_lost(path, node, ["id"], losses);
 
     let label = node
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
-        .map(|label| {
-            label
-                .trim_start_matches("Table ")
-                .trim_end_matches(['.', ':', ' '])
-        })
-        .map(String::from);
+        .map(clean_table_label);
+
+    let label_automatically = label.is_some().then_some(false);
 
     let caption = node
         .children()
@@ -539,7 +693,8 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
                 losses,
                 depth,
             )
-        });
+        })
+        .map(clean_caption);
 
     let rows = node
         .children()
@@ -566,7 +721,18 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
                 })
                 .collect::<Vec<TableRow>>()
         })
-        .collect();
+        .collect_vec();
+
+    let images = if rows.is_empty() {
+        let images = node
+            .descendants() // Use descendants because graphics may be nested in <alternatives>
+            .filter(|child| child.tag_name().name() == "graphic")
+            .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
+            .collect_vec();
+        (!images.is_empty()).then_some(images)
+    } else {
+        None
+    };
 
     let notes = node
         .children()
@@ -581,11 +747,16 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         });
 
     Block::Table(Table {
+        id,
         label,
         label_automatically,
         caption,
         rows,
         notes,
+        options: Box::new(TableOptions {
+            images,
+            ..Default::default()
+        }),
         ..Default::default()
     })
 }
@@ -653,24 +824,56 @@ fn decode_table_row(
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/td.html
 /// and https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/th.html
 fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> TableCell {
+    let row_span = node
+        .attribute("rowspan")
+        .and_then(|alignment| alignment.parse().ok())
+        .and_then(|row_span| (row_span != 1).then_some(row_span));
+
+    let column_span = node
+        .attribute("colspan")
+        .and_then(|alignment| alignment.parse().ok())
+        .and_then(|row_span| (row_span != 1).then_some(row_span));
+
     let vertical_alignment = node
         .attribute("valign")
         .and_then(|alignment| alignment.parse().ok());
+
     let horizontal_alignment = node
         .attribute("align")
         .and_then(|alignment| alignment.parse().ok());
 
-    record_attrs_lost(path, node, ["valign", "align"], losses);
+    record_attrs_lost(
+        path,
+        node,
+        ["rowspan", "colspan", "valign", "align"],
+        losses,
+    );
 
-    let mut content = vec![p(decode_inlines(path, node.children(), losses))];
-    if decode_inlines(path, node.children(), losses).is_empty() {
-        content = decode_blocks(path, node.children(), losses, depth);
-    }
+    // First try to decode as inlines (usual case) filtering out whitespace only inlines
+    let inlines: Vec<Inline> = decode_inlines(path, node.children(), losses)
+        .into_iter()
+        .filter_map(|inline| (!to_text(&inline).trim().is_empty()).then_some(inline))
+        .collect();
+
+    let content = if inlines.is_empty() {
+        // Fallback to decoding as blocks, again filtering out whitespace only
+        decode_blocks(path, node.children(), losses, depth)
+            .into_iter()
+            .filter_map(|block| (!to_text(&block).trim().is_empty()).then_some(block))
+            .collect()
+    } else {
+        vec![p(inlines)]
+    };
 
     TableCell {
         content,
-        vertical_alignment,
-        horizontal_alignment,
+        options: Box::new(TableCellOptions {
+            row_span,
+            column_span,
+            vertical_alignment,
+            horizontal_alignment,
+            ..Default::default()
+        }),
         ..Default::default()
     }
 }
@@ -708,9 +911,19 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
                 "xref" => match child.attribute("ref-type") {
-                    Some("bibr" | "ref") => decode_xref_bibr(&child_path, &child, losses),
+                    Some("bibr" | "ref") => decode_xref_citation(&child_path, &child, losses),
+                    Some(
+                        "sec"
+                        | "fig"
+                        | "table"
+                        | "disp-formula"
+                        | "supplementary-material"
+                        | "media",
+                    ) => decode_xref_block(&child_path, &child, losses),
                     _ => {
+                        // Record the xref as lost but decode its content
                         record_node_lost(path, &child, losses);
+                        inlines.append(&mut decode_inlines(path, child.children(), losses));
                         continue;
                     }
                 },
@@ -953,6 +1166,8 @@ fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline
     let mut code = node.attribute("code").unwrap_or_default().to_string();
     let mut lang = node.attribute("language");
 
+    record_attrs_lost(path, node, ["code", "language"], losses);
+
     if code.is_empty()
         && let Some(mathml) = node
             .children()
@@ -963,9 +1178,26 @@ fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline
         lang = Some("mathml");
     }
 
-    record_attrs_lost(path, node, ["code", "language"], losses);
+    let images = if code.is_empty() {
+        let images = node
+            .descendants() // Use descendants because graphics may be nested in <alternatives>
+            .filter(|child| child.tag_name().name() == "inline-graphic")
+            .map(|graphic| decode_graphic(&extend_path(path, "inline-graphic"), &graphic, losses))
+            .collect_vec();
+        (!images.is_empty()).then_some(images)
+    } else {
+        None
+    };
 
-    mi(code, lang)
+    Inline::MathInline(MathInline {
+        code: code.into(),
+        math_language: lang.map(String::from),
+        options: Box::new(MathInlineOptions {
+            images,
+            ..Default::default()
+        }),
+        ..Default::default()
+    })
 }
 
 /// Decode a inline `<mml::math>` element to a [`Inline::MathInline`]
@@ -1037,7 +1269,7 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<xref>` with `ref-type` of "bibr" or "ref" to a [`Inline::Citation`]
-fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_xref_citation(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node.attribute("rid").map(String::from).unwrap_or_default();
 
     record_attrs_lost(path, node, ["ref-type", "rid"], losses);
@@ -1054,4 +1286,100 @@ fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         }),
         ..Default::default()
     })
+}
+
+/// Decode a `<xref>` to a [`Inline::Link`] with a target to an internal block
+fn decode_xref_block(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let target = node
+        .attribute("rid")
+        .map(|id| ["#", id].concat())
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["ref-type", "rid"], losses);
+
+    let content = decode_inlines(path, node.children(), losses);
+
+    Inline::Link(Link {
+        target,
+        content,
+        ..Default::default()
+    })
+}
+
+/// Clean a figure label by removing unnecessary leading and trailing content
+fn clean_figure_label(label: &str) -> String {
+    const PREFIXES: &[&str] = &["Figure", "figure", "FIGURE", "Fig", "fig", "FIG"];
+
+    let mut cleaned = label;
+    for prefix in PREFIXES {
+        if let Some(stripped) = cleaned.strip_prefix(prefix) {
+            cleaned = stripped;
+            break;
+        }
+    }
+
+    cleaned.trim_matches(['.', ':', ' ']).to_string()
+}
+
+/// Clean a table label by removing unnecessary leading and trailing content
+fn clean_table_label(label: &str) -> String {
+    const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
+
+    let mut cleaned = label;
+    for prefix in PREFIXES {
+        if let Some(stripped) = cleaned.strip_prefix(prefix) {
+            cleaned = stripped;
+            break;
+        }
+    }
+
+    cleaned.trim_matches(['.', ':', ' ']).to_string()
+}
+
+/// Clean a match block label by removing unnecessary leading and trailing content
+fn clean_math_block_label(label: &str) -> String {
+    label
+        .trim_start_matches(['(', ' '])
+        .trim_end_matches([')', ' '])
+        .to_string()
+}
+
+/// Clean table & figure captions
+///
+/// Sometimes a <caption> will have a <title>, which will be decoded to a
+/// [Heading]. While a heading is valid content for a caption, that can break
+/// downstream assumptions in document structuring and display.
+///
+/// As such, if the caption starts with a title then we append its content as
+/// bolded text to the start of the first paragraph. If there is only a title,
+/// then it becomes a paragraph.
+fn clean_caption(mut caption: Vec<Block>) -> Vec<Block> {
+    if let (Some(Block::Heading(..)), Some(Block::Paragraph(..))) =
+        (caption.first(), caption.get(1))
+    {
+        if let (
+            Block::Heading(Heading {
+                content: mut heading,
+                ..
+            }),
+            Some(Block::Paragraph(paragraph)),
+        ) = (caption.remove(0), caption.get_mut(0))
+        {
+            if let Some(Inline::Text(text)) = heading.last_mut() {
+                if !text.value.ends_with(" ") {
+                    text.value.push(' ');
+                }
+            } else {
+                heading.push(t(" "));
+            }
+            paragraph.content.insert(0, stg(heading));
+        }
+    } else if caption.len() == 1
+        && let Some(Block::Heading(..)) = caption.first()
+        && let Block::Heading(Heading { content, .. }) = caption.remove(0)
+    {
+        caption.push(p(content))
+    }
+
+    caption
 }

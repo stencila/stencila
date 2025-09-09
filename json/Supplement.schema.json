@@ -1,0 +1,179 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Supplement.schema.json",
+  "@id": "stencila:Supplement",
+  "title": "Supplement",
+  "nick": "spl",
+  "extends": [
+    "Entity"
+  ],
+  "category": "works",
+  "description": "A supplementary `CreativeWork` that supports this work but is not considered part of its main content.",
+  "$comment": "Corresponds to the JATS `<supplementary-material>` element \n(https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/supplementary-material.html).\n\nAs in JATS, this is a `Block` content type so that supplementary material \ncan be positioned close to the content it relates to (e.g., within a figure caption) \nrather than only at the end of an article. Nevertheless, many articles \nwill include a dedicated \"Supplementary Materials\" section composed of a `Heading` \nfollowed by one or more `Supplement` blocks.\n",
+  "dom": {
+    "derive": false
+  },
+  "jats": {
+    "elem": "supplementary-material"
+  },
+  "markdown": {
+    "derive": false
+  },
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "workType",
+    "label",
+    "labelAutomatically",
+    "caption",
+    "target"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "workType": {
+      "@id": "stencila:workType",
+      "description": "The `CreativeWork` type of the supplement.",
+      "aliases": [
+        "work-type",
+        "work_type"
+      ],
+      "$ref": "CreativeWorkType.schema.json"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short identifier or title for the supplement (e.g., \"S1\").",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "jats": {
+        "elem": "label"
+      },
+      "type": "string"
+    },
+    "labelAutomatically": {
+      "@id": "stencila:labelAutomatically",
+      "description": "Whether the supplement label should be automatically generated and updated.",
+      "aliases": [
+        "label-automatically",
+        "label_automatically"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "boolean"
+    },
+    "caption": {
+      "@id": "schema:caption",
+      "description": "A brief caption or description for the supplement.",
+      "$comment": "Supplements that are figures or tables often include their own \ndetailed captions. This property is intended for a shorter, \ngeneral description of the supplementary material.\n",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "walk": true,
+      "jats": {
+        "elem": "caption"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "target": {
+      "@id": "schema:target",
+      "description": "A reference to the supplement.",
+      "$comment": "Usually a relative path but may be a full URL.\n",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "jats": {
+        "attr": "href"
+      },
+      "type": "string"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Any messages generated while embedding the supplement.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
+    "work": {
+      "@id": "stencila:work",
+      "description": "The `CreativeWork` that constitutes the supplement.",
+      "$comment": "Often only a reference to the supplementary work (i.e., just `target`) will be available. \nHowever, this property also allows inclusion of the full content of the work if necessary.\n",
+      "strip": [
+        "content"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "CreativeWorkVariant.schema.json"
+    }
+  }
+}

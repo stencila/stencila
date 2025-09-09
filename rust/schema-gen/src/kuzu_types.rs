@@ -211,7 +211,7 @@ pub struct RelationshipInfo {
 }
 
 /// Database indices for performance optimization
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Index {
     /// Full-text search index for text search capabilities
     ///

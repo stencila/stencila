@@ -511,12 +511,6 @@
           "onOptions": false
         },
         {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
-          "nullable": true,
-          "onOptions": false
-        },
-        {
           "name": "isEchoed",
           "dataType": "Boolean",
           "nullable": true,
@@ -700,6 +694,12 @@
           "dataType": "String",
           "nullable": true,
           "onOptions": true
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
         }
       ],
       "primaryKey": null,
@@ -835,12 +835,6 @@
           "dataType": "String",
           "nullable": true,
           "onOptions": false
-        },
-        {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
-          "nullable": true,
-          "onOptions": false
         }
       ],
       "primaryKey": null,
@@ -857,16 +851,88 @@
       "name": "File",
       "columns": [
         {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
           "name": "name",
           "dataType": "String",
           "nullable": true,
           "onOptions": false
         },
         {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
           "name": "path",
           "dataType": "String",
           "nullable": true,
           "onOptions": false
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
         },
         {
           "name": "mediaType",
@@ -1390,12 +1456,6 @@
         {
           "name": "label",
           "dataType": "String",
-          "nullable": true,
-          "onOptions": false
-        },
-        {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
           "nullable": true,
           "onOptions": false
         }
@@ -2149,6 +2209,27 @@
       "hasStandardNodeFields": true
     },
     {
+      "name": "Supplement",
+      "columns": [
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "target",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
       "name": "Table",
       "columns": [
         {
@@ -2238,12 +2319,6 @@
         {
           "name": "label",
           "dataType": "String",
-          "nullable": true,
-          "onOptions": false
-        },
-        {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
           "nullable": true,
           "onOptions": false
         }
@@ -2496,6 +2571,10 @@
         },
         {
           "from": "Annotation",
+          "to": "Datatable"
+        },
+        {
+          "from": "Annotation",
           "to": "Figure"
         },
         {
@@ -2549,6 +2628,10 @@
         {
           "from": "Annotation",
           "to": "StyledBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "Supplement"
         },
         {
           "from": "Annotation",
@@ -2620,6 +2703,10 @@
         },
         {
           "from": "Admonition",
+          "to": "Datatable"
+        },
+        {
+          "from": "Admonition",
           "to": "Figure"
         },
         {
@@ -2673,6 +2760,10 @@
         {
           "from": "Admonition",
           "to": "StyledBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "Supplement"
         },
         {
           "from": "Admonition",
@@ -2768,6 +2859,10 @@
         },
         {
           "from": "Article",
+          "to": "Datatable"
+        },
+        {
+          "from": "Article",
           "to": "Figure"
         },
         {
@@ -2821,6 +2916,10 @@
         {
           "from": "Article",
           "to": "StyledBlock"
+        },
+        {
+          "from": "Article",
+          "to": "Supplement"
         },
         {
           "from": "Article",
@@ -2856,6 +2955,10 @@
         },
         {
           "from": "Claim",
+          "to": "Datatable"
+        },
+        {
+          "from": "Claim",
           "to": "Figure"
         },
         {
@@ -2909,6 +3012,10 @@
         {
           "from": "Claim",
           "to": "StyledBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "Supplement"
         },
         {
           "from": "Claim",
@@ -2944,6 +3051,10 @@
         },
         {
           "from": "Figure",
+          "to": "Datatable"
+        },
+        {
+          "from": "Figure",
           "to": "Figure"
         },
         {
@@ -2997,6 +3108,10 @@
         {
           "from": "Figure",
           "to": "StyledBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "Supplement"
         },
         {
           "from": "Figure",
@@ -3032,6 +3147,10 @@
         },
         {
           "from": "ForBlock",
+          "to": "Datatable"
+        },
+        {
+          "from": "ForBlock",
           "to": "Figure"
         },
         {
@@ -3085,6 +3204,10 @@
         {
           "from": "ForBlock",
           "to": "StyledBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Supplement"
         },
         {
           "from": "ForBlock",
@@ -3180,6 +3303,10 @@
         },
         {
           "from": "IfBlockClause",
+          "to": "Datatable"
+        },
+        {
+          "from": "IfBlockClause",
           "to": "Figure"
         },
         {
@@ -3233,6 +3360,10 @@
         {
           "from": "IfBlockClause",
           "to": "StyledBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Supplement"
         },
         {
           "from": "IfBlockClause",
@@ -3268,6 +3399,10 @@
         },
         {
           "from": "IncludeBlock",
+          "to": "Datatable"
+        },
+        {
+          "from": "IncludeBlock",
           "to": "Figure"
         },
         {
@@ -3321,6 +3456,10 @@
         {
           "from": "IncludeBlock",
           "to": "StyledBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Supplement"
         },
         {
           "from": "IncludeBlock",
@@ -3416,6 +3555,10 @@
         },
         {
           "from": "ListItem",
+          "to": "Datatable"
+        },
+        {
+          "from": "ListItem",
           "to": "Figure"
         },
         {
@@ -3469,6 +3612,10 @@
         {
           "from": "ListItem",
           "to": "StyledBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "Supplement"
         },
         {
           "from": "ListItem",
@@ -3504,6 +3651,10 @@
         },
         {
           "from": "Note",
+          "to": "Datatable"
+        },
+        {
+          "from": "Note",
           "to": "Figure"
         },
         {
@@ -3557,6 +3708,10 @@
         {
           "from": "Note",
           "to": "StyledBlock"
+        },
+        {
+          "from": "Note",
+          "to": "Supplement"
         },
         {
           "from": "Note",
@@ -3652,6 +3807,10 @@
         },
         {
           "from": "QuoteBlock",
+          "to": "Datatable"
+        },
+        {
+          "from": "QuoteBlock",
           "to": "Figure"
         },
         {
@@ -3705,6 +3864,10 @@
         {
           "from": "QuoteBlock",
           "to": "StyledBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Supplement"
         },
         {
           "from": "QuoteBlock",
@@ -3800,6 +3963,10 @@
         },
         {
           "from": "Section",
+          "to": "Datatable"
+        },
+        {
+          "from": "Section",
           "to": "Figure"
         },
         {
@@ -3853,6 +4020,10 @@
         {
           "from": "Section",
           "to": "StyledBlock"
+        },
+        {
+          "from": "Section",
+          "to": "Supplement"
         },
         {
           "from": "Section",
@@ -3948,6 +4119,10 @@
         },
         {
           "from": "StyledBlock",
+          "to": "Datatable"
+        },
+        {
+          "from": "StyledBlock",
           "to": "Figure"
         },
         {
@@ -4001,6 +4176,10 @@
         {
           "from": "StyledBlock",
           "to": "StyledBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Supplement"
         },
         {
           "from": "StyledBlock",
@@ -4230,6 +4409,18 @@
         },
         {
           "from": "Figure",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "File",
+          "to": "Person"
+        },
+        {
+          "from": "File",
+          "to": "Organization"
+        },
+        {
+          "from": "File",
           "to": "AuthorRole"
         },
         {
@@ -4525,6 +4716,18 @@
           "to": "AuthorRole"
         },
         {
+          "from": "File",
+          "to": "Person"
+        },
+        {
+          "from": "File",
+          "to": "Organization"
+        },
+        {
+          "from": "File",
+          "to": "AuthorRole"
+        },
+        {
           "from": "ImageObject",
           "to": "Person"
         },
@@ -4611,6 +4814,10 @@
           "to": "Person"
         },
         {
+          "from": "File",
+          "to": "Person"
+        },
+        {
           "from": "ImageObject",
           "to": "Person"
         },
@@ -4678,6 +4885,10 @@
         },
         {
           "from": "Figure",
+          "to": "Reference"
+        },
+        {
+          "from": "File",
           "to": "Reference"
         },
         {

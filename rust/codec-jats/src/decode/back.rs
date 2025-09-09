@@ -3,8 +3,13 @@ use roxmltree::Node;
 
 use stencila_codec::{
     Losses,
-    stencila_schema::{Article, Author, Date, Person, Reference, ReferenceOptions, shortcuts::t},
+    stencila_schema::{
+        Article, Author, Block, Date, Person, Reference, ReferenceOptions, Section, SectionType,
+        shortcuts::t,
+    },
 };
+
+use crate::decode::body::{decode_blocks, decode_sec};
 
 use super::{
     body::decode_inlines,
@@ -17,10 +22,31 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
         match tag {
+            "ack" => {
+                let section = decode_ack(&child_path, &child, losses);
+                article.content.push(section);
+            }
             "ref-list" => decode_ref_list(&child_path, &child, article, losses),
+            "sec" => {
+                let mut blocks = decode_sec(&child_path, &child, losses, 1);
+                article.content.append(&mut blocks);
+            }
             _ => record_node_lost(path, &child, losses),
         };
     }
+}
+
+/// Decode an `<ack>` (acknowledgements section)
+fn decode_ack(path: &str, node: &Node, losses: &mut Losses) -> Block {
+    record_attrs_lost(path, node, [], losses);
+
+    let content = decode_blocks(path, node.children(), losses, 1);
+
+    Block::Section(Section {
+        section_type: Some(SectionType::Acknowledgements),
+        content,
+        ..Default::default()
+    })
 }
 
 /// Decode an `<ref-list>` element

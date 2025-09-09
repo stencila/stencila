@@ -19,6 +19,7 @@ pub struct CodeLocation {
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
+    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The source of the code, a file path, label or URL.

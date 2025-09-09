@@ -154,6 +154,7 @@ fn sizes() {
         SuggestionBlock,
         SuggestionInline,
         Superscript,
+        Supplement,
         Table,
         TableCell,
         TableRow,
@@ -185,6 +186,7 @@ fn sizes() {
         Comment,
         Datatable,
         Figure,
+        File,
         ImageObject,
         MediaObject,
         Periodical,
@@ -225,6 +227,7 @@ fn sizes() {
         Section,
         StyledBlock,
         SuggestionBlock,
+        Supplement,
         Table,
         ThematicBreak,
         Walkthrough

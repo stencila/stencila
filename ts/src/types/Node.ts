@@ -117,6 +117,7 @@ import { type Subscript } from "./Subscript.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
 import { type SuggestionInline } from "./SuggestionInline.js";
 import { type Superscript } from "./Superscript.js";
+import { type Supplement } from "./Supplement.js";
 import { type Table } from "./Table.js";
 import { type TableCell } from "./TableCell.js";
 import { type TableRow } from "./TableRow.js";
@@ -258,6 +259,7 @@ export type Node =
   SuggestionBlock |
   SuggestionInline |
   Superscript |
+  Supplement |
   Table |
   TableCell |
   TableRow |
@@ -397,6 +399,7 @@ export function node(other: Node): Node {
     case "SuggestionBlock":
     case "SuggestionInline":
     case "Superscript":
+    case "Supplement":
     case "Table":
     case "TableCell":
     case "TableRow":

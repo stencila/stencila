@@ -1,3 +1,14 @@
 compact.jats.xml:
   decode:
     skip: true
+
+# Markdown flavours for which sections are not fully supported
+# (only content of section is encoded, not wrapping divs or section type)
+
+myst:
+  decode:
+    skip: true
+
+qmd:
+  decode:
+    skip: true

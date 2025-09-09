@@ -591,14 +591,19 @@ impl Cli {
         let tags = tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect());
 
         // Get the root node of the document
-        let mut root = doc.root().await;
+        let root = doc.root().await;
 
         // Temporary directory to extract media files into before uploading
-        let temp_dir = tempfile::tempdir()?;
-        let media_dir = temp_dir.path();
+        //let temp_dir = tempfile::tempdir()?;
+        //let media_dir = temp_dir.path();
 
         // Extract images (and other media in the future) and upload to Ghost
         // and rewrite their URLs to be their URLs on the Ghost server
+        /*
+        TODO: reinstate this functionality by (1) embedding all media (2) extracting all media
+        to a temp directory (3) creating a custom async vistor which posts images and rewrites
+        urls as done below:
+
         stencila_node_media::extract_media(
             &mut root,
             doc.directory(),
@@ -635,6 +640,7 @@ impl Cli {
                 })
             },
         );
+        */
 
         // Dump root node to a Lexical (Ghost's Dialect) string.
         // Important: this version of the root node has rewritten URLs

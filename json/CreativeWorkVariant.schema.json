@@ -28,6 +28,9 @@
       "$ref": "Figure.schema.json"
     },
     {
+      "$ref": "File.schema.json"
+    },
+    {
       "$ref": "ImageObject.schema.json"
     },
     {

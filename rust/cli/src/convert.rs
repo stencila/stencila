@@ -1,10 +1,11 @@
-use std::path::PathBuf;
+use std::{env::current_dir, path::PathBuf};
 
 use clap::Parser;
 use eyre::Result;
 
 use stencila_cli_utils::color_print::cstr;
 use stencila_format::Format;
+use stencila_node_supplements::{embed_supplements, extract_supplements};
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
@@ -113,7 +114,7 @@ impl Cli {
         let decode_options = decode_options
             .build(input_path.as_deref(), strip_options.clone())
             .with_tool(from_tool, Vec::new());
-        let node = stencila_codecs::from_identifier(input, Some(decode_options)).await?;
+        let mut node = stencila_codecs::from_identifier(input, Some(decode_options)).await?;
 
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
             stencila_codecs::to_stdout(
@@ -147,21 +148,27 @@ impl Cli {
                     )
                     .await?;
                 } else {
-                    let completed = stencila_codecs::to_path(
-                        &node,
-                        &output,
-                        Some(
-                            encode_options
-                                .build(
-                                    input_path.as_deref(),
-                                    Some(&output),
-                                    Format::Json,
-                                    strip_options,
-                                )
-                                .with_tool(tool, tool_args),
-                        ),
-                    )
-                    .await?;
+                    let encode_options = encode_options
+                        .build(
+                            input_path.as_deref(),
+                            Some(&output),
+                            Format::Json,
+                            strip_options,
+                        )
+                        .with_tool(tool, tool_args);
+
+                    if let Some(dir) = encode_options.extract_supplements.as_ref() {
+                        extract_supplements(&mut node, &output, dir).await?;
+                    } else if encode_options.embed_supplements.unwrap_or_default() {
+                        let input_path = match input_path.as_ref() {
+                            Some(path) => path,
+                            None => &current_dir()?,
+                        };
+                        embed_supplements(&mut node, input_path).await?;
+                    }
+
+                    let completed =
+                        stencila_codecs::to_path(&node, &output, Some(encode_options)).await?;
 
                     #[allow(clippy::print_stderr)]
                     if completed {
