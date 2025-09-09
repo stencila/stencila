@@ -2749,37 +2749,36 @@ expression: article
           "labelAutomatically": false,
           "caption": [
             {
-              "type": "Heading",
-              "level": 1,
+              "type": "Paragraph",
               "content": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Synthetic guide sequence generated when attempting to generate a d10 entry strain at the 5’ end of "
-                  }
-                },
-                {
-                  "type": "Emphasis",
+                  "type": "Strong",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "cep-290"
+                        "string": "Synthetic guide sequence generated when attempting to generate a d10 entry strain at the 5’ end of "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "cep-290"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". "
                       }
                     }
                   ]
                 },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "."
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Paragraph",
-              "content": [
                 {
                   "type": "Strong",
                   "content": [
@@ -3939,7 +3938,7 @@ expression: article
       "content": [
         {
           "type": "Heading",
-          "level": 0,
+          "level": 1,
           "content": [
             {
               "type": "Text",
@@ -3973,6 +3972,64 @@ expression: article
               "type": "Text",
               "value": {
                 "string": " optimised mNeonGreen plasmid was a gift from Dominique Glauser (University of Fribourg, Switzerland). Some worms were provided by the Caenorhabditis Genetics Center, which is funded by NIH Office of Research Infrastructure Programs (P40 OD010440)."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Funding",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Funding"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "KIL is supported by a Research Ireland grant (22/PATH-3/10738)."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "AuthorContributions",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Author Contributions"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "KIL was responsible for conceptualization, investigation, validation, visualisation, writing, and editing."
               }
             }
           ]

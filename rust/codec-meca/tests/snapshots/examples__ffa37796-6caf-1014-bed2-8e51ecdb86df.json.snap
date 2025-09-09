@@ -3175,20 +3175,19 @@ expression: article
           "labelAutomatically": false,
           "caption": [
             {
-              "type": "Heading",
-              "level": 1,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Summary figure of the most common methodologies involving representation learning and cancer studies."
-                  }
-                }
-              ]
-            },
-            {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Summary figure of the most common methodologies involving representation learning and cancer studies. "
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {
@@ -3404,20 +3403,19 @@ expression: article
               "labelAutomatically": false,
               "caption": [
                 {
-                  "type": "Heading",
-                  "level": 2,
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Results from queries."
-                      }
-                    }
-                  ]
-                },
-                {
                   "type": "Paragraph",
                   "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Results from queries. "
+                          }
+                        }
+                      ]
+                    },
                     {
                       "type": "Text",
                       "value": {
@@ -5078,11 +5076,96 @@ expression: article
     },
     {
       "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Dictionary of Terms"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Table",
+          "id": "utbl1",
+          "rows": [],
+          "images": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "redacted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing Interest"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "None declared."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Authors Contribution"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "G.P.C. developed the systematic literature review, and wrote and revised earlier and consolidated versions of the manuscript. A.V. and D.C. conceived the study and oversaw its execution. All authors reviewed and contributed to the final manuscript."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [
         {
           "type": "Heading",
-          "level": 0,
+          "level": 1,
           "content": [
             {
               "type": "Text",

@@ -3,7 +3,7 @@ source: rust/codec-meca/tests/examples.rs
 expression: info.losses
 ---
 //article/back/ref-list/ref/@publication-type: 13
-//article/back/sec: 3
+//article/back/sec/@id: 3
 //article/body/sec/@id: 2
 //article/body/sec/fig/@fig-type: 1
 //article/body/sec/fig/@position: 1
