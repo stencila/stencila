@@ -85,6 +85,10 @@ impl Embedder {
 
     /// Embed an image by converting to a data URI using optimized settings
     fn embed_image(&self, image: &mut ImageObject) {
+        if image.content_url.starts_with("data:") || image.content_url.starts_with("http") {
+            return;
+        }
+
         const IMAGE_EXTENSIONS: &[&str] = &["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"];
 
         for ext in IMAGE_EXTENSIONS {
@@ -95,7 +99,7 @@ impl Embedder {
             }
         }
 
-        tracing::warn!("Image file does not exist: {}", image.content_url);
+        tracing::debug!("Image file does not exist: {}", image.content_url);
     }
 
     /// Process an image file by optimizing and converting to data URI
@@ -186,6 +190,10 @@ impl Embedder {
 
     /// Embed an audio file by converting to MP3 and encoding as data URI
     fn embed_audio(&self, audio: &mut AudioObject) {
+        if audio.content_url.starts_with("data:") || audio.content_url.starts_with("http") {
+            return;
+        }
+
         const AUDIO_EXTENSIONS: &[&str] = &["", ".mp3", ".wav", ".flac", ".ogg", ".aac", ".m4a"];
 
         // Try different audio file extensions
@@ -197,7 +205,7 @@ impl Embedder {
             }
         }
 
-        tracing::warn!("Audio file does not exist: {}", audio.content_url);
+        tracing::debug!("Audio file does not exist: {}", audio.content_url);
     }
 
     /// Process an audio file using FFmpeg to optimize and convert to data URI
@@ -257,6 +265,10 @@ impl Embedder {
 
     /// Embed a video by converting to MP4 and encoding as data URI
     fn embed_video(&self, video: &mut VideoObject) {
+        if video.content_url.starts_with("data:") || video.content_url.starts_with("http") {
+            return;
+        }
+
         const VIDEO_EXTENSIONS: &[&str] = &["", ".mp4", ".avi", ".mov", ".mkv", ".webm", ".wmv"];
 
         // Try different video file extensions
@@ -268,7 +280,7 @@ impl Embedder {
             }
         }
 
-        tracing::warn!("Video file does not exist: {}", video.content_url);
+        tracing::debug!("Video file does not exist: {}", video.content_url);
     }
 
     /// Process a video file using FFmpeg to optimize and convert to data URI
