@@ -50,6 +50,7 @@
         "CRDTs",
         "curr",
         "cytoscape",
+        "czst",
         "dataclass",
         "datatable",
         "datetime",
