@@ -9,7 +9,7 @@ use stencila_codec::{
     },
 };
 
-use crate::decode::body::decode_blocks;
+use crate::decode::body::{decode_blocks, decode_sec};
 
 use super::{
     body::decode_inlines,
@@ -27,6 +27,10 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
                 article.content.push(section);
             }
             "ref-list" => decode_ref_list(&child_path, &child, article, losses),
+            "sec" => {
+                let mut blocks = decode_sec(&child_path, &child, losses, 1);
+                article.content.append(&mut blocks);
+            }
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -36,7 +40,7 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
 fn decode_ack(path: &str, node: &Node, losses: &mut Losses) -> Block {
     record_attrs_lost(path, node, [], losses);
 
-    let content = decode_blocks(path, node.children(), losses, 0);
+    let content = decode_blocks(path, node.children(), losses, 1);
 
     Block::Section(Section {
         section_type: Some(SectionType::Acknowledgements),

@@ -212,7 +212,7 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 /// Some JATS has `<sec>` elements that are merely wrappers with an `id` but
 /// no `sec-type` or `<title>` child. These are ignored to avoid unnecessary
 /// sections and their content returned instead.
-fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+pub fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
     let section_type = node
         .attribute("sec-type")
         .and_then(|value| SectionType::from_text(value).ok())
