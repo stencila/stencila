@@ -3,6 +3,7 @@ import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { iconMaybe } from '../ui/icons/icon'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Entity } from './entity'
@@ -10,7 +11,6 @@ import { Entity } from './entity'
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance'
-import { iconMaybe } from '../ui/icons/icon'
 
 /**
  * Web component representing a Stencila Schema `Supplement`

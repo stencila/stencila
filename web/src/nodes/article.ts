@@ -1,5 +1,4 @@
 import { provide } from '@lit/context'
-import { NodeType } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 

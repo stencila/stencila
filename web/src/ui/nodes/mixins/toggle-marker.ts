@@ -1,10 +1,9 @@
 import { consume } from '@lit/context'
-import { BlockTypeList, InlineTypeList } from '@stencila/types'
+import { BlockTypeList } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
-import { Article } from '../../../nodes/article'
 import { ChatMessage } from '../../../nodes/chat-message'
 import { Excerpt } from '../../../nodes/excerpt'
 import { SuggestionBlock } from '../../../nodes/suggestion-block'
