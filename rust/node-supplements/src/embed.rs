@@ -17,6 +17,7 @@ use stencila_schema::{
 };
 
 /// Embed any [`Supplement`] nodes within a node
+#[tracing::instrument(skip(node))]
 pub async fn embed_supplements<T: WalkNode>(node: &mut T, path: &Path) -> Result<()> {
     let path = path
         .canonicalize()

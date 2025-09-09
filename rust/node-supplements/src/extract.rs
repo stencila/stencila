@@ -3,40 +3,36 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use eyre::{Context, Result, bail, eyre};
+use eyre::Result;
 
+use pathdiff::diff_paths;
 use stencila_codec::{Codec, EncodeOptions, stencila_format::Format};
 use stencila_codec_cbor::CborCodec;
-use stencila_node_media::extract_media;
 use stencila_schema::{Block, Node, Supplement, VisitorAsync, WalkControl, WalkNode};
 
 /// Extract any [`Supplement`] nodes within a node
-pub async fn extract_supplements<T: WalkNode>(node: &mut T, path: &Path) -> Result<()> {
-    let path = path
-        .canonicalize()
-        .wrap_err_with(|| eyre!("Path does not exist: {}", path.display()))?;
-
-    let dir = if path.is_file()
-        && let Some(parent) = path.parent()
-    {
-        parent.to_path_buf()
-    } else {
-        path
+#[tracing::instrument(skip(node))]
+pub async fn extract_supplements<T: WalkNode>(
+    node: &mut T,
+    document_path: &Path,
+    supplements_dir: &Path,
+) -> Result<()> {
+    let mut extractor = Extractor {
+        document_path: document_path.into(),
+        supplements_dir: supplements_dir.into(),
+        counter: 0,
     };
-
-    if !dir.exists() {
-        bail!("Directory does not exist: {}", dir.display());
-    }
-
-    let mut extractor = Extractor { dir, counter: 0 };
     node.walk_async(&mut extractor).await?;
 
     Ok(())
 }
 
 struct Extractor {
-    /// The directory into which supplements, including media, are written
-    dir: PathBuf,
+    /// The path of the document. Used to determine relative paths to the extracted supplements.
+    document_path: PathBuf,
+
+    /// The directory into which supplements, including their media, are written
+    supplements_dir: PathBuf,
 
     /// A counter of the supplements used to create unique filenames
     counter: u32,
@@ -73,33 +69,44 @@ impl Extractor {
         };
 
         // Ensure the supplements directory exists
-        if !self.dir.exists() {
-            create_dir_all(&self.dir)?;
+        if !self.supplements_dir.exists() {
+            create_dir_all(&self.supplements_dir)?;
         }
 
-        // Increment counter for media & filenames below
+        // Increment counter
         self.counter += 1;
 
-        // Extract any media
-        let mut work: Node = work.clone().into();
-        extract_media(
-            &mut work,
-            &self.dir.join(format!("supplement-{}.media", self.counter)),
-        )?;
+        // Determine file and directory names
+        let stem = format!("supplement-{}", self.counter);
+        let path = self.supplements_dir.join(format!("{stem}.czst"));
+        let media = self.supplements_dir.join(format!("{stem}.media"));
 
-        // Write the supplement itself
+        // Write the supplement
+        let node = work.clone().into();
         CborCodec
             .to_path(
-                &work,
-                &self
-                    .dir
-                    .join(format!("supplement-{}.cbor.zstd", self.counter)),
+                &node,
+                &path,
                 Some(EncodeOptions {
                     format: Some(Format::CborZstd),
+                    extract_media: Some(media),
                     ..Default::default()
                 }),
             )
             .await?;
+
+        // Set work to None
+        supplement.options.work = None;
+
+        // Update the target to the relative path of the extracted file
+        let relative_path = self
+            .document_path
+            .parent()
+            .and_then(|base| diff_paths(&path, &base))
+            .unwrap_or(path)
+            .to_string_lossy()
+            .to_string();
+        supplement.target = Some(relative_path);
 
         Ok(())
     }
