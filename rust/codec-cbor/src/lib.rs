@@ -1,9 +1,12 @@
+use std::env::current_dir;
+
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
 };
+use stencila_node_media::{embed_media, extract_media};
 
 pub mod r#trait;
 use r#trait::CborCodec as _;
@@ -78,7 +81,32 @@ impl Codec for CborCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(Vec<u8>, EncodeInfo)> {
-        let bytes = node.to_cbor()?;
+        let bytes = if let Some(media) = options
+            .as_ref()
+            .and_then(|opts| opts.extract_media.as_ref())
+        {
+            let mut copy = node.clone();
+            let to_path = match options.as_ref().and_then(|opts| opts.to_path.as_ref()) {
+                Some(path) => path,
+                None => &current_dir()?,
+            };
+            extract_media(&mut copy, to_path, media)?;
+            copy.to_cbor()?
+        } else if options
+            .as_ref()
+            .and_then(|opts| opts.embed_media)
+            .unwrap_or_default()
+        {
+            let mut copy = node.clone();
+            let from_path = match options.as_ref().and_then(|opts| opts.from_path.as_ref()) {
+                Some(path) => path,
+                None => &current_dir()?,
+            };
+            embed_media(&mut copy, from_path)?;
+            copy.to_cbor()?
+        } else {
+            node.to_cbor()?
+        };
 
         let bytes = if let Some(Format::CborZstd) = options.and_then(|options| options.format) {
             zstd::encode_all(&bytes[..], 0)?
