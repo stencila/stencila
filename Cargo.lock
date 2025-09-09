@@ -9113,7 +9113,7 @@ dependencies = [
  "stencila-codec-pandoc",
  "stencila-codec-utils",
  "stencila-dirs",
- "stencila-media-embed",
+ "stencila-node-media",
  "stencila-node-reconstitute",
  "stencila-version",
  "tempfile",
@@ -9145,8 +9145,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-dom-trait",
  "stencila-codec-text-trait",
- "stencila-media-embed",
- "stencila-media-extract",
+ "stencila-node-media",
  "stencila-version",
  "tokio",
 ]
@@ -9362,7 +9361,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-latex-trait",
  "stencila-codec-pandoc",
- "stencila-media-extract",
+ "stencila-node-media",
  "tokio",
  "which",
 ]
@@ -9441,8 +9440,7 @@ dependencies = [
  "stencila-codec-json5-trait",
  "stencila-codec-markdown-trait",
  "stencila-codec-text-trait",
- "stencila-media-embed",
- "stencila-media-extract",
+ "stencila-node-media",
  "strum 0.27.2",
  "tokio",
  "tracing",
@@ -9480,7 +9478,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-jats",
  "stencila-dirs",
- "stencila-media-embed",
+ "stencila-node-media",
  "stencila-node-supplements",
  "tempfile",
  "tokio",
@@ -9564,7 +9562,7 @@ dependencies = [
  "stencila-codec-markdown",
  "stencila-codec-utils",
  "stencila-convert",
- "stencila-media-embed",
+ "stencila-node-media",
  "stencila-node-structuring",
 ]
 
@@ -9581,7 +9579,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-jats",
  "stencila-dirs",
- "stencila-media-embed",
+ "stencila-node-media",
  "stencila-node-supplements",
  "stencila-version",
  "tar",
@@ -10326,33 +10324,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-media-embed"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "eyre",
- "image",
- "stencila-format",
- "stencila-schema",
- "stencila-tools",
- "tempfile",
- "tracing",
-]
-
-[[package]]
-name = "stencila-media-extract"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "eyre",
- "itertools 0.14.0",
- "seahash",
- "stencila-format",
- "stencila-schema",
- "tracing",
-]
-
-[[package]]
 name = "stencila-model"
 version = "0.0.0"
 dependencies = [
@@ -10616,8 +10587,15 @@ dependencies = [
 name = "stencila-node-media"
 version = "0.0.0"
 dependencies = [
- "stencila-images",
+ "base64 0.22.1",
+ "eyre",
+ "image",
+ "itertools 0.14.0",
+ "seahash",
+ "stencila-format",
  "stencila-schema",
+ "stencila-tools",
+ "tempfile",
  "tracing",
 ]
 
@@ -10749,14 +10727,14 @@ version = "0.0.0"
 dependencies = [
  "eyre",
  "stencila-codec",
+ "stencila-codec-cbor",
  "stencila-codec-csv",
  "stencila-codec-docx",
  "stencila-codec-ipynb",
  "stencila-codec-latex",
  "stencila-codec-pdf",
  "stencila-codec-xlsx",
- "stencila-media-embed",
- "stencila-media-extract",
+ "stencila-node-media",
  "stencila-schema",
  "tracing",
 ]
