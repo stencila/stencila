@@ -1568,7 +1568,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" Caption with strong at start."),
         ]),
     ]));
-    structuring(&mut article2);
+    structuring_without_sectioning(&mut article2);
     let Node::Article(Article { content, .. }) = article2 else {
         bail!("Should be an article")
     };
@@ -1604,7 +1604,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" with multiple elements."),
         ]),
     ]));
-    structuring(&mut article3);
+    structuring_without_sectioning(&mut article3);
     let Node::Article(Article { content, .. }) = article3 else {
         bail!("Should be an article")
     };
@@ -1638,7 +1638,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" and more text outside."),
         ]),
     ]));
-    structuring(&mut article4);
+    structuring_without_sectioning(&mut article4);
     let Node::Article(Article { content, .. }) = article4 else {
         bail!("Should be an article")
     };
@@ -1672,7 +1672,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" Nested emphasis and strong at start."),
         ]),
     ]));
-    structuring(&mut article5);
+    structuring_without_sectioning(&mut article5);
     let Node::Article(Article { content, .. }) = article5 else {
         bail!("Should be an article")
     };
@@ -1706,7 +1706,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" Rest of caption after complete removal."),
         ]),
     ]));
-    structuring(&mut article6);
+    structuring_without_sectioning(&mut article6);
     let Node::Article(Article { content, .. }) = article6 else {
         bail!("Should be an article")
     };
@@ -1740,7 +1740,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" Caption with underline at start."),
         ]),
     ]));
-    structuring(&mut article7);
+    structuring_without_sectioning(&mut article7);
     let Node::Article(Article { content, .. }) = article7 else {
         bail!("Should be an article")
     };
@@ -1774,7 +1774,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" Caption with strikeout at start."),
         ]),
     ]));
-    structuring(&mut article8);
+    structuring_without_sectioning(&mut article8);
     let Node::Article(Article { content, .. }) = article8 else {
         bail!("Should be an article")
     };
@@ -1808,7 +1808,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
             t(" Complex nested caption."),
         ]),
     ]));
-    structuring(&mut article9);
+    structuring_without_sectioning(&mut article9);
     let Node::Article(Article { content, .. }) = article9 else {
         bail!("Should be an article")
     };
@@ -1938,7 +1938,7 @@ fn table_caption_with_nested_inline_elements() -> Result<()> {
         p([em([t("Table 1.")]), t(" Caption with emphasis at start.")]),
         tbl([]),
     ]));
-    structuring(&mut article1);
+    structuring_without_sectioning(&mut article1);
     let Node::Article(Article { content, .. }) = article1 else {
         bail!("Should be an article")
     };
@@ -1969,7 +1969,7 @@ fn table_caption_with_nested_inline_elements() -> Result<()> {
         ]),
         tbl([]),
     ]));
-    structuring(&mut article2);
+    structuring_without_sectioning(&mut article2);
     let Node::Article(Article { content, .. }) = article2 else {
         bail!("Should be an article")
     };

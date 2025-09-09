@@ -1,18 +1,19 @@
 use smart_default::SmartDefault;
+use strum::Display;
 
-use stencila_schema::WalkNode;
+use stencila_schema::{Block, CodeInline, Inline, RawBlock, VisitorMut, WalkControl, WalkNode};
 
-use crate::{collector::Collector, replacer::Replacer, sectioner::Sectioner};
+use crate::{first::FirstWalk, second::SecondWalk, third::ThirdWalk};
 
-mod collector;
-mod replacer;
-mod sectioner;
+mod first;
+mod second;
+mod third;
 
 #[cfg(test)]
 mod tests;
 
 /// Citation style options for in-text citations
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display)]
 pub enum CitationStyle {
     /// Author-year citations like (Smith, 2023)
     AuthorYear,
@@ -25,6 +26,15 @@ pub enum CitationStyle {
 
     /// Superscripted numeric citations like ¹
     SuperscriptedNumeric,
+}
+
+impl CitationStyle {
+    pub fn is_numeric(&self) -> bool {
+        matches!(
+            self,
+            Self::BracketedNumeric | Self::ParentheticNumeric | Self::SuperscriptedNumeric
+        )
+    }
 }
 
 /// Options for document structuring
@@ -56,15 +66,52 @@ pub fn structuring<T: WalkNode>(node: &mut T) {
 
 /// Add structure to a document with custom options
 pub fn structuring_with_options<T: WalkNode>(node: &mut T, options: StructuringOptions) {
-    let mut collector = Collector::new(options.clone());
-    node.walk_mut(&mut collector);
-    collector.determine_citation_style(options.citation_style);
+    let mut first = FirstWalk::new(options.clone());
+    first.walk(node);
+    first.determine_citation_style(options.citation_style);
 
-    let mut replacer = Replacer::new(collector);
-    node.walk_mut(&mut replacer);
+    let mut second = SecondWalk::new(options.clone(), first);
+    second.walk(node);
 
-    if options.sectioning {
-        let mut sectioner = Sectioner::default();
-        node.walk_mut(&mut sectioner);
+    let mut third = ThirdWalk::new(options);
+    third.walk(node);
+}
+
+const REMOVE_MARKER: &str = "<remove>";
+
+/// Create a block that is marked for removal in a subsequent walk
+fn block_to_remove(block: &mut Block) -> WalkControl {
+    *block = Block::RawBlock(RawBlock::new(REMOVE_MARKER.into(), "".into()));
+    WalkControl::Break
+}
+
+/// Test if a block should be removed in the current walk
+fn should_remove_block(block: &Block) -> bool {
+    if let Block::RawBlock(RawBlock { format, .. }) = block {
+        format == REMOVE_MARKER
+    } else {
+        false
+    }
+}
+
+/// Create an inline that is marked for removal in a subsequent walk
+fn inline_to_remove(inline: &mut Inline) -> WalkControl {
+    *inline = Inline::CodeInline(CodeInline {
+        programming_language: Some(REMOVE_MARKER.into()),
+        ..Default::default()
+    });
+    WalkControl::Break
+}
+
+/// Test if an inline should be removed in the current walk
+fn should_remove_inline(inline: &Inline) -> bool {
+    if let Inline::CodeInline(CodeInline {
+        programming_language: Some(lang),
+        ..
+    }) = inline
+    {
+        lang == REMOVE_MARKER
+    } else {
+        false
     }
 }

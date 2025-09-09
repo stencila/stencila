@@ -4,14 +4,23 @@ use stencila_schema::{
     SectionType, StyledBlock, VisitorMut, WalkControl,
 };
 
-/// Walks over document blocks and creates nested sections from headings
+use crate::{should_remove_block, StructuringOptions};
+
+/// Third structuring walk
+///
+/// Walks over a node and performs a third round of structuring focussed on
+/// aspects that require the first two walks (e.g creating [`Section`]s from
+/// [`Heading`]s, replacing text outside of citations with [`Link`]s).
 #[derive(Debug, Default)]
-pub(super) struct Sectioner {
+pub(super) struct ThirdWalk {
+    /// The structuring options
+    options: StructuringOptions,
+
     /// Whether the first appendix section has been encountered
     first_appendix_seen: bool,
 }
 
-impl VisitorMut for Sectioner {
+impl VisitorMut for ThirdWalk {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         if let Node::Article(Article { content, .. }) = node {
             self.visit_blocks(content);
@@ -22,8 +31,7 @@ impl VisitorMut for Sectioner {
 
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         match block {
-            // Process nested block content for section structuring
-            // Note: We skip Section blocks to avoid infinite recursion
+            // Process nested block content
             Block::Admonition(Admonition { content, .. })
             | Block::IncludeBlock(IncludeBlock {
                 content: Some(content),
@@ -50,7 +58,14 @@ impl VisitorMut for Sectioner {
     }
 }
 
-impl Sectioner {
+impl ThirdWalk {
+    pub fn new(options: StructuringOptions) -> Self {
+        Self {
+            options,
+            ..Default::default()
+        }
+    }
+
     /// Visit a vector of blocks and restructure them into nested sections
     ///
     /// This method transforms a flat list of blocks containing headings into
@@ -62,7 +77,11 @@ impl Sectioner {
         while index < blocks.len() {
             let block = &blocks[index];
 
-            if let Block::Heading(heading) = block {
+            if should_remove_block(block) {
+                index += 1;
+            } else if self.options.sectioning
+                && let Block::Heading(heading) = block
+            {
                 // Found a heading - create a section
                 let (section, consumed) = create_section_from_heading(heading, &blocks[index..]);
 
@@ -77,7 +96,6 @@ impl Sectioner {
                 new_blocks.push(Block::Section(section));
                 index += consumed;
             } else {
-                // Not a heading - add as-is
                 new_blocks.push(block.clone());
                 index += 1;
             }
@@ -154,7 +172,7 @@ mod tests {
             p([t("More introduction content.")]),
         ];
 
-        let mut sectioner = Sectioner::default();
+        let mut sectioner = ThirdWalk::default();
         sectioner.visit_blocks(&mut blocks);
 
         assert_eq!(blocks.len(), 1);
@@ -187,7 +205,7 @@ mod tests {
             p([t("Results content.")]),
         ];
 
-        let mut sectioner = Sectioner::default();
+        let mut sectioner = ThirdWalk::default();
         sectioner.visit_blocks(&mut blocks);
 
         assert_eq!(blocks.len(), 2); // Two top-level sections
@@ -229,7 +247,7 @@ mod tests {
             p([t("Methods content.")]),
         ];
 
-        let mut sectioner = Sectioner::default();
+        let mut sectioner = ThirdWalk::default();
         sectioner.visit_blocks(&mut blocks);
 
         assert_eq!(blocks.len(), 3); // paragraph + section + section
@@ -260,7 +278,7 @@ mod tests {
             p([t("Custom section content.")]),
         ];
 
-        let mut sectioner = Sectioner::default();
+        let mut sectioner = ThirdWalk::default();
         sectioner.visit_blocks(&mut blocks);
 
         let Block::Section(section) = &blocks[0] else {
@@ -286,7 +304,7 @@ mod tests {
             p([t("Analysis details.")]),
         ];
 
-        let mut sectioner = Sectioner::default();
+        let mut sectioner = ThirdWalk::default();
         sectioner.visit_blocks(&mut blocks);
 
         assert_eq!(blocks.len(), 1); // One top-level section

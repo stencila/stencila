@@ -3,79 +3,29 @@ use std::{collections::HashMap, sync::LazyLock};
 use inflector::Inflector;
 use itertools::Itertools;
 use regex::Regex;
-use strum::Display;
 
 use stencila_codec_biblio::decode::{
     bracketed_numeric_citation, parenthetic_numeric_citation, superscripted_numeric_citation,
     text_to_reference, text_with_author_year_citations, text_with_bracketed_numeric_citations,
     text_with_parenthetic_numeric_citations,
 };
-use stencila_codec_links::decode_inlines as text_with_links;
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
-    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IncludeBlock, Inline, List,
+    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IncludeBlock, Inline,
     ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock,
-    Table, Text, VisitorMut, WalkControl, shortcuts::t,
+    Text, VisitorMut, WalkControl, shortcuts::t,
 };
 
-use crate::{CitationStyle, StructuringOptions};
+use crate::{CitationStyle, StructuringOptions, block_to_remove};
 
-/// A type of potential block replacement
-#[derive(Debug)]
-pub(super) enum BlockReplacement {
-    /// Remove empty blocks
-    Empty,
-
-    /// Remove the title from the content
-    Title,
-
-    /// Remove the abstract from the content
-    Abstract,
-
-    /// Remove keywords from the content
-    Keywords,
-
-    /// Remove other frontmatter
-    Frontmatter,
-
-    /// Remove references (including header) from the content
-    References,
-
-    /// Transform a [Table] to a [Datatable] if possible
-    TableToDatatable,
-}
-
-/// A type of potential inline replacement
-#[allow(clippy::enum_variant_names)]
-#[derive(Debug, Display, Clone, PartialEq, Eq, Hash)]
-pub(super) enum InlineReplacement {
-    /// Replace text with a mix of text and author-year citations
-    AuthorYearCitations,
-
-    /// Replace text with a mix of text and bracketed numeric citations
-    BracketedNumericCitations,
-
-    /// Replace text with a mix of text and parenthetic numeric citations
-    ParentheticNumericCitations,
-
-    /// Replace text with a mix of text and superscripted numeric citations
-    SuperscriptedNumericCitations,
-
-    /// Replace text with a mix of text and links (e.g. to figures, tables, appendices, URLs)
-    Links,
-}
-
-/// Walks over the node collecting replacements, citations and references
+/// First structuring walk
+///
+/// Walks over a node and performs whatever structuring is possible, and
+/// collects information required for the second structuring walk.
 #[derive(Debug, Default)]
-pub(super) struct Collector {
+pub(super) struct FirstWalk {
     /// The structuring options
     options: StructuringOptions,
-
-    /// Replacements for block nodes
-    pub block_replacements: HashMap<NodeId, (BlockReplacement, Vec<Block>)>,
-
-    /// Replacements for inline nodes
-    pub inline_replacements: HashMap<NodeId, (InlineReplacement, Vec<Inline>)>,
 
     /// The extracted title of the work
     pub title: Option<Vec<Inline>>,
@@ -106,6 +56,12 @@ pub(super) struct Collector {
     /// The extracted keywords
     pub keywords: Option<Vec<String>>,
 
+    /// Replacements for inline nodes for detected citations of various styles
+    pub citations: HashMap<NodeId, (CitationStyle, Vec<Inline>)>,
+
+    /// Determined citation style based on heuristics
+    pub citation_style: Option<CitationStyle>,
+
     /// Whether currently in the References (or Bibliography) section
     in_references: bool,
 
@@ -115,23 +71,11 @@ pub(super) struct Collector {
     /// Whether references were found in an ordered (numbered) list
     pub references_are_ordered: bool,
 
-    /// Determined citation style based on heuristics
-    pub citation_style: Option<InlineReplacement>,
-
     /// Last numbered heading level seen, for fallback level assignment
     last_numbered_level: Option<i64>,
 }
 
-impl Collector {
-    pub fn new(options: StructuringOptions) -> Self {
-        Self {
-            options,
-            ..Default::default()
-        }
-    }
-}
-
-impl VisitorMut for Collector {
+impl VisitorMut for FirstWalk {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         if let Node::Article(Article { content, .. }) = node {
             self.in_frontmatter = true;
@@ -143,12 +87,13 @@ impl VisitorMut for Collector {
 
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         match block {
-            Block::Heading(heading) => self.visit_heading(heading),
-            Block::Paragraph(paragraph) => self.visit_paragraph(paragraph),
-            Block::List(list) => self.visit_list(list),
-            Block::Table(table) => self.visit_table(table),
+            // Visit individual blocks
+            Block::Heading(..) => self.visit_heading(block),
+            Block::Paragraph(..) => self.visit_paragraph(block),
+            Block::List(..) => self.visit_list(block),
+            Block::Table(..) => self.visit_table(block),
 
-            // Process nested block content for figure detection
+            // Visit nested vectors of blocks
             Block::Admonition(Admonition { content, .. })
             | Block::IncludeBlock(IncludeBlock {
                 content: Some(content),
@@ -190,7 +135,14 @@ impl VisitorMut for Collector {
     }
 }
 
-impl Collector {
+impl FirstWalk {
+    pub fn new(options: StructuringOptions) -> Self {
+        Self {
+            options,
+            ..Default::default()
+        }
+    }
+
     /// Visit a vector of blocks such as Article or Section content
     ///
     /// Detects adjacent ImageObject and caption pairs in the article content
@@ -354,18 +306,19 @@ impl Collector {
     ///
     /// Strips numbering from headings, overrides level based on numbering, and
     /// detects when entering or leaving the References/Bibliography section.
-    fn visit_heading(&mut self, heading: &mut Heading) -> WalkControl {
+    fn visit_heading(&mut self, block: &mut Block) -> WalkControl {
+        let Block::Heading(heading) = block else {
+            return WalkControl::Continue;
+        };
+
         let text = to_text(&heading.content);
 
         // Extract numbering and determine depth
         let (numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
 
-        // Remove empty heading
+        // Mark empty heading for removal
         if cleaned_text.is_empty() {
-            self.block_replacements
-                .insert(heading.node_id(), (BlockReplacement::Empty, Vec::new()));
-
-            return WalkControl::Break;
+            return block_to_remove(block);
         }
 
         // Detect section type from cleaned text
@@ -380,11 +333,7 @@ impl Collector {
             && section_type.is_none()
         {
             self.title = Some(heading.content.drain(..).collect());
-
-            self.block_replacements
-                .insert(heading.node_id(), (BlockReplacement::Title, Vec::new()));
-
-            return WalkControl::Break;
+            return block_to_remove(block);
         }
 
         let cleaned_text_lowercase = cleaned_text.to_lowercase();
@@ -392,8 +341,7 @@ impl Collector {
         // Determine if in abstract section
         if matches!(section_type, Some(SectionType::Abstract)) {
             self.in_abstract = true;
-            self.block_replacements
-                .insert(heading.node_id(), (BlockReplacement::Abstract, Vec::new()));
+            return block_to_remove(block);
         } else {
             self.in_abstract = false;
         }
@@ -401,8 +349,7 @@ impl Collector {
         // Determine if in keywords section
         if cleaned_text_lowercase == "keywords" || cleaned_text_lowercase == "key words" {
             self.in_keywords = true;
-            self.block_replacements
-                .insert(heading.node_id(), (BlockReplacement::Keywords, Vec::new()));
+            return block_to_remove(block);
         } else {
             self.in_keywords = false;
         }
@@ -443,20 +390,13 @@ impl Collector {
 
         // If still in frontmatter remove this heading
         if self.options.discard_frontmatter && self.in_frontmatter {
-            self.block_replacements.insert(
-                heading.node_id(),
-                (BlockReplacement::Frontmatter, Vec::new()),
-            );
+            return block_to_remove(block);
         }
 
         // Update whether or not in references
         if matches!(section_type, Some(SectionType::References)) {
             self.in_references = true;
-
-            self.block_replacements.insert(
-                heading.node_id(),
-                (BlockReplacement::References, Vec::new()),
-            );
+            return block_to_remove(block);
         } else {
             self.in_references = false;
         }
@@ -467,17 +407,19 @@ impl Collector {
     /// Visit a [`Paragraph`] node
     ///
     /// If in the references section, parses the paragraph as a [`Reference`].
-    fn visit_paragraph(&mut self, paragraph: &Paragraph) -> WalkControl {
-        let mut remove = None;
+    fn visit_paragraph(&mut self, block: &mut Block) -> WalkControl {
+        let Block::Paragraph(paragraph) = block else {
+            return WalkControl::Continue;
+        };
 
         if self.in_abstract {
-            let block = Block::Paragraph(paragraph.clone());
+            let paragraph = Block::Paragraph(paragraph.clone());
             if let Some(abstract_) = self.abstract_.as_mut() {
-                abstract_.push(block);
+                abstract_.push(paragraph);
             } else {
-                self.abstract_ = Some(vec![block]);
+                self.abstract_ = Some(vec![paragraph]);
             }
-            remove = Some(BlockReplacement::Abstract);
+            return block_to_remove(block);
         }
 
         if self.keywords.is_none() {
@@ -494,7 +436,7 @@ impl Collector {
                 } else {
                     self.keywords = Some(words);
                 }
-                remove = Some(BlockReplacement::Keywords);
+                return block_to_remove(block);
             } else if let Some(text) = text
                 .strip_prefix("Keywords")
                 .or_else(|| text.strip_prefix("KEYWORDS"))
@@ -508,14 +450,14 @@ impl Collector {
                     .map(|word| word.trim().to_string())
                     .collect_vec();
                 self.keywords = Some(words);
-                remove = Some(BlockReplacement::Keywords);
+                return block_to_remove(block);
             }
         }
 
         // Remove paragraphs in frontmatter (usually authors and
         // their affiliations)
         if self.options.discard_frontmatter && self.in_frontmatter {
-            remove = Some(BlockReplacement::Frontmatter);
+            return block_to_remove(block);
         }
 
         if self.in_references {
@@ -526,12 +468,7 @@ impl Collector {
             } else {
                 self.references = Some(vec![reference]);
             }
-            remove = Some(BlockReplacement::References);
-        }
-
-        if let Some(replacement) = remove {
-            self.block_replacements
-                .insert(paragraph.node_id(), (replacement, Vec::new()));
+            return block_to_remove(block);
         }
 
         WalkControl::Continue
@@ -541,7 +478,11 @@ impl Collector {
     ///
     /// If in the references section, transforms the list to a set of
     /// [`Reference`]s to assign to the root node.
-    fn visit_list(&mut self, list: &List) -> WalkControl {
+    fn visit_list(&mut self, block: &mut Block) -> WalkControl {
+        let Block::List(list) = block else {
+            return WalkControl::Continue;
+        };
+
         if self.in_references {
             let is_numeric = matches!(list.order, ListOrder::Ascending);
 
@@ -563,11 +504,7 @@ impl Collector {
                 self.references = Some(references);
             }
 
-            self.block_replacements
-                .insert(list.node_id(), (BlockReplacement::References, Vec::new()));
-
-            // Break walk because content in each item already processed
-            WalkControl::Break
+            block_to_remove(block)
         } else {
             WalkControl::Continue
         }
@@ -575,111 +512,60 @@ impl Collector {
 
     /// Visit a [`Table`] node
     ///
-    /// Converts the table (row-oriented) to a [`Datatable`] (column-oriented) if:
-    ///
-    /// - it has a uniform shape (i.e. all rows have the same number of cells
-    ///   and there are no rowspans or colspans)
-    ///
-    /// - there is a row of header cells that can be used as names
-    ///
-    /// - all the cells have values that can be parsed as [`Primitive`] nodes
-    ///   (i.e. only has a single paragraph that only contains text)
-    fn visit_table(&mut self, table: &Table) -> WalkControl {
-        // Use the shared uniform table validation and conversion
+    /// Converts the table (row-oriented) to a [`Datatable`] (column-oriented)
+    /// if possible.
+    fn visit_table(&mut self, block: &mut Block) -> WalkControl {
+        let Block::Table(table) = block else {
+            return WalkControl::Continue;
+        };
+
         if let Some(datatable) = Datatable::from_table_if_uniform(table) {
-            self.block_replacements.insert(
-                table.node_id(),
-                (
-                    BlockReplacement::TableToDatatable,
-                    vec![Block::Datatable(datatable)],
-                ),
-            );
-            return WalkControl::Break;
+            *block = Block::Datatable(datatable);
+            WalkControl::Break
+        } else {
+            WalkControl::Continue
         }
-        WalkControl::Continue
     }
 
     /// Visit a [`MathInline`] node
     fn visit_math_inline(&mut self, math: &MathInline) {
         if let Some(inline) = bracketed_numeric_citation(&math.code) {
-            self.inline_replacements.insert(
+            self.citations.insert(
                 math.node_id(),
-                (InlineReplacement::BracketedNumericCitations, vec![inline]),
+                (CitationStyle::BracketedNumeric, vec![inline]),
             );
         }
 
         if let Some(inline) = parenthetic_numeric_citation(&math.code) {
-            self.inline_replacements.insert(
+            self.citations.insert(
                 math.node_id(),
-                (InlineReplacement::ParentheticNumericCitations, vec![inline]),
+                (CitationStyle::ParentheticNumeric, vec![inline]),
             );
         }
 
         if let Some(inline) = superscripted_numeric_citation(&math.code) {
-            self.inline_replacements.insert(
+            self.citations.insert(
                 math.node_id(),
-                (
-                    InlineReplacement::SuperscriptedNumericCitations,
-                    vec![inline],
-                ),
+                (CitationStyle::SuperscriptedNumeric, vec![inline]),
             );
         }
     }
 
-    /// Visit a [`Text`] node
+    /// Visit a [`Text`] node and detect alternative in-text citation styles
     fn visit_text(&mut self, text: &mut Text) {
-        // Extract any links from newly generated text in a citation replacement
-        // We process citations, and then links (instead of the other way
-        // around), so that parts of citations that may look like links are not
-        // matched (e.g. "(Smith 1990, table 3)")
-        macro_rules! extract_links {
-            ($inlines: expr) => {
-                for inline in &$inlines {
-                    if let Inline::Text(text) = inline {
-                        if let Some(inlines) = has_links(text_with_links(&text.value)) {
-                            self.inline_replacements
-                                .insert(text.node_id(), (InlineReplacement::Links, inlines));
-                        }
-                    }
-                }
-            };
-        }
-
-        let mut citations_detected = false;
-
         if let Some(inlines) = has_citations(text_with_author_year_citations(&text.value)) {
-            citations_detected = true;
-            extract_links!(inlines);
-            self.inline_replacements.insert(
-                text.node_id(),
-                (InlineReplacement::AuthorYearCitations, inlines),
-            );
+            self.citations
+                .insert(text.node_id(), (CitationStyle::AuthorYear, inlines));
         }
 
         if let Some(inlines) = has_citations(text_with_bracketed_numeric_citations(&text.value)) {
-            citations_detected = true;
-            extract_links!(inlines);
-            self.inline_replacements.insert(
-                text.node_id(),
-                (InlineReplacement::BracketedNumericCitations, inlines),
-            );
+            self.citations
+                .insert(text.node_id(), (CitationStyle::BracketedNumeric, inlines));
         }
 
         if let Some(inlines) = has_citations(text_with_parenthetic_numeric_citations(&text.value)) {
-            citations_detected = true;
-            extract_links!(inlines);
-            self.inline_replacements.insert(
-                text.node_id(),
-                (InlineReplacement::ParentheticNumericCitations, inlines),
-            );
-        }
-
-        // Extract any links in this text. Note that, if this text is replaced because it has
-        // citations then this replacement will not apply 9because this text's node id will not
-        // be in the first pass.
-        if !citations_detected && let Some(inlines) = has_links(text_with_links(&text.value)) {
-            self.inline_replacements
-                .insert(text.node_id(), (InlineReplacement::Links, inlines));
+            self.citations
+                .insert(text.node_id(), (CitationStyle::ParentheticNumeric, inlines));
         }
     }
 
@@ -693,24 +579,17 @@ impl Collector {
         // Count occurrences of each citation style
         let mut style_counts = std::collections::HashMap::new();
 
-        for (replacement_type, _) in self.inline_replacements.values() {
+        for (style, _) in self.citations.values() {
             style_counts
-                .entry(replacement_type)
+                .entry(style)
                 .and_modify(|count| *count += 1)
                 .or_insert(1);
         }
 
-        use InlineReplacement::*;
-
         // Determine citation style based on heuristics or use specified style
         self.citation_style = if let Some(style) = specified_style {
             tracing::debug!("Using specified citation style");
-            Some(match style {
-                CitationStyle::AuthorYear => AuthorYearCitations,
-                CitationStyle::BracketedNumeric => BracketedNumericCitations,
-                CitationStyle::ParentheticNumeric => ParentheticNumericCitations,
-                CitationStyle::SuperscriptedNumeric => SuperscriptedNumericCitations,
-            })
+            Some(style)
         } else if style_counts.is_empty() {
             tracing::debug!("No citations found, no style to determine");
             None
@@ -718,24 +597,17 @@ impl Collector {
             // If references are numbered, choose the style with the greatest count
             let style = style_counts
                 .iter()
-                .filter(|(key, _)| {
-                    matches!(
-                        key,
-                        BracketedNumericCitations
-                            | ParentheticNumericCitations
-                            | SuperscriptedNumericCitations
-                    )
-                })
+                .filter(|(style, ..)| style.is_numeric())
                 .max_by_key(|(_, count)| *count)
-                .map(|(style, _)| (*style).clone())
-                .unwrap_or(AuthorYearCitations);
+                .map(|(style, _)| *(*style))
+                .unwrap_or(CitationStyle::AuthorYear);
             tracing::debug!("Using numeric citation style with highest count: {style}");
             Some(style)
         } else {
             // If references are not numbered then none of the numeric styles will be valid
             // so assume author-year
             tracing::debug!("References are not ordered, so assuming author-year citations");
-            Some(AuthorYearCitations)
+            Some(CitationStyle::AuthorYear)
         };
     }
 }
@@ -958,14 +830,6 @@ fn has_citations(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
     inlines
         .iter()
         .any(|inline| matches!(inline, Inline::Citation(..) | Inline::CitationGroup(..)))
-        .then_some(inlines)
-}
-
-/// Determine if inlines contain at least one [`Link`]
-fn has_links(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
-    inlines
-        .iter()
-        .any(|inline| matches!(inline, Inline::Link(..)))
         .then_some(inlines)
 }
 
