@@ -14,7 +14,14 @@ expression: info.losses
 //article/back/ref-list/ref/@publication-type: 78
 //article/back/ref-list/ref/@sortable: 226
 //article/back/ref-list/ref/@use-reference-as-is: 78
-//article/back/sec: 2
+//article/back/sec/@id: 4
+//article/back/sec/p/@id: 2
+//article/back/sec/p/ext-link/@ext-link-type: 1
+//article/back/sec/p/ext-link/@id: 1
+//article/back/sec/p/ext-link/@ref: 1
+//article/back/sec/p/ext-link/@ref-type: 1
+//article/back/sec/p/ext-link/@rel: 1
+//article/back/sec/title/@id: 2
 //article/body/sec/@id: 9
 //article/body/sec/@rev-id: 2
 //article/body/sec/label: 4

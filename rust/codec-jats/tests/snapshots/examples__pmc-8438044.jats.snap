@@ -1810,8 +1810,12 @@ expression: jats
         </caption>
       </supplementary-material>
     </sec>
+    <sec sec-type="SupplementaryMaterials">
+      <title level="1">Supplementary Information</title>
+      <p>The online version contains supplementary material available at 10.1038/s41598-021-97128-3.</p>
+    </sec>
     <sec sec-type="Acknowledgements">
-      <title level="0">Acknowledgements</title>
+      <title level="1">Acknowledgements</title>
       <p>The expedition to the Javari River was funded by São Paulo State Research Foundation grant to GTV (FAPESP #2016/07910-0) and Global Genome Initiative grant to CDS, CBD, and LRP (GGI-Peer-2017-149). A Global Genome Initiative grant to CDS to survey African rivers and build DNA barcoding and metabarcoding archives for freshwater fishes (GGI-Peer-2020-258). CDS wish to acknowledge funding and technical support from the Smithsonian Institution Barcode Network (2018, 2019, 2020 Award Cycle) and the use of facilities at the Laboratories of Analytical Biology, National Museum of Natural History, Smithsonian Institution. JZ received a productivity grant from Brazil’s CNPq (#313183/2014-7). AD, CDS, and NAM are funded by FAPESP (#2016/19075-9). MM and TS were supported by Environment Research and Technology Development Fund (4-1602) of the Ministry of the Environment, Japan.</p>
     </sec>
   </body>

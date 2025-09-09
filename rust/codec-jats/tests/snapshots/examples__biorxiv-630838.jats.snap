@@ -398,8 +398,12 @@ expression: jats
         <label>Modelling supplemental text</label>
       </supplementary-material>
     </sec>
+    <sec>
+      <title level="1">Scientific illustrations</title>
+      <p>Illustrations and cartoons were made using Adobe illustrator and BioRender.</p>
+    </sec>
     <sec sec-type="Acknowledgements">
-      <title level="0">Acknowledgements and funding</title>
+      <title level="1">Acknowledgements and funding</title>
       <p>We thank the Waterman Lab especially William Shin, Dr. Ana Pasapera, the National Heart, Lung, and Blood Institute (NHLBI), the NHLBI light microscopy (Xufeng) and flow cytometry core facilities. We would also like to thank Dr. Tamas Balla, Dr. Senthil Arumugam, Dr. Valentine Jaumouille for their feedbacks and discussions on this work. This work was funded by the NHLBI Division of Intramural Research (DIR) (AJ and CMW), National Institute of General Medical Sciences under award number R01 GM141691 (JMH), the National Institute of Biomedical Imaging and Bioengineering of the National Institutes of Health under award number U01 EB018816 (JMH), NIH grant 5R01GM144362 and a Vallee Scholar award (JET).</p>
     </sec>
   </body>

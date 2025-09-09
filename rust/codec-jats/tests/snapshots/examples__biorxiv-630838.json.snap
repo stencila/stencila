@@ -13954,11 +13954,39 @@ expression: article
     },
     {
       "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Scientific illustrations"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Illustrations and cartoons were made using Adobe illustrator and BioRender."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [
         {
           "type": "Heading",
-          "level": 0,
+          "level": 1,
           "content": [
             {
               "type": "Text",

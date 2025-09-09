@@ -564,7 +564,7 @@ expression: jats
       </supplementary-material>
     </sec>
     <sec sec-type="Acknowledgements">
-      <title level="0">ACKNOWLEDGMENTS</title>
+      <title level="1">ACKNOWLEDGMENTS</title>
       <p>I am grateful to the staff of Vietnam‐Russia Tropical Centre for support of this research, and especially to I. V. Palko who introduced me to the tropical life and fruits in Cat Tien national park, as well as to A. B. Vassilieva and N. A. Poyarkov for assistance in the field and town.</p>
     </sec>
   </body>

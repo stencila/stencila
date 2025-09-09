@@ -20562,7 +20562,7 @@ expression: article
       "content": [
         {
           "type": "Heading",
-          "level": 0,
+          "level": 1,
           "content": [
             {
               "type": "Text",
@@ -20579,6 +20579,77 @@ expression: article
               "type": "Text",
               "value": {
                 "string": "NGS and TFK were supported by the Laboratory Directed Research and Development (LDRD) fund\n        under the auspices of DOE, BER Office of Science at Lawrence Berkeley National Laboratory.\n        HW was supported by National Natural Science Foundation of China (31600388). VM was\n        supported by The Fonds de recherché du Quebec – Nature et Technologies\n        (FRQNT‐2017‐NC‐198009) and Natural Sciences and Engineering Research\n        Council of Canada (NSERC‐Discovery‐2016‐05716). AR and SPS were\n        supported by the Next‐Generation Ecosystem Experiments (NGEE Arctic) project that is\n        supported by the Office of Biological and Environmental Research in the Department of\n        Energy, Office of Science, and through the United States Department of Energy contract No.\n        DE‐SC0012704 to Brookhaven National Laboratory. This work contributes to the AXA\n        Chair Programme on Biosphere and Climate Impacts and the Imperial College Initiative on\n        Grand Challenges in Ecosystems and the Environment. Contributions by PAT and ELK were\n        supported by NASA grants NNX10AJ94G and NNX08AN31G, as well as USDA\n        Hatch/McIntire‐Stennis awards WIS01809 and WIS02010. RG was supported by Newton\n        International (n. NF082365) and MSCA (n. 705432) fellowships. We thank Belinda Medlyn and\n        David Ellsworth for their comments on an earlier version of this manuscript."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "DataAvailability",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Data availability"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Model code can be found at "
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        https://github.com/SmithEcophysLab/optimal_vcmax_R"
+                  }
+                }
+              ],
+              "target": "https://github.com/SmithEcophysLab/optimal_vcmax_R"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " ("
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "https://doi.org/10.5281/zenodo.1482044"
+                  }
+                }
+              ],
+              "target": "https://doi.org/10.5281/zenodo.1482044"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ").\n        No new data were used in the analyses. Investigators should refer to the citations provided\n        in the Methods section for data access. Please contact Nick Smith ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")\n        with any issues."
               }
             }
           ]

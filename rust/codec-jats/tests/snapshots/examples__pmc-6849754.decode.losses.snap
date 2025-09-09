@@ -7,7 +7,10 @@ expression: info.losses
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/@id: 70
 //article/back/ref-list/ref/@publication-type: 70
-//article/back/sec: 1
+//article/back/sec/@id: 1
+//article/back/sec/p/email: 1
+//article/back/sec/p/ext-link/@ext-link-type: 2
+//article/back/sec/p/ext-link/@specific-use: 2
 //article/body/sec/@id: 5
 //article/body/sec/fig/@fig-type: 1
 //article/body/sec/fig/@lang: 1

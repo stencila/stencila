@@ -16981,11 +16981,87 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "CONFLICT OF INTERESTS"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors declare that there are no conflicts of interest regarding the publication of this paper."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "CodeAvailability",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "CODE AVAILABILITY"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The corresponding software code to (1) generate synthetic networks with nested, modular and in-block nested structures; (2) the implementation of the metrics and optimization algorithms aimed to characterize nestedness, modularity, and in-block nestedness; and (3) the Python implementation of the five null models employed in this paper are available at the Github repository "
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "https://github.com/COSIN3-UOC"
+                  }
+                }
+              ],
+              "target": "https://github.com/COSIN3-UOC"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [
         {
           "type": "Heading",
-          "level": 0,
+          "level": 1,
           "content": [
             {
               "type": "Text",

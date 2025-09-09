@@ -13,7 +13,9 @@ expression: info.losses
 //article/back/ref-list/ref/@publication-type: 88
 //article/back/ref-list/ref/@sortable: 209
 //article/back/ref-list/ref/@use-reference-as-is: 88
-//article/back/sec: 1
+//article/back/sec/@id: 2
+//article/back/sec/p/@id: 1
+//article/back/sec/title/@id: 1
 //article/body/sec/@id: 9
 //article/body/sec/p/@id: 10
 //article/body/sec/p/italic/@toggle: 3

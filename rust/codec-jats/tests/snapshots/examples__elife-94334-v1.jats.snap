@@ -1323,8 +1323,29 @@ expression: jats
         <p>Graphs were prepared using GraphPad Prism 10 (Dotmatics). Statistical analysis for differences in the percentage of large budded (G<sub>2</sub>/M-arrested) cells at different timepoints listed in<ext-link xlink:href="#table1">Table 1</ext-link>was done using a one-way ANOVA in GraphPad Prism 10. Protein quantification of Ddc2-myc blots was done using ImageLab 6.1 (Bio-Rad). To categorize DAPI-stained cells based on their morphology and number of DAPI signals, images were captured as described above and viewed using ImageJ with the Fiji addon.</p>
       </sec>
     </sec>
+    <sec>
+      <title level="1">Additional information</title>
+    </sec>
+    <sec>
+      <title level="1">Additional files</title>
+      <supplementary-material id="supp1" href="elife-94334-supp1-v1.docx">
+        <label>file 1.</label>
+        <caption>
+          <title level="1">Strains and Primers used in this study.</title>
+          <p>(a) Strains used in this study. (b) Primers used in this study.</p>
+        </caption>
+      </supplementary-material>
+      <supplementary-material id="mdar" href="elife-94334-mdarchecklist1-v1.pdf">
+        <label>MDAR checklist</label>
+      </supplementary-material>
+    </sec>
+    <sec sec-type="DataAvailability">
+      <title level="1">Data availability</title>
+      <p>Data is available on Dryad:<ext-link xlink:href="https://doi.org/10.5061/dryad.sj3tx96dv">https://doi.org/10.5061/dryad.sj3tx96dv</ext-link>.</p>
+      <p>The following dataset was generated:</p>
+    </sec>
     <sec sec-type="Acknowledgements">
-      <title level="0">Acknowledgements</title>
+      <title level="1">Acknowledgements</title>
       <p>We thank Helle Ulrich for the AID and TIR1 plasmid and Masato Kanemaki for the TIR1(F74G) plasmid. We also thank Nikita Alimov, Jessie Ang, and Astré Bouchier for their assistance.</p>
     </sec>
   </body>

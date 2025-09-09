@@ -21264,11 +21264,142 @@ expression: article
     },
     {
       "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Additional information"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Additional files"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Supplement",
+          "id": "supp1",
+          "label": "file 1.",
+          "labelAutomatically": false,
+          "caption": [
+            {
+              "type": "Heading",
+              "level": 1,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Strains and Primers used in this study."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "(a) Strains used in this study. (b) Primers used in this study."
+                  }
+                }
+              ]
+            }
+          ],
+          "target": "elife-94334-supp1-v1.docx"
+        },
+        {
+          "type": "Supplement",
+          "id": "mdar",
+          "label": "MDAR checklist",
+          "labelAutomatically": false,
+          "target": "elife-94334-mdarchecklist1-v1.pdf"
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "DataAvailability",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Data availability"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Data is available on Dryad: "
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "https://doi.org/10.5061/dryad.sj3tx96dv"
+                  }
+                }
+              ],
+              "target": "https://doi.org/10.5061/dryad.sj3tx96dv"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The following dataset was generated:"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [
         {
           "type": "Heading",
-          "level": 0,
+          "level": 1,
           "content": [
             {
               "type": "Text",
