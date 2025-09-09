@@ -8,6 +8,7 @@ base64 = { workspace = true }
 eyre = { workspace = true }
 image = { workspace = true }
 itertools = { workspace = true }
+pathdiff = { workspace = true }
 seahash = { workspace = true }
 stencila-format = { path = "../format" }
 stencila-schema = { path = "../schema" }
