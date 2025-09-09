@@ -9,7 +9,8 @@ use image::{GenericImageView, ImageFormat, ImageReader, imageops};
 use tempfile::NamedTempFile;
 
 use stencila_schema::{
-    AudioObject, Block, ImageObject, Inline, Node, VideoObject, VisitorMut, WalkControl, WalkNode,
+    AudioObject, Block, CreativeWorkVariant, ImageObject, Inline, Node, VideoObject, VisitorMut,
+    WalkControl, WalkNode,
 };
 use stencila_tools::{Ffmpeg, Tool};
 
@@ -365,6 +366,21 @@ impl VisitorMut for Embedder {
         WalkControl::Continue
     }
 
+    fn visit_work(&mut self, work: &mut CreativeWorkVariant) -> WalkControl {
+        match work {
+            CreativeWorkVariant::AudioObject(audio) => self.embed_audio(audio),
+            CreativeWorkVariant::ImageObject(image) => self.embed_image(image),
+            CreativeWorkVariant::VideoObject(video) => self.embed_video(video),
+            CreativeWorkVariant::Table(table) => {
+                if let Some(images) = &mut table.options.images {
+                    self.embed_images(images)
+                }
+            }
+            _ => {}
+        }
+        WalkControl::Continue
+    }
+
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         match block {
             Block::AudioObject(audio) => self.embed_audio(audio),
@@ -374,7 +390,7 @@ impl VisitorMut for Embedder {
                 if let Some(images) = &mut math.options.images {
                     self.embed_images(images)
                 }
-            },
+            }
             Block::Table(table) => {
                 if let Some(images) = &mut table.options.images {
                     self.embed_images(images)
