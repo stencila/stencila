@@ -102,7 +102,7 @@ impl Extractor {
         let relative_path = self
             .document_path
             .parent()
-            .and_then(|base| diff_paths(&path, &base))
+            .and_then(|base| diff_paths(&path, base))
             .unwrap_or(path)
             .to_string_lossy()
             .to_string();

@@ -157,7 +157,9 @@ impl DomCodec for Article {
             context.push_slot_fn("section", "abstract", |context| r#abstract.to_dom(context));
         }
 
-        if context.is_root() && let Some(headings) = &self.options.headings {
+        if context.is_root()
+            && let Some(headings) = &self.options.headings
+        {
             context.push_slot_fn("nav", "headings", |context| headings.to_dom(context));
         }
 

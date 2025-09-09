@@ -1349,7 +1349,7 @@ fn clean_math_block_label(label: &str) -> String {
 /// Sometimes a <caption> will have a <title>, which will be decoded to a
 /// [Heading]. While a heading is valid content for a caption, that can break
 /// downstream assumptions in document structuring and display.
-/// 
+///
 /// As such, if the caption starts with a title then we append its content as
 /// bolded text to the start of the first paragraph. If there is only a title,
 /// then it becomes a paragraph.
@@ -1376,10 +1376,9 @@ fn clean_caption(mut caption: Vec<Block>) -> Vec<Block> {
         }
     } else if caption.len() == 1
         && let Some(Block::Heading(..)) = caption.first()
+        && let Block::Heading(Heading { content, .. }) = caption.remove(0)
     {
-        if let Block::Heading(Heading { content, .. }) = caption.remove(0) {
-            caption.push(p(content))
-        }
+        caption.push(p(content))
     }
 
     caption
