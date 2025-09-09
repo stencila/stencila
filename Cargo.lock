@@ -8906,6 +8906,7 @@ dependencies = [
  "stencila-node-diagnostics",
  "stencila-node-execute",
  "stencila-node-strip",
+ "stencila-node-supplements",
  "stencila-prompts",
  "stencila-publish",
  "stencila-schema",
@@ -9037,6 +9038,7 @@ dependencies = [
  "ciborium",
  "serde",
  "stencila-codec",
+ "stencila-node-media",
  "zstd",
 ]
 
@@ -10591,6 +10593,7 @@ dependencies = [
  "eyre",
  "image",
  "itertools 0.14.0",
+ "pathdiff",
  "seahash",
  "stencila-format",
  "stencila-schema",
@@ -10726,6 +10729,7 @@ name = "stencila-node-supplements"
 version = "0.0.0"
 dependencies = [
  "eyre",
+ "pathdiff",
  "stencila-codec",
  "stencila-codec-cbor",
  "stencila-codec-csv",
