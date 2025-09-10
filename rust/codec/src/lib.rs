@@ -10,7 +10,7 @@ use eyre::{Report, Result, bail};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use smart_default::SmartDefault;
-use strum::{Display, IntoEnumIterator};
+use strum::{Display, EnumIter, EnumMessage, IntoEnumIterator};
 use tokio::{
     fs::{File, create_dir_all},
     io::{AsyncReadExt, AsyncWriteExt},
@@ -799,8 +799,20 @@ impl PageSelector {
     }
 }
 
-/// Structuring operation to perform or not
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, ValueEnum, Serialize, Deserialize)]
+/// A document structuring operation
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    ValueEnum,
+    EnumIter,
+    EnumMessage,
+    Serialize,
+    Deserialize,
+)]
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab-case")]
 pub enum StructuringOperation {
@@ -1060,7 +1072,7 @@ impl StructuringOptions {
     }
 
     /// Merge a set of structuring options into the current options
-    /// 
+    ///
     /// Sets any options that are empty or `None` to the value of the other.
     pub fn merge(&mut self, other: Self) -> &Self {
         if self.include_ops.is_empty() {
@@ -1071,7 +1083,7 @@ impl StructuringOptions {
             self.exclude_ops = other.exclude_ops;
         }
 
-         if self.citation_style.is_none() {
+        if self.citation_style.is_none() {
             self.citation_style = other.citation_style;
         }
 

@@ -1,6 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 use serde::Serialize;
-use strum::IntoEnumIterator;
+use strum::{EnumMessage, IntoEnumIterator};
 
 use stencila_cli_utils::{
     AsFormat, Code, Tabulated, ToStdout,
@@ -8,7 +8,8 @@ use stencila_cli_utils::{
     tabulated::{Attribute, Cell, Color},
 };
 use stencila_codec::{
-    CodecAvailability, CodecDirection, StructuringOptions, eyre::Result, stencila_format::Format,
+    CodecAvailability, CodecDirection, StructuringOperation, StructuringOptions, eyre::Result,
+    stencila_format::Format,
 };
 
 /// List the support for formats
@@ -37,6 +38,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 #[derive(Debug, Subcommand)]
 enum Command {
     List(List),
+    Structuring(Structuring),
 }
 
 impl Cli {
@@ -48,6 +50,7 @@ impl Cli {
 
         match command {
             Command::List(list) => list.run().await?,
+            Command::Structuring(structuring) => structuring.run().await?,
         }
 
         Ok(())
@@ -178,6 +181,57 @@ impl List {
                 lossless,
                 Cell::new(structuring),
             ]);
+        }
+
+        table.to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Get a list of possible structuring operations
+#[derive(Default, Debug, Args)]
+#[command(after_long_help = STRUCTURING_AFTER_LONG_HELP)]
+struct Structuring {
+    /// Provide longer details on each structuring operation
+    #[arg(long, short)]
+    verbose: bool,
+}
+
+pub static STRUCTURING_AFTER_LONG_HELP: &str = cstr!(
+    "<bold></bold>
+  <dim># List all structuring operations</dim>
+  <b>stencila formats structuring</b>
+
+  <dim># List all structuring operations with details for each</dim>
+  <b>stencila formats structuring --verbose</b>
+"
+);
+
+impl Structuring {
+    async fn run(self) -> Result<()> {
+        let mut table = Tabulated::new();
+
+        let mut header = vec!["Name", "Description"];
+        if self.verbose {
+            header.push("Details");
+        }
+        table.set_header(header);
+
+        for op in StructuringOperation::iter() {
+            let docs = op.get_documentation().unwrap_or_default();
+            let mut parts = docs.split("\n\n");
+            let desc = parts.next().unwrap_or_default();
+            let details = parts.next().unwrap_or_default().replace("\n", " ");
+
+            let mut row = vec![
+                Cell::new(op.to_string()).add_attribute(Attribute::Bold),
+                Cell::new(desc),
+            ];
+            if self.verbose {
+                row.push(Cell::new(details));
+            }
+            table.add_row(row);
         }
 
         table.to_stdout();
