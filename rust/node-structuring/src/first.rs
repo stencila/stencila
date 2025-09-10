@@ -12,9 +12,9 @@ use stencila_codec_biblio::decode::{
 };
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
-    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IncludeBlock, Inline,
-    ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock,
-    Text, VisitorMut, WalkControl,
+    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IfBlockClause, IncludeBlock,
+    Inline, ListItem, ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section,
+    SectionType, StyledBlock, TableCell, Text, VisitorMut, WalkControl,
     shortcuts::{p, t},
 };
 
@@ -121,6 +121,29 @@ impl VisitorMut for FirstWalk {
 
             _ => WalkControl::Continue,
         }
+    }
+
+    fn visit_list_item(&mut self, list_item: &mut ListItem) -> WalkControl {
+        self.visit_blocks(&mut list_item.content);
+        WalkControl::Continue
+    }
+
+    fn visit_table_cell(&mut self, table_cell: &mut TableCell) -> WalkControl {
+        self.visit_blocks(&mut table_cell.content);
+        WalkControl::Continue
+    }
+
+    fn visit_if_block_clause(&mut self, clause: &mut IfBlockClause) -> WalkControl {
+        self.visit_blocks(&mut clause.content);
+        WalkControl::Continue
+    }
+
+    fn visit_walkthrough_step(
+        &mut self,
+        step: &mut stencila_schema::WalkthroughStep,
+    ) -> WalkControl {
+        self.visit_blocks(&mut step.content);
+        WalkControl::Continue
     }
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {

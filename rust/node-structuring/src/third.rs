@@ -1,8 +1,8 @@
 use stencila_codec::{StructuringOperation::*, StructuringOptions};
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
-    Admonition, AppendixBreak, Article, Block, ForBlock, Heading, IncludeBlock, Node, Section,
-    SectionType, StyledBlock, VisitorMut, WalkControl,
+    Admonition, AppendixBreak, Article, Block, ForBlock, Heading, IfBlockClause, IncludeBlock,
+    ListItem, Node, Section, SectionType, StyledBlock, TableCell, VisitorMut, WalkControl,
 };
 
 use crate::should_remove_block;
@@ -55,6 +55,29 @@ impl VisitorMut for ThirdWalk {
 
             _ => WalkControl::Continue,
         }
+    }
+
+    fn visit_list_item(&mut self, list_item: &mut ListItem) -> WalkControl {
+        self.visit_blocks(&mut list_item.content);
+        WalkControl::Continue
+    }
+
+    fn visit_table_cell(&mut self, table_cell: &mut TableCell) -> WalkControl {
+        self.visit_blocks(&mut table_cell.content);
+        WalkControl::Continue
+    }
+
+    fn visit_if_block_clause(&mut self, clause: &mut IfBlockClause) -> WalkControl {
+        self.visit_blocks(&mut clause.content);
+        WalkControl::Continue
+    }
+
+    fn visit_walkthrough_step(
+        &mut self,
+        step: &mut stencila_schema::WalkthroughStep,
+    ) -> WalkControl {
+        self.visit_blocks(&mut step.content);
+        WalkControl::Continue
     }
 }
 
