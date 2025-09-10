@@ -16,7 +16,7 @@ use stencila_schema::{
     Text, VisitorMut, WalkControl, shortcuts::t,
 };
 
-use crate::{CitationStyle, StructuringOptions, block_to_remove};
+use crate::{CitationStyle, StructuringOperation::*, StructuringOptions, block_to_remove};
 
 /// First structuring walk
 ///
@@ -156,7 +156,7 @@ impl FirstWalk {
     fn visit_blocks(&mut self, blocks: &mut Vec<Block>) -> WalkControl {
         let mut index = 0;
         while index < blocks.len().saturating_sub(1) {
-            // Check for ImageObject followed by caption
+            // Check for ImageObject followed by figure caption
             if let (
                 Some(Block::ImageObject(..)),
                 Some(
@@ -165,7 +165,9 @@ impl FirstWalk {
                 ),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if let Some((label, prefix, ..)) = detect_figure_caption(content) {
+                if self.options.should_perform(FigureCaptions)
+                    && let Some((label, prefix, ..)) = detect_figure_caption(content)
+                {
                     // Remove the image and paragraph so that they can be placed in figure
                     let Some((
                         image,
@@ -201,7 +203,7 @@ impl FirstWalk {
                     blocks.insert(index, Block::Figure(figure));
                 }
             }
-            // Check for caption followed by ImageObject
+            // Check for figure caption followed by ImageObject
             else if let (
                 Some(
                     Block::Paragraph(Paragraph { content, .. })
@@ -210,7 +212,9 @@ impl FirstWalk {
                 Some(Block::ImageObject(..)),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if let Some((label, prefix, ..)) = detect_figure_caption(content) {
+                if self.options.should_perform(FigureCaptions)
+                    && let Some((label, prefix, ..)) = detect_figure_caption(content)
+                {
                     // Remove the image and paragraph so that they can be placed in figure
                     let Some((
                         Block::Paragraph(Paragraph { content, .. })
@@ -235,7 +239,7 @@ impl FirstWalk {
                     blocks.insert(index, Block::Figure(figure));
                 }
             }
-            // Check for caption followed by Table (only caption before table is
+            // Check for table caption followed by Table (only caption before table is
             // considered, not the reverse)
             else if let (
                 Some(
@@ -245,7 +249,9 @@ impl FirstWalk {
                 Some(Block::Table(..)),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if let Some((label, prefix, ..)) = detect_table_caption(content) {
+                if self.options.should_perform(TableCaptions)
+                    && let Some((label, prefix, ..)) = detect_table_caption(content)
+                {
                     // Remove the paragraph it can be placed in the table
                     let Block::Paragraph(mut caption) = blocks.remove(index) else {
                         unreachable!("asserted above")
@@ -264,8 +270,8 @@ impl FirstWalk {
                     table.caption = Some(vec![Block::Paragraph(caption)]);
                 }
             }
-            // Check for table label (no caption), followed paragraph, followed
-            // by Table
+            // Check for table label (no caption), followed by paragraph,
+            // followed by table
             else if let (
                 Some(
                     Block::Paragraph(Paragraph { content: label, .. })
@@ -277,7 +283,8 @@ impl FirstWalk {
                 blocks.get(index),
                 blocks.get(index + 1),
                 blocks.get(index + 2),
-            ) && let Some((label, .., false)) = detect_table_caption(label)
+            ) && self.options.should_perform(TableCaptions)
+                && let Some((label, .., false)) = detect_table_caption(label)
                 && detect_table_caption(content).is_none()
             {
                 // Remove the label and caption blocks so the latter can be placed in the table
@@ -325,30 +332,37 @@ impl FirstWalk {
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
         // Extract title and turn on frontmatter handling
-        if self.options.extract_title && self.title.is_none() && !self.hit_primary_section
+        if self.options.should_perform(HeadingTitle)
+            && self.title.is_none()
+            && !self.hit_primary_section
             && numbering.is_none()
-            // Heading level 1 or 2
             && heading.level <= 2
-            // Not a recognized section heading
             && section_type.is_none()
         {
             self.title = Some(heading.content.drain(..).collect());
+
             return block_to_remove(block);
         }
 
         let cleaned_text_lowercase = cleaned_text.to_lowercase();
 
         // Determine if in abstract section
-        if matches!(section_type, Some(SectionType::Abstract)) {
+        if self.options.should_perform(SectionAbstract)
+            && matches!(section_type, Some(SectionType::Abstract))
+        {
             self.in_abstract = true;
+
             return block_to_remove(block);
         } else {
             self.in_abstract = false;
         }
 
         // Determine if in keywords section
-        if cleaned_text_lowercase == "keywords" || cleaned_text_lowercase == "key words" {
+        if self.options.should_perform(SectionKeywords) && cleaned_text_lowercase == "keywords"
+            || cleaned_text_lowercase == "key words"
+        {
             self.in_keywords = true;
+
             return block_to_remove(block);
         } else {
             self.in_keywords = false;
@@ -389,13 +403,16 @@ impl FirstWalk {
         }
 
         // If still in frontmatter remove this heading
-        if self.options.discard_frontmatter && self.in_frontmatter {
+        if self.options.should_perform(RemoveFrontmatter) && self.in_frontmatter {
             return block_to_remove(block);
         }
 
         // Update whether or not in references
-        if matches!(section_type, Some(SectionType::References)) {
+        if self.options.should_perform(SectionReferences)
+            && matches!(section_type, Some(SectionType::References))
+        {
             self.in_references = true;
+
             return block_to_remove(block);
         } else {
             self.in_references = false;
@@ -412,20 +429,21 @@ impl FirstWalk {
             return WalkControl::Continue;
         };
 
-        if self.in_abstract {
+        if self.options.should_perform(SectionAbstract) && self.in_abstract {
             let paragraph = Block::Paragraph(paragraph.clone());
             if let Some(abstract_) = self.abstract_.as_mut() {
                 abstract_.push(paragraph);
             } else {
                 self.abstract_ = Some(vec![paragraph]);
             }
+
             return block_to_remove(block);
         }
 
         if self.keywords.is_none() {
             let text = to_text(paragraph);
 
-            if self.in_keywords {
+            if self.options.should_perform(SectionKeywords) && self.in_keywords {
                 let words = text
                     .trim_end_matches(['.'])
                     .split(",")
@@ -436,12 +454,16 @@ impl FirstWalk {
                 } else {
                     self.keywords = Some(words);
                 }
+
                 return block_to_remove(block);
-            } else if let Some(text) = text
-                .strip_prefix("Keywords")
-                .or_else(|| text.strip_prefix("KEYWORDS"))
-                .or_else(|| text.strip_prefix("Key words"))
-                .or_else(|| text.strip_prefix("KEY WORDS"))
+            }
+
+            if self.options.should_perform(ParagraphKeywords)
+                && let Some(text) = text
+                    .strip_prefix("Keywords")
+                    .or_else(|| text.strip_prefix("KEYWORDS"))
+                    .or_else(|| text.strip_prefix("Key words"))
+                    .or_else(|| text.strip_prefix("KEY WORDS"))
             {
                 let words = text
                     .trim_start_matches([':', '-', ' '])
@@ -450,17 +472,19 @@ impl FirstWalk {
                     .map(|word| word.trim().to_string())
                     .collect_vec();
                 self.keywords = Some(words);
+
                 return block_to_remove(block);
             }
         }
 
-        // Remove paragraphs in frontmatter (usually authors and
-        // their affiliations)
-        if self.options.discard_frontmatter && self.in_frontmatter {
+        // Remove paragraphs in frontmatter (usually authors and their
+        // affiliations)
+        if self.options.should_perform(RemoveFrontmatter) && self.in_frontmatter {
             return block_to_remove(block);
         }
 
-        if self.in_references {
+        // Remove paragraphs in references section
+        if self.options.should_perform(SectionReferences) && self.in_references {
             let text = to_text(paragraph);
             let reference = text_to_reference(&text);
             if let Some(references) = self.references.as_mut() {
@@ -468,6 +492,7 @@ impl FirstWalk {
             } else {
                 self.references = Some(vec![reference]);
             }
+
             return block_to_remove(block);
         }
 
@@ -483,7 +508,7 @@ impl FirstWalk {
             return WalkControl::Continue;
         };
 
-        if self.in_references {
+        if self.options.should_perform(SectionReferences) && self.in_references {
             let is_numeric = matches!(list.order, ListOrder::Ascending);
 
             // Record whether this references list is ordered/numbered
@@ -519,7 +544,9 @@ impl FirstWalk {
             return WalkControl::Continue;
         };
 
-        if let Some(datatable) = Datatable::from_table_if_uniform(table) {
+        if self.options.should_perform(TableDatatable)
+            && let Some(datatable) = Datatable::from_table_if_uniform(table)
+        {
             *block = Block::Datatable(datatable);
             WalkControl::Break
         } else {
@@ -529,43 +556,50 @@ impl FirstWalk {
 
     /// Visit a [`MathInline`] node
     fn visit_math_inline(&mut self, math: &MathInline) {
-        if let Some(inline) = bracketed_numeric_citation(&math.code) {
-            self.citations.insert(
-                math.node_id(),
-                (CitationStyle::BracketedNumeric, vec![inline]),
-            );
-        }
+        if self.options.should_perform(MathCitations) {
+            if let Some(inline) = bracketed_numeric_citation(&math.code) {
+                self.citations.insert(
+                    math.node_id(),
+                    (CitationStyle::BracketedNumeric, vec![inline]),
+                );
+            }
 
-        if let Some(inline) = parenthetic_numeric_citation(&math.code) {
-            self.citations.insert(
-                math.node_id(),
-                (CitationStyle::ParentheticNumeric, vec![inline]),
-            );
-        }
+            if let Some(inline) = parenthetic_numeric_citation(&math.code) {
+                self.citations.insert(
+                    math.node_id(),
+                    (CitationStyle::ParentheticNumeric, vec![inline]),
+                );
+            }
 
-        if let Some(inline) = superscripted_numeric_citation(&math.code) {
-            self.citations.insert(
-                math.node_id(),
-                (CitationStyle::SuperscriptedNumeric, vec![inline]),
-            );
+            if let Some(inline) = superscripted_numeric_citation(&math.code) {
+                self.citations.insert(
+                    math.node_id(),
+                    (CitationStyle::SuperscriptedNumeric, vec![inline]),
+                );
+            }
         }
     }
 
     /// Visit a [`Text`] node and detect alternative in-text citation styles
     fn visit_text(&mut self, text: &mut Text) {
-        if let Some(inlines) = has_citations(text_with_author_year_citations(&text.value)) {
-            self.citations
-                .insert(text.node_id(), (CitationStyle::AuthorYear, inlines));
-        }
+        if self.options.should_perform(TextCitations) {
+            if let Some(inlines) = has_citations(text_with_author_year_citations(&text.value)) {
+                self.citations
+                    .insert(text.node_id(), (CitationStyle::AuthorYear, inlines));
+            }
 
-        if let Some(inlines) = has_citations(text_with_bracketed_numeric_citations(&text.value)) {
-            self.citations
-                .insert(text.node_id(), (CitationStyle::BracketedNumeric, inlines));
-        }
+            if let Some(inlines) = has_citations(text_with_bracketed_numeric_citations(&text.value))
+            {
+                self.citations
+                    .insert(text.node_id(), (CitationStyle::BracketedNumeric, inlines));
+            }
 
-        if let Some(inlines) = has_citations(text_with_parenthetic_numeric_citations(&text.value)) {
-            self.citations
-                .insert(text.node_id(), (CitationStyle::ParentheticNumeric, inlines));
+            if let Some(inlines) =
+                has_citations(text_with_parenthetic_numeric_citations(&text.value))
+            {
+                self.citations
+                    .insert(text.node_id(), (CitationStyle::ParentheticNumeric, inlines));
+            }
         }
     }
 
@@ -644,8 +678,10 @@ fn is_primary_section_type(section_type: &SectionType) -> bool {
 
 /// Detect if inlines match a figure caption pattern
 ///
-/// Returns a tuple of (figure_label, prefix_to_remove) if the text
-/// starts with "Figure X" or "Fig X" where X is a number.
+/// Returns a tuple of (figure_label, prefix_to_remove, has_caption) if the text
+/// starts with "Figure X" or "Fig X" where X is a number, followed by punctuation
+/// or text that starts with an uppercase letter. This distinguishes actual captions
+/// from references (e.g., "Figure 2. Plot shows..." vs "Figure 2 shows that...").
 fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2" etc.
     static FIGURE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -658,9 +694,15 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
         let figure_label = captures[1].to_string();
         let matched_text = captures.get(0)?.as_str();
 
-        let has_caption = !text.replace(matched_text, "").trim().is_empty();
+        let caption = text.replace(matched_text, "").trim().to_string();
+        
+        if let Some(first_char) = caption.chars().next() {
+            if first_char.is_ascii_lowercase() {
+                return None;
+            }
+        }
 
-        Some((figure_label, matched_text.to_string(), has_caption))
+        Some((figure_label, matched_text.to_string(), !caption.is_empty()))
     } else {
         None
     }
@@ -668,8 +710,10 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
 
 /// Detect if inlines match a table caption pattern
 ///
-/// Returns a tuple of (table_label, prefix_to_remove) if the text
-/// starts with "Table X" where X is a number.
+/// Returns a tuple of (table_label, prefix_to_remove, has_caption) if the text
+/// starts with "Table X" where X is a number, followed by punctuation or text
+/// that starts with an uppercase letter. This distinguishes actual captions
+/// from references (e.g., "Table 2. Summary of..." vs "Table 2 shows that...").
 fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect table captions like "Table 1.", "Table 2:", "Table 12 -", , "Table B3" etc.
     static TABLE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -682,9 +726,15 @@ fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)>
         let table_label = captures[1].to_string();
         let matched_text = captures.get(0)?.as_str();
 
-        let has_caption = !text.replace(matched_text, "").trim().is_empty();
+        let caption = text.replace(matched_text, "").trim().to_string();
+        
+        if let Some(first_char) = caption.chars().next() {
+            if first_char.is_ascii_lowercase() {
+                return None;
+            }
+        }
 
-        Some((table_label, matched_text.to_string(), has_caption))
+        Some((table_label, matched_text.to_string(), !caption.is_empty()))
     } else {
         None
     }
@@ -931,8 +981,9 @@ mod tests {
             ("Figure 12 - A longer caption", "12"),
             ("Fig. 5 Some caption", "5"),
             ("FIGURE 3. Case insensitive", "3"),
-            ("figure 7: lowercase", "7"),
+            ("figure 7: Lowercase prefix but uppercase caption", "7"),
             ("Figure A1: Appendix figure", "A1"),
+            ("Figure 2 Plot of temperature over time", "2"),
         ];
 
         for (input, expected_label, ..) in test_cases {
@@ -954,6 +1005,10 @@ mod tests {
             "Not a figure caption",
             "Figure: missing number",
             "fig missing number",
+            "Figure 2 shows that the results are significant",
+            "Fig 3 indicates a clear pattern", 
+            "Figure 1 demonstrates the effectiveness",
+            "Figure 5 suggests that we should consider",
         ];
 
         for input in invalid_cases {

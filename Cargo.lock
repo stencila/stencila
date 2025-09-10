@@ -10711,11 +10711,11 @@ name = "stencila-node-structuring"
 version = "0.0.0"
 dependencies = [
  "Inflector",
+ "clap",
  "eyre",
  "itertools 0.14.0",
  "pretty_assertions",
  "regex",
- "smart-default",
  "stencila-codec-biblio",
  "stencila-codec-links",
  "stencila-codec-text-trait",

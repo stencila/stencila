@@ -8,7 +8,9 @@ use stencila_schema::{
     shortcuts::{em, h1, h2, h3, h4, h5, li, lnk, mi, ol, p, sec, stb, t, tbl},
 };
 
-use crate::{CitationStyle, StructuringOptions, structuring, structuring_with_options};
+use crate::{
+    CitationStyle, StructuringOperation, StructuringOptions, structuring, structuring_with_options,
+};
 
 /// Shortcut for creating an [`Block::ImageObject`] since there is
 /// no shortcut for that
@@ -50,9 +52,11 @@ fn structuring_without_sectioning<T: WalkNode>(node: &mut T) {
     structuring_with_options(
         node,
         StructuringOptions {
-            extract_title: false,
-            discard_frontmatter: false,
-            sectioning: false,
+            exclude_ops: vec![
+                StructuringOperation::HeadingTitle,
+                StructuringOperation::HeadingSections,
+                StructuringOperation::RemoveFrontmatter,
+            ],
             ..Default::default()
         },
     )

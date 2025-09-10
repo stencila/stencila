@@ -4,13 +4,12 @@ use stencila_schema::{
     SectionType, StyledBlock, VisitorMut, WalkControl,
 };
 
-use crate::{should_remove_block, StructuringOptions};
+use crate::{should_remove_block, StructuringOperation::*, StructuringOptions};
 
 /// Third structuring walk
 ///
 /// Walks over a node and performs a third round of structuring focussed on
-/// aspects that require the first two walks (e.g creating [`Section`]s from
-/// [`Heading`]s, replacing text outside of citations with [`Link`]s).
+/// block content (e.g creating [`Section`]s from [`Heading`]s).
 #[derive(Debug, Default)]
 pub(super) struct ThirdWalk {
     /// The structuring options
@@ -71,7 +70,7 @@ impl ThirdWalk {
     /// This method transforms a flat list of blocks containing headings into
     /// a hierarchical structure of sections based on heading levels.
     fn visit_blocks(&mut self, blocks: &mut Vec<Block>) -> WalkControl {
-        let mut new_blocks = Vec::new();
+        let mut blocks_new = Vec::new();
         let mut index = 0;
 
         while index < blocks.len() {
@@ -79,10 +78,9 @@ impl ThirdWalk {
 
             if should_remove_block(block) {
                 index += 1;
-            } else if self.options.sectioning
+            } else if self.options.should_perform(HeadingSections)
                 && let Block::Heading(heading) = block
             {
-                // Found a heading - create a section
                 let (section, consumed) = create_section_from_heading(heading, &blocks[index..]);
 
                 // Check if this is the first appendix section and insert AppendixBreak if so
@@ -90,19 +88,19 @@ impl ThirdWalk {
                     && !self.first_appendix_seen
                 {
                     self.first_appendix_seen = true;
-                    new_blocks.push(Block::AppendixBreak(AppendixBreak::new()));
+                    blocks_new.push(Block::AppendixBreak(AppendixBreak::new()));
                 }
 
-                new_blocks.push(Block::Section(section));
+                blocks_new.push(Block::Section(section));
                 index += consumed;
             } else {
-                new_blocks.push(block.clone());
+                blocks_new.push(block.clone());
                 index += 1;
             }
         }
 
         // Replace the original blocks with the restructured ones
-        *blocks = new_blocks;
+        *blocks = blocks_new;
 
         WalkControl::Continue
     }
