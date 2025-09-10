@@ -48,7 +48,7 @@ pub enum StructuringOperation {
     HeadingSections,
 
     /// Combine an image with a figure caption before or after it into a figure
-    /// 
+    ///
     /// A heading or paragraph is treated as a figure caption if it starts with
     /// "Figure" or "Fig." (case insensitive) followed by a number or
     /// letter-number combination, and the remaining text starts with an
@@ -58,7 +58,7 @@ pub enum StructuringOperation {
     FigureCaptions,
 
     /// Combine a table caption with the following table or datatable
-    /// 
+    ///
     /// A heading or paragraph is treated as a table caption if it starts with
     /// "Table" (case insensitive) followed by a number or letter-number
     /// combination, and the remaining text starts with an uppercase letter or
@@ -74,6 +74,11 @@ pub enum StructuringOperation {
     /// column/row spans.
     TableDatatable,
 
+    /// Remove empty headings
+    ///
+    /// A heading is considered empty if it have not context after any numbering
+    /// prefix is removed.
+    RemoveEmptyHeadings,
 
     /// Extract structured citations from plain text
     TextCitations,

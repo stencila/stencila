@@ -324,7 +324,7 @@ impl FirstWalk {
         let (numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
 
         // Mark empty heading for removal
-        if cleaned_text.is_empty() {
+        if self.options.should_perform(RemoveEmptyHeadings) && cleaned_text.is_empty() {
             return block_to_remove(block);
         }
 
@@ -695,7 +695,7 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
         let matched_text = captures.get(0)?.as_str();
 
         let caption = text.replace(matched_text, "").trim().to_string();
-        
+
         if let Some(first_char) = caption.chars().next() {
             if first_char.is_ascii_lowercase() {
                 return None;
@@ -727,7 +727,7 @@ fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)>
         let matched_text = captures.get(0)?.as_str();
 
         let caption = text.replace(matched_text, "").trim().to_string();
-        
+
         if let Some(first_char) = caption.chars().next() {
             if first_char.is_ascii_lowercase() {
                 return None;
@@ -1006,7 +1006,7 @@ mod tests {
             "Figure: missing number",
             "fig missing number",
             "Figure 2 shows that the results are significant",
-            "Fig 3 indicates a clear pattern", 
+            "Fig 3 indicates a clear pattern",
             "Figure 1 demonstrates the effectiveness",
             "Figure 5 suggests that we should consider",
         ];
