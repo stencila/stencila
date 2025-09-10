@@ -75,7 +75,11 @@ pub(super) struct FirstWalk {
     pub references_are_ordered: bool,
 
     /// Last numbered heading level seen, for fallback level assignment
-    last_numbered_level: Option<i64>,
+    last_numbered_heading_level: Option<i64>,
+
+    /// Last genuine heading level seen (not fake headings), for
+    /// ParagraphsToHeadings operation
+    last_genuine_heading_level: Option<i64>,
 }
 
 impl VisitorMut for FirstWalk {
@@ -430,9 +434,9 @@ impl FirstWalk {
         } else if numbering_depth > 0 {
             let numbered_level = numbering_depth as i64;
             // Track the last numbered heading level
-            self.last_numbered_level = Some(numbered_level);
+            self.last_numbered_heading_level = Some(numbered_level);
             numbered_level
-        } else if let Some(last_level) = self.last_numbered_level {
+        } else if let Some(last_level) = self.last_numbered_heading_level {
             // If no numbering detected and no known section type, and we've seen numbered headings before,
             // assign level as last numbered + 1 (for OCR inaccuracy in deep headings)
             last_level + 1
@@ -468,6 +472,10 @@ impl FirstWalk {
             self.in_references = false;
         }
 
+        // Track genuine heading levels for ParagraphsToHeadings operation
+        // (This happens after all processing, so we know this is a legitimate heading)
+        self.last_genuine_heading_level = Some(heading.level);
+
         WalkControl::Continue
     }
 
@@ -478,6 +486,27 @@ impl FirstWalk {
         let Block::Paragraph(paragraph) = block else {
             return WalkControl::Continue;
         };
+
+        // Convert paragraphs to headings if they exhibit heading-like characteristics
+        if self.options.should_perform(ParagraphsToHeadings)
+            && should_convert_paragraph_to_heading(paragraph)
+        {
+            let level = self
+                .last_genuine_heading_level
+                .map(|l| (l + 1).min(6)) // One level deeper than last, max level 6
+                .unwrap_or(3); // Default to level 3 if no context
+
+            // Extract content from the Strong element
+            if let Inline::Strong(strong) = &paragraph.content[0] {
+                let heading = Heading::new(level, strong.content.clone());
+                *block = Block::Heading(heading);
+
+                // Update tracking for genuine headings
+                self.last_genuine_heading_level = Some(level);
+
+                return WalkControl::Break;
+            }
+        }
 
         // Remove empty paragraphs
         if self.options.should_perform(RemoveEmptyParagraphs) && is_empty_paragraph(paragraph) {
@@ -1035,6 +1064,44 @@ fn should_convert_heading_to_paragraph(text: &str) -> bool {
     false
 }
 
+/// Check if a paragraph should be converted to a heading
+///
+/// A paragraph should be converted if it exhibits heading-like characteristics:
+/// - Contains only a single Inline::Strong element (entire content is bold)
+/// - Shorter than 80 characters
+/// - No sentence-ending punctuation (. ! ?)
+/// - Not empty
+fn should_convert_paragraph_to_heading(paragraph: &Paragraph) -> bool {
+    // Check if paragraph contains only a single Strong inline
+    if paragraph.content.len() != 1 {
+        return false;
+    }
+
+    if let Inline::Strong(strong) = &paragraph.content[0] {
+        let text = to_text(&strong.content);
+        let trimmed = text.trim();
+
+        // Check it's not empty
+        if trimmed.is_empty() {
+            return false;
+        }
+
+        // Check length (shorter than 80 chars suggests heading)
+        if trimmed.len() >= 80 {
+            return false;
+        }
+
+        // Check for sentence-ending punctuation (headings rarely end with these)
+        if trimmed.ends_with('.') || trimmed.ends_with('!') || trimmed.ends_with('?') {
+            return false;
+        }
+
+        return true;
+    }
+
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
@@ -1285,5 +1352,71 @@ mod tests {
         assert!(!should_convert_heading_to_paragraph(""));
         assert!(!should_convert_heading_to_paragraph("   "));
         assert!(!should_convert_heading_to_paragraph("A"));
+    }
+
+    #[test]
+    fn test_should_convert_paragraph_to_heading() {
+        use stencila_schema::{Paragraph, Strong};
+
+        // Should convert: single Strong element, short text, no punctuation
+        let strong_para =
+            Paragraph::new(vec![Inline::Strong(Strong::new(vec![t("Introduction")]))]);
+        assert!(should_convert_paragraph_to_heading(&strong_para));
+
+        // Should convert: short text with mixed case
+        let mixed_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![t(
+            "Data Analysis Methods",
+        )]))]);
+        assert!(should_convert_paragraph_to_heading(&mixed_para));
+
+        // Should NOT convert: multiple inlines
+        let multi_para = Paragraph::new(vec![
+            Inline::Strong(Strong::new(vec![t("Bold text")])),
+            t(" and regular text"),
+        ]);
+        assert!(!should_convert_paragraph_to_heading(&multi_para));
+
+        // Should NOT convert: no Strong element
+        let regular_para = Paragraph::new(vec![t("Regular paragraph text")]);
+        assert!(!should_convert_paragraph_to_heading(&regular_para));
+
+        // Should NOT convert: too long (>= 80 chars)
+        let long_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![t(
+            "This is a very long piece of bold text that exceeds eighty characters and should not be converted to a heading",
+        )]))]);
+        assert!(!should_convert_paragraph_to_heading(&long_para));
+
+        // Should NOT convert: ends with period
+        let period_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![t(
+            "This looks like a sentence.",
+        )]))]);
+        assert!(!should_convert_paragraph_to_heading(&period_para));
+
+        // Should NOT convert: ends with exclamation
+        let exclamation_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![t(
+            "This is exciting!",
+        )]))]);
+        assert!(!should_convert_paragraph_to_heading(&exclamation_para));
+
+        // Should NOT convert: ends with question
+        let question_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![t(
+            "Is this a heading?",
+        )]))]);
+        assert!(!should_convert_paragraph_to_heading(&question_para));
+
+        // Should NOT convert: empty Strong
+        let empty_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![t("")]))]);
+        assert!(!should_convert_paragraph_to_heading(&empty_para));
+
+        // Should NOT convert: whitespace-only Strong
+        let whitespace_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![t("   ")]))]);
+        assert!(!should_convert_paragraph_to_heading(&whitespace_para));
+
+        // Should convert: nested content within Strong (complex but valid)
+        let nested_para = Paragraph::new(vec![Inline::Strong(Strong::new(vec![
+            t("Chapter "),
+            em([t("One")]),
+        ]))]);
+        assert!(should_convert_paragraph_to_heading(&nested_para));
     }
 }

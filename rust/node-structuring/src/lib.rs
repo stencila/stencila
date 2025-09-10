@@ -54,6 +54,18 @@ pub enum StructuringOperation {
     /// punctuation.
     HeadingsToParagraphs,
 
+    /// Transform paragraphs to headings if appropriate
+    /// 
+    /// Word processor and OCR outputs sometimes incorrectly format headings as
+    /// paragraphs with bold/strong formatting. This operation converts paragraphs
+    /// to headings when they exhibit heading-like characteristics:
+    /// - Shorter than 80 characters
+    /// - Contains only a single Inline::Strong element (entire content is bold)
+    /// - No sentence-ending punctuation (. ! ?)
+    /// The heading level is determined by the last genuine heading level + 1,
+    /// or defaults to level 3 if no prior heading context exists.
+    ParagraphsToHeadings,
+
     /// Create a section for each heading
     HeadingsToSections,
 
