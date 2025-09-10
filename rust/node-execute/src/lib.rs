@@ -33,6 +33,7 @@ mod citation;
 mod code_chunk;
 mod code_expression;
 mod code_utils;
+mod datatable;
 mod excerpt;
 mod figure;
 mod for_block;
