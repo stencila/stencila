@@ -44,6 +44,16 @@ pub enum StructuringOperation {
     /// section).
     RemoveFrontmatter,
 
+    /// Transform headings to paragraphs if appropriate
+    /// 
+    /// Word processor formats such as DOCX and ODT can produce "fake" headings
+    /// e.g. when content has a heading style applied but is manually formatted
+    /// as normal body text. This operation converts headings to paragraphs when
+    /// they exhibit paragraph-like characteristics: longer than 80 characters,
+    /// not in all caps, not in title case, or containing sentence-ending
+    /// punctuation.
+    HeadingsToParagraphs,
+
     /// Create a section for each heading
     HeadingsToSections,
 

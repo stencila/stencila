@@ -13,7 +13,8 @@ use stencila_codec_text_trait::to_text;
 use stencila_schema::{
     Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IncludeBlock, Inline,
     ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock,
-    Text, VisitorMut, WalkControl, shortcuts::t,
+    Text, VisitorMut, WalkControl,
+    shortcuts::{p, t},
 };
 
 use crate::{
@@ -401,6 +402,20 @@ impl FirstWalk {
             return block_to_remove(block);
         } else {
             self.in_keywords = false;
+        }
+
+        // Handle "fake" headings - transform to paragraphs if they exhibit paragraph-like characteristics
+        if self.options.should_perform(HeadingsToParagraphs)
+            && numbering.is_none()
+            && section_type.is_none()
+            && should_convert_heading_to_paragraph(&cleaned_text)
+        {
+            if self.options.should_perform(RemoveFrontmatter) && self.in_frontmatter {
+                return block_to_remove(block);
+            } else {
+                *block = p(heading.content.clone());
+                return WalkControl::Break;
+            }
         }
 
         let is_primary_section = section_type
@@ -978,6 +993,48 @@ fn extract_heading_numbering(text: &str) -> (Option<String>, usize, String) {
     }
 }
 
+/// Check if a heading should be converted to a paragraph
+///
+/// A heading should be converted if it exhibits paragraph-like characteristics:
+/// - Longer than 80 characters
+/// - Not in ALL CAPS
+/// - Not in Title Case
+/// - Contains sentence-ending punctuation (. ! ?)
+fn should_convert_heading_to_paragraph(text: &str) -> bool {
+    let text = text.trim();
+
+    // Check length (longer than 80 characters suggests paragraph content)
+    if text.len() > 80 {
+        return true;
+    }
+
+    // Check for sentence-ending punctuation (headings rarely end with these)
+    if text.ends_with('.') || text.ends_with('!') || text.ends_with('?') {
+        return true;
+    }
+
+    // Check if it's NOT all caps (if it's mixed case, might be paragraph text)
+    let has_lowercase = text.chars().any(|c| c.is_lowercase());
+    let has_uppercase = text.chars().any(|c| c.is_uppercase());
+
+    if has_lowercase && has_uppercase {
+        // Check if it's NOT in Title Case (every word capitalized)
+        let is_title_case = text.split_whitespace().all(|word| {
+            word.chars()
+                .next()
+                .map(|c| c.is_uppercase())
+                .unwrap_or(false)
+        });
+
+        // If it's not title case, it's likely paragraph text
+        if !is_title_case {
+            return true;
+        }
+    }
+
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
@@ -1176,5 +1233,57 @@ mod tests {
         // Text with content and whitespace
         let mixed_text = Text::new("  content  ".into());
         assert!(!is_empty_text(&mixed_text));
+    }
+
+    #[test]
+    fn test_should_convert_heading_to_paragraph() {
+        // Should convert: too long (>80 chars)
+        let long_text = "This is a very long heading that exceeds eighty characters and should definitely be converted to a paragraph";
+        assert!(should_convert_heading_to_paragraph(long_text));
+
+        // Should convert: ends with period
+        assert!(should_convert_heading_to_paragraph(
+            "This looks like a sentence."
+        ));
+
+        // Should convert: ends with exclamation
+        assert!(should_convert_heading_to_paragraph("This is exciting!"));
+
+        // Should convert: ends with question
+        assert!(should_convert_heading_to_paragraph("Is this a heading?"));
+
+        // Should convert: not title case (mixed case but not every word capitalized)
+        assert!(should_convert_heading_to_paragraph(
+            "This is clearly paragraph text with mixed case"
+        ));
+
+        // Should NOT convert: proper title case
+        assert!(!should_convert_heading_to_paragraph(
+            "This Is A Proper Title"
+        ));
+
+        // Should NOT convert: all uppercase
+        assert!(!should_convert_heading_to_paragraph("INTRODUCTION"));
+
+        // Should NOT convert: all lowercase (could be stylistic choice)
+        assert!(!should_convert_heading_to_paragraph("introduction"));
+
+        // Should NOT convert: short and proper
+        assert!(!should_convert_heading_to_paragraph("Methods"));
+
+        // Should NOT convert: short title case
+        assert!(!should_convert_heading_to_paragraph(
+            "Data Analysis Methods"
+        ));
+
+        // Should NOT convert: academic style
+        assert!(!should_convert_heading_to_paragraph(
+            "Results And Discussion"
+        ));
+
+        // Edge cases
+        assert!(!should_convert_heading_to_paragraph(""));
+        assert!(!should_convert_heading_to_paragraph("   "));
+        assert!(!should_convert_heading_to_paragraph("A"));
     }
 }
