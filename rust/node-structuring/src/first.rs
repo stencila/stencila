@@ -255,7 +255,7 @@ impl FirstWalk {
                     Block::Paragraph(Paragraph { content, .. })
                     | Block::Heading(Heading { content, .. }),
                 ),
-                Some(Block::Table(..)),
+                Some(Block::Table(..) | Block::Datatable(..)),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
                 if self.options.should_perform(TablesWithCaptions)
@@ -269,25 +269,38 @@ impl FirstWalk {
                     // Remove the prefix from the caption
                     remove_caption_prefix(&mut caption, &prefix);
 
+                    let id = Some(["tab-", &label.to_kebab_case()].concat());
+                    let label = Some(label);
+                    let label_automatically = Some(false);
+                    let caption = Some(vec![Block::Paragraph(caption)]);
+
                     // Update the table (note using index, not index + 1, here because paragraph removed)
-                    let Block::Table(table) = &mut blocks[index] else {
-                        unreachable!("asserted above")
+                    match &mut blocks[index] {
+                        Block::Table(table) => {
+                            table.id = id;
+                            table.label = label;
+                            table.label_automatically = label_automatically;
+                            table.caption = caption;
+                        }
+                        Block::Datatable(table) => {
+                            table.id = id;
+                            table.label = label;
+                            table.label_automatically = label_automatically;
+                            table.caption = caption;
+                        }
+                        _ => {}
                     };
-                    table.id = Some(["tab-", &label.to_kebab_case()].concat());
-                    table.label = Some(label);
-                    table.label_automatically = Some(false);
-                    table.caption = Some(vec![Block::Paragraph(caption)]);
                 }
             }
             // Check for table label (no caption), followed by paragraph,
-            // followed by table
+            // followed by table or datatable
             else if let (
                 Some(
                     Block::Paragraph(Paragraph { content: label, .. })
                     | Block::Heading(Heading { content: label, .. }),
                 ),
                 Some(Block::Paragraph(Paragraph { content, .. })),
-                Some(Block::Table(..)),
+                Some(Block::Table(..) | Block::Datatable(..)),
             ) = (
                 blocks.get(index),
                 blocks.get(index + 1),
@@ -302,14 +315,27 @@ impl FirstWalk {
                     unreachable!("asserted above")
                 };
 
+                let id = Some(["tab-", &label.to_kebab_case()].concat());
+                let label = Some(label);
+                let label_automatically = Some(false);
+                let caption = Some(vec![caption]);
+
                 // Update the table (note using index, not index + 1, here because paragraph removed)
-                let Block::Table(table) = &mut blocks[index] else {
-                    unreachable!("asserted above")
+                match &mut blocks[index] {
+                    Block::Table(table) => {
+                        table.id = id;
+                        table.label = label;
+                        table.label_automatically = label_automatically;
+                        table.caption = caption;
+                    }
+                    Block::Datatable(table) => {
+                        table.id = id;
+                        table.label = label;
+                        table.label_automatically = label_automatically;
+                        table.caption = caption;
+                    }
+                    _ => {}
                 };
-                table.id = Some(["tab-", &label.to_kebab_case()].concat());
-                table.label = Some(label);
-                table.label_automatically = Some(false);
-                table.caption = Some(vec![caption]);
             }
 
             index += 1;
@@ -716,9 +742,10 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
         let caption = text.replace(matched_text, "").trim().to_string();
 
         if let Some(first_char) = caption.chars().next()
-            && first_char.is_ascii_lowercase() {
-                return None;
-            }
+            && first_char.is_ascii_lowercase()
+        {
+            return None;
+        }
 
         Some((figure_label, matched_text.to_string(), !caption.is_empty()))
     } else {
@@ -747,9 +774,10 @@ fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)>
         let caption = text.replace(matched_text, "").trim().to_string();
 
         if let Some(first_char) = caption.chars().next()
-            && first_char.is_ascii_lowercase() {
-                return None;
-            }
+            && first_char.is_ascii_lowercase()
+        {
+            return None;
+        }
 
         Some((table_label, matched_text.to_string(), !caption.is_empty()))
     } else {
