@@ -54,9 +54,9 @@ fn structuring_without_sectioning<T: WalkNode>(node: &mut T) {
             exclude_ops: vec![
                 StructuringOperation::HeadingToTitle,
                 StructuringOperation::HeadingsToSections,
-                StructuringOperation::RemoveFrontmatter,
+                StructuringOperation::RemovePrePrimary,
             ],
-            ..Default::default()
+            ..StructuringOptions::all()
         },
     )
 }
@@ -67,7 +67,7 @@ fn structuring_with_bracketed<T: WalkNode>(node: &mut T) {
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::BracketedNumeric),
-            ..Default::default()
+            ..StructuringOptions::all()
         },
     )
 }
@@ -78,7 +78,7 @@ fn structuring_with_parenthetic<T: WalkNode>(node: &mut T) {
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::ParentheticNumeric),
-            ..Default::default()
+            ..StructuringOptions::all()
         },
     )
 }
@@ -89,7 +89,7 @@ fn structuring_with_superscripted<T: WalkNode>(node: &mut T) {
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::SuperscriptedNumeric),
-            ..Default::default()
+            ..StructuringOptions::all()
         },
     )
 }
@@ -100,7 +100,7 @@ fn structuring_with_author_year<T: WalkNode>(node: &mut T) {
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::AuthorYear),
-            ..Default::default()
+            ..StructuringOptions::all()
         },
     )
 }

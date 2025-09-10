@@ -92,7 +92,7 @@ impl VisitorMut for FirstWalk {
     }
 
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
-        match block {
+        let walk_control = match block {
             // Visit individual blocks
             Block::Heading(..) => self.visit_heading(block),
             Block::Paragraph(..) => self.visit_paragraph(block),
@@ -120,7 +120,14 @@ impl VisitorMut for FirstWalk {
             }
 
             _ => WalkControl::Continue,
+        };
+
+        // Mark the block for removal if in frontmatter
+        if self.options.should_perform(RemovePrePrimary) && self.in_frontmatter {
+            return block_to_remove(block);
         }
+
+        walk_control
     }
 
     fn visit_list_item(&mut self, list_item: &mut ListItem) -> WalkControl {
@@ -436,12 +443,8 @@ impl FirstWalk {
             && section_type.is_none()
             && should_convert_heading_to_paragraph(&cleaned_text)
         {
-            if self.options.should_perform(RemoveFrontmatter) && self.in_frontmatter {
-                return block_to_remove(block);
-            } else {
-                *block = p(heading.content.clone());
-                return WalkControl::Break;
-            }
+            *block = p(heading.content.clone());
+            return WalkControl::Break;
         }
 
         let is_primary_section = section_type
@@ -476,11 +479,6 @@ impl FirstWalk {
         if is_primary_section {
             self.hit_primary_section = true;
             self.in_frontmatter = false;
-        }
-
-        // If still in frontmatter remove this heading
-        if self.options.should_perform(RemoveFrontmatter) && self.in_frontmatter {
-            return block_to_remove(block);
         }
 
         // Update whether or not in references
@@ -581,12 +579,6 @@ impl FirstWalk {
 
                 return block_to_remove(block);
             }
-        }
-
-        // Remove paragraphs in frontmatter (usually authors and their
-        // affiliations)
-        if self.options.should_perform(RemoveFrontmatter) && self.in_frontmatter {
-            return block_to_remove(block);
         }
 
         // Remove paragraphs in references section

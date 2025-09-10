@@ -8974,6 +8974,7 @@ name = "stencila-codec"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "clap",
  "eyre",
  "serde",
  "serde_with",
@@ -9780,6 +9781,7 @@ dependencies = [
  "stencila-codec-xlsx",
  "stencila-codec-yaml",
  "stencila-node-strip",
+ "stencila-node-structuring",
  "strum 0.27.2",
  "tempfile",
  "tokio",
@@ -10711,16 +10713,15 @@ name = "stencila-node-structuring"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "clap",
  "eyre",
  "itertools 0.14.0",
  "pretty_assertions",
  "regex",
+ "stencila-codec",
  "stencila-codec-biblio",
  "stencila-codec-links",
  "stencila-codec-text-trait",
  "stencila-schema",
- "strum 0.27.2",
  "tracing",
 ]
 

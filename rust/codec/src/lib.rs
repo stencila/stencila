@@ -845,13 +845,13 @@ pub enum StructuringOperation {
     /// the paragraph structure for document metadata.
     SectionToAbstract,
 
-    /// Remove frontmatter content
+    /// Remove content before to the first primary heading (e.g. "Abstract")
     ///
-    /// Content is considered frontmatter if it occurs before the first primary
-    /// heading (e.g. "Abstract", "Introduction"). In scholarly articles, author
-    /// bylines and affiliations usually occur between the title and the abstract.
-    /// This operation cleans up document structure by removing such content.
-    RemoveFrontmatter,
+    /// In scholarly articles, author bylines and affiliations usually occur
+    /// between the title and the abstract. This operation cleans up document
+    /// structure by removing such content. Be aware that if no primary heading
+    /// or section exists in the document that all content will be removed.
+    RemovePrePrimary,
 
     /// Transform headings to paragraphs if appropriate
     ///
