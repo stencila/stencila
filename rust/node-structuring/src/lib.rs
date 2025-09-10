@@ -22,16 +22,16 @@ pub enum StructuringOperation {
     /// level 1 or 2 heading, not be a recognized section type (e.g.
     /// "Abstract"), and can not be after the first primary heading (e.g.
     /// "Introduction")
-    HeadingTitle,
+    HeadingToTitle,
 
     /// Extract keywords from the "Keywords" section, if any
-    SectionKeywords,
+    SectionToKeywords,
 
     /// Extract keywords from any paragraph starting with "Keywords" or similar.
-    ParagraphKeywords,
+    ParagraphToKeywords,
 
     /// Extract abstract from the "Abstract" section, if any
-    SectionAbstract,
+    SectionToAbstract,
 
     /// Remove any frontmatter
     ///
@@ -45,7 +45,7 @@ pub enum StructuringOperation {
     RemoveFrontmatter,
 
     /// Create a section for each heading
-    HeadingSections,
+    HeadingsToSections,
 
     /// Combine an image with a figure caption before or after it into a figure
     ///
@@ -55,7 +55,7 @@ pub enum StructuringOperation {
     /// uppercase letter or punctuation. This excludes paragraphs starting like
     /// "Figure 2 shows that..." while including those like "Figure 1. Plot
     /// of results" or "Figure 2: Summary diagram".
-    FigureCaptions,
+    FiguresWithCaptions,
 
     /// Combine a table caption with the following table or datatable
     ///
@@ -65,14 +65,14 @@ pub enum StructuringOperation {
     /// punctuation. This excludes paragraphs starting like "Table 2 shows
     /// that..." while including those like "Table 1. Summary of results" or
     /// "Table 2: Data analysis".
-    TableCaptions,
+    TablesWithCaptions,
 
     /// Transform tables into datatables if possible
     ///
     /// Converts tables to typed datatables when they meet uniformity
     /// requirements: consistent row lengths, simple text-only cells, and no
     /// column/row spans.
-    TableDatatable,
+    TablesToDatatables,
 
     /// Remove empty headings
     ///
@@ -99,7 +99,7 @@ pub enum StructuringOperation {
     RemoveEmptyText,
 
     /// Extract structured citations from plain text
-    TextCitations,
+    TextToCitations,
 
     /// Extract structured citations from inline math
     ///
@@ -107,10 +107,10 @@ pub enum StructuringOperation {
     /// superscripted numeric citations. This operation will detect numeric
     /// citations in math and create structure citations from them similarly to
     /// `text-citations`.
-    MathCitations,
+    MathToCitations,
 
     /// Extract structured links from plain text
-    TextLinks,
+    TextToLinks,
 
     /// Extract references from the "References" section, if any
     SectionReferences,

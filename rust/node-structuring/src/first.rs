@@ -174,7 +174,7 @@ impl FirstWalk {
                 ),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if self.options.should_perform(FigureCaptions)
+                if self.options.should_perform(FiguresWithCaptions)
                     && let Some((label, prefix, ..)) = detect_figure_caption(content)
                 {
                     // Remove the image and paragraph so that they can be placed in figure
@@ -221,7 +221,7 @@ impl FirstWalk {
                 Some(Block::ImageObject(..)),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if self.options.should_perform(FigureCaptions)
+                if self.options.should_perform(FiguresWithCaptions)
                     && let Some((label, prefix, ..)) = detect_figure_caption(content)
                 {
                     // Remove the image and paragraph so that they can be placed in figure
@@ -258,7 +258,7 @@ impl FirstWalk {
                 Some(Block::Table(..)),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if self.options.should_perform(TableCaptions)
+                if self.options.should_perform(TablesWithCaptions)
                     && let Some((label, prefix, ..)) = detect_table_caption(content)
                 {
                     // Remove the paragraph it can be placed in the table
@@ -292,7 +292,7 @@ impl FirstWalk {
                 blocks.get(index),
                 blocks.get(index + 1),
                 blocks.get(index + 2),
-            ) && self.options.should_perform(TableCaptions)
+            ) && self.options.should_perform(TablesWithCaptions)
                 && let Some((label, .., false)) = detect_table_caption(label)
                 && detect_table_caption(content).is_none()
             {
@@ -341,7 +341,7 @@ impl FirstWalk {
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
         // Extract title and turn on frontmatter handling
-        if self.options.should_perform(HeadingTitle)
+        if self.options.should_perform(HeadingToTitle)
             && self.title.is_none()
             && !self.hit_primary_section
             && numbering.is_none()
@@ -356,7 +356,7 @@ impl FirstWalk {
         let cleaned_text_lowercase = cleaned_text.to_lowercase();
 
         // Determine if in abstract section
-        if self.options.should_perform(SectionAbstract)
+        if self.options.should_perform(SectionToAbstract)
             && matches!(section_type, Some(SectionType::Abstract))
         {
             self.in_abstract = true;
@@ -367,7 +367,7 @@ impl FirstWalk {
         }
 
         // Determine if in keywords section
-        if self.options.should_perform(SectionKeywords) && cleaned_text_lowercase == "keywords"
+        if self.options.should_perform(SectionToKeywords) && cleaned_text_lowercase == "keywords"
             || cleaned_text_lowercase == "key words"
         {
             self.in_keywords = true;
@@ -443,7 +443,7 @@ impl FirstWalk {
             return block_to_remove(block);
         }
 
-        if self.options.should_perform(SectionAbstract) && self.in_abstract {
+        if self.options.should_perform(SectionToAbstract) && self.in_abstract {
             let paragraph = Block::Paragraph(paragraph.clone());
             if let Some(abstract_) = self.abstract_.as_mut() {
                 abstract_.push(paragraph);
@@ -457,7 +457,7 @@ impl FirstWalk {
         if self.keywords.is_none() {
             let text = to_text(paragraph);
 
-            if self.options.should_perform(SectionKeywords) && self.in_keywords {
+            if self.options.should_perform(SectionToKeywords) && self.in_keywords {
                 let words = text
                     .trim_end_matches(['.'])
                     .split(",")
@@ -472,7 +472,7 @@ impl FirstWalk {
                 return block_to_remove(block);
             }
 
-            if self.options.should_perform(ParagraphKeywords)
+            if self.options.should_perform(ParagraphToKeywords)
                 && let Some(text) = text
                     .strip_prefix("Keywords")
                     .or_else(|| text.strip_prefix("KEYWORDS"))
@@ -563,7 +563,7 @@ impl FirstWalk {
             return WalkControl::Continue;
         };
 
-        if self.options.should_perform(TableDatatable)
+        if self.options.should_perform(TablesToDatatables)
             && let Some(datatable) = Datatable::from_table_if_uniform(table)
         {
             *block = Block::Datatable(datatable);
@@ -575,7 +575,7 @@ impl FirstWalk {
 
     /// Visit a [`MathInline`] node
     fn visit_math_inline(&mut self, math: &MathInline) {
-        if self.options.should_perform(MathCitations) {
+        if self.options.should_perform(MathToCitations) {
             if let Some(inline) = bracketed_numeric_citation(&math.code) {
                 self.citations.insert(
                     math.node_id(),
@@ -601,7 +601,7 @@ impl FirstWalk {
 
     /// Visit a [`Text`] node and detect alternative in-text citation styles
     fn visit_text(&mut self, text: &mut Text) {
-        if self.options.should_perform(TextCitations) {
+        if self.options.should_perform(TextToCitations) {
             if let Some(inlines) = has_citations(text_with_author_year_citations(&text.value)) {
                 self.citations
                     .insert(text.node_id(), (CitationStyle::AuthorYear, inlines));
@@ -715,11 +715,10 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
 
         let caption = text.replace(matched_text, "").trim().to_string();
 
-        if let Some(first_char) = caption.chars().next() {
-            if first_char.is_ascii_lowercase() {
+        if let Some(first_char) = caption.chars().next()
+            && first_char.is_ascii_lowercase() {
                 return None;
             }
-        }
 
         Some((figure_label, matched_text.to_string(), !caption.is_empty()))
     } else {
@@ -747,11 +746,10 @@ fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)>
 
         let caption = text.replace(matched_text, "").trim().to_string();
 
-        if let Some(first_char) = caption.chars().next() {
-            if first_char.is_ascii_lowercase() {
+        if let Some(first_char) = caption.chars().next()
+            && first_char.is_ascii_lowercase() {
                 return None;
             }
-        }
 
         Some((table_label, matched_text.to_string(), !caption.is_empty()))
     } else {

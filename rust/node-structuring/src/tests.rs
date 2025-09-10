@@ -53,8 +53,8 @@ fn structuring_without_sectioning<T: WalkNode>(node: &mut T) {
         node,
         StructuringOptions {
             exclude_ops: vec![
-                StructuringOperation::HeadingTitle,
-                StructuringOperation::HeadingSections,
+                StructuringOperation::HeadingToTitle,
+                StructuringOperation::HeadingsToSections,
                 StructuringOperation::RemoveFrontmatter,
             ],
             ..Default::default()

@@ -95,7 +95,7 @@ impl SecondWalk {
 
     /// Visit a vector of inlines
     fn visit_inlines(&mut self, inlines: &mut Vec<Inline>) {
-        if self.options.should_perform(TextCitations) {
+        if self.options.should_perform(TextToCitations) {
             // Apply any citation replacements
             let mut inlines_new = Vec::with_capacity(inlines.len());
             for inline in inlines.drain(..) {
@@ -128,14 +128,14 @@ impl SecondWalk {
             *inlines = inlines_new;
         }
 
-        if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextLinks) {
+        if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextToLinks) {
             // Apply any further structuring, including within replacements
             // from the first pass
             let mut inlines_new = Vec::with_capacity(inlines.len());
             for inline in inlines.drain(..) {
                 if should_remove_inline(&inline) {
                     continue;
-                } else if self.options.should_perform(TextLinks)
+                } else if self.options.should_perform(TextToLinks)
                     && let Inline::Text(text) = &inline
                 {
                     if let Some(inlines) = has_links(text_with_links(&text.value)) {

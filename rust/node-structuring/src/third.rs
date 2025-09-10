@@ -78,7 +78,7 @@ impl ThirdWalk {
 
             if should_remove_block(block) {
                 index += 1;
-            } else if self.options.should_perform(HeadingSections)
+            } else if self.options.should_perform(HeadingsToSections)
                 && let Block::Heading(heading) = block
             {
                 let (section, consumed) = create_section_from_heading(heading, &blocks[index..]);
