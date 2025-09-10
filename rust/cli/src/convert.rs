@@ -29,10 +29,10 @@ pub struct Cli {
     decode_options: DecodeOptions,
 
     #[command(flatten)]
-    encode_options: EncodeOptions,
+    strip_options: StripOptions, // Place here because decode -> structuring -> stripping -> encoding
 
     #[command(flatten)]
-    strip_options: StripOptions,
+    encode_options: EncodeOptions,
 
     /// The tool to use for decoding inputs
     ///
