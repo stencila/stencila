@@ -80,6 +80,24 @@ pub enum StructuringOperation {
     /// prefix is removed.
     RemoveEmptyHeadings,
 
+    /// Remove empty paragraphs
+    ///
+    /// A paragraph is considered empty if it contains no content or only
+    /// whitespace-only text nodes.
+    RemoveEmptyParagraphs,
+
+    /// Remove empty lists
+    ///
+    /// A list is considered empty if it contains no items or all items are
+    /// empty (contain no content or only whitespace).
+    RemoveEmptyLists,
+
+    /// Remove empty text nodes
+    ///
+    /// Text nodes that contain only whitespace characters are removed from
+    /// inline content.
+    RemoveEmptyText,
+
     /// Extract structured citations from plain text
     TextCitations,
 

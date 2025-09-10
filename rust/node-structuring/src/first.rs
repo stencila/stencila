@@ -16,7 +16,9 @@ use stencila_schema::{
     Text, VisitorMut, WalkControl, shortcuts::t,
 };
 
-use crate::{CitationStyle, StructuringOperation::*, StructuringOptions, block_to_remove};
+use crate::{
+    CitationStyle, StructuringOperation::*, StructuringOptions, block_to_remove, inline_to_remove,
+};
 
 /// First structuring walk
 ///
@@ -127,7 +129,14 @@ impl VisitorMut for FirstWalk {
 
         match inline {
             Inline::MathInline(math) => self.visit_math_inline(math),
-            Inline::Text(text) => self.visit_text(text),
+            Inline::Text(text) => {
+                // Remove empty text nodes
+                if self.options.should_perform(RemoveEmptyText) && is_empty_text(text) {
+                    return inline_to_remove(inline);
+                }
+
+                self.visit_text(text);
+            }
             _ => {}
         }
 
@@ -429,6 +438,11 @@ impl FirstWalk {
             return WalkControl::Continue;
         };
 
+        // Remove empty paragraphs
+        if self.options.should_perform(RemoveEmptyParagraphs) && is_empty_paragraph(paragraph) {
+            return block_to_remove(block);
+        }
+
         if self.options.should_perform(SectionAbstract) && self.in_abstract {
             let paragraph = Block::Paragraph(paragraph.clone());
             if let Some(abstract_) = self.abstract_.as_mut() {
@@ -507,6 +521,11 @@ impl FirstWalk {
         let Block::List(list) = block else {
             return WalkControl::Continue;
         };
+
+        // Remove empty lists
+        if self.options.should_perform(RemoveEmptyLists) && is_empty_list(list) {
+            return block_to_remove(block);
+        }
 
         if self.options.should_perform(SectionReferences) && self.in_references {
             let is_numeric = matches!(list.order, ListOrder::Ascending);
@@ -883,6 +902,25 @@ fn has_citations(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
         .then_some(inlines)
 }
 
+/// Check if a paragraph is empty or contains only whitespace
+fn is_empty_paragraph(paragraph: &Paragraph) -> bool {
+    paragraph.content.is_empty() || to_text(paragraph).trim().is_empty()
+}
+
+/// Check if a list is empty or contains only empty items
+fn is_empty_list(list: &stencila_schema::List) -> bool {
+    list.items.is_empty()
+        || list
+            .items
+            .iter()
+            .all(|item| to_text(item).trim().is_empty())
+}
+
+/// Check if a text node contains only whitespace
+fn is_empty_text(text: &Text) -> bool {
+    text.value.trim().is_empty()
+}
+
 /// Extract numbering from heading text and calculate its depth
 ///
 /// Detects hierarchical numbering patterns like:
@@ -1042,5 +1080,75 @@ mod tests {
         );
         let (figure_number, ..) = result.expect("Should detect edge case figure caption");
         assert_eq!(figure_number, "1");
+    }
+
+    #[test]
+    fn test_is_empty_paragraph() {
+        use stencila_schema::Paragraph;
+
+        // Empty paragraph
+        let empty_para = Paragraph::new(vec![]);
+        assert!(is_empty_paragraph(&empty_para));
+
+        // Paragraph with only whitespace
+        let whitespace_para = Paragraph::new(vec![t("   \n\t  ")]);
+        assert!(is_empty_paragraph(&whitespace_para));
+
+        // Paragraph with content
+        let content_para = Paragraph::new(vec![t("This has content")]);
+        assert!(!is_empty_paragraph(&content_para));
+
+        // Paragraph with mixed whitespace and content
+        let mixed_para = Paragraph::new(vec![t("  "), t("content"), t("  ")]);
+        assert!(!is_empty_paragraph(&mixed_para));
+    }
+
+    #[test]
+    fn test_is_empty_list() {
+        use stencila_schema::{Block, List, ListItem, ListOrder};
+
+        // Empty list
+        let empty_list = List::new(vec![], ListOrder::Unordered);
+        assert!(is_empty_list(&empty_list));
+
+        // List with empty items
+        let empty_items_list = List::new(
+            vec![
+                ListItem::new(vec![]),
+                ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![t("   ")]))]),
+            ],
+            ListOrder::Unordered,
+        );
+        assert!(is_empty_list(&empty_items_list));
+
+        // List with content
+        let content_list = List::new(
+            vec![ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![
+                t("Item 1"),
+            ]))])],
+            ListOrder::Unordered,
+        );
+        assert!(!is_empty_list(&content_list));
+    }
+
+    #[test]
+    fn test_is_empty_text() {
+        use stencila_schema::Text;
+
+        // Empty text
+        let empty_text = Text::new("".into());
+        assert!(is_empty_text(&empty_text));
+
+        // Whitespace-only text
+        let whitespace_text = Text::new("   \n\t  ".into());
+        assert!(is_empty_text(&whitespace_text));
+
+        // Text with content
+        let content_text = Text::new("Hello world".into());
+        assert!(!is_empty_text(&content_text));
+
+        // Text with content and whitespace
+        let mixed_text = Text::new("  content  ".into());
+        assert!(!is_empty_text(&mixed_text));
     }
 }

@@ -4,7 +4,7 @@ use stencila_schema::{
     StyledInline, Subscript, Superscript, Underline, VisitorMut, WalkControl,
 };
 
-use crate::{FirstWalk, StructuringOperation::*, StructuringOptions};
+use crate::{FirstWalk, StructuringOperation::*, StructuringOptions, should_remove_inline};
 
 /// Second structuring walk
 ///
@@ -128,12 +128,16 @@ impl SecondWalk {
             *inlines = inlines_new;
         }
 
-        if self.options.should_perform(TextLinks) {
+        if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextLinks) {
             // Apply any further structuring, including within replacements
             // from the first pass
             let mut inlines_new = Vec::with_capacity(inlines.len());
             for inline in inlines.drain(..) {
-                if let Inline::Text(text) = &inline {
+                if should_remove_inline(&inline) {
+                    continue;
+                } else if self.options.should_perform(TextLinks)
+                    && let Inline::Text(text) = &inline
+                {
                     if let Some(inlines) = has_links(text_with_links(&text.value)) {
                         inlines_new.extend(inlines);
                     } else {
