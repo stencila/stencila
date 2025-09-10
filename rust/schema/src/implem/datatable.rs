@@ -248,68 +248,77 @@ impl From<Vec<serde_json::Map<String, serde_json::Value>>> for Datatable {
 /// - Applies type inference to determine appropriate primitive types
 impl From<&Table> for Datatable {
     fn from(table: &Table) -> Self {
-        if table.rows.is_empty() {
-            return Datatable::new(Vec::new());
-        }
+        let mut datatable = if table.rows.is_empty() {
+            Datatable::new(Vec::new())
+        } else {
+            // Find header row - either explicitly marked or use first row
+            let header_row_index = table
+                .rows
+                .iter()
+                .position(|row| matches!(row.row_type, Some(TableRowType::HeaderRow)))
+                .unwrap_or(0);
 
-        // Find header row - either explicitly marked or use first row
-        let header_row_index = table
-            .rows
-            .iter()
-            .position(|row| matches!(row.row_type, Some(TableRowType::HeaderRow)))
-            .unwrap_or(0);
+            let header_row = &table.rows[header_row_index];
+            let num_columns = table
+                .rows
+                .iter()
+                .map(|row| row.cells.len())
+                .max()
+                .unwrap_or(0);
 
-        let header_row = &table.rows[header_row_index];
-        let num_columns = table
-            .rows
-            .iter()
-            .map(|row| row.cells.len())
-            .max()
-            .unwrap_or(0);
+            // Extract column names from header row or generate defaults
+            let column_names: Vec<String> = (0..num_columns)
+                .map(|i| {
+                    header_row
+                        .cells
+                        .get(i)
+                        .map(|cell| {
+                            let name = to_text(&cell.content).trim().to_string();
+                            if name.is_empty() {
+                                format!("Column {}", i + 1)
+                            } else {
+                                name
+                            }
+                        })
+                        .unwrap_or_else(|| format!("Column {}", i + 1))
+                })
+                .collect();
 
-        // Extract column names from header row or generate defaults
-        let column_names: Vec<String> = (0..num_columns)
-            .map(|i| {
-                header_row
-                    .cells
-                    .get(i)
-                    .map(|cell| {
-                        let name = to_text(&cell.content).trim().to_string();
-                        if name.is_empty() {
-                            format!("Column {}", i + 1)
-                        } else {
-                            name
-                        }
-                    })
-                    .unwrap_or_else(|| format!("Column {}", i + 1))
-            })
-            .collect();
+            // Extract data from all rows (including header row for now, we'll skip it in collection)
+            let mut column_data: Vec<Vec<String>> = vec![Vec::new(); num_columns];
 
-        // Extract data from all rows (including header row for now, we'll skip it in collection)
-        let mut column_data: Vec<Vec<String>> = vec![Vec::new(); num_columns];
+            for (row_index, row) in table.rows.iter().enumerate() {
+                // Skip the header row for data collection
+                if row_index == header_row_index {
+                    continue;
+                }
 
-        for (row_index, row) in table.rows.iter().enumerate() {
-            // Skip the header row for data collection
-            if row_index == header_row_index {
-                continue;
+                for (column_index, column) in column_data.iter_mut().enumerate().take(num_columns) {
+                    let cell_text = row
+                        .cells
+                        .get(column_index)
+                        .map(|cell| to_text(&cell.content).trim().to_string())
+                        .unwrap_or_else(String::new);
+
+                    column.push(cell_text);
+                }
             }
 
-            for (column_index, column) in column_data.iter_mut().enumerate().take(num_columns) {
-                let cell_text = row
-                    .cells
-                    .get(column_index)
-                    .map(|cell| to_text(&cell.content).trim().to_string())
-                    .unwrap_or_else(String::new);
+            // Create column tuples and use shared functionality
+            let columns: Vec<(String, Vec<String>)> =
+                column_names.into_iter().zip(column_data).collect();
 
-                column.push(cell_text);
-            }
-        }
+            Datatable::from_string_columns(columns)
+        };
 
-        // Create column tuples and use shared functionality
-        let columns: Vec<(String, Vec<String>)> =
-            column_names.into_iter().zip(column_data).collect();
+        // Transfer common properties from table to datatable
+        datatable.id = table.id.clone();
+        datatable.label = table.label.clone();
+        datatable.label_automatically = table.label_automatically;
+        datatable.caption = table.caption.clone();
+        datatable.notes = table.notes.clone();
 
-        Datatable::from_string_columns(columns)
+        datatable
     }
 }
 
