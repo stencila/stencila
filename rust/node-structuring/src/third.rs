@@ -1,10 +1,11 @@
+use stencila_codec::{StructuringOperation::*, StructuringOptions};
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
     Admonition, AppendixBreak, Article, Block, ForBlock, Heading, IncludeBlock, Node, Section,
     SectionType, StyledBlock, VisitorMut, WalkControl,
 };
 
-use crate::{should_remove_block, StructuringOperation::*, StructuringOptions};
+use crate::should_remove_block;
 
 /// Third structuring walk
 ///

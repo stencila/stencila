@@ -4,6 +4,7 @@ use inflector::Inflector;
 use itertools::Itertools;
 use regex::Regex;
 
+use stencila_codec::{CitationStyle, StructuringOperation::*, StructuringOptions};
 use stencila_codec_biblio::decode::{
     bracketed_numeric_citation, parenthetic_numeric_citation, superscripted_numeric_citation,
     text_to_reference, text_with_author_year_citations, text_with_bracketed_numeric_citations,
@@ -17,9 +18,7 @@ use stencila_schema::{
     shortcuts::{p, t},
 };
 
-use crate::{
-    CitationStyle, StructuringOperation::*, StructuringOptions, block_to_remove, inline_to_remove,
-};
+use crate::{block_to_remove, inline_to_remove};
 
 /// First structuring walk
 ///
@@ -462,7 +461,7 @@ impl FirstWalk {
         }
 
         // Update whether or not in references
-        if self.options.should_perform(SectionReferences)
+        if self.options.should_perform(SectionToReferences)
             && matches!(section_type, Some(SectionType::References))
         {
             self.in_references = true;
@@ -568,7 +567,7 @@ impl FirstWalk {
         }
 
         // Remove paragraphs in references section
-        if self.options.should_perform(SectionReferences) && self.in_references {
+        if self.options.should_perform(SectionToReferences) && self.in_references {
             let text = to_text(paragraph);
             let reference = text_to_reference(&text);
             if let Some(references) = self.references.as_mut() {
@@ -597,7 +596,7 @@ impl FirstWalk {
             return block_to_remove(block);
         }
 
-        if self.options.should_perform(SectionReferences) && self.in_references {
+        if self.options.should_perform(SectionToReferences) && self.in_references {
             let is_numeric = matches!(list.order, ListOrder::Ascending);
 
             // Record whether this references list is ordered/numbered
@@ -700,7 +699,7 @@ impl FirstWalk {
     #[tracing::instrument(skip(self))]
     pub fn determine_citation_style(&mut self, specified_style: Option<CitationStyle>) {
         // Count occurrences of each citation style
-        let mut style_counts = std::collections::HashMap::new();
+        let mut style_counts = HashMap::new();
 
         for (style, _) in self.citations.values() {
             style_counts
@@ -1105,7 +1104,7 @@ fn should_convert_paragraph_to_heading(paragraph: &Paragraph) -> bool {
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
-    use stencila_schema::shortcuts::t;
+    use stencila_schema::shortcuts::{em, t};
 
     use super::*;
 

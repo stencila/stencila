@@ -7,7 +7,9 @@ use stencila_cli_utils::{
     color_print::cstr,
     tabulated::{Attribute, Cell, Color},
 };
-use stencila_codec::{CodecAvailability, CodecDirection, eyre::Result, stencila_format::Format};
+use stencila_codec::{
+    CodecAvailability, CodecDirection, StructuringOptions, eyre::Result, stencila_format::Format,
+};
 
 /// List the support for formats
 #[derive(Debug, Parser)]
@@ -87,16 +89,23 @@ pub struct FormatSpecification {
     from: CodecAvailability,
     to: CodecAvailability,
     lossless: bool,
+    structuring_options: StructuringOptions,
 }
 
 impl List {
     async fn run(self) -> Result<()> {
         let mut formats = Vec::new();
         for format in Format::iter() {
-            let from = super::get(None, Some(&format), Some(CodecDirection::Decode)).map_or_else(
-                |_| CodecAvailability::Unavailable,
-                |codec| codec.availability(),
-            );
+            let (from, structuring_options) =
+                super::get(None, Some(&format), Some(CodecDirection::Decode)).map_or_else(
+                    |_| {
+                        (
+                            CodecAvailability::Unavailable,
+                            StructuringOptions::default(),
+                        )
+                    },
+                    |codec| (codec.availability(), codec.structuring_options(&format)),
+                );
 
             let to = super::get(None, Some(&format), Some(CodecDirection::Encode)).map_or_else(
                 |_| CodecAvailability::Unavailable,
@@ -112,9 +121,10 @@ impl List {
             formats.push(FormatSpecification {
                 name: format.name().into(),
                 extension: format.extension(),
-                lossless: format.is_lossless(),
                 from,
                 to,
+                lossless: format.is_lossless(),
+                structuring_options,
             })
         }
         formats.sort_by(|a, b| a.name.cmp(&b.name));
@@ -126,7 +136,14 @@ impl List {
         }
 
         let mut table = Tabulated::new();
-        table.set_header(["Name", "Default Extension", "From", "To", "Lossless"]);
+        table.set_header([
+            "Name",
+            "Default Extension",
+            "From",
+            "To",
+            "Lossless",
+            "Default Structuring",
+        ]);
 
         for format in formats {
             let from = match format.from {
@@ -151,12 +168,15 @@ impl List {
                 Cell::new("no").fg(Color::Yellow)
             };
 
+            let structuring = format.structuring_options.to_string();
+
             table.add_row([
                 Cell::new(format.name).add_attribute(Attribute::Bold),
                 Cell::new(format.extension),
                 from,
                 to,
                 lossless,
+                Cell::new(structuring),
             ]);
         }
 

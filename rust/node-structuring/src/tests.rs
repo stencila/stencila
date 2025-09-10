@@ -1,6 +1,7 @@
 use eyre::{Result, bail};
-
 use pretty_assertions::assert_eq;
+
+use stencila_codec::{CitationStyle, StructuringOperation, StructuringOptions};
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
     AdmonitionType, Article, Block, Citation, CitationGroup, CitationOptions, ImageObject, Inline,
@@ -8,9 +9,7 @@ use stencila_schema::{
     shortcuts::{em, h1, h2, h3, h4, h5, li, lnk, mi, ol, p, sec, stb, t, tbl},
 };
 
-use crate::{
-    CitationStyle, StructuringOperation, StructuringOptions, structuring, structuring_with_options,
-};
+use crate::{structuring, structuring_with_options};
 
 /// Shortcut for creating an [`Block::ImageObject`] since there is
 /// no shortcut for that

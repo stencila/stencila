@@ -55,6 +55,7 @@ stencila-codec-utils = { path = "../codec-utils" }
 stencila-codec-xlsx = { path = "../codec-xlsx" }
 stencila-codec-yaml = { path = "../codec-yaml" }
 stencila-node-strip = { path = "../node-strip" }
+stencila-node-structuring = { path = "../node-structuring" }
 strum = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }

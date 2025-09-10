@@ -5,7 +5,7 @@ use std::{
 
 use clap::Args;
 
-use stencila_codecs::PageSelector;
+use stencila_codecs::{PageSelector, StructuringOptions};
 use stencila_format::Format;
 use stencila_node_strip::StripScope;
 
@@ -109,6 +109,9 @@ pub struct DecodeOptions {
     /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
     #[arg(long, default_value_t = stencila_codecs::LossesResponse::Debug, help_heading = "Decoding Options")]
     input_losses: stencila_codecs::LossesResponse,
+
+    #[clap(flatten)]
+    structuring: StructuringOptions,
 }
 
 impl DecodeOptions {
@@ -140,6 +143,7 @@ impl DecodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses: self.input_losses.clone(),
+            structuring_options: self.structuring.clone(),
             ..Default::default()
         }
     }

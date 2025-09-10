@@ -1,9 +1,11 @@
 use std::{
     collections::{BTreeMap, BTreeSet},
+    fmt::{self, Display},
     path::{Path, PathBuf},
     str::FromStr,
 };
 
+use clap::{Args, ValueEnum};
 use eyre::{Report, Result, bail};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -185,13 +187,9 @@ pub trait Codec: Sync + Send {
         types
     }
 
-    /// Whether the codec uses remote state
-    ///
-    /// Some formats (e.g. Google Docs) have their canonical state in a remote
-    /// location (e.g. Google's servers) and Stencila only "mirrors" them in a local
-    /// file containing an id or URL linking the file to the remote state.
-    fn has_remote_state(&self) -> bool {
-        false
+    /// Get a the default structuring options for the format
+    fn structuring_options(&self, _format: &Format) -> StructuringOptions {
+        StructuringOptions::none()
     }
 
     /// Decode a Stencila Schema node from bytes
@@ -498,6 +496,9 @@ pub struct DecodeOptions {
 
     /// Additional arguments to pass through to the tool delegated to for decoding
     pub tool_args: Vec<String>,
+
+    /// Options for structuring the decode node
+    pub structuring_options: StructuringOptions,
 }
 
 impl DecodeOptions {
@@ -795,5 +796,336 @@ impl PageSelector {
             }
         }
         keep
+    }
+}
+
+/// Structuring operation to perform or not
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, ValueEnum, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum StructuringOperation {
+    /// No structuring operations
+    ///
+    /// Special value to disable all structuring operations. Use this when you
+    /// want to completely bypass document structuring and preserve the input
+    /// format exactly as provided.
+    None_,
+
+    /// All structuring operations
+    ///
+    /// Special value to enable all available structuring operations.
+    All,
+
+    /// Extract document title from the first heading
+    ///
+    /// To be extracted as a title, the heading must have no numbering, be a
+    /// level 1 or 2 heading, not be a recognized section type (e.g. "Abstract"),
+    /// and cannot be after the first primary heading (e.g. "Introduction").
+    /// This extracts document metadata for proper document structure.
+    HeadingToTitle,
+
+    /// Extract keywords from the "Keywords" section
+    ///
+    /// Detects headings with text "Keywords" or "Key words" and extracts
+    /// the following paragraph content as document keywords, splitting on
+    /// commas and trimming whitespace.
+    SectionToKeywords,
+
+    /// Extract keywords from paragraphs starting with "Keywords"
+    ///
+    /// Detects paragraphs beginning with "Keywords:", "KEYWORDS:", "Key words:"
+    /// or similar patterns and extracts the remaining text as document keywords,
+    /// splitting on commas for structured metadata.
+    ParagraphToKeywords,
+
+    /// Extract abstract from the "Abstract" section
+    ///
+    /// Identifies sections with "Abstract" headings and extracts their content
+    /// as the document abstract, removing the section heading and preserving
+    /// the paragraph structure for document metadata.
+    SectionToAbstract,
+
+    /// Remove frontmatter content
+    ///
+    /// Content is considered frontmatter if it occurs before the first primary
+    /// heading (e.g. "Abstract", "Introduction"). In scholarly articles, author
+    /// bylines and affiliations usually occur between the title and the abstract.
+    /// This operation cleans up document structure by removing such content.
+    RemoveFrontmatter,
+
+    /// Transform headings to paragraphs if appropriate
+    ///
+    /// Word processor formats can produce "fake" headings when content has a
+    /// heading style applied but is manually formatted as normal body text.
+    /// Converts headings to paragraphs when they exhibit paragraph-like traits:
+    /// longer than 80 characters, not in all caps, not title case, or ending
+    /// with sentence punctuation (. ! ?).
+    HeadingsToParagraphs,
+
+    /// Transform paragraphs to headings if appropriate
+    ///
+    /// Word processors and OCR sometimes incorrectly format headings as paragraphs
+    /// with bold/strong formatting. Converts paragraphs to headings when they
+    /// contain only a single bold element, are shorter than 80 characters, and
+    /// don't end with sentence punctuation. Heading level is determined by context.
+    ParagraphsToHeadings,
+
+    /// Create a section for each heading
+    ///
+    /// Wraps each heading and its following content in structured section elements,
+    /// creating a hierarchical document structure that improves semantic meaning
+    /// and enables better navigation and processing.
+    HeadingsToSections,
+
+    /// Combine an image with a figure caption before or after it
+    ///
+    /// A heading or paragraph is treated as a figure caption if it starts with
+    /// "Figure" or "Fig." (case insensitive) followed by a number or letter-number
+    /// combination, and the remaining text starts with an uppercase letter or
+    /// punctuation. This excludes references like "Figure 2 shows that..." while
+    /// including captions like "Figure 1. Plot of results".
+    FiguresWithCaptions,
+
+    /// Combine a table caption with the following table or datatable
+    ///
+    /// A heading or paragraph is treated as a table caption if it starts with
+    /// "Table" (case insensitive) followed by a number or letter-number combination,
+    /// and the remaining text starts with an uppercase letter or punctuation.
+    /// This excludes references like "Table 2 shows that..." while including
+    /// captions like "Table 1. Summary of results".
+    TablesWithCaptions,
+
+    /// Transform tables into datatables if possible
+    ///
+    /// Converts tables to typed datatables when they meet strict uniformity
+    /// requirements: consistent row lengths, simple text-only cells, and no
+    /// column/row spans. This enables type inference and validation for
+    /// structured tabular data while preserving complex tables as-is.
+    TablesToDatatables,
+
+    /// Remove empty headings
+    ///
+    /// A heading is considered empty if it has no content after any numbering
+    /// prefix is removed. This cleans up document structure by removing
+    /// headings that add no semantic value.
+    RemoveEmptyHeadings,
+
+    /// Remove empty paragraphs
+    ///
+    /// A paragraph is considered empty if it contains no content or only
+    /// whitespace-only text nodes. This removes unnecessary paragraph elements
+    /// that can clutter document structure.
+    RemoveEmptyParagraphs,
+
+    /// Remove empty lists
+    ///
+    /// A list is considered empty if it contains no items or all items are
+    /// empty (contain no content or only whitespace). This cleans up document
+    /// structure by removing non-functional list elements.
+    RemoveEmptyLists,
+
+    /// Remove empty text nodes
+    ///
+    /// Text nodes that contain only whitespace characters are removed from
+    /// inline content. This reduces document bloat and improves processing
+    /// efficiency without affecting visual appearance.
+    RemoveEmptyText,
+
+    /// Convert citation text to structured citations
+    ///
+    /// Detects citation patterns like "(Smith 2023)" or "[1]" in text and
+    /// converts them to structured citation elements. Supports multiple
+    /// citation styles including author-year, numeric bracketed, parenthetic,
+    /// and superscripted formats. Citation style is auto-detected or can be
+    /// specified explicitly in structuring options.
+    TextToCitations,
+
+    /// Convert math citations to structured citations
+    ///
+    /// Converts superscript citations in math notation (often from OCR)
+    /// to structured citation elements. This handles cases where citations
+    /// appear as superscripted numbers in mathematical expressions that
+    /// should be converted to proper citation references for consistent
+    /// document structure and linking.
+    MathToCitations,
+
+    /// Convert URL text to structured links
+    ///
+    /// Detects plain text URLs in content and converts them to proper
+    /// link elements with href attributes. Handles common URL patterns
+    /// including http/https protocols and improves document accessibility
+    /// by creating clickable links from plain text references.
+    TextToLinks,
+
+    /// Extract reference list from "References" section
+    ///
+    /// Identifies sections with "References", "Bibliography", or similar
+    /// headings and extracts their content as structured reference metadata.
+    /// Removes the section from document body and processes individual
+    /// references for proper citation linking and bibliography generation.
+    SectionToReferences,
+}
+
+/// Options for document structuring
+#[derive(Debug, Default, Clone, Args, Serialize, Deserialize)]
+pub struct StructuringOptions {
+    /// Structuring operations to include (comma-separated)
+    ///
+    /// If not specified will default to those appropriate for the input format.
+    /// Generally, less structuring is done for formats that are already well
+    /// structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no
+    /// operations. Example: heading-to-title,section-to-abstract
+    #[arg(
+        long = "include-structuring",
+        help_heading = "Structuring Options",
+        value_delimiter = ','
+    )]
+    pub include_ops: Vec<StructuringOperation>,
+
+    /// Structuring operations to exclude (comma-separated)
+    ///
+    /// Defaults to empty. Use this to prevent operations used by default for
+    /// the input format. Use 'all' to exclude all operations, 'none' to exclude
+    /// nothing. Example: remove-empty-text,remove-empty-paragraphs
+    #[arg(
+        long = "exclude-structuring",
+        help_heading = "Structuring Options",
+        value_delimiter = ','
+    )]
+    pub exclude_ops: Vec<StructuringOperation>,
+
+    /// The citation style to assume for text-to-citation structuring.
+    ///
+    /// If not specified, will be determined automatically based on whether references
+    /// are numbered and the relative frequency of detected styles within text.
+    /// Only relevant if the `text-to-citations` operation is enabled.
+    #[arg(long, help_heading = "Structuring Options")]
+    pub citation_style: Option<CitationStyle>,
+}
+
+impl Display for StructuringOptions {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let includes = self
+            .include_ops
+            .iter()
+            .map(|op| op.to_string())
+            .collect::<Vec<_>>()
+            .join(",");
+        write!(f, "{includes}")?;
+
+        if !self.exclude_ops.is_empty() {
+            let excludes = self
+                .exclude_ops
+                .iter()
+                .map(|op| op.to_string())
+                .collect::<Vec<_>>()
+                .join(",");
+            write!(f, "(excl. {excludes})")?;
+        }
+
+        Ok(())
+    }
+}
+
+impl StructuringOptions {
+    /// Create a new set of structuring options which includes no operations
+    pub fn none() -> Self {
+        Self {
+            include_ops: vec![StructuringOperation::None_],
+            exclude_ops: Vec::new(),
+            citation_style: None,
+        }
+    }
+
+    /// Create a new set of structuring options which includes all operations
+    pub fn all() -> Self {
+        Self {
+            include_ops: vec![StructuringOperation::All],
+            exclude_ops: Vec::new(),
+            citation_style: None,
+        }
+    }
+
+    /// Create a new set of structuring options by specifying the list operations to include and exclude
+    pub fn new<I1, I2>(include_ops: I1, exclude_ops: I2) -> Self
+    where
+        I1: IntoIterator<Item = StructuringOperation>,
+        I2: IntoIterator<Item = StructuringOperation>,
+    {
+        Self {
+            include_ops: include_ops.into_iter().collect(),
+            exclude_ops: exclude_ops.into_iter().collect(),
+            citation_style: None,
+        }
+    }
+
+    /// Merge a set of structuring options into the current options
+    /// 
+    /// Sets any options that are empty or `None` to the value of the other.
+    pub fn merge(&mut self, other: Self) -> &Self {
+        if self.include_ops.is_empty() {
+            self.include_ops = other.include_ops;
+        }
+
+        if self.exclude_ops.is_empty() {
+            self.exclude_ops = other.exclude_ops;
+        }
+
+         if self.citation_style.is_none() {
+            self.citation_style = other.citation_style;
+        }
+
+        self
+    }
+
+    /// Whether any structuring operations should be performed
+    pub fn should_perform_any(&self) -> bool {
+        use StructuringOperation::*;
+
+        !(self.include_ops.is_empty()
+            || self.include_ops.contains(&None_)
+            || self.exclude_ops.contains(&All))
+    }
+
+    /// Whether a structuring operation should be performed
+    pub fn should_perform(&self, op: StructuringOperation) -> bool {
+        use StructuringOperation::*;
+
+        if self.include_ops.contains(&None_) {
+            return false;
+        }
+
+        if self.exclude_ops.contains(&All) {
+            return false;
+        }
+
+        (self.include_ops.contains(&op) || self.include_ops.contains(&All))
+            && !(self.exclude_ops.contains(&op) || self.exclude_ops.contains(&All))
+    }
+}
+
+/// Citation style options for in-text citations
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, ValueEnum, Serialize, Deserialize)]
+#[strum(serialize_all = "kebab-case")]
+pub enum CitationStyle {
+    /// Author-year citations like (Smith, 2023)
+    AuthorYear,
+
+    /// Bracketed numeric citations like [1]
+    BracketedNumeric,
+
+    /// Parenthetic numeric citations like (1)
+    ParentheticNumeric,
+
+    /// Superscripted numeric citations like ¹
+    SuperscriptedNumeric,
+}
+
+impl CitationStyle {
+    pub fn is_numeric(&self) -> bool {
+        matches!(
+            self,
+            Self::BracketedNumeric | Self::ParentheticNumeric | Self::SuperscriptedNumeric
+        )
     }
 }

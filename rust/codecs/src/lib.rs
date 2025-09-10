@@ -6,6 +6,7 @@ use std::{
 use chrono::Local;
 use futures::StreamExt;
 use reqwest::Client;
+use stencila_node_structuring::structuring_with_options;
 use tempfile::tempdir;
 use tokio::{
     fs::{File, read_to_string, write},
@@ -20,9 +21,10 @@ use stencila_codec::stencila_schema::{
     Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode,
 };
 pub use stencila_codec::{
-    Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, PageSelector,
-    PoshMap, Position8, Position16, Positions, Range8, Range16,
+    CitationStyle, Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo,
+    EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
+    PageSelector, PoshMap, Position8, Position16, Positions, Range8, Range16, StructuringOperation,
+    StructuringOptions,
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
 };
@@ -384,15 +386,25 @@ pub async fn from_path_with_info(
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
-    codec
+    let (mut node, other, info) = codec
         .from_path(
             path,
             Some(DecodeOptions {
-                format: Some(format),
-                ..options.unwrap_or_default()
+                format: Some(format.clone()),
+                ..options.clone().unwrap_or_default()
             }),
         )
-        .await
+        .await?;
+
+    let mut structuring_options = options
+        .map(|opts| opts.structuring_options)
+        .unwrap_or_else(|| StructuringOptions::default());
+    structuring_options.merge(codec.structuring_options(&format));
+    if structuring_options.should_perform_any() {
+        structuring_with_options(&mut node, structuring_options);
+    }
+
+    Ok((node, other, info))
 }
 
 /// Decode a Stencila Schema node from `stdin`

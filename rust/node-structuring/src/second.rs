@@ -1,10 +1,11 @@
+use stencila_codec::{StructuringOperation::*, StructuringOptions};
 use stencila_codec_links::decode_inlines as text_with_links;
 use stencila_schema::{
     Article, Block, Emphasis, Heading, Inline, InlinesBlock, Node, Paragraph, Strikeout, Strong,
     StyledInline, Subscript, Superscript, Underline, VisitorMut, WalkControl,
 };
 
-use crate::{FirstWalk, StructuringOperation::*, StructuringOptions, should_remove_inline};
+use crate::{FirstWalk, should_remove_inline};
 
 /// Second structuring walk
 ///
@@ -128,7 +129,8 @@ impl SecondWalk {
             *inlines = inlines_new;
         }
 
-        if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextToLinks) {
+        if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextToLinks)
+        {
             // Apply any further structuring, including within replacements
             // from the first pass
             let mut inlines_new = Vec::with_capacity(inlines.len());
