@@ -102,6 +102,7 @@ impl VisitorMut for FirstWalk {
             Block::Paragraph(..) => self.visit_paragraph(block),
             Block::List(..) => self.visit_list(block),
             Block::Table(..) => self.visit_table(block),
+            Block::Datatable(..) => self.visit_datatable(block),
 
             // Visit nested vectors of blocks
             Block::Admonition(Admonition { content, .. })
@@ -405,7 +406,7 @@ impl FirstWalk {
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
         // Extract title and turn on frontmatter handling
-        if self.options.should_perform(HeadingToTitle)
+        if self.options.should_perform(HeadingsToTitle)
             && !self.has_title
             && self.title.is_none()
             && !self.hit_primary_section
@@ -421,7 +422,7 @@ impl FirstWalk {
         let cleaned_text_lowercase = cleaned_text.to_lowercase();
 
         // Determine if in abstract section
-        if self.options.should_perform(SectionToAbstract)
+        if self.options.should_perform(SectionsToAbstract)
             && matches!(section_type, Some(SectionType::Abstract))
         {
             self.in_abstract = true;
@@ -432,7 +433,7 @@ impl FirstWalk {
         }
 
         // Determine if in keywords section
-        if self.options.should_perform(SectionToKeywords) && cleaned_text_lowercase == "keywords"
+        if self.options.should_perform(SectionsToKeywords) && cleaned_text_lowercase == "keywords"
             || cleaned_text_lowercase == "key words"
         {
             self.in_keywords = true;
@@ -487,7 +488,7 @@ impl FirstWalk {
         }
 
         // Update whether or not in references
-        if self.options.should_perform(SectionToReferences)
+        if self.options.should_perform(SectionsToReferences)
             && matches!(section_type, Some(SectionType::References))
         {
             self.in_references = true;
@@ -505,8 +506,6 @@ impl FirstWalk {
     }
 
     /// Visit a [`Paragraph`] node
-    ///
-    /// If in the references section, parses the paragraph as a [`Reference`].
     fn visit_paragraph(&mut self, block: &mut Block) -> WalkControl {
         let Block::Paragraph(paragraph) = block else {
             return WalkControl::Continue;
@@ -538,7 +537,7 @@ impl FirstWalk {
             return block_to_remove(block);
         }
 
-        if self.options.should_perform(SectionToAbstract) && self.in_abstract {
+        if self.options.should_perform(SectionsToAbstract) && self.in_abstract {
             let paragraph = Block::Paragraph(paragraph.clone());
             if let Some(abstract_) = self.abstract_.as_mut() {
                 abstract_.push(paragraph);
@@ -552,7 +551,7 @@ impl FirstWalk {
         if self.keywords.is_none() {
             let text = to_text(paragraph);
 
-            if self.options.should_perform(SectionToKeywords) && self.in_keywords {
+            if self.options.should_perform(SectionsToKeywords) && self.in_keywords {
                 let words = text
                     .trim_end_matches(['.'])
                     .split(",")
@@ -567,7 +566,7 @@ impl FirstWalk {
                 return block_to_remove(block);
             }
 
-            if self.options.should_perform(ParagraphToKeywords)
+            if self.options.should_perform(ParagraphsToKeywords)
                 && let Some(text) = text
                     .strip_prefix("Keywords")
                     .or_else(|| text.strip_prefix("KEYWORDS"))
@@ -587,7 +586,7 @@ impl FirstWalk {
         }
 
         // Remove paragraphs in references section
-        if self.options.should_perform(SectionToReferences) && self.in_references {
+        if self.options.should_perform(SectionsToReferences) && self.in_references {
             let text = to_text(paragraph);
             let reference = text_to_reference(&text);
             if let Some(references) = self.references.as_mut() {
@@ -603,9 +602,6 @@ impl FirstWalk {
     }
 
     /// Visit a [`List`] node
-    ///
-    /// If in the references section, transforms the list to a set of
-    /// [`Reference`]s to assign to the root node.
     fn visit_list(&mut self, block: &mut Block) -> WalkControl {
         let Block::List(list) = block else {
             return WalkControl::Continue;
@@ -616,7 +612,7 @@ impl FirstWalk {
             return block_to_remove(block);
         }
 
-        if self.options.should_perform(SectionToReferences) && self.in_references {
+        if self.options.should_perform(SectionsToReferences) && self.in_references {
             let is_numeric = matches!(list.order, ListOrder::Ascending);
 
             // Record whether this references list is ordered/numbered
@@ -644,13 +640,19 @@ impl FirstWalk {
     }
 
     /// Visit a [`Table`] node
-    ///
-    /// Converts the table (row-oriented) to a [`Datatable`] (column-oriented)
-    /// if possible.
     fn visit_table(&mut self, block: &mut Block) -> WalkControl {
         let Block::Table(table) = block else {
             return WalkControl::Continue;
         };
+
+        // Remove empty tables
+        if self.options.should_perform(RemoveEmptyTables)
+            && table.rows.is_empty()
+            && table.caption.is_none()
+            && table.notes.is_none()
+        {
+            return block_to_remove(block);
+        }
 
         if self.options.should_perform(TablesToDatatables)
             && let Some(datatable) = Datatable::from_table_if_uniform(table)
@@ -660,6 +662,24 @@ impl FirstWalk {
         } else {
             WalkControl::Continue
         }
+    }
+
+    /// Visit a [`Datatable`] node
+    fn visit_datatable(&mut self, block: &mut Block) -> WalkControl {
+        let Block::Datatable(datatable) = block else {
+            return WalkControl::Continue;
+        };
+
+        // Remove empty datatables
+        if self.options.should_perform(RemoveEmptyTables)
+            && datatable.columns.is_empty()
+            && datatable.caption.is_none()
+            && datatable.notes.is_none()
+        {
+            return block_to_remove(block);
+        }
+
+        WalkControl::Continue
     }
 
     /// Visit a [`MathInline`] node
@@ -718,6 +738,13 @@ impl FirstWalk {
     /// If a citation style is specified, it will be used instead of automatic determination.
     #[tracing::instrument(skip(self))]
     pub fn determine_citation_style(&mut self, specified_style: Option<CitationStyle>) {
+        // Early return if this is not required
+        if !(self.options.should_perform(TextToCitations)
+            || self.options.should_perform(MathToCitations))
+        {
+            return;
+        }
+
         // Count occurrences of each citation style
         let mut style_counts = HashMap::new();
 

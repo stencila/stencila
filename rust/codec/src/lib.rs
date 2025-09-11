@@ -828,42 +828,42 @@ pub enum StructuringOperation {
     /// Special value to enable all available structuring operations.
     All,
 
-    /// Extract document title from the first heading
-    ///
-    /// To be extracted as a title, the heading must have no numbering, be a
-    /// level 1 or 2 heading, not be a recognized section type (e.g. "Abstract"),
-    /// and cannot be after the first primary heading (e.g. "Introduction").
-    /// This extracts document metadata for proper document structure.
-    HeadingToTitle,
-
     /// Extract keywords from the "Keywords" section
     ///
     /// Detects headings with text "Keywords" or "Key words" and extracts
     /// the following paragraph content as document keywords, splitting on
     /// commas and trimming whitespace.
-    SectionToKeywords,
-
-    /// Extract keywords from paragraphs starting with "Keywords"
-    ///
-    /// Detects paragraphs beginning with "Keywords:", "KEYWORDS:", "Key words:"
-    /// or similar patterns and extracts the remaining text as document keywords,
-    /// splitting on commas for structured metadata.
-    ParagraphToKeywords,
+    SectionsToKeywords,
 
     /// Extract abstract from the "Abstract" section
     ///
     /// Identifies sections with "Abstract" headings and extracts their content
     /// as the document abstract, removing the section heading and preserving
     /// the paragraph structure for document metadata.
-    SectionToAbstract,
+    SectionsToAbstract,
 
-    /// Remove content before to the first primary heading (e.g. "Abstract")
+    /// Extract references from "References" section
     ///
-    /// In scholarly articles, author bylines and affiliations usually occur
-    /// between the title and the abstract. This operation cleans up document
-    /// structure by removing such content. Be aware that if no primary heading
-    /// or section exists in the document that all content will be removed.
-    RemovePrePrimary,
+    /// Identifies sections with "References", "Bibliography", or similar
+    /// headings and extracts their content as structured reference metadata.
+    /// Removes the section from document body and processes individual
+    /// references for proper citation linking and bibliography generation.
+    SectionsToReferences,
+
+    /// Extract document title from the first heading
+    ///
+    /// To be extracted as a title, the heading must have no numbering, be a
+    /// level 1 or 2 heading, not be a recognized section type (e.g. "Abstract"),
+    /// and cannot be after the first primary heading (e.g. "Introduction").
+    /// This extracts document metadata for proper document structure.
+    HeadingsToTitle,
+
+    /// Create a section for each heading
+    ///
+    /// Wraps each heading and its following content in structured section elements,
+    /// creating a hierarchical document structure that improves semantic meaning
+    /// and enables better navigation and processing.
+    HeadingsToSections,
 
     /// Transform headings to paragraphs if appropriate
     ///
@@ -874,6 +874,13 @@ pub enum StructuringOperation {
     /// with sentence punctuation (. ! ?).
     HeadingsToParagraphs,
 
+    /// Extract keywords from paragraphs starting with "Keywords"
+    ///
+    /// Detects paragraphs beginning with "Keywords:", "KEYWORDS:", "Key words:"
+    /// or similar patterns and extracts the remaining text as document keywords,
+    /// splitting on commas for structured metadata.
+    ParagraphsToKeywords,
+
     /// Transform paragraphs to headings if appropriate
     ///
     /// Word processors and OCR sometimes incorrectly format headings as paragraphs
@@ -881,13 +888,6 @@ pub enum StructuringOperation {
     /// contain only a single bold element, are shorter than 80 characters, and
     /// don't end with sentence punctuation. Heading level is determined by context.
     ParagraphsToHeadings,
-
-    /// Create a section for each heading
-    ///
-    /// Wraps each heading and its following content in structured section elements,
-    /// creating a hierarchical document structure that improves semantic meaning
-    /// and enables better navigation and processing.
-    HeadingsToSections,
 
     /// Combine an image with a figure caption before or after it
     ///
@@ -915,34 +915,6 @@ pub enum StructuringOperation {
     /// structured tabular data while preserving complex tables as-is.
     TablesToDatatables,
 
-    /// Remove empty headings
-    ///
-    /// A heading is considered empty if it has no content after any numbering
-    /// prefix is removed. This cleans up document structure by removing
-    /// headings that add no semantic value.
-    RemoveEmptyHeadings,
-
-    /// Remove empty paragraphs
-    ///
-    /// A paragraph is considered empty if it contains no content or only
-    /// whitespace-only text nodes. This removes unnecessary paragraph elements
-    /// that can clutter document structure.
-    RemoveEmptyParagraphs,
-
-    /// Remove empty lists
-    ///
-    /// A list is considered empty if it contains no items or all items are
-    /// empty (contain no content or only whitespace). This cleans up document
-    /// structure by removing non-functional list elements.
-    RemoveEmptyLists,
-
-    /// Remove empty text nodes
-    ///
-    /// Text nodes that contain only whitespace characters are removed from
-    /// inline content. This reduces document bloat and improves processing
-    /// efficiency without affecting visual appearance.
-    RemoveEmptyText,
-
     /// Convert citation text to structured citations
     ///
     /// Detects citation patterns like "(Smith 2023)" or "[1]" in text and
@@ -952,15 +924,6 @@ pub enum StructuringOperation {
     /// specified explicitly in structuring options.
     TextToCitations,
 
-    /// Convert math citations to structured citations
-    ///
-    /// Converts superscript citations in math notation (often from OCR)
-    /// to structured citation elements. This handles cases where citations
-    /// appear as superscripted numbers in mathematical expressions that
-    /// should be converted to proper citation references for consistent
-    /// document structure and linking.
-    MathToCitations,
-
     /// Convert URL text to structured links
     ///
     /// Detects plain text URLs in content and converts them to proper
@@ -969,13 +932,53 @@ pub enum StructuringOperation {
     /// by creating clickable links from plain text references.
     TextToLinks,
 
-    /// Extract reference list from "References" section
+    /// Convert math to structured citations
     ///
-    /// Identifies sections with "References", "Bibliography", or similar
-    /// headings and extracts their content as structured reference metadata.
-    /// Removes the section from document body and processes individual
-    /// references for proper citation linking and bibliography generation.
-    SectionToReferences,
+    /// Converts superscript citations in math notation (often from OCR) to
+    /// structured citation elements. This handles cases where citations appear
+    /// as superscripted numbers in mathematical expressions that should be
+    /// converted to proper citation references for consistent document
+    /// structure and linking.
+    MathToCitations,
+
+    /// Remove content before the first primary heading
+    ///
+    /// In scholarly articles, author bylines and affiliations usually occur
+    /// between the title and the abstract or introduction . This operation
+    /// cleans up document structure by removing such content. Be aware that if
+    /// no primary heading or section exists in the document that all content
+    /// will be removed.
+    RemovePrePrimary,
+
+    /// Remove empty headings
+    ///
+    /// A heading is considered empty if it has no content after any numbering
+    /// prefix is removed.
+    RemoveEmptyHeadings,
+
+    /// Remove empty tables and datatables
+    ///
+    /// A table/datatable is considered empty if it contains no rows/columns and
+    /// has no caption or notes.
+    RemoveEmptyTables,
+
+    /// Remove empty lists
+    ///
+    /// A list is considered empty if it contains no items or all items are
+    /// empty (contain no content or only whitespace).
+    RemoveEmptyLists,
+
+    /// Remove empty paragraphs
+    ///
+    /// A paragraph is considered empty if it contains no content or only
+    /// whitespace-only text nodes.
+    RemoveEmptyParagraphs,
+
+    /// Remove empty text
+    ///
+    /// Text nodes that contain only whitespace characters are removed from
+    /// inline content.
+    RemoveEmptyText,
 }
 
 /// Options for document structuring
