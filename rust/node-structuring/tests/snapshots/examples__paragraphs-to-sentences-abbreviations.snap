@@ -1,0 +1,112 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This paragraph tests abbreviations like Dr. Smith and Mr. Jones which should not cause sentence splits. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "However, this sentence ends with a period followed by whitespace. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This should be split as a separate sentence."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Testing Prof. Johnson's research vs. other studies. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The period after \"vs\" should not split because it is an abbreviation. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This final sentence should be split as separate."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Latin abbreviations like i.e. this example and e.g. such cases should not cause sentence splits. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This sentence should be split normally."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

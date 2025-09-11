@@ -195,7 +195,7 @@ impl SecondWalk {
 /// Split text into sentence parts, returning (text, is_sentence_end) tuples
 ///
 /// This function splits text on sentence-ending punctuation ('.', '!', '?')
-/// followed by whitespace, similar to the approach in codec-utils/split_paragraph.rs
+/// followed by whitespace, but avoids splitting on abbreviations like "Mr." and "etc."
 fn split_text_into_sentences(text: &str) -> Vec<(String, bool)> {
     let mut result = Vec::new();
     let mut current = String::new();
@@ -209,19 +209,28 @@ fn split_text_into_sentences(text: &str) -> Vec<(String, bool)> {
             // Look ahead to see if followed by whitespace
             if let Some(&next) = chars.peek() {
                 if next.is_whitespace() {
-                    // Consume and include the whitespace in the current sentence
-                    while let Some(&w) = chars.peek() {
-                        if w.is_whitespace() {
-                            if let Some(whitespace_char) = chars.next() {
-                                current.push(whitespace_char);
+                    // Check if this is likely an abbreviation (only for periods)
+                    let is_abbreviation = if c == '.' {
+                        is_likely_abbreviation(&current)
+                    } else {
+                        false
+                    };
+
+                    if !is_abbreviation {
+                        // Consume and include the whitespace in the current sentence
+                        while let Some(&w) = chars.peek() {
+                            if w.is_whitespace() {
+                                if let Some(whitespace_char) = chars.next() {
+                                    current.push(whitespace_char);
+                                }
+                            } else {
+                                break;
                             }
-                        } else {
-                            break;
                         }
+                        // This is a sentence boundary
+                        result.push((current.clone(), true));
+                        current.clear();
                     }
-                    // This is a sentence boundary
-                    result.push((current.clone(), true));
-                    current.clear();
                 }
             } else {
                 // End of string - this is also a sentence boundary
@@ -237,6 +246,40 @@ fn split_text_into_sentences(text: &str) -> Vec<(String, bool)> {
     }
 
     result
+}
+
+/// Check if the current text likely ends with an abbreviation
+fn is_likely_abbreviation(text: &str) -> bool {
+    let trimmed = text.trim_end();
+    if !trimmed.ends_with('.') {
+        return false;
+    }
+
+    // Get the word before the period
+    let without_period = &trimmed[..trimmed.len() - 1];
+    let last_word = without_period.split_whitespace().last().unwrap_or("");
+
+    // Common abbreviations that shouldn't trigger sentence splits
+    #[rustfmt::skip]
+    const ABBREVIATIONS: &[&str] = &[
+        // Honorifics
+        "Mr", "Mrs", "Ms", "Dr", "Prof", "Sr", "Jr",
+        // Organizations
+        "Inc", "Ltd", "Corp", "Co",
+        // Addresses
+        "St", "Ave", "Blvd", "Rd", "Ln",
+        // Months
+        "Jan", "Feb", "Mar", "Apr", "Jun", "Jul", "Aug", "Sep", "Sept",
+        "Oct", "Nov", "Dec",
+        // Days
+        "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
+        // Time
+        "a.m", "p.m",
+        // Other
+        "e.g", "i.e",  "etc", "vs", "cf", "al",
+    ];
+
+    ABBREVIATIONS.contains(&last_word)
 }
 
 /// Determine if inlines contain at least one [`Link`]
@@ -288,8 +331,8 @@ mod tests {
 
         // No sentence boundary (no space after punctuation)
         assert_eq!(
-            split_text_into_sentences("Mr.Smith went home"),
-            vec![("Mr.Smith went home".to_string(), false)]
+            split_text_into_sentences("Mr. Smith went home"),
+            vec![("Mr. Smith went home".to_string(), false)]
         );
 
         // End of string boundary

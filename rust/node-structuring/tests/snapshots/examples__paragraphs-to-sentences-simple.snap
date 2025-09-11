@@ -1,0 +1,118 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This paragraph contains multiple sentences. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Each sentence should be split into separate sentence elements. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The first sentence ends here. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The second sentence ends here. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The third sentence ends here."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This second paragraph also contains sentences! "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "It has an exclamation. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Does it have a question? "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Yes it does."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This paragraph has "
+              }
+            },
+            {
+              "type": "Strong",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "bold text"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " in the first sentence. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "emphasized text"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " should remain with the second sentence. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Links like "
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "example"
+                  }
+                }
+              ],
+              "target": "http://example.com"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " should stay within their sentence."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This sentence has "
+              }
+            },
+            {
+              "type": "CodeInline",
+              "code": {
+                "string": "code"
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " inline. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This sentence has both "
+              }
+            },
+            {
+              "type": "Strong",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "bold"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " and "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "italic"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " elements that should be preserved within the sentence structure."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
