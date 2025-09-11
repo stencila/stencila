@@ -15,10 +15,7 @@ use tokio::{
 
 use pretty_assertions::assert_eq;
 use stencila_codec::{
-    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    eyre::{Context, Result},
-    stencila_format::Format,
-    stencila_schema::NodeType,
+    eyre::{Context, Result}, stencila_format::Format, stencila_schema::NodeType, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, StructuringOptions
 };
 use stencila_node_strip::{StripNode, StripTargets};
 
@@ -311,6 +308,7 @@ async fn examples() -> Result<()> {
             &path,
             Some(DecodeOptions {
                 reproducible: Some(false),
+                structuring_options: StructuringOptions::none(),
                 ..Default::default()
             }),
         )
@@ -458,6 +456,7 @@ async fn examples() -> Result<()> {
                 let decode_options = Some(DecodeOptions {
                     format: Some(config.format.clone()),
                     reproducible: Some(false),
+                    structuring_options: StructuringOptions::none(),
                     ..config.decode.options.clone()
                 });
 
