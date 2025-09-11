@@ -10,7 +10,7 @@ use eyre::{Report, Result, bail};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use smart_default::SmartDefault;
-use strum::{Display, EnumIter, EnumMessage, IntoEnumIterator};
+use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 use tokio::{
     fs::{File, create_dir_all},
     io::{AsyncReadExt, AsyncWriteExt},
@@ -809,6 +809,7 @@ impl PageSelector {
     Eq,
     ValueEnum,
     EnumIter,
+    EnumString,
     EnumMessage,
     Serialize,
     Deserialize,
@@ -855,7 +856,6 @@ pub enum StructuringOperation {
     /// To be extracted as a title, the heading must have no numbering, be a
     /// level 1 or 2 heading, not be a recognized section type (e.g. "Abstract"),
     /// and cannot be after the first primary heading (e.g. "Introduction").
-    /// This extracts document metadata for proper document structure.
     HeadingsToTitle,
 
     /// Create a section for each heading

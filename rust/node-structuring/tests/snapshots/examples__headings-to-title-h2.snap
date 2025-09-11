@@ -1,0 +1,40 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "This heading should become the title despite having a paragraph before"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Paragraph before"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This heading should remain a heading"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -7,9 +7,6 @@ mod first;
 mod second;
 mod third;
 
-#[cfg(test)]
-mod tests;
-
 /// Add structure to a document
 #[tracing::instrument(skip(node))]
 pub fn structuring<T: WalkNode>(node: &mut T, options: StructuringOptions) {

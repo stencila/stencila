@@ -1,0 +1,21 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 3,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This heading should NOT become the title because it is level 3"
+          }
+        }
+      ]
+    }
+  ]
+}
