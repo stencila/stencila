@@ -179,12 +179,12 @@ pub trait VisitorMut: Sized {
     }
 
     /// Visit, and potentially mutate, a `SuggestionInline` node type
-    fn visit_suggestion_inline(&mut self, clause: &mut SuggestionInline) -> WalkControl {
+    fn visit_suggestion_inline(&mut self, inline: &mut SuggestionInline) -> WalkControl {
         WalkControl::Continue
     }
 
     /// Visit, and potentially mutate, an `IfBlockClause` node
-    fn visit_if_block_clause(&mut self, inline: &mut IfBlockClause) -> WalkControl {
+    fn visit_if_block_clause(&mut self, clause: &mut IfBlockClause) -> WalkControl {
         WalkControl::Continue
     }
 
