@@ -53,6 +53,11 @@ while read -r crate current_version; do
         continue
     fi
     
+    # Skip release candidates and deprecated versions
+    if [[ "$latest_version" =~ -rc\. ]] || [[ "$latest_version" =~ \+deprecated$ ]]; then
+        continue
+    fi
+    
     # Compare versions (simple string comparison should work for most semantic versions)
     if [[ "$current_version" != "$latest_version" ]]; then
         echo "$crate: $current_version → $latest_version"
