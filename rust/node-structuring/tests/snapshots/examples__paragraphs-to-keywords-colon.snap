@@ -1,0 +1,37 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has keywords specified in a paragraph."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph should remain unchanged as it follows the keywords."
+          }
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "machine learning",
+    "artificial intelligence",
+    "neural networks",
+    "deep learning"
+  ]
+}

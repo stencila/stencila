@@ -1,0 +1,70 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has paragraphs that should be converted to headings."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 3,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The above paragraph contains only a single bold element and is short, so should be converted to a heading."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This is a longer paragraph with bold text that should not be converted because it exceeds the character limit for heading conversion"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph should remain unchanged as it has no bold formatting."
+          }
+        }
+      ]
+    }
+  ]
+}

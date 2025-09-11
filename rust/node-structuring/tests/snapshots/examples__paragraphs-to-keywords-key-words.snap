@@ -1,0 +1,36 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document uses the \"Key words\" variant."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This content should remain while the Key words paragraph should be extracted as document keywords."
+          }
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "research methodology",
+    "experimental design",
+    "hypothesis testing"
+  ]
+}

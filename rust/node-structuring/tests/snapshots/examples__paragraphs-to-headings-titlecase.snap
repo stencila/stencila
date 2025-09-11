@@ -1,0 +1,92 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document tests title case bold paragraphs."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 3,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods and Results"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The above paragraph is in title case, bold, and short, so should be converted to a heading."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "this is not title case"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and should not be converted to a heading."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This paragraph ends with punctuation."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "It should not be converted because of the period."
+          }
+        }
+      ]
+    }
+  ]
+}

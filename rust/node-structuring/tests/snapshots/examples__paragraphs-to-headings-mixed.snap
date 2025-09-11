@@ -1,0 +1,138 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has a mix of paragraphs that should and should not be converted."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 3,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Analysis"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This should be converted to a heading - single bold element, short, no punctuation."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is a "
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "bold word"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " in the middle of a paragraph and should not be converted."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Multiple"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "bold"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "elements"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " in this paragraph should prevent conversion to heading."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regular paragraph text that should remain unchanged."
+          }
+        }
+      ]
+    }
+  ]
+}

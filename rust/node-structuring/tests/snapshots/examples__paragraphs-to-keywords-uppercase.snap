@@ -1,0 +1,37 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document uses uppercase keywords format."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The above paragraph starting with KEYWORDS should be converted to document keywords and removed from content."
+          }
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "data analysis",
+    "statistics",
+    "visualization",
+    "computational methods"
+  ]
+}
