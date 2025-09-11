@@ -9,3 +9,6 @@ const {
 } = require("../stencila.node");
 
 export { fromString, fromPath, toString, toPath, fromTo };
+
+// Re-export types 
+export type { DecodeOptions, EncodeOptions } from './options.js';
