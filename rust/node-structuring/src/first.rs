@@ -823,9 +823,10 @@ fn is_primary_section_type(section_type: &SectionType) -> bool {
 /// or text that starts with an uppercase letter. This distinguishes actual captions
 /// from references (e.g., "Figure 2. Plot shows..." vs "Figure 2 shows that...").
 fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
-    // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2" etc.
+    // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2", "Figure 2A" etc.
     static FIGURE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex")
+        Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+[A-Z]?|\d+[A-Z])[.:\-\s]*")
+            .expect("invalid regex")
     });
 
     let text = to_text(inlines);
@@ -1222,7 +1223,7 @@ mod tests {
             ("FIGURE 3. Case insensitive", "3"),
             ("figure 7: Lowercase prefix but uppercase caption", "7"),
             ("Figure A1: Appendix figure", "A1"),
-            ("Figure 2 Plot of temperature over time", "2"),
+            ("Figure 2A Plot of temperature over time", "2A"),
         ];
 
         for (input, expected_label, ..) in test_cases {
