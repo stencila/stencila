@@ -5,16 +5,18 @@ use strum::{EnumMessage, IntoEnumIterator};
 use stencila_cli_utils::{
     AsFormat, Code, Tabulated, ToStdout,
     color_print::cstr,
+    message,
     tabulated::{Attribute, Cell, Color},
 };
 use stencila_codec::{
-    CodecAvailability, CodecDirection, StructuringOperation, StructuringOptions, eyre::Result,
+    CodecAvailability, CodecDirection, StructuringOperation, StructuringOptions,
+    eyre::{Result, bail},
     stencila_format::Format,
 };
 
-/// List the support for formats
+/// List and inspect supported formats
 #[derive(Debug, Parser)]
-#[command(after_long_help = CLI_AFTER_LONG_HELP)]
+#[command(alias = "format", after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
@@ -139,14 +141,7 @@ impl List {
         }
 
         let mut table = Tabulated::new();
-        table.set_header([
-            "Name",
-            "Default Extension",
-            "From",
-            "To",
-            "Lossless",
-            "Default Structuring",
-        ]);
+        table.set_header(["Name", "Default Extension", "From", "To", "Lossless"]);
 
         for format in formats {
             let from = match format.from {
@@ -171,15 +166,12 @@ impl List {
                 Cell::new("no").fg(Color::Yellow)
             };
 
-            let structuring = format.structuring_options.to_string();
-
             table.add_row([
                 Cell::new(format.name).add_attribute(Attribute::Bold),
                 Cell::new(format.extension),
                 from,
                 to,
                 lossless,
-                Cell::new(structuring),
             ]);
         }
 
@@ -189,10 +181,13 @@ impl List {
     }
 }
 
-/// Get a list of possible structuring operations
+/// Get a list of all structuring operations, or those that are the default for a format
 #[derive(Default, Debug, Args)]
 #[command(after_long_help = STRUCTURING_AFTER_LONG_HELP)]
 struct Structuring {
+    /// The format to show default structuring operations for
+    format: Option<String>,
+
     /// Provide longer details on each structuring operation
     #[arg(long, short)]
     verbose: bool,
@@ -202,6 +197,9 @@ pub static STRUCTURING_AFTER_LONG_HELP: &str = cstr!(
     "<bold></bold>
   <dim># List all structuring operations</dim>
   <b>stencila formats structuring</b>
+
+  <dim># List the default structuring operations for DOCX</dim>
+  <b>stencila formats structuring docx</b>
 
   <dim># List all structuring operations with details for each</dim>
   <b>stencila formats structuring --verbose</b>
@@ -218,7 +216,27 @@ impl Structuring {
         }
         table.set_header(header);
 
+        let options = if let Some(name) = &self.format {
+            let format = Format::from_name(name);
+            if format.is_unknown() || matches!(format, Format::Other(..)) {
+                bail!("Unknown format: {name}")
+            }
+            let codec = super::get(None, Some(&format), Some(CodecDirection::Decode))?;
+            codec.structuring_options(&format)
+        } else {
+            StructuringOptions::all()
+        };
+
+        if !options.should_perform_any() {
+            message!("ℹ️  No structuring operations performed by default");
+            return Ok(());
+        }
+
         for op in StructuringOperation::iter() {
+            if !options.should_perform(op) {
+                continue;
+            }
+
             let docs = op.get_documentation().unwrap_or_default();
             let mut parts = docs.split("\n\n");
             let desc = parts.next().unwrap_or_default();

@@ -3,7 +3,8 @@ use std::{env::current_dir, path::Path};
 use tokio::fs::{create_dir_all, write};
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    StructuringOperation, StructuringOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
@@ -95,6 +96,20 @@ impl Codec for MarkdownCodec {
             // `to_text`, fallback to high loss
             _ => HighLoss,
         }
+    }
+
+    fn structuring_options(&self, _format: &Format) -> StructuringOptions {
+        use StructuringOperation::*;
+        StructuringOptions::new(
+            [
+                HeadingToTitle,
+                FiguresWithCaptions,
+                TablesWithCaptions,
+                TablesToDatatables,
+                TextToLinks
+            ],
+            [],
+        )
     }
 
     async fn from_str(
