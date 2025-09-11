@@ -1,0 +1,67 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Visit "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "https://example.com"
+              }
+            }
+          ],
+          "target": "https://example.com"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " for docs. Check "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "http://github.com/owner/repo"
+              }
+            }
+          ],
+          "target": "http://github.com/owner/repo"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " for code."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "These external URLs should be converted to Link elements while trailing punctuation like periods should be stripped from the link targets."
+          }
+        }
+      ]
+    }
+  ]
+}

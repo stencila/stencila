@@ -1,0 +1,139 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Refer to "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Figure 1B"
+              }
+            }
+          ],
+          "target": "#fig-1"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and visit "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "https://github.com/example"
+              }
+            }
+          ],
+          "target": "https://github.com/example"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". Also see "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Table 3C"
+              }
+            }
+          ],
+          "target": "#tab-3"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " at "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "http://docs.example.com/tables"
+              }
+            }
+          ],
+          "target": "http://docs.example.com/tables"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Both internal references ("
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Figure 1B"
+              }
+            }
+          ],
+          "target": "#fig-1"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Table 3C"
+              }
+            }
+          ],
+          "target": "#tab-3"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") and external URLs should be converted to links. Figure/table suffixes should be stripped from targets (1B→#fig-1, 3C→#tab-3)."
+          }
+        }
+      ]
+    }
+  ]
+}

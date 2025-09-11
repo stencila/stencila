@@ -1,0 +1,139 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "See "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Figure 1"
+              }
+            }
+          ],
+          "target": "#fig-1"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " for details. The "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Table 2"
+              }
+            }
+          ],
+          "target": "#tab-2"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " shows results and "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Appendix A"
+              }
+            }
+          ],
+          "target": "#app-a"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " contains methodology."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "These internal references ("
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Figure 1"
+              }
+            }
+          ],
+          "target": "#fig-1"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Table 2"
+              }
+            }
+          ],
+          "target": "#tab-2"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Appendix A"
+              }
+            }
+          ],
+          "target": "#app-a"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") should be converted to Link elements with targets like #fig-1, #tab-2, #app-a."
+          }
+        }
+      ]
+    }
+  ]
+}
