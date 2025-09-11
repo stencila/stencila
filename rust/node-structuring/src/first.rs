@@ -767,6 +767,16 @@ impl FirstWalk {
         } else if style_counts.is_empty() {
             tracing::debug!("No citations found, no style to determine");
             None
+        } else if self.references.is_none() {
+            // No references so use the style with the highest count >= 3
+            let style = style_counts
+                .iter()
+                .max_by_key(|(_, count)| *count)
+                .into_iter()
+                .filter_map(|(style, count)| (*count >= 3).then_some(**style))
+                .next();
+            tracing::debug!("No references, so using style with highest count >= 3: {style:?}");
+            style
         } else if self.references_are_ordered {
             // If references are numbered, choose the style with the greatest count
             let style = style_counts

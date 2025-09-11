@@ -1,0 +1,144 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "According to "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "ref-1",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", the study found significant results. Studies "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-1",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-2",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-3",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and other work "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-5",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "5"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-7",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "7"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-8",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "8"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-9",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "9"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " support this conclusion."
+          }
+        }
+      ]
+    }
+  ]
+}

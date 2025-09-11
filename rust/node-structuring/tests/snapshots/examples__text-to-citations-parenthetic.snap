@@ -1,0 +1,97 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The theory holds "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "ref-2",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "2"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". Studies "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-1",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-3",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-4",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "4"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-5",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "5"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " confirm this hypothesis."
+          }
+        }
+      ]
+    }
+  ]
+}

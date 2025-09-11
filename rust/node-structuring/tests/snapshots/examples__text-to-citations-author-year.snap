@@ -1,0 +1,74 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "According to "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "smith-1990",
+          "citationMode": "Narrative",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Smith (1990)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", the study found significant results. The theory holds "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "smith-1990",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Smith, 1990"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "jones-1991",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Jones, 1991"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "."
+          }
+        }
+      ]
+    }
+  ]
+}
