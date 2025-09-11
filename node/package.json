@@ -59,7 +59,7 @@
     "node": ">=16"
   },
   "napi": {
-    "name": "stencila",
+    "binaryName": "stencila",
     "triples": {}
   },
   "tsup": {
