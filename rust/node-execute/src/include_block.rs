@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use stencila_codecs::DecodeOptions;
-use stencila_schema::{Article, Block, CompilationMessage, IncludeBlock};
+use stencila_schema::{Block, CompilationMessage, IncludeBlock};
 
 use crate::prelude::*;
 
@@ -95,7 +95,7 @@ async fn source_to_content(
     let mut messages = Vec::new();
 
     // Resolve the source into a fully qualified URL (including `file://` URL)
-    let (url, pop_dir) = if source.starts_with("https://") || source.starts_with("http://") {
+    let (identifier, pop_dir) = if source.starts_with("https://") || source.starts_with("http://") {
         (source.to_string(), false)
     } else {
         // Make the path relative to the last directory in the executor's directory stack
@@ -115,14 +115,17 @@ async fn source_to_content(
             false
         };
 
-        (["file://", &path.to_string_lossy()].concat(), pop_dir)
+        (path.to_string_lossy().to_string(), pop_dir)
     };
 
-    // Decode the URL
+    // Decode the identifier
     let content: Option<Vec<Block>> = match stencila_codecs::from_identifier(
-        &url,
+        &identifier,
         Some(DecodeOptions {
             media_type: media_type.clone(),
+            // Set format to None so that the format of the executor's decode options
+            // (that of the executor's document) is not used when decoding
+            format: None,
             ..executor.decode_options.clone().unwrap_or_default()
         }),
     )
@@ -130,12 +133,12 @@ async fn source_to_content(
     {
         Ok(node) => {
             // Transform the decoded node into a blocks
-            match node {
-                Node::Article(Article { content, .. }) => Some(content),
-                _ => {
+            match node.try_into() {
+                Ok(blocks) => Some(blocks),
+                Err(error) => {
                     messages.push(CompilationMessage::new(
                         MessageLevel::Error,
-                        "Expected source to be an article, got `{node}`".to_string(),
+                        format!("Unable to convert source into block content: {error}"),
                     ));
                     None
                 }
