@@ -2,7 +2,7 @@ use std::path::Path;
 
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
-    async_trait,
+    StructuringOperation, StructuringOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Article, Node},
@@ -13,7 +13,6 @@ use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_utils::git_info;
 use stencila_convert::{html_to_pdf, latex_to_pdf, pdf_to_md};
 use stencila_node_media::embed_media;
-use stencila_node_structuring::structuring;
 
 /// A codec for PDF
 pub struct PdfCodec;
@@ -54,6 +53,11 @@ impl Codec for PdfCodec {
         false
     }
 
+    fn structuring_options(&self, _format: &Format) -> StructuringOptions {
+        use StructuringOperation::*;
+        StructuringOptions::new([All], [RemovePrePrimary])
+    }
+
     async fn from_path(
         &self,
         path: &Path,
@@ -87,9 +91,6 @@ impl Codec for PdfCodec {
 
         // Decode the Markdown file to a node
         let (mut node, orig, info) = MarkdownCodec.from_path(&md_path, options).await?;
-
-        // Increase structure of the node
-        structuring(&mut node);
 
         // Embed any image files
         embed_media(&mut node, &md_path)?;

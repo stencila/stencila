@@ -10,14 +10,11 @@ mod third;
 #[cfg(test)]
 mod tests;
 
-/// Add structure to a document with default options
-pub fn structuring<T: WalkNode>(node: &mut T) {
-    structuring_with_options(node, StructuringOptions::default())
-}
+/// Add structure to a document
+#[tracing::instrument(skip(node))]
+pub fn structuring<T: WalkNode>(node: &mut T, options: StructuringOptions) {
+    tracing::trace!("Structuring node");
 
-/// Add structure to a document with custom options
-pub fn structuring_with_options<T: WalkNode>(node: &mut T, options: StructuringOptions
-) {
     let mut first = FirstWalk::new(options.clone());
     first.walk(node);
     first.determine_citation_style(options.citation_style);

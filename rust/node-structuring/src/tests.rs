@@ -9,7 +9,7 @@ use stencila_schema::{
     shortcuts::{em, h1, h2, h3, h4, h5, li, lnk, mi, ol, p, sec, stb, t, tbl},
 };
 
-use crate::{structuring, structuring_with_options};
+use crate::structuring;
 
 /// Shortcut for creating an [`Block::ImageObject`] since there is
 /// no shortcut for that
@@ -48,7 +48,7 @@ fn ctg<const N: usize>(citations: [(&str, &str); N]) -> Inline {
 
 /// Shortcut for running structuring without sectioning
 fn structuring_without_sectioning<T: WalkNode>(node: &mut T) {
-    structuring_with_options(
+    structuring(
         node,
         StructuringOptions {
             exclude_ops: vec![
@@ -63,7 +63,7 @@ fn structuring_without_sectioning<T: WalkNode>(node: &mut T) {
 
 /// Shortcut for running structuring with bracketed numeric citations
 fn structuring_with_bracketed<T: WalkNode>(node: &mut T) {
-    structuring_with_options(
+    structuring(
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::BracketedNumeric),
@@ -74,7 +74,7 @@ fn structuring_with_bracketed<T: WalkNode>(node: &mut T) {
 
 /// Shortcut for running structuring with parenthetic numeric citations
 fn structuring_with_parenthetic<T: WalkNode>(node: &mut T) {
-    structuring_with_options(
+    structuring(
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::ParentheticNumeric),
@@ -85,7 +85,7 @@ fn structuring_with_parenthetic<T: WalkNode>(node: &mut T) {
 
 /// Shortcut for running structuring with superscripted numeric citations
 fn structuring_with_superscripted<T: WalkNode>(node: &mut T) {
-    structuring_with_options(
+    structuring(
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::SuperscriptedNumeric),
@@ -96,7 +96,7 @@ fn structuring_with_superscripted<T: WalkNode>(node: &mut T) {
 
 /// Shortcut for running structuring with author-year citations
 fn structuring_with_author_year<T: WalkNode>(node: &mut T) {
-    structuring_with_options(
+    structuring(
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::AuthorYear),
@@ -1037,7 +1037,7 @@ fn text_to_citations() {
 #[test]
 fn text_to_links() {
     let mut node = p([t("See Table 1 and Figure 3A and https://example.com.")]);
-    structuring(&mut node);
+    structuring(&mut node, StructuringOptions::all());
     assert_eq!(
         node,
         p([
@@ -2142,7 +2142,7 @@ fn sectioning_enabled_by_default() -> Result<()> {
     ]));
 
     // Use the default structuring function (should have sectioning enabled)
-    structuring(&mut article);
+    structuring(&mut article, StructuringOptions::all());
 
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
@@ -2207,7 +2207,7 @@ fn appendix_break_insertion() -> Result<()> {
         p([t("Second appendix content.")]),
     ]));
 
-    structuring(&mut article);
+    structuring(&mut article, StructuringOptions::all());
 
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
@@ -2271,7 +2271,7 @@ fn no_appendix_break_without_appendix() -> Result<()> {
         p([t("Conclusions content.")]),
     ]));
 
-    structuring(&mut article);
+    structuring(&mut article, StructuringOptions::all());
 
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")

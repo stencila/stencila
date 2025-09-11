@@ -6,7 +6,6 @@ use std::{
 use chrono::Local;
 use futures::StreamExt;
 use reqwest::Client;
-use stencila_node_structuring::structuring_with_options;
 use tempfile::tempdir;
 use tokio::{
     fs::{File, read_to_string, write},
@@ -28,9 +27,9 @@ pub use stencila_codec::{
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
 };
-
 use stencila_codec_utils::rebase_edits;
 use stencila_node_strip::{StripNode, StripTargets};
+use stencila_node_structuring::structuring;
 
 use stencila_codec_arxiv::ArxivCodec;
 use stencila_codec_cbor::CborCodec;
@@ -401,7 +400,7 @@ pub async fn from_path_with_info(
         .unwrap_or_else(|| StructuringOptions::default());
     structuring_options.merge(codec.structuring_options(&format));
     if structuring_options.should_perform_any() {
-        structuring_with_options(&mut node, structuring_options);
+        structuring(&mut node, structuring_options);
     }
 
     Ok((node, other, info))
