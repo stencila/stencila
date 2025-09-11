@@ -858,6 +858,14 @@ pub enum StructuringOperation {
     /// and cannot be after the first primary heading (e.g. "Introduction").
     HeadingsToTitle,
 
+    /// Extract document title from the very first level 1 heading
+    ///
+    /// A more conservative version of HeadingsToTitle that only extracts the title
+    /// if it is the very first block in the document content and is explicitly
+    /// level 1. This prevents false positives and ensures only clearly intended
+    /// title headings are extracted.
+    Heading1ToTitle,
+
     /// Create a section for each heading
     ///
     /// Wraps each heading and its following content in structured section elements,

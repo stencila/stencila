@@ -1,0 +1,28 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Introduction to Machine Learning"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The level 1 heading above is the very first block, so it should be extracted as the document title and removed from the content."
+          }
+        }
+      ]
+    }
+  ]
+}

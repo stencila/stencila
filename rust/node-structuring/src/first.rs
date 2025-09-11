@@ -41,6 +41,9 @@ pub(super) struct FirstWalk {
     /// Whether a primary section has been hit
     hit_primary_section: bool,
 
+    /// Whether we're processing the first content block
+    is_first_content_block: bool,
+
     /// Whether in an abstract section
     ///
     /// Whether a "keywords" heading has been encountered, in which case keywords will
@@ -132,6 +135,11 @@ impl VisitorMut for FirstWalk {
             return block_to_remove(block);
         }
 
+        // Mark that we've processed the first content block (for Heading1ToTitle)
+        if self.is_first_content_block {
+            self.is_first_content_block = false;
+        }
+
         walk_control
     }
 
@@ -187,6 +195,7 @@ impl FirstWalk {
     pub fn new(options: StructuringOptions) -> Self {
         Self {
             options,
+            is_first_content_block: true,
             ..Default::default()
         }
     }
@@ -405,7 +414,18 @@ impl FirstWalk {
         // Detect section type from cleaned text
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
-        // Extract title and turn on frontmatter handling
+        // Extract title from very first level 1 heading (Heading1ToTitle)
+        if self.options.should_perform(Heading1ToTitle)
+            && self.is_first_content_block
+            && !self.has_title
+            && self.title.is_none()
+            && heading.level == 1
+        {
+            self.title = Some(heading.content.drain(..).collect());
+            return block_to_remove(block);
+        }
+
+        // Extract title and turn on frontmatter handling (HeadingsToTitle)
         if self.options.should_perform(HeadingsToTitle)
             && !self.has_title
             && self.title.is_none()

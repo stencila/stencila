@@ -1,0 +1,79 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "The title"
+      }
+    }
+  ],
+  "frontmatter": "structuring:\n  - heading1-to-title\n  - headings-to-title",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The above level 1 heading is the first content block, so Heading1ToTitle should extract it as title first."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Overview"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This level 2 heading should remain because Heading1ToTitle already extracted the title."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methodology"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This second level 1 heading should remain because Heading1ToTitle only processes the very first block, and HeadingsToTitle should not extract it since a title was already set."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "heading1-to-title",
+    "headings-to-title"
+  ]
+}

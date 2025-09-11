@@ -1,0 +1,32 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Research Methodology"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This level 2 heading is the first block, but it should NOT be extracted as title because Heading1ToTitle only extracts level 1 headings. This heading should remain in the content even though it appears first."
+          }
+        }
+      ]
+    }
+  ]
+}
