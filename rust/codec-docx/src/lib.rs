@@ -6,7 +6,7 @@ use tokio::fs::{create_dir_all, write};
 
 use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, async_trait,
+    NodeType, StructuringOperation, StructuringOptions, async_trait,
     eyre::{OptionExt, Result},
     stencila_format::Format,
     stencila_schema::{Article, Node, Object, Primitive, strip_non_content},
@@ -70,6 +70,11 @@ impl Codec for DocxCodec {
 
     fn supports_to_string(&self) -> bool {
         false
+    }
+
+    fn structuring_options(&self, _format: &Format) -> StructuringOptions {
+        use StructuringOperation::*;
+        StructuringOptions::new([All], [RemovePrePrimary, ParagraphsToSentences])
     }
 
     async fn from_path(

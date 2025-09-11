@@ -102,6 +102,8 @@ impl Codec for MarkdownCodec {
         use StructuringOperation::*;
         StructuringOptions::new(
             [
+                Heading1ToTitle,
+                HeadingsDecrement,
                 HeadingsToTitle,
                 FiguresWithCaptions,
                 TablesWithCaptions,

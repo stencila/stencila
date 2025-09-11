@@ -2,7 +2,8 @@ use std::path::Path;
 
 use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
+    NodeType, StructuringOperation, StructuringOptions, async_trait, eyre::Result,
+    stencila_format::Format, stencila_schema::Node,
 };
 use stencila_codec_json::JsonCodec;
 use stencila_codec_pandoc::{
@@ -54,6 +55,11 @@ impl Codec for OdtCodec {
 
     fn supports_to_string(&self) -> bool {
         false
+    }
+
+    fn structuring_options(&self, _format: &Format) -> StructuringOptions {
+        use StructuringOperation::*;
+        StructuringOptions::new([All], [RemovePrePrimary, ParagraphsToSentences])
     }
 
     async fn from_path(
