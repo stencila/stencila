@@ -141,7 +141,14 @@ impl List {
         }
 
         let mut table = Tabulated::new();
-        table.set_header(["Name", "Default Extension", "From", "To", "Lossless"]);
+        table.set_header([
+            "Name",
+            "Default Extension",
+            "From",
+            "To",
+            "Lossless",
+            "Default Structuring",
+        ]);
 
         for format in formats {
             let from = match format.from {
@@ -149,7 +156,7 @@ impl List {
                 CodecAvailability::Installable(package) => {
                     Cell::new(format!("requires {package}")).fg(Color::Yellow)
                 }
-                CodecAvailability::Unavailable => Cell::new("no").fg(Color::Red),
+                CodecAvailability::Unavailable => Cell::new("no").add_attribute(Attribute::Dim),
             };
 
             let to = match format.to {
@@ -157,13 +164,19 @@ impl List {
                 CodecAvailability::Installable(package) => {
                     Cell::new(format!("requires {package}")).fg(Color::Yellow)
                 }
-                CodecAvailability::Unavailable => Cell::new("no").fg(Color::Red),
+                CodecAvailability::Unavailable => Cell::new("no").add_attribute(Attribute::Dim),
             };
 
             let lossless = if format.lossless {
                 Cell::new("yes").fg(Color::Green)
             } else {
-                Cell::new("no").fg(Color::Yellow)
+                Cell::new("no").add_attribute(Attribute::Dim)
+            };
+
+            let structuring = if format.structuring_options.should_perform_any() {
+                Cell::new("some").fg(Color::Green)
+            } else {
+                Cell::new("none").add_attribute(Attribute::Dim)
             };
 
             table.add_row([
@@ -172,6 +185,7 @@ impl List {
                 from,
                 to,
                 lossless,
+                structuring,
             ]);
         }
 
@@ -233,7 +247,9 @@ impl Structuring {
         }
 
         for op in StructuringOperation::iter() {
-            if !options.should_perform(op) {
+            if matches!(op, StructuringOperation::All | StructuringOperation::None_)
+                || !options.should_perform(op)
+            {
                 continue;
             }
 
