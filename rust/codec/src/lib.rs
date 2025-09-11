@@ -1002,6 +1002,7 @@ pub struct StructuringOptions {
     /// operations. Example: heading-to-title,section-to-abstract
     #[arg(
         long = "include-structuring",
+        alias = "structuring",
         help_heading = "Structuring Options",
         value_delimiter = ','
     )]
