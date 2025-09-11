@@ -515,10 +515,15 @@ impl FirstWalk {
         if self.options.should_perform(ParagraphsToHeadings)
             && should_convert_paragraph_to_heading(paragraph)
         {
-            let level = self
-                .last_genuine_heading_level
-                .map(|l| (l + 1).min(6)) // One level deeper than last, max level 6
-                .unwrap_or(3); // Default to level 3 if no context
+            // Determine section type and set appropriate level
+            let section_type = SectionType::from_text(&to_text(paragraph)).ok();
+            let level = if section_type.as_ref().map_or(false, is_primary_section_type) {
+                1 // Primary sections should be level 1
+            } else {
+                self.last_genuine_heading_level
+                    .map(|l| (l + 1).min(6)) // One level deeper than last, max level 6
+                    .unwrap_or(3) // Default to level 3 if no context
+            };
 
             // Extract content from the Strong element
             if let Inline::Strong(strong) = &paragraph.content[0] {

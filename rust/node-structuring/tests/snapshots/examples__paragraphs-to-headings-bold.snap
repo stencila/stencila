@@ -18,7 +18,7 @@ expression: node
     },
     {
       "type": "Heading",
-      "level": 3,
+      "level": 1,
       "content": [
         {
           "type": "Text",
