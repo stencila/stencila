@@ -101,7 +101,7 @@ impl SecondWalk {
 
     /// Visit a vector of inlines
     fn visit_inlines(&mut self, inlines: &mut Vec<Inline>) {
-        if self.options.should_perform(TextToCitations) {
+        if self.options.should_perform(TextToCitations) || self.options.should_perform(MathToCitations){
             // Apply any citation replacements
             let mut inlines_new = Vec::with_capacity(inlines.len());
             for inline in inlines.drain(..) {

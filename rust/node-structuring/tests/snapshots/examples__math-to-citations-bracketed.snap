@@ -1,0 +1,157 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This equation "
+          }
+        },
+        {
+          "type": "MathInline",
+          "code": {
+            "string": "E = mc^[2]"
+          },
+          "mathLanguage": "tex"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " is normal math. But "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "ref-1",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-2",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-3",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-4",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "4"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", and "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-6",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "6"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-8",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "8"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-9",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "9"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-10",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "10"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " are treated as bracketed citations in math expressions."
+          }
+        }
+      ]
+    }
+  ]
+}
