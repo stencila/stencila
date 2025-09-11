@@ -29,6 +29,9 @@ pub(super) struct FirstWalk {
     /// The structuring options
     options: StructuringOptions,
 
+    /// Whether the work already has a title
+    has_title: bool,
+
     /// The extracted title of the work
     pub title: Option<Vec<Inline>>,
 
@@ -83,7 +86,8 @@ pub(super) struct FirstWalk {
 
 impl VisitorMut for FirstWalk {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
-        if let Node::Article(Article { content, .. }) = node {
+        if let Node::Article(Article { title, content, .. }) = node {
+            self.has_title = title.is_some();
             self.in_frontmatter = true;
             self.visit_blocks(content);
         }
@@ -402,6 +406,7 @@ impl FirstWalk {
 
         // Extract title and turn on frontmatter handling
         if self.options.should_perform(HeadingToTitle)
+            && !self.has_title
             && self.title.is_none()
             && !self.hit_primary_section
             && numbering.is_none()
