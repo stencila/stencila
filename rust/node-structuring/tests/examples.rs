@@ -51,7 +51,7 @@ async fn examples() -> Result<()> {
         {
             ops.iter()
                 .filter_map(|op| match op {
-                    Primitive::String(op) => StructuringOperation::from_str(&op).ok(),
+                    Primitive::String(op) => StructuringOperation::from_str(op).ok(),
                     _ => None,
                 })
                 .collect_vec()

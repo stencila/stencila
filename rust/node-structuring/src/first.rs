@@ -546,7 +546,7 @@ impl FirstWalk {
         {
             // Determine section type and set appropriate level
             let section_type = SectionType::from_text(&to_text(paragraph)).ok();
-            let level = if section_type.as_ref().map_or(false, is_primary_section_type) {
+            let level = if section_type.as_ref().is_some_and(is_primary_section_type) {
                 1 // Primary sections should be level 1
             } else {
                 self.last_genuine_heading_level

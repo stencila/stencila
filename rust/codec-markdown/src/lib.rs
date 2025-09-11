@@ -108,7 +108,7 @@ impl Codec for MarkdownCodec {
                 FiguresWithCaptions,
                 TablesWithCaptions,
                 TablesToDatatables,
-                TextToLinks
+                TextToLinks,
             ],
             [],
         )

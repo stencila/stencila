@@ -397,7 +397,7 @@ pub async fn from_path_with_info(
 
     let mut structuring_options = options
         .map(|opts| opts.structuring_options)
-        .unwrap_or_else(|| StructuringOptions::default());
+        .unwrap_or_default();
     structuring_options.merge(codec.structuring_options(&format));
     if structuring_options.should_perform_any() {
         structuring(&mut node, structuring_options);
