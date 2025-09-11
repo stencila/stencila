@@ -1,0 +1,71 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n  - heading1-to-title\n  - headings-decrement",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph appears first, so no heading will be extracted as title."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Main Section"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This level 2 heading should NOT be decremented because no title was extracted by Heading1ToTitle. It should remain as level 2."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 3,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Subsection"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This level 3 heading should also remain unchanged at level 3 since no title extraction occurred."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "heading1-to-title",
+    "headings-decrement"
+  ]
+}

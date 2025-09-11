@@ -866,6 +866,14 @@ pub enum StructuringOperation {
     /// title headings are extracted.
     Heading1ToTitle,
 
+    /// Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+    ///
+    /// Normalizes document structure when the original H1 was extracted as
+    /// title by `heading1-to-title`. This ensures that content headings start
+    /// at level 1, maintaining proper hierarchical structure for documents that
+    /// originally used H1 for title and H2+ for main sections.
+    HeadingsDecrement,
+
     /// Create a section for each heading
     ///
     /// Wraps each heading and its following content in structured section elements,

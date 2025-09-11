@@ -44,6 +44,9 @@ pub(super) struct FirstWalk {
     /// Whether we're processing the first content block
     is_first_content_block: bool,
 
+    /// Whether headings should be decremented (set when Heading1ToTitle extracts a title)
+    should_decrement_headings: bool,
+
     /// Whether in an abstract section
     ///
     /// Whether a "keywords" heading has been encountered, in which case keywords will
@@ -422,6 +425,7 @@ impl FirstWalk {
             && heading.level == 1
         {
             self.title = Some(heading.content.drain(..).collect());
+            self.should_decrement_headings = true;
             return block_to_remove(block);
         }
 
@@ -492,7 +496,12 @@ impl FirstWalk {
             // assign level as last numbered + 1 (for OCR inaccuracy in deep headings)
             last_level + 1
         } else {
-            heading.level
+            // Decrement heading level if HeadingsDecrement is enabled and we extracted a title
+            if self.options.should_perform(HeadingsDecrement) && self.should_decrement_headings {
+                heading.level.saturating_sub(1).max(1)
+            } else {
+                heading.level
+            }
         };
 
         // Update heading level and content, if necessary

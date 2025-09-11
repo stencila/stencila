@@ -1,0 +1,102 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Research Paper Title"
+      }
+    }
+  ],
+  "frontmatter": "structuring:\n  - heading1-to-title\n  - headings-decrement",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The above level 1 heading should be extracted as title, enabling heading decrement for remaining headings."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Main Findings"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This level 1 heading should remain at level 1 after decrementing (minimum level is 1)."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Analysis Details"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This level 2 heading should become level 1 after decrementing."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Conclusion"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Another level 1 heading that should remain at level 1 after decrementing."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "heading1-to-title",
+    "headings-decrement"
+  ]
+}
