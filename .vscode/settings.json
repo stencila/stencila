@@ -147,7 +147,6 @@
         "rustfmt",
         "schemars",
         "seahash",
-        "sentencize",
         "serde",
         "sidenote",
         "signin",

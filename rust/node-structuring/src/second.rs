@@ -1,8 +1,8 @@
 use stencila_codec::{StructuringOperation::*, StructuringOptions};
 use stencila_codec_links::decode_inlines as text_with_links;
 use stencila_schema::{
-    Article, Block, Emphasis, Heading, Inline, InlinesBlock, Node, Paragraph, Strikeout, Strong,
-    StyledInline, Subscript, Superscript, Underline, VisitorMut, WalkControl,
+    Article, Block, Emphasis, Heading, Inline, InlinesBlock, Node, Paragraph, Sentence, Strikeout,
+    Strong, StyledInline, Subscript, Superscript, Text, Underline, VisitorMut, WalkControl,
 };
 
 use crate::{FirstWalk, should_remove_inline};
@@ -37,11 +37,16 @@ impl VisitorMut for SecondWalk {
             self.visit_inlines(content);
         }
 
+        if let Block::Paragraph(paragraph) = block {
+            self.visit_paragraph(paragraph);
+        }
+
         WalkControl::Continue
     }
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::Emphasis(Emphasis { content, .. })
+        | Inline::Sentence(Sentence { content, .. })
         | Inline::Strikeout(Strikeout { content, .. })
         | Inline::Strong(Strong { content, .. })
         | Inline::StyledInline(StyledInline { content, .. })
@@ -153,6 +158,85 @@ impl SecondWalk {
             *inlines = inlines_new;
         }
     }
+
+    fn visit_paragraph(&self, paragraph: &mut Paragraph) {
+        if self.options.should_perform(ParagraphsToSentences) {
+            // Split the paragraph into sentences based on punctuation
+            let mut sentences = Vec::with_capacity(paragraph.content.len());
+            let mut sentence = Vec::new();
+            for mut inline in paragraph.content.drain(..) {
+                if let Inline::Text(Text { value, .. }) = &mut inline {
+                    let sentence_parts = split_text_into_sentences(value);
+                    for (text, is_sentence_end) in sentence_parts {
+                        if !text.is_empty() {
+                            sentence.push(Inline::Text(Text::new(text.into())));
+                        }
+
+                        if is_sentence_end {
+                            sentences.push(Inline::Sentence(Sentence::new(std::mem::take(
+                                &mut sentence,
+                            ))));
+                        }
+                    }
+                } else {
+                    sentence.push(inline);
+                }
+            }
+
+            if !sentence.is_empty() {
+                sentences.push(Inline::Sentence(Sentence::new(sentence)));
+            }
+
+            paragraph.content.append(&mut sentences)
+        }
+    }
+}
+
+/// Split text into sentence parts, returning (text, is_sentence_end) tuples
+///
+/// This function splits text on sentence-ending punctuation ('.', '!', '?')
+/// followed by whitespace, similar to the approach in codec-utils/split_paragraph.rs
+fn split_text_into_sentences(text: &str) -> Vec<(String, bool)> {
+    let mut result = Vec::new();
+    let mut current = String::new();
+    let mut chars = text.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        current.push(c);
+
+        // Check if this character is sentence-ending punctuation
+        if c == '.' || c == '!' || c == '?' {
+            // Look ahead to see if followed by whitespace
+            if let Some(&next) = chars.peek() {
+                if next.is_whitespace() {
+                    // Consume and include the whitespace in the current sentence
+                    while let Some(&w) = chars.peek() {
+                        if w.is_whitespace() {
+                            if let Some(whitespace_char) = chars.next() {
+                                current.push(whitespace_char);
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                    // This is a sentence boundary
+                    result.push((current.clone(), true));
+                    current.clear();
+                }
+            } else {
+                // End of string - this is also a sentence boundary
+                result.push((current.clone(), true));
+                current.clear();
+            }
+        }
+    }
+
+    // Add any remaining text as a non-sentence-ending part
+    if !current.is_empty() {
+        result.push((current, false));
+    }
+
+    result
 }
 
 /// Determine if inlines contain at least one [`Link`]
@@ -161,4 +245,77 @@ fn has_links(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
         .iter()
         .any(|inline| matches!(inline, Inline::Link(..)))
         .then_some(inlines)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_split_text_into_sentences() {
+        // Basic period
+        assert_eq!(
+            split_text_into_sentences("Hello. World"),
+            vec![("Hello. ".to_string(), true), ("World".to_string(), false)]
+        );
+
+        // Question mark
+        assert_eq!(
+            split_text_into_sentences("Are you sure? Yes I am."),
+            vec![
+                ("Are you sure? ".to_string(), true),
+                ("Yes I am.".to_string(), true)
+            ]
+        );
+
+        // Exclamation mark
+        assert_eq!(
+            split_text_into_sentences("Great! That works."),
+            vec![
+                ("Great! ".to_string(), true),
+                ("That works.".to_string(), true)
+            ]
+        );
+
+        // Multiple spaces
+        assert_eq!(
+            split_text_into_sentences("First.  Second"),
+            vec![
+                ("First.  ".to_string(), true),
+                ("Second".to_string(), false)
+            ]
+        );
+
+        // No sentence boundary (no space after punctuation)
+        assert_eq!(
+            split_text_into_sentences("Mr.Smith went home"),
+            vec![("Mr.Smith went home".to_string(), false)]
+        );
+
+        // End of string boundary
+        assert_eq!(
+            split_text_into_sentences("This is the end."),
+            vec![("This is the end.".to_string(), true)]
+        );
+
+        // Mixed punctuation
+        assert_eq!(
+            split_text_into_sentences("First. Second! Third? Fourth"),
+            vec![
+                ("First. ".to_string(), true),
+                ("Second! ".to_string(), true),
+                ("Third? ".to_string(), true),
+                ("Fourth".to_string(), false)
+            ]
+        );
+
+        // Empty string
+        assert_eq!(split_text_into_sentences(""), vec![]);
+
+        // No punctuation
+        assert_eq!(
+            split_text_into_sentences("Just text"),
+            vec![("Just text".to_string(), false)]
+        );
+    }
 }

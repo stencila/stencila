@@ -9871,7 +9871,6 @@ dependencies = [
  "stencila-node-find",
  "stencila-node-first",
  "stencila-node-map",
- "stencila-node-sentencize",
  "stencila-node-strip",
  "stencila-schema",
  "stencila-tools",
@@ -9973,7 +9972,6 @@ dependencies = [
  "stencila-kernel-kuzu",
  "stencila-node-canonicalize",
  "stencila-node-db",
- "stencila-node-sentencize",
  "tokio",
  "tracing",
 ]
@@ -10647,14 +10645,6 @@ dependencies = [
  "stencila-node-url",
  "stencila-schema",
  "tracing",
-]
-
-[[package]]
-name = "stencila-node-sentencize"
-version = "0.0.0"
-dependencies = [
- "pretty_assertions",
- "stencila-schema",
 ]
 
 [[package]]

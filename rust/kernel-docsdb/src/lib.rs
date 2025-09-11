@@ -28,7 +28,6 @@ use stencila_kernel_kuzu::{
 };
 use stencila_node_canonicalize::canonicalize;
 use stencila_node_db::NodeDatabase;
-use stencila_node_sentencize::sentencize;
 use tokio::{
     self,
     fs::read_to_string,
@@ -469,14 +468,13 @@ impl DocsDBKernelInstance {
                             // Generate a unique document ID
                             let doc_id = NodeId::random(*b"doc");
 
-                            // Canonicalize and sentencize the document
+                            // Canonicalize the document
                             if let Err(error) = canonicalize(&mut root).await {
                                 tracing::debug!(
                                     "Failed to canonicalize document `{identifier}`: {error}",
                                 );
                                 continue;
                             }
-                            sentencize(&mut root);
 
                             // Store the document as JSON
                             let store_path = store_dir.join(format!("{doc_id}.json"));

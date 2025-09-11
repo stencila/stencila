@@ -17,7 +17,6 @@ stencila-dirs = { path = "../dirs" }
 stencila-kernel-kuzu = { path = "../kernel-kuzu" }
 stencila-node-canonicalize = { path = "../node-canonicalize" }
 stencila-node-db = { path = "../node-db" }
-stencila-node-sentencize = { path = "../node-sentencize" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 

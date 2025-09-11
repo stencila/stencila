@@ -55,7 +55,7 @@ impl Codec for PdfCodec {
 
     fn structuring_options(&self, _format: &Format) -> StructuringOptions {
         use StructuringOperation::*;
-        StructuringOptions::new([All], [RemovePrePrimary])
+        StructuringOptions::new([All], [RemovePrePrimary, ParagraphsToSentences])
     }
 
     async fn from_path(

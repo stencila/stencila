@@ -889,6 +889,16 @@ pub enum StructuringOperation {
     /// don't end with sentence punctuation. Heading level is determined by context.
     ParagraphsToHeadings,
 
+    /// Split paragraphs into individual sentences
+    ///
+    /// Analyzes text content within paragraphs and splits them into separate
+    /// sentence elements based on punctuation patterns. Recognizes sentence
+    /// boundaries at periods, exclamation marks, and question marks when
+    /// followed by whitespace. Preserves non-text inline elements (like links
+    /// or emphasis) within their appropriate sentences. Does not split on
+    /// abbreviations like "Mr." or "Dr." when not followed by whitespace.
+    ParagraphsToSentences,
+
     /// Combine an image with a figure caption before or after it
     ///
     /// A heading or paragraph is treated as a figure caption if it starts with
@@ -915,7 +925,7 @@ pub enum StructuringOperation {
     /// structured tabular data while preserving complex tables as-is.
     TablesToDatatables,
 
-    /// Convert citation text to structured citations
+    /// Convert text to structured citations
     ///
     /// Detects citation patterns like "(Smith 2023)" or "[1]" in text and
     /// converts them to structured citation elements. Supports multiple

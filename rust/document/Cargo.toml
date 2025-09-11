@@ -37,7 +37,6 @@ stencila-node-execute = { path = "../node-execute" }
 stencila-node-find = { path = "../node-find" }
 stencila-node-first = { path = "../node-first" }
 stencila-node-map = { path = "../node-map" }
-stencila-node-sentencize = { path = "../node-sentencize" }
 stencila-node-strip = { path = "../node-strip" }
 stencila-schema = { path = "../schema" }
 stencila-tools = { path = "../tools" }

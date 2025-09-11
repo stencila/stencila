@@ -58,9 +58,6 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Cypher
         ("list", NodeType::List),
         ("paragraph", NodeType::Paragraph),
         ("section", NodeType::Section),
-        // Note: at present, mainly for performance reasons, the current document is not
-        // "sentencized" so `sentence` and `sentences` function are not provided here.
-        // Metadata
         ("organization", NodeType::Organization),
         ("person", NodeType::Person),
         ("reference", NodeType::Reference),

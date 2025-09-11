@@ -26,7 +26,6 @@ use stencila_dirs::{
 };
 use stencila_node_canonicalize::canonicalize;
 use stencila_node_db::NodeDatabase;
-use stencila_node_sentencize::sentencize;
 use stencila_schema::{Node, NodeId};
 
 use crate::Document;
@@ -441,7 +440,6 @@ impl Document {
         identifiers: &[String],
         decode_options: Option<DecodeOptions>,
         should_canonicalize: bool,
-        should_sentencize: bool,
     ) -> Result<()> {
         let db_path = stencila_db_file(stencila_dir, true).await?;
         let mut db = NodeDatabase::new(&db_path)?;
@@ -468,10 +466,6 @@ impl Document {
 
             if should_canonicalize {
                 canonicalize(&mut root).await?;
-            }
-
-            if should_sentencize {
-                sentencize(&mut root);
             }
 
             // Store root node
@@ -796,7 +790,7 @@ impl Document {
             .into_keys()
             .map(|path| path.to_string_lossy().to_string())
             .collect_vec();
-        Self::add_docs(&stencila_dir, &identifiers, None, true, true).await?;
+        Self::add_docs(&stencila_dir, &identifiers, None, true).await?;
 
         Ok(())
     }

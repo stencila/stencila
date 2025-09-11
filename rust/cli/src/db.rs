@@ -91,10 +91,6 @@ pub struct Add {
     /// Do not canonicalize the document
     #[arg(long)]
     no_canonicalize: bool,
-
-    /// Do not split document paragraphs into sentences
-    #[arg(long)]
-    no_sentencize: bool,
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
@@ -155,7 +151,6 @@ impl Add {
             &self.documents,
             Some(decode_options),
             !self.no_canonicalize,
-            !self.no_sentencize,
         )
         .await
     }
