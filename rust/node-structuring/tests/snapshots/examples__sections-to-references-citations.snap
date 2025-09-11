@@ -1,0 +1,162 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "garcia-2023",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Garcia"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Modern Algorithms for Big Data"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "IEEE Transactions on Computing"
+            }
+          }
+        ],
+        "volumeNumber": 45,
+        "issueNumber": 2
+      },
+      "pageStart": 78,
+      "pageEnd": 92
+    },
+    {
+      "type": "Reference",
+      "id": "miller-and-johnson-2022",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Miller"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Johnson"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Computational Statistics"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "lee-2021",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "H."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Optimization Techniques in Machine Learning"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Machine Intelligence"
+            }
+          }
+        ],
+        "volumeNumber": 3
+      },
+      "pageStart": 234,
+      "pageEnd": 248
+    }
+  ],
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Article with a \"citations\" section with references as numbered paragraphs."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Article with a \"key words\" section"
+          }
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "data analysis",
+    "statistics",
+    "visualization",
+    "computational methods"
+  ]
+}

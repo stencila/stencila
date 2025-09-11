@@ -1,0 +1,118 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "anderson-2024",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Anderson"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Advanced Statistical Methods"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Academic Press"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "davis-2023",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Davis"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "text": "Davis, K., et al. (2023). \"Computational Approaches to Data Mining.\" Proceedings of Data Science Conference, pp. 123-145."
+    },
+    {
+      "type": "Reference",
+      "id": "taylor-2022",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Taylor"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deep Learning Applications"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "MIT Press"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Article with a \"bibliography\" section with references as paragraphs."
+          }
+        }
+      ]
+    }
+  ]
+}

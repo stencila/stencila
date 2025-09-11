@@ -10,14 +10,14 @@ use insta::assert_json_snapshot;
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_node_structuring::structuring;
 
-/// Structure example Markdown files using the operation specified in the first
-/// three parts of their name
+/// Structure example Markdown files using the structuring operation specified
+/// in the first three parts of their name.
 /// 
-/// Run using
+/// Run using:
 /// 
 /// cargo insta test -p stencila-node-structuring
 /// 
-/// and then review snapshots with
+/// and then review snapshots with:
 /// 
 /// cargo insta review
 #[tokio::test]

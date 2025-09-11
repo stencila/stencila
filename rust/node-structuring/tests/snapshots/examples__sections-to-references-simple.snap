@@ -1,0 +1,139 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "ref-1",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Machine Learning Fundamentals"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Tech Publishing"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "ref-2",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jones"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brown"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Data Analysis Methods"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Science Press"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "ref-3",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wilson"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Neural Networks in Practice"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of AI"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 3
+      },
+      "pageStart": 45,
+      "pageEnd": 67
+    }
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Article with a \"references\" section with references as an ordered list."
+          }
+        }
+      ]
+    }
+  ]
+}
