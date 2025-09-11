@@ -1,0 +1,130 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "ref-1",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Machine Learning Fundamentals"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Tech Publishing"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "ref-2",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jones"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brown"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Data Analysis Methods"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Science Press"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Article with reference lists followed by other content that should not be treated as references."
+          }
+        }
+      ]
+    },
+    {
+      "type": "ImageObject",
+      "contentUrl": "example.png",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Figure 1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph should NOT be treated as a reference because it comes after an image."
+          }
+        }
+      ]
+    }
+  ]
+}

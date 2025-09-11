@@ -102,6 +102,20 @@ impl VisitorMut for FirstWalk {
     }
 
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
+        // Exit references mode if we encounter non-reference-like blocks
+        if self.in_references {
+            match block {
+                // These blocks can appear within references sections
+                // Continue processing: for these block type ww handle in_references state
+                // in self.visit_heading etc
+                Block::Heading(..) | Block::Paragraph(..) | Block::List(..) => {}
+                // Any other block type should exit references mode
+                _ => {
+                    self.in_references = false;
+                }
+            }
+        }
+
         let walk_control = match block {
             // Visit individual blocks
             Block::Heading(..) => self.visit_heading(block),
@@ -666,6 +680,9 @@ impl FirstWalk {
             if !references.is_empty() {
                 self.references = Some(references);
             }
+
+            // Record that we have finished processing references
+            self.in_references = false;
 
             block_to_remove(block)
         } else {
