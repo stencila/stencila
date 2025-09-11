@@ -76,7 +76,7 @@
     "clean": true
   },
   "devDependencies": {
-    "@napi-rs/cli": "2.18.4"
+    "@napi-rs/cli": "3.2.0"
   },
   "dependencies": {
     "@stencila/types": "2.0.0-alpha.26"
