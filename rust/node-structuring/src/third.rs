@@ -23,7 +23,7 @@ pub(super) struct ThirdWalk {
 impl VisitorMut for ThirdWalk {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         if let Node::Article(Article { content, .. }) = node {
-            self.visit_blocks(content);
+            self.visit_blocks(content, false);
         }
 
         WalkControl::Continue
@@ -37,38 +37,40 @@ impl VisitorMut for ThirdWalk {
                 content: Some(content),
                 ..
             })
-            | Block::StyledBlock(StyledBlock { content, .. }) => self.visit_blocks(content),
+            | Block::StyledBlock(StyledBlock { content, .. }) => self.visit_blocks(content, false),
             Block::ForBlock(ForBlock {
                 content,
                 iterations,
                 ..
             }) => {
-                self.visit_blocks(content);
+                self.visit_blocks(content, false);
                 if let Some(iterations) = iterations {
-                    self.visit_blocks(iterations);
+                    self.visit_blocks(iterations, false);
                 }
                 WalkControl::Continue
             }
 
-            // Skip Section blocks to avoid infinite recursion
-            Block::Section(_) => WalkControl::Continue,
+            Block::Section(Section { content, .. }) => {
+                self.visit_blocks(content, true);
+                WalkControl::Continue
+            }
 
             _ => WalkControl::Continue,
         }
     }
 
     fn visit_list_item(&mut self, list_item: &mut ListItem) -> WalkControl {
-        self.visit_blocks(&mut list_item.content);
+        self.visit_blocks(&mut list_item.content, false);
         WalkControl::Continue
     }
 
     fn visit_table_cell(&mut self, table_cell: &mut TableCell) -> WalkControl {
-        self.visit_blocks(&mut table_cell.content);
+        self.visit_blocks(&mut table_cell.content, false);
         WalkControl::Continue
     }
 
     fn visit_if_block_clause(&mut self, clause: &mut IfBlockClause) -> WalkControl {
-        self.visit_blocks(&mut clause.content);
+        self.visit_blocks(&mut clause.content, false);
         WalkControl::Continue
     }
 
@@ -76,7 +78,7 @@ impl VisitorMut for ThirdWalk {
         &mut self,
         step: &mut stencila_schema::WalkthroughStep,
     ) -> WalkControl {
-        self.visit_blocks(&mut step.content);
+        self.visit_blocks(&mut step.content, false);
         WalkControl::Continue
     }
 }
@@ -93,7 +95,7 @@ impl ThirdWalk {
     ///
     /// This method transforms a flat list of blocks containing headings into
     /// a hierarchical structure of sections based on heading levels.
-    fn visit_blocks(&mut self, blocks: &mut Vec<Block>) -> WalkControl {
+    fn visit_blocks(&mut self, blocks: &mut Vec<Block>, parent_is_section: bool) -> WalkControl {
         let mut blocks_new = Vec::new();
         let mut index = 0;
 
@@ -103,6 +105,7 @@ impl ThirdWalk {
             if should_remove_block(block) {
                 index += 1;
             } else if self.options.should_perform(HeadingsToSections)
+                && !parent_is_section
                 && let Block::Heading(heading) = block
             {
                 let (section, consumed) = create_section_from_heading(heading, &blocks[index..]);
