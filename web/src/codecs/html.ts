@@ -1294,7 +1294,7 @@ function encodeCaption(
         return (
           `<stencila-paragraph id=xxx depth="${ancestors.length}" ancestors="${ancestors.join('.')}">` +
           `<p slot="content">` +
-          `<span class="${type.toLowerCase()}-label">${type}${label ? ` ${label}` : ''}</span>` +
+          `<span class="${type.toLowerCase()}-label">${type}${label ? ` ${label}` : ''}</span>:` +
           encodeInlines(block.content, [...ancestors, 'Paragraph']) +
           `</p></stencila-paragraph>`
         )
