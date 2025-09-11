@@ -1,0 +1,64 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has figure captions before the image."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "id": "fig-1",
+      "label": "1",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This caption should be combined with the following image into a figure element."
+              }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "image.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Example image"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This content should remain after the figure."
+          }
+        }
+      ]
+    }
+  ]
+}

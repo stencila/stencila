@@ -1,0 +1,64 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has figure captions after the image."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "id": "fig-2a",
+      "label": "2A",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Results from the experiment showing significant improvement."
+              }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "image.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Example image"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This content should remain separate from the figure above."
+          }
+        }
+      ]
+    }
+  ]
+}

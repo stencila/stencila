@@ -1,0 +1,81 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has a simple table that should be converted to a datatable."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Datatable",
+      "columns": [
+        {
+          "type": "DatatableColumn",
+          "name": "Name",
+          "values": [
+            "Alice",
+            "Bob",
+            "Carol"
+          ],
+          "validator": {
+            "type": "ArrayValidator",
+            "itemsValidator": {
+              "type": "StringValidator"
+            }
+          }
+        },
+        {
+          "type": "DatatableColumn",
+          "name": "Age",
+          "values": [
+            25,
+            30,
+            28
+          ],
+          "validator": {
+            "type": "ArrayValidator",
+            "itemsValidator": {
+              "type": "IntegerValidator"
+            }
+          }
+        },
+        {
+          "type": "DatatableColumn",
+          "name": "Score",
+          "values": [
+            95,
+            87,
+            92
+          ],
+          "validator": {
+            "type": "ArrayValidator",
+            "itemsValidator": {
+              "type": "IntegerValidator"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This table has consistent rows, simple text-only cells, and no spans, so should be converted to a datatable."
+          }
+        }
+      ]
+    }
+  ]
+}
