@@ -1,0 +1,287 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- text-to-citations\n- paragraphs-to-sentences",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This tests that citations remain intact when paragraphs are split into sentences. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This interaction is important because sentence boundaries must not break citation groups and abbreviations like Dr. must not cause incorrect splits that damage citations."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "According to "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "smith-2023",
+              "citationMode": "Narrative",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Smith (2023)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", machine learning shows promise. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "However, Dr. Jones and Prof. "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "wilson-2022",
+              "citationMode": "Narrative",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Wilson (2022)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " disagree with this approach. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Multiple studies "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "brown-et-al-2021",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Brown et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "davis-2020",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Davis, 2020"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "wilson-and-taylor-2019",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Wilson and Taylor, 2019"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " support the original findings."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The paragraph above should be split into sentences while preserving the citation structures: \""
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "smith-2023",
+              "citationMode": "Narrative",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Smith (2023)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "\", \"Dr. "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Jones and Prof. "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "wilson-2022",
+              "citationMode": "Narrative",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Wilson (2022)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "\", and the citation group \""
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "brown-et-al-2021",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Brown et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "davis-2020",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Davis, 2020"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "wilson-and-taylor-2019",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Wilson and Taylor, 2019"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "\". "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Sentence",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The abbreviations \"Dr.\" and \"Prof.\" should not cause incorrect sentence splits."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "text-to-citations",
+    "paragraphs-to-sentences"
+  ]
+}

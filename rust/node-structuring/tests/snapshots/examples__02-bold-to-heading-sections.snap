@@ -1,0 +1,129 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- paragraphs-to-headings\n- headings-to-sections",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This tests that bold paragraphs like "
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " are first converted to headings with appropriate level (level 1 for primary sections), then wrapped in section elements. This interaction is important because the heading level determination affects section hierarchy and primary sections must be recognized correctly."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Introduction",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Introduction"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The bold paragraph above should be converted to a level 1 heading because \"Introduction\" is a primary section type, then wrapped in a section element."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Methods",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This bold paragraph should also become a level 1 heading since \"Methods\" is a primary section type, then be wrapped in a section."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "sectionType": "StatisticalAnalysis",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Data Analysis"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "This bold paragraph should become a heading (level 2 since it's not a primary section type) and then be wrapped appropriately in the section hierarchy."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "paragraphs-to-headings",
+    "headings-to-sections"
+  ]
+}

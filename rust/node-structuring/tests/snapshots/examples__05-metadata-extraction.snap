@@ -1,0 +1,253 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This content should be extracted as document metadata and removed from the main content. The Abstract heading and this paragraph should become the document's abstract property."
+          }
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "type": "Reference",
+      "id": "smith-2023",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Machine Learning Applications"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Academic Press"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "jones-2022",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jones"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Data Analysis Methods"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Science Publications"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "wilson-2021",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wilson"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Statistical Approaches"
+          }
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Research Press"
+      }
+    }
+  ],
+  "frontmatter": "structuring:\n- sections-to-abstract\n- sections-to-references\n- headings-to-sections",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This tests that Abstract and References sections are extracted as document metadata while remaining sections get proper structure."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Introduction",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Introduction"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This section should remain in the main content and be wrapped in a section element."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Methods",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This section should remain in the main content and be properly structured as a section."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Results",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Results"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The results section should also remain and be wrapped in a section element."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Conclusions",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Conclusion"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The References section above should be extracted as document metadata, and the reference list should be processed into structured references while being removed from the main content."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "sections-to-abstract",
+    "sections-to-references",
+    "headings-to-sections"
+  ]
+}

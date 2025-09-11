@@ -1,0 +1,102 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- tables-to-datatables\n- tables-with-captions",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This tests that simple tables with captions are properly converted to datatables while preserving caption association. This interaction is critical for structured data with descriptions - the caption must be correctly associated with the datatable, and only uniform simple tables should be converted."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Datatable",
+      "id": "tab-1",
+      "label": "1",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Performance metrics showing processing times and accuracy rates."
+              }
+            }
+          ]
+        }
+      ],
+      "columns": [
+        {
+          "type": "DatatableColumn",
+          "name": "Method",
+          "values": [
+            "A",
+            "B",
+            "C"
+          ],
+          "validator": {
+            "type": "ArrayValidator",
+            "itemsValidator": {
+              "type": "StringValidator"
+            }
+          }
+        },
+        {
+          "type": "DatatableColumn",
+          "name": "Time (ms)",
+          "values": [
+            120,
+            85,
+            203
+          ],
+          "validator": {
+            "type": "ArrayValidator",
+            "itemsValidator": {
+              "type": "IntegerValidator"
+            }
+          }
+        },
+        {
+          "type": "DatatableColumn",
+          "name": "Accuracy",
+          "values": [
+            95.2,
+            97.1,
+            89.7
+          ],
+          "validator": {
+            "type": "ArrayValidator",
+            "itemsValidator": {
+              "type": "NumberValidator"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The simple table above should be converted to a datatable because it has consistent rows, simple text-only cells, and no spans. The caption should be preserved and associated with the resulting datatable."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "tables-to-datatables",
+    "tables-with-captions"
+  ]
+}

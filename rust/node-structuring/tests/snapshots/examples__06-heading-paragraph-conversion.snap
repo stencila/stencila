@@ -1,0 +1,104 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- headings-to-paragraphs\n- paragraphs-to-headings",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This tests bidirectional conversion where long headings become paragraphs while bold paragraphs become headings. This interaction must not create conflicts or infinite loops, and the operations must apply their criteria correctly to avoid interfering with each other."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is a very long heading that exceeds 80 characters and should be converted to a paragraph because it exhibits paragraph-like traits rather than proper heading characteristics."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This heading ends with a period and should also be converted to a paragraph."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The bold paragraph above should be converted to a heading because it's short, has no punctuation, and represents a valid section name."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Results and Analysis"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This bold paragraph should also become a heading since it meets the criteria for heading conversion."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This demonstrates that the operations can work together: inappropriate headings become paragraphs while appropriate bold text becomes headings, without creating conflicts between the two transformations."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "headings-to-paragraphs",
+    "paragraphs-to-headings"
+  ]
+}

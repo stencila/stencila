@@ -1,0 +1,243 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- figures-with-captions\n- tables-with-captions\n- paragraphs-to-headings",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This tests that bold figure/table captions are not incorrectly converted to headings. This is important to prevent caption paragraphs like \""
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Figure 1."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Caption text\" from being misidentified as headings when ParagraphsToHeadings is also active."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "id": "fig-1",
+      "label": "1",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This bold paragraph should be treated as a figure caption, not converted to a heading."
+              }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "image.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Example image"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Table",
+      "id": "tab-1",
+      "label": "1",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This bold paragraph should be treated as a table caption, not converted to a heading."
+              }
+            }
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Data"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Value"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rowType": "HeaderRow"
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "A"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "B"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This bold paragraph should be converted to a heading because it's not a caption pattern and \"Methods\" is a valid section heading."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The caption detection should take precedence over heading conversion for properly formatted figure and table captions."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "figures-with-captions",
+    "tables-with-captions",
+    "paragraphs-to-headings"
+  ]
+}

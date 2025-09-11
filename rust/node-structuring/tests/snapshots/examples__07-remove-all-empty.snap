@@ -1,0 +1,92 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- remove-empty-headings\n- remove-empty-lists",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This tests that all types of empty elements are removed in the correct order. This interaction is important to ensure cleanup operations work together without interfering and that the document is properly cleaned of all empty content while preserving valid elements."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Valid Heading"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The empty heading above should be removed."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph should remain."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Another empty heading that should be removed."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The empty list above should be removed."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Final paragraph that should remain to show that valid content is preserved while all empty elements (headings, paragraphs, list items, and whitespace-only text) are properly removed."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "remove-empty-headings",
+    "remove-empty-lists"
+  ]
+}

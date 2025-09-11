@@ -1,0 +1,110 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Machine Learning Applications in Data Analysis"
+      }
+    }
+  ],
+  "frontmatter": "structuring:\n- headings-to-title\n- headings-to-sections\n- remove-pre-primary",
+  "content": [
+    {
+      "type": "Section",
+      "sectionType": "Introduction",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Introduction"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This content should remain because it follows the title heading. The author bylines above should be removed by RemovePrePrimary, the first heading should become the document title, and this Introduction heading should be converted to a section."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Methods",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This section should also be properly structured as a section element."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Results",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Results"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The final section should be wrapped in a section element as well."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "headings-to-title",
+    "headings-to-sections",
+    "remove-pre-primary"
+  ]
+}
