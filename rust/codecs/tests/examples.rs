@@ -15,7 +15,10 @@ use tokio::{
 
 use pretty_assertions::assert_eq;
 use stencila_codec::{
-    eyre::{Context, Result}, stencila_format::Format, stencila_schema::NodeType, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, StructuringOptions
+    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, StructuringOptions,
+    eyre::{Context, Result},
+    stencila_format::Format,
+    stencila_schema::NodeType,
 };
 use stencila_node_strip::{StripNode, StripTargets};
 
