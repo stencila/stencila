@@ -9,9 +9,9 @@ async-trait = "0.1.89"
 base64 = "0.22.1"
 bs58 = "0.5.1"
 cached = { version = "0.56.0", features = ["async"] }
-chrono = { version = "0.4.41", features = ["serde"] }
+chrono = { version = "0.4.42", features = ["serde"] }
 chrono-humanize = "0.2.3"
-clap = { version = "4.5.46", features = ["derive", "color", "env", "wrap_help"] }
+clap = { version = "4.5.47", features = ["derive", "color", "env", "wrap_help"] }
 darling = "0.21.3"
 derive_more = { version = "2.0.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
@@ -20,11 +20,11 @@ flate2 = "1.1.2"
 futures = "0.3.31"
 glob = "0.3.3"
 governor = { version = "0.10.1", default-features = false, features = ["std"] }
-indexmap = { version = "2.11.0", features = ["serde"] }
+indexmap = { version = "2.11.1", features = ["serde"] }
 image = { version = "0.25.8", default-features = false, features = ["png", "jpeg", "gif", "tiff"] }
-insta = { version = "1.43.1", features = ["json", "yaml", "redactions"] }
+insta = { version = "1.43.2", features = ["json", "yaml", "redactions"] }
 itertools = "0.14.0"
-lru = "0.16.0"
+lru = "0.16.1"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 monostate = "0.1.14"
@@ -51,9 +51,9 @@ smol_str = "0.2.2"
 strum = { version = "0.27.2", features = ["derive"] }
 syn = "2.0.106"
 tar = "0.4.44"
-tempfile = "3.21.0"
+tempfile = "3.22.0"
 test-log = { version = "0.2.18", default-features = false, features = ["trace"] }
-time = { version = "0.3.42", features = ["formatting"] }
+time = { version = "0.3.43", features = ["formatting"] }
 tl = "0.7.8"
 tokio = { version = "1.47.1", features = ["full", "tracing"] }
 toml = "0.9.5"
@@ -64,7 +64,7 @@ url = { version = "2.5.7", features = ["serde"] }
 uuid = { version = "1.18.1", features = ["v4"] }
 which = "8.0.0"
 winnow = "0.7.13"
-zip = { version = "4.6.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
+zip = { version = "5.1.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
 
 [workspace.lints.rust]
 unsafe_code = "deny"
