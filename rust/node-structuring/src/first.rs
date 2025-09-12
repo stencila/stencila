@@ -849,6 +849,7 @@ fn is_primary_section_type(section_type: &SectionType) -> bool {
         SectionType::Abstract
             | SectionType::Summary
             | SectionType::NonTechnicalSummary
+            | SectionType::Main
             | SectionType::Introduction
             | SectionType::Materials
             | SectionType::Methods
