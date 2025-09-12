@@ -9558,6 +9558,7 @@ dependencies = [
  "stencila-codec-meca",
  "stencila-codec-pdf",
  "stencila-dirs",
+ "stencila-node-structuring",
  "stencila-version",
  "tempfile",
  "tokio",
