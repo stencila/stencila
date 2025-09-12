@@ -4,7 +4,7 @@ use serde_yaml;
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
-    tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
+    tabulated::{Attribute, Cell, Color, Tabulated},
 };
 
 use stencila_model::{
@@ -75,6 +75,9 @@ impl Cli {
 #[derive(Default, Debug, Args)]
 #[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
+    /// Filter models by ID prefix (e.g., "ollama/gemma")
+    prefix: Option<String>,
+
     /// Output the list as JSON or YAML
     #[arg(long, short)]
     r#as: Option<AsFormat>,
@@ -85,6 +88,9 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
   <dim># List all models in table format</dim>
   <b>stencila models list</b>
 
+  <dim># Filter models by ID prefix</dim>
+  <b>stencila models list</b> <g>google/gemini</g>
+
   <dim># Output models as YAML</dim>
   <b>stencila models list</b> <c>--as</c> <g>yaml</g>
 "
@@ -92,7 +98,12 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
 impl List {
     async fn run(self) -> Result<()> {
-        let list = super::list().await;
+        let mut list = super::list().await;
+
+        // Filter by prefix if provided
+        if let Some(prefix) = &self.prefix {
+            list.retain(|model| model.id().starts_with(prefix));
+        }
 
         if let Some(format) = self.r#as {
             let list = list
@@ -106,42 +117,13 @@ impl List {
         }
 
         let mut table = Tabulated::new();
-        table.set_header([
-            "Id",
-            "Type",
-            "Availability",
-            "Provider",
-            "Name",
-            "Version",
-            "Quality",
-            "Cost",
-            "Speed",
-        ]);
+        table.set_header(["Id", "Type", "Availability", "Provider", "Name", "Version"]);
 
         for model in list {
             use ModelAvailability::*;
             use ModelType::*;
 
             let availability = model.availability();
-
-            let no_score = || (String::new(), Color::Reset);
-            let score = |score: u32| {
-                (
-                    score.to_string(),
-                    match score {
-                        0..=20 => Color::Red,
-                        21..=40 => Color::Magenta,
-                        41..=60 => Color::Yellow,
-                        61..=80 => Color::Cyan,
-                        81..=100 => Color::Green,
-                        _ => Color::White,
-                    },
-                )
-            };
-            let quality = model.quality_score().map_or_else(no_score, score);
-            let cost = model.cost_score().map_or_else(no_score, score);
-            let speed = model.speed_score().map_or_else(no_score, score);
-            let right = CellAlignment::Right;
 
             table.add_row([
                 Cell::new(model.id()).add_attribute(Attribute::Bold),
@@ -162,9 +144,6 @@ impl List {
                 Cell::new(model.provider()),
                 Cell::new(model.name()),
                 Cell::new(model.version()),
-                Cell::new(quality.0).fg(quality.1).set_alignment(right),
-                Cell::new(cost.0).fg(cost.1).set_alignment(right),
-                Cell::new(speed.0).fg(speed.1).set_alignment(right),
             ]);
         }
 
