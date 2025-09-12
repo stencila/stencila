@@ -149,11 +149,8 @@ impl Model for GoogleModel {
 
         let response = self
             .client
-            .post(format!(
-                "{}/models/{}:generateContent",
-                BASE_URL, self.model
-            ))
-            .query(&[("key", stencila_secrets::env_or_get(API_KEY)?)])
+            .post(format!("{BASE_URL}/models/{0}:generateContent", self.model))
+            .header("x-goog-api-key", stencila_secrets::env_or_get(API_KEY)?)
             .json(&request)
             .send()
             .await?;
@@ -320,15 +317,13 @@ struct GenerationConfig {
 ///
 /// Returns an empty list if the Google AI API key is not available.
 ///
-/// Memoized for two minutes to avoid loading from disk cache too frequently
+/// Memoized for two minutes to avoid getting secrets too frequently
 /// but allowing user to set API key while process is running.
 ///
 /// See https://ai.google.dev/api/rest/v1/models/list and
 /// https://ai.google.dev/tutorials/rest_quickstart#list_models
-#[cached(time = 120, result = true)]
+#[cached(time = 60, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
-    // Check for API key before calling IO cached function so that we never cache an empty list
-    // and allow for users to set key, and then get list, while process is running
     if stencila_secrets::env_or_get(API_KEY).is_err() {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
@@ -339,15 +334,8 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .models
         .into_iter()
         .filter(|model| {
-            // Only include gemini models with numeric version (not
-            // un-versioned or latest)
-            let parts = model.name.split('-').collect_vec();
-            model.name.starts_with("models/gemini")
-                && parts.len() == 4
-                && parts
-                    .last()
-                    .map(|&version| version != "latest")
-                    .unwrap_or(false)
+            (model.name.starts_with("models/gemini") || model.name.starts_with("models/gemma"))
+                && !(model.name.contains("-embedding") || model.name.contains("-latest"))
         })
         .sorted_by(|a, b| a.name.cmp(&b.name))
         .map(|model| {
@@ -363,12 +351,12 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 
 /// Fetch the list of models
 ///
-/// In-memory cached for six hours to reduce requests to remote API.
-#[cached(time = 21_600, result = true)]
+/// In-memory cached for 3 hours to reduce requests to remote API.
+#[cached(time = 10_800, result = true)]
 async fn list_google_models() -> Result<ModelsResponse> {
     let response = Client::new()
         .get(format!("{BASE_URL}/models"))
-        .query(&[("key", stencila_secrets::env_or_get(API_KEY)?)])
+        .header("x-goog-api-key", stencila_secrets::env_or_get(API_KEY)?)
         .send()
         .await?;
 
