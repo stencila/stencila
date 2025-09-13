@@ -10367,6 +10367,7 @@ dependencies = [
  "smart-default",
  "stencila-format",
  "stencila-schema",
+ "stencila-schema-json",
  "stencila-secrets",
  "strum 0.27.2",
 ]
@@ -10414,6 +10415,7 @@ dependencies = [
  "serde",
  "serde_with",
  "stencila-model",
+ "stencila-node-media",
  "tokio",
  "tracing",
 ]
@@ -10423,12 +10425,16 @@ name = "stencila-models-mistral"
 version = "0.0.0"
 dependencies = [
  "Inflector",
+ "base64 0.22.1",
  "cached",
  "itertools 0.14.0",
  "reqwest",
  "serde",
+ "serde_json",
  "serde_with",
+ "serde_yaml",
  "stencila-model",
+ "stencila-node-media",
  "tokio",
  "tracing",
 ]
@@ -10946,6 +10952,7 @@ version = "0.0.0"
 dependencies = [
  "Inflector",
  "async-recursion",
+ "base64 0.22.1",
  "chrono",
  "chrono-humanize",
  "derive_more 2.0.1",
@@ -11018,6 +11025,17 @@ dependencies = [
  "strum 0.27.2",
  "tokio",
  "topological-sort",
+]
+
+[[package]]
+name = "stencila-schema-json"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "indexmap 2.11.1",
+ "serde",
+ "serde_json",
+ "serde_with",
 ]
 
 [[package]]

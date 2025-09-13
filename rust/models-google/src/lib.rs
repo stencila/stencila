@@ -9,9 +9,12 @@ use serde_with::skip_serializing_none;
 use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
     eyre::{Result, bail},
-    stencila_schema::{ImageObject, MessagePart, MessageRole},
+    stencila_format::Format,
+    stencila_schema::{MessagePart, MessageRole},
+    stencila_schema_json::JsonSchema,
     stencila_secrets,
 };
+use stencila_node_media::embed_image;
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1beta";
 
@@ -66,75 +69,95 @@ impl Model for GoogleModel {
         &[ModelIO::Text]
     }
 
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip_all)]
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
         let mut system_instruction = None;
-        let contents = task
-            .messages
-            .iter()
-            .flat_map(|message| {
-                if matches!(message.role, Some(MessageRole::System)) {
-                    let parts = message
-                        .parts
-                        .iter()
-                        .filter_map(|part| match part {
-                            MessagePart::Text(text) => Some(Part::text(&text.value)),
-                            _ => {
-                                tracing::warn!(
-                                    "System message part `{part}` is ignored by model `{}`",
-                                    self.id()
-                                );
-                                None
-                            }
-                        })
-                        .collect_vec();
-                    system_instruction = Some(Content { role: None, parts });
-
-                    return None;
-                }
-
-                let role = match message.role.unwrap_or_default() {
-                    MessageRole::Model => Some(Role::Model),
-                    MessageRole::User => Some(Role::User),
-                    _ => None
-                };
-
+        let mut contents = Vec::new();
+        for message in task.messages.iter() {
+            if matches!(message.role, Some(MessageRole::System)) {
                 let parts = message
                     .parts
                     .iter()
                     .filter_map(|part| match part {
                         MessagePart::Text(text) => Some(Part::text(&text.value)),
-                        MessagePart::ImageObject(ImageObject{content_url,..}) => {
-                            if let (true, Some(pos)) = (content_url.starts_with("data:"), content_url.find(";base64,")) {
-                                let mime_type = &content_url[5..pos];
-                                let base64 = &content_url[(pos + 8)..];
-                                Some(Part::inline_data(mime_type, base64))
-                            } else {
-                                tracing::warn!(
-                                    "Image does not appear to have a DataURI so was ignored by model `{}`",
-                                    self.id()
-                                );
-                                None
-                            }
-                        },
                         _ => {
                             tracing::warn!(
-                                "User message part `{part}` is ignored by model `{}`",
+                                "System message part `{part}` is ignored by model `{}`",
                                 self.id()
                             );
                             None
                         }
                     })
-                    .collect();
+                    .collect_vec();
+                system_instruction = Some(Content { role: None, parts });
+                continue;
+            }
 
-                Some(Content { role, parts })
-            })
-            .collect_vec();
+            let role = match message.role.unwrap_or_default() {
+                MessageRole::Model => Some(Role::Model),
+                MessageRole::User => Some(Role::User),
+                _ => None,
+            };
+
+            let mut parts = Vec::new();
+            for part in message.parts.iter() {
+                match part {
+                    MessagePart::Text(text) => parts.push(Part::text(&text.value)),
+                    MessagePart::ImageObject(image) => {
+                        let content_url = if image.content_url.starts_with("data:") {
+                            image.content_url.to_string()
+                        } else {
+                            let mut image = image.clone();
+                            let format = if image.content_url.ends_with(".gif") {
+                                // GIF images are not supported, so convert those to PNG
+                                Some(Format::Png)
+                            } else {
+                                None
+                            };
+                            embed_image(&mut image, None, format)?;
+                            image.content_url
+                        };
+
+                        let pos = content_url.find(";base64,").unwrap_or(5);
+                        let mime_type = &content_url[5..pos];
+                        let base64 = &content_url[(pos + 8)..];
+                        parts.push(Part::inline_data(mime_type, base64));
+                    }
+                    MessagePart::File(file) => {
+                        let (Some(mime_type), Some(base64)) = (&file.media_type, &file.content)
+                        else {
+                            bail!("File does not have MIME type and/or content")
+                        };
+                        parts.push(Part::inline_data(mime_type, base64));
+                    }
+                    _ => {
+                        tracing::warn!(
+                            "User message part `{part}` is ignored by model `{}`",
+                            self.id()
+                        );
+                    }
+                }
+            }
+
+            contents.push(Content { role, parts });
+        }
+
+        let response_mime_type = match task.format {
+            Some(Format::Json) => Some("application/json".to_string()),
+            _ => None, // defaults to text/plain
+        };
+
+        let response_json_schema = task
+            .schema
+            .as_ref()
+            .map(|schema| schema.clone().for_google());
 
         let request = GenerateContentRequest {
             contents,
             system_instruction,
             generation_config: Some(GenerationConfig {
+                response_mime_type,
+                response_json_schema,
                 max_output_tokens: task.max_tokens,
                 temperature: task.temperature,
                 top_p: task.top_p,
@@ -177,7 +200,8 @@ impl Model for GoogleModel {
                 inline_data: Some(Blob { mime_type, data }),
                 ..
             } => {
-                ModelOutput::from_url(self, &mime_type, format!("{mime_type};base64,{data}")).await
+                let format = Format::from_media_type(&mime_type).ok();
+                ModelOutput::from_url(self, &format, format!("{mime_type};base64,{data}")).await
             }
             _ => bail!("Unexpected response content part"),
         }
@@ -218,8 +242,8 @@ struct GenerateContentRequest {
 
 /// A generate content response
 ///
-/// Based on https://ai.google.dev/api/rest/v1beta/GenerateContentResponse.
-/// Note: at present the `promptFeedback` field ignored.
+/// Based on https://ai.google.dev/api/generate-content#v1beta.GenerateContentResponse.
+/// Note: at present the `promptFeedback` and other fields are ignored.
 #[derive(Deserialize)]
 struct GenerateContentResponse {
     candidates: Vec<Candidate>,
@@ -227,7 +251,7 @@ struct GenerateContentResponse {
 
 /// A candidate in a generate content response
 ///
-/// Based on https://ai.google.dev/api/rest/v1beta/Candidate.
+/// Based on https://ai.google.dev/api/generate-content#v1beta.Candidate.
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Deserialize)]
@@ -237,7 +261,7 @@ struct Candidate {
 
 /// The content of a message
 ///
-/// Based on https://ai.google.dev/api/rest/v1beta/Content.
+/// Based on https://ai.google.dev/api/caching#Content.
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
 struct Content {
@@ -247,7 +271,7 @@ struct Content {
 
 /// A part of some content
 ///
-/// Based on https://ai.google.dev/api/rest/v1beta/Content#Part.
+/// Based on https://ai.google.dev/api/caching#Part.
 /// Note: at present does not include all variants
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
@@ -300,11 +324,13 @@ enum Role {
 
 /// A configuration for generation requests
 ///
-/// Based on https://ai.google.dev/api/rest/v1beta/GenerationConfig.
+/// Based on https://ai.google.dev/api/generate-content#v1beta.GenerationConfig
 #[skip_serializing_none]
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct GenerationConfig {
+    response_mime_type: Option<String>,
+    response_json_schema: Option<JsonSchema>,
     stop_sequences: Option<Vec<String>>,
     candidate_count: Option<u8>,
     max_output_tokens: Option<u16>,

@@ -15,6 +15,7 @@ pub use async_trait::async_trait;
 pub use eyre;
 pub use stencila_format;
 pub use stencila_schema;
+pub use stencila_schema_json;
 pub use stencila_secrets;
 
 mod output;
@@ -230,7 +231,8 @@ pub trait Model: Sync + Send {
     /// supports the input/output combination of the task. Overrides may
     /// add other criteria such as the type of the task's instruction.
     fn supports_task(&self, task: &ModelTask) -> bool {
-        self.supported_task_kinds().contains(&task.kind)
+        let kind = task.kind.unwrap_or_default();
+        self.supported_task_kinds().contains(&kind)
     }
 
     /// Get a list of task kinds this model supports

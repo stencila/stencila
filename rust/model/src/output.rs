@@ -59,23 +59,25 @@ impl ModelOutput {
     ///
     /// If the output format of the task in unknown (i.e. was not specified)
     /// then assumes it is Markdown.
-    pub async fn from_text(model: &dyn Model, format: &Format, text: String) -> Result<Self> {
+    pub async fn from_text(
+        model: &dyn Model,
+        format: &Option<Format>,
+        text: String,
+    ) -> Result<Self> {
         Ok(Self {
             authors: vec![model.to_author_role(AuthorRoleName::Generator)],
             kind: ModelOutputKind::Text,
-            format: format.clone(),
+            format: format.clone().unwrap_or_default(),
             content: text,
         })
     }
 
     /// Create a `ModelOutput` from a URL with a specific media type
-    pub async fn from_url(model: &dyn Model, media_type: &str, url: String) -> Result<Self> {
-        let format = Format::from_media_type(media_type).unwrap_or(Format::Unknown);
-
+    pub async fn from_url(model: &dyn Model, format: &Option<Format>, url: String) -> Result<Self> {
         Ok(Self {
             authors: vec![model.to_author_role(AuthorRoleName::Generator)],
             kind: ModelOutputKind::Url,
-            format,
+            format: format.clone().unwrap_or_default(),
             content: url,
         })
     }

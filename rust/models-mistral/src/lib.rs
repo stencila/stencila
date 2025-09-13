@@ -1,16 +1,18 @@
-use std::{sync::Arc, time::Duration};
-
 use cached::proc_macro::cached;
 use inflector::Inflector;
 use itertools::Itertools;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::{sync::Arc, time::Duration};
+use stencila_node_media::embed_image;
 
 use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
-    eyre::{Result, bail},
+    eyre::{Result, bail, eyre},
+    stencila_format::Format,
     stencila_schema::{MessagePart, MessageRole},
+    stencila_schema_json::JsonSchema,
     stencila_secrets,
 };
 
@@ -40,6 +42,8 @@ impl MistralModel {
         }
     }
 }
+
+const MAX_ERROR_MESSAGE_LEN: usize = 1000;
 
 #[async_trait]
 impl Model for MistralModel {
@@ -86,40 +90,60 @@ impl Model for MistralModel {
         &[ModelIO::Text]
     }
 
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip_all)]
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        let messages = task
-            .messages
-            .iter()
-            .map(|message| {
-                let role = match message.role.unwrap_or_default() {
-                    MessageRole::Model => ChatRole::Assistant,
-                    MessageRole::System => ChatRole::System,
-                    MessageRole::User => ChatRole::User,
+        if self.id().contains("-ocr") {
+            self.ocr(task).await
+        } else {
+            self.chat_completion(task).await
+        }
+    }
+}
+
+impl MistralModel {
+    /// Make a Chat Completion API request
+    ///
+    /// See https://docs.mistral.ai/api/#tag/chat
+    #[tracing::instrument(skip_all)]
+    async fn chat_completion(&self, task: &ModelTask) -> Result<ModelOutput> {
+        let mut messages = Vec::new();
+        for message in &task.messages {
+            let role = match message.role.unwrap_or_default() {
+                MessageRole::Model => ChatRole::Assistant,
+                MessageRole::System => ChatRole::System,
+                MessageRole::User => ChatRole::User,
+            };
+
+            let mut items = Vec::new();
+            for part in &message.parts {
+                let item = match part {
+                    MessagePart::Text(text) => ChatMessageContentItem::Text {
+                        text: text.value.to_string(),
+                    },
+                    MessagePart::ImageObject(image) => {
+                        let image_url = if image.content_url.starts_with("data:") {
+                            image.content_url.to_string()
+                        } else {
+                            let mut image = image.clone();
+                            embed_image(&mut image, None, None)?;
+                            image.content_url
+                        };
+                        ChatMessageContentItem::ImageUrl { image_url }
+                    }
+                    _ => bail!("Unexpected message part"),
                 };
+                items.push(item)
+            }
 
-                let content = message
-                    .parts
-                    .iter()
-                    .filter_map(|part: &MessagePart| match part {
-                        MessagePart::Text(text) => Some(text.to_value_string()),
-                        _ => {
-                            tracing::warn!(
-                                "Message part of type `{part}` is ignored by model `{}`",
-                                self.id()
-                            );
-                            None
-                        }
-                    })
-                    .join("");
+            let content = ChatMessageContent::Array(items);
 
-                ChatMessage { role, content }
-            })
-            .collect();
+            messages.push(ChatMessage { role, content })
+        }
 
         let request = ChatCompletionRequest {
             model: self.model.clone(),
             messages,
+            response_format: Some(ResponseFormat::from(task)),
             temperature: task.temperature,
             top_p: task.top_p,
             max_tokens: task.max_tokens,
@@ -139,15 +163,105 @@ impl Model for MistralModel {
             .await?;
 
         if let Err(error) = response.error_for_status_ref() {
-            let message = response.text().await?;
+            let mut message = response.text().await?;
+            message.truncate(MAX_ERROR_MESSAGE_LEN);
             bail!("{error}: {message}");
         }
-
         let mut response: ChatCompletionResponse = response.json().await?;
 
-        let text = response.choices.swap_remove(0).message.content;
+        match response.choices.swap_remove(0).message.content {
+            ChatMessageContent::String(content) => {
+                ModelOutput::from_text(self, &task.format, content).await
+            }
+            ChatMessageContent::Array(mut items) => match items.swap_remove(0) {
+                ChatMessageContentItem::Text { text } => {
+                    ModelOutput::from_text(self, &task.format, text).await
+                }
+                ChatMessageContentItem::ImageUrl { image_url } => {
+                    ModelOutput::from_url(self, &task.format, image_url).await
+                }
+            },
+        }
+    }
 
-        ModelOutput::from_text(self, &task.format, text).await
+    /// Make an OCR API request
+    ///
+    /// See https://docs.mistral.ai/api/#tag/ocr
+    #[tracing::instrument(skip_all)]
+    async fn ocr(&self, task: &ModelTask) -> Result<ModelOutput> {
+        let part = task
+            .messages
+            .iter()
+            .flat_map(|message| &message.parts)
+            .find_map(|part| match part {
+                MessagePart::File(..) | MessagePart::ImageObject(..) => Some(part),
+                _ => None,
+            })
+            .ok_or_else(|| eyre!("No file or image found in message parts"))?;
+
+        let document = match part {
+            MessagePart::File(file) => {
+                let Some(document_url) = file.to_data_uri() else {
+                    bail!("File appears to be empty")
+                };
+                OcrDocument::DocumentUrl { document_url }
+            }
+            MessagePart::ImageObject(image) => {
+                let image_url = if image.content_url.starts_with("data:") {
+                    image.content_url.to_string()
+                } else {
+                    let mut image = image.clone();
+                    embed_image(&mut image, None, None)?;
+                    image.content_url
+                };
+                OcrDocument::ImageUrl { image_url }
+            }
+            _ => unreachable!(),
+        };
+
+        let request = OcrRequest {
+            model: self.model.clone(),
+            document,
+            include_image_base64: Some(true),
+            document_annotation_format: Some(ResponseFormat::from(task)),
+        };
+
+        if task.dry_run {
+            return ModelOutput::empty(self);
+        }
+
+        let response = self
+            .client
+            .post(format!("{BASE_URL}/ocr"))
+            .bearer_auth(stencila_secrets::env_or_get(API_KEY)?)
+            .json(&request)
+            .send()
+            .await?;
+
+        if let Err(error) = response.error_for_status_ref() {
+            let mut message = response.text().await?;
+            message.truncate(MAX_ERROR_MESSAGE_LEN);
+            bail!("{error}: {message}");
+        }
+        let response: OcrResponse = response.json().await?;
+
+        let frontmatter = if let Some(json) = response.document_annotation {
+            // If any metadata were extract then add as YAML frontmatter
+            let metadata: serde_json::Value = serde_json::from_str(&json)?;
+            let yaml = serde_yaml::to_string(&metadata)?;
+            format!("---\n{yaml}\n---\n\n")
+        } else {
+            String::new()
+        };
+
+        let md = response
+            .pages
+            .into_iter()
+            .map(|page| page.markdown)
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        ModelOutput::from_text(self, &Some(Format::Markdown), frontmatter + &md).await
     }
 }
 
@@ -175,10 +289,58 @@ struct ModelSpec {
 struct ChatCompletionRequest {
     model: String,
     messages: Vec<ChatMessage>,
+    response_format: Option<ResponseFormat>,
     temperature: Option<f32>,
     top_p: Option<f32>,
     max_tokens: Option<u16>,
     random_seed: Option<i32>,
+}
+
+/// The requested response format
+#[derive(Serialize)]
+struct ResponseFormat {
+    r#type: ResponseFormatType,
+    json_schema: Option<ResponseJsonSchema>,
+}
+
+/// The requested response format type
+#[derive(Default, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ResponseFormatType {
+    #[default]
+    Text,
+    JsonObject,
+    JsonSchema,
+}
+
+/// The requested response schema
+#[derive(Serialize)]
+struct ResponseJsonSchema {
+    name: String,
+    schema: JsonSchema,
+    strict: bool,
+}
+
+impl From<&ModelTask> for ResponseFormat {
+    fn from(task: &ModelTask) -> Self {
+        Self {
+            r#type: match task.format {
+                Some(Format::Json) => {
+                    if task.schema.is_some() {
+                        ResponseFormatType::JsonSchema
+                    } else {
+                        ResponseFormatType::JsonObject
+                    }
+                }
+                _ => ResponseFormatType::Text,
+            },
+            json_schema: task.schema.clone().map(|schema| ResponseJsonSchema {
+                name: "response_schema".to_string(),
+                schema: schema.for_mistral(),
+                strict: true,
+            }),
+        }
+    }
 }
 
 /// A chat completion response
@@ -204,7 +366,21 @@ struct ChatCompletionChoice {
 #[derive(Serialize, Deserialize)]
 struct ChatMessage {
     role: ChatRole,
-    content: String,
+    content: ChatMessageContent,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+enum ChatMessageContent {
+    String(String),
+    Array(Vec<ChatMessageContentItem>),
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+enum ChatMessageContentItem {
+    Text { text: String },
+    ImageUrl { image_url: String },
 }
 
 /// A role in a `ChatMessage`
@@ -214,6 +390,54 @@ enum ChatRole {
     System,
     User,
     Assistant,
+}
+
+/// An OCR request
+#[skip_serializing_none]
+#[derive(Serialize)]
+struct OcrRequest {
+    model: String,
+    document: OcrDocument,
+    include_image_base64: Option<bool>,
+    document_annotation_format: Option<ResponseFormat>,
+}
+
+/// An OCR document
+#[derive(Serialize)]
+#[serde(untagged)]
+enum OcrDocument {
+    DocumentUrl { document_url: String },
+    ImageUrl { image_url: String },
+}
+
+/// An OCR response
+#[derive(Deserialize)]
+struct OcrResponse {
+    pages: Vec<OcrPage>,
+    document_annotation: Option<String>,
+}
+
+/// An OCR page response
+#[derive(Deserialize)]
+#[allow(dead_code)]
+struct OcrPage {
+    index: usize,
+    markdown: String,
+    #[serde(default)]
+    images: Vec<OcrImage>,
+}
+
+/// An OCR image
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct OcrImage {
+    id: String,
+    top_left_x: f64,
+    top_left_y: f64,
+    bottom_right_x: f64,
+    bottom_right_y: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    image_base64: Option<String>,
 }
 
 /// Get a list of available Mistral models

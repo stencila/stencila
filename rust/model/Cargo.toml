@@ -13,6 +13,7 @@ serde_with = { workspace = true }
 smart-default = { workspace = true }
 stencila-format = { path = "../format" }
 stencila-schema = { path = "../schema" }
+stencila-schema-json = { path = "../schema-json" }
 stencila-secrets = { path = "../secrets" }
 strum = { workspace = true }
 

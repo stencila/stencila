@@ -5,11 +5,15 @@ use strum::Display;
 
 use stencila_format::Format;
 use stencila_schema::{InstructionMessage, InstructionType, ModelParameters};
+use stencila_schema_json::JsonSchema;
 
 /// The kind of generative model task
+///
+/// This is mainly used internally to help determine which API to route a task
+/// to and how to construct a request for that API.
 #[derive(Debug, Default, Display, Clone, Copy, PartialEq, Deserialize, Serialize)]
 pub enum ModelTaskKind {
-    /// Given a list of input messages, generate the next message in a conversation
+    /// Generate the next message in a conversation
     ///
     /// Example APIs include:
     ///
@@ -18,12 +22,11 @@ pub enum ModelTaskKind {
     #[default]
     MessageGeneration,
 
-    /// Given an input message (text and/or image), generate an image
+    /// Generate an image
     ///
     /// Example APIs include:
     ///
     /// - OpenAI Images: https://platform.openai.com/docs/api-reference/images
-    /// - Anthropic Messages: https://docs.anthropic.com/en/api/messages
     ImageGeneration,
 }
 
@@ -64,10 +67,13 @@ pub struct ModelTask {
     pub messages: Vec<InstructionMessage>,
 
     /// The kind of model task
-    pub kind: ModelTaskKind,
+    pub kind: Option<ModelTaskKind>,
 
     /// The desired format of the generated content
-    pub format: Format,
+    pub format: Option<Format>,
+
+    /// The desired schema for the generated content
+    pub schema: Option<JsonSchema>,
 
     /// Enable Mirostat sampling for controlling perplexity.
     ///

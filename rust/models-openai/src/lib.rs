@@ -20,6 +20,7 @@ use itertools::Itertools;
 use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelTaskKind, ModelType, async_trait,
     eyre::{Result, bail},
+    stencila_format::Format,
     stencila_schema::{ImageObject, MessagePart, MessageRole},
     stencila_secrets,
 };
@@ -119,9 +120,11 @@ impl Model for OpenAIModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        match task.kind {
+        let kind = task.kind.unwrap_or_default();
+        match kind {
             ModelTaskKind::MessageGeneration => self.message_generation(task).await,
             ModelTaskKind::ImageGeneration => self.image_generation(task).await,
+            _ => bail!("Model task kind is not handled: {}", kind),
         }
     }
 }
@@ -415,7 +418,7 @@ impl OpenAIModel {
 
         match image.as_ref() {
             Image::Url { url, .. } => {
-                ModelOutput::from_url(self, "image/png", url.to_string()).await
+                ModelOutput::from_url(self, &Some(Format::Png), url.to_string()).await
             }
             _ => bail!("Unexpected image type"),
         }

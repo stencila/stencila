@@ -10,6 +10,7 @@ reqwest = { workspace = true }
 serde = { workspace = true }
 serde_with = { workspace = true }
 stencila-model = { path = "../model" }
+stencila-node-media = { path = "../node-media" }
 tracing = { workspace = true }
 
 [dev-dependencies]
