@@ -1,3 +1,5 @@
+use std::{fs::write, path::PathBuf};
+
 use clap::{Args, Parser, Subcommand};
 use itertools::Itertools;
 use serde_yaml;
@@ -11,12 +13,15 @@ use stencila_model::{
     ModelAvailability, ModelSpecification, ModelTask, ModelType,
     eyre::Result,
     stencila_format::Format,
-    stencila_schema::{InstructionMessage, ModelParameters},
+    stencila_schema::{
+        File, ImageObject, InstructionMessage, MessagePart, MessageRole, ModelParameters, Text,
+    },
+    stencila_schema_json::json_schema,
 };
 
 use crate::select;
 
-/// Manage generative models
+/// Manage and interact with generative AI models
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
@@ -38,6 +43,15 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Test a specific model</dim>
   <b>stencila models run</b> <y>\"Write a poem\"</y> <c>--model</c> <g>gpt-4o</g>
 
+  <dim># Run with multiple text arguments</dim>
+  <b>stencila models run</b> <y>\"Analyze this:\"</y> <y>\"Some data here\"</y>
+
+  <dim># Mix text and file arguments</dim>
+  <b>stencila models run</b> <y>\"Summarize this file:\"</y> <g>document.txt</g>
+
+  <dim># Multiple files and text</dim>
+  <b>stencila models run</b> <y>\"Compare these files:\"</y> <g>file1.txt</g> <g>file2.txt</g>
+
   <dim># Dry run to see task construction</dim>
   <b>stencila models run</b> <y>\"Hello\"</y> <c>--dry-run</c>
 
@@ -46,6 +60,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   • <g>local</g> - Running locally (e.g. Ollama)
   • <g>remote</g> - Cloud-based APIs
   • <g>router</g> - Routes to other models
+  • <g>proxied</g> - Proxied through another service
 "
 );
 
@@ -71,7 +86,7 @@ impl Cli {
     }
 }
 
-/// List the models available
+/// List available models with their status and capabilities
 #[derive(Default, Debug, Args)]
 #[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
@@ -153,22 +168,39 @@ impl List {
     }
 }
 
-/// Run a model task
+/// Execute a task using a generative AI model
 ///
-/// Mainly intended for testing of model selection and routing.
-/// Displays the task sent to the model and the generated output
-/// returned from it.
+/// Primarily intended for testing model selection and routing. This command
+/// constructs a task from the provided inputs, selects an appropriate model,
+/// and displays both the constructed task and the generated output.
 #[derive(Debug, Args)]
 #[clap(alias = "execute")]
 #[command(after_long_help = RUN_AFTER_LONG_HELP)]
 struct Run {
-    prompt: String,
+    /// Text prompts and/or file paths (automatically detected)
+    args: Vec<String>,
 
-    /// The id pattern to specify the model to use
+    /// Model id or pattern to select a specific model (e.g., "gpt-4o", "ollama/")
     #[arg(long, short)]
     model: Option<String>,
 
-    /// Perform a dry run
+    /// Output format for generated content (json, markdown, yaml, etc.)
+    #[arg(long, short)]
+    format: Option<String>,
+
+    /// JSON schema name for structured output validation (e.g., "math-block:tex")
+    #[arg(long, short)]
+    schema: Option<String>,
+
+    /// System message to set context or behavior for the model
+    #[arg(long)]
+    system: Option<String>,
+
+    /// Write generated output to the specified file instead of stdout
+    #[arg(long, short)]
+    output: Option<PathBuf>,
+
+    /// Show task construction and model selection without executing
     #[arg(long)]
     dry_run: bool,
 }
@@ -181,6 +213,15 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
   <dim># Run with a specific model</dim>
   <b>stencila models run</b> <y>\"Write a haiku\"</y> <c>--model</c> <g>gpt-3.5-turbo</g>
 
+  <dim># Multiple text arguments</dim>
+  <b>stencila models run</b> <y>\"Analyze this data:\"</y> <y>\"temperature: 23°C, humidity: 65%\"</y>
+
+  <dim># Mix text and file paths (files detected automatically)</dim>
+  <b>stencila models run</b> <y>\"Summarize:\"</y> <g>report.txt</g>
+
+  <dim># Multiple files and text</dim>
+  <b>stencila models run</b> <y>\"Compare these:\"</y> <g>version1.py</g> <g>version2.py</g>
+
   <dim># Run a dry run to see task construction</dim>
   <b>stencila models run</b> <y>\"Hello world\"</y> <c>--dry-run</c>
 
@@ -188,13 +229,68 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila models execute</b> <y>\"Summarize this text\"</y>
 
 <bold><b>Note</b></bold>
-  This command is primarily for testing model routing and selection.
+  Arguments are automatically detected as file paths (if they exist) or treated as
+  text content. Images are detected by file extension. This command is primarily
+  for testing model routing and selection.
 "
 );
 
 impl Run {
     async fn run(self) -> Result<()> {
-        let message = InstructionMessage::from(self.prompt);
+        let mut messages = Vec::new();
+
+        if let Some(system) = self.system {
+            messages.push(InstructionMessage {
+                parts: vec![MessagePart::Text(Text::from(system))],
+                role: Some(MessageRole::System),
+                ..Default::default()
+            });
+        }
+
+        let mut parts = Vec::new();
+
+        for arg in &self.args {
+            let path = PathBuf::from(arg);
+            if path.exists() && path.is_file() {
+                let format = Format::from_path(&path);
+                if format.is_image() {
+                    parts.push(MessagePart::ImageObject(ImageObject::new(arg.to_string())));
+                } else {
+                    parts.push(MessagePart::File(File::read(&path)?));
+                }
+            } else {
+                parts.push(MessagePart::Text(Text::from(arg)));
+            }
+        }
+
+        messages.push(InstructionMessage {
+            parts,
+            role: Some(MessageRole::User),
+            ..Default::default()
+        });
+
+        let schema = match &self.schema {
+            Some(schema) => Some(json_schema(schema)?),
+            None => None,
+        };
+
+        let format = Some(match self.format {
+            Some(format) => {
+                let mut format = Format::from_name(&format);
+                if self.schema.is_some() && format != Format::Json {
+                    tracing::warn!("Schema specified, so ignoring non-JSON format");
+                    format = Format::Json;
+                }
+                format
+            }
+            None => {
+                if self.schema.is_some() {
+                    Format::Json
+                } else {
+                    Format::Markdown
+                }
+            }
+        });
 
         let model = if self.model.is_some() {
             Some(ModelParameters {
@@ -206,7 +302,9 @@ impl Run {
         };
 
         let task = ModelTask {
-            messages: vec![message],
+            format,
+            schema,
+            messages,
             model_parameters: model,
             dry_run: self.dry_run,
             ..Default::default()
@@ -233,8 +331,12 @@ impl Run {
 
         let output = model.perform_task(&task).await?;
 
-        Code::new(Format::Markdown, "# Generated output\n").to_stdout();
-        Code::new(Format::Yaml, &serde_yaml::to_string(&output)?).to_stdout();
+        if let Some(path) = self.output {
+            write(path, output.content)?;
+        } else {
+            Code::new(Format::Markdown, "# Generated output\n").to_stdout();
+            Code::new(Format::Yaml, &serde_yaml::to_string(&output)?).to_stdout();
+        }
 
         Ok(())
     }
