@@ -10,36 +10,34 @@ The generated schemas are standard-compliant, self-contained (using internal `#/
 
 ## Provider Compatibility
 
-While this crate generates standard JSON Schema, different LLM providers support varying subsets of the specification.
+While this crate generates standard JSON Schema, different LLM providers support varying subsets of the specification. This crate provides transformation functions to automatically make schemas compatible with specific providers.
+
+### Usage
+
+Apply provider-specific transformations using these methods:
+
+```rust
+// Make schema compatible with specific providers
+let schema = json_schema("article:metadata")?;
+let mistral_schema = schema.clone().for_mistral();
+let google_schema = schema.clone().for_google();
+let openai_schema = schema.clone().for_openai();
+```
 
 ### OpenAI
 
-OpenAI's Structured Outputs feature supports most JSON Schema features but has some specific requirements and limitations including `additionalProperties: false` on all objects.
+Use `.for_openai()` to make schemas compatible with OpenAI's Structured Outputs feature. This removes unsupported features like `allOf` and `default` values.
 
 See: https://platform.openai.com/docs/guides/structured-outputs#supported-schemas
 
 ### Google Gemini
 
-Google Gemini's `responseJsonSchema` supports a limited subset of JSON Schema. At the time of writing,supported properties include:
-
-- `$id`, `$defs`, `$ref`, `$anchor`
-- `type`, `format`, `title`, `description`
-- `enum` (for strings and numbers)
-- `items`, `prefixItems`, `minItems`, `maxItems`
-- `minimum`, `maximum`
-- `anyOf`, `oneOf` (interpreted as `anyOf`)
-- `properties`, `additionalProperties`, `required`
-
-Notably **not supported**:
-
-- `const` (use single-value `enum` instead)
-- `allOf`, `not`
-- Complex string validation (`pattern`, `minLength`, `maxLength`)
+Use `.for_google()` to make schemas compatible with Google Gemini's `responseJsonSchema`. This converts `const` to single-value `enum` and removes unsupported features like `pattern`.
 
 See: https://ai.google.dev/api/generate-content#FIELDS.response_json_schema
 
 ### Mistral
 
-Mistral requires explicit `additionalProperties: false` on objects to prevent extra properties.
+Use `.for_mistral()` to make schemas compatible with Mistral's function calling. This removes unsupported features like `format` and `pattern` validation.
 
 See: https://docs.mistral.ai/capabilities/function_calling/

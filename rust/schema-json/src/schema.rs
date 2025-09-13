@@ -196,10 +196,7 @@ impl JsonSchema {
 
     /// Create an object schema
     pub fn object() -> Self {
-        Self::new()
-            .r#type(SchemaType::Object)
-            // Necessary for some APIs (e.g. Mistral)
-            .disallow_additional_properties()
+        Self::new().r#type(SchemaType::Object)
     }
 
     /// Create an enum schema with string values
@@ -216,9 +213,6 @@ impl JsonSchema {
     }
 
     /// Create a constant string schema
-    ///
-    /// Prefer using `string_enum` with a single value because some services
-    /// (e.g. Google Gemini API) do not support `const` yet.
     pub fn string_const<S: Into<String>>(value: S) -> Self {
         Self::string().const_value(Value::String(value.into()))
     }
@@ -673,5 +667,153 @@ impl JsonSchema {
         }
 
         result
+    }
+
+    /// Transform this schema recursively using the provided function
+    fn transform_recursively<F>(mut self, transform_fn: F) -> Self
+    where
+        F: Fn(JsonSchema) -> JsonSchema + Clone,
+    {
+        // Apply transformation to this schema
+        self = transform_fn(self);
+
+        // Recursively transform properties
+        if let Some(properties) = &self.properties {
+            let mut transformed_props = Map::new();
+            for (key, prop_schema) in properties {
+                transformed_props.insert(
+                    key.clone(),
+                    prop_schema
+                        .clone()
+                        .transform_recursively(transform_fn.clone()),
+                );
+            }
+            self.properties = Some(transformed_props);
+        }
+
+        // Recursively transform array items
+        if let Some(items) = &self.items {
+            self.items = Some(Box::new(
+                (**items)
+                    .clone()
+                    .transform_recursively(transform_fn.clone()),
+            ));
+        }
+
+        // Recursively transform anyOf
+        if let Some(any_of) = &self.any_of {
+            let transformed_any_of = any_of
+                .iter()
+                .map(|s| s.clone().transform_recursively(transform_fn.clone()))
+                .collect();
+            self.any_of = Some(transformed_any_of);
+        }
+
+        // Recursively transform oneOf
+        if let Some(one_of) = &self.one_of {
+            let transformed_one_of = one_of
+                .iter()
+                .map(|s| s.clone().transform_recursively(transform_fn.clone()))
+                .collect();
+            self.one_of = Some(transformed_one_of);
+        }
+
+        // Recursively transform allOf
+        if let Some(all_of) = &self.all_of {
+            let transformed_all_of = all_of
+                .iter()
+                .map(|s| s.clone().transform_recursively(transform_fn.clone()))
+                .collect();
+            self.all_of = Some(transformed_all_of);
+        }
+
+        // Recursively transform not
+        if let Some(not_schema) = &self.not {
+            self.not = Some(Box::new(
+                (**not_schema)
+                    .clone()
+                    .transform_recursively(transform_fn.clone()),
+            ));
+        }
+
+        // Recursively transform additional properties if it's a schema
+        if let Some(AdditionalProperties::Schema(additional)) = &self.additional_properties {
+            self.additional_properties = Some(AdditionalProperties::Schema(Box::new(
+                (**additional)
+                    .clone()
+                    .transform_recursively(transform_fn.clone()),
+            )));
+        }
+
+        // Recursively transform definitions
+        if let Some(definitions) = &self.definitions {
+            let mut transformed_defs = Map::new();
+            for (key, def_schema) in definitions {
+                transformed_defs.insert(
+                    key.clone(),
+                    def_schema
+                        .clone()
+                        .transform_recursively(transform_fn.clone()),
+                );
+            }
+            self.definitions = Some(transformed_defs);
+        }
+
+        self
+    }
+
+    /// Transform schema for Mistral API compatibility
+    ///
+    /// See: https://docs.mistral.ai/capabilities/function_calling/
+    pub fn for_mistral(self) -> Self {
+        self.transform_recursively(|mut schema| {
+            // Remove unsupported string validation
+            schema.format = None;
+            schema.pattern = None;
+
+            // Ensure objects disallow additional properties (required by Mistral)
+            if schema.r#type == Some(SchemaType::Object) {
+                schema = schema.disallow_additional_properties();
+            }
+
+            schema
+        })
+    }
+
+    /// Transform schema for Google Gemini API compatibility
+    ///
+    /// See: https://ai.google.dev/api/generate-content#FIELDS.response_json_schema
+    pub fn for_google(self) -> Self {
+        self.transform_recursively(|mut schema| {
+            // Convert const to single-value enum
+            if let Some(const_val) = schema.const_value.take() {
+                schema.enum_values = Some(vec![const_val]);
+            }
+
+            // Do not remove other properties since Google says they are ignored.
+
+            schema
+        })
+    }
+
+    /// Transform schema for OpenAI API compatibility
+    ///
+    /// See: https://platform.openai.com/docs/guides/structured-outputs#supported-schemas
+    pub fn for_openai(self) -> Self {
+        self.transform_recursively(|mut schema| {
+            // Remove unsupported schema composition
+            schema.all_of = None;
+            schema.not = None;
+
+            // Remove default values (not supported)
+            schema.default = None;
+
+            // Ensure objects disallow additional properties (required by OpenAI)
+            if schema.r#type == Some(SchemaType::Object) {
+                schema = schema.disallow_additional_properties();
+            }
+
+            schema
+        })
     }
 }

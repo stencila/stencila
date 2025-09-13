@@ -5,6 +5,7 @@ pub fn tex() -> JsonSchema {
         .title("MathInline")
         .description("Inline TeX/LaTeX math")
         .required(["type", "code"])
-        .property("type", JsonSchema::string_enum(["MathInline"]))
+        .property("type", JsonSchema::string_const("MathInline"))
         .property("code", JsonSchema::string().description("TeX/LaTeX code"))
+        .disallow_additional_properties()
 }

@@ -10,4 +10,5 @@ pub fn plain() -> JsonSchema {
             "value",
             JsonSchema::string().description("The plain text content"),
         )
+        .disallow_additional_properties()
 }
