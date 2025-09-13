@@ -116,15 +116,10 @@ pub struct JsonSchema {
 
 /// JSON Schema type
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
+#[serde(untagged)]
 pub enum SchemaType {
-    String,
-    Number,
-    Integer,
-    Boolean,
-    Array,
-    Object,
-    Null,
+    Single(String),
+    Multiple(Vec<String>),
 }
 
 /// Additional properties handling
@@ -166,37 +161,37 @@ impl JsonSchema {
 
     /// Create a null schema
     pub fn null() -> Self {
-        Self::new().r#type(SchemaType::Null)
+        Self::new().r#type(SchemaType::Single("null".to_string()))
     }
 
     /// Create a boolean schema
     pub fn boolean() -> Self {
-        Self::new().r#type(SchemaType::Boolean)
+        Self::new().r#type(SchemaType::Single("boolean".to_string()))
     }
 
     /// Create an integer schema
     pub fn integer() -> Self {
-        Self::new().r#type(SchemaType::Integer)
+        Self::new().r#type(SchemaType::Single("integer".to_string()))
     }
 
     /// Create a number schema
     pub fn number() -> Self {
-        Self::new().r#type(SchemaType::Number)
+        Self::new().r#type(SchemaType::Single("number".to_string()))
     }
 
     /// Create a string schema
     pub fn string() -> Self {
-        Self::new().r#type(SchemaType::String)
+        Self::new().r#type(SchemaType::Single("string".to_string()))
     }
 
     /// Create an array schema
     pub fn array() -> Self {
-        Self::new().r#type(SchemaType::Array)
+        Self::new().r#type(SchemaType::Single("array".to_string()))
     }
 
     /// Create an object schema
     pub fn object() -> Self {
-        Self::new().r#type(SchemaType::Object)
+        Self::new().r#type(SchemaType::Single("object".to_string()))
     }
 
     /// Create an enum schema with string values
@@ -772,7 +767,7 @@ impl JsonSchema {
             schema.pattern = None;
 
             // Ensure objects disallow additional properties (required by Mistral)
-            if schema.r#type == Some(SchemaType::Object) {
+            if schema.r#type == Some(SchemaType::Single("object".to_string())) {
                 schema = schema.disallow_additional_properties();
             }
 
@@ -797,21 +792,62 @@ impl JsonSchema {
     }
 
     /// Transform schema for OpenAI API compatibility
+    /// Converts optional fields to nullable unions and makes all fields required
     ///
     /// See: https://platform.openai.com/docs/guides/structured-outputs#supported-schemas
     pub fn for_openai(self) -> Self {
         self.transform_recursively(|mut schema| {
-            // Remove unsupported schema composition
+            // Handle object schemas: convert optional fields to nullable unions
+            if schema.r#type == Some(SchemaType::Single("object".to_string())) {
+                if let Some(properties) = schema.properties.clone() {
+                    let required_fields: std::collections::HashSet<String> = schema
+                        .required
+                        .clone()
+                        .unwrap_or_default()
+                        .into_iter()
+                        .collect();
+
+                    let mut new_properties = Map::new();
+                    let all_property_keys: Vec<String> = properties.keys().cloned().collect();
+
+                    for (key, prop_schema) in properties {
+                        let updated_property = if !required_fields.contains(&key) {
+                            // Property is optional - make it nullable by adding null to type array
+                            let mut updated = prop_schema;
+                            if let Some(current_type) = &updated.r#type {
+                                // Convert single type to array with null
+                                let current_type_str = match current_type {
+                                    SchemaType::Single(s) => s.clone(),
+                                    SchemaType::Multiple(_) => return updated, // Already has multiple types
+                                };
+                                updated.r#type = Some(SchemaType::Multiple(vec![
+                                    current_type_str,
+                                    "null".to_string(),
+                                ]));
+                            }
+                            updated
+                        } else {
+                            prop_schema
+                        };
+
+                        new_properties.insert(key, updated_property);
+                    }
+
+                    // Update properties and make all fields required
+                    schema.properties = Some(new_properties);
+                    schema.required = Some(all_property_keys);
+                }
+
+                schema = schema.disallow_additional_properties();
+            }
+
+            // Remove unsupported schema composition (but keep anyOf for nullable unions)
             schema.all_of = None;
+            schema.one_of = None;
             schema.not = None;
 
             // Remove default values (not supported)
             schema.default = None;
-
-            // Ensure objects disallow additional properties (required by OpenAI)
-            if schema.r#type == Some(SchemaType::Object) {
-                schema = schema.disallow_additional_properties();
-            }
 
             schema
         })
