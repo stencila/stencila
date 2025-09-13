@@ -16,6 +16,7 @@ impl DomCodec for MessagePart {
             MessagePart::ImageObject(image) => ("image", &image.content_url),
             MessagePart::AudioObject(audio) => ("audio", &audio.content_url),
             MessagePart::VideoObject(video) => ("video", &video.content_url),
+            MessagePart::File(file) => ("file", &file.path),
         };
 
         context

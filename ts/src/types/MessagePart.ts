@@ -3,6 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type AudioObject } from "./AudioObject.js";
+import { type File } from "./File.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type Text } from "./Text.js";
 import { type VideoObject } from "./VideoObject.js";
@@ -14,7 +15,8 @@ export type MessagePart =
   Text |
   ImageObject |
   AudioObject |
-  VideoObject;
+  VideoObject |
+  File;
 
 /**
  * Create a `MessagePart` from an object
@@ -25,6 +27,7 @@ export function messagePart(other: MessagePart): MessagePart {
     case "ImageObject":
     case "AudioObject":
     case "VideoObject":
+    case "File":
       return hydrate(other) as MessagePart
     default:
       // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript

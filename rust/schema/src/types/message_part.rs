@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::audio_object::AudioObject;
+use super::file::File;
 use super::image_object::ImageObject;
 use super::text::Text;
 use super::video_object::VideoObject;
@@ -19,4 +20,6 @@ pub enum MessagePart {
     AudioObject(AudioObject),
 
     VideoObject(VideoObject),
+
+    File(File),
 }

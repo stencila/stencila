@@ -35,6 +35,7 @@ mod execution_message;
 mod execution_mode;
 mod execution_status;
 mod figure;
+mod file;
 mod for_block;
 mod heading;
 mod if_block;

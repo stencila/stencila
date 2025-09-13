@@ -22,6 +22,9 @@
     },
     {
       "$ref": "VideoObject.schema.json"
+    },
+    {
+      "$ref": "File.schema.json"
     }
   ]
 }

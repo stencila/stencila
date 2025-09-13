@@ -13,3 +13,4 @@ anyOf:
   - $ref: ImageObject
   - $ref: AudioObject
   - $ref: VideoObject
+  - $ref: File

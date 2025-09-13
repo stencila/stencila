@@ -12,6 +12,7 @@ proptest-max = ["proptest", "proptest-derive"]
 [dependencies]
 Inflector = { workspace = true }
 async-recursion = { workspace = true }
+base64 = { workspace = true }
 chrono = { workspace = true }
 chrono-humanize = { workspace = true }
 derive_more = { workspace = true }

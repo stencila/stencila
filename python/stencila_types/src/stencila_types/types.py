@@ -3519,6 +3519,7 @@ MessagePart = Union[
     ImageObject,
     AudioObject,
     VideoObject,
+    File,
 ]
 """
 A union type for a part of a message.
