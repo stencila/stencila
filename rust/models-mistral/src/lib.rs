@@ -193,10 +193,7 @@ impl MistralModel {
             .messages
             .iter()
             .flat_map(|message| &message.parts)
-            .find_map(|part| match part {
-                MessagePart::File(..) | MessagePart::ImageObject(..) => Some(part),
-                _ => None,
-            })
+            .find(|part| matches!(part, MessagePart::File(..) | MessagePart::ImageObject(..)))
             .ok_or_else(|| eyre!("No file or image found in message parts"))?;
 
         let document = match part {

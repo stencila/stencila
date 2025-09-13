@@ -124,7 +124,6 @@ impl Model for OpenAIModel {
         match kind {
             ModelTaskKind::MessageGeneration => self.message_generation(task).await,
             ModelTaskKind::ImageGeneration => self.image_generation(task).await,
-            _ => bail!("Model task kind is not handled: {}", kind),
         }
     }
 }
