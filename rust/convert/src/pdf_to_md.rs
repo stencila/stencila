@@ -1,158 +1,23 @@
 use std::{
     env::current_dir,
     path::{Path, PathBuf},
-    str::FromStr,
 };
 
 use base64::{Engine as _, engine::general_purpose};
-use eyre::{Context, OptionExt, Report, Result, bail};
+use eyre::{Context, Result, bail};
 use serde::{Deserialize, Serialize};
-use strum::{Display, EnumIter, IntoEnumIterator};
 use tempfile::tempdir;
 use tokio::fs::{read, read_to_string, write};
 
 use stencila_codec::PageSelector;
 use stencila_dirs::closest_artifacts_for;
 use stencila_secrets::MISTRAL_API_KEY;
-use stencila_tools::{AsyncToolCommand, is_installed};
 
 use crate::md_to_md::{clean_md, clean_md_page};
 
-#[derive(Debug, Display, EnumIter)]
-enum Tool {
-    #[strum(serialize = "mineru")]
-    Mineru,
-
-    #[strum(serialize = "marker_single")]
-    Marker,
-
-    #[strum(serialize = "mistral")]
-    Mistral,
-}
-
-impl FromStr for Tool {
-    type Err = Report;
-
-    fn from_str(tool: &str) -> Result<Self, Self::Err> {
-        use Tool::*;
-        Ok(match tool.to_lowercase().as_str() {
-            "mineru" => Mineru,
-            "marker" => Marker,
-            "mistral" => Mistral,
-            _ => bail!("Unrecognized PDF to Markdown tool: {tool}"),
-        })
-    }
-}
-
-/// Convert a PDF file to a Markdown file
-#[tracing::instrument]
-pub async fn pdf_to_md(
-    pdf: &Path,
-    tool: Option<&str>,
-    include_pages: Option<&Vec<PageSelector>>,
-    exclude_pages: Option<&Vec<PageSelector>>,
-    ignore_artifacts: bool,
-    no_artifacts: bool,
-) -> Result<PathBuf> {
-    let tool = match tool {
-        // Use the specified tool
-        Some(tool) => Tool::from_str(tool)?,
-        None => {
-            if stencila_secrets::env_or_get(MISTRAL_API_KEY).is_ok() {
-                // If a Mistral API key is available, use that
-                Tool::Mistral
-            } else {
-                // Check if any of the local tools are available, defaulting to Mineru
-                let mut tool = Tool::Mineru;
-                for tool_ in Tool::iter() {
-                    if is_installed(&tool_.to_string())? {
-                        tool = tool_;
-                        break;
-                    }
-                }
-                tool
-            }
-        }
-    };
-
-    match tool {
-        Tool::Mistral => {
-            pdf_to_md_mistral(
-                pdf,
-                include_pages,
-                exclude_pages,
-                ignore_artifacts,
-                no_artifacts,
-            )
-            .await
-        }
-        _ => pdf_to_md_local(pdf, tool, include_pages, exclude_pages).await,
-    }
-}
-
-/// Convert a PDF file to a Markdown file using a local tool
-#[tracing::instrument]
-pub async fn pdf_to_md_local(
-    pdf: &Path,
-    tool: Tool,
-    include_pages: Option<&Vec<PageSelector>>,
-    exclude_pages: Option<&Vec<PageSelector>>,
-) -> Result<PathBuf> {
-    let out_dir = tempdir()?.keep();
-
-    // TODO: Implement page filtering for local tools
-    // For now, local tools process all pages - page filtering would require
-    // either tool-specific page range options or post-processing the Markdown
-    if include_pages.is_some() || exclude_pages.is_some() {
-        tracing::warn!(
-            "Page filtering is not yet supported for local PDF tools, processing all pages"
-        );
-    }
-
-    let mut command = AsyncToolCommand::new(tool.to_string());
-
-    match tool {
-        Tool::Mineru => command.arg("--path").arg(pdf).arg("--output").arg(&out_dir),
-
-        Tool::Marker => command
-            .arg(pdf)
-            .args(vec!["--output_format", "markdown", "--output_dir"])
-            .arg(&out_dir),
-
-        _ => bail!("Non-local PDF to Markdown tool `{tool}`"),
-    };
-
-    tracing::info!("Converting PDF to Markdown locally using `{tool}`; this may take some time");
-
-    let output = command.output().await?;
-    if !output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        bail!("PDF to Markdown conversion using `{tool}` failed:\n\n{stdout}\n\n{stderr}")
-    }
-
-    let file_stem = pdf
-        .file_stem()
-        .ok_or_eyre("PDF path has no file stem")?
-        .to_os_string();
-
-    let mut file_name = file_stem.clone();
-    file_name.push(".md");
-
-    let path = match tool {
-        Tool::Mineru => out_dir.join(file_stem).join("auto").join(file_name),
-        Tool::Marker => out_dir.join(file_stem).join(file_name),
-        _ => bail!("Non-local PDF to Markdown tool `{tool}`"),
-    };
-
-    tracing::debug!("Converted PDF to {}", path.display());
-
-    Ok(path)
-}
-
 /// Convert a PDF file to a Markdown file using Mistral OCR API
 #[tracing::instrument]
-pub async fn pdf_to_md_mistral(
+pub async fn pdf_to_md(
     pdf_path: &Path,
     include_pages: Option<&Vec<PageSelector>>,
     exclude_pages: Option<&Vec<PageSelector>>,

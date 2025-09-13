@@ -1,9 +1,6 @@
-use semver::Version;
-
 use crate::{
     VersionReq,
     environments::{Apt, Devbox, Mise},
-    packages::Uv,
     tool::{Tool, ToolType},
 };
 
@@ -52,69 +49,6 @@ impl Tool for Ffmpeg {
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Mise), Box::new(Devbox), Box::new(Apt)]
-    }
-}
-
-pub struct MarkerPdf;
-
-impl Tool for MarkerPdf {
-    fn name(&self) -> &'static str {
-        "marker"
-    }
-
-    fn executable_name(&self) -> &'static str {
-        "marker_single"
-    }
-
-    fn url(&self) -> &'static str {
-        "https://github.com/datalab-to/marker"
-    }
-
-    fn description(&self) -> &'static str {
-        "Converts PDF, EPUB, MOBI to Markdown with high speed and accuracy"
-    }
-
-    fn r#type(&self) -> ToolType {
-        ToolType::Conversion
-    }
-
-    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Uv)]
-    }
-
-    fn version_available(&self) -> Option<Version> {
-        // Marker does not seem to provide a --version or -V or any other
-        // similar command AND takes a long time to start up. So to avoid long
-        // duration attempts just return 0.0.0
-        Some(Version::new(0, 0, 0))
-    }
-
-    fn version_available_in_env(&self) -> Option<Version> {
-        Some(Version::new(0, 0, 0))
-    }
-}
-
-pub struct MinerU;
-
-impl Tool for MinerU {
-    fn name(&self) -> &'static str {
-        "mineru"
-    }
-
-    fn url(&self) -> &'static str {
-        "https://github.com/opendatalab/MinerU/"
-    }
-
-    fn description(&self) -> &'static str {
-        "Converts PDF into machine-readable formats"
-    }
-
-    fn r#type(&self) -> ToolType {
-        ToolType::Conversion
-    }
-
-    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Uv)]
     }
 }
 

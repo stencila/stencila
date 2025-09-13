@@ -64,7 +64,6 @@ impl Codec for PdfCodec {
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Option<Node>, DecodeInfo)> {
         // Convert the PDF to a Markdown file
-        let tool = options.as_ref().and_then(|opts| opts.tool.as_deref());
         let include_pages = options
             .as_ref()
             .and_then(|opts| opts.include_pages.as_ref());
@@ -81,7 +80,6 @@ impl Codec for PdfCodec {
             .unwrap_or_default();
         let md_path = pdf_to_md(
             path,
-            tool,
             include_pages,
             exclude_pages,
             ignore_artifacts,

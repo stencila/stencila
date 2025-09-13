@@ -29,7 +29,7 @@
 use std::{
     ffi::OsStr,
     path::Path,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
     thread::sleep,
     time::{Duration, Instant},
 };
@@ -41,7 +41,6 @@ use headless_chrome::{
     protocol::cdp::{Page, types::Event},
 };
 use itertools::Itertools;
-use std::sync::LazyLock;
 
 use stencila_version::STENCILA_VERSION;
 use stencila_web_dist::Web;
