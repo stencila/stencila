@@ -225,6 +225,12 @@ impl Format {
         }
     }
 
+    /// Is this an other format?
+    pub fn is_other(&self) -> bool {
+        use Format::*;
+        matches!(self, Other(..))
+    }
+
     /// Is this an unknown format?
     pub fn is_unknown(&self) -> bool {
         use Format::*;
@@ -264,6 +270,8 @@ impl Format {
                 | Xls
                 | Xlsx
         ) || self.is_media()
+            || self.is_other()
+            || self.is_unknown()
     }
 
     /// Is this a media format (image, audio or video) ?
@@ -505,6 +513,8 @@ impl Format {
                     format!("image/{}", self.extension())
                 } else if self.is_video() {
                     format!("video/{}", self.extension())
+                } else if self.is_binary() {
+                    format!("application/{}", self.extension())
                 } else {
                     format!("text/{}", self.extension())
                 }

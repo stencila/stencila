@@ -16,9 +16,10 @@ impl File {
             .map(|name| name.to_string_lossy().to_string())
             .unwrap_or_else(|| "Unnamed".to_string());
 
-        let media_type = Some(Format::from_name(&name).media_type());
+        let format = Format::from_path(path);
 
-        let format = Format::from_name(&name);
+        let media_type = Some(format.media_type());
+
         let content = if format.is_binary() {
             // For binary files, read as bytes and base64 encode
             let bytes = fs::read(path)?;
