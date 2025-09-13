@@ -1,4 +1,4 @@
-use std::{env::current_dir, path::Path};
+use std::path::Path;
 
 use itertools::Itertools;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
@@ -48,11 +48,11 @@ impl Codec for DomCodec {
             .and_then(|opts| opts.extract_media.as_ref())
         {
             let mut copy = node.clone();
-            let to_path = match options.as_ref().and_then(|opts| opts.to_path.as_ref()) {
-                Some(path) => path,
-                None => &current_dir()?,
-            };
-            extract_media(&mut copy, to_path, media)?;
+            extract_media(
+                &mut copy,
+                options.as_ref().and_then(|opts| opts.to_path.as_deref()),
+                media,
+            )?;
             encode(&copy, options)
         } else if options
             .as_ref()
@@ -60,11 +60,10 @@ impl Codec for DomCodec {
             .unwrap_or_default()
         {
             let mut copy = node.clone();
-            let from_path = match options.as_ref().and_then(|opts| opts.from_path.as_ref()) {
-                Some(path) => path,
-                None => &current_dir()?,
-            };
-            embed_media(&mut copy, from_path)?;
+            embed_media(
+                &mut copy,
+                options.as_ref().and_then(|opts| opts.from_path.as_deref()),
+            )?;
             encode(&copy, options)
         } else {
             encode(node, options)

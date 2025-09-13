@@ -101,7 +101,7 @@ impl Codec for DocxCodec {
         let (mut node, info) = root_from_pandoc(pandoc, format, &options)?;
 
         // Embed any images
-        embed_media(&mut node, media_dir.path())?;
+        embed_media(&mut node, Some(media_dir.path()))?;
 
         let (data, mut properties) = decode::data_and_properties(path)?;
 

@@ -118,7 +118,7 @@ impl Embedder {
                 Node::ImageObject(ImageObject::new(content_url))
             };
 
-            if let Err(error) = embed_media(&mut node, &self.dir) {
+            if let Err(error) = embed_media(&mut node, Some(&self.dir)) {
                 supplement.options.compilation_messages = Some(vec![CompilationMessage::new(
                     MessageLevel::Error,
                     format!(

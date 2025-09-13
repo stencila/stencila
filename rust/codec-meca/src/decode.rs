@@ -42,7 +42,7 @@ pub(super) async fn decode_path(
     let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
 
     // Embed media and supplements
-    embed_media(&mut node, &dir)?;
+    embed_media(&mut node, Some(&dir))?;
     embed_supplements(&mut node, &dir).await?;
 
     Ok((node, None, info))

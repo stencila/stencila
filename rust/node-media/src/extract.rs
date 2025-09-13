@@ -1,4 +1,5 @@
 use std::{
+    env::current_dir,
     fs::{File, create_dir_all},
     hash::{Hash, Hasher},
     io::Write,
@@ -17,19 +18,25 @@ use stencila_schema::{
     WalkControl, WalkNode,
 };
 
-/// Extract any [`ImageObject`], [`AudioObject`], and [`VideoObject`] with dataURIs to files
-/// and change their content_url to point to the extracted files
+/// Extract any [`ImageObject`], [`AudioObject`], and [`VideoObject`] with
+/// dataURIs to files and change their content_url to point to the extracted
+/// files
 ///
-/// This function processes all media objects in the document tree, extracting embedded
-/// data URIs to the specified directory and updating the objects to reference the
-/// extracted files instead.
+/// This function processes all media objects in the document tree, extracting
+/// embedded data URIs to the specified directory and updating the objects to
+/// reference the extracted files instead.
 ///
-/// See the `media-embed` crate for doing the opposite: embedding
-/// files as dataURIs.
-pub fn extract_media<T>(node: &mut T, document_path: &Path, media_dir: &Path) -> Result<()>
+/// See the `media-embed` crate for doing the opposite: embedding files as
+/// dataURIs.
+pub fn extract_media<T>(node: &mut T, document_path: Option<&Path>, media_dir: &Path) -> Result<()>
 where
     T: WalkNode,
 {
+    let document_path = match document_path {
+        Some(path) => path,
+        None => &current_dir()?,
+    };
+
     let mut walker = Extractor {
         document_path: document_path.into(),
         media_dir: media_dir.into(),

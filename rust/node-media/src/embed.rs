@@ -1,4 +1,5 @@
 use std::{
+    env::current_dir,
     io::Cursor,
     path::{Path, PathBuf},
 };
@@ -6,6 +7,7 @@ use std::{
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use eyre::{Context, Result, bail, eyre};
 use image::{GenericImageView, ImageFormat, ImageReader, imageops};
+use stencila_format::Format;
 use tempfile::NamedTempFile;
 
 use stencila_schema::{
@@ -34,28 +36,49 @@ use stencila_tools::{Ffmpeg, Tool};
 /// This function does not return errors for individual media processing failures.
 /// Instead, failures are logged as warnings or errors, allowing the embedding
 /// process to continue for other media objects in the document.
-pub fn embed_media<T>(node: &mut T, path: &Path) -> Result<()>
+pub fn embed_media<T>(node: &mut T, path: Option<&Path>) -> Result<()>
 where
     T: WalkNode,
 {
-    let path = path
-        .canonicalize()
-        .wrap_err_with(|| eyre!("Path does not exist `{}`", path.display()))?;
-
-    let dir = if path.is_file()
-        && let Some(parent) = path.parent()
-    {
-        parent
-    } else {
-        &path
-    };
-
-    if !dir.exists() {
-        bail!("Directory does not exist: {}", dir.display());
-    }
-
-    let mut embedder = Embedder { dir: dir.into() };
+    let mut embedder = Embedder::new(path, None)?;
     embedder.walk(node);
+
+    Ok(())
+}
+
+/// Embed an in individual image object
+///
+/// Use this when you want to embed an individual image, rather than all media
+/// nested within some other node.
+pub fn embed_image(
+    image: &mut ImageObject,
+    path: Option<&Path>,
+    format: Option<Format>,
+) -> Result<()> {
+    let embedder = Embedder::new(path, format)?;
+    embedder.embed_image(image);
+
+    Ok(())
+}
+
+/// Embed an in individual audio object
+///
+/// Use this when you want to embed an individual audio, rather than all media
+/// nested within some other node.
+pub fn embed_audio(audio: &mut AudioObject, path: Option<&Path>) -> Result<()> {
+    let embedder = Embedder::new(path, None)?;
+    embedder.embed_audio(audio);
+
+    Ok(())
+}
+
+/// Embed an in individual video object
+///
+/// Use this when you want to embed an individual video, rather than all media
+/// nested within some other node.
+pub fn embed_video(video: &mut VideoObject, path: Option<&Path>) -> Result<()> {
+    let embedder = Embedder::new(path, None)?;
+    embedder.embed_video(video);
 
     Ok(())
 }
@@ -63,9 +86,40 @@ where
 struct Embedder {
     /// The base directory for relative filesystem paths
     dir: PathBuf,
+
+    /// The desired format for embedded images
+    ///
+    /// If the image is not already in this format it will be converted to it.
+    image_format: Option<Format>,
 }
 
 impl Embedder {
+    fn new(path: Option<&Path>, image_format: Option<Format>) -> Result<Self> {
+        let dir = if let Some(path) = path {
+            let path = path
+                .canonicalize()
+                .wrap_err_with(|| eyre!("Path does not exist `{}`", path.display()))?;
+
+            let dir = if path.is_file()
+                && let Some(parent) = path.parent()
+            {
+                parent
+            } else {
+                &path
+            };
+
+            if !dir.exists() {
+                bail!("Directory does not exist: {}", dir.display());
+            }
+
+            dir.to_path_buf()
+        } else {
+            current_dir()?
+        };
+
+        Ok(Self { dir, image_format })
+    }
+
     /// Resolve a media file path, handling both absolute and relative paths
     fn resolve_path(&self, content_url: &str, extension: &str) -> PathBuf {
         let path_with_ext = [content_url, extension].concat();
@@ -114,7 +168,6 @@ impl Embedder {
                 return;
             }
         };
-        let is_tiff = input_format == ImageFormat::Tiff;
 
         // Load the image
         let img = match ImageReader::open(path) {
@@ -132,11 +185,38 @@ impl Embedder {
         };
         let (original_width, original_height) = img.dimensions();
 
-        // Check if we need to resize (large image or TIFF format)
-        let needs_resize = original_width > MAX_WIDTH || is_tiff;
+        // Determine the output format based on image_format field or input format
+        let output_format = if let Some(desired_format) = &self.image_format {
+            match desired_format {
+                Format::Png => ImageFormat::Png,
+                Format::Jpeg => ImageFormat::Jpeg,
+                Format::Gif => ImageFormat::Gif,
+                Format::WebP => ImageFormat::WebP,
+                _ => {
+                    // If the desired format is not a supported image format, fallback to input format
+                    // but convert TIFF to PNG for web compatibility
+                    if input_format == ImageFormat::Tiff {
+                        ImageFormat::Png
+                    } else {
+                        input_format
+                    }
+                }
+            }
+        } else {
+            // No specific format requested, use input format but convert TIFF to PNG for web compatibility
+            if input_format == ImageFormat::Tiff {
+                ImageFormat::Png
+            } else {
+                input_format
+            }
+        };
 
-        let data_uri = if !needs_resize {
-            // Small non-TIFF image: convert directly without resizing
+        // Check if we need to resize or convert format
+        let needs_resize = original_width > MAX_WIDTH;
+        let needs_conversion = output_format != input_format;
+
+        let data_uri = if !needs_resize && !needs_conversion {
+            // Small image in correct format: convert directly without processing
             let mut bytes: Vec<u8> = Vec::new();
             if let Err(error) = img.write_to(&mut Cursor::new(&mut bytes), input_format) {
                 tracing::error!("Failed to encode image: {error}");
@@ -146,14 +226,15 @@ impl Embedder {
             let mime_type = input_format.to_mime_type();
             format!("data:{mime_type};base64,{encoded}")
         } else {
-            // Calculate new dimensions for resizing
-            let (new_width, new_height) = if original_width > MAX_WIDTH {
+            // Need to process the image (resize and/or convert format)
+
+            // Calculate new dimensions for resizing if needed
+            let (new_width, new_height) = if needs_resize {
                 // Calculate proportional height to maintain aspect ratio
                 let aspect_ratio = original_height as f64 / original_width as f64;
                 let new_height = (MAX_WIDTH as f64 * aspect_ratio).round() as u32;
                 (MAX_WIDTH, new_height)
             } else {
-                // TIFF smaller than max_width, keep original dimensions but convert to PNG
                 (original_width, original_height)
             };
 
@@ -167,12 +248,6 @@ impl Embedder {
             // Convert to DynamicImage
             let dynamic_img = image::DynamicImage::ImageRgba8(processed_img);
 
-            // Use the same format unless TIFF
-            let output_format = if is_tiff {
-                ImageFormat::Png
-            } else {
-                input_format
-            };
             let mime_type = output_format.to_mime_type();
 
             // Convert to data URI

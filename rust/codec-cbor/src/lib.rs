@@ -1,5 +1,3 @@
-use std::env::current_dir;
-
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::Result,
@@ -86,11 +84,11 @@ impl Codec for CborCodec {
             .and_then(|opts| opts.extract_media.as_ref())
         {
             let mut copy = node.clone();
-            let to_path = match options.as_ref().and_then(|opts| opts.to_path.as_ref()) {
-                Some(path) => path,
-                None => &current_dir()?,
-            };
-            extract_media(&mut copy, to_path, media)?;
+            extract_media(
+                &mut copy,
+                options.as_ref().and_then(|opts| opts.to_path.as_deref()),
+                media,
+            )?;
             copy.to_cbor()?
         } else if options
             .as_ref()
@@ -98,11 +96,10 @@ impl Codec for CborCodec {
             .unwrap_or_default()
         {
             let mut copy = node.clone();
-            let from_path = match options.as_ref().and_then(|opts| opts.from_path.as_ref()) {
-                Some(path) => path,
-                None => &current_dir()?,
-            };
-            embed_media(&mut copy, from_path)?;
+            embed_media(
+                &mut copy,
+                options.as_ref().and_then(|opts| opts.from_path.as_deref()),
+            )?;
             copy.to_cbor()?
         } else {
             node.to_cbor()?
