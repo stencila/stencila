@@ -1,0 +1,14 @@
+[package]
+name = "stencila-schema-json"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+eyre = { workspace = true }
+indexmap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+
+[lints]
+workspace = true
