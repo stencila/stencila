@@ -3,20 +3,6 @@ use crate::other;
 use crate::schema::{AdditionalProperties, JsonSchema, refer};
 use crate::works;
 
-pub fn simple() -> JsonSchema {
-    JsonSchema::object()
-        .title("Article")
-        .description("A simple article")
-        .required(["type", "content"])
-        .property("type", JsonSchema::string_const("Article"))
-        .property(
-            "content",
-            JsonSchema::array()
-                .description("The content of the article")
-                .items(refer(blocks::simple())),
-        )
-}
-
 pub fn metadata() -> JsonSchema {
     JsonSchema::object()
         .title("Article")
@@ -77,5 +63,19 @@ pub fn metadata() -> JsonSchema {
             JsonSchema::array()
                 .description("License information")
                 .items(JsonSchema::string()),
+        )
+}
+
+pub fn simple() -> JsonSchema {
+    JsonSchema::object()
+        .title("Article")
+        .description("A simple article")
+        .required(["type", "content"])
+        .property("type", JsonSchema::string_const("Article"))
+        .property(
+            "content",
+            JsonSchema::array()
+                .description("The content of the article")
+                .items(refer(blocks::simple())),
         )
 }

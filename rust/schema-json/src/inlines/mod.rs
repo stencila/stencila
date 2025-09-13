@@ -1,7 +1,7 @@
 pub mod math;
 pub mod text;
 
-use crate::schema::{refer, JsonSchema};
+use crate::schema::{JsonSchema, refer};
 
 pub fn simple() -> JsonSchema {
     JsonSchema::new()
