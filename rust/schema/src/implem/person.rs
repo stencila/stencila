@@ -79,6 +79,21 @@ impl Person {
     }
 }
 
+impl<S> From<S> for Person
+where
+    S: AsRef<str>,
+{
+    fn from(value: S) -> Self {
+        Person::from_str(value.as_ref()).unwrap_or_else(|_| Person {
+            options: Box::new(PersonOptions {
+                name: Some(value.as_ref().to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    }
+}
+
 impl FromStr for Person {
     type Err = ErrReport;
 
