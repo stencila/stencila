@@ -9623,6 +9623,7 @@ dependencies = [
  "regex",
  "reqwest",
  "stencila-codec",
+ "stencila-codec-biblio",
  "stencila-codec-jats",
  "stencila-dirs",
  "stencila-node-media",

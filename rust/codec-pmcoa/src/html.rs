@@ -4,12 +4,12 @@
 //! into Stencila document structures. PMC HTML pages contain semantic markup
 //! that can be parsed to extract article metadata and content.
 
-use std::path::Path;
+use std::{fs::read_to_string, path::Path};
 
 use tl::{HTMLTag, Parser, ParserOptions, parse};
 
 use stencila_codec::{
-    DecodeInfo, DecodeOptions, Losses,
+    DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
     stencila_schema::{
         Article, Author, Block, Citation, Date, Emphasis, Figure, Heading, ImageObject, Inline,
@@ -17,35 +17,7 @@ use stencila_codec::{
         Section, SectionType, Table, TableCell, TableRow, shortcuts::t,
     },
 };
-
-/// PMC HTML decode context for tracking losses and metadata
-pub struct PmcDecodeContext {
-    losses: Losses,
-    pmcid: Option<String>,
-    pmid: Option<String>,
-    doi: Option<String>,
-    date_published: Option<String>,
-    title: Option<String>,
-    authors: Vec<String>,
-}
-
-impl PmcDecodeContext {
-    pub fn new() -> Self {
-        Self {
-            losses: Losses::none(),
-            pmcid: None,
-            pmid: None,
-            doi: None,
-            date_published: None,
-            title: None,
-            authors: Vec::new(),
-        }
-    }
-
-    pub fn add_loss(&mut self, element: &str) {
-        self.losses.add(element)
-    }
-}
+use stencila_codec_biblio::decode::text_to_author;
 
 /// Decode a PMC HTML file to a Stencila [`Node`]
 #[tracing::instrument]
@@ -54,50 +26,39 @@ pub(super) fn decode_html_path(
     options: Option<DecodeOptions>,
 ) -> Result<(Node, Option<Node>, DecodeInfo)> {
     // Read the HTML content
-    let html = std::fs::read_to_string(path)?;
-
+    let html = read_to_string(path)?;
     if html.trim().is_empty() {
-        bail!("Retrieved HTML content is empty");
+        bail!("HTML is empty");
     }
 
     // Parse the HTML
     let dom = parse(&html, ParserOptions::default())?;
     let parser = dom.parser();
 
-    // Create decode context
-    let mut context = PmcDecodeContext::new();
-
     // Extract metadata from meta tags
-    extract_metadata(&dom, &mut context)?;
+    let mut article = extract_metadata(&dom)?;
 
-    // Find the main article body
-    let body_section = dom
+    // Extract abstract, content, and references
+    if let Some(body_section) = dom
         .query_selector("section.body.main-article-body")
         .and_then(|mut nodes| nodes.next())
         .and_then(|node| node.get(parser))
-        .and_then(|node| node.as_tag());
-
-    if body_section.is_none() {
-        bail!("No main article body found in PMC HTML");
+        .and_then(|node| node.as_tag())
+    {
+        let rest = decode_article(parser, body_section)?;
+        article.r#abstract = rest.r#abstract;
+        article.content = rest.content;
+        article.references = rest.references;
     }
 
-    // Decode the article
-    let body_section = body_section.expect("Main article body section should be found");
-
-    let article = decode_article(parser, body_section, &mut context)?;
-
-    Ok((
-        Node::Article(article),
-        None,
-        DecodeInfo {
-            losses: context.losses,
-            ..Default::default()
-        },
-    ))
+    Ok((Node::Article(article), None, DecodeInfo::none()))
 }
 
 /// Extract metadata from HTML meta tags
-fn extract_metadata(dom: &tl::VDom, context: &mut PmcDecodeContext) -> Result<()> {
+fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
+    let mut article = Article::default();
+    let mut identifiers = Vec::new();
+
     // Extract DOI
     if let Some(doi_node) = dom
         .query_selector("meta[name='citation_doi']")
@@ -106,7 +67,7 @@ fn extract_metadata(dom: &tl::VDom, context: &mut PmcDecodeContext) -> Result<()
         .and_then(|node| node.as_tag())
         && let Some(content) = get_attr(doi_node, "content")
     {
-        context.doi = Some(content);
+        article.doi = Some(content);
     }
 
     // Extract title
@@ -117,7 +78,18 @@ fn extract_metadata(dom: &tl::VDom, context: &mut PmcDecodeContext) -> Result<()
         .and_then(|node| node.as_tag())
         && let Some(content) = get_attr(title_node, "content")
     {
-        context.title = Some(content);
+        article.title = Some(vec![t(content)]);
+    }
+
+    // Extract publication date
+    if let Some(date_node) = dom
+        .query_selector("meta[name='citation_publication_date']")
+        .and_then(|mut nodes| nodes.next())
+        .and_then(|node| node.get(dom.parser()))
+        .and_then(|node| node.as_tag())
+        && let Some(content) = get_attr(date_node, "content")
+    {
+        article.date_published = Some(Date::new(content));
     }
 
     // Extract authors
@@ -125,13 +97,14 @@ fn extract_metadata(dom: &tl::VDom, context: &mut PmcDecodeContext) -> Result<()
         .query_selector("meta[name='citation_author']")
         .map(|iter| iter.collect())
         .unwrap_or_default();
-
     for node_handle in author_nodes {
         if let Some(node) = node_handle.get(dom.parser())
             && let Some(tag) = node.as_tag()
-            && let Some(author_name) = get_attr(tag, "content")
+            && let Some(content) = get_attr(tag, "content")
         {
-            context.authors.push(author_name);
+            let author =
+                text_to_author(&content).unwrap_or_else(|| Author::Person(Person::from(content)));
+            article.authors.get_or_insert_default().push(author);
         }
     }
 
@@ -143,25 +116,13 @@ fn extract_metadata(dom: &tl::VDom, context: &mut PmcDecodeContext) -> Result<()
         .and_then(|node| node.as_tag())
         && let Some(href) = get_attr(canonical_node, "href")
     {
-        // Extract PMCID from URL like "https://pmc.ncbi.nlm.nih.gov/articles/PMC11518443/"
-        if let Some(pmc_start) = href.find("PMC") {
-            let pmc_part = &href[pmc_start..];
-            let pmc_end = pmc_part.find('/').unwrap_or(pmc_part.len());
-            context.pmcid = Some(pmc_part[..pmc_end].to_string());
+        if let Some(pmc) = href.strip_prefix("https://pmc.ncbi.nlm.nih.gov/articles/PMC") {
+            identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
+                property_id: Some("pmc".to_string()),
+                value: Primitive::String(pmc.trim_end_matches("/").into()),
+                ..Default::default()
+            }));
         }
-    }
-
-    // Extract publication date
-    if let Some(date_node) = dom
-        .query_selector("meta[name='citation_publication_date']")
-        .and_then(|mut nodes| nodes.next())
-        .and_then(|node| node.get(dom.parser()))
-        .and_then(|node| node.as_tag())
-        && let Some(content) = get_attr(date_node, "content")
-    {
-        // Extract just the year from date like "2025 Sep 12"
-        let year = content.split_whitespace().next().unwrap_or(&content);
-        context.date_published = Some(year.to_string());
     }
 
     // Extract PMID
@@ -172,55 +133,25 @@ fn extract_metadata(dom: &tl::VDom, context: &mut PmcDecodeContext) -> Result<()
         .and_then(|node| node.as_tag())
         && let Some(content) = get_attr(pmid_node, "content")
     {
-        context.pmid = Some(content);
+        identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
+            property_id: Some("pmid".to_string()),
+            value: Primitive::String(content),
+            ..Default::default()
+        }));
     }
 
-    Ok(())
+    if !identifiers.is_empty() {
+        article.options.identifiers = Some(identifiers);
+    }
+
+    Ok(article)
 }
 
 /// Decode the main article from the body section
-fn decode_article(
-    parser: &Parser,
-    body_section: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Article> {
-    // Use metadata from context (meta tags)
-    let title = context.title.as_ref().map(|title_str| vec![t(title_str)]);
-
-    // Convert author names to Person objects
-    let authors: Vec<Author> = context
-        .authors
-        .iter()
-        .filter_map(|author_name| {
-            // Parse "FirstName LastName" format manually
-            let parts: Vec<&str> = author_name.split_whitespace().collect();
-            let (given_names, family_names) = if parts.len() >= 2 {
-                let given = parts[0..parts.len() - 1].join(" ");
-                let family = parts[parts.len() - 1].to_string();
-                (vec![given], vec![family])
-            } else if parts.len() == 1 {
-                // Just one name, treat as family name
-                (Vec::new(), vec![parts[0].to_string()])
-            } else {
-                // Empty name, skip
-                return None;
-            };
-
-            Some(Author::Person(Person {
-                given_names: if given_names.is_empty() {
-                    None
-                } else {
-                    Some(given_names)
-                },
-                family_names: Some(family_names),
-                ..Default::default()
-            }))
-        })
-        .collect();
-
-    let mut abstract_blocks = None;
+fn decode_article(parser: &Parser, body_section: &HTMLTag) -> Result<Article> {
+    let mut r#abstract = None;
     let mut content = Vec::new();
-    let mut references = Vec::new();
+    let mut references = None;
 
     // Process all children of the body section
     for child in body_section
@@ -239,79 +170,30 @@ fn decode_article(
                     // (we already extracted metadata from meta tags)
                 }
                 "section" if class.contains("abstract") => {
-                    abstract_blocks = Some(decode_abstract(parser, tag, context)?);
+                    r#abstract = Some(decode_abstract(parser, tag)?);
                 }
                 "section" if class.contains("ref-list") => {
-                    references = decode_references(parser, tag, context)?;
+                    references = Some(decode_references(parser, tag)?);
                 }
                 "section" => {
                     // Regular content section
-                    let section = decode_section(parser, tag, context)?;
+                    let section = decode_section(parser, tag)?;
                     // Only add non-empty sections
                     if !section.content.is_empty() {
                         content.push(Block::Section(section));
                     }
                 }
-                _ => {
-                    // Add other block elements as needed
-                    context.add_loss(&format!("<{}>", tag_name));
-                }
+                _ => {}
             }
         }
     }
 
-    // Parse publication date
-    let date_published = context.date_published.as_ref().map(|date_str| Date {
-        value: date_str.clone(),
-        ..Default::default()
-    });
-
-    // Create identifiers from PMID and PMC ID
-    let mut identifiers = Vec::new();
-
-    if let Some(pmid) = &context.pmid {
-        identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-            property_id: Some("pmid".to_string()),
-            value: Primitive::String(pmid.clone()),
-            ..Default::default()
-        }));
-    }
-
-    if let Some(pmcid) = &context.pmcid {
-        // Extract numeric part from PMC12431436 -> 12431436
-        let pmc_number = pmcid.trim_start_matches("PMC");
-        identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-            property_id: Some("pmc".to_string()),
-            value: Primitive::String(pmc_number.to_string()),
-            ..Default::default()
-        }));
-    }
-
-    let mut article = Article {
-        title,
-        authors: if authors.is_empty() {
-            None
-        } else {
-            Some(authors)
-        },
-        doi: context.doi.clone(),
-        r#abstract: abstract_blocks,
+    Ok(Article {
+        r#abstract,
         content,
-        references: if references.is_empty() {
-            None
-        } else {
-            Some(references)
-        },
-        date_published,
+        references,
         ..Default::default()
-    };
-
-    // Set identifiers through options
-    if !identifiers.is_empty() {
-        article.options.identifiers = Some(identifiers);
-    }
-
-    Ok(article)
+    })
 }
 
 /// Get an attribute value as Option<String>
@@ -365,11 +247,7 @@ fn decode_html_entities(text: &str) -> String {
 }
 
 /// Decode abstract section
-fn decode_abstract(
-    parser: &Parser,
-    abstract_section: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Vec<Block>> {
+fn decode_abstract(parser: &Parser, abstract_section: &HTMLTag) -> Result<Vec<Block>> {
     let mut blocks = Vec::new();
 
     for child in abstract_section
@@ -399,13 +277,7 @@ fn decode_abstract(
                             match child_tag_name.as_ref() {
                                 "h3" => {
                                     let heading_text = get_text(parser, section_tag);
-                                    section_type = match heading_text.to_lowercase().as_str() {
-                                        "background" => Some(SectionType::Background),
-                                        "methods" => Some(SectionType::Methods),
-                                        "results" => Some(SectionType::Results),
-                                        "conclusions" => Some(SectionType::Conclusions),
-                                        _ => None,
-                                    };
+                                    section_type = SectionType::from_text(&heading_text).ok();
                                     // Add heading to content to match TAR format
                                     let heading = Heading {
                                         level: 1,
@@ -415,7 +287,7 @@ fn decode_abstract(
                                     content.push(Block::Heading(heading));
                                 }
                                 "p" => {
-                                    let paragraph = decode_paragraph(parser, section_tag, context)?;
+                                    let paragraph = decode_paragraph(parser, section_tag)?;
                                     content.push(Block::Paragraph(paragraph));
                                 }
                                 _ => {}
@@ -434,15 +306,13 @@ fn decode_abstract(
                 }
                 "p" => {
                     // Direct paragraph in abstract
-                    let paragraph = decode_paragraph(parser, tag, context)?;
+                    let paragraph = decode_paragraph(parser, tag)?;
                     blocks.push(Block::Paragraph(paragraph));
                 }
                 "h2" => {
                     // Skip abstract heading
                 }
-                _ => {
-                    context.add_loss(&format!("<{}>", tag_name));
-                }
+                _ => {}
             }
         }
     }
@@ -451,11 +321,7 @@ fn decode_abstract(
 }
 
 /// Decode a section
-fn decode_section(
-    parser: &Parser,
-    section: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Section> {
+fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
     let mut section_type = None;
     let mut content = Vec::new();
 
@@ -475,15 +341,7 @@ fn decode_section(
 
                     // Determine section type from heading text
                     if section_type.is_none() {
-                        section_type = match heading_text.to_lowercase().as_str() {
-                            "introduction" => Some(SectionType::Introduction),
-                            "methods" | "materials and methods" => Some(SectionType::Methods),
-                            "results" => Some(SectionType::Results),
-                            "discussion" => Some(SectionType::Discussion),
-                            "conclusions" | "conclusion" => Some(SectionType::Conclusions),
-                            "background" => Some(SectionType::Background),
-                            _ => None,
-                        };
+                        section_type = SectionType::from_text(&heading_text).ok();
                     }
 
                     let heading = Heading {
@@ -494,19 +352,19 @@ fn decode_section(
                     content.push(Block::Heading(heading));
                 }
                 "p" => {
-                    let paragraph = decode_paragraph(parser, tag, context)?;
+                    let paragraph = decode_paragraph(parser, tag)?;
                     content.push(Block::Paragraph(paragraph));
                 }
                 "section" => {
                     let class = get_class(tag);
                     if class.contains("tw xbox") {
                         // This is a table section
-                        if let Some(table) = decode_table_section(parser, tag, context)? {
+                        if let Some(table) = decode_table_section(parser, tag)? {
                             content.push(Block::Table(table));
                         }
                     } else {
                         // Regular nested section
-                        let subsection = decode_section(parser, tag, context)?;
+                        let subsection = decode_section(parser, tag)?;
                         // Only add non-empty subsections
                         if !subsection.content.is_empty() {
                             content.push(Block::Section(subsection));
@@ -514,13 +372,11 @@ fn decode_section(
                     }
                 }
                 "figure" => {
-                    if let Some(figure) = decode_figure(parser, tag, context)? {
+                    if let Some(figure) = decode_figure(parser, tag)? {
                         content.push(Block::Figure(figure));
                     }
                 }
-                _ => {
-                    context.add_loss(&format!("<{}>", tag_name));
-                }
+                _ => {}
             }
         }
     }
@@ -533,12 +389,8 @@ fn decode_section(
 }
 
 /// Decode a paragraph
-fn decode_paragraph(
-    parser: &Parser,
-    paragraph: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Paragraph> {
-    let content = decode_inlines(parser, paragraph, context)?;
+fn decode_paragraph(parser: &Parser, paragraph: &HTMLTag) -> Result<Paragraph> {
+    let content = decode_inlines(parser, paragraph)?;
 
     Ok(Paragraph {
         content,
@@ -547,11 +399,7 @@ fn decode_paragraph(
 }
 
 /// Decode inline elements
-fn decode_inlines(
-    parser: &Parser,
-    tag: &HTMLTag,
-    _context: &mut PmcDecodeContext,
-) -> Result<Vec<Inline>> {
+fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
     let mut inlines = Vec::new();
 
     for child in tag
@@ -565,7 +413,7 @@ fn decode_inlines(
 
             match tag_name.as_ref() {
                 "em" => {
-                    let emphasis_content = decode_inlines(parser, child_tag, _context)?;
+                    let emphasis_content = decode_inlines(parser, child_tag)?;
                     inlines.push(Inline::Emphasis(Emphasis {
                         content: emphasis_content,
                         ..Default::default()
@@ -607,7 +455,7 @@ fn decode_inlines(
                 }
                 _ => {
                     // Recurse into other tags
-                    inlines.extend(decode_inlines(parser, child_tag, _context)?);
+                    inlines.extend(decode_inlines(parser, child_tag)?);
                 }
             }
         } else if let Some(text) = child.as_raw()
@@ -655,11 +503,7 @@ fn concatenate_text_nodes(inlines: Vec<Inline>) -> Vec<Inline> {
 }
 
 /// Decode a table section (section with class "tw xbox")
-fn decode_table_section(
-    parser: &Parser,
-    section: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Option<Table>> {
+fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
     let id = get_attr(section, "id");
     let mut caption = None;
     let mut rows = Vec::new();
@@ -691,7 +535,7 @@ fn decode_table_section(
                         .and_then(|node| node.get(parser))
                         .and_then(|node| node.as_tag())
                     {
-                        rows = decode_table_rows(parser, table_tag, context)?;
+                        rows = decode_table_rows(parser, table_tag)?;
                     }
                 }
                 _ => {}
@@ -712,11 +556,7 @@ fn decode_table_section(
 }
 
 /// Decode table rows
-fn decode_table_rows(
-    parser: &Parser,
-    table: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Vec<TableRow>> {
+fn decode_table_rows(parser: &Parser, table: &HTMLTag) -> Result<Vec<TableRow>> {
     let mut rows = Vec::new();
 
     // Process thead and tbody
@@ -741,7 +581,7 @@ fn decode_table_rows(
                         if let Some(tr_tag) = tr_child.as_tag()
                             && tr_tag.name().as_utf8_str() == "tr"
                         {
-                            let row = decode_table_row(parser, tr_tag, context)?;
+                            let row = decode_table_row(parser, tr_tag)?;
                             if !row.cells.is_empty() {
                                 rows.push(row);
                             }
@@ -750,7 +590,7 @@ fn decode_table_rows(
                 }
                 "tr" => {
                     // Direct tr element
-                    let row = decode_table_row(parser, tag, context)?;
+                    let row = decode_table_row(parser, tag)?;
                     if !row.cells.is_empty() {
                         rows.push(row);
                     }
@@ -764,11 +604,7 @@ fn decode_table_rows(
 }
 
 /// Decode a table row
-fn decode_table_row(
-    parser: &Parser,
-    tr: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<TableRow> {
+fn decode_table_row(parser: &Parser, tr: &HTMLTag) -> Result<TableRow> {
     let mut cells = Vec::new();
 
     for child in tr
@@ -781,7 +617,7 @@ fn decode_table_row(
             let tag_name = tag.name().as_utf8_str();
 
             if tag_name == "td" || tag_name == "th" {
-                let cell_inlines = decode_inlines(parser, tag, context)?;
+                let cell_inlines = decode_inlines(parser, tag)?;
                 let paragraph = Paragraph {
                     content: cell_inlines,
                     ..Default::default()
@@ -801,11 +637,7 @@ fn decode_table_row(
 }
 
 /// Decode a figure element
-fn decode_figure(
-    parser: &Parser,
-    figure: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Option<Figure>> {
+fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
     let id = get_attr(figure, "id");
     let mut caption = None;
     let mut content = Vec::new();
@@ -831,7 +663,7 @@ fn decode_figure(
                 }
                 "figcaption" => {
                     // Figure caption
-                    let caption_inlines = decode_inlines(parser, tag, context)?;
+                    let caption_inlines = decode_inlines(parser, tag)?;
                     let paragraph = Paragraph {
                         content: caption_inlines,
                         ..Default::default()
@@ -877,11 +709,7 @@ fn decode_figure(
 }
 
 /// Decode references section
-fn decode_references(
-    parser: &Parser,
-    ref_section: &HTMLTag,
-    context: &mut PmcDecodeContext,
-) -> Result<Vec<Reference>> {
+fn decode_references(parser: &Parser, ref_section: &HTMLTag) -> Result<Vec<Reference>> {
     let mut references = Vec::new();
 
     // Look for ul.ref-list
@@ -906,13 +734,13 @@ fn decode_references(
                     if let Some(li_tag) = li_child.as_tag()
                         && li_tag.name().as_utf8_str() == "li"
                     {
-                        let reference = decode_reference(parser, li_tag, context)?;
+                        let reference = decode_reference(parser, li_tag)?;
                         references.push(reference);
                     }
                 }
             } else if tag_name.as_ref() == "section" {
                 // Recurse into sections
-                references.extend(decode_references(parser, tag, context)?);
+                references.extend(decode_references(parser, tag)?);
             }
         }
     }
@@ -920,11 +748,7 @@ fn decode_references(
 }
 
 /// Decode a single reference
-fn decode_reference(
-    parser: &Parser,
-    li_tag: &HTMLTag,
-    _context: &mut PmcDecodeContext,
-) -> Result<Reference> {
+fn decode_reference(parser: &Parser, li_tag: &HTMLTag) -> Result<Reference> {
     // Get the ID from the li element
     let id = get_attr(li_tag, "id");
 

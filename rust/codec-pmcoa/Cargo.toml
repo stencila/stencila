@@ -10,6 +10,7 @@ glob = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
 stencila-codec = { path = "../codec" }
+stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-jats = { path = "../codec-jats" }
 stencila-dirs = { path = "../dirs" }
 stencila-node-media = { path = "../node-media" }

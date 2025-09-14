@@ -4,7 +4,7 @@ use winnow::Parser;
 
 use stencila_codec::{
     eyre::{Result, bail},
-    stencila_schema::{Inline, Reference, shortcuts::t},
+    stencila_schema::{Author, Inline, Reference, shortcuts::t},
 };
 
 mod acs;
@@ -29,6 +29,7 @@ use crate::{
             parenthetic_numeric, parenthetic_numeric_and_text, superscripted_numeric,
             superscripted_numeric_and_text,
         },
+        parts::authors::{author, authors},
         references::reference,
     },
 };
@@ -59,6 +60,18 @@ pub fn bibtex(bibtex: &str) -> Result<Vec<Reference>> {
     let references = library.iter().map(entry_to_reference).try_collect()?;
 
     Ok(references)
+}
+
+/// Decode plain text into a Stencila [`Author`] node if possible
+pub fn text_to_author(text: &str) -> Option<Author> {
+    let mut input = text;
+    author(&mut input).ok()
+}
+
+/// Decode plain text into a vector of Stencila [`Author`] nodes if possible
+pub fn text_to_authors(text: &str) -> Option<Vec<Author>> {
+    let mut input = text;
+    authors(&mut input).ok()
 }
 
 /// Decode plain text into a Stencila [`Reference`] node
