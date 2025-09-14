@@ -12,8 +12,9 @@ use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
     stencila_schema::{
-        Article, Author, Block, Citation, Date, Emphasis, Figure, Heading, ImageObject, Inline,
-        Link, Node, Paragraph, Person, Primitive, PropertyValue, PropertyValueOrString, Reference,
+        Article, Author, Block, Citation, CreativeWorkVariant, Date, Emphasis, Figure, Heading,
+        ImageObject, Inline, IntegerOrString, Link, Node, Paragraph, Periodical, Person, Primitive,
+        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
         Section, SectionType, Table, TableCell, TableRow, shortcuts::t,
     },
 };
@@ -57,7 +58,11 @@ pub(super) fn decode_html_path(
 /// Extract metadata from HTML meta tags
 fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
     let mut article = Article::default();
+
     let mut identifiers = Vec::new();
+    let mut journal_title = None;
+    let mut volume_number = None;
+    let mut issue_number = None;
 
     // Extract PMCID from canonical link tag
     if let Some(canonical_node) = dom
@@ -110,9 +115,57 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
                         ..Default::default()
                     }));
                 }
+                "citation_journal_title" => {
+                    journal_title = Some(content);
+                }
+                "citation_volume" => {
+                    volume_number = Some(content);
+                }
+                "citation_issue" => {
+                    issue_number = Some(content);
+                }
+                "citation_firstpage" => {
+                    article.options.page_start = Some(IntegerOrString::from(content));
+                }
+                "citation_lastpage" => {
+                    article.options.page_end = Some(IntegerOrString::from(content));
+                }
                 _ => {}
             }
         }
+    }
+
+    // Build isPartOf structure if we have the necessary data
+    if let Some(journal) = journal_title {
+        let periodical = Periodical {
+            name: Some(journal),
+            ..Default::default()
+        };
+
+        let work = if let Some(volume) = volume_number {
+            let publication_volume = PublicationVolume {
+                is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
+                volume_number: Some(IntegerOrString::from(&volume)),
+                ..Default::default()
+            };
+
+            if let Some(issue) = issue_number {
+                let publication_issue = PublicationIssue {
+                    is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
+                        publication_volume,
+                    ))),
+                    issue_number: Some(IntegerOrString::from(&issue)),
+                    ..Default::default()
+                };
+                CreativeWorkVariant::PublicationIssue(publication_issue)
+            } else {
+                CreativeWorkVariant::PublicationVolume(publication_volume)
+            }
+        } else {
+            CreativeWorkVariant::Periodical(periodical)
+        };
+
+        article.options.is_part_of = Some(work);
     }
 
     if !identifiers.is_empty() {

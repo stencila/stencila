@@ -2,11 +2,14 @@ use stencila_node_store::ReadNode;
 
 use crate::{IntegerOrString, prelude::*};
 
-impl From<&str> for IntegerOrString {
-    fn from(value: &str) -> Self {
-        match value.parse::<i64>() {
+impl<S> From<S> for IntegerOrString
+where
+    S: AsRef<str>,
+{
+    fn from(value: S) -> Self {
+        match value.as_ref().parse::<i64>() {
             Ok(int) => IntegerOrString::Integer(int),
-            Err(..) => IntegerOrString::String(value.into()),
+            Err(..) => IntegerOrString::String(value.as_ref().into()),
         }
     }
 }

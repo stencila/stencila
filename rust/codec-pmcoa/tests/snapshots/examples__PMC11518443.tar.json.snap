@@ -244,12 +244,18 @@ expression: article
       "value": "AcademicSubjects/SOC02610"
     }
   ],
-  "parts": [
-    {
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
       "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "The European Journal of Public Health"
+      },
       "volumeNumber": 34
-    }
-  ],
+    },
+    "issueNumber": "Suppl 3"
+  },
   "publisher": {
     "type": "Organization",
     "name": "Oxford University Press"

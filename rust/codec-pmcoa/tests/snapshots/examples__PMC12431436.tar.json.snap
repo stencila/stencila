@@ -4771,14 +4771,21 @@ expression: article
       "type": "Organization"
     }
   ],
-  "parts": [
-    {
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
       "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "PLOS One"
+      },
       "volumeNumber": 20
-    }
-  ],
+    },
+    "issueNumber": 9
+  },
   "publisher": {
     "type": "Organization",
-    "name": "Public Library of Science"
+    "name": "Public Library of Science",
+    "address": "San Francisco, CA USA"
   }
 }

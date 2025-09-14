@@ -130,7 +130,7 @@ expression: article
         "Amaro"
       ],
       "givenNames": [
-        "J"
+        "J."
       ]
     },
     {
@@ -139,7 +139,7 @@ expression: article
         "Lucas"
       ],
       "givenNames": [
-        "R"
+        "R."
       ]
     },
     {
@@ -148,7 +148,7 @@ expression: article
         "Perelman"
       ],
       "givenNames": [
-        "J"
+        "J."
       ]
     },
     {
@@ -157,7 +157,7 @@ expression: article
         "Fraga"
       ],
       "givenNames": [
-        "S"
+        "S."
       ]
     },
     {
@@ -166,7 +166,7 @@ expression: article
         "Maia"
       ],
       "givenNames": [
-        "S"
+        "S."
       ]
     },
     {
@@ -175,7 +175,7 @@ expression: article
         "Pereira"
       ],
       "givenNames": [
-        "M"
+        "M."
       ]
     },
     {
@@ -184,7 +184,8 @@ expression: article
         "Mamelund"
       ],
       "givenNames": [
-        "S E"
+        "S.",
+        "E."
       ]
     },
     {
@@ -193,7 +194,7 @@ expression: article
         "Matias"
       ],
       "givenNames": [
-        "M"
+        "M."
       ]
     },
     {
@@ -202,13 +203,13 @@ expression: article
         "Leão"
       ],
       "givenNames": [
-        "T"
+        "T."
       ]
     }
   ],
   "datePublished": {
     "type": "Date",
-    "value": "2024"
+    "value": "2024 Oct 28"
   },
   "title": [
     {
@@ -225,5 +226,18 @@ expression: article
       "propertyId": "pmc",
       "value": "11518443"
     }
-  ]
+  ],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "The European Journal of Public Health"
+      },
+      "volumeNumber": 34
+    },
+    "issueNumber": "Suppl 3"
+  },
+  "pageStart": "ckae144.662"
 }

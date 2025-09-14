@@ -199,7 +199,7 @@ expression: article
   ],
   "datePublished": {
     "type": "Date",
-    "value": "2025"
+    "value": "2025 Sep 12"
   },
   "references": [
     {
@@ -1454,7 +1454,7 @@ expression: article
     },
     {
       "type": "Section",
-      "sectionType": "Methods",
+      "sectionType": "Materials",
       "content": [
         {
           "type": "Heading",
@@ -1470,6 +1470,7 @@ expression: article
         },
         {
           "type": "Section",
+          "sectionType": "Ethics",
           "content": [
             {
               "type": "Heading",
@@ -5206,6 +5207,7 @@ expression: article
         },
         {
           "type": "Section",
+          "sectionType": "StatisticalAnalysis",
           "content": [
             {
               "type": "Heading",
@@ -6354,6 +6356,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "SupplementaryMaterials",
       "content": [
         {
           "type": "Heading",
@@ -6371,6 +6374,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Acknowledgements",
       "content": [
         {
           "type": "Heading",
@@ -6399,6 +6403,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "DataAvailability",
       "content": [
         {
           "type": "Heading",
@@ -6481,6 +6486,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Funding",
       "content": [
         {
           "type": "Heading",
@@ -6540,6 +6546,7 @@ expression: article
         },
         {
           "type": "Section",
+          "sectionType": "SupplementaryMaterials",
           "content": [
             {
               "type": "Heading",
@@ -6557,6 +6564,7 @@ expression: article
         },
         {
           "type": "Section",
+          "sectionType": "DataAvailability",
           "content": [
             {
               "type": "Heading",
@@ -6643,13 +6651,26 @@ expression: article
   "identifiers": [
     {
       "type": "PropertyValue",
-      "propertyId": "pmid",
-      "value": "40938858"
+      "propertyId": "pmc",
+      "value": "12431436"
     },
     {
       "type": "PropertyValue",
-      "propertyId": "pmc",
-      "value": "12431436"
+      "propertyId": "pmid",
+      "value": "40938858"
     }
-  ]
+  ],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "PLOS One"
+      },
+      "volumeNumber": 20
+    },
+    "issueNumber": 9
+  },
+  "pageStart": "e0332245"
 }
