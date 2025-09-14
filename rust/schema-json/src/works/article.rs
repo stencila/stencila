@@ -6,7 +6,7 @@ use crate::works;
 pub fn metadata() -> JsonSchema {
     JsonSchema::object()
         .title("Article")
-        .description("Article with metadata fields for publication information")
+        .description("Article metadata")
         .additional_properties(AdditionalProperties::Bool(false))
         .required(["type"])
         .property("type", JsonSchema::string_const("Article"))
