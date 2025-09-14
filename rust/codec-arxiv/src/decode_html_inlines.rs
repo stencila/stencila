@@ -1,3 +1,10 @@
+//! Inline-level HTML element decoder for arXiv LaTeXML content.
+//!
+//! This module handles conversion of inline HTML elements (text formatting, links,
+//! math, citations, etc.) from LaTeXML-generated HTML into Stencila Inline nodes.
+//! Special attention is paid to preserving academic citation structures and
+//! mathematical content with both LaTeX and MathML representations.
+
 use tl::{HTMLTag, Parser};
 
 use stencila_codec::stencila_schema::{
@@ -10,7 +17,11 @@ use super::decode_html::{
     get_href_target,
 };
 
-/// Decode inline elements
+/// Decode inline elements with careful whitespace preservation
+///
+/// LaTeXML generates complex nested inline structures where whitespace
+/// significance can vary. This function attempts to preserve meaningful
+/// whitespace while normalizing excessive spacing.
 pub fn decode_inlines(
     parser: &Parser,
     tag: &HTMLTag,
@@ -28,34 +39,30 @@ pub fn decode_inlines(
         } else if let Some(text) = child.as_raw() {
             let text_content = text.try_as_utf8_str().unwrap_or_default();
 
-            // Preserve whitespace more carefully:
-            // - Only collapse multiple whitespace to single space
-            // - Don't trim leading/trailing whitespace completely
+            // Preserve whitespace structure while normalizing excessive spacing
             if text_content.chars().any(|c| !c.is_whitespace()) {
-                // Text has non-whitespace content, normalize whitespace but keep structure
+                // Text contains non-whitespace: normalize internal spacing but preserve boundaries
                 let normalized = text_content
                     .split_whitespace()
                     .collect::<Vec<_>>()
                     .join(" ");
 
-                // Preserve leading/trailing space if original had it
-                let result = if text_content.starts_with(char::is_whitespace)
-                    && text_content.ends_with(char::is_whitespace)
-                {
-                    format!(" {normalized} ")
-                } else if text_content.starts_with(char::is_whitespace) {
-                    format!(" {normalized}")
-                } else if text_content.ends_with(char::is_whitespace) {
-                    format!("{normalized} ")
-                } else {
-                    normalized
+                // Maintain leading/trailing whitespace patterns from original
+                let result = match (
+                    text_content.starts_with(char::is_whitespace),
+                    text_content.ends_with(char::is_whitespace),
+                ) {
+                    (true, true) => format!(" {normalized} "),
+                    (true, false) => format!(" {normalized}"),
+                    (false, true) => format!("{normalized} "),
+                    (false, false) => normalized,
                 };
 
                 if !result.is_empty() {
                     inlines.push(t(&result));
                 }
             } else if !text_content.is_empty() {
-                // Only whitespace, preserve as single space
+                // Pure whitespace content: preserve as single space
                 inlines.push(t(" "));
             }
         }
@@ -131,24 +138,32 @@ pub fn decode_a(parser: &Parser, tag: &HTMLTag, context: &mut ArxivDecodeContext
     })
 }
 
-/// Decode a citation element
+/// Decode LaTeX citation elements into Stencila citations
+///
+/// LaTeXML preserves different citation styles from LaTeX:
+/// - \citep{} becomes ltx_citemacro_citep (parenthetical citations)
+/// - \citet{} becomes ltx_citemacro_citet (narrative citations)
+/// - \cite{} becomes ltx_citemacro_cite (basic citations)
+///
+/// Citations may contain multiple references, requiring careful parsing
+/// to separate author names, years, and reference targets.
 pub fn decode_citation(
     parser: &Parser,
     tag: &HTMLTag,
     tag_class: &str,
     _context: &mut ArxivDecodeContext,
 ) -> Inline {
-    // Determine citation mode from class
+    // Map LaTeXML citation classes to Stencila citation modes
     let mode = if tag_class.contains("ltx_citemacro_citep") {
         CitationMode::Parenthetical
     } else if tag_class.contains("ltx_citemacro_citet") || tag_class.contains("ltx_citemacro_cite")
     {
         CitationMode::Narrative
     } else {
-        CitationMode::Parenthetical // Default
+        CitationMode::Parenthetical // Safe default
     };
 
-    // First, collect all reference links and their targets
+    // Extract all reference links within this citation
     let mut ref_links = Vec::new();
     for child in tag
         .children()
@@ -164,67 +179,56 @@ pub fn decode_citation(
                 .class()
                 .map(|cls| cls.as_utf8_str())
                 .unwrap_or_default();
-            if child_class.contains("ltx_ref") {
-                // Extract href as target
-                if let Some(href) = child_tag.attributes().get("href").flatten() {
-                    let full_url = href.as_utf8_str();
-                    let target = if let Some(hash_pos) = full_url.find('#') {
-                        full_url[hash_pos + 1..].to_string()
-                    } else if let Some(rest) = full_url.strip_prefix('#') {
-                        rest.to_string()
-                    } else {
-                        // External link, keep full URL
-                        full_url.to_string()
-                    };
-                    ref_links.push((target, child_tag));
-                }
+
+            // Look for ltx_ref links that point to bibliography entries
+            if child_class.contains("ltx_ref")
+                && let Some(href) = child_tag.attributes().get("href").flatten()
+            {
+                let full_url = href.as_utf8_str();
+                // Extract fragment identifier (the part after #)
+                let target = extract_fragment_id(&full_url);
+                ref_links.push((target, child_tag));
             }
         }
     }
 
-    // If we have multiple reference links, create a CitationGroup
+    // Handle multiple citations as CitationGroup, single citations as Citation
     if ref_links.len() > 1 {
-        let mut items = Vec::new();
-        let total_count = ref_links.len();
-
-        // Parse the citation content by extracting text around each link
-        for (i, (target, link_tag)) in ref_links.into_iter().enumerate() {
-            let citation_text = extract_citation_text_for_link(parser, tag, link_tag);
-            let cleaned_text = clean_citation_text_in_group(&citation_text, i, total_count);
-
-            let mut citation = Citation {
-                target,
-                citation_mode: Some(mode),
-                ..Default::default()
-            };
-
-            if !cleaned_text.is_empty() {
-                citation.options.content = Some(vec![t(&cleaned_text)]);
-            }
-
-            items.push(citation);
-        }
-
-        Inline::CitationGroup(CitationGroup {
-            items,
-            ..Default::default()
-        })
+        create_citation_group(parser, tag, ref_links, mode)
     } else {
-        // Single citation - use original logic but simplified
-        let target = ref_links
-            .first()
-            .map(|(target, _)| target.clone())
-            .unwrap_or_default();
+        create_single_citation(parser, tag, ref_links, mode)
+    }
+}
 
-        let full_text = get_text_content(parser, tag);
-        let cleaned_text = clean_citation_text(&full_text);
+/// Extract fragment identifier from URL (part after #)
+fn extract_fragment_id(url: &str) -> String {
+    if let Some(hash_pos) = url.find('#') {
+        url[hash_pos + 1..].to_string()
+    } else if let Some(rest) = url.strip_prefix('#') {
+        rest.to_string()
+    } else {
+        // External URL, keep as-is
+        url.to_string()
+    }
+}
+
+/// Create a citation group for multiple references
+fn create_citation_group(
+    parser: &Parser,
+    tag: &HTMLTag,
+    ref_links: Vec<(String, &HTMLTag)>,
+    mode: CitationMode,
+) -> Inline {
+    let mut items = Vec::new();
+    let total_count = ref_links.len();
+
+    // Parse the citation content by extracting text around each link
+    for (i, (target, link_tag)) in ref_links.into_iter().enumerate() {
+        let citation_text = extract_citation_text_for_link(parser, tag, link_tag);
+        let cleaned_text = clean_citation_text_in_group(&citation_text, i, total_count);
 
         let mut citation = Citation {
-            target: if target.is_empty() && !cleaned_text.is_empty() {
-                cleaned_text.clone()
-            } else {
-                target
-            },
+            target,
             citation_mode: Some(mode),
             ..Default::default()
         };
@@ -233,8 +237,46 @@ pub fn decode_citation(
             citation.options.content = Some(vec![t(&cleaned_text)]);
         }
 
-        Inline::Citation(citation)
+        items.push(citation);
     }
+
+    Inline::CitationGroup(CitationGroup {
+        items,
+        ..Default::default()
+    })
+}
+
+/// Create a single citation
+fn create_single_citation(
+    parser: &Parser,
+    tag: &HTMLTag,
+    ref_links: Vec<(String, &HTMLTag)>,
+    mode: CitationMode,
+) -> Inline {
+    // Single citation - use original logic but simplified
+    let target = ref_links
+        .first()
+        .map(|(target, _)| target.clone())
+        .unwrap_or_default();
+
+    let full_text = get_text_content(parser, tag);
+    let cleaned_text = clean_citation_text(&full_text);
+
+    let mut citation = Citation {
+        target: if target.is_empty() && !cleaned_text.is_empty() {
+            cleaned_text.clone()
+        } else {
+            target
+        },
+        citation_mode: Some(mode),
+        ..Default::default()
+    };
+
+    if !cleaned_text.is_empty() {
+        citation.options.content = Some(vec![t(&cleaned_text)]);
+    }
+
+    Inline::Citation(citation)
 }
 
 /// Clean citation text by removing outer parentheses/brackets and deduplicating commas
@@ -478,7 +520,13 @@ pub fn decode_math_inline(
     Inline::MathInline(math_inline)
 }
 
-/// Decode a <span> element into appropriate Inline nodes
+/// Decode span elements based on LaTeXML semantic classes
+///
+/// LaTeXML uses spans extensively for semantic markup. Common patterns:
+/// - Font styling: ltx_font_bold, ltx_font_italic, ltx_font_typewriter
+/// - Structural: ltx_text, ltx_ref, ltx_note (pass-through content)
+/// - Tags/labels: ltx_tag_* (special handling for different contexts)
+/// - Errors: ltx_ERROR (ignored completely)
 pub fn decode_span(
     parser: &Parser,
     tag: &HTMLTag,
@@ -490,50 +538,55 @@ pub fn decode_span(
         .map(|cls| cls.as_utf8_str())
         .unwrap_or_default();
 
-    // Handle ltx_ERROR spans by ignoring them completely
+    // Skip error spans entirely - these indicate LaTeXML processing issues
     if class.contains("ltx_ERROR") {
         return Vec::new();
     }
 
     let content = decode_inlines(parser, tag, context);
 
-    // Handle font styling spans
-    if class.contains("ltx_font_bold") {
-        return vec![stg(content)];
-    } else if class.contains("ltx_font_italic") {
-        return vec![em(content)];
-    } else if class.contains("ltx_font_typewriter") {
-        return vec![Inline::CodeInline(CodeInline {
-            code: extract_text_from_inlines(&content).into(),
-            ..Default::default()
-        })];
+    // Font styling spans - convert to appropriate Stencila formatting
+    match class {
+        c if c.contains("ltx_font_bold") => return vec![stg(content)],
+        c if c.contains("ltx_font_italic") => return vec![em(content)],
+        c if c.contains("ltx_font_typewriter") => {
+            // Typewriter font usually indicates code
+            return vec![Inline::CodeInline(CodeInline {
+                code: extract_text_from_inlines(&content).into(),
+                ..Default::default()
+            })];
+        }
+        _ => {}
     }
 
-    // Handle tag spans
+    // Handle tag spans (labels, references, etc.)
     if class.contains("ltx_tag") {
         if class.contains("ltx_tag_item") {
-            // Ignore list item tags like "(iii)" completely
+            // List item tags like "(iii)" are decorative, ignore them
             return Vec::new();
         } else {
-            // Other ltx_tag spans are handled specially by heading processing
+            // Other ltx_tag spans contain important labeling info
             return content;
         }
     }
 
-    // Handle other specific span types that shouldn't be recorded as losses
-    if class.contains("ltx_text")
-        || class.contains("ltx_ref")
-        || class.contains("ltx_note")
-        || class.contains("ltx_bibblock")
-        || class.contains("ltx_inline-enumerate")
-        || class.contains("ltx_inline-item")
-        || class.contains("ltx_transformed_inner")
+    // Structural spans that should not be recorded as parsing losses
+    if [
+        "ltx_text",
+        "ltx_ref",
+        "ltx_note",
+        "ltx_bibblock",
+        "ltx_inline-enumerate",
+        "ltx_inline-item",
+        "ltx_transformed_inner",
+    ]
+    .iter()
+    .any(|&pattern| class.contains(pattern))
     {
-        // These are structural spans, just return content without recording loss
         return content;
     }
 
-    // For any other spans, record loss and return content
+    // Unknown span type - record as parsing loss but preserve content
     context.add_loss(tag);
     content
 }

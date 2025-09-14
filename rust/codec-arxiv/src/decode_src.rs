@@ -1,6 +1,6 @@
-use flate2::read::GzDecoder;
 use std::io::Read;
 
+use flate2::read::GzDecoder;
 use reqwest::Response;
 
 use stencila_codec::{
