@@ -1,0 +1,76 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is the abstract for the research paper. It provides a comprehensive overview of the work."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph should remain in the abstract content since it's not a keywords paragraph."
+          }
+        }
+      ]
+    }
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Title"
+      }
+    }
+  ],
+  "frontmatter": "structuring:\n  - headings-to-title\n  - sections-to-abstract\n  - paragraphs-to-keywords",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This section should remain in the content."
+          }
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "machine learning",
+    "artificial intelligence",
+    "neural networks",
+    "deep learning"
+  ],
+  "structuring": [
+    "headings-to-title",
+    "sections-to-abstract",
+    "paragraphs-to-keywords"
+  ]
+}

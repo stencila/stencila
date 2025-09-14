@@ -585,17 +585,6 @@ impl FirstWalk {
             return block_to_remove(block);
         }
 
-        if self.options.should_perform(SectionsToAbstract) && self.in_abstract {
-            let paragraph = Block::Paragraph(paragraph.clone());
-            if let Some(abstract_) = self.abstract_.as_mut() {
-                abstract_.push(paragraph);
-            } else {
-                self.abstract_ = Some(vec![paragraph]);
-            }
-
-            return block_to_remove(block);
-        }
-
         if self.keywords.is_none() {
             let text = to_text(paragraph);
 
@@ -631,6 +620,17 @@ impl FirstWalk {
 
                 return block_to_remove(block);
             }
+        }
+
+        if self.options.should_perform(SectionsToAbstract) && self.in_abstract {
+            let paragraph = Block::Paragraph(paragraph.clone());
+            if let Some(abstract_) = self.abstract_.as_mut() {
+                abstract_.push(paragraph);
+            } else {
+                self.abstract_ = Some(vec![paragraph]);
+            }
+
+            return block_to_remove(block);
         }
 
         // Remove paragraphs in references section
