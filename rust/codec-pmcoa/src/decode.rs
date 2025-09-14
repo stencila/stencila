@@ -161,8 +161,19 @@ pub(super) async fn download_package(pmcid: &str, to_path: &Path) -> Result<()> 
         .text()
         .await?;
 
-    let re = Regex::new(r#"href="([^"]+\.tar\.gz)""#).expect("invalid regex");
-    let ftp_url = re
+    // First, check if the XML contains an error element and extract the message
+    let error_regex = Regex::new(r#"<error[^>]*>([^<]+)</error>"#).expect("invalid error regex");
+    if let Some(captures) = error_regex.captures(&xml) {
+        let error_message = captures
+            .get(1)
+            .map(|m| m.as_str())
+            .unwrap_or("unknown error");
+        bail!("PubMed Central responded with error: {error_message}");
+    }
+
+    // If no error, proceed to extract the download URL
+    let link_regex = Regex::new(r#"href="([^"]+\.tar\.gz)""#).expect("invalid regex");
+    let ftp_url = link_regex
         .captures(&xml)
         .and_then(|c| c.get(1))
         .map(|m| m.as_str())
