@@ -11,7 +11,7 @@ use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
     eyre::{Result, bail, eyre},
     stencila_format::Format,
-    stencila_schema::{MessagePart, MessageRole},
+    stencila_schema::{File, MessagePart, MessageRole},
     stencila_schema_json::JsonSchema,
     stencila_secrets,
 };
@@ -143,7 +143,10 @@ impl MistralModel {
         let request = ChatCompletionRequest {
             model: self.model.clone(),
             messages,
-            response_format: Some(ResponseFormat::from(task)),
+            response_format: task
+                .schema
+                .is_some()
+                .then(|| ResponseFormat::from_task(task)),
             temperature: task.temperature,
             top_p: task.top_p,
             max_tokens: task.max_tokens,
@@ -151,7 +154,7 @@ impl MistralModel {
         };
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         let response = self
@@ -171,14 +174,14 @@ impl MistralModel {
 
         match response.choices.swap_remove(0).message.content {
             ChatMessageContent::String(content) => {
-                ModelOutput::from_text(self, &task.format, content).await
+                Ok(ModelOutput::from_text(self, &task.format, content))
             }
             ChatMessageContent::Array(mut items) => match items.swap_remove(0) {
                 ChatMessageContentItem::Text { text } => {
-                    ModelOutput::from_text(self, &task.format, text).await
+                    Ok(ModelOutput::from_text(self, &task.format, text))
                 }
                 ChatMessageContentItem::ImageUrl { image_url } => {
-                    ModelOutput::from_url(self, &task.format, image_url).await
+                    Ok(ModelOutput::from_url(self, &task.format, image_url))
                 }
             },
         }
@@ -220,11 +223,14 @@ impl MistralModel {
             model: self.model.clone(),
             document,
             include_image_base64: Some(true),
-            document_annotation_format: Some(ResponseFormat::from(task)),
+            document_annotation_format: task
+                .schema
+                .is_some()
+                .then(|| ResponseFormat::from_task(task)),
         };
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         let response = self
@@ -242,23 +248,51 @@ impl MistralModel {
         }
         let response: OcrResponse = response.json().await?;
 
-        let frontmatter = if let Some(json) = response.document_annotation {
+        let mut markdown = if let Some(json) = response.document_annotation {
             // If any metadata were extract then add as YAML frontmatter
             let metadata: serde_json::Value = serde_json::from_str(&json)?;
             let yaml = serde_yaml::to_string(&metadata)?;
-            format!("---\n{yaml}\n---\n\n")
+            format!("---\n{yaml}\n---\n")
         } else {
             String::new()
         };
 
-        let md = response
-            .pages
-            .into_iter()
-            .map(|page| page.markdown)
-            .collect::<Vec<_>>()
-            .join("\n");
+        let mut attachments = Vec::new();
 
-        ModelOutput::from_text(self, &Some(Format::Markdown), frontmatter + &md).await
+        for page in response.pages {
+            // Note: only one newline here to avoid splitting paragraphs unnecessarily
+            markdown.push('\n');
+            markdown.push_str(&page.markdown);
+
+            for image in page.images {
+                if let Some(image_base64) = image.image_base64 {
+                    // Extract content after "data:image/...;base64," prefix
+                    if let Some(content_start) = image_base64.find(";base64,") {
+                        let content = image_base64[content_start + 8..].to_string();
+
+                        let media_type = if image_base64.starts_with("data:image/") {
+                            image_base64[5..].split(';').next().map(String::from)
+                        } else {
+                            None
+                        };
+
+                        attachments.push(File {
+                            name: image.id.clone(),
+                            media_type,
+                            content: Some(content),
+                            ..Default::default()
+                        });
+                    }
+                }
+            }
+        }
+
+        Ok(ModelOutput::from_text_with(
+            self,
+            &Some(Format::Markdown),
+            markdown,
+            attachments,
+        ))
     }
 }
 
@@ -318,8 +352,8 @@ struct ResponseJsonSchema {
     strict: bool,
 }
 
-impl From<&ModelTask> for ResponseFormat {
-    fn from(task: &ModelTask) -> Self {
+impl ResponseFormat {
+    fn from_task(task: &ModelTask) -> Self {
         Self {
             r#type: match task.format {
                 Some(Format::Json) => {
@@ -416,8 +450,8 @@ struct OcrResponse {
 
 /// An OCR page response
 #[derive(Deserialize)]
-#[allow(dead_code)]
 struct OcrPage {
+    #[allow(dead_code)]
     index: usize,
     markdown: String,
     #[serde(default)]

@@ -94,6 +94,7 @@ pub(super) async fn model_task_to_blocks_and_authors(
         kind,
         format,
         content,
+        ..
     } = stencila_models::perform_task(task).await?;
 
     let blocks = match kind {

@@ -156,7 +156,7 @@ impl Model for AnthropicModel {
         };
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         let response = self
@@ -184,7 +184,7 @@ impl Model for AnthropicModel {
             })
             .join("\n\n");
 
-        ModelOutput::from_text(self, &task.format, text).await
+        Ok(ModelOutput::from_text(self, &task.format, text))
     }
 }
 

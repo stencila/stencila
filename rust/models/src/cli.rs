@@ -1,5 +1,9 @@
-use std::{fs::write, path::PathBuf};
+use std::{
+    fs::{create_dir_all, write},
+    path::PathBuf,
+};
 
+use base64::Engine;
 use clap::{Args, Parser, Subcommand};
 use itertools::Itertools;
 use serde_yaml;
@@ -311,7 +315,30 @@ impl Run {
         };
 
         Code::new(Format::Markdown, "# Constructed task\n").to_stdout();
-        Code::new(Format::Yaml, &serde_yaml::to_string(&task)?).to_stdout();
+
+        // To avoid printing image and file contents iterate over the task
+        // and replace `ImageObject.content_url` and `File.content` with "<redacted>"
+        // in messages parts
+        let mut redacted = task.clone();
+        for message in &mut redacted.messages {
+            for part in &mut message.parts {
+                match part {
+                    MessagePart::ImageObject(image) => {
+                        if !image.content_url.is_empty() {
+                            image.content_url = "<redacted>".to_string();
+                        }
+                    }
+                    MessagePart::File(file) => {
+                        if file.content.is_some() {
+                            file.content = Some("<redacted>".to_string());
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        Code::new(Format::Yaml, &serde_yaml::to_string(&redacted)?).to_stdout();
 
         let model = select(&task).await?;
 
@@ -329,12 +356,42 @@ impl Run {
         )
         .to_stdout();
 
-        let output = model.perform_task(&task).await?;
+        let mut output = model.perform_task(&task).await?;
 
         if let Some(path) = self.output {
-            write(path, output.content)?;
+            write(&path, output.content)?;
+
+            // Write any attachments to a sibling folder `xxxx.attachments`
+            if !output.attachments.is_empty() {
+                let attachments_dir = path.with_extension("attachments");
+                create_dir_all(&attachments_dir)?;
+
+                for attachment in output.attachments {
+                    if let Some(content) = attachment.content {
+                        let attachment_path = attachments_dir.join(&attachment.name);
+
+                        // Try to decode as Base64 first, fallback to plain text
+                        match base64::prelude::BASE64_STANDARD.decode(&content) {
+                            Ok(decoded_bytes) => {
+                                write(attachment_path, decoded_bytes)?;
+                            }
+                            Err(_) => {
+                                write(attachment_path, content)?;
+                            }
+                        }
+                    }
+                }
+            }
         } else {
             Code::new(Format::Markdown, "# Generated output\n").to_stdout();
+
+            // As above, redact the content of any attachments
+            for attachment in &mut output.attachments {
+                if attachment.content.is_some() {
+                    attachment.content = Some("<redacted>".to_string());
+                }
+            }
+
             Code::new(Format::Yaml, &serde_yaml::to_string(&output)?).to_stdout();
         }
 

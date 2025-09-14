@@ -271,7 +271,7 @@ impl OpenAIModel {
         );
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         // Send the request
@@ -285,7 +285,7 @@ impl OpenAIModel {
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
 
-        ModelOutput::from_text(self, &task.format, text).await
+        Ok(ModelOutput::from_text(self, &task.format, text))
     }
 
     #[tracing::instrument(skip_all)]
@@ -402,7 +402,7 @@ impl OpenAIModel {
         );
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         // Send the request
@@ -417,7 +417,7 @@ impl OpenAIModel {
 
         match image.as_ref() {
             Image::Url { url, .. } => {
-                ModelOutput::from_url(self, &Some(Format::Png), url.to_string()).await
+                Ok(ModelOutput::from_url(self, &Some(Format::Png), url.to_string()))
             }
             _ => bail!("Unexpected image type"),
         }

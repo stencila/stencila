@@ -101,7 +101,7 @@ impl Model for StencilaModel {
         let token = stencila_cloud::api_token().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         let response = self

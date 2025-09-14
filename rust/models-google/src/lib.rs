@@ -167,7 +167,7 @@ impl Model for GoogleModel {
         };
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         let response = self
@@ -195,13 +195,17 @@ impl Model for GoogleModel {
         match content {
             Part {
                 text: Some(text), ..
-            } => ModelOutput::from_text(self, &task.format, text).await,
+            } => Ok(ModelOutput::from_text(self, &task.format, text)),
             Part {
                 inline_data: Some(Blob { mime_type, data }),
                 ..
             } => {
                 let format = Format::from_media_type(&mime_type).ok();
-                ModelOutput::from_url(self, &format, format!("{mime_type};base64,{data}")).await
+                Ok(ModelOutput::from_url(
+                    self,
+                    &format,
+                    format!("{mime_type};base64,{data}"),
+                ))
             }
             _ => bail!("Unexpected response content part"),
         }

@@ -217,7 +217,7 @@ impl Model for OllamaModel {
         request.options = Some(options);
 
         if task.dry_run {
-            return ModelOutput::empty(self);
+            return Ok(ModelOutput::empty(self));
         }
 
         let response = self
@@ -228,7 +228,7 @@ impl Model for OllamaModel {
 
         let text = response.message.content;
 
-        ModelOutput::from_text(self, &task.format, text).await
+        Ok(ModelOutput::from_text(self, &task.format, text))
     }
 }
 

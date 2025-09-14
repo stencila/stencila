@@ -10376,6 +10376,7 @@ dependencies = [
 name = "stencila-models"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
  "clap",
  "futures",
  "itertools 0.14.0",

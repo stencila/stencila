@@ -688,6 +688,7 @@ pub async fn execute_instruction_block(
         kind,
         format,
         content,
+        ..
     } = stencila_models::perform_task(task).await?;
     let ended = Timestamp::now();
 
