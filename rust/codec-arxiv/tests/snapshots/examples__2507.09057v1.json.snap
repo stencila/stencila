@@ -87,31 +87,6 @@ expression: article
       "givenNames": [
         "Dipankar"
       ]
-    },
-    {
-      "type": "Person",
-      "name": "Texas A"
-    },
-    {
-      "type": "Person",
-      "name": "\\"
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Engineering"
-      ],
-      "givenNames": [
-        "Management"
-      ]
-    },
-    {
-      "type": "Person",
-      "name": "\\"
-    },
-    {
-      "type": "Person",
-      "name": "Technology"
     }
   ],
   "references": [

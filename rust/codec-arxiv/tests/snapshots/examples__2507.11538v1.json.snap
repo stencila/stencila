@@ -63,18 +63,6 @@ expression: article
         "Shah",
         "Karime"
       ]
-    },
-    {
-      "type": "Person",
-      "name": "{daniel"
-    },
-    {
-      "type": "Person",
-      "name": "brendan"
-    },
-    {
-      "type": "Person",
-      "name": "parth"
     }
   ],
   "references": [

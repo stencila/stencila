@@ -39,30 +39,6 @@ expression: article
       "givenNames": [
         "Lennert"
       ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Leuven"
-      ]
-    },
-    {
-      "type": "Person",
-      "name": "Belgium"
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Leuven"
-      ]
-    },
-    {
-      "type": "Person",
-      "name": "Belgium"
-    },
-    {
-      "type": "Person",
-      "name": "Sweden"
     }
   ],
   "references": [
