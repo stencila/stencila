@@ -3,7 +3,6 @@ use std::{
     path::PathBuf,
 };
 
-use base64::Engine;
 use clap::{Args, Parser, Subcommand};
 use itertools::Itertools;
 use serde_yaml;
@@ -367,19 +366,7 @@ impl Run {
                 create_dir_all(&attachments_dir)?;
 
                 for attachment in output.attachments {
-                    if let Some(content) = attachment.content {
-                        let attachment_path = attachments_dir.join(&attachment.name);
-
-                        // Try to decode as Base64 first, fallback to plain text
-                        match base64::prelude::BASE64_STANDARD.decode(&content) {
-                            Ok(decoded_bytes) => {
-                                write(attachment_path, decoded_bytes)?;
-                            }
-                            Err(_) => {
-                                write(attachment_path, content)?;
-                            }
-                        }
-                    }
+                    attachment.write(&attachments_dir.join(&attachment.name))?;
                 }
             }
         } else {

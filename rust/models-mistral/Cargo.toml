@@ -5,7 +5,6 @@ edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
-base64 = { workspace = true }
 cached = { workspace = true }
 itertools = { workspace = true }
 stencila-node-media = { path = "../node-media" }

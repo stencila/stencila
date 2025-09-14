@@ -5,7 +5,7 @@ use base64::{Engine as _, engine::general_purpose::STANDARD};
 use crate::{File, prelude::*};
 
 impl File {
-    /// Read a file from the file system
+    /// Read a [`File`] from the file system
     pub fn read(path: &Path) -> Result<Self> {
         if !path.exists() {
             bail!("File does not exist: {}", path.display());
@@ -39,6 +39,24 @@ impl File {
             content,
             ..Default::default()
         })
+    }
+
+    /// Write a [`File`] to the file system
+    pub fn write(&self, path: &Path) -> Result<()> {
+        if let Some(contents) = &self.content {
+            match base64::prelude::BASE64_STANDARD.decode(contents) {
+                Ok(decoded_bytes) => {
+                    fs::write(path, decoded_bytes)?;
+                }
+                Err(_) => {
+                    fs::write(path, contents)?;
+                }
+            }
+        } else {
+            fs::write(path, "")?;
+        }
+
+        Ok(())
     }
 
     /// Convert file content to a data URI

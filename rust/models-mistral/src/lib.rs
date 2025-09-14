@@ -9,7 +9,7 @@ use stencila_node_media::embed_image;
 
 use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
-    eyre::{Result, bail, eyre},
+    eyre::{Context, Result, bail, eyre},
     stencila_format::Format,
     stencila_schema::{File, MessagePart, MessageRole},
     stencila_schema_json::JsonSchema,
@@ -250,7 +250,12 @@ impl MistralModel {
 
         let mut markdown = if let Some(json) = response.document_annotation {
             // If any metadata were extract then add as YAML frontmatter
-            let metadata: serde_json::Value = serde_json::from_str(&json)?;
+            let metadata: serde_json::Value = serde_json::from_str(&json).wrap_err_with(|| {
+                eyre!(
+                    "Unable to parse JSON metadata:\n{}",
+                    &json[..json.len().max(200)]
+                )
+            })?;
             let yaml = serde_yaml::to_string(&metadata)?;
             format!("---\n{yaml}\n---\n")
         } else {
