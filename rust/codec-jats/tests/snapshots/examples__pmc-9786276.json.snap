@@ -19641,11 +19641,19 @@ expression: article
     "prolocomotor propulsion",
     "snakehead"
   ],
-  "parts": [
-    {
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
       "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Integrative Zoology"
+      },
       "volumeNumber": 17
-    }
-  ],
-  "version": "1"
+    },
+    "issueNumber": 5
+  },
+  "version": "1",
+  "pageStart": 849,
+  "pageEnd": 878
 }

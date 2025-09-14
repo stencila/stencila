@@ -53,12 +53,10 @@ expression: info.losses
 //article/front/article-meta/contrib-group/address: 1
 //article/front/article-meta/counts: 1
 //article/front/article-meta/custom-meta-group: 1
-//article/front/article-meta/fpage: 1
-//article/front/article-meta/issue: 1
 //article/front/article-meta/issue-id: 2
+//article/front/article-meta/issue/@seq: 1
 //article/front/article-meta/kwd-group/@id: 4
 //article/front/article-meta/kwd-group/@kwd-group-type: 1
-//article/front/article-meta/lpage: 1
 //article/front/article-meta/permissions: 1
 //article/front/article-meta/pub-date/@pub-type: 2
 //article/front/article-meta/pub-history: 1
@@ -66,6 +64,5 @@ expression: info.losses
 //article/front/journal-meta/custom-meta-group: 1
 //article/front/journal-meta/issn: 2
 //article/front/journal-meta/journal-id: 5
-//article/front/journal-meta/journal-title-group: 1
 //article/front/notes: 1
 //article/processing-meta: 1

@@ -20738,14 +20738,23 @@ expression: article
     "temperature",
     "Vcmax"
   ],
-  "parts": [
-    {
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
       "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Ecology Letters"
+      },
       "volumeNumber": 22
-    }
-  ],
+    },
+    "issueNumber": 3
+  },
   "publisher": {
     "type": "Organization",
-    "name": "John Wiley and Sons Inc."
-  }
+    "name": "John Wiley and Sons Inc.",
+    "address": "Hoboken"
+  },
+  "pageStart": 506,
+  "pageEnd": 517
 }

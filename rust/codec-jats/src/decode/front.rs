@@ -5,8 +5,9 @@ use stencila_codec::{
     Losses,
     stencila_schema::{
         Article, Author, Block, CreativeWorkVariant, Date, Heading, IntegerOrString, Organization,
-        OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
-        PropertyValueOrString, PublicationVolume, StringOrNumber, ThingVariant,
+        OrganizationOptions, Periodical, Person, PersonOptions, PersonOrOrganization,
+        PostalAddressOrString, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
+        PublicationVolume, StringOrNumber, ThingVariant,
     },
 };
 
@@ -18,7 +19,7 @@ use super::{
 /// Decode the `<front>` of an `<article>`
 ///
 /// Recursively descends into the frontmatter, setting or adding to, properties of the
-/// Stencila [`Article`]. An easier approach would be to use XPath as we did in Encoda
+/// Stencila [`Article`]. An easier approach could be to use XPath as we did in Encoda
 /// (https://github.com/stencila/encoda/blob/7dd7b143d0edcafa67cab96bf21dc3c077613fcc/src/codecs/jats/index.ts#L377)
 /// However, the approach used here has the advantage of allowing us to enumerate tags
 /// and attributes that are not handled (via `losses`).
@@ -27,11 +28,81 @@ pub(super) fn decode_front(path: &str, node: &Node, article: &mut Article, losse
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
         match tag {
-            "article-meta" => decode_article_meta(&child_path, &child, article, losses),
             "journal-meta" => decode_journal_meta(&child_path, &child, article, losses),
+            "article-meta" => decode_article_meta(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
+}
+
+/// Decode a `<journal-meta>` tag to properties on an [`Article`]
+fn decode_journal_meta(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        let child_path = extend_path(path, tag);
+        match tag {
+            "journal-title-group" => {
+                decode_journal_title_group(&child_path, &child, article, losses)
+            }
+            "journal-title" => decode_journal_title(&child_path, &child, article, losses),
+            "publisher" => decode_publisher(&child_path, &child, article, losses),
+            _ => record_node_lost(path, &child, losses),
+        };
+    }
+}
+
+/// Decode a `<journal-title-group>` element
+fn decode_journal_title_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        let child_path = extend_path(path, tag);
+        match tag {
+            "journal-title" => decode_journal_title(&child_path, &child, article, losses),
+            _ => record_node_lost(path, &child, losses),
+        };
+    }
+}
+
+/// Decode a `<journal-title>` element
+fn decode_journal_title(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    let name = node.text().map(String::from);
+
+    article.options.is_part_of = Some(CreativeWorkVariant::Periodical(Periodical {
+        name,
+        ..Default::default()
+    }));
+}
+
+/// Decode a `<publisher>` element
+fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    let name = node
+        .children()
+        .find(|child| child.tag_name().name() == "publisher-name")
+        .and_then(|child| child.text().map(String::from));
+
+    let address = node
+        .children()
+        .find(|child| child.tag_name().name() == "publisher-loc")
+        .and_then(|child| {
+            child
+                .text()
+                .map(|loc| PostalAddressOrString::String(loc.into()))
+        });
+
+    article.options.publisher = Some(PersonOrOrganization::Organization(Organization {
+        name,
+        options: Box::new(OrganizationOptions {
+            address,
+            ..Default::default()
+        }),
+        ..Default::default()
+    }));
 }
 
 /// Decode an `<article-meta>` tag to properties on an [`Article`]
@@ -47,6 +118,9 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "pub-date" => decode_pub_date(&child_path, &child, article, losses),
             "history" => decode_history(&child_path, &child, article, losses),
             "volume" => decode_volume(&child_path, &child, article, losses),
+            "issue" => decode_issue(&child_path, &child, article, losses),
+            "fpage" => decode_fpage(&child_path, &child, article, losses),
+            "lpage" => decode_lpage(&child_path, &child, article, losses),
             "funding-group" => decode_funding_group(&child_path, &child, article, losses),
             "contrib-group" => decode_contrib_group(&child_path, &child, article, losses),
             "title-group" => decode_title_group(&child_path, &child, article, losses),
@@ -255,16 +329,94 @@ fn date_element_to_date(node: &Node) -> Option<Date> {
 fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
-    if let Ok(volume_number) = node.text().unwrap_or_default().parse()
-        && article.options.parts.is_none()
-    {
-        article.options.parts = Some(vec![CreativeWorkVariant::PublicationVolume(
-            PublicationVolume {
-                volume_number: Some(IntegerOrString::Integer(volume_number)),
-                ..Default::default()
-            },
-        )]);
-    }
+    let Some(volume_number) = node.text() else {
+        return;
+    };
+
+    let volume = PublicationVolume {
+        volume_number: Some(IntegerOrString::from(volume_number)),
+        ..Default::default()
+    };
+
+    let work = match &article.options.is_part_of {
+        Some(CreativeWorkVariant::Periodical(periodical)) => {
+            // Make this volume part of the existing periodical
+            CreativeWorkVariant::PublicationVolume(PublicationVolume {
+                is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(
+                    periodical.clone(),
+                ))),
+                ..volume
+            })
+        }
+        Some(CreativeWorkVariant::PublicationIssue(issue)) => {
+            // Make the existing issue part of this volume
+            CreativeWorkVariant::PublicationIssue(PublicationIssue {
+                is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(volume))),
+                ..issue.clone()
+            })
+        }
+        _ => {
+            // Use this volume
+            CreativeWorkVariant::PublicationVolume(volume)
+        }
+    };
+
+    article.options.is_part_of = Some(work);
+}
+
+/// Decode an `<issue>` element
+fn decode_issue(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    let Some(issue_number) = node.text() else {
+        return;
+    };
+
+    let issue = PublicationIssue {
+        issue_number: Some(IntegerOrString::from(issue_number)),
+        ..Default::default()
+    };
+
+    let work = match &article.options.is_part_of {
+        Some(CreativeWorkVariant::Periodical(periodical)) => {
+            // Make this issue part of the existing periodical
+            CreativeWorkVariant::PublicationIssue(PublicationIssue {
+                is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(
+                    periodical.clone(),
+                ))),
+                ..issue
+            })
+        }
+        Some(CreativeWorkVariant::PublicationVolume(volume)) => {
+            // Make this issue part of the existing volume
+            CreativeWorkVariant::PublicationIssue(PublicationIssue {
+                is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
+                    volume.clone(),
+                ))),
+                ..issue.clone()
+            })
+        }
+        _ => {
+            // Use this issue
+            CreativeWorkVariant::PublicationIssue(issue)
+        }
+    };
+
+    article.options.is_part_of = Some(work);
+}
+
+/// Decode an `<fpage>` element
+fn decode_fpage(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    article.options.page_start = node.text().map(IntegerOrString::from)
+}
+
+/// Decode an `<lpage>` element
+fn decode_lpage(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    article.options.page_end = node.text().map(IntegerOrString::from)
 }
 
 /// Decode a `<funding-group>` element
@@ -432,33 +584,6 @@ fn decode_aff(node: &Node) -> Organization {
         ror,
         ..Default::default()
     }
-}
-
-/// Decode a `<journal-meta>` tag to properties on an [`Article`]
-fn decode_journal_meta(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    for child in node.children() {
-        let tag = child.tag_name().name();
-        let child_path = extend_path(path, tag);
-        match tag {
-            "publisher" => decode_publisher(&child_path, &child, article, losses),
-            _ => record_node_lost(path, &child, losses),
-        };
-    }
-}
-
-/// Decode a `<publisher>` element
-fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    record_attrs_lost(path, node, [], losses);
-
-    let name = node
-        .children()
-        .find(|child| child.tag_name().name() == "publisher-name")
-        .and_then(|child| child.text().map(str::to_string));
-
-    article.options.publisher = Some(PersonOrOrganization::Organization(Organization {
-        name,
-        ..Default::default()
-    }));
 }
 
 /// Decode a `<kwd-group>` element

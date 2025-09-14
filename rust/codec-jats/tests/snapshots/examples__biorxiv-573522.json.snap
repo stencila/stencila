@@ -7812,6 +7812,10 @@ expression: article
     "type": "Date",
     "value": "2024-1-01"
   },
+  "isPartOf": {
+    "type": "Periodical",
+    "name": "bioRxiv"
+  },
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"

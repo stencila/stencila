@@ -17144,6 +17144,10 @@ expression: article
     "modularity",
     "in-block nestedness"
   ],
+  "isPartOf": {
+    "type": "Periodical",
+    "name": "bioRxiv"
+  },
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"

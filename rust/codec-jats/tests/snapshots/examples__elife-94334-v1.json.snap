@@ -21481,12 +21481,14 @@ expression: article
     "HO endonuclease",
     "S. cerevisiae"
   ],
-  "parts": [
-    {
-      "type": "PublicationVolume",
-      "volumeNumber": 13
-    }
-  ],
+  "isPartOf": {
+    "type": "PublicationVolume",
+    "isPartOf": {
+      "type": "Periodical",
+      "name": "eLife"
+    },
+    "volumeNumber": 13
+  },
   "publisher": {
     "type": "Organization",
     "name": "eLife Sciences Publications, Ltd"

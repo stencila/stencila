@@ -19439,12 +19439,14 @@ expression: article
     "Ecology",
     "Biodiversity"
   ],
-  "parts": [
-    {
-      "type": "PublicationVolume",
-      "volumeNumber": 11
-    }
-  ],
+  "isPartOf": {
+    "type": "PublicationVolume",
+    "isPartOf": {
+      "type": "Periodical",
+      "name": "Scientific Reports"
+    },
+    "volumeNumber": 11
+  },
   "publisher": {
     "type": "Organization",
     "name": "Nature Publishing Group"
