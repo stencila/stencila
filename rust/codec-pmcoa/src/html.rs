@@ -59,56 +59,7 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
     let mut article = Article::default();
     let mut identifiers = Vec::new();
 
-    // Extract DOI
-    if let Some(doi_node) = dom
-        .query_selector("meta[name='citation_doi']")
-        .and_then(|mut nodes| nodes.next())
-        .and_then(|node| node.get(dom.parser()))
-        .and_then(|node| node.as_tag())
-        && let Some(content) = get_attr(doi_node, "content")
-    {
-        article.doi = Some(content);
-    }
-
-    // Extract title
-    if let Some(title_node) = dom
-        .query_selector("meta[name='citation_title']")
-        .and_then(|mut nodes| nodes.next())
-        .and_then(|node| node.get(dom.parser()))
-        .and_then(|node| node.as_tag())
-        && let Some(content) = get_attr(title_node, "content")
-    {
-        article.title = Some(vec![t(content)]);
-    }
-
-    // Extract publication date
-    if let Some(date_node) = dom
-        .query_selector("meta[name='citation_publication_date']")
-        .and_then(|mut nodes| nodes.next())
-        .and_then(|node| node.get(dom.parser()))
-        .and_then(|node| node.as_tag())
-        && let Some(content) = get_attr(date_node, "content")
-    {
-        article.date_published = Some(Date::new(content));
-    }
-
-    // Extract authors
-    let author_nodes: Vec<_> = dom
-        .query_selector("meta[name='citation_author']")
-        .map(|iter| iter.collect())
-        .unwrap_or_default();
-    for node_handle in author_nodes {
-        if let Some(node) = node_handle.get(dom.parser())
-            && let Some(tag) = node.as_tag()
-            && let Some(content) = get_attr(tag, "content")
-        {
-            let author =
-                text_to_author(&content).unwrap_or_else(|| Author::Person(Person::from(content)));
-            article.authors.get_or_insert_default().push(author);
-        }
-    }
-
-    // Extract PMCID from the URL or content
+    // Extract PMCID from canonical link tag
     if let Some(canonical_node) = dom
         .query_selector("link[rel='canonical']")
         .and_then(|mut nodes| nodes.next())
@@ -125,19 +76,43 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
         }
     }
 
-    // Extract PMID
-    if let Some(pmid_node) = dom
-        .query_selector("meta[name='citation_pmid']")
-        .and_then(|mut nodes| nodes.next())
-        .and_then(|node| node.get(dom.parser()))
-        .and_then(|node| node.as_tag())
-        && let Some(content) = get_attr(pmid_node, "content")
-    {
-        identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-            property_id: Some("pmid".to_string()),
-            value: Primitive::String(content),
-            ..Default::default()
-        }));
+    // Extract metadata from meta tags
+    let meta_nodes: Vec<_> = dom
+        .query_selector("meta")
+        .map(|iter| iter.collect())
+        .unwrap_or_default();
+
+    for node_handle in meta_nodes {
+        if let Some(node) = node_handle.get(dom.parser())
+            && let Some(tag) = node.as_tag()
+            && let Some(name) = get_attr(tag, "name")
+            && let Some(content) = get_attr(tag, "content")
+        {
+            match name.as_str() {
+                "citation_doi" => {
+                    article.doi = Some(content);
+                }
+                "citation_title" => {
+                    article.title = Some(vec![t(content)]);
+                }
+                "citation_publication_date" => {
+                    article.date_published = Some(Date::new(content));
+                }
+                "citation_author" => {
+                    let author = text_to_author(&content)
+                        .unwrap_or_else(|| Author::Person(Person::from(content)));
+                    article.authors.get_or_insert_default().push(author);
+                }
+                "citation_pmid" => {
+                    identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
+                        property_id: Some("pmid".to_string()),
+                        value: Primitive::String(content),
+                        ..Default::default()
+                    }));
+                }
+                _ => {}
+            }
+        }
     }
 
     if !identifiers.is_empty() {
