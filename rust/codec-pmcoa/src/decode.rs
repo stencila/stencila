@@ -1,27 +1,19 @@
 use std::{env::current_dir, path::Path};
 
-use flate2::read::GzDecoder;
-use futures::StreamExt;
-use glob::glob;
-use regex::Regex;
-use reqwest::{Client, header::USER_AGENT};
 use stencila_dirs::closest_artifacts_for;
-use stencila_node_supplements::embed_supplements;
-use tar::Archive;
 use tempfile::tempdir;
-use tokio::{fs::File, io::AsyncWriteExt};
 use url::Url;
 
 use stencila_codec::{
-    Codec, DecodeInfo, DecodeOptions,
-    eyre::{ContextCompat, OptionExt, Result, bail, eyre},
+    DecodeInfo, DecodeOptions,
+    eyre::{Result, bail},
     stencila_schema::Node,
 };
-use stencila_codec_jats::JatsCodec;
-use stencila_node_media::embed_media;
-use stencila_version::STENCILA_USER_AGENT;
 
-use super::decode_html;
+use crate::tar::download_tar;
+
+use super::html::decode_html_path;
+use super::tar::decode_tar;
 
 /// Extract and PMCID from an identifier
 pub(super) fn extract_pmcid(identifier: &str) -> Option<String> {
@@ -98,7 +90,7 @@ pub(super) async fn decode_pmcid(
     // Download the package if needed
     let should_download = !package_path.exists() || ignore_artifacts;
     if should_download {
-        download_package(pmcid, &package_path).await?;
+        download_tar(pmcid, &package_path).await?;
     }
 
     // Decode package
@@ -113,122 +105,9 @@ pub(super) async fn decode_path(
     path: &Path,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, Option<Node>, DecodeInfo)> {
-    // Check if this is an HTML file
-    if let Some(extension) = path.extension() {
-        if extension == "html" {
-            return decode_html_path(path, options).await;
-        }
+    match path.extension().and_then(|ext| ext.to_str()) {
+        Some("html") => decode_html_path(path, options),
+        Some("gz") => decode_tar(path, options).await,
+        _ => bail!("Unhandled file extension"),
     }
-
-    // Handle tar.gz PMC OA Package
-    decode_tar_path(path, options).await
-}
-
-/// Decode a PMC HTML file to a Stencila [`Node`]
-#[tracing::instrument]
-async fn decode_html_path(
-    path: &Path,
-    options: Option<DecodeOptions>,
-) -> Result<(Node, Option<Node>, DecodeInfo)> {
-    // Read the HTML content
-    let html_content = std::fs::read_to_string(path)?;
-
-    // Parse the HTML using the HTML decoder module
-    let (node, info) = decode_html::decode_html(&html_content, options).await?;
-
-    Ok((node, None, info))
-}
-
-/// Decode a PMC OA Package (tar.gz) to a Stencila [`Node`]
-#[tracing::instrument]
-async fn decode_tar_path(
-    path: &Path,
-    options: Option<DecodeOptions>,
-) -> Result<(Node, Option<Node>, DecodeInfo)> {
-    // Create temporary directory to extract into
-    // if path is not already a directory (e.g. an unzipped PMC OA Package)
-    let tempdir = tempdir()?;
-    let dir = if path.is_dir() { path } else { tempdir.path() };
-
-    if path.is_file() {
-        tracing::debug!("Extracting PMC OA package");
-        let file = std::fs::File::open(path)?;
-        let tar = GzDecoder::new(file);
-        let mut archive = Archive::new(tar);
-        archive.unpack(dir)?;
-    }
-
-    // Find the PMCXXXX directory within the dir
-    let dir = glob(&dir.join("PMC*").to_string_lossy())?
-        .flatten()
-        .next()
-        .ok_or_eyre("Unable to find PMC subdirectory in archive")?;
-
-    // Find the JATS file in the dir
-    let jats_path = glob(&dir.join("*.nxml").to_string_lossy())?
-        .next()
-        .and_then(|res| res.ok())
-        .ok_or_eyre("Unable to find JATS XML file in PMC OA PAckage")?;
-
-    // Decode the JATS
-    let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
-
-    // Embed media and supplements
-    embed_media(&mut node, Some(&dir))?;
-    embed_supplements(&mut node, &dir).await?;
-
-    Ok((node, None, info))
-}
-
-/// Download the PMC OA Package for a PMCID
-///
-/// Returns the path to the downloaded package.
-pub(super) async fn download_package(pmcid: &str, to_path: &Path) -> Result<()> {
-    tracing::debug!("Getting URL for OA package for `{pmcid}`");
-    let url = format!("https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id={pmcid}");
-    let xml = Client::new()
-        .get(&url)
-        .header(USER_AGENT, STENCILA_USER_AGENT)
-        .send()
-        .await?
-        .error_for_status()?
-        .text()
-        .await?;
-
-    // First, check if the XML contains an error element and extract the message
-    let error_regex = Regex::new(r#"<error[^>]*>([^<]+)</error>"#).expect("invalid error regex");
-    if let Some(captures) = error_regex.captures(&xml) {
-        let error_message = captures
-            .get(1)
-            .map(|m| m.as_str())
-            .unwrap_or("unknown error");
-        bail!("PubMed Central responded with error: {error_message}");
-    }
-
-    // If no error, proceed to extract the download URL
-    let link_regex = Regex::new(r#"href="([^"]+\.tar\.gz)""#).expect("invalid regex");
-    let ftp_url = link_regex
-        .captures(&xml)
-        .and_then(|c| c.get(1))
-        .map(|m| m.as_str())
-        .wrap_err_with(|| eyre!("No .tar.gz link found for {pmcid}"))?;
-
-    let https_url = ftp_url.replacen("ftp://", "https://", 1);
-
-    tracing::debug!("Downloading {https_url}");
-    let response = Client::new()
-        .get(&https_url)
-        .send()
-        .await?
-        .error_for_status()?;
-
-    let mut file = File::create(&to_path).await?;
-    let mut stream = response.bytes_stream();
-    while let Some(chunk_result) = stream.next().await {
-        let chunk = chunk_result?;
-        file.write_all(&chunk).await?;
-    }
-    file.flush().await?;
-
-    Ok(())
 }
