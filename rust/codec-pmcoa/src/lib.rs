@@ -8,6 +8,7 @@ use stencila_codec::{
 };
 
 mod decode;
+mod decode_html;
 
 /// A codec for decoding PubMed Central Open Access Package
 ///

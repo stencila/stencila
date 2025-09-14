@@ -21,6 +21,8 @@ use stencila_codec_jats::JatsCodec;
 use stencila_node_media::embed_media;
 use stencila_version::STENCILA_USER_AGENT;
 
+use super::decode_html;
+
 /// Extract and PMCID from an identifier
 pub(super) fn extract_pmcid(identifier: &str) -> Option<String> {
     // Match PMC IDs like "PMC1234567" (at least 4 digits)
@@ -105,9 +107,41 @@ pub(super) async fn decode_pmcid(
     Ok((node, info))
 }
 
-/// Decode a PMC OA Package to a Stencila [`Node`]
+/// Decode a PMC OA Package or HTML file to a Stencila [`Node`]
 #[tracing::instrument]
 pub(super) async fn decode_path(
+    path: &Path,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, Option<Node>, DecodeInfo)> {
+    // Check if this is an HTML file
+    if let Some(extension) = path.extension() {
+        if extension == "html" {
+            return decode_html_path(path, options).await;
+        }
+    }
+
+    // Handle tar.gz PMC OA Package
+    decode_tar_path(path, options).await
+}
+
+/// Decode a PMC HTML file to a Stencila [`Node`]
+#[tracing::instrument]
+async fn decode_html_path(
+    path: &Path,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, Option<Node>, DecodeInfo)> {
+    // Read the HTML content
+    let html_content = std::fs::read_to_string(path)?;
+
+    // Parse the HTML using the HTML decoder module
+    let (node, info) = decode_html::decode_html(&html_content, options).await?;
+
+    Ok((node, None, info))
+}
+
+/// Decode a PMC OA Package (tar.gz) to a Stencila [`Node`]
+#[tracing::instrument]
+async fn decode_tar_path(
     path: &Path,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, Option<Node>, DecodeInfo)> {

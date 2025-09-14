@@ -9630,6 +9630,7 @@ dependencies = [
  "stencila-version",
  "tar",
  "tempfile",
+ "tl",
  "tokio",
  "tracing",
  "url",
