@@ -423,6 +423,21 @@ pub struct DecodeOptions {
     /// The pages to exclude
     pub exclude_pages: Option<Vec<PageSelector>>,
 
+    /// Whether to embed media files as data URIs
+    ///
+    /// When enabled, external media files (images, audio, video) referenced in the document
+    /// will be converted to data URIs and embedded directly in the document. This creates
+    /// a self-contained document but may increase memory usage.
+    pub embed_media: Option<bool>,
+
+    /// Whether to embed supplement files as embedded supplemental works
+    ///
+    /// When enabled, supplemental files (e.g. images, audio, video, CSV, DOCX)
+    /// referenced in the document will be decoded and embedded in the document
+    /// as the `work` property of the `Supplement`. This creates a
+    /// self-contained document but may increase memory usage.
+    pub embed_supplements: Option<bool>,
+
     /// Scopes defining which properties of nodes should be stripped before decoding
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_scopes: Vec<StripScope>,
