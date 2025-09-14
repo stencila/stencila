@@ -1,18 +1,24 @@
-use std::path::Path;
+use std::{env::current_dir, path::Path};
+
+use tempfile::tempdir;
+use tokio::fs::{read, write};
 
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
     StructuringOperation, StructuringOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
-    stencila_schema::{Article, Node},
+    stencila_schema::{Article, File, InstructionMessage, MessagePart, ModelParameters, Node},
 };
 use stencila_codec_dom::DomCodec;
 use stencila_codec_latex::LatexCodec;
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_utils::git_info;
-use stencila_convert::{html_to_pdf, latex_to_pdf, pdf_to_md};
+use stencila_convert::{clean_md, html_to_pdf, latex_to_pdf};
+use stencila_dirs::closest_artifacts_for;
+use stencila_models::{ModelTask, perform_task};
 use stencila_node_media::embed_media;
+use stencila_schema_json::json_schema;
 
 /// A codec for PDF
 pub struct PdfCodec;
@@ -63,13 +69,6 @@ impl Codec for PdfCodec {
         path: &Path,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Option<Node>, DecodeInfo)> {
-        // Convert the PDF to a Markdown file
-        let include_pages = options
-            .as_ref()
-            .and_then(|opts| opts.include_pages.as_ref());
-        let exclude_pages = options
-            .as_ref()
-            .and_then(|opts| opts.exclude_pages.as_ref());
         let ignore_artifacts = options
             .as_ref()
             .and_then(|opts| opts.ignore_artifacts)
@@ -78,14 +77,56 @@ impl Codec for PdfCodec {
             .as_ref()
             .and_then(|opts| opts.no_artifacts)
             .unwrap_or_default();
-        let md_path = pdf_to_md(
-            path,
-            include_pages,
-            exclude_pages,
-            ignore_artifacts,
-            no_artifacts,
-        )
-        .await?;
+
+        // Read PDF
+        let pdf_bytes = read(path).await?;
+
+        // Create temporary directory (must be kept alive for entire function)
+        let temp_dir = tempdir()?;
+
+        // Determine where to store/look for artifacts
+        let artifacts_path = if no_artifacts {
+            // Don't cache, use temporary directory
+            temp_dir.path().to_path_buf()
+        } else {
+            // Use artifacts directory for caching using PDF hash digest as key
+            let digest = seahash::hash(&pdf_bytes);
+            let key = format!("pdfmd-{digest:x}");
+            closest_artifacts_for(&current_dir()?, &key).await?
+        };
+
+        let md_path = artifacts_path.join("intermediate.md");
+
+        // Generate the Markdown document if needed
+        let should_generate = !md_path.exists() || ignore_artifacts;
+        if should_generate {
+            let output = perform_task(ModelTask {
+                // Specify schema for metadata extraction
+                format: Some(Format::Json),
+                schema: Some(json_schema("article:metadata")?),
+                // Specify model
+                model_parameters: Some(ModelParameters {
+                    model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
+                    ..Default::default()
+                }),
+                // Include PDF in message
+                messages: vec![InstructionMessage {
+                    parts: vec![MessagePart::File(File::read(&path)?)],
+                    ..Default::default()
+                }],
+                ..Default::default()
+            })
+            .await?;
+
+            // Clean the generated Markdown
+            let markdown = clean_md(&output.content);
+
+            // Write generated Markdown and any attachments into artifacts folder
+            write(&md_path, &markdown).await?;
+            for attachment in output.attachments {
+                attachment.write(&artifacts_path.join(&attachment.name))?;
+            }
+        }
 
         // Decode the Markdown file to a node
         let (mut node, orig, info) = MarkdownCodec.from_path(&md_path, options).await?;

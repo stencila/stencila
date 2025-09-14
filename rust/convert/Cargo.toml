@@ -11,19 +11,10 @@ headless_chrome = { version = "1.0.18", features = ["fetch", "rustls"] }
 itertools = { workspace = true }
 rand = { workspace = true }
 regex = { workspace = true }
-reqwest = { workspace = true }
-seahash = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-stencila-codec = { path = "../codec" }
 stencila-codec-utils = { path = "../codec-utils" }
-stencila-dirs = { path = "../dirs" }
-stencila-secrets = { path = "../secrets" }
 stencila-tools = { path = "../tools" }
 stencila-version = { path = "../version" }
 stencila-web-dist = { path = "../web-dist" }
-strum = { workspace = true }
-tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 
