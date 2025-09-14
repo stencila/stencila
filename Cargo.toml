@@ -27,7 +27,7 @@ itertools = "0.14.0"
 lru = "0.16.1"
 mime = "0.3.17"
 mime_guess = "2.0.5"
-monostate = "0.1.14"
+monostate = "0.1.15"
 ntest = "0.9.3"
 pathdiff = "0.2.3"
 pretty_assertions = "1.4.1"
@@ -40,8 +40,8 @@ regex = "1.11.2"
 reqwest = { version = "0.12.23", default-features = false, features = ["json", "rustls-tls", "stream"] }
 seahash = "4.1.0"
 semver = { version = "1.0.26", features = ["serde"] }
-serde = { version = "1.0.219", features = ["derive", "rc"] }
-serde_json = { version = "1.0.143", features = ["preserve_order"] }
+serde = { version = "1.0.221", features = ["derive", "rc"] }
+serde_json = { version = "1.0.144", features = ["preserve_order"] }
 serde_with = "3.14.0"
 serde_yaml = "0.9.34"
 sha2 = "0.10"
@@ -64,7 +64,7 @@ url = { version = "2.5.7", features = ["serde"] }
 uuid = { version = "1.18.1", features = ["v4"] }
 which = "8.0.0"
 winnow = "0.7.13"
-zip = { version = "5.1.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
+zip = { version = "5.1.1", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
 
 [workspace.lints.rust]
 unsafe_code = "deny"

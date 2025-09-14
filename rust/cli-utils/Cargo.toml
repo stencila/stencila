@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 clap = { workspace = true }
 color-print = "0.3"
-comfy-table = "7.2.0"
+comfy-table = "7.2.1"
 derive_more = { workspace = true }
 eyre = { workspace = true }
 itertools = { workspace = true }
