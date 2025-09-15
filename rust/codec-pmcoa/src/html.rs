@@ -476,7 +476,7 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
                             if target.contains(".g") || target.contains(".t") {
                                 // This is a figure (.g001) or table (.t001) reference -> Link
                                 inlines.push(Inline::Link(Link {
-                                    target: target.to_string(),
+                                    target: ["#", target].concat(),
                                     content: vec![t(text_content)],
                                     ..Default::default()
                                 }));
