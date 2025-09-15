@@ -91,6 +91,7 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
 
     let mut doi = None;
     let mut authors = Vec::new();
+    let mut editors = Vec::new();
     let mut date = None;
     let mut title = None;
     let mut source = None;
@@ -101,13 +102,19 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
 
     for child in node.children() {
         let child_tag = child.tag_name().name();
-        if child_tag == "string-name" {
-            authors.push(decode_person(path, &child, losses))
+        if matches!(child_tag, "name" | "string-name") {
+            let person = decode_person(path, &child, losses);
+            authors.push(Author::Person(person));
         } else if child_tag == "person-group" {
+            let is_authors = matches!(child.attribute("person-group-type"), Some("author") | None);
             for grandchild in child.children() {
-                let grandchild_tag = grandchild.tag_name().name();
-                if grandchild_tag == "name" {
-                    authors.push(decode_person(path, &grandchild, losses))
+                if matches!(grandchild.tag_name().name(), "name" | "string-name") {
+                    let person = decode_person(path, &grandchild, losses);
+                    if is_authors {
+                        authors.push(Author::Person(person))
+                    } else {
+                        editors.push(person)
+                    }
                 }
             }
         } else if child_tag == "year" {
@@ -135,6 +142,7 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
     let id = Some(id.into());
 
     let authors = (!authors.is_empty()).then_some(authors);
+    let mut editors = (!editors.is_empty()).then_some(editors);
 
     let is_part_of = if let Some(source) = source {
         if title.is_none() {
@@ -145,6 +153,8 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
             Some(Box::new(Reference {
                 title: Some(vec![t(source)]),
                 options: Box::new(ReferenceOptions {
+                    // Note that we take() here so they are None of the main reference
+                    editors: editors.take(),
                     volume_number,
                     issue_number,
                     ..Default::default()
@@ -161,13 +171,12 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
     if authors.is_none() || title.is_none() {
         let text = node
             .descendants()
-            .filter(|node| node.is_text())
-            .map(|node| {
-                node.text()
-                    .unwrap_or_default()
-                    .replace("\n", " ")
-                    .trim()
-                    .to_string()
+            .filter_map(|node| {
+                if !node.is_text() {
+                    return None;
+                }
+                let Some(text) = node.text() else { return None };
+                Some(text.split_whitespace().join(" "))
             })
             .join(" ");
 
@@ -185,6 +194,7 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
             title,
             is_part_of,
             options: Box::new(ReferenceOptions {
+                editors,
                 page_start,
                 page_end,
                 ..Default::default()
@@ -194,8 +204,8 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
     }
 }
 
-/// Decode an `<name> and <string-name>`
-fn decode_person(path: &str, node: &Node, losses: &mut Losses) -> Author {
+/// Decode a `<name>` or `<string-name>`
+fn decode_person(path: &str, node: &Node, losses: &mut Losses) -> Person {
     record_attrs_lost(path, node, [], losses);
 
     let mut family_names = Vec::new();
@@ -217,9 +227,9 @@ fn decode_person(path: &str, node: &Node, losses: &mut Losses) -> Author {
     let family_names = (!family_names.is_empty()).then_some(family_names);
     let given_names = (!given_names.is_empty()).then_some(given_names);
 
-    Author::Person(Person {
+    Person {
         family_names,
         given_names,
         ..Default::default()
-    })
+    }
 }

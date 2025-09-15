@@ -3082,6 +3082,18 @@ expression: article
               "string": "The Terrestrial Environment and the Origin of Land Vertebrates"
             }
           }
+        ],
+        "editors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Panchen"
+            ],
+            "givenNames": [
+              "A",
+              "L"
+            ]
+          }
         ]
       },
       "pageStart": 255,
@@ -3140,6 +3152,35 @@ expression: article
             "value": {
               "string": "How Vertebrates Moved onto Land"
             }
+          }
+        ],
+        "editors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Bels"
+            ],
+            "givenNames": [
+              "V"
+            ]
+          },
+          {
+            "type": "Person",
+            "familyNames": [
+              "Casinos"
+            ],
+            "givenNames": [
+              "A"
+            ]
+          },
+          {
+            "type": "Person",
+            "familyNames": [
+              "Davenport"
+            ],
+            "givenNames": [
+              "J"
+            ]
           }
         ]
       },
@@ -3403,6 +3444,38 @@ expression: article
             "value": {
               "string": "Evolutionary Biology"
             }
+          }
+        ],
+        "editors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Hecht"
+            ],
+            "givenNames": [
+              "M",
+              "K"
+            ]
+          },
+          {
+            "type": "Person",
+            "familyNames": [
+              "MacIntyre"
+            ],
+            "givenNames": [
+              "R",
+              "J"
+            ]
+          },
+          {
+            "type": "Person",
+            "familyNames": [
+              "Clegg"
+            ],
+            "givenNames": [
+              "M",
+              "T"
+            ]
           }
         ]
       },
@@ -3792,6 +3865,17 @@ expression: article
               "string": "Fossil Fishes as Living Animals"
             }
           }
+        ],
+        "editors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Mark‐Kurik"
+            ],
+            "givenNames": [
+              "E"
+            ]
+          }
         ]
       },
       "pageStart": 131,
@@ -3842,6 +3926,26 @@ expression: article
             "value": {
               "string": "Origins of the Higher Groups of Tetrapods: Controversy and Consensus"
             }
+          }
+        ],
+        "editors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Schultze"
+            ],
+            "givenNames": [
+              "H‐P"
+            ]
+          },
+          {
+            "type": "Person",
+            "familyNames": [
+              "Trueb"
+            ],
+            "givenNames": [
+              "L"
+            ]
           }
         ]
       },
