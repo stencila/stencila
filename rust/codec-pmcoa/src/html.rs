@@ -15,7 +15,8 @@ use stencila_codec::{
         Article, Author, Block, Citation, CreativeWorkVariant, Date, Emphasis, Figure, Heading,
         ImageObject, Inline, IntegerOrString, Link, Node, Paragraph, Periodical, Person, Primitive,
         PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
-        Section, SectionType, Table, TableCell, TableRow, shortcuts::t,
+        Section, SectionType, Table, TableCell, TableCellOptions, TableRow, TableRowType,
+        shortcuts::t,
     },
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
@@ -551,6 +552,7 @@ fn concatenate_text_nodes(inlines: Vec<Inline>) -> Vec<Inline> {
 fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
     let id = get_attr(section, "id");
     let mut caption = None;
+    let mut label = None;
     let mut rows = Vec::new();
 
     for child in section
@@ -564,10 +566,12 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
 
             match tag_name.as_ref() {
                 "h4" if get_class(tag).contains("obj_head") => {
-                    // Table caption
-                    let caption_text = get_text(parser, tag);
+                    let mut caption_inlines = decode_inlines(parser, tag)?;
+
+                    label = extract_and_clean_table_label(&mut caption_inlines);
+
                     let paragraph = Paragraph {
-                        content: vec![t(caption_text)],
+                        content: caption_inlines,
                         ..Default::default()
                     };
                     caption = Some(vec![Block::Paragraph(paragraph)]);
@@ -592,8 +596,12 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
         return Ok(None);
     }
 
+    let label_automatically = label.is_some().then_some(false);
+
     Ok(Some(Table {
         id,
+        label,
+        label_automatically,
         caption,
         rows,
         ..Default::default()
@@ -616,6 +624,12 @@ fn decode_table_rows(parser: &Parser, table: &HTMLTag) -> Result<Vec<TableRow>> 
 
             match tag_name.as_ref() {
                 "thead" | "tbody" => {
+                    // Determine row type based on section
+                    let row_type = match tag_name.as_ref() {
+                        "thead" => Some(TableRowType::HeaderRow),
+                        _ => None,
+                    };
+
                     // Process tr elements within thead/tbody
                     for tr_child in tag
                         .children()
@@ -626,7 +640,7 @@ fn decode_table_rows(parser: &Parser, table: &HTMLTag) -> Result<Vec<TableRow>> 
                         if let Some(tr_tag) = tr_child.as_tag()
                             && tr_tag.name().as_utf8_str() == "tr"
                         {
-                            let row = decode_table_row(parser, tr_tag)?;
+                            let row = decode_table_row(parser, tr_tag, row_type)?;
                             if !row.cells.is_empty() {
                                 rows.push(row);
                             }
@@ -635,7 +649,7 @@ fn decode_table_rows(parser: &Parser, table: &HTMLTag) -> Result<Vec<TableRow>> 
                 }
                 "tr" => {
                     // Direct tr element
-                    let row = decode_table_row(parser, tag)?;
+                    let row = decode_table_row(parser, tag, None)?;
                     if !row.cells.is_empty() {
                         rows.push(row);
                     }
@@ -649,9 +663,12 @@ fn decode_table_rows(parser: &Parser, table: &HTMLTag) -> Result<Vec<TableRow>> 
 }
 
 /// Decode a table row
-fn decode_table_row(parser: &Parser, tr: &HTMLTag) -> Result<TableRow> {
+fn decode_table_row(
+    parser: &Parser,
+    tr: &HTMLTag,
+    row_type: Option<TableRowType>,
+) -> Result<TableRow> {
     let mut cells = Vec::new();
-
     for child in tr
         .children()
         .top()
@@ -663,12 +680,31 @@ fn decode_table_row(parser: &Parser, tr: &HTMLTag) -> Result<TableRow> {
 
             if tag_name == "td" || tag_name == "th" {
                 let cell_inlines = decode_inlines(parser, tag)?;
-                let paragraph = Paragraph {
-                    content: cell_inlines,
-                    ..Default::default()
+                let content = if cell_inlines.is_empty() {
+                    Vec::new()
+                } else {
+                    vec![Block::Paragraph(Paragraph {
+                        content: cell_inlines,
+                        ..Default::default()
+                    })]
                 };
+
+                // Extract colspan and rowspan attributes
+                let row_span = get_attr(tag, "rowspan")
+                    .and_then(|attr| attr.parse().ok())
+                    .and_then(|span: i64| (span != 1).then_some(span));
+
+                let column_span = get_attr(tag, "colspan")
+                    .and_then(|attr| attr.parse().ok())
+                    .and_then(|span: i64| (span != 1).then_some(span));
+
                 cells.push(TableCell {
-                    content: vec![Block::Paragraph(paragraph)],
+                    content,
+                    options: Box::new(TableCellOptions {
+                        row_span,
+                        column_span,
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 });
             }
@@ -677,6 +713,7 @@ fn decode_table_row(parser: &Parser, tr: &HTMLTag) -> Result<TableRow> {
 
     Ok(TableRow {
         cells,
+        row_type,
         ..Default::default()
     })
 }
@@ -812,4 +849,51 @@ fn decode_reference(parser: &Parser, li_tag: &HTMLTag) -> Reference {
     reference.id = get_attr(li_tag, "id");
 
     reference
+}
+
+/// Extract table label from inlines and clean the prefix from the first text element
+///
+/// This function looks for "Table X" at the beginning of the first text element,
+/// extracts "X" as the label, and removes "Table X." from the text element.
+fn extract_and_clean_table_label(inlines: &mut Vec<Inline>) -> Option<String> {
+    const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
+
+    if let Some(Inline::Text(text)) = inlines.first_mut() {
+        let original_value = text.value.clone();
+
+        for prefix in PREFIXES {
+            if let Some(stripped) = original_value.strip_prefix(prefix) {
+                let trimmed = stripped.trim_start_matches(['.', ':', ' ']);
+
+                // Extract the number part
+                if let Some((number_part, rest)) = trimmed.split_once('.') {
+                    let label = number_part.trim().to_string();
+
+                    // Update the text element to remove the "Table X." prefix
+                    let cleaned_text = rest.trim_start();
+                    if cleaned_text.is_empty() {
+                        // If nothing remains, remove this text element entirely
+                        inlines.remove(0);
+                    } else {
+                        text.value = cleaned_text.into();
+                    }
+
+                    return Some(label);
+                } else if let Some(first_word) = trimmed.split_whitespace().next() {
+                    // Handle cases where there's no dot after the number
+                    let label = first_word.to_string();
+
+                    // Remove "Table X " from the beginning
+                    let to_remove = format!("{} {} ", prefix, first_word);
+                    if let Some(cleaned) = original_value.strip_prefix(&to_remove) {
+                        text.value = cleaned.into();
+                    }
+
+                    return Some(label);
+                }
+            }
+        }
+    }
+
+    None
 }
