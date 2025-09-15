@@ -1,0 +1,32 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "See ("
+        },
+        {
+          "type": "Citation",
+          "target": "ref1",
+          "citationMode": "Narrative",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Smith 2023"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ") for details."
+        }
+      ]
+    }
+  ]
+}

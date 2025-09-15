@@ -1,0 +1,45 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Non-numeric range ("
+        },
+        {
+          "type": "Citation",
+          "target": "smith2020",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Smith 2020"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "–"
+        },
+        {
+          "type": "Citation",
+          "target": "jones2021",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Jones 2021"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ") should not expand."
+        }
+      ]
+    }
+  ]
+}

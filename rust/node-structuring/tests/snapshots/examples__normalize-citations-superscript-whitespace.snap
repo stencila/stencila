@@ -1,0 +1,41 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This statement "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "ref1",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " is supported."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "normalize-citations"
+  ]
+}

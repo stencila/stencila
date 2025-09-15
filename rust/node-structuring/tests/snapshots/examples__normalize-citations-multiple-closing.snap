@@ -1,0 +1,42 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "See "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "ref1",
+          "citationMode": "Parenthetical",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "] for details."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "normalize-citations"
+  ]
+}

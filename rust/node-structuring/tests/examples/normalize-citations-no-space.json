@@ -1,0 +1,36 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Statement"
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Citation",
+              "target": "ref1",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "continues here."
+        }
+      ]
+    }
+  ]
+}

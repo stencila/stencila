@@ -1,0 +1,45 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Multiple studies ("
+        },
+        {
+          "type": "Citation",
+          "target": "smith-2020",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Smith 2020"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "; "
+        },
+        {
+          "type": "Citation",
+          "target": "jones-2021",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Jones 2021"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ") confirm this."
+        }
+      ]
+    }
+  ]
+}

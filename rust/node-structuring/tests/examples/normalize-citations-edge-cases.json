@@ -1,0 +1,39 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Citation with no content ["
+        },
+        {
+          "type": "Citation",
+          "target": "ref1"
+        },
+        {
+          "type": "Text",
+          "value": "] and normal ("
+        },
+        {
+          "type": "Citation",
+          "target": "ref2",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Smith 2023"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ")."
+        }
+      ]
+    }
+  ]
+}
