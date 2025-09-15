@@ -19,6 +19,7 @@ tracing = { workspace = true }
 glob = { workspace = true }
 insta = { workspace = true }
 pretty_assertions = { workspace = true }
+stencila-codec-json = { path = "../codec-json" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 tokio = { workspace = true }
 

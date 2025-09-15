@@ -1,17 +1,22 @@
-use std::{fs::read_to_string, path::PathBuf, str::FromStr};
+use std::{
+    fs::{read_dir, read_to_string},
+    path::PathBuf,
+    str::FromStr,
+};
 
 use eyre::{OptionExt, Result, bail};
-use itertools::Itertools;
-use stencila_codec::{Codec, StructuringOperation, StructuringOptions};
-
 use insta::assert_json_snapshot;
+use itertools::Itertools;
+
+use stencila_codec::{Codec, StructuringOperation, StructuringOptions, stencila_format::Format};
+use stencila_codec_json::JsonCodec;
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_node_structuring::structuring;
 use stencila_schema::{Node, Primitive};
 
-/// Structure example Markdown files using the structuring operation specified
-/// in the first three parts of their name, or multiple operations for files
-/// with numeric prefixes.
+/// Structure example Markdown or JSON files using the structuring operation
+/// specified in the first three parts of their name, or multiple operations for
+/// files with numeric prefixes.
 ///
 /// Run using:
 ///
@@ -22,22 +27,24 @@ use stencila_schema::{Node, Primitive};
 /// cargo insta review
 #[tokio::test]
 async fn examples() -> Result<()> {
-    let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/examples")
-        .canonicalize()?
-        .to_string_lossy()
-        .to_string()
-        + "/**/*.md";
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/examples");
 
-    for path in glob::glob(&pattern)?.flatten() {
-        let md = read_to_string(&path)?;
-        let (mut node, ..) = MarkdownCodec.from_str(&md, None).await?;
+    for entry in read_dir(&dir)?.flatten() {
+        let path = entry.path();
+        let format = Format::from_path(&path);
+
+        let content = read_to_string(&path)?;
+
+        let (mut node, ..) = match format {
+            Format::Markdown => MarkdownCodec.from_str(&content, None).await?,
+            Format::Json => JsonCodec.from_str(&content, None).await?,
+            _ => bail!("Unsupported formatted"),
+        };
 
         let id = path
-            .file_name()
-            .map(|name| name.to_string_lossy())
-            .and_then(|name| name.strip_suffix(".md").map(String::from))
-            .ok_or_eyre("should have .md suffix")?;
+            .file_stem()
+            .map(|name| name.to_string_lossy().to_string())
+            .ok_or_eyre("No file stem")?;
 
         let Node::Article(article) = &node else {
             bail!("Expected an article")
@@ -61,8 +68,7 @@ async fn examples() -> Result<()> {
             if let Ok(operation) = StructuringOperation::from_str(&op) {
                 vec![operation]
             } else {
-                // Skip files that don't match operation pattern and have no YAML frontmatter
-                continue;
+                bail!("Unable to determine structuring operations for {}", path.display());
             }
         };
 
