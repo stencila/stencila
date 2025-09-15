@@ -132,7 +132,10 @@ fn author_year_parenthetical(input: &mut &str) -> Result<Inline> {
         )
         .map(|mut items: Vec<Citation>| {
             if items.len() == 1 {
-                Inline::Citation(items.swap_remove(0))
+                // Single author-year citation in parentheses
+                let mut citation = items.swap_remove(0);
+                citation.citation_mode = Some(CitationMode::Parenthetical);
+                Inline::Citation(citation)
             } else {
                 Inline::CitationGroup(CitationGroup::new(items))
             }
@@ -342,7 +345,10 @@ fn citation_sequence(input: &mut &str) -> Result<Inline> {
         if let Some(citation) = citations.first()
             && citations.len() == 1
         {
-            Inline::Citation(citation.clone())
+            // Single numeric citation is always treated as parenthetic
+            let mut citation = citation.clone();
+            citation.citation_mode = Some(CitationMode::Parenthetical);
+            Inline::Citation(citation)
         } else {
             Inline::CitationGroup(CitationGroup::new(citations))
         }
@@ -435,6 +441,7 @@ mod tests {
     fn ctp(target: &str, content: &str) -> Inline {
         Inline::Citation(Citation {
             target: target.into(),
+            citation_mode: Some(CitationMode::Parenthetical),
             options: Box::new(CitationOptions {
                 content: Some(vec![t(content)]),
                 ..Default::default()
@@ -688,7 +695,7 @@ mod tests {
         match inline {
             Inline::Citation(Citation {
                 target,
-                citation_mode: None,
+                citation_mode: Some(CitationMode::Parenthetical),
                 ..
             }) => {
                 assert_eq!(target, "smith-1990")
