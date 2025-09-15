@@ -16,7 +16,7 @@ expression: node
             "Smith"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         }
       ],
@@ -48,7 +48,7 @@ expression: node
             "Jones"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -57,7 +57,7 @@ expression: node
             "Brown"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         }
       ],
@@ -89,7 +89,7 @@ expression: node
             "Wilson"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         }
       ],

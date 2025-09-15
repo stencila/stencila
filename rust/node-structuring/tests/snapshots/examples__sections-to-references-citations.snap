@@ -16,7 +16,7 @@ expression: node
             "Garcia"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         }
       ],
@@ -60,7 +60,7 @@ expression: node
             "Miller"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         },
         {
@@ -69,7 +69,7 @@ expression: node
             "Johnson"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         }
       ],
@@ -101,7 +101,7 @@ expression: node
             "Lee"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         }
       ],
