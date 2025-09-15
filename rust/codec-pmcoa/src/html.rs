@@ -12,11 +12,11 @@ use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
     stencila_schema::{
-        Article, Author, Block, Citation, CreativeWorkVariant, Date, Emphasis, Figure, Heading,
-        ImageObject, Inline, IntegerOrString, Link, Node, Paragraph, Periodical, Person, Primitive,
-        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
-        Section, SectionType, Table, TableCell, TableCellOptions, TableRow, TableRowType,
-        shortcuts::t,
+        Article, Author, Block, Citation, CreativeWorkVariant, Date, Figure, Heading, ImageObject,
+        Inline, IntegerOrString, Node, Paragraph, Periodical, Person, Primitive, PropertyValue,
+        PropertyValueOrString, PublicationIssue, PublicationVolume, Reference, Section,
+        SectionType, Table, TableCell, TableCellOptions, TableRow, TableRowType,
+        shortcuts::{em, lnk, stg, sub, sup, t, u},
     },
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
@@ -456,19 +456,16 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
     {
         if let Some(child_tag) = child.as_tag() {
             let tag_name = child_tag.name().as_utf8_str();
+            let content = decode_inlines(parser, child_tag)?;
 
-            match tag_name.as_ref() {
-                "em" => {
-                    let emphasis_content = decode_inlines(parser, child_tag)?;
-                    inlines.push(Inline::Emphasis(Emphasis {
-                        content: emphasis_content,
-                        ..Default::default()
-                    }));
-                }
+            let inline = match tag_name.as_ref() {
+                "em" | "i" => em(content),
+                "strong" | "b" => stg(content),
+                "u" => u(content),
+                "sub" => sub(content),
+                "sup" => sup(content),
                 "a" => {
                     let href = get_attr(child_tag, "href");
-                    let text_content = get_text(parser, child_tag);
-
                     if let Some(href_val) = href {
                         if href_val.starts_with('#') {
                             let target = href_val.trim_start_matches('#');
@@ -476,34 +473,28 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
                             // Check if this is a figure or table reference
                             if target.contains(".g") || target.contains(".t") {
                                 // This is a figure (.g001) or table (.t001) reference -> Link
-                                inlines.push(Inline::Link(Link {
-                                    target: ["#", target].concat(),
-                                    content: vec![t(text_content)],
-                                    ..Default::default()
-                                }));
+                                lnk(content, ["#", target].concat())
                             } else {
                                 // This is a citation reference (.ref001)
                                 let mut citation = Citation::new(target.to_string());
-                                citation.options.content = Some(vec![t(text_content)]);
-                                inlines.push(Inline::Citation(citation));
+                                citation.options.content = Some(content);
+                                Inline::Citation(citation)
                             }
                         } else {
                             // This is an external link
-                            inlines.push(Inline::Link(Link {
-                                target: href_val,
-                                content: vec![t(text_content)],
-                                ..Default::default()
-                            }));
+                            lnk(content, href_val)
                         }
                     } else {
-                        inlines.push(t(text_content));
+                        lnk(content, "#")
                     }
                 }
                 _ => {
                     // Recurse into other tags
                     inlines.extend(decode_inlines(parser, child_tag)?);
+                    continue;
                 }
-            }
+            };
+            inlines.push(inline);
         } else if let Some(text) = child.as_raw()
             && let Some(text_str) = text.try_as_utf8_str()
         {
@@ -606,6 +597,53 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
         rows,
         ..Default::default()
     }))
+}
+
+/// Extract table label from inlines and clean the prefix from the first text element
+///
+/// This function looks for "Table X" at the beginning of the first text element,
+/// extracts "X" as the label, and removes "Table X." from the text element.
+fn extract_and_clean_table_label(inlines: &mut Vec<Inline>) -> Option<String> {
+    const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
+
+    if let Some(Inline::Text(text)) = inlines.first_mut() {
+        let original_value = text.value.clone();
+
+        for prefix in PREFIXES {
+            if let Some(stripped) = original_value.strip_prefix(prefix) {
+                let trimmed = stripped.trim_start_matches(['.', ':', ' ']);
+
+                // Extract the number part
+                if let Some((number_part, rest)) = trimmed.split_once('.') {
+                    let label = number_part.trim().to_string();
+
+                    // Update the text element to remove the "Table X." prefix
+                    let cleaned_text = rest.trim_start();
+                    if cleaned_text.is_empty() {
+                        // If nothing remains, remove this text element entirely
+                        inlines.remove(0);
+                    } else {
+                        text.value = cleaned_text.into();
+                    }
+
+                    return Some(label);
+                } else if let Some(first_word) = trimmed.split_whitespace().next() {
+                    // Handle cases where there's no dot after the number
+                    let label = first_word.to_string();
+
+                    // Remove "Table X " from the beginning
+                    let to_remove = format!("{} {} ", prefix, first_word);
+                    if let Some(cleaned) = original_value.strip_prefix(&to_remove) {
+                        text.value = cleaned.into();
+                    }
+
+                    return Some(label);
+                }
+            }
+        }
+    }
+
+    None
 }
 
 /// Decode table rows
@@ -716,6 +754,36 @@ fn decode_table_row(
         row_type,
         ..Default::default()
     })
+}
+
+/// Decode table notes from a tw-foot element
+fn decode_table_notes(parser: &Parser, tw_foot: &HTMLTag) -> Result<Vec<Block>> {
+    let mut notes = Vec::new();
+
+    for child in tw_foot
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(tag) = child.as_tag() {
+            let tag_name = tag.name().as_utf8_str();
+
+            if tag_name.as_ref() == "div" && get_class(tag).contains("fn") {
+                // Extract the paragraph content from the footnote
+                let content = decode_inlines(parser, tag)?;
+                if !content.is_empty() {
+                    let paragraph = Paragraph {
+                        content,
+                        ..Default::default()
+                    };
+                    notes.push(Block::Paragraph(paragraph));
+                }
+            }
+        }
+    }
+
+    Ok(notes)
 }
 
 /// Decode a figure element
@@ -849,51 +917,4 @@ fn decode_reference(parser: &Parser, li_tag: &HTMLTag) -> Reference {
     reference.id = get_attr(li_tag, "id");
 
     reference
-}
-
-/// Extract table label from inlines and clean the prefix from the first text element
-///
-/// This function looks for "Table X" at the beginning of the first text element,
-/// extracts "X" as the label, and removes "Table X." from the text element.
-fn extract_and_clean_table_label(inlines: &mut Vec<Inline>) -> Option<String> {
-    const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
-
-    if let Some(Inline::Text(text)) = inlines.first_mut() {
-        let original_value = text.value.clone();
-
-        for prefix in PREFIXES {
-            if let Some(stripped) = original_value.strip_prefix(prefix) {
-                let trimmed = stripped.trim_start_matches(['.', ':', ' ']);
-
-                // Extract the number part
-                if let Some((number_part, rest)) = trimmed.split_once('.') {
-                    let label = number_part.trim().to_string();
-
-                    // Update the text element to remove the "Table X." prefix
-                    let cleaned_text = rest.trim_start();
-                    if cleaned_text.is_empty() {
-                        // If nothing remains, remove this text element entirely
-                        inlines.remove(0);
-                    } else {
-                        text.value = cleaned_text.into();
-                    }
-
-                    return Some(label);
-                } else if let Some(first_word) = trimmed.split_whitespace().next() {
-                    // Handle cases where there's no dot after the number
-                    let label = first_word.to_string();
-
-                    // Remove "Table X " from the beginning
-                    let to_remove = format!("{} {} ", prefix, first_word);
-                    if let Some(cleaned) = original_value.strip_prefix(&to_remove) {
-                        text.value = cleaned.into();
-                    }
-
-                    return Some(label);
-                }
-            }
-        }
-    }
-
-    None
 }
