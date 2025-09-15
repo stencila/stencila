@@ -8906,6 +8906,102 @@ expression: article
               }
             }
           ]
+        },
+        {
+          "type": "Supplement",
+          "id": "pone.0332245.s001",
+          "label": "S1 Fig",
+          "labelAutomatically": false,
+          "caption": [
+            {
+              "type": "Heading",
+              "level": 1,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Agarose gel electrophoresis of LAMP products corresponding to Table 3."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "(PDF)"
+                  }
+                }
+              ]
+            }
+          ],
+          "target": "https://pmc.ncbi.nlm.nih.gov/articles/instance/12431436/bin/pone.0332245.s001.pdf"
+        },
+        {
+          "type": "Supplement",
+          "id": "pone.0332245.s002",
+          "label": "S1 Raw Images",
+          "labelAutomatically": false,
+          "caption": [
+            {
+              "type": "Heading",
+              "level": 1,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Original blot and gel images contained in the manuscript’s figures."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "(PDF)"
+                  }
+                }
+              ]
+            }
+          ],
+          "target": "https://pmc.ncbi.nlm.nih.gov/articles/instance/12431436/bin/pone.0332245.s002.pdf"
+        },
+        {
+          "type": "Supplement",
+          "id": "pone.0332245.s003",
+          "label": "S2 Data",
+          "labelAutomatically": false,
+          "caption": [
+            {
+              "type": "Heading",
+              "level": 1,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Excel file containing the raw data used to generate all figures and tables in the manuscript."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "(XLSX)"
+                  }
+                }
+              ]
+            }
+          ],
+          "target": "https://pmc.ncbi.nlm.nih.gov/articles/instance/12431436/bin/pone.0332245.s003.xlsx"
         }
       ]
     },

@@ -15,8 +15,8 @@ use stencila_codec::{
         Article, Author, Block, Citation, CreativeWorkVariant, Date, Figure, Heading, ImageObject,
         Inline, IntegerOrString, Node, Paragraph, Periodical, Person, Primitive, PropertyValue,
         PropertyValueOrString, PublicationIssue, PublicationVolume, Reference, Section,
-        SectionType, Table, TableCell, TableCellOptions, TableRow, TableRowType,
-        shortcuts::{em, lnk, stg, sub, sup, t, u},
+        SectionType, Supplement, Table, TableCell, TableCellOptions, TableRow, TableRowType,
+        shortcuts::{em, h1, lnk, p, stg, sub, sup, t, u},
     },
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
@@ -406,15 +406,16 @@ fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
                 }
                 "section" => {
                     let class = get_class(tag);
-                    if class.contains("tw xbox") {
-                        // This is a table section
-                        if let Some(table) = decode_table_section(parser, tag)? {
+                    if class.contains("tw") {
+                        if let Some(table) = decode_table(parser, tag)? {
                             content.push(Block::Table(table));
                         }
+                    } else if class.contains("sm") {
+                        if let Some(supplement) = decode_supplement(parser, tag)? {
+                            content.push(Block::Supplement(supplement));
+                        }
                     } else {
-                        // Regular nested section
                         let subsection = decode_section(parser, tag)?;
-                        // Only add non-empty subsections
                         if !subsection.content.is_empty() {
                             content.push(Block::Section(subsection));
                         }
@@ -474,7 +475,10 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
                             let target = href_val.trim_start_matches('#');
 
                             // Check if this is a figure or table reference
-                            if target.contains(".g") || target.contains(".t") || target.contains(".s") {
+                            if target.contains(".g")
+                                || target.contains(".t")
+                                || target.contains(".s")
+                            {
                                 // This is a figure, table, or supplement reference
                                 lnk(content, ["#", target].concat())
                             } else {
@@ -543,7 +547,7 @@ fn concatenate_text_nodes(inlines: Vec<Inline>) -> Vec<Inline> {
 }
 
 /// Decode a table section (section with class "tw xbox")
-fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
+fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
     let id = get_attr(section, "id");
     let mut caption = None;
     let mut label = None;
@@ -845,6 +849,105 @@ fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
         content,
         ..Default::default()
     }))
+}
+
+/// Decode a supplement material element (section with class "sm")
+fn decode_supplement(parser: &Parser, supplement_section: &HTMLTag) -> Result<Option<Supplement>> {
+    let id = get_attr(supplement_section, "id");
+    let mut label = None;
+    let mut caption = None;
+    let mut target = None;
+
+    for child in supplement_section
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(tag) = child.as_tag() {
+            let tag_name = tag.name().as_utf8_str();
+            let tag_class = get_class(tag);
+
+            match tag_name.as_ref() {
+                "div" if tag_class.contains("caption p") => {
+                    let mut caption_blocks = Vec::new();
+
+                    // Extract label and caption content from the first span
+                    if let Some(span_tag) = tag
+                        .query_selector(parser, "span")
+                        .and_then(|mut nodes| nodes.next())
+                        .and_then(|node| node.get(parser))
+                        .and_then(|node| node.as_tag())
+                    {
+                        let span_text = get_text(parser, span_tag);
+
+                        // Extract label (e.g., "S1 Fig", "S1 Raw Images", "S2 Data")
+                        let parts: Vec<&str> = span_text.splitn(2, '.').collect();
+                        if parts.len() >= 2 {
+                            label = Some(parts[0].trim().to_string());
+
+                            // Create heading with the remaining text
+                            let heading_text = parts[1].trim();
+                            if !heading_text.is_empty() {
+                                caption_blocks.push(h1([t(heading_text)]));
+                            }
+                        } else {
+                            // If no period found, use the whole text as heading
+                            if !span_text.trim().is_empty() {
+                                caption_blocks.push(h1([t(span_text)]));
+                            }
+                        }
+                    }
+
+                    // Extract format information from any <p> tags
+                    if let Some(mut paras) = tag.query_selector(parser, "p") {
+                        while let Some(para) = paras
+                            .next()
+                            .and_then(|node| node.get(parser))
+                            .and_then(|node| node.as_tag())
+                        {
+                            let para_text = get_text(parser, para);
+                            if !para_text.trim().is_empty() {
+                                caption_blocks.push(p([t(para_text)]));
+                            }
+                        }
+                    }
+
+                    if !caption_blocks.is_empty() {
+                        caption = Some(caption_blocks);
+                    }
+                }
+                "div" if tag_class.contains("media p") => {
+                    // Extract the target URL from the link
+                    if let Some(a_tag) = tag
+                        .query_selector(parser, "a")
+                        .and_then(|mut nodes| nodes.next())
+                        .and_then(|node| node.get(parser))
+                        .and_then(|node| node.as_tag())
+                    {
+                        if let Some(href) = get_attr(a_tag, "href") {
+                            target = Some(["https://pmc.ncbi.nlm.nih.gov", &href].concat());
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    // Only create supplement if we have essential content
+    if label.is_some() || caption.is_some() || target.is_some() {
+        Ok(Some(Supplement {
+            id,
+            label,
+            label_automatically: Some(false),
+            caption,
+            target,
+            ..Default::default()
+        }))
+    } else {
+        Ok(None)
+    }
 }
 
 /// Decode references section
