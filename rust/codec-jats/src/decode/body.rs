@@ -7,13 +7,13 @@ use stencila_codec::{
     Losses,
     stencila_format::Format,
     stencila_schema::{
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation,
-        CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
-        CreativeWorkType, Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject,
-        ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
-        MathInline, MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
-        Section, SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions,
-        TableOptions, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationOptions,
+        Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, CreativeWorkType,
+        Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
+        Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions, MathInline,
+        MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
+        SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions, TableOptions,
+        TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
         VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
@@ -697,7 +697,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         .map(clean_caption);
 
     let rows = node
-        .children()
+        .descendants() //// Use descendants because table may be nested in <alternatives>
         .filter(|child| child.tag_name().name() == "table")
         .flat_map(|child| {
             let path = &extend_path(path, "table");
