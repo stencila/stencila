@@ -2763,7 +2763,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref005",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2782,7 +2781,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref006",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2801,7 +2799,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref001",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2820,7 +2817,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref007",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2839,7 +2835,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref008",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2858,7 +2853,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref001",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2982,7 +2976,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref012",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3018,7 +3011,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref013",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3048,7 +3040,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref014",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3067,7 +3058,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref015",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3103,7 +3093,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref016",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3291,7 +3280,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref010",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3327,7 +3315,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref023",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3590,7 +3577,481 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
+              "rows": [
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "MOI of DENV-2"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "columnSpan": 2
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "dpi"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−4"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−2"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "3"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "4"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "5"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "6"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "7"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "notes": [
                 {
                   "type": "Paragraph",
@@ -3602,12 +4063,6 @@ expression: article
                       }
                     }
                   ]
-                }
-              ],
-              "images": [
-                {
-                  "type": "ImageObject",
-                  "contentUrl": "redacted"
                 }
               ]
             }
@@ -3799,7 +4254,905 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
+              "rows": [
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "RNA"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "columnSpan": 2
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "vDNA"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "columnSpan": 2
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "MOI of DENV-2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "RT-qPCR"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "RT-LAMP"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "qPCR"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "LAMP"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−1"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + (+)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−2"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + (+)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−3"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + (+)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−4"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−5"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−6"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−7"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−8"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "– – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "notes": [
                 {
                   "type": "Paragraph",
@@ -3811,12 +5164,6 @@ expression: article
                       }
                     }
                   ]
-                }
-              ],
-              "images": [
-                {
-                  "type": "ImageObject",
-                  "contentUrl": "redacted"
                 }
               ]
             },
@@ -3838,7 +5185,588 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
+              "rows": [
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Location of collection"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Houses"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Mosquitoes"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Pools"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Pool size"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Positive pools"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Infection rate* (95%CI)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1200 logements"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "70"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "228"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "112"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1-13"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "6"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "26.52"
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": " (11.06–53.82)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Tabtenga"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "61"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "139"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "95"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1-10"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "5"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "36.18"
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": " (13.70–77.61)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Goundry"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "13"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "30"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "19"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1-5"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "33.24"
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": " (1.94–150.42)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Total"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "144"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "397"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "226"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "12"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    }
+                  ]
+                }
+              ],
               "notes": [
                 {
                   "type": "Paragraph",
@@ -3861,12 +5789,6 @@ expression: article
                       }
                     }
                   ]
-                }
-              ],
-              "images": [
-                {
-                  "type": "ImageObject",
-                  "contentUrl": "redacted"
                 }
               ]
             },
@@ -4215,11 +6137,266 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
-              "images": [
+              "rows": [
                 {
-                  "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Primer"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sequence (5’ → 3’)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F3"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "CATAGGGGAGTCGTCACC"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "B3"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "TTGGATACCCAGTACATCTC"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "FIP (F1c-F2)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "CAAAATTGGATGTTGTTGTTCAACCTAGAAGCAGGACGAACACT"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "BIP (B1c-B2)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ATGCCCTCAGTCATAGAAAAAATGGAGTTTCGTGAGAGTGGATT"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "LF"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "TTTTCCACTAAGTTGAGGACTCTG"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "LB"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "AAGCACTACAAAGGAAATATGGAGG"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -4332,7 +6509,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref024",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4379,7 +6555,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref025",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4445,7 +6620,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref026",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4891,7 +7065,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref006",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5406,7 +7579,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref027",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5442,7 +7614,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5602,7 +7773,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref009",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5691,7 +7861,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref029",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5772,7 +7941,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref017",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5838,7 +8006,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref032",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5890,7 +8057,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref033",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",

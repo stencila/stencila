@@ -11,9 +11,8 @@ expression: info.losses
 //article/body/sec/sec/p/ext-link/@ext-link-type: 2
 //article/body/sec/sec/p/italic/@toggle: 8
 //article/body/sec/sec/table-wrap/@position: 4
-//article/body/sec/sec/table-wrap/graphic/@id: 4
-//article/body/sec/sec/table-wrap/graphic/@position: 4
 //article/body/sec/sec/table-wrap/table-wrap-foot/fn/@id: 4
+//article/body/sec/sec/table-wrap/table/tbody/tr/td/break: 3
 //article/body/sec/supplementary-material/@content-type: 3
 //article/body/sec/supplementary-material/@position: 3
 //article/front/article-meta/abstract/p/italic/@toggle: 3

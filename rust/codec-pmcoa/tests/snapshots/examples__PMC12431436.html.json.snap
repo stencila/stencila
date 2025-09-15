@@ -3512,7 +3512,24 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). A solution containing each virus strain (2 × 107 PFU/ml) was mixed 1:1 with mouse blood and fed to female mosquitoes via a membrane-covered metal plate at 37°C for 30 minutes. Blood-engorged mosquitoes were maintained at 28°C for 10 days post-infection by feeding with sugar solution. These mosquitoes were killed, dried at room temperature for 12 hours, pooled by 10 mosquitoes in a tube, and stored at −20°C until DNA extraction."
+                    "string": "). A solution containing each virus strain (2 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " PFU/ml) was mixed 1:1 with mouse blood and fed to female mosquitoes via a membrane-covered metal plate at 37°C for 30 minutes. Blood-engorged mosquitoes were maintained at 28°C for 10 days post-infection by feeding with sugar solution. These mosquitoes were killed, dried at room temperature for 12 hours, pooled by 10 mosquitoes in a tube, and stored at −20°C until DNA extraction."
                   }
                 }
               ]
@@ -3553,7 +3570,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t003"
+                  "target": "#pone.0332245.t003"
                 },
                 {
                   "type": "Text",
@@ -3566,6 +3583,8 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t003",
+              "label": "3",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -3573,7 +3592,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Table 3. vDNA detection by LAMP in C6/36 cells at each day post-infection of DENV-2."
+                        "string": "vDNA detection by LAMP in C6/36 cells at each day post-infection of DENV-2."
                       }
                     }
                   ]
@@ -3585,12 +3604,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": []
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -3606,9 +3620,11 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "columnSpan": 2
                     }
-                  ]
+                  ],
+                  "rowType": "HeaderRow"
                 },
                 {
                   "type": "TableRow",
@@ -3638,8 +3654,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−4"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−4"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -3654,8 +3681,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−2"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−2"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4034,6 +4072,19 @@ expression: article
                     }
                   ]
                 }
+              ],
+              "notes": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "The number of symbols [+ and –]: the number of samples examined. + : detected, –: not detected. dpi: days post-infection. MOI: multiplicity of infection."
+                      }
+                    }
+                  ]
+                }
               ]
             }
           ]
@@ -4059,7 +4110,24 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "DNA was extracted from DENV-infected cultured cells and mosquitoes as follows. Cells or mosquitoes were homogenized with a plastic homogenizer in 100 μl of Buffer A (0.1 M Tris (pH 9.0), 0.1 M EDTA, 1% SDS, and 0.5% DEPC) and incubated at 70°C for 30 minutes. Subsequently, the homogenate was mixed with 22.4 μl of 5 M KOAc and incubated for 30 minutes on ice. The supernatant was collected by centrifugation at 20,400 × g for 15 min at 4°C and mixed with 45 μl of isopropanol. Precipitated DNA was collected after centrifugation at 20,400 × g for 20 min at 4°C, rinsed with 70% ethanol, and dried. Each DNA pellet was dissolved and diluted with TE to adjust the concentration so that 1 μl of solution contained DNA from 1 × 104 ("
+                    "string": "DNA was extracted from DENV-infected cultured cells and mosquitoes as follows. Cells or mosquitoes were homogenized with a plastic homogenizer in 100 μl of Buffer A (0.1 M Tris (pH 9.0), 0.1 M EDTA, 1% SDS, and 0.5% DEPC) and incubated at 70°C for 30 minutes. Subsequently, the homogenate was mixed with 22.4 μl of 5 M KOAc and incubated for 30 minutes on ice. The supernatant was collected by centrifugation at 20,400 × g for 15 min at 4°C and mixed with 45 μl of isopropanol. Precipitated DNA was collected after centrifugation at 20,400 × g for 20 min at 4°C, rinsed with 70% ethanol, and dried. Each DNA pellet was dissolved and diluted with TE to adjust the concentration so that 1 μl of solution contained DNA from 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ("
                   }
                 },
                 {
@@ -4072,12 +4140,29 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") or 3.2 × 103 ("
+                    "string": ") or 3.2 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ("
                   }
                 },
                 {
@@ -4090,7 +4175,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t002"
+                  "target": "#pone.0332245.t002"
                 },
                 {
                   "type": "Text",
@@ -4108,7 +4193,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t003"
+                  "target": "#pone.0332245.t003"
                 },
                 {
                   "type": "Text",
@@ -4126,7 +4211,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
@@ -4144,7 +4229,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g004"
+                  "target": "#pone.0332245.g004"
                 },
                 {
                   "type": "Text",
@@ -4162,7 +4247,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t004"
+                  "target": "#pone.0332245.t004"
                 },
                 {
                   "type": "Text",
@@ -4206,6 +4291,8 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t002",
+              "label": "2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -4213,7 +4300,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Table 2. Sensitivity of LAMP and qPCR in detecting DENV-2 RNA and vDNA."
+                        "string": "Sensitivity of LAMP and qPCR in detecting DENV-2 RNA and vDNA."
                       }
                     }
                   ]
@@ -4225,12 +4312,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": []
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -4246,7 +4328,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "columnSpan": 2
                     },
                     {
                       "type": "TableCell",
@@ -4262,9 +4345,11 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "columnSpan": 2
                     }
-                  ]
+                  ],
+                  "rowType": "HeaderRow"
                 },
                 {
                   "type": "TableRow",
@@ -4363,8 +4448,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−1"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−1"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4448,8 +4544,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−2"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−2"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4533,8 +4640,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−3"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−3"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4618,8 +4736,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−4"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−4"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4703,8 +4832,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−5"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−5"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4788,8 +4928,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−6"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−6"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4873,8 +5024,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−7"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−7"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -4958,8 +5120,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1 × 10−8"
+                                "string": "1 × 10"
                               }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−8"
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -5028,6 +5201,19 @@ expression: article
                           ]
                         }
                       ]
+                    }
+                  ]
+                }
+              ],
+              "notes": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "The number of symbols [+, (+), and –]: the number of samples examined. + : detected in all three repeated reactions per one sample, (+): detected only once or twice in three repeated reactions per one sample, –: not detected in three repeated reactions per one sample. MOI: multiplicity of infection."
+                      }
                     }
                   ]
                 }
@@ -5067,6 +5253,8 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t004",
+              "label": "4",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -5074,7 +5262,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Table 4. Infection rates by location of mosquito collection."
+                        "string": "Infection rates by location of mosquito collection."
                       }
                     }
                   ]
@@ -5196,7 +5384,8 @@ expression: article
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "rowType": "HeaderRow"
                 },
                 {
                   "type": "TableRow",
@@ -5618,12 +5807,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": []
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -5643,12 +5827,31 @@ expression: article
                     },
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": []
-                        }
-                      ]
+                      "content": []
+                    }
+                  ]
+                }
+              ],
+              "notes": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "* Infection rate was shown as per 1,000 mosquitoes."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CI: Confidence Interval."
+                      }
                     }
                   ]
                 }
@@ -6428,7 +6631,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g001"
+                  "target": "#pone.0332245.g001"
                 },
                 {
                   "type": "Text",
@@ -6446,7 +6649,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t001"
+                  "target": "#pone.0332245.t001"
                 },
                 {
                   "type": "Text",
@@ -6508,6 +6711,8 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t001",
+              "label": "1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -6515,7 +6720,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Table 1. Sequences of LAMP primers targeting DENV-2 NS5 region. Primers were designed based on the genome sequences of 40 variations of DENV-2."
+                        "string": "Sequences of LAMP primers targeting DENV-2 NS5 region. Primers were designed based on the genome sequences of 40 variations of DENV-2."
                       }
                     }
                   ]
@@ -6557,7 +6762,8 @@ expression: article
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "rowType": "HeaderRow"
                 },
                 {
                   "type": "TableRow",
@@ -6819,7 +7025,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t001"
+                  "target": "#pone.0332245.t001"
                 },
                 {
                   "type": "Text",
@@ -7074,7 +7280,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g001"
+                  "target": "#pone.0332245.g001"
                 },
                 {
                   "type": "Text",
@@ -7092,7 +7298,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t001"
+                  "target": "#pone.0332245.t001"
                 },
                 {
                   "type": "Text",
@@ -7108,7 +7314,160 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "To evaluate the primer set that was later used for DENV-2 vDNA detection via LAMP, serially diluted DENV-2 RNA (1 × 102, 1 × 101, 1 × 100, 1 × 10−1, 1 × 10−2, 1 × 10−3, and 1 × 10−4 ng) was used as a template. RNAs extracted from the supernatant of infected cultured cells were subjected to the RT-LAMP. In optimized conditions (58°C for 60 min), viral cDNA transcribed from RNA was detected down to 1 × 10−4 ng RNA (equivalent to approximately 1.74 × 104 copies of DENV-2 genome RNA) within 40 min of incubation ("
+                    "string": "To evaluate the primer set that was later used for DENV-2 vDNA detection via LAMP, serially diluted DENV-2 RNA (1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "0"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", and 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ng) was used as a template. RNAs extracted from the supernatant of infected cultured cells were subjected to the RT-LAMP. In optimized conditions (58°C for 60 min), viral cDNA transcribed from RNA was detected down to 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ng RNA (equivalent to approximately 1.74 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " copies of DENV-2 genome RNA) within 40 min of incubation ("
                   }
                 },
                 {
@@ -7121,7 +7480,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g002"
+                  "target": "#pone.0332245.g002"
                 },
                 {
                   "type": "Text",
@@ -7139,12 +7498,29 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g002"
+                  "target": "#pone.0332245.g002"
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). The threshold time of amplification was determined as when turbidity reached greater than 0.05 by RT-LAMP reaction. A fitted curve based on the quantities of RNA and the threshold time was obtained (x: RNA quantity (ng), y: threshold time (min), y = −1.66ln(x)+22.75, R2 = 0.9342), which allows for the estimation of viral RNA quantity from the threshold time obtained in the LAMP reaction ("
+                    "string": "). The threshold time of amplification was determined as when turbidity reached greater than 0.05 by RT-LAMP reaction. A fitted curve based on the quantities of RNA and the threshold time was obtained (x: RNA quantity (ng), y: threshold time (min), y = −1.66ln(x)+22.75, R"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " = 0.9342), which allows for the estimation of viral RNA quantity from the threshold time obtained in the LAMP reaction ("
                   }
                 },
                 {
@@ -7157,7 +7533,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g002"
+                  "target": "#pone.0332245.g002"
                 },
                 {
                   "type": "Text",
@@ -7177,7 +7553,126 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "RNA of DENV-2 (1 × 102, 1 × 101, 1 × 100, 1 × 10−1, 1 × 10−2, 1 × 10−3, and 1 × 10−4 ng) and DENV 1, 3, and 4 were used as a template for RT-LAMP reactions for 60 min at 58°C. Water served as a negative control. (A) Agarose gel electrophoresis of the RT-LAMP amplified products. Numbers on the left indicate migration of the molecular weight marker (bp). (B) (left) Amplification of DENV-2 RNA by RT-LAMP reaction monitored using a real-time turbidimeter. (right) Fitted curve based on quantities of RNA and the threshold time. The threshold time was determined as when turbidity reached greater than 0.05 by RT-LAMP reaction. (C) (left) Agarose gel electrophoresis of RT-LAMP amplified products with genomic RNA of DENV-1, 2, 3, and 4, showing the specificity of the reaction. The reaction mixtures were electrophoresed in a 2% agarose gel. Numbers on the left indicate migration of the molecular weight marker (bp). (right) Specific amplification of DENV-2 RNA monitored using a real-time turbidimeter."
+                        "string": "RNA of DENV-2 (1 × 10"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 1 × 10"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 1 × 10"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "0"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 1 × 10"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "−1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 1 × 10"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "−2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 1 × 10"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "−3"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", and 1 × 10"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "−4"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " ng) and DENV 1, 3, and 4 were used as a template for RT-LAMP reactions for 60 min at 58°C. Water served as a negative control. (A) Agarose gel electrophoresis of the RT-LAMP amplified products. Numbers on the left indicate migration of the molecular weight marker (bp). (B) (left) Amplification of DENV-2 RNA by RT-LAMP reaction monitored using a real-time turbidimeter. (right) Fitted curve based on quantities of RNA and the threshold time. The threshold time was determined as when turbidity reached greater than 0.05 by RT-LAMP reaction. (C) (left) Agarose gel electrophoresis of RT-LAMP amplified products with genomic RNA of DENV-1, 2, 3, and 4, showing the specificity of the reaction. The reaction mixtures were electrophoresed in a 2% agarose gel. Numbers on the left indicate migration of the molecular weight marker (bp). (right) Specific amplification of DENV-2 RNA monitored using a real-time turbidimeter."
                       }
                     }
                   ]
@@ -7217,7 +7712,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g002"
+                  "target": "#pone.0332245.g002"
                 },
                 {
                   "type": "Text",
@@ -7280,7 +7775,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
@@ -7298,7 +7793,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
@@ -7321,7 +7816,24 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "]. The observation that the elevation in turbidity occurred 45 minutes after the initiation of the reaction suggests a relatively limited production of DENV-2 vDNA in these infected cells (equivalent to approximately 2.63 × 102 copies of DENV-2 genome RNA per reaction tube, based on the standard curve of viral RNA quantity and amplification time shown in "
+                    "string": "]. The observation that the elevation in turbidity occurred 45 minutes after the initiation of the reaction suggests a relatively limited production of DENV-2 vDNA in these infected cells (equivalent to approximately 2.63 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " copies of DENV-2 genome RNA per reaction tube, based on the standard curve of viral RNA quantity and amplification time shown in "
                   }
                 },
                 {
@@ -7334,7 +7846,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g002"
+                  "target": "#pone.0332245.g002"
                 },
                 {
                   "type": "Text",
@@ -7380,7 +7892,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
@@ -7398,12 +7910,29 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). The quantity of DENV-2 vDNA generated in the mosquito is estimated to be very low, corresponding to approximately 2.37 × 101 copies of DENV-2 genome RNA/a reaction tube, similar to that observed in the cell ("
+                    "string": "). The quantity of DENV-2 vDNA generated in the mosquito is estimated to be very low, corresponding to approximately 2.37 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " copies of DENV-2 genome RNA/a reaction tube, similar to that observed in the cell ("
                   }
                 },
                 {
@@ -7416,7 +7945,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g002"
+                  "target": "#pone.0332245.g002"
                 },
                 {
                   "type": "Text",
@@ -7434,7 +7963,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
@@ -7467,25 +7996,92 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "The sensitivity of LAMP for detecting DENV-2 vDNA was evaluated and compared with that of quantitative PCR (qPCR), a commonly used viral detection method. C6/36 cells were infected with DENV-2 using a range of MOIs. On day 7 post-infection, cells were harvested for RNA and DNA extraction. Detection of DENV-2 RNA by RT-qPCR was robust up to infected samples at MOI 1 × 10−4; at MOI 1 × 10−5, RNA was detected in two samples and not in one, indicating a detection limit of MOI 1 × 10−5. When the same RNA samples were subjected to RT-LAMP, DENV-2 RNA was detected in all samples at MOI 1 × 10−4 and 2 of 3 at MOI 1 × 10−5 ("
+                    "string": "The sensitivity of LAMP for detecting DENV-2 vDNA was evaluated and compared with that of quantitative PCR (qPCR), a commonly used viral detection method. C6/36 cells were infected with DENV-2 using a range of MOIs. On day 7 post-infection, cells were harvested for RNA and DNA extraction. Detection of DENV-2 RNA by RT-qPCR was robust up to infected samples at MOI 1 × 10"
                   }
                 },
                 {
-                  "type": "Link",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Table 2"
+                        "string": "−4"
                       }
                     }
-                  ],
-                  "target": "pone.0332245.t002"
+                  ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "), indicating that the sensitivity of RT-LAMP was comparable to that of RT-qPCR for detecting DENV-2 RNA. The detection limit of DENV-2 vDNA by LAMP was subsequently examined. vDNA amplified by qPCR exhibited a detection threshold of MOI 1 × 10−3, but LAMP, in contrast, demonstrated the amplification of DENV-2 vDNA in samples up to MOI 1 × 10−4 ("
+                    "string": "; at MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−5"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", RNA was detected in two samples and not in one, indicating a detection limit of MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−5"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". When the same RNA samples were subjected to RT-LAMP, DENV-2 RNA was detected in all samples at MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and 2 of 3 at MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−5"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ("
                   }
                 },
                 {
@@ -7498,7 +8094,59 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t002"
+                  "target": "#pone.0332245.t002"
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), indicating that the sensitivity of RT-LAMP was comparable to that of RT-qPCR for detecting DENV-2 RNA. The detection limit of DENV-2 vDNA by LAMP was subsequently examined. vDNA amplified by qPCR exhibited a detection threshold of MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", but LAMP, in contrast, demonstrated the amplification of DENV-2 vDNA in samples up to MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ("
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 2"
+                      }
+                    }
+                  ],
+                  "target": "#pone.0332245.t002"
                 },
                 {
                   "type": "Text",
@@ -7514,7 +8162,41 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "To determine the timing of DENV-2 vDNA synthesis in mosquito cells, C6/36 cells were infected with DENV-2 at either MOI 1 × 10−4 or MOI 1 × 10−2, the MOI at which infected cells can be harvested alive after a certain number of days ("
+                    "string": "To determine the timing of DENV-2 vDNA synthesis in mosquito cells, C6/36 cells were infected with DENV-2 at either MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " or MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", the MOI at which infected cells can be harvested alive after a certain number of days ("
                   }
                 },
                 {
@@ -7527,12 +8209,46 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g003"
+                  "target": "#pone.0332245.g003"
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). DNA was extracted from the infected cells, which were collected at intervals ranging from 1 to 7 days post-infection (dpi) and subjected to vDNA-LAMP analysis. As a result, in cells infected at MOI 1 × 10−4, DENV-2 vDNA was detected at 7 dpi. On the other hand, in cells infected at MOI 1 × 10−2, vDNA was detected starting from 4 dpi ("
+                    "string": "). DNA was extracted from the infected cells, which were collected at intervals ranging from 1 to 7 days post-infection (dpi) and subjected to vDNA-LAMP analysis. As a result, in cells infected at MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", DENV-2 vDNA was detected at 7 dpi. On the other hand, in cells infected at MOI 1 × 10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "−2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", vDNA was detected starting from 4 dpi ("
                   }
                 },
                 {
@@ -7545,7 +8261,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t003"
+                  "target": "#pone.0332245.t003"
                 },
                 {
                   "type": "Text",
@@ -7554,8 +8270,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.s001",
+                  "type": "Link",
                   "content": [
                     {
                       "type": "Text",
@@ -7563,7 +8278,8 @@ expression: article
                         "string": "S1 Fig"
                       }
                     }
-                  ]
+                  ],
+                  "target": "#pone.0332245.s001"
                 },
                 {
                   "type": "Text",
@@ -7679,7 +8395,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g004"
+                  "target": "#pone.0332245.g004"
                 },
                 {
                   "type": "Text",
@@ -7708,7 +8424,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.g004"
+                  "target": "#pone.0332245.g004"
                 },
                 {
                   "type": "Text",
@@ -7726,7 +8442,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "pone.0332245.t004"
+                  "target": "#pone.0332245.t004"
                 },
                 {
                   "type": "Text",
@@ -7821,7 +8537,7 @@ expression: article
                   }
                 }
               ],
-              "target": "pone.0332245.t002"
+              "target": "#pone.0332245.t002"
             },
             {
               "type": "Text",
@@ -7839,7 +8555,7 @@ expression: article
                   }
                 }
               ],
-              "target": "pone.0332245.t003"
+              "target": "#pone.0332245.t003"
             },
             {
               "type": "Text",
@@ -7907,7 +8623,58 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "In this study, we performed both LAMP and RT-LAMP using a primer set targeting the NS5 region of DENV-2. The primer set was designed with the aim of detecting vDNA in mosquitoes, assuming field collection in both Taiwan and Africa. Using this primer set, RT-LAMP detected RNA corresponding to 1.74 × 104 viral copies; RNA quantities below this threshold were not tested. In contrast, LAMP analysis of vDNA from experimentally infected mosquitoes detected a quantity equivalent to 2.37 × 101 viral copies. This sensitivity is consistent with a previous report demonstrating the detection of DENV-2 RNA at 101 viral copies by RT-LAMP ["
+                "string": "In this study, we performed both LAMP and RT-LAMP using a primer set targeting the NS5 region of DENV-2. The primer set was designed with the aim of detecting vDNA in mosquitoes, assuming field collection in both Taiwan and Africa. Using this primer set, RT-LAMP detected RNA corresponding to 1.74 × 10"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "4"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " viral copies; RNA quantities below this threshold were not tested. In contrast, LAMP analysis of vDNA from experimentally infected mosquitoes detected a quantity equivalent to 2.37 × 10"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " viral copies. This sensitivity is consistent with a previous report demonstrating the detection of DENV-2 RNA at 10"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " viral copies by RT-LAMP ["
               }
             },
             {
@@ -8224,7 +8991,7 @@ expression: article
                   }
                 }
               ],
-              "target": "pone.0332245.g004"
+              "target": "#pone.0332245.g004"
             },
             {
               "type": "Text",
@@ -8278,140 +9045,6 @@ expression: article
               "value": {
                 "string": "This work was supported by The Jikei University Research Grant for the Career Development of Female Researchers with Children (HA), Kurozumi Medical Foundation (HA), The Jikei University Graduate Research Fund (HK), and the Japan Agency for Medical Research and Development, AMED (JP17jm0510002h0003 and JP22wm0225026h0001) (HK). The funding agencies had no role in the design and conduct of the study, collection, management, analysis, interpretation of the data, preparation, review, or approval of the manuscript."
               }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Section",
-      "content": [
-        {
-          "type": "Heading",
-          "level": 1,
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "Associated Data"
-              }
-            }
-          ]
-        },
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Emphasis",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "This section collects any data citations, data availability statements, or supplementary materials included in this article."
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "Section",
-          "sectionType": "SupplementaryMaterials",
-          "content": [
-            {
-              "type": "Heading",
-              "level": 2,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Materials"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "Section",
-          "sectionType": "DataAvailability",
-          "content": [
-            {
-              "type": "Heading",
-              "level": 2,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Data Availability Statement"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Paragraph",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "All relevant data are within the manuscript and its "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "sec020",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Supporting Information"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": " files. In the data for "
-                  }
-                },
-                {
-                  "type": "Link",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Fig 4"
-                      }
-                    }
-                  ],
-                  "target": "pone.0332245.g004"
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": " included in "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "sec020",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Supporting Information"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ", mosquito sample IDs were anonymized. GPS data representing individual households cannot be made publicly available in accordance with the participants’ consent process, in which participants have not given approval to share their households’ GPS location data."
-                  }
-                }
-              ]
             }
           ]
         }
