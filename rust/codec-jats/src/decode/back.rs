@@ -151,6 +151,7 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
             None
         } else {
             Some(Box::new(Reference {
+                work_type: Some(CreativeWorkType::Periodical),
                 title: Some(vec![t(source)]),
                 options: Box::new(ReferenceOptions {
                     // Note that we take() here so they are None of the main reference

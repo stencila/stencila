@@ -1,0 +1,3153 @@
+<?xml version="1.0" ?>
+<!DOCTYPE pmc-articleset PUBLIC "-//NLM//DTD ARTICLE SET 2.0//EN"
+  "https://dtd.nlm.nih.gov/ncbi/pmc/articleset/nlm-articleset-2.0.dtd">
+<pmc-articleset>
+  <article
+    xmlns:mml="http://www.w3.org/1998/Math/MathML"
+    xmlns:ali="http://www.niso.org/schemas/ali/1.0/"
+    xml:lang="en"
+    article-type="research-article"
+    dtd-version="1.4"
+  >
+    <processing-meta
+      base-tagset="archiving"
+      mathml-version="3.0"
+      table-model="xhtml"
+      tagset-family="jats"
+    >
+      <restricted-by>pmc</restricted-by>
+    </processing-meta>
+    <front>
+      <journal-meta>
+        <journal-id journal-id-type="nlm-ta">PLoS One</journal-id>
+        <journal-id journal-id-type="iso-abbrev">PLoS One</journal-id>
+        <journal-id journal-id-type="pmc-domain-id">440</journal-id>
+        <journal-id journal-id-type="pmc-domain">plosone</journal-id>
+        <journal-id journal-id-type="publisher-id">plos</journal-id>
+        <journal-title-group>
+          <journal-title>PLOS One</journal-title>
+        </journal-title-group>
+        <issn pub-type="epub">1932-6203</issn>
+        <publisher>
+          <publisher-name>PLOS</publisher-name>
+        </publisher>
+      </journal-meta>
+      <article-meta>
+        <article-id pub-id-type="pmcid">PMC12431436</article-id>
+        <article-id pub-id-type="pmcid-ver">PMC12431436.1</article-id>
+        <article-id pub-id-type="pmcaid">12431436</article-id>
+        <article-id pub-id-type="pmcaiid">12431436</article-id>
+        <article-id pub-id-type="pmid">40938858</article-id>
+        <article-id pub-id-type="doi">10.1371/journal.pone.0332245</article-id>
+        <article-id pub-id-type="publisher-id">PONE-D-25-22831</article-id>
+        <article-version article-version-type="pmc-version">1</article-version>
+        <article-categories>
+          <subj-group subj-group-type="heading">
+            <subject>Research Article</subject>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Medicine and Health Sciences</subject>
+            <subj-group>
+              <subject>Medical Conditions</subject>
+              <subj-group>
+                <subject>Infectious Diseases</subject>
+                <subj-group>
+                  <subject>Disease Vectors</subject>
+                  <subj-group>
+                    <subject>Insect Vectors</subject>
+                    <subj-group>
+                      <subject>Mosquitoes</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Species Interactions</subject>
+              <subj-group>
+                <subject>Disease Vectors</subject>
+                <subj-group>
+                  <subject>Insect Vectors</subject>
+                  <subj-group>
+                    <subject>Mosquitoes</subject>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Zoology</subject>
+              <subj-group>
+                <subject>Entomology</subject>
+                <subj-group>
+                  <subject>Insects</subject>
+                  <subj-group>
+                    <subject>Mosquitoes</subject>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Organisms</subject>
+              <subj-group>
+                <subject>Eukaryota</subject>
+                <subj-group>
+                  <subject>Animals</subject>
+                  <subj-group>
+                    <subject>Invertebrates</subject>
+                    <subj-group>
+                      <subject>Arthropoda</subject>
+                      <subj-group>
+                        <subject>Insects</subject>
+                        <subj-group>
+                          <subject>Mosquitoes</subject>
+                        </subj-group>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Zoology</subject>
+              <subj-group>
+                <subject>Animals</subject>
+                <subj-group>
+                  <subject>Invertebrates</subject>
+                  <subj-group>
+                    <subject>Arthropoda</subject>
+                    <subj-group>
+                      <subject>Insects</subject>
+                      <subj-group>
+                        <subject>Mosquitoes</subject>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and life sciences</subject>
+            <subj-group>
+              <subject>Organisms</subject>
+              <subj-group>
+                <subject>Viruses</subject>
+                <subj-group>
+                  <subject>RNA viruses</subject>
+                  <subj-group>
+                    <subject>Flaviviruses</subject>
+                    <subj-group>
+                      <subject>Dengue Virus</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Microbiology</subject>
+              <subj-group>
+                <subject>Medical Microbiology</subject>
+                <subj-group>
+                  <subject>Microbial Pathogens</subject>
+                  <subj-group>
+                    <subject>Viral Pathogens</subject>
+                    <subj-group>
+                      <subject>Flaviviruses</subject>
+                      <subj-group>
+                        <subject>Dengue Virus</subject>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Medicine and Health Sciences</subject>
+            <subj-group>
+              <subject>Pathology and Laboratory Medicine</subject>
+              <subj-group>
+                <subject>Pathogens</subject>
+                <subj-group>
+                  <subject>Microbial Pathogens</subject>
+                  <subj-group>
+                    <subject>Viral Pathogens</subject>
+                    <subj-group>
+                      <subject>Flaviviruses</subject>
+                      <subj-group>
+                        <subject>Dengue Virus</subject>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Organisms</subject>
+              <subj-group>
+                <subject>Viruses</subject>
+                <subj-group>
+                  <subject>Viral Pathogens</subject>
+                  <subj-group>
+                    <subject>Flaviviruses</subject>
+                    <subj-group>
+                      <subject>Dengue Virus</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Research and analysis methods</subject>
+            <subj-group>
+              <subject>Extraction techniques</subject>
+              <subj-group>
+                <subject>DNA extraction</subject>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Medicine and Health Sciences</subject>
+            <subj-group>
+              <subject>Medical Conditions</subject>
+              <subj-group>
+                <subject>Infectious Diseases</subject>
+                <subj-group>
+                  <subject>Viral Diseases</subject>
+                  <subj-group>
+                    <subject>Arboviral Infections</subject>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Genetics</subject>
+              <subj-group>
+                <subject>Genomics</subject>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Research and Analysis Methods</subject>
+            <subj-group>
+              <subject>Biological Cultures</subject>
+              <subj-group>
+                <subject>Cell Cultures</subject>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Research and Analysis Methods</subject>
+            <subj-group>
+              <subject>Electrophoretic Techniques</subject>
+              <subj-group>
+                <subject>Gel Electrophoresis</subject>
+                <subj-group>
+                  <subject>Agarose Gel Electrophoresis</subject>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Medicine and Health Sciences</subject>
+            <subj-group>
+              <subject>Medical Conditions</subject>
+              <subj-group>
+                <subject>Infectious Diseases</subject>
+                <subj-group>
+                  <subject>Disease Vectors</subject>
+                  <subj-group>
+                    <subject>Insect Vectors</subject>
+                    <subj-group>
+                      <subject>Mosquitoes</subject>
+                      <subj-group>
+                        <subject>Aedes Aegypti</subject>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Species Interactions</subject>
+              <subj-group>
+                <subject>Disease Vectors</subject>
+                <subj-group>
+                  <subject>Insect Vectors</subject>
+                  <subj-group>
+                    <subject>Mosquitoes</subject>
+                    <subj-group>
+                      <subject>Aedes Aegypti</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Zoology</subject>
+              <subj-group>
+                <subject>Entomology</subject>
+                <subj-group>
+                  <subject>Insects</subject>
+                  <subj-group>
+                    <subject>Mosquitoes</subject>
+                    <subj-group>
+                      <subject>Aedes Aegypti</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Organisms</subject>
+              <subj-group>
+                <subject>Eukaryota</subject>
+                <subj-group>
+                  <subject>Animals</subject>
+                  <subj-group>
+                    <subject>Invertebrates</subject>
+                    <subj-group>
+                      <subject>Arthropoda</subject>
+                      <subj-group>
+                        <subject>Insects</subject>
+                        <subj-group>
+                          <subject>Mosquitoes</subject>
+                          <subj-group>
+                            <subject>Aedes Aegypti</subject>
+                          </subj-group>
+                        </subj-group>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="Discipline-v3">
+            <subject>Biology and Life Sciences</subject>
+            <subj-group>
+              <subject>Zoology</subject>
+              <subj-group>
+                <subject>Animals</subject>
+                <subj-group>
+                  <subject>Invertebrates</subject>
+                  <subj-group>
+                    <subject>Arthropoda</subject>
+                    <subj-group>
+                      <subject>Insects</subject>
+                      <subj-group>
+                        <subject>Mosquitoes</subject>
+                        <subj-group>
+                          <subject>Aedes Aegypti</subject>
+                        </subj-group>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+        </article-categories>
+        <title-group>
+          <article-title
+          >Dissecting the dynamics of virus-derived DNA of dengue virus 2 (DENV-2) in <italic
+            toggle="yes"
+          >Aedes</italic> mosquitoes</article-title>
+          <alt-title
+            alt-title-type="running-head"
+          >Virus-derived DNA of DENV-2 in mosquitoes</alt-title>
+        </title-group>
+        <contrib-group>
+          <contrib contrib-type="author" corresp="yes">
+            <contrib-id
+              authenticated="true"
+              contrib-id-type="orcid"
+            >https://orcid.org/0009-0000-2244-4292</contrib-id>
+            <name name-style="western">
+              <surname>Aonuma</surname>
+              <given-names initials="H">Hiroka</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/conceptualization/"
+            >Conceptualization</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/data-curation/"
+            >Data curation</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/funding-acquisition/"
+            >Funding acquisition</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/investigation/"
+            >Investigation</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/methodology/"
+            >Methodology</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/project-administration/"
+            >Project administration</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/visualization/"
+            >Visualization</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/writing-original-draft/"
+            >Writing &#8211; original draft</role>
+            <xref rid="aff001" ref-type="aff">
+              <sup>1</sup>
+            </xref>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+            <xref rid="cor001" ref-type="corresp">*</xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Sombi&#233;</surname>
+              <given-names initials="A">Aboubacar</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/data-curation/"
+            >Data curation</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <xref rid="aff003" ref-type="aff">
+              <sup>3</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Li</surname>
+              <given-names initials="JC">Jian-Chiuan</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/methodology/"
+            >Methodology</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <xref rid="aff004" ref-type="aff">
+              <sup>4</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Ote</surname>
+              <given-names initials="M">Manabu</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/investigation/"
+            >Investigation</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <xref rid="aff001" ref-type="aff">
+              <sup>1</sup>
+            </xref>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <contrib-id
+              authenticated="true"
+              contrib-id-type="orcid"
+            >https://orcid.org/0000-0003-2844-9582</contrib-id>
+            <name name-style="western">
+              <surname>Saiki</surname>
+              <given-names initials="E">Erisha</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/visualization/"
+            >Visualization</role>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+            <xref rid="aff005" ref-type="aff">
+              <sup>5</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Ichimura</surname>
+              <given-names initials="H">Hidetoshi</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/visualization/"
+            >Visualization</role>
+            <xref rid="aff001" ref-type="aff">
+              <sup>1</sup>
+            </xref>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <contrib-id
+              authenticated="true"
+              contrib-id-type="orcid"
+            >https://orcid.org/0000-0002-5454-6661</contrib-id>
+            <name name-style="western">
+              <surname>Iizuka</surname>
+              <given-names initials="I">Itoe</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <xref rid="aff001" ref-type="aff">
+              <sup>1</sup>
+            </xref>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Odagawa</surname>
+              <given-names initials="T">Taichi</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <xref rid="aff001" ref-type="aff">
+              <sup>1</sup>
+            </xref>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Sakurai</surname>
+              <given-names initials="T">Tatsuya</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+            <xref rid="aff005" ref-type="aff">
+              <sup>5</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Yamaji</surname>
+              <given-names initials="K">Kayoko</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/investigation/"
+            >Investigation</role>
+            <xref rid="aff001" ref-type="aff">
+              <sup>1</sup>
+            </xref>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Saijo</surname>
+              <given-names initials="M">Masayuki</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <xref rid="aff006" ref-type="aff">
+              <sup>6</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Chen</surname>
+              <given-names initials="CH">Chun-Hong</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/resources/"
+            >Resources</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/supervision/"
+            >Supervision</role>
+            <xref rid="aff004" ref-type="aff">
+              <sup>4</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Badolo</surname>
+              <given-names initials="A">Athanase</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/data-curation/"
+            >Data curation</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/supervision/"
+            >Supervision</role>
+            <xref rid="aff003" ref-type="aff">
+              <sup>3</sup>
+            </xref>
+          </contrib>
+          <contrib contrib-type="author" corresp="yes">
+            <contrib-id
+              authenticated="true"
+              contrib-id-type="orcid"
+            >https://orcid.org/0000-0003-0432-6510</contrib-id>
+            <name name-style="western">
+              <surname>Kanuka</surname>
+              <given-names initials="H">Hirotaka</given-names>
+            </name>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/conceptualization/"
+            >Conceptualization</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/funding-acquisition/"
+            >Funding acquisition</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/supervision/"
+            >Supervision</role>
+            <role
+              content-type="http://credit.niso.org/contributor-roles/writing-review-editing/"
+            >Writing &#8211; review &amp; editing</role>
+            <xref rid="aff001" ref-type="aff">
+              <sup>1</sup>
+            </xref>
+            <xref rid="aff002" ref-type="aff">
+              <sup>2</sup>
+            </xref>
+            <xref rid="cor001" ref-type="corresp">*</xref>
+          </contrib>
+        </contrib-group>
+        <aff id="aff001">
+          <label>1</label>
+          <addr-line
+          >Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan</addr-line>
+        </aff>
+        <aff id="aff002">
+          <label>2</label>
+          <addr-line
+          >Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan</addr-line>
+        </aff>
+        <aff id="aff003">
+          <label>3</label>
+          <addr-line
+          >Laboratoire d&#8217;Entomologie Fondamentale et Appliqu&#233;e, Universit&#233; Joseph Ki-Zerbo, Ouagadougou, Burkina Faso</addr-line>
+        </aff>
+        <aff id="aff004">
+          <label>4</label>
+          <addr-line
+          >National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan</addr-line>
+        </aff>
+        <aff id="aff005">
+          <label>5</label>
+          <addr-line
+          >Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan</addr-line>
+        </aff>
+        <aff id="aff006">
+          <label>6</label>
+          <addr-line
+          >Department of Virology 1, National Institute of Infectious Diseases, Tokyo, Japan</addr-line>
+        </aff>
+        <contrib-group>
+          <contrib contrib-type="editor">
+            <name name-style="western">
+              <surname>Liu</surname>
+              <given-names initials="J">Jisheng</given-names>
+            </name>
+            <role>Editor</role>
+            <xref rid="edit1" ref-type="aff" />
+          </contrib>
+        </contrib-group>
+        <aff id="edit1">
+          <addr-line>Guangzhou University, CHINA</addr-line>
+        </aff>
+        <author-notes>
+          <fn fn-type="COI-statement" id="coi001">
+            <p><bold
+            >Competing Interests: </bold>The authors have declared that no competing interests exist.</p>
+          </fn>
+          <corresp id="cor001">* E-mail: <email
+          >aonuma@jikei.ac.jp</email> (HA); <email
+          >kanuka@jikei.ac.jp</email> (HK)</corresp>
+        </author-notes>
+        <pub-date pub-type="epub">
+          <day>12</day>
+          <month>9</month>
+          <year>2025</year>
+        </pub-date>
+        <pub-date pub-type="collection">
+          <year>2025</year>
+        </pub-date>
+        <volume>20</volume>
+        <issue>9</issue>
+        <issue-id pub-id-type="pmc-issue-id">496058</issue-id>
+        <elocation-id>e0332245</elocation-id>
+        <history>
+          <date date-type="received">
+            <day>8</day>
+            <month>5</month>
+            <year>2025</year>
+          </date>
+          <date date-type="accepted">
+            <day>27</day>
+            <month>8</month>
+            <year>2025</year>
+          </date>
+        </history>
+        <pub-history>
+          <event event-type="pmc-release">
+            <date>
+              <day>12</day>
+              <month>09</month>
+              <year>2025</year>
+            </date>
+          </event>
+          <event event-type="pmc-live">
+            <date>
+              <day>13</day>
+              <month>09</month>
+              <year>2025</year>
+            </date>
+          </event>
+          <event event-type="pmc-last-change">
+            <date iso-8601-date="2025-09-13 13:25:28.783">
+              <day>13</day>
+              <month>09</month>
+              <year>2025</year>
+            </date>
+          </event>
+        </pub-history>
+        <permissions>
+          <copyright-statement>&#169; 2025 Aonuma et al</copyright-statement>
+          <copyright-year>2025</copyright-year>
+          <copyright-holder>Aonuma et al</copyright-holder>
+          <license>
+            <ali:license_ref
+              specific-use="textmining"
+              content-type="ccbylicense"
+            >https://creativecommons.org/licenses/by/4.0/</ali:license_ref>
+            <license-p
+            >This is an open access article distributed under the terms of the <ext-link
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              ext-link-type="uri"
+              xlink:href="https://creativecommons.org/licenses/by/4.0/"
+            >Creative Commons Attribution License</ext-link>, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.</license-p>
+          </license>
+        </permissions>
+        <self-uri
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          content-type="pmc-pdf"
+          xlink:href="pone.0332245.pdf"
+        />
+        <self-uri
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          content-type="pdf"
+          xlink:href="pone.0332245.pdf"
+        />
+        <abstract>
+          <p
+          >Dengue is one of the neglected tropical diseases (NTDs) transmitted by <italic
+            toggle="yes"
+          >Aedes</italic> mosquitoes and continues to spread globally. When mosquitoes are infected with dengue virus (DENV), virus-derived DNA (vDNA) is generated in mosquitoes, which subsequently contributes to their immune response. We traced the generation and presence of dengue virus type 2 (DENV-2) vDNA in experimentally infected cultured mosquito cells and <italic
+            toggle="yes"
+          >Aedes</italic> mosquitoes, and notably, in wild mosquitoes collected in Burkina Faso. Detection of vDNA was achieved using a method incorporating loop-mediated isothermal amplification (LAMP), specifically, a LAMP-based vDNA detection method (vDNA-LAMP). The LAMP reaction, using primers targeting a segment of the NS5 region of DENV-2, detected vDNA from crude DNA extracted from experimentally infected cultured cells and <italic
+            toggle="yes"
+          >Aedes</italic> mosquitoes. Detection revealed that the amount of DENV-2 vDNA generated in infected cells was relatively low; nevertheless, vDNA-LAMP enabled successful detection. The timing and quantity of vDNA generation in cultured cells were associated with the initial number of viral particles introduced during infection. Furthermore, vDNA-LAMP was applied to detect dengue virus vDNA in wild mosquitoes in dengue-endemic regions. This resulted in the successful detection of DENV-2 vDNA in field-collected mosquitoes, indicating that a proportion of wild mosquitoes in Burkina Faso harbored DENV-2 vDNA. Mapping these vDNA-positive mosquitoes allowed the identification of areas where infected mosquitoes and/or their progeny were likely present. These findings provide insights into the dynamics of DENV-2 vDNA in natural environments and underscore the potential of vDNA-LAMP as a tool for tracing vDNA in wild mosquitoes, which are responsible for transmitting viral infections.</p>
+        </abstract>
+        <funding-group>
+          <award-group id="award001">
+            <funding-source>
+              <institution-wrap>
+                <institution-id
+                  institution-id-type="funder-id"
+                >http://dx.doi.org/10.13039/100009619</institution-id>
+                <institution
+                >Japan Agency for Medical Research and Development</institution>
+              </institution-wrap>
+            </funding-source>
+            <award-id>JP17jm0510002h0003</award-id>
+            <principal-award-recipient>
+              <contrib-id
+                authenticated="true"
+                contrib-id-type="orcid"
+              >https://orcid.org/0000-0003-0432-6510</contrib-id>
+              <name name-style="western">
+                <surname>Kanuka</surname>
+                <given-names>Hirotaka</given-names>
+              </name>
+            </principal-award-recipient>
+          </award-group>
+          <award-group id="award002">
+            <funding-source>
+              <institution-wrap>
+                <institution-id
+                  institution-id-type="funder-id"
+                >http://dx.doi.org/10.13039/100009619</institution-id>
+                <institution
+                >Japan Agency for Medical Research and Development</institution>
+              </institution-wrap>
+            </funding-source>
+            <award-id>JP22wm0225026h0001</award-id>
+            <principal-award-recipient>
+              <contrib-id
+                authenticated="true"
+                contrib-id-type="orcid"
+              >https://orcid.org/0000-0003-0432-6510</contrib-id>
+              <name name-style="western">
+                <surname>Kanuka</surname>
+                <given-names>Hirotaka</given-names>
+              </name>
+            </principal-award-recipient>
+          </award-group>
+          <award-group id="award003">
+            <funding-source>
+              <institution>Jikei University</institution>
+            </funding-source>
+            <award-id
+            >Jikei University Research Grant for the Career Development of Female Researchers with Children</award-id>
+            <principal-award-recipient>
+              <contrib-id
+                authenticated="true"
+                contrib-id-type="orcid"
+              >https://orcid.org/0009-0000-2244-4292</contrib-id>
+              <name name-style="western">
+                <surname>Aonuma</surname>
+                <given-names>Hiroka</given-names>
+              </name>
+            </principal-award-recipient>
+          </award-group>
+          <award-group id="award004">
+            <funding-source>
+              <institution-wrap>
+                <institution-id
+                  institution-id-type="funder-id"
+                >http://dx.doi.org/10.13039/501100008660</institution-id>
+                <institution>Kurozumi Medical Foundation</institution>
+              </institution-wrap>
+            </funding-source>
+            <award-id>NA</award-id>
+            <principal-award-recipient>
+              <contrib-id
+                authenticated="true"
+                contrib-id-type="orcid"
+              >https://orcid.org/0009-0000-2244-4292</contrib-id>
+              <name name-style="western">
+                <surname>Aonuma</surname>
+                <given-names>Hiroka</given-names>
+              </name>
+            </principal-award-recipient>
+          </award-group>
+          <award-group id="award005">
+            <funding-source>
+              <institution>Jikei University</institution>
+            </funding-source>
+            <award-id>The Jikei University Graduate Research Fund</award-id>
+            <principal-award-recipient>
+              <contrib-id
+                authenticated="true"
+                contrib-id-type="orcid"
+              >https://orcid.org/0000-0003-0432-6510</contrib-id>
+              <name name-style="western">
+                <surname>Kanuka</surname>
+                <given-names>Hirotaka</given-names>
+              </name>
+            </principal-award-recipient>
+          </award-group>
+          <funding-statement
+          >This work was supported by The Jikei University Research Grant for the Career Development of Female Researchers with Children (HA), Kurozumi Medical Foundation (HA), The Jikei University Graduate Research Fund (HK), and the Japan Agency for Medical Research and Development, AMED (JP17jm0510002h0003 and JP22wm0225026h0001) (HK). The funding agencies had no role in the design and conduct of the study, collection, management, analysis, interpretation of the data, preparation, review, or approval of the manuscript.</funding-statement>
+        </funding-group>
+        <counts>
+          <fig-count count="4" />
+          <table-count count="4" />
+          <page-count count="16" />
+        </counts>
+        <custom-meta-group>
+          <custom-meta>
+            <meta-name>pmc-status-qastatus</meta-name>
+            <meta-value>0</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-live</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-embargo</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-released</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-open-access</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-olf</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-manuscript</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-legally-suppressed</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-has-pdf</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-has-supplement</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-pdf-only</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-suppress-copyright</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-is-real-version</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-is-scanned-article</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-preprint</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-in-epmc</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta id="data-availability">
+            <meta-name>Data Availability</meta-name>
+            <meta-value
+            >All relevant data are within the manuscript and its <xref
+              rid="sec020"
+              ref-type="sec"
+            >Supporting Information</xref> files. In the data for <xref
+              rid="pone.0332245.g004"
+              ref-type="fig"
+            >Fig 4</xref> included in <xref
+              rid="sec020"
+              ref-type="sec"
+            >Supporting Information</xref>, mosquito sample IDs were anonymized. GPS data representing individual households cannot be made publicly available in accordance with the participants&#8217; consent process, in which participants have not given approval to share their households&#8217; GPS location data.</meta-value>
+          </custom-meta>
+        </custom-meta-group>
+      </article-meta>
+      <notes>
+        <title>Data Availability</title>
+        <p>All relevant data are within the manuscript and its <xref
+          rid="sec020"
+          ref-type="sec"
+        >Supporting Information</xref> files. In the data for <xref
+          rid="pone.0332245.g004"
+          ref-type="fig"
+        >Fig 4</xref> included in <xref
+          rid="sec020"
+          ref-type="sec"
+        >Supporting Information</xref>, mosquito sample IDs were anonymized. GPS data representing individual households cannot be made publicly available in accordance with the participants&#8217; consent process, in which participants have not given approval to share their households&#8217; GPS location data.</p>
+      </notes>
+    </front>
+    <body>
+      <sec sec-type="intro" id="sec001">
+        <title>Introduction</title>
+        <p
+        >Arthropod-borne viruses (arboviruses) including dengue, yellow fever, chikungunya, and Zika viruses, pose public health threats in tropical and subtropical locations [<xref
+          rid="pone.0332245.ref001"
+          ref-type="bibr"
+        >1</xref>&#8211;<xref
+          rid="pone.0332245.ref004"
+          ref-type="bibr"
+        >4</xref>]. Dengue is a mosquito-borne disease caused by dengue virus (DENV) and is primarily transmitted by <italic
+          toggle="yes"
+        >Aedes aegypti</italic> and, to a lesser extent, by <italic
+          toggle="yes"
+        >Aedes albopictus</italic> [<xref
+          rid="pone.0332245.ref005"
+          ref-type="bibr"
+        >5</xref>]. There are four DENV serotypes (DENV-1, DENV-2, DENV-3, and DENV-4), each exhibiting distinct epidemiological patterns [<xref
+          rid="pone.0332245.ref006"
+          ref-type="bibr"
+        >6</xref>]. Dengue is endemic in over 100 countries, and multiple DENV serotypes often co-circulate within the same regions [<xref
+          rid="pone.0332245.ref001"
+          ref-type="bibr"
+        >1</xref>]. A study on the prevalence of dengue estimated that 3.9 billion people are at risk of infection [<xref
+          rid="pone.0332245.ref007"
+          ref-type="bibr"
+        >7</xref>]. In 2023, the number of dengue cases reached an all-time high, affecting more than 80 countries [<xref
+          rid="pone.0332245.ref008"
+          ref-type="bibr"
+        >8</xref>]. Persistent transmission, coupled with an unexpected surge in cases, led to a historic peak of more than 6.5 million cases and more than 7,300 dengue-related deaths [<xref
+          rid="pone.0332245.ref001"
+          ref-type="bibr"
+        >1</xref>].</p>
+        <p
+        >When insects are infected with RNA viruses, virus-derived DNA (vDNA) is generated within their bodies [<xref
+          rid="pone.0332245.ref009"
+          ref-type="bibr"
+        >9</xref>&#8211;<xref
+          rid="pone.0332245.ref012"
+          ref-type="bibr"
+        >12</xref>]. DNA form of RNA viruses have been shown to be generated by endogenous reverse transcriptase activity in insect cells [<xref
+          rid="pone.0332245.ref009"
+          ref-type="bibr"
+        >9</xref>,<xref
+          rid="pone.0332245.ref012"
+          ref-type="bibr"
+        >12</xref>]. vDNA enhances the RNAi-mediated antiviral immune response by regulating the number of viruses within the mosquito, thereby enabling the mosquito to survive while retaining the virus [<xref
+          rid="pone.0332245.ref012"
+          ref-type="bibr"
+        >12</xref>]. Recently, vertical transfer of vDNA from experimentally infected female <italic
+          toggle="yes"
+        >Aedes</italic> mosquitoes to their offspring was demonstrated [<xref
+          rid="pone.0332245.ref013"
+          ref-type="bibr"
+        >13</xref>]. The production of vDNA in experimentally infected mosquitoes suggests that vDNA is present also among naturally infected wild mosquitoes and their offspring, either as a trace of viral infection or a result of vertical transfer in wild populations.</p>
+        <p
+        >To investigate the presence of vDNA in wild mosquito, a sensitive and reliable detection method is essential. Such a method allow for monitoring of vDNA in field-collected mosquitoes, providing insight into natural infections in mosquito populations. Various diagnostic approaches has been employed to detect DENV, including nucleic acid amplification techniques, Immunoassays, and CRISPR-based assays [<xref
+          rid="pone.0332245.ref014"
+          ref-type="bibr"
+        >14</xref>]. Loop-mediated isothermal amplification (LAMP) is a molecular diagnostic method that offers rapid results, isothermal reaction conditions, and high sensitivity [<xref
+          rid="pone.0332245.ref015"
+          ref-type="bibr"
+        >15</xref>]. LAMP uses 4&#8211;6 primers, and the reaction proceeds at constant temperature using <italic
+          toggle="yes"
+        >Bst</italic> polymerase [<xref
+          rid="pone.0332245.ref016"
+          ref-type="bibr"
+        >16</xref>]. Due to the characteristics of <italic
+          toggle="yes"
+        >Bst</italic> polymerase, LAMP exhibits higher sensitivity, comparable to or even surpassing that of qPCR [<xref
+          rid="pone.0332245.ref015"
+          ref-type="bibr"
+        >15</xref>,<xref
+          rid="pone.0332245.ref017"
+          ref-type="bibr"
+        >17</xref>]. LAMP has been widely applied to detect pathogens with DNA genomes such as parasites and bacteria [<xref
+          rid="pone.0332245.ref018"
+          ref-type="bibr"
+        >18</xref>,<xref
+          rid="pone.0332245.ref019"
+          ref-type="bibr"
+        >19</xref>]. In addition, reverse-transcription (RT)-LAMP, which incorporates transcriptase into the reaction, has been increasingly used for detecting RNA pathogens such as viruses [<xref
+          rid="pone.0332245.ref017"
+          ref-type="bibr"
+        >17</xref>,<xref
+          rid="pone.0332245.ref018"
+          ref-type="bibr"
+        >18</xref>,<xref
+          rid="pone.0332245.ref020"
+          ref-type="bibr"
+        >20</xref>]. The genomic DNA of parasites (filaria and malaria parasites) in mosquitoes has been detected using LAMP [<xref
+          rid="pone.0332245.ref021"
+          ref-type="bibr"
+        >21</xref>,<xref
+          rid="pone.0332245.ref022"
+          ref-type="bibr"
+        >22</xref>]. These findings suggest that LAMP is a feasible method for detecting and tracing vDNA in virus-infected mosquitoes. Moreover, since the amount of vDNA is expected to be lower than that of viral RNA [<xref
+          rid="pone.0332245.ref010"
+          ref-type="bibr"
+        >10</xref>], LAMP is anticipated to facilitate gaining insight into the dynamics of vDNA. Indeed, LAMP has been successfully used to detect Zika virus vDNA in infected <italic
+          toggle="yes"
+        >Aedes</italic> mosquitoes [<xref
+          rid="pone.0332245.ref023"
+          ref-type="bibr"
+        >23</xref>].</p>
+        <p
+        >This study provides a comprehensive examination of vDNA generation in cultured cells and mosquitoes experimentally infected with DENV-2. Notably, detection of vDNA in wild mosquitoes underscores its potential as a molecular target for vector surveillance.</p>
+      </sec>
+      <sec sec-type="materials|methods" id="sec002">
+        <title>Materials and methods</title>
+        <sec id="sec003">
+          <title>Ethics statement</title>
+          <p
+          >The mouse blood used in this study was purchased directly from BioLASCO Taiwan Co., Ltd. (<ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="http://www.biolasco.com.tw"
+            ext-link-type="uri"
+          >http://www.biolasco.com.tw</ext-link>). The company acts in accordance with the Guide for the Care and Use of Laboratory Animals, the regulations on live vertebral animal experiments, and the ARRIVE guidelines. Mosquito collection in households was approved by the National Ethical Research Committee of the Ministry of Health, Burkina Faso (No. 2017-9-146 of 12/09/2017). Signed informed consent was obtained from all householders included in the study before starting the field collection.</p>
+        </sec>
+        <sec id="sec004">
+          <title>Cell culture and virus infection</title>
+          <p
+          >Dengue virus type 2 (DENV-2), D2/Hu/OPD030NIID/2005 (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="LC111438"
+          >LC111438</ext-link>), was used in this study. Other dengue serotypes used were as follows: dengue virus type 1 (DENV-1) (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="AB178040.1"
+          >AB178040.1</ext-link>), dengue virus type 3 (DENV-3) CH53489 (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ863638.1"
+          >DQ863638.1</ext-link>), and dengue virus type 4 (DENV-4) isolate TVP/360 (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="KU513442.1"
+          >KU513442.1</ext-link>). DENVs were passaged in Vero cells (ATCC) to generate virus stocks. <italic
+            toggle="yes"
+          >Ae. albopictus</italic> C6/36 cells were infected with DENVs to obtain total DNA from infected cells. Vero cells were cultured in D-MEM (high glucose) (Fujifilm Wako Pure Chemical) supplemented with 10% fetal bovine serum (FBS), and penicillin-streptomycin. C6/36 cells were cultured in E-MEM (Sigma) supplemented with 10% FBS, MEM Non-Essential Amino Acids Solution (Thermo Fisher Scientific Inc.), and penicillin-streptomycin. C6/36 cells were seeded in culture flasks and incubated at 28&#176;C before infection with DENVs. For vDNA detection, C6/36 cells were infected at a multiplicity of infection (MOI) of 10 or that indicated in the Results section. The infected cells were incubated at 28&#176;C.</p>
+        </sec>
+        <sec id="sec005">
+          <title>Mosquito rearing and virus infection</title>
+          <p>A natural vector species that can transmit DENV, <italic
+            toggle="yes"
+          >Ae. aegypti</italic> mosquito (the Higgs strain) was used in this study. Mosquito larvae were reared at 28&#176;C. The larvae were fed on a mixture of yeast powder (Taiwan Sugar Corporation) and goose liver powder (#7573, NTN) in a 1:1 ratio or food for Koi fish (Hikari; Kyorin Co. Ltd., Japan). Adults were maintained on a diet of 10% sucrose solution in a constant temperature and humidity-controlled room (28&#176;C and ~70% relative humidity) with a 12-hour light/dark cycle. DENV strains used for oral infection were as follows: DENV-1 Myanmar 3886201 strain (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="AY726550.1"
+          >AY726550.1</ext-link>), DENV-2 New Guinea-C strain (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="M29095.1"
+          >M29095.1</ext-link>), DENV-3 98TW503 strain (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ675531.1"
+          >DQ675531.1</ext-link>), and DENV-4 H241 strain (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="AY947539.1"
+          >AY947539.1</ext-link>). A solution containing each virus strain (2&#8201;&#215;&#8201;10<sup
+          >7</sup> PFU/ml) was mixed 1:1 with mouse blood and fed to female mosquitoes via a membrane-covered metal plate at 37&#176;C for 30 minutes. Blood-engorged mosquitoes were maintained at 28&#176;C for 10 days post-infection by feeding with sugar solution. These mosquitoes were killed, dried at room temperature for 12 hours, pooled by 10 mosquitoes in a tube, and stored at &#8722;20&#176;C until DNA extraction.</p>
+        </sec>
+        <sec id="sec006">
+          <title>RNA extraction and cDNA synthesis</title>
+          <p
+          >For the reverse transcription (RT)-LAMP experiment to determine the sensitivity and serotype specificity, viral RNAs were extracted from viral stocks using High Pure Viral Nucleic Acid Kit (Roche Ltd.), according to the manufacturer&#8217;s instructions, except for Proteinase K treatment. Extracted RNAs were used directly for RT-LAMP reactions. To prepare positive control DNA, cDNA was synthesized from DENV RNA as follows: 1 &#956;g of extracted RNA dissolved in 8.5 &#956;l of RNase-free water was incubated with a reaction mixture (3 &#956;l of 40 &#956;M Random Primers (Thermo Fisher Scientific Inc.), 6 &#956;l of 5&#8201;&#215;&#8201;First-Strand Buffer (Thermo Fisher Scientific Inc.), 1.9 &#956;l of 0.1 M DTT (Thermo Fisher Scientific Inc.), and 7.5 &#956;l of dNTP Mixture (Takara Bio Inc.)) at 65&#176;C for 5&#8201;min. Then, 0.6 &#956;l of RNase inhibitor (Promega Co.) and 0.5 &#956;l of M-MLV reverse transcriptase (Thermo Fisher Scientific Inc.) were added to the reaction mixture and incubated at 37&#176;C for 90 minutes. For reverse transcription (RT)-qPCR and RT-LAMP to compare the sensitivity of each detection method (<xref
+            rid="pone.0332245.t003"
+            ref-type="table"
+          >Table 3</xref>), viral RNA was isolated from cells using RNAiso Plus (#9108, TaKaRa) in accordance with the manufacturer&#8217;s instructions. cDNAs were synthesized from 4 &#956;l of RNA solution using M-MLV Reverse Transcriptase (#28025013, Thermo Fisher Scientific Inc.) and 0.5 &#181;M of a specific reverse primer (ACC ATT CCA TTT TCT GGC GTT) with a reaction volume of 10 &#956;l. Synthesized cDNA was used for the qPCR reaction.</p>
+          <table-wrap
+            position="float"
+            id="pone.0332245.t003"
+            orientation="portrait"
+          >
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.t003</object-id>
+            <label>Table 3</label>
+            <caption>
+              <title
+              >vDNA detection by LAMP in C6/36 cells at each day post-infection of DENV-2.</title>
+            </caption>
+            <alternatives>
+              <graphic
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                id="pone.0332245.t003g"
+                position="float"
+                orientation="portrait"
+                xlink:href="pone.0332245.t003.jpg"
+              />
+              <table frame="hsides" rules="groups">
+                <colgroup span="1">
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th align="left" rowspan="1" colspan="1" />
+                    <th align="left" colspan="2" rowspan="1">MOI of DENV-2</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">dpi</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;4</sup></td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;2</sup></td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">1</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">2</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">3</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">4</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+ &#8211; &#8211;</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">5</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+ &#8211; &#8211;</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">6</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+ &#8211; &#8211;</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">7</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+ &#8211; &#8211;</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+ &#8211; &#8211;</td>
+                  </tr>
+                </tbody>
+              </table>
+            </alternatives>
+            <table-wrap-foot>
+              <fn id="t003fn001">
+                <p
+                >The number of symbols [+ and &#8211;]: the number of samples examined.&#8201;+&#8201;: detected, &#8211;: not detected. dpi: days post-infection. MOI: multiplicity of infection.</p>
+              </fn>
+            </table-wrap-foot>
+          </table-wrap>
+        </sec>
+        <sec id="sec007">
+          <title>DNA extraction</title>
+          <p
+          >DNA was extracted from DENV-infected cultured cells and mosquitoes as follows. Cells or mosquitoes were homogenized with a plastic homogenizer in 100 &#956;l of Buffer A (0.1 M Tris (pH 9.0), 0.1 M EDTA, 1% SDS, and 0.5% DEPC) and incubated at 70&#176;C for 30 minutes. Subsequently, the homogenate was mixed with 22.4 &#956;l of 5 M KOAc and incubated for 30 minutes on ice. The supernatant was collected by centrifugation at 20,400&#8201;&#215;&#8201;g for 15&#8201;min at 4&#176;C and mixed with 45 &#956;l of isopropanol. Precipitated DNA was collected after centrifugation at 20,400&#8201;&#215;&#8201;g for 20&#8201;min at 4&#176;C, rinsed with 70% ethanol, and dried. Each DNA pellet was dissolved and diluted with TE to adjust the concentration so that 1 &#956;l of solution contained DNA from 1&#8201;&#215;&#8201;10<sup
+          >4</sup> (<xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >Fig 3B</xref>) or 3.2&#8201;&#215;&#8201;10<sup>3</sup> (<xref
+            rid="pone.0332245.t002"
+            ref-type="table"
+          >Table 2</xref>, <xref
+            rid="pone.0332245.t003"
+            ref-type="table"
+          >Table 3</xref>) infected cultured cells counted at the seeding, one five-hundredth of each virus-infected mosquito pool (<xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >Fig 3C</xref>), or one-fiftieth of each wild mosquito pool (<xref
+            rid="pone.0332245.g004"
+            ref-type="fig"
+          >Fig 4</xref> and <xref
+            rid="pone.0332245.t004"
+            ref-type="table"
+          >Table 4</xref>). One microliter of each DNA solution was used as a template for the LAMP reaction.</p>
+          <table-wrap
+            position="float"
+            id="pone.0332245.t002"
+            orientation="portrait"
+          >
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.t002</object-id>
+            <label>Table 2</label>
+            <caption>
+              <title
+              >Sensitivity of LAMP and qPCR in detecting DENV-2 RNA and vDNA.</title>
+            </caption>
+            <alternatives>
+              <graphic
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                id="pone.0332245.t002g"
+                position="float"
+                orientation="portrait"
+                xlink:href="pone.0332245.t002.jpg"
+              />
+              <table frame="hsides" rules="groups">
+                <colgroup span="1">
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th align="left" rowspan="1" colspan="1" />
+                    <th align="left" colspan="2" rowspan="1">RNA</th>
+                    <th align="left" colspan="2" rowspan="1">vDNA</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">MOI of DENV-2</td>
+                    <td align="left" rowspan="1" colspan="1">RT-qPCR</td>
+                    <td align="left" rowspan="1" colspan="1">RT-LAMP</td>
+                    <td align="left" rowspan="1" colspan="1">qPCR</td>
+                    <td align="left" rowspan="1" colspan="1">LAMP</td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;1</sup></td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;&#8211;</td>
+                    <td align="left" rowspan="1" colspan="1">+ + (+)</td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;2</sup></td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+ &#8211; &#8211;</td>
+                    <td align="left" rowspan="1" colspan="1">+ + (+)</td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;3</sup></td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;&#8211;</td>
+                    <td align="left" rowspan="1" colspan="1">+ + (+)</td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;4</sup></td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;+</td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;5</sup></td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;&#8211;</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >+&#8201;+&#8201;&#8211;</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;6</sup></td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >(+) &#8211; &#8211;</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >(+) &#8211; &#8211;</td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;7</sup></td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >(+) &#8211; &#8211;</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >1&#8201;&#215;&#8201;10<sup>&#8722;8</sup></td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >(+) &#8211; &#8211;</td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                    <td align="left" rowspan="1" colspan="1">
+                      &#8211; &#8211; &#8211;
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </alternatives>
+            <table-wrap-foot>
+              <fn id="t002fn001">
+                <p
+                >The number of symbols [+, (+), and &#8211;]: the number of samples examined.&#8201;+&#8201;: detected in all three repeated reactions per one sample, (+): detected only once or twice in three repeated reactions per one sample, &#8211;: not detected in three repeated reactions per one sample. MOI: multiplicity of infection.</p>
+              </fn>
+            </table-wrap-foot>
+          </table-wrap>
+          <table-wrap
+            position="float"
+            id="pone.0332245.t004"
+            orientation="portrait"
+          >
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.t004</object-id>
+            <label>Table 4</label>
+            <caption>
+              <title>Infection rates by location of mosquito collection.</title>
+            </caption>
+            <alternatives>
+              <graphic
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                id="pone.0332245.t004g"
+                position="float"
+                orientation="portrait"
+                xlink:href="pone.0332245.t004.jpg"
+              />
+              <table frame="hsides" rules="groups">
+                <colgroup span="1">
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >Location of collection</th>
+                    <th align="left" rowspan="1" colspan="1">Houses</th>
+                    <th align="left" rowspan="1" colspan="1">Mosquitoes</th>
+                    <th align="left" rowspan="1" colspan="1">Pools</th>
+                    <th align="left" rowspan="1" colspan="1">Pool size</th>
+                    <th align="left" rowspan="1" colspan="1">Positive pools</th>
+                    <th
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >Infection rate* (95%CI)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">1200 logements</td>
+                    <td align="left" rowspan="1" colspan="1">70</td>
+                    <td align="left" rowspan="1" colspan="1">228</td>
+                    <td align="left" rowspan="1" colspan="1">112</td>
+                    <td align="left" rowspan="1" colspan="1">1-13</td>
+                    <td align="left" rowspan="1" colspan="1">6</td>
+                    <td align="left" rowspan="1" colspan="1">26.52<break
+                    /> (11.06&#8211;53.82)</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">Tabtenga</td>
+                    <td align="left" rowspan="1" colspan="1">61</td>
+                    <td align="left" rowspan="1" colspan="1">139</td>
+                    <td align="left" rowspan="1" colspan="1">95</td>
+                    <td align="left" rowspan="1" colspan="1">1-10</td>
+                    <td align="left" rowspan="1" colspan="1">5</td>
+                    <td align="left" rowspan="1" colspan="1">36.18<break
+                    /> (13.70&#8211;77.61)</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">Goundry</td>
+                    <td align="left" rowspan="1" colspan="1">13</td>
+                    <td align="left" rowspan="1" colspan="1">30</td>
+                    <td align="left" rowspan="1" colspan="1">19</td>
+                    <td align="left" rowspan="1" colspan="1">1-5</td>
+                    <td align="left" rowspan="1" colspan="1">1</td>
+                    <td align="left" rowspan="1" colspan="1">33.24<break
+                    /> (1.94&#8211;150.42)</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">Total</td>
+                    <td align="left" rowspan="1" colspan="1">144</td>
+                    <td align="left" rowspan="1" colspan="1">397</td>
+                    <td align="left" rowspan="1" colspan="1">226</td>
+                    <td align="left" rowspan="1" colspan="1" />
+                    <td align="left" rowspan="1" colspan="1">12</td>
+                    <td align="left" rowspan="1" colspan="1" />
+                  </tr>
+                </tbody>
+              </table>
+            </alternatives>
+            <table-wrap-foot>
+              <fn id="t004fn001">
+                <p>* Infection rate was shown as per 1,000 mosquitoes.</p>
+              </fn>
+              <fn id="t004fn002">
+                <p>CI: Confidence Interval.</p>
+              </fn>
+            </table-wrap-foot>
+          </table-wrap>
+          <fig position="float" id="pone.0332245.g001" orientation="portrait">
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.g001</object-id>
+            <label>Fig 1</label>
+            <caption>
+              <title
+              >Schematic diagram of the DENV-2 RNA genome with LAMP primer positions for amplifying vDNA.</title>
+              <p
+              >(A) DENV-2 vDNA is generated from genomic RNA using endogenous RTase activity in mosquito cells. A set of arrows (brown) indicates the region of vDNA used as the target for the LAMP reaction. (B) Partial sequence of DENV-2 (GenBank: <ext-link
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                ext-link-type="pmc:entrez-nucleotide"
+                xlink:href="LC111438"
+              >LC111438</ext-link>) with primer binding sites.</p>
+            </caption>
+            <graphic
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              position="float"
+              orientation="portrait"
+              xlink:href="pone.0332245.g001.jpg"
+            />
+          </fig>
+          <fig position="float" id="pone.0332245.g002" orientation="portrait">
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.g002</object-id>
+            <label>Fig 2</label>
+            <caption>
+              <title
+              >Sensitivity and serotype specificity of RT-LAMP for detecting DENV-2 genomic RNA.</title>
+              <p>RNA of DENV-2 (1&#8201;&#215;&#8201;10<sup
+              >2</sup>, 1&#8201;&#215;&#8201;10<sup
+              >1</sup>, 1&#8201;&#215;&#8201;10<sup
+              >0</sup>, 1&#8201;&#215;&#8201;10<sup
+              >&#8722;1</sup>, 1&#8201;&#215;&#8201;10<sup
+              >&#8722;2</sup>, 1&#8201;&#215;&#8201;10<sup
+              >&#8722;3</sup>, and 1&#8201;&#215;&#8201;10<sup
+              >&#8722;4</sup> ng) and DENV 1, 3, and 4 were used as a template for RT-LAMP reactions for 60&#8201;min at 58&#176;C. Water served as a negative control. (A) Agarose gel electrophoresis of the RT-LAMP amplified products. Numbers on the left indicate migration of the molecular weight marker (bp). (B) (left) Amplification of DENV-2 RNA by RT-LAMP reaction monitored using a real-time turbidimeter. (right) Fitted curve based on quantities of RNA and the threshold time. The threshold time was determined as when turbidity reached greater than 0.05 by RT-LAMP reaction. (C) (left) Agarose gel electrophoresis of RT-LAMP amplified products with genomic RNA of DENV-1, 2, 3, and 4, showing the specificity of the reaction. The reaction mixtures were electrophoresed in a 2% agarose gel. Numbers on the left indicate migration of the molecular weight marker (bp). (right) Specific amplification of DENV-2 RNA monitored using a real-time turbidimeter.</p>
+            </caption>
+            <graphic
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              position="float"
+              orientation="portrait"
+              xlink:href="pone.0332245.g002.jpg"
+            />
+          </fig>
+          <fig position="float" id="pone.0332245.g003" orientation="portrait">
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.g003</object-id>
+            <label>Fig 3</label>
+            <caption>
+              <title
+              >Detection of DENV-2 vDNA produced in mosquito cultured cells.</title>
+              <p
+              >(A) Scheme for preparing DENV-infected culture cells and mosquitoes for vDNA detection. Ten infected mosquitoes were pooled in each group and subjected to DNA extraction. One-fiftieth of the extracted DNA per group was used as the template for the LAMP reaction. dpi, days post- infection. (B) DENV-2 vDNA production in infected cells and detection using the LAMP reaction. (left) The reaction mixtures were electrophoresed on a 2% agarose gel. Numbers on the left indicate migration of the molecular weight marker (bp). (right) Amplification of vDNA in infected cells monitored using a real-time turbidimeter. (C) vDNA of DENV-2 in infected mosquitoes was specifically detected using LAMP. (left) Amplified products were electrophoresed in 2% agarose gels. DENV-2 cDNA was used as the positive control. Water served as a negative control. Numbers on the left indicate migration of molecular weight marker (bp). (right) Amplification of vDNA in infected mosquitoes monitored using a real-time turbidimeter. DENV-2 cDNA was used as a positive control.</p>
+            </caption>
+            <graphic
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              position="float"
+              orientation="portrait"
+              xlink:href="pone.0332245.g003.jpg"
+            />
+          </fig>
+          <fig position="float" id="pone.0332245.g004" orientation="portrait">
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.g004</object-id>
+            <label>Fig 4</label>
+            <caption>
+              <title
+              >DENV-2 vDNA detection in wild mosquitoes collected in endemic locations.</title>
+              <p
+              >(A) Location of mosquito collection sites showing the capital city Ouagadougou (gray circled) and the study localities (colored squares) in Burkina Faso. (B) Spatial distribution of the households where mosquitoes were collected in three localities. Blue dots indicate households where mosquitoes were collected. Red dots indicate where DENV-2 vDNA was detected from the mosquitoes. Street map (left), aerial map (right). Plots on maps were created using LeafletR and OpenStreetMap (openstreetmap.org). Map data &#169; OpenStreetMap contributors. Imagery &#169; Esri, Maxar, Earthstar Geographics, and the GIS User Community.</p>
+            </caption>
+            <graphic
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              position="float"
+              orientation="portrait"
+              xlink:href="pone.0332245.g004.jpg"
+            />
+          </fig>
+        </sec>
+        <sec id="sec008">
+          <title>LAMP primer design</title>
+          <p
+          >The LAMP primer set was designed based on information from 40 variations of DENV-2 full genome sequences (25 from Taiwan and 15 from African countries). All these sequences (GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="AJ968413.1"
+          >AJ968413.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="AY776328.1"
+          >AY776328.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645540.1"
+          >DQ645540.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645541.1"
+          >DQ645541.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645542.1"
+          >DQ645542.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645543.1"
+          >DQ645543.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645544.1"
+          >DQ645544.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645545.1"
+          >DQ645545.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645546.1"
+          >DQ645546.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645547.1"
+          >DQ645547.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645548.1"
+          >DQ645548.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645549.1"
+          >DQ645549.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645550.1"
+          >DQ645550.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645551.1"
+          >DQ645551.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645552.1"
+          >DQ645552.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645553.1"
+          >DQ645553.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645554.1"
+          >DQ645554.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645555.1"
+          >DQ645555.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="DQ645556.1"
+          >DQ645556.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="KU365901.1"
+          >KU365901.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="KU365902.1"
+          >KU365902.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="KU365903.1"
+          >KU365903.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="KJ734727.1"
+          >KJ734727.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="HQ891023.1"
+          >HQ891023.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="HQ891024.1"
+          >HQ891024.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="GU131843.1"
+          >GU131843.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="KY627763.1"
+          >KY627763.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="KY627762.1"
+          >KY627762.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EU056810.1"
+          >EU056810.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105389.1"
+          >EF105389.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105390.1"
+          >EF105390.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105382.1"
+          >EF105382.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105386.1"
+          >EF105386.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105385.1"
+          >EF105385.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF457904.1"
+          >EF457904.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105384.1"
+          >EF105384.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105387.1"
+          >EF105387.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EU003591.1"
+          >EU003591.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105388.1"
+          >EF105388.1</ext-link>, <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="EF105378.1"
+          >EF105378.1</ext-link>) were aligned as cDNA, and regions with high homology among those sequences were selected. Candidate sequences appropriate for primer design were determined using PrimerExplorer V5 (Fujitsu Ltd.). Several primer sets were designed and subject to RT-LAMP detecting RNA of a DENV-2 strain (D2/Hu/OPD030NIID/2005, GenBank: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="pmc:entrez-nucleotide"
+            xlink:href="LC111438.1"
+          >LC111438.1</ext-link>). One of the primer sets that amplified a smaller amount of template in a shorter time was selected and used in this study (<xref
+            rid="pone.0332245.g001"
+            ref-type="fig"
+          >Fig 1</xref> and <xref
+            rid="pone.0332245.t001"
+            ref-type="table"
+          >Table 1</xref>). The reaction temperature for the primer set was optimized to be 58&#176;C and used in the subsequent experiments.</p>
+          <table-wrap
+            position="float"
+            id="pone.0332245.t001"
+            orientation="portrait"
+          >
+            <object-id
+              pub-id-type="doi"
+            >10.1371/journal.pone.0332245.t001</object-id>
+            <label>Table 1</label>
+            <caption>
+              <title
+              >Sequences of LAMP primers targeting DENV-2 NS5 region. Primers were designed based on the genome sequences of 40 variations of DENV-2.</title>
+            </caption>
+            <alternatives>
+              <graphic
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                id="pone.0332245.t001g"
+                position="float"
+                orientation="portrait"
+                xlink:href="pone.0332245.t001.jpg"
+              />
+              <table frame="hsides" rules="groups">
+                <colgroup span="1">
+                  <col align="left" valign="middle" span="1" />
+                  <col align="left" valign="middle" span="1" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th align="left" rowspan="1" colspan="1">Primer</th>
+                    <th
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >Sequence (5&#8217;&#8201;&#8594;&#8201;3&#8217;)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">F3</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >CATAGGGGAGTCGTCACC</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">B3</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >TTGGATACCCAGTACATCTC</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">FIP (F1c-F2)</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >CAAAATTGGATGTTGTTGTTCAACCTAGAAGCAGGACGAACACT</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">BIP (B1c-B2)</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >ATGCCCTCAGTCATAGAAAAAATGGAGTTTCGTGAGAGTGGATT</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">LF</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >TTTTCCACTAAGTTGAGGACTCTG</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="1" colspan="1">LB</td>
+                    <td
+                      align="left"
+                      rowspan="1"
+                      colspan="1"
+                    >AAGCACTACAAAGGAAATATGGAGG</td>
+                  </tr>
+                </tbody>
+              </table>
+            </alternatives>
+          </table-wrap>
+        </sec>
+        <sec id="sec009">
+          <title>LAMP reaction</title>
+          <p
+          >LAMP and RT-LAMP reactions were performed using a DNA Amplification Kit and an RNA Amplification Kit, respectively, in accordance with the manufacturer&#8217;s instructions (Eiken Chemical Co., Ltd.), except that half the default volume was used for the reaction. Each reaction was performed in a total volume of 12.5 &#956;l reaction mixture containing 20 pmol of each FIP and BIP primer, 2.5 pmol of each F3 and B3 primer, 10 pmol of each Loop F and Loop B primer, and 6.25 &#956;l 2&#8201;&#215;&#8201;reaction mixture (<xref
+            rid="pone.0332245.t001"
+            ref-type="table"
+          >Table 1</xref>). For DNA amplification, 1 &#956;l extracted DNA solution and 0.5 &#956;l <italic
+            toggle="yes"
+          >Bst</italic> DNA polymerase were added to the reaction mixture. For the RT-LAMP experiment to determine the sensitivity and serotype specificity, 2.5 &#956;l extracted RNA solution and 0.5 &#956;l enzyme mix (<italic
+            toggle="yes"
+          >Bst</italic> DNA polymerase and AMV reverse transcriptase) were added to the reaction mixture. For RT-LAMP to compare the sensitivity of each detection method, 4 &#181;l of RNA solution was used. Each reaction mixture was incubated at 58&#176;C for 60&#8201;min or 90&#8201;min and terminated by incubation at 80&#176;C for 5&#8201;min using a Loopamp Realtime Turbidimeter (LoopampEXIA, Eiken Chemical Co., Ltd.). Amplified reaction products were examined by electrophoresis in 2% agarose gels. The gels were stained with ethidium bromide and visualized under UV light.</p>
+        </sec>
+        <sec id="sec010">
+          <title>Quantitative PCR</title>
+          <p
+          >The qPCR reactions were performed with 2 &#956;l of the cDNA obtained or DNA extracted from infected cells, which was combined with TaqMan Fast Advanced Master Mix (#4444557, Thermo Fisher Scientific Inc.), 900&#8201;nM of the forward primer (GAR AGA CCA GAG ATC CTG CTG TCT), and 250&#8201;nM of the MGB probe (FAM-AGC ATC ATT CCA GGC AC) in a reaction volume of 20 &#956;l [<xref
+            rid="pone.0332245.ref024"
+            ref-type="bibr"
+          >24</xref>]. The qPCR reactions were performed using a StepOnePlus PCR system (Thermo Fisher Scientific Inc.) with the following cycling conditions: 2&#8201;min at 50&#176;C and 20&#8201;s at 95&#176;C, followed by 40 cycles of 1&#8201;s at 95&#176;C and 20&#8201;s at 60&#176;C. The probe and all primers were purchased from a commercial company (Integrated DNA Technologies Inc.). The same primers and probe were used for the qPCR analysis of DNA samples.</p>
+        </sec>
+        <sec id="sec011">
+          <title>Mosquito collection</title>
+          <p
+          >Wild mosquitoes were collected in or near Ouagadougou, the capital of Burkina Faso, an endemic location for DENV-2. Mosquito collections were conducted between August 15 and November 1, 2017. Three collection sites were established in 3 villages, 1200 logements (12&#8201; &#176;22&#8217;N, 1 &#176;29&#8217;W), Tabtenga (12&#8201; &#176;22&#8217;N, 1 &#176;27&#8217;W), and Goundry (12&#8201; &#176;30&#8217;N, 1 &#176;20&#8217;W), selected for differences in ecological characteristics, human population size, and housing type. Consent forms were obtained from households in each village. Mosquitoes were collected inside and outside the houses of approximately 1,000 households by aspiration. The collected mosquitoes were killed and transported to the laboratory of Universit&#233; Joseph Ki-Zerbo, Ouagadougou, Burkina Faso, in a dry, ambient-temperature environment. Mosquitoes were identified to the species level using a microscope at room temperature, and each mosquito pool was assigned an ID number. The mosquitoes were then stored at &#8722;30&#176;C. The locations of households where mosquitoes were collected were recorded based on Global Positioning System (GPS) data. Households where mosquitoes were collected and the households from which positive mosquitoes were obtained were plotted on maps using Leaflet 1.7.1 [<xref
+            rid="pone.0332245.ref025"
+            ref-type="bibr"
+          >25</xref>] and OpenStreetMap data (openstreetmap.org). The base map was generated using OpenStreetMap data (&#169; OpenStreetMap contributors) and Esri World Imagery (&#169; Esri, Maxar, Earthstar Geographics, and the GIS User Community). Contains information from OpenStreetMap and OpenStreetMap Foundation, which is made available under the Open Database License (<ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://www.openstreetmap.org/copyright"
+            ext-link-type="uri"
+          >https://www.openstreetmap.org/copyright</ext-link>).</p>
+        </sec>
+        <sec id="sec012">
+          <title>Statistical analysis</title>
+          <p
+          >The infection rate (IR) of mosquitoes was estimated using PooledInfRate version 4.0 (CDC) [<xref
+            rid="pone.0332245.ref026"
+            ref-type="bibr"
+          >26</xref>]. The number of individuals and positive/negative vDNA-LAMP results for each pool were entered into the worksheet. The output included the bias-corrected maximum likelihood estimate (MLE) and 95% skewness-corrected score confidence interval. The IR was expressed as the number of infections per 1,000 individuals.</p>
+        </sec>
+      </sec>
+      <sec sec-type="results" id="sec013">
+        <title>Results</title>
+        <sec id="sec014">
+          <title
+          >RT-LAMP-based validation of primers detecting DENV-2 cDNA</title>
+          <p
+          >In this study, DENV-2, responsible for an outbreak in Burkina Faso in 2017, was selected as the target of vDNA-LAMP among the four DENV serotypes. In evaluating primer sets to detect DENV-2 vDNA, we employed the conventional RT-LAMP method since RT-LAMP involves making cDNA using reverse transcriptase, and cDNA can be considered a surrogate for vDNA. At first, the genome sequences of forty DENV-2 strains reported from dengue-endemic countries were aligned, and several genomic regions of high homology were focused on designing LAMP primer sets. Multiple primer sets targeting different regions of the DENV-2 genome were designed and screened. Among these, the primer set targeting the NS5 region yielded the most favorable results in terms of sensitivity and amplification efficiency across a range of reaction temperatures and RNA concentrations (<xref
+            rid="pone.0332245.g001"
+            ref-type="fig"
+          >Fig 1</xref> and <xref
+            rid="pone.0332245.t001"
+            ref-type="table"
+          >Table 1</xref>). Based on these findings, the reaction conditions for this primer set were subsequently optimized.</p>
+          <p
+          >To evaluate the primer set that was later used for DENV-2 vDNA detection via LAMP, serially diluted DENV-2 RNA (1&#8201;&#215;&#8201;10<sup
+          >2</sup>, 1&#8201;&#215;&#8201;10<sup
+          >1</sup>, 1&#8201;&#215;&#8201;10<sup
+          >0</sup>, 1&#8201;&#215;&#8201;10<sup
+          >&#8722;1</sup>, 1&#8201;&#215;&#8201;10<sup
+          >&#8722;2</sup>, 1&#8201;&#215;&#8201;10<sup
+          >&#8722;3</sup>, and 1&#8201;&#215;&#8201;10<sup
+          >&#8722;4</sup> ng) was used as a template. RNAs extracted from the supernatant of infected cultured cells were subjected to the RT-LAMP. In optimized conditions (58&#176;C for 60&#8201;min), viral cDNA transcribed from RNA was detected down to 1&#8201;&#215;&#8201;10<sup
+          >&#8722;4</sup> ng RNA (equivalent to approximately 1.74&#8201;&#215;&#8201;10<sup
+          >4</sup> copies of DENV-2 genome RNA) within 40&#8201;min of incubation (<xref
+            rid="pone.0332245.g002"
+            ref-type="fig"
+          >Fig 2A</xref>). Similar results were also confirmed by measuring white turbidity caused by magnesium pyrophosphate, a by-product of amplification (<xref
+            rid="pone.0332245.g002"
+            ref-type="fig"
+          >Fig 2B</xref>). The threshold time of amplification was determined as when turbidity reached greater than 0.05 by RT-LAMP reaction. A fitted curve based on the quantities of RNA and the threshold time was obtained (x: RNA quantity (ng), y: threshold time (min), y&#8201;=&#8201;&#8722;1.66ln(x)+22.75, R<sup
+          >2</sup>&#8201;=&#8201;0.9342), which allows for the estimation of viral RNA quantity from the threshold time obtained in the LAMP reaction (<xref
+            rid="pone.0332245.g002"
+            ref-type="fig"
+          >Fig 2B</xref>).</p>
+          <p
+          >The specificity of the primer set detecting DENV-2 was then evaluated by the ability to distinguish between the RNAs of the other three DENVs. Viral RNAs extracted from DENV types 1&#8211;4 were used to test the specificity of the LAMP reaction. Amplification reactions were performed using equal amounts of each RNA as the template by RT-LAMP with the DENV-2-specific primer set. Only DENV-2 was amplified, but not DENV-1, 3, or 4, as determined by real-time turbidimetry and electrophoresis (<xref
+            rid="pone.0332245.g002"
+            ref-type="fig"
+          >Fig 2C</xref>). These demonstrated that a primer set suitable for detection of the DENV-2 cDNA has been obtained, which is applicable for vDNA-LAMP assay detecting DENV-2 vDNA.</p>
+        </sec>
+        <sec id="sec015">
+          <title
+          >LAMP detection of vDNA in DENV-2-infected cells and mosquitoes</title>
+          <p
+          >To examine whether DENV-2 vDNA can be detected by LAMP reaction using the validated primer set, a mosquito cell line was used. C6/36 cells (<italic
+            toggle="yes"
+          >Aedes albopictus</italic> clone) were infected with DENV-2 at MOI 10 followed by extracting DNA, not RNA, from the infected cells 6 days post-infection (<xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >Fig 3A</xref>). Each DNA sample was used as a template to detect intracellular DENV-2 vDNA by LAMP reaction. As a result, DENV-2 vDNA was detected specifically from infected cells (<xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >Fig 3B</xref>), consistent with previously reported results [<xref
+            rid="pone.0332245.ref006"
+            ref-type="bibr"
+          >6</xref>]. The observation that the elevation in turbidity occurred 45 minutes after the initiation of the reaction suggests a relatively limited production of DENV-2 vDNA in these infected cells (equivalent to approximately 2.63&#8201;&#215;&#8201;10<sup
+          >2</sup> copies of DENV-2 genome RNA per reaction tube, based on the standard curve of viral RNA quantity and amplification time shown in <xref
+            rid="pone.0332245.g002"
+            ref-type="fig"
+          >Fig 2B</xref>).</p>
+          <p
+          >Next, the production of vDNA in experimentally infected mosquitoes was examined using the vDNA-LAMP method. The serotype-specificity of DENV-2 vDNA-LAMP was also evaluated using four DENV serotypes. Female <italic
+            toggle="yes"
+          >Aedes aegypti</italic> were orally infected with each DENV type 1&#8211;4 through artificial membrane feeding of infected blood. At 10 days post-infection, the mosquitoes were killed, dried, and subjected to DNA extraction and LAMP reaction (<xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >Fig 3A</xref>). As a result, only mosquitoes from the DENV-2 infected group were identified as positive by the DENV-2 vDNA-LAMP reaction (<xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >Fig 3C</xref>). The quantity of DENV-2 vDNA generated in the mosquito is estimated to be very low, corresponding to approximately 2.37&#8201;&#215;&#8201;10<sup
+          >1</sup> copies of DENV-2 genome RNA/a reaction tube, similar to that observed in the cell (<xref
+            rid="pone.0332245.g002"
+            ref-type="fig"
+          >Figs 2B</xref> and <xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >3C</xref>). These data demonstrated that DENV-2 vDNA is generated in infected mosquitoes and can be amplified by the LAMP reaction.</p>
+        </sec>
+        <sec id="sec016">
+          <title>Comparison of LAMP and qPCR for DENV-2 vDNA detection</title>
+          <p
+          >The sensitivity of LAMP for detecting DENV-2 vDNA was evaluated and compared with that of quantitative PCR (qPCR), a commonly used viral detection method. C6/36 cells were infected with DENV-2 using a range of MOIs. On day 7 post-infection, cells were harvested for RNA and DNA extraction. Detection of DENV-2 RNA by RT-qPCR was robust up to infected samples at MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;4</sup>; at MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;5</sup>, RNA was detected in two samples and not in one, indicating a detection limit of MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;5</sup>. When the same RNA samples were subjected to RT-LAMP, DENV-2 RNA was detected in all samples at MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;4</sup> and 2 of 3 at MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;5</sup> (<xref
+            rid="pone.0332245.t002"
+            ref-type="table"
+          >Table 2</xref>), indicating that the sensitivity of RT-LAMP was comparable to that of RT-qPCR for detecting DENV-2 RNA. The detection limit of DENV-2 vDNA by LAMP was subsequently examined. vDNA amplified by qPCR exhibited a detection threshold of MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;3</sup>, but LAMP, in contrast, demonstrated the amplification of DENV-2 vDNA in samples up to MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;4</sup> (<xref
+            rid="pone.0332245.t002"
+            ref-type="table"
+          >Table 2</xref>). These results indicate that LAMP is comparable to or more sensitive than qPCR for DENV-2 vDNA detection. RNA tends to be more readily detectable than vDNA in the type of template applied to LAMP.</p>
+          <p
+          >To determine the timing of DENV-2 vDNA synthesis in mosquito cells, C6/36 cells were infected with DENV-2 at either MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;4</sup> or MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;2</sup>, the MOI at which infected cells can be harvested alive after a certain number of days (<xref
+            rid="pone.0332245.g003"
+            ref-type="fig"
+          >Fig 3A</xref>). DNA was extracted from the infected cells, which were collected at intervals ranging from 1 to 7 days post-infection (dpi) and subjected to vDNA-LAMP analysis. As a result, in cells infected at MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;4</sup>, DENV-2 vDNA was detected at 7 dpi. On the other hand, in cells infected at MOI 1&#8201;&#215;&#8201;10<sup
+          >&#8722;2</sup>, vDNA was detected starting from 4 dpi (<xref
+            rid="pone.0332245.t003"
+            ref-type="table"
+          >Table 3</xref> and <xref
+            rid="pone.0332245.s001"
+            ref-type="supplementary-material"
+          >S1 Fig</xref>). These data suggested that vDNA becomes detectable a few days after infection, correlating with the escalation of intracellular virus above a certain level.</p>
+        </sec>
+        <sec id="sec017">
+          <title>LAMP detection of DENV-2 vDNA in wild mosquitoes</title>
+          <p
+          >Finally, we investigated whether DENV-2 vDNA is present and detectable in wild mosquitoes collected in dengue-endemic areas. Burkina Faso, a landlocked country in West Africa, is one of the most dengue-endemic countries on the African continent, notably marked by a severe outbreak in the capital city of Ouagadougou in 2017, wherein over 10,000 cases were reported [<xref
+            rid="pone.0332245.ref027"
+            ref-type="bibr"
+          >27</xref>]. Within this region, the <italic
+            toggle="yes"
+          >Aedes aegypti</italic> mosquito emerged as the primary vector for the dengue virus, exhibiting a preference for human hosts [<xref
+            rid="pone.0332245.ref028"
+            ref-type="bibr"
+          >28</xref>]. In this study, wild <italic
+            toggle="yes"
+          >Aedes</italic> mosquitoes were collected inside and outside the houses of consenting households in three distinct locations (urban, suburban, and rural) in or near Ouagadougou (<xref
+            rid="pone.0332245.g004"
+            ref-type="fig"
+          >Fig 4A</xref>). In total, 397 mosquitoes were divided into 226 pools by household, with some pools corresponding to the same household. DNA, not RNA, was extracted from dead, desiccated mosquitoes and was subjected to DENV-2 vDNA-LAMP.</p>
+          <p
+          >As a result, amplified vDNA sequences were detected in 12 pools, suggesting the presence of dengue virus-infected mosquitoes within the mosquito populations collected from 12 out of the 144 households. The locations of infected mosquitoes within each location were identified by plotting the residences where mosquitoes were collected. Those where infected mosquitoes were identified using GPS (<xref
+            rid="pone.0332245.g004"
+            ref-type="fig"
+          >Fig 4B</xref>). The vDNA-based DENV-2 mosquito infection rates (per 1,000 mosquitoes) were estimated for urban (1200 logements), suburban (Tabtenga), and rural (Goundry) locations, yielding rates of 26.52 (95%CI&#8201;=&#8201;11.06&#8211;53.82), 36.18 (95%CI&#8201;=&#8201;13.70&#8211;77.61), and 33.24 (95%CI&#8201;=&#8201;1.94&#8211;150.42), respectively (<xref
+            rid="pone.0332245.t004"
+            ref-type="table"
+          >Table 4</xref>). To the best of our knowledge, this marks the first evidence of arbovirus vDNA detection in wild mosquitoes. These findings indicated locations where mosquitoes infected with DENV-2 are prevalent, may be posing an elevated risk of transmission to humans.</p>
+        </sec>
+      </sec>
+      <sec sec-type="conclusions" id="sec018">
+        <title>Discussion</title>
+        <p
+        >In this study, DENV-2 vDNA was detected in cultured cells, experimentally infected mosquitoes, and, notably, in naturally infected wild mosquitoes, using LAMP, a highly sensitive technique for tracking vDNA generated in their bodies. The most significant finding is that, similar to laboratory-reared mosquitoes, wild mosquitoes also generate vDNA of an arbovirus after infection. These wild mosquitoes are suspected to have either fed on infected blood in their natural environment or acquired the virus and/or vDNA vertically from their parent mosquitoes.</p>
+        <p>vDNA was first discovered in <italic
+          toggle="yes"
+        >Drosophila</italic> infected with the Flock House virus [<xref
+          rid="pone.0332245.ref009"
+          ref-type="bibr"
+        >9</xref>], and its generation has since been observed in other insect species. Information about from when vDNA is generated and can be detected after viral infection is crucial for understanding the dynamics of vDNA. In this study, mosquito cells were infected with DENV-2 at two different MOIs, followed by the subsequent identification of vDNA post-infection to elucidate the temporal dynamics of vDNA synthesis within mosquito cells. The results suggested an association between the vDNA detection in mosquito cells at specific time points and the initial number of viral particles introduced during infection. It is predicted that the timing of vDNA production in vector mosquitoes also depends on the viral load ingested through infected blood. However, notable variations in vDNA detection were observed among cells harvested on the same day post-infection (<xref
+          rid="pone.0332245.t002"
+          ref-type="table"
+        >Table 2</xref> and <xref
+          rid="pone.0332245.t003"
+          ref-type="table"
+        >Table 3</xref>). These results suggest potential heterogeneity in the timing, quantity, and spatial distribution of vDNA generation, even among cells or mosquitoes infected in similar conditions. This is similar to the significant variability observed among individuals in the degree of antiviral protection of offspring of virus-infected <italic
+          toggle="yes"
+        >Drosophila</italic> and <italic
+          toggle="yes"
+        >Aedes</italic> mosquitoes [<xref
+          rid="pone.0332245.ref029"
+          ref-type="bibr"
+        >29</xref>]. Comparative analysis of viral RNA and vDNA revealed that the quantity of vDNA generated in cells is minute, approximately two orders of magnitude lower than that of viral RNA.</p>
+        <p
+        >In this study, we performed both LAMP and RT-LAMP using a primer set targeting the NS5 region of DENV-2. The primer set was designed with the aim of detecting vDNA in mosquitoes, assuming field collection in both Taiwan and Africa. Using this primer set, RT-LAMP detected RNA corresponding to 1.74&#8201;&#215;&#8201;10<sup
+        >4</sup> viral copies; RNA quantities below this threshold were not tested. In contrast, LAMP analysis of vDNA from experimentally infected mosquitoes detected a quantity equivalent to 2.37&#8201;&#215;&#8201;10<sup
+        >1</sup> viral copies. This sensitivity is consistent with a previous report demonstrating the detection of DENV-2 RNA at 10<sup
+        >1</sup> viral copies by RT-LAMP [<xref
+          rid="pone.0332245.ref017"
+          ref-type="bibr"
+        >17</xref>]. Primer sets designed for broad detection of diverse variant sequences are often limited by the designable region, which may result in reduced sensitivity [<xref
+          rid="pone.0332245.ref030"
+          ref-type="bibr"
+        >30</xref>&#8211;<xref
+          rid="pone.0332245.ref032"
+          ref-type="bibr"
+        >32</xref>]. Primer design focused on specific variants may help further enhance sensitivity [<xref
+          rid="pone.0332245.ref032"
+          ref-type="bibr"
+        >32</xref>].</p>
+        <p
+        >It is anticipated that specific regions within the viral genome serve as hotspots for producing vDNA, implying a targeted synthesis of vDNA in these areas. In this study, we employed a primer set designed for detecting the NS5 region based on its sensitivity. To comprehensively track vDNA production across various regions of the virus&#8217;s genome, additional analyses using primer sets specific to other regions are needed. Concurrently, employing qPCR and the LAMP technique to detect and compare vDNA production across distinct regions enables the identification and analysis of hotspots for vDNA production.</p>
+        <p
+        >When using cultured cells, this study limited the follow-up of infected cells to day 7 due to the impact on cell viability. Considering the survival period during which mosquitoes engage in blood-feeding and their ability to transmit the virus, it is expected that viral replication continues within the mosquito body beyond the seventh day of infection, leading to increased vDNA production. Longitudinally tracking infected mosquitoes and detecting vDNA within their bodies would provide important information for estimating the temporal dynamics of vDNA production in wild mosquitoes.</p>
+        <p
+        >Detection of DENV-2 vDNA in certain wild mosquitoes collected in Burkina Faso demonstrated the presence of vDNA in natural settings. Amplification was observed only in a limited number of mosquito pools collected in Burkina Faso, rather than broadly across all mosquitoes. This indicates that the viral sequence targeted by the primers is unlikely to have been integrated into the mosquito genome, but rather produced in a mosquito after they had infected with DENV-2, at least in the study area. Furthermore, the locations where the mosquitoes were collected facilitated the identification of sites where DENV-2 vDNA-positive mosquitoes were distributed. This information was used to determine the infection rate of mosquitoes at each location. Though the infection rate observed in our study was relatively low, DENV infection among wild mosquitoes in Burkina Faso has generally been reported to be low. This aligns with previous data obtained using the qRT-PCR method [<xref
+          rid="pone.0332245.ref033"
+          ref-type="bibr"
+        >33</xref>]. However, it is essential to note that, as previously discussed, the estimated vDNA amount in infected mosquitoes is considerably lower than that of viral RNA. Infection rates determined based on vDNA detection are likely to be underestimated, suggesting that the actual infection rate in mosquitoes is substantially higher. In other words, the positive detection of vDNA indicated the existence of more infected mosquitoes, implying a significantly higher actual infection rate.</p>
+        <p
+        >Based on previous reports of mosquito surveys and the findings obtained in this study, it is evident that the direct detection of viral RNA stands out as the most sensitive and reliable method for virus detection in mosquitoes. Accordingly, viral RNA detection has been employed as the standard approach in mosquito virus surveillance [<xref
+          rid="pone.0332245.ref034"
+          ref-type="bibr"
+        >34</xref>,<xref
+          rid="pone.0332245.ref035"
+          ref-type="bibr"
+        >35</xref>]. On the other hand, it is important to emphasize that the wild mosquitoes collected and used in this study were preserved in a deceased and desiccated state. Consequently, vDNA-based detection represents a survey method that is not affected by the preservation conditions of collected mosquitoes. This feature proves advantageous for practical survey efforts in endemic locations where the handling of RNA is logistically challenging. Moreover, the vDNA-LAMP method facilitates the amplification of target vDNA in isothermal conditions, eliminating the need for costly equipment. This method is anticipated to streamline the process of mosquito monitoring in areas endemic to arbovirus-borne diseases.</p>
+        <p
+        >This study has limitations that need to be addressed in future investigation. Whether mosquitoes harboring vDNA actually contain the virus in their saliva and can subsequently establish infections was not examined in this study. Therefore, the detection of vDNA alone does not imply that the mosquito is capable of transmitting infectious viruses. In other words, mosquitoes in which vDNA was detected in this study have ingested the virus and consequently generated vDNA, but this only indicates traces of infection or result of vertical transfer, rather than current infectivity or transmission capacity. It is important to note that vDNA serves as a marker of viral presence in the area rather than a definitive indicator of a mosquito&#8217;s current capacity to transmit the virus. Further study is needed to clarify the relationship between vDNA production in individual mosquitoes, the presence of infectious virus in their saliva, and their vector competence.</p>
+      </sec>
+      <sec sec-type="conclusions" id="sec019">
+        <title>Conclusions</title>
+        <p
+        >In this study, we investigated the dynamics of dengue virus vDNA by analyzing both experimentally infected mosquitoes and wild populations from dengue-endemic regions. Our results confirmed the presence of vDNA in wild mosquitoes under natural conditions, suggesting its potential circulation in the environment. By mapping vDNA-positive mosquitoes, we identified key areas where infected mosquitoes and/or their progeny were likely to persist. These findings provide critical insights into the transmission dynamics of mosquito-borne viruses and offer valuable information to guide future vector control strategies.</p>
+      </sec>
+      <sec id="sec020" sec-type="supplementary-material">
+        <title>Supporting information</title>
+        <supplementary-material
+          id="pone.0332245.s001"
+          position="float"
+          content-type="local-data"
+          orientation="portrait"
+        >
+          <label>S1 Fig</label>
+          <caption>
+            <title
+            >Agarose gel electrophoresis of LAMP products corresponding to Table 3.</title>
+            <p>(PDF)</p>
+          </caption>
+          <media
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="pone.0332245.s001.pdf"
+            position="float"
+            orientation="portrait"
+          />
+        </supplementary-material>
+        <supplementary-material
+          id="pone.0332245.s002"
+          position="float"
+          content-type="local-data"
+          orientation="portrait"
+        >
+          <label>S1 Raw Images</label>
+          <caption>
+            <title
+            >Original blot and gel images contained in the manuscript&#8217;s figures.</title>
+            <p>(PDF)</p>
+          </caption>
+          <media
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="pone.0332245.s002.pdf"
+            position="float"
+            orientation="portrait"
+          />
+        </supplementary-material>
+        <supplementary-material
+          id="pone.0332245.s003"
+          position="float"
+          content-type="local-data"
+          orientation="portrait"
+        >
+          <label>S2 Data</label>
+          <caption>
+            <title
+            >Excel file containing the raw data used to generate all figures and tables in the manuscript.</title>
+            <p>(XLSX)</p>
+          </caption>
+          <media
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="pone.0332245.s003.xlsx"
+            position="float"
+            orientation="portrait"
+          />
+        </supplementary-material>
+      </sec>
+    </body>
+    <back>
+      <ack>
+        <p
+        >We thank all the members of the Kanuka laboratory for their assistance and advice. In particular, Chisako Sakuma for mosquito rearing.</p>
+      </ack>
+      <ref-list>
+        <title>References</title>
+        <ref id="pone.0332245.ref001">
+          <label>1</label>
+          <mixed-citation
+            publication-type="other"
+          >World Health Organization, fact sheet Dengue and severe dengue, 2024 April 23 [Cited 2025 Jul 24]. Available from: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue"
+            ext-link-type="uri"
+          >https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue</ext-link></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref002">
+          <label>2</label>
+          <mixed-citation
+            publication-type="other"
+          >World Health Organization, fact sheet Yellow fever, 2023 May 31 [Cited 2025 Jul 24]. Available from: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://www.who.int/news-room/fact-sheets/detail/yellow-fever"
+            ext-link-type="uri"
+          >https://www.who.int/news-room/fact-sheets/detail/yellow-fever</ext-link></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref003">
+          <label>3</label>
+          <mixed-citation
+            publication-type="other"
+          >World Health Organization, fact sheet Chikungunya, 2025 April 14 [Cited 2025 Jul 24]. Available from: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://www.who.int/news-room/fact-sheets/detail/chikungunya"
+            ext-link-type="uri"
+          >https://www.who.int/news-room/fact-sheets/detail/chikungunya</ext-link></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref004">
+          <label>4</label>
+          <mixed-citation
+            publication-type="other"
+          >World Health Organization, fact sheet Zika virus, 2022 December 8 [Cited 2025 Jul 24]. Available from: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://www.who.int/news-room/fact-sheets/zika-virus"
+            ext-link-type="uri"
+          >https://www.who.int/news-room/fact-sheets/zika-virus</ext-link></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref005">
+          <label>5</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Whitehorn</surname>
+            <given-names>J</given-names>
+          </name>, <name name-style="western">
+            <surname>Kien</surname>
+            <given-names>DTH</given-names>
+          </name>, <name name-style="western">
+            <surname>Nguyen</surname>
+            <given-names>NM</given-names>
+          </name>, <name name-style="western">
+            <surname>Nguyen</surname>
+            <given-names>HL</given-names>
+          </name>, <name name-style="western">
+            <surname>Kyrylos</surname>
+            <given-names>PP</given-names>
+          </name>, <name name-style="western">
+            <surname>Carrington</surname>
+            <given-names>LB</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Comparative Susceptibility of Aedes albopictus and Aedes aegypti to Dengue Virus Infection After Feeding on Blood of Viremic Humans: Implications for Public Health</article-title>. <source
+          >J Infect Dis</source>. <year>2015</year>;<volume>212</volume>(<issue
+          >8</issue>):<fpage>1182</fpage>&#8211;<lpage>90</lpage>. <comment
+          >doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1093/infdis/jiv173</pub-id><pub-id
+            pub-id-type="pmid"
+          >25784733</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC4577038</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref006">
+          <label>6</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Togami</surname>
+            <given-names>E</given-names>
+          </name>, <name name-style="western">
+            <surname>Chiew</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Lowbridge</surname>
+            <given-names>C</given-names>
+          </name>, <name name-style="western">
+            <surname>Biaukula</surname>
+            <given-names>V</given-names>
+          </name>, <name name-style="western">
+            <surname>Bell</surname>
+            <given-names>L</given-names>
+          </name>, <name name-style="western">
+            <surname>Yajima</surname>
+            <given-names>A</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Epidemiology of dengue reported in the World Health Organization&#8217;s Western Pacific Region, 2013-2019</article-title>. <source
+          >Western Pac Surveill Response J</source>. <year>2023</year>;<volume
+          >14</volume>(<issue>1</issue>):<fpage>1</fpage>&#8211;<lpage
+          >16</lpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.5365/wpsar.2023.14.1.973</pub-id><pub-id
+            pub-id-type="pmid"
+          >37064541</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC10090032</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref007">
+          <label>7</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Brady</surname>
+            <given-names>OJ</given-names>
+          </name>, <name name-style="western">
+            <surname>Gething</surname>
+            <given-names>PW</given-names>
+          </name>, <name name-style="western">
+            <surname>Bhatt</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Messina</surname>
+            <given-names>JP</given-names>
+          </name>, <name name-style="western">
+            <surname>Brownstein</surname>
+            <given-names>JS</given-names>
+          </name>, <name name-style="western">
+            <surname>Hoen</surname>
+            <given-names>AG</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Refining the global spatial limits of dengue virus transmission by evidence-based consensus</article-title>. <source
+          >PLoS Negl Trop Dis</source>. <year>2012</year>;<volume
+          >6</volume>(<issue>8</issue>):e1760. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1371/journal.pntd.0001760</pub-id><pub-id
+            pub-id-type="pmid"
+          >22880140</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC3413714</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref008">
+          <label>8</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Haider</surname>
+            <given-names>N</given-names>
+          </name>, <name name-style="western">
+            <surname>Hasan</surname>
+            <given-names>MN</given-names>
+          </name>, <name name-style="western">
+            <surname>Onyango</surname>
+            <given-names>J</given-names>
+          </name>, <name name-style="western">
+            <surname>Asaduzzaman</surname>
+            <given-names>M</given-names>
+          </name>. <article-title
+          >Global landmark: 2023 marks the worst year for dengue cases with millions infected and thousands of deaths reported</article-title>. <source
+          >IJID Reg</source>. <year>2024</year>;<volume>13</volume>:<fpage
+          >100459</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1016/j.ijregi.2024.100459</pub-id><pub-id
+            pub-id-type="pmid"
+          >39497753</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC11532885</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref009">
+          <label>9</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Goic</surname>
+            <given-names>B</given-names>
+          </name>, <name name-style="western">
+            <surname>Vodovar</surname>
+            <given-names>N</given-names>
+          </name>, <name name-style="western">
+            <surname>Mondotte</surname>
+            <given-names>JA</given-names>
+          </name>, <name name-style="western">
+            <surname>Monot</surname>
+            <given-names>C</given-names>
+          </name>, <name name-style="western">
+            <surname>Frangeul</surname>
+            <given-names>L</given-names>
+          </name>, <name name-style="western">
+            <surname>Blanc</surname>
+            <given-names>H</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >RNA-mediated interference and reverse transcription control the persistence of RNA viruses in the insect model Drosophila</article-title>. <source
+          >Nat Immunol</source>. <year>2013</year>;<volume>14</volume>(<issue
+          >4</issue>):<fpage>396</fpage>&#8211;<lpage>403</lpage>. <comment
+          >doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1038/ni.2542</pub-id><pub-id
+            pub-id-type="pmid"
+          >23435119</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref010">
+          <label>10</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Nag</surname>
+            <given-names>DK</given-names>
+          </name>, <name name-style="western">
+            <surname>Brecher</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Kramer</surname>
+            <given-names>LD</given-names>
+          </name>. <article-title
+          >DNA forms of arboviral RNA genomes are generated following infection in mosquito cell cultures</article-title>. <source
+          >Virology</source>. <year>2016</year>;<volume>498</volume>:<fpage
+          >164</fpage>&#8211;<lpage>71</lpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1016/j.virol.2016.08.022</pub-id><pub-id
+            pub-id-type="pmid"
+          >27588377</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref011">
+          <label>11</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Nag</surname>
+            <given-names>DK</given-names>
+          </name>, <name name-style="western">
+            <surname>Kramer</surname>
+            <given-names>LD</given-names>
+          </name>. <article-title
+          >Patchy DNA forms of the Zika virus RNA genome are generated following infection in mosquito cell cultures and in mosquitoes</article-title>. <source
+          >J Gen Virol</source>. <year>2017</year>;<volume>98</volume>(<issue
+          >11</issue>):<fpage>2731</fpage>&#8211;<lpage>7</lpage>. <comment
+          >doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1099/jgv.0.000945</pub-id><pub-id
+            pub-id-type="pmid"
+          >29039731</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref012">
+          <label>12</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Goic</surname>
+            <given-names>B</given-names>
+          </name>, <name name-style="western">
+            <surname>Stapleford</surname>
+            <given-names>KA</given-names>
+          </name>, <name name-style="western">
+            <surname>Frangeul</surname>
+            <given-names>L</given-names>
+          </name>, <name name-style="western">
+            <surname>Doucet</surname>
+            <given-names>AJ</given-names>
+          </name>, <name name-style="western">
+            <surname>Gausson</surname>
+            <given-names>V</given-names>
+          </name>, <name name-style="western">
+            <surname>Blanc</surname>
+            <given-names>H</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Virus-derived DNA drives mosquito vector tolerance to arboviral infection</article-title>. <source
+          >Nat Commun</source>. <year>2016</year>;<volume>7</volume>:<fpage
+          >12410</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1038/ncomms12410</pub-id><pub-id
+            pub-id-type="pmid"
+          >27580708</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC5025746</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref013">
+          <label>13</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Rodriguez-Andres</surname>
+            <given-names>J</given-names>
+          </name>, <name name-style="western">
+            <surname>Axford</surname>
+            <given-names>J</given-names>
+          </name>, <name name-style="western">
+            <surname>Hoffmann</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Fazakerley</surname>
+            <given-names>J</given-names>
+          </name>. <article-title
+          >Mosquito transgenerational antiviral immunity is mediated by vertical transfer of virus DNA sequences and RNAi</article-title>. <source
+          >iScience</source>. <year>2023</year>;<volume>27</volume>(<issue
+          >1</issue>):<fpage>108598</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1016/j.isci.2023.108598</pub-id><pub-id
+            pub-id-type="pmid"
+          >38155780</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC10753076</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref014">
+          <label>14</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Lakshmanan</surname>
+            <given-names>K</given-names>
+          </name>, <name name-style="western">
+            <surname>Liu</surname>
+            <given-names>BM</given-names>
+          </name>. <article-title
+          >Impact of Point-of-Care Testing on Diagnosis, Treatment, and Surveillance of Vaccine-Preventable Viral Infections</article-title>. <source
+          >Diagnostics (Basel)</source>. <year>2025</year>;<volume
+          >15</volume>(<issue>2</issue>):<fpage>123</fpage>. <comment
+          >doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.3390/diagnostics15020123</pub-id><pub-id
+            pub-id-type="pmid"
+          >39857007</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC11763637</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref015">
+          <label>15</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Soroka</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Wasowicz</surname>
+            <given-names>B</given-names>
+          </name>, <name name-style="western">
+            <surname>Rymaszewska</surname>
+            <given-names>A</given-names>
+          </name>. <article-title
+          >Loop-Mediated Isothermal Amplification (LAMP): The Better Sibling of PCR?</article-title>. <source
+          >Cells</source>. <year>2021</year>;<volume>10</volume>(<issue
+          >8</issue>):<fpage>1931</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.3390/cells10081931</pub-id><pub-id
+            pub-id-type="pmid"
+          >34440699</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC8393631</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref016">
+          <label>16</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Notomi</surname>
+            <given-names>T</given-names>
+          </name>, <name name-style="western">
+            <surname>Okayama</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Masubuchi</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Yonekawa</surname>
+            <given-names>T</given-names>
+          </name>, <name name-style="western">
+            <surname>Watanabe</surname>
+            <given-names>K</given-names>
+          </name>, <name name-style="western">
+            <surname>Amino</surname>
+            <given-names>N</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Loop-mediated isothermal amplification of DNA</article-title>. <source
+          >Nucleic Acids Res</source>. <year>2000</year>;<volume
+          >28</volume>(<issue>12</issue>):E63. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1093/nar/28.12.e63</pub-id><pub-id
+            pub-id-type="pmid"
+          >10871386</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC102748</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref017">
+          <label>17</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Hu</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Li</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Zhong</surname>
+            <given-names>L</given-names>
+          </name>, <name name-style="western">
+            <surname>Lu</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Liu</surname>
+            <given-names>Z</given-names>
+          </name>, <name name-style="western">
+            <surname>Pu</surname>
+            <given-names>J</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Development of reverse-transcription loop-mediated isothermal amplification assay for rapid detection and differentiation of dengue virus serotypes 1-4</article-title>. <source
+          >BMC Microbiol</source>. <year>2015</year>;<volume>15</volume>:<fpage
+          >265</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1186/s12866-015-0595-1</pub-id><pub-id
+            pub-id-type="pmid"
+          >26572227</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC4647581</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref018">
+          <label>18</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Garg</surname>
+            <given-names>N</given-names>
+          </name>, <name name-style="western">
+            <surname>Ahmad</surname>
+            <given-names>FJ</given-names>
+          </name>, <name name-style="western">
+            <surname>Kar</surname>
+            <given-names>S</given-names>
+          </name>. <article-title
+          >Recent advances in loop-mediated isothermal amplification (LAMP) for rapid and efficient detection of pathogens</article-title>. <source
+          >Curr Res Microb Sci</source>. <year>2022</year>;<volume
+          >3</volume>:<fpage>100120</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1016/j.crmicr.2022.100120</pub-id><pub-id
+            pub-id-type="pmid"
+          >35909594</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC9325740</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref019">
+          <label>19</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Yang</surname>
+            <given-names>N</given-names>
+          </name>, <name name-style="western">
+            <surname>Zhang</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Han</surname>
+            <given-names>X</given-names>
+          </name>, <name name-style="western">
+            <surname>Liu</surname>
+            <given-names>Z</given-names>
+          </name>, <name name-style="western">
+            <surname>Lu</surname>
+            <given-names>Y</given-names>
+          </name>. <article-title
+          >Advancements and applications of loop-mediated isothermal amplification technology: a comprehensive overview</article-title>. <source
+          >Front Microbiol</source>. <year>2024</year>;<volume
+          >15</volume>:<fpage>1406632</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.3389/fmicb.2024.1406632</pub-id><pub-id
+            pub-id-type="pmid"
+          >39091309</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC11292733</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref020">
+          <label>20</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Choi</surname>
+            <given-names>G</given-names>
+          </name>, <name name-style="western">
+            <surname>Moehling</surname>
+            <given-names>TJ</given-names>
+          </name>, <name name-style="western">
+            <surname>Meagher</surname>
+            <given-names>RJ</given-names>
+          </name>. <article-title
+          >Advances in RT-LAMP for COVID-19 testing and diagnosis</article-title>. <source
+          >Expert Rev Mol Diagn</source>. <year>2023</year>;<volume
+          >23</volume>(<issue>1</issue>):<fpage>9</fpage>&#8211;<lpage
+          >28</lpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1080/14737159.2023.2169071</pub-id><pub-id
+            pub-id-type="pmid"
+          >36695788</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref021">
+          <label>21</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Aonuma</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Suzuki</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Iseki</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Perera</surname>
+            <given-names>N</given-names>
+          </name>, <name name-style="western">
+            <surname>Nelson</surname>
+            <given-names>B</given-names>
+          </name>, <name name-style="western">
+            <surname>Igarashi</surname>
+            <given-names>I</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Rapid identification of Plasmodium-carrying mosquitoes using loop-mediated isothermal amplification</article-title>. <source
+          >Biochem Biophys Res Commun</source>. <year>2008</year>;<volume
+          >376</volume>(<issue>4</issue>):<fpage>671</fpage>&#8211;<lpage
+          >6</lpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1016/j.bbrc.2008.09.061</pub-id><pub-id
+            pub-id-type="pmid"
+          >18809384</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref022">
+          <label>22</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Aonuma</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Yoshimura</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Perera</surname>
+            <given-names>N</given-names>
+          </name>, <name name-style="western">
+            <surname>Shinzawa</surname>
+            <given-names>N</given-names>
+          </name>, <name name-style="western">
+            <surname>Bando</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Oshiro</surname>
+            <given-names>S</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Loop-mediated isothermal amplification applied to filarial parasites detection in the mosquito vectors: Dirofilaria immitis as a study model</article-title>. <source
+          >Parasit Vectors</source>. <year>2009</year>;<volume>2</volume>(<issue
+          >1</issue>):<fpage>15</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1186/1756-3305-2-15</pub-id><pub-id
+            pub-id-type="pmid"
+          >19284882</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC2670822</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref023">
+          <label>23</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Aonuma</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Iizuka</surname>
+            <given-names>I</given-names>
+          </name>, <name name-style="western">
+            <surname>Li</surname>
+            <given-names>J-C</given-names>
+          </name>, <name name-style="western">
+            <surname>Ote</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Tajima</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Saijo</surname>
+            <given-names>M</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >LAMP Detection of Virus-Derived DNA of Zika Virus in Vector Mosquito</article-title>. <source
+          >Front Trop Dis</source>. <year>2022</year>;<volume
+          >3</volume>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.3389/fitd.2022.759375</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref024">
+          <label>24</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Gurukumar</surname>
+            <given-names>KR</given-names>
+          </name>, <name name-style="western">
+            <surname>Priyadarshini</surname>
+            <given-names>D</given-names>
+          </name>, <name name-style="western">
+            <surname>Patil</surname>
+            <given-names>JA</given-names>
+          </name>, <name name-style="western">
+            <surname>Bhagat</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Singh</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Shah</surname>
+            <given-names>PS</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Development of real time PCR for detection and quantitation of Dengue Viruses</article-title>. <source
+          >Virol J</source>. <year>2009</year>;<volume>6</volume>:<fpage
+          >10</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1186/1743-422X-6-10</pub-id><pub-id
+            pub-id-type="pmid"
+          >19166574</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC2651855</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref025">
+          <label>25</label>
+          <mixed-citation
+            publication-type="other"
+          >Volodymyr Agafonkin. Leaflet 1.7.1. 2020. Available from: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://leafletjs.com"
+            ext-link-type="uri"
+          >https://leafletjs.com</ext-link></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref026">
+          <label>26</label>
+          <mixed-citation publication-type="book"><collab
+          >Biggerstaff, Brad J</collab>. PooledInfRate, Version 4.0: a Microsoft&#174; Office Excel&#169; Add-In to compute prevalence estimates from pooled samples. <publisher-name
+          >Centers for Disease Control and Prevention</publisher-name>, <publisher-loc
+          >Fort Collins, CO, U.S.A</publisher-loc>., <year
+          >2009</year>.</mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref027">
+          <label>27</label>
+          <mixed-citation
+            publication-type="other"
+          >World Health Organization. Dengue fever-Burkina Faso. WHO. 2017. Available from: <ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en"
+            ext-link-type="uri"
+          >https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en</ext-link></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref028">
+          <label>28</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Badolo</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Sombi&#233;</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Yam&#233;ogo</surname>
+            <given-names>F</given-names>
+          </name>, <name name-style="western">
+            <surname>Wangrawa</surname>
+            <given-names>DW</given-names>
+          </name>, <name name-style="western">
+            <surname>Sanon</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Pignatelli</surname>
+            <given-names>PM</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >First comprehensive analysis of Aedes aegypti bionomics during an arbovirus outbreak in west Africa: Dengue in Ouagadougou, Burkina Faso, 2016-2017</article-title>. <source
+          >PLoS Negl Trop Dis</source>. <year>2022</year>;<volume
+          >16</volume>(<issue>7</issue>):e0010059. <comment
+          >doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1371/journal.pntd.0010059</pub-id><pub-id
+            pub-id-type="pmid"
+          >35793379</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC9321428</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref029">
+          <label>29</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Mondotte</surname>
+            <given-names>JA</given-names>
+          </name>, <name name-style="western">
+            <surname>Gausson</surname>
+            <given-names>V</given-names>
+          </name>, <name name-style="western">
+            <surname>Frangeul</surname>
+            <given-names>L</given-names>
+          </name>, <name name-style="western">
+            <surname>Suzuki</surname>
+            <given-names>Y</given-names>
+          </name>, <name name-style="western">
+            <surname>Vazeille</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Mongelli</surname>
+            <given-names>V</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Evidence For Long-Lasting Transgenerational Antiviral Immunity in Insects</article-title>. <source
+          >Cell Rep</source>. <year>2020</year>;<volume>33</volume>(<issue
+          >11</issue>):<fpage>108506</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1016/j.celrep.2020.108506</pub-id><pub-id
+            pub-id-type="pmid"
+          >33326778</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC7758158</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref030">
+          <label>30</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Zhou</surname>
+            <given-names>Y</given-names>
+          </name>, <name name-style="western">
+            <surname>Wan</surname>
+            <given-names>Z</given-names>
+          </name>, <name name-style="western">
+            <surname>Yang</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Li</surname>
+            <given-names>Y</given-names>
+          </name>, <name name-style="western">
+            <surname>Li</surname>
+            <given-names>M</given-names>
+          </name>, <name name-style="western">
+            <surname>Wang</surname>
+            <given-names>B</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >A Mismatch-Tolerant Reverse Transcription Loop-Mediated Isothermal Amplification Method and Its Application on Simultaneous Detection of All Four Serotype of Dengue Viruses</article-title>. <source
+          >Front Microbiol</source>. <year>2019</year>;<volume
+          >10</volume>:<fpage>1056</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.3389/fmicb.2019.01056</pub-id><pub-id
+            pub-id-type="pmid"
+          >31139171</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC6518337</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref031">
+          <label>31</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Moehling</surname>
+            <given-names>TJ</given-names>
+          </name>, <name name-style="western">
+            <surname>Browne</surname>
+            <given-names>ER</given-names>
+          </name>, <name name-style="western">
+            <surname>Meagher</surname>
+            <given-names>RJ</given-names>
+          </name>. <article-title
+          >Effects of single and multiple nucleotide mutations on loop-mediated isothermal amplification</article-title>. <source
+          >Analyst</source>. <year>2024</year>;<volume>149</volume>(<issue
+          >6</issue>):<fpage>1701</fpage>&#8211;<lpage>8</lpage>. <comment
+          >doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1039/d3an01927f</pub-id><pub-id
+            pub-id-type="pmid"
+          >38426313</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref032">
+          <label>32</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Tamanaha</surname>
+            <given-names>E</given-names>
+          </name>, <name name-style="western">
+            <surname>Zhang</surname>
+            <given-names>Y</given-names>
+          </name>, <name name-style="western">
+            <surname>Tanner</surname>
+            <given-names>NA</given-names>
+          </name>. <article-title
+          >Profiling RT-LAMP tolerance of sequence variation for SARS-CoV-2 RNA detection</article-title>. <source
+          >PLoS One</source>. <year>2022</year>;<volume>17</volume>(<issue
+          >3</issue>):e0259610. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.1371/journal.pone.0259610</pub-id><pub-id
+            pub-id-type="pmid"
+          >35324900</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC8947081</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref033">
+          <label>33</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Hien</surname>
+            <given-names>AS</given-names>
+          </name>, <name name-style="western">
+            <surname>Sangar&#233;</surname>
+            <given-names>I</given-names>
+          </name>, <name name-style="western">
+            <surname>Ouattara</surname>
+            <given-names>ELP</given-names>
+          </name>, <name name-style="western">
+            <surname>Sawadogo</surname>
+            <given-names>SP</given-names>
+          </name>, <name name-style="western">
+            <surname>Soma</surname>
+            <given-names>DD</given-names>
+          </name>, <name name-style="western">
+            <surname>Maiga</surname>
+            <given-names>H</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Chikungunya (Togaviridae) and dengue 2 (Flaviviridae) viruses detected from Aedes aegypti mosquitoes in Burkina Faso by qRT-PCR technique: Preliminary results and perspective for molecular characterization of arbovirus circulation in vector populations</article-title>. <source
+          >Front Trop Dis</source>. <year>2022</year>;<volume
+          >3</volume>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.3389/fitd.2022.920224</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref034">
+          <label>34</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Tenywa</surname>
+            <given-names>FSC</given-names>
+          </name>, <name name-style="western">
+            <surname>H&#228;lg</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Makame</surname>
+            <given-names>H</given-names>
+          </name>, <name name-style="western">
+            <surname>Moore</surname>
+            <given-names>J</given-names>
+          </name>, <name name-style="western">
+            <surname>Dogan</surname>
+            <given-names>O</given-names>
+          </name>, <name name-style="western">
+            <surname>Mapipi</surname>
+            <given-names>HI</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >DENV-2 Circulation and Host Preference Among Highly Anthropophilic, Outdoor-Biting Aedes aegypti in Dar es Salaam, Tanzania</article-title>. <source
+          >Viruses</source>. <year>2025</year>;<volume>17</volume>(<issue
+          >6</issue>):<fpage>818</fpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.3390/v17060818</pub-id><pub-id
+            pub-id-type="pmid"
+          >40573409</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC12197569</pub-id></mixed-citation>
+        </ref>
+        <ref id="pone.0332245.ref035">
+          <label>35</label>
+          <mixed-citation publication-type="journal"><name name-style="western">
+            <surname>Mutua</surname>
+            <given-names>MM</given-names>
+          </name>, <name name-style="western">
+            <surname>Rimal</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Shrestha</surname>
+            <given-names>S</given-names>
+          </name>, <name name-style="western">
+            <surname>Kharbuja</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Dulal</surname>
+            <given-names>A</given-names>
+          </name>, <name name-style="western">
+            <surname>Subedi</surname>
+            <given-names>S</given-names>
+          </name>, <etal>et al</etal>. <article-title
+          >Detection of Dengue and Chikungunya Viruses in Mosquitoes from Nepal</article-title>. <source
+          >Am J Trop Med Hyg</source>. <year>2025</year>;<volume
+          >113</volume>(<issue>2</issue>):<fpage>378</fpage>&#8211;<lpage
+          >81</lpage>. <comment>doi: </comment><pub-id
+            pub-id-type="doi"
+          >10.4269/ajtmh.24-0685</pub-id><pub-id
+            pub-id-type="pmid"
+          >40425005</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC12360123</pub-id></mixed-citation>
+        </ref>
+      </ref-list>
+    </back>
+  </article>
+</pmc-articleset>

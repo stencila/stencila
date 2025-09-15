@@ -297,6 +297,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -341,6 +342,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -475,6 +477,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -585,6 +588,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -654,6 +658,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -716,6 +721,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -739,7 +745,7 @@ expression: article
             "Dagosta"
           ],
           "givenNames": [
-            "F.",
+            "F",
             "C.",
             "P."
           ]
@@ -751,7 +757,7 @@ expression: article
             "Pinna"
           ],
           "givenNames": [
-            "M.",
+            "M",
             "C.",
             "C."
           ]
@@ -812,6 +818,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -835,7 +842,7 @@ expression: article
             "Reis"
           ],
           "givenNames": [
-            "R.",
+            "R",
             "E."
           ]
         },
@@ -845,7 +852,7 @@ expression: article
             "Kullander"
           ],
           "givenNames": [
-            "S.",
+            "S",
             "O."
           ]
         },
@@ -855,7 +862,7 @@ expression: article
             "Ferraris"
           ],
           "givenNames": [
-            "C.",
+            "C",
             "J."
           ]
         }
@@ -915,6 +922,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -978,6 +986,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1061,6 +1070,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1105,6 +1115,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1127,7 +1138,7 @@ expression: article
             "Carvalho"
           ],
           "givenNames": [
-            "L.",
+            "L",
             "N."
           ]
         },
@@ -1137,7 +1148,7 @@ expression: article
             "Zuanon"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -1146,7 +1157,7 @@ expression: article
             "Sazima"
           ],
           "givenNames": [
-            "I."
+            "I"
           ]
         }
       ],
@@ -1244,6 +1255,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1317,6 +1329,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1442,6 +1455,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1563,6 +1577,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1655,6 +1670,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1762,6 +1778,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1853,6 +1870,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1896,6 +1914,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1990,6 +2009,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2071,6 +2091,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2161,6 +2182,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2235,6 +2257,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2299,6 +2322,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2423,6 +2447,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2528,6 +2553,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2601,6 +2627,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2646,6 +2673,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2686,6 +2714,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2730,6 +2759,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2801,6 +2831,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2865,6 +2896,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2945,6 +2977,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3055,6 +3088,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3098,6 +3132,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3188,6 +3223,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3249,6 +3285,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3321,6 +3358,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3375,6 +3413,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3448,6 +3487,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3510,6 +3550,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3562,6 +3603,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3624,6 +3666,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3706,6 +3749,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3777,6 +3821,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3800,7 +3845,7 @@ expression: article
             "Castro"
           ],
           "givenNames": [
-            "R.",
+            "R",
             "M.",
             "C."
           ]
@@ -3861,6 +3906,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3944,6 +3990,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3967,7 +4014,7 @@ expression: article
             "Caramaschi"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         },
         {
@@ -3976,7 +4023,7 @@ expression: article
             "Mazzoni"
           ],
           "givenNames": [
-            "P.",
+            "P",
             "R."
           ]
         },
@@ -3986,7 +4033,7 @@ expression: article
             "Bizerril"
           ],
           "givenNames": [
-            "C.",
+            "C",
             "R.",
             "S.",
             "F."
@@ -3998,7 +4045,7 @@ expression: article
             "Peres-Neto"
           ],
           "givenNames": [
-            "P.",
+            "P",
             "R."
           ]
         }
@@ -4049,6 +4096,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4111,6 +4159,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4206,6 +4255,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4268,6 +4318,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4408,6 +4459,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4499,6 +4551,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4542,6 +4595,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4585,6 +4639,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4628,6 +4683,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4768,6 +4824,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4812,6 +4869,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4914,6 +4972,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4937,7 +4996,7 @@ expression: article
             "Campos"
           ],
           "givenNames": [
-            "P.",
+            "P",
             "F."
           ]
         },
@@ -4947,7 +5006,7 @@ expression: article
             "Gilbert"
           ],
           "givenNames": [
-            "T.",
+            "T",
             "M."
           ]
         }
@@ -5008,6 +5067,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5110,6 +5170,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5191,6 +5252,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5234,6 +5296,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5332,6 +5395,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5375,6 +5439,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5477,6 +5542,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5581,6 +5647,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5683,6 +5750,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5789,6 +5857,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5832,6 +5901,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5896,6 +5966,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -5949,6 +6020,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6010,6 +6082,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6053,6 +6126,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6124,6 +6198,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6250,6 +6325,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6294,6 +6370,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6384,6 +6461,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6409,7 +6487,7 @@ expression: article
             "Team"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -6458,7 +6536,7 @@ expression: article
             "Oksanen"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -6467,7 +6545,7 @@ expression: article
             "Kindt"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         },
         {
@@ -6476,7 +6554,7 @@ expression: article
             "O’Hara"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         }
       ],
@@ -6534,7 +6612,7 @@ expression: article
             "Adler"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -6543,7 +6621,7 @@ expression: article
             "Nenadic"
           ],
           "givenNames": [
-            "O."
+            "O"
           ]
         },
         {
@@ -6552,7 +6630,7 @@ expression: article
             "Zucchini"
           ],
           "givenNames": [
-            "W."
+            "W"
           ]
         }
       ],
@@ -6593,6 +6671,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6616,7 +6695,7 @@ expression: article
             "Schiettekatte"
           ],
           "givenNames": [
-            "N.",
+            "N",
             "M.",
             "D."
           ]
@@ -6627,7 +6706,7 @@ expression: article
             "Brandl"
           ],
           "givenNames": [
-            "S.",
+            "S",
             "J."
           ]
         },
@@ -6637,7 +6716,7 @@ expression: article
             "Casey"
           ],
           "givenNames": [
-            "J.",
+            "J",
             "M."
           ]
         }
@@ -6678,6 +6757,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6700,7 +6780,7 @@ expression: article
             "Hsieh"
           ],
           "givenNames": [
-            "T.",
+            "T",
             "C."
           ]
         },
@@ -6710,7 +6790,7 @@ expression: article
             "Ma"
           ],
           "givenNames": [
-            "K.",
+            "K",
             "H."
           ]
         },
@@ -6720,7 +6800,7 @@ expression: article
             "Chao"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         }
       ],
@@ -6789,6 +6869,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6951,6 +7032,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -6975,7 +7057,7 @@ expression: article
             "Chao"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -6984,7 +7066,7 @@ expression: article
             "Ma"
           ],
           "givenNames": [
-            "K.",
+            "K",
             "H."
           ]
         },
@@ -6994,7 +7076,7 @@ expression: article
             "Hsieh"
           ],
           "givenNames": [
-            "T.",
+            "T",
             "C."
           ]
         },
@@ -7004,7 +7086,7 @@ expression: article
             "Chiu"
           ],
           "givenNames": [
-            "C.",
+            "C",
             "H."
           ]
         }
