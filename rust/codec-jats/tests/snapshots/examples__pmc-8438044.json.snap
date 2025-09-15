@@ -229,6 +229,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR1",
+      "workType": "Article",
       "doi": "10.2307/2666207",
       "authors": [
         {
@@ -312,6 +313,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR2",
+      "workType": "Article",
       "doi": "10.1890/03-5342",
       "authors": [
         {
@@ -355,6 +357,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR3",
+      "workType": "Article",
       "doi": "10.1098/rsos.150088",
       "authors": [
         {
@@ -487,6 +490,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR4",
+      "workType": "Article",
       "doi": "10.3390/genes10030192",
       "authors": [
         {
@@ -596,6 +600,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR5",
+      "workType": "Article",
       "doi": "10.1111/1755-0998.13200",
       "authors": [
         {
@@ -665,6 +670,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR6",
+      "workType": "Article",
       "doi": "10.1007/s12562-020-01461-x",
       "authors": [
         {
@@ -725,11 +731,42 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR7"
+      "id": "CR7",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dagosta"
+          ],
+          "givenNames": [
+            "F.",
+            "C.",
+            "P."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "de",
+            "Pinna"
+          ],
+          "givenNames": [
+            "M.",
+            "C.",
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "text": "Dagosta F. C. P. & de Pinna, M. C. C. The fishes of the Amazon: Distribution and biogeographical patterns, with a comprehensive list of species. Bull. Am. Mus. Nat. Hist, 431 , 1–163 (2019)."
     },
     {
       "type": "Reference",
       "id": "CR8",
+      "workType": "Article",
       "doi": "10.1038/s41597-020-0436-4",
       "authors": [
         {
@@ -789,11 +826,69 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR9"
+      "id": "CR9",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Reis"
+          ],
+          "givenNames": [
+            "R.",
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kullander"
+          ],
+          "givenNames": [
+            "S.",
+            "O."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ferraris"
+          ],
+          "givenNames": [
+            "C.",
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Check List of the Freshwater Fishes of South and Central America"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "(Edipucrs"
+            }
+          }
+        ]
+      }
     },
     {
       "type": "Reference",
       "id": "CR10",
+      "workType": "Article",
       "doi": "10.1038/sdata.2017.141",
       "authors": [
         {
@@ -835,6 +930,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR11",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -898,6 +994,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR12",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -914,21 +1011,19 @@ expression: article
         "type": "Date",
         "value": "1987"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Ecological Studies in Tropical Fish Communities"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Ecological Studies in Tropical Fish Communities"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "CR13",
+      "workType": "Article",
       "doi": "10.1111/jbi.12954",
       "authors": [
         {
@@ -982,6 +1077,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR14",
+      "workType": "Article",
       "doi": "10.1038/s41467-019-11690-z",
       "authors": [
         {
@@ -1023,11 +1119,47 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR15"
+      "id": "CR15",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carvalho"
+          ],
+          "givenNames": [
+            "L.",
+            "N."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zuanon"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sazima"
+          ],
+          "givenNames": [
+            "I."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "text": "Carvalho, L. N., Zuanon, J. & Sazima, I. Natural history of Amazon fishes. In Tropical Biology and Natural Resources Theme (ed. Del-Claro, K.), K. Del-Claro & R. J. Marquis (Session Eds. the Natural History Session), Encyclopedia of Life Support Systems (EOLSS) (Eolss Publishers, 2007)."
     },
     {
       "type": "Reference",
       "id": "CR16",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0202024",
       "authors": [
         {
@@ -1127,6 +1259,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR17",
+      "workType": "Article",
       "doi": "10.1098/rspb.2002.2218",
       "authors": [
         {
@@ -1200,6 +1333,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR18",
+      "workType": "Article",
       "doi": "10.3897/zookeys.79.1045",
       "authors": [
         {
@@ -1324,6 +1458,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR19",
+      "workType": "Article",
       "doi": "10.11646/zootaxa.4348.1.1",
       "authors": [
         {
@@ -1444,6 +1579,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR20",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0041059",
       "authors": [
         {
@@ -1534,6 +1670,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR21",
+      "workType": "Article",
       "doi": "10.1093/aob/mcw121",
       "authors": [
         {
@@ -1641,6 +1778,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR22",
+      "workType": "Article",
       "doi": "10.1017/S0025315420000417",
       "authors": [
         {
@@ -1731,6 +1869,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR23",
+      "workType": "Article",
       "doi": "10.1093/database/baw125",
       "authors": [
         {
@@ -1770,6 +1909,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR24",
+      "workType": "Article",
       "doi": "10.1111/ecog.05049",
       "authors": [
         {
@@ -1866,6 +2006,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR25",
+      "workType": "Article",
       "doi": "10.1073/pnas.1911714116",
       "authors": [
         {
@@ -1946,6 +2087,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR26",
+      "workType": "Article",
       "doi": "10.1111/jai.12568",
       "authors": [
         {
@@ -2035,6 +2177,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR27",
+      "workType": "Article",
       "doi": "10.1073/pnas.2007421117",
       "authors": [
         {
@@ -2108,6 +2251,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR28",
+      "workType": "Article",
       "doi": "10.1111/1755-0998.12929",
       "authors": [
         {
@@ -2171,6 +2315,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR29",
+      "workType": "Article",
       "doi": "10.3897/mbmg.3.35060",
       "authors": [
         {
@@ -2293,6 +2438,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR30",
+      "workType": "Article",
       "doi": "10.1111/1755-0998.12900",
       "authors": [
         {
@@ -2398,6 +2544,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR31",
+      "workType": "Article",
       "doi": "10.1002/edn3.14",
       "authors": [
         {
@@ -2470,6 +2617,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR32",
+      "workType": "Article",
       "doi": "10.1002/edna3.191",
       "authors": [
         {
@@ -2511,6 +2659,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR33",
+      "workType": "Article",
       "doi": "10.1111/mec.13428",
       "authors": [
         {
@@ -2553,6 +2702,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR34",
+      "workType": "Article",
       "doi": "10.3389/fevo.2020.00276",
       "authors": [
         {
@@ -2595,6 +2745,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR35",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -2610,21 +2761,19 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Freshwater Biodiversity: Status"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Freshwater Biodiversity: Status"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "CR36",
+      "workType": "Article",
       "doi": "10.1111/j.1442-9993.1993.tb00438.x",
       "authors": [
         {
@@ -2668,6 +2817,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR37",
+      "workType": "Article",
       "doi": "10.1038/s41598-020-74902-3",
       "authors": [
         {
@@ -2730,6 +2880,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR38",
+      "workType": "Article",
       "doi": "10.1098/rsbl.2014.0562",
       "authors": [
         {
@@ -2809,6 +2960,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR39",
+      "workType": "Article",
       "doi": "10.1111/2041-210X.13276",
       "authors": [
         {
@@ -2919,6 +3071,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR40",
+      "workType": "Article",
       "doi": "10.1186/s12859-021-04115-6",
       "authors": [
         {
@@ -2960,6 +3113,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR41",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0204114",
       "authors": [
         {
@@ -3049,6 +3203,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR42",
+      "workType": "Article",
       "doi": "10.1590/S1679-62252006000100012",
       "authors": [
         {
@@ -3110,6 +3265,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR43",
+      "workType": "Article",
       "doi": "10.1590/S1679-62252006000100013",
       "authors": [
         {
@@ -3181,6 +3337,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR44",
+      "workType": "Article",
       "doi": "10.1111/eff.12292",
       "authors": [
         {
@@ -3234,6 +3391,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR45",
+      "workType": "Article",
       "doi": "10.1093/zoolinnean/zlx028",
       "authors": [
         {
@@ -3306,6 +3464,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR46",
+      "workType": "Article",
       "doi": "10.1577/1548-8659(1984)4&#x0003c;331:DAOOAS&#x0003e;2.0.CO;2",
       "authors": [
         {
@@ -3367,6 +3526,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR47",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3418,6 +3578,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR48",
+      "workType": "Article",
       "doi": "10.1126/science.1101240",
       "authors": [
         {
@@ -3479,6 +3640,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR49",
+      "workType": "Article",
       "doi": "10.1111/zoj.12274",
       "authors": [
         {
@@ -3560,6 +3722,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR50",
+      "workType": "Article",
       "doi": "10.1111/j.1096-3642.2009.00588.x",
       "authors": [
         {
@@ -3629,11 +3792,30 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR51"
+      "id": "CR51",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Castro"
+          ],
+          "givenNames": [
+            "R.",
+            "M.",
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "text": "Castro, R. M. C. Evolução da ictiofauna de riachos sul-americanos: Padrões gerais e possíveis processos causais. In Ecologia de peixes de riachos (eds Caramaschi, E. P., Mazzoni, R., & Peres-Neto, P. R.) Série Oecologia Brasiliensis volume VI, PPGE-UFRJ, Rio de Janeiro, 139–155 (1999)."
     },
     {
       "type": "Reference",
       "id": "CR52",
+      "workType": "Article",
       "doi": "10.1111/j.1600-0633.2009.00382.x",
       "authors": [
         {
@@ -3695,6 +3877,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR53",
+      "workType": "Article",
       "doi": "10.15560/5.2.154",
       "authors": [
         {
@@ -3776,11 +3959,60 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR54"
+      "id": "CR54",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Caramaschi"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mazzoni"
+          ],
+          "givenNames": [
+            "P.",
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bizerril"
+          ],
+          "givenNames": [
+            "C.",
+            "R.",
+            "S.",
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peres-Neto"
+          ],
+          "givenNames": [
+            "P.",
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "text": "Caramaschi E., Mazzoni, P. R., Bizerril, C. R. S. F. & Peres-Neto, P. R. Ecologia de Peixes de Riachos: Estado Atual e Perspectivas. Oecologia Brasiliensis, v. VI, Rio de Janeiro (1999)."
     },
     {
       "type": "Reference",
       "id": "CR55",
+      "workType": "Article",
       "doi": "10.1590/S1679-62252007000100006",
       "authors": [
         {
@@ -3833,6 +4065,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR56",
+      "workType": "Article",
       "doi": "10.1111/fme.12067",
       "authors": [
         {
@@ -3894,6 +4127,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR57",
+      "workType": "Article",
       "doi": "10.15560/11022",
       "authors": [
         {
@@ -3988,6 +4222,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR58",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0135569",
       "authors": [
         {
@@ -4048,6 +4283,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR59",
+      "workType": "Article",
       "doi": "10.3389/fgene.2017.00149",
       "authors": [
         {
@@ -4187,6 +4423,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR60",
+      "workType": "Article",
       "doi": "10.1590/1982-0224-20150146",
       "authors": [
         {
@@ -4278,6 +4515,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR61",
+      "workType": "Article",
       "doi": "10.1046/j.1523-1739.2002.01532.x",
       "authors": [
         {
@@ -4320,6 +4558,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR62",
+      "workType": "Article",
       "doi": "10.1016/j.cosust.2010.09.001",
       "authors": [
         {
@@ -4362,6 +4601,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR63",
+      "workType": "Article",
       "doi": "10.1126/science.1088666",
       "authors": [
         {
@@ -4404,6 +4644,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR64",
+      "workType": "Article",
       "doi": "10.1038/nature09440",
       "authors": [
         {
@@ -4543,6 +4784,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR65",
+      "workType": "Article",
       "doi": "10.1007/s13280-020-01318-8",
       "authors": [
         {
@@ -4586,6 +4828,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR66",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0000537",
       "authors": [
         {
@@ -4686,11 +4929,39 @@ expression: article
     {
       "type": "Reference",
       "id": "CR67",
-      "doi": "10.1007/978-1-61779-516-9_11"
+      "doi": "10.1007/978-1-61779-516-9_11",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Campos"
+          ],
+          "givenNames": [
+            "P.",
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gilbert"
+          ],
+          "givenNames": [
+            "T.",
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "text": "Campos, P. F. & Gilbert, T. M. DNA extraction from formalin-fixed material. In Ancient DNA 81–85 (Humana Press, 2012). 10.1007/978-1-61779-516-9_11 22237525"
     },
     {
       "type": "Reference",
       "id": "CR68",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0141579",
       "authors": [
         {
@@ -4752,6 +5023,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR69",
+      "workType": "Article",
       "doi": "10.1038/s41598-018-24269-3",
       "authors": [
         {
@@ -4853,6 +5125,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR70",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -4878,21 +5151,19 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Historical Biogeography of Neotropical Freshwater Fishes"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Historical Biogeography of Neotropical Freshwater Fishes"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "CR71",
+      "workType": "Article",
       "doi": "10.1511/2015.117.395",
       "authors": [
         {
@@ -4936,6 +5207,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR72",
+      "workType": "Article",
       "doi": "10.1038/d41586-020-00508-4",
       "authors": [
         {
@@ -4978,6 +5250,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR73",
+      "workType": "Article",
       "doi": "10.3897/BDJ.7.e37518",
       "authors": [
         {
@@ -5074,6 +5347,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR74",
+      "workType": "Article",
       "doi": "10.1111/jfb.14053",
       "authors": [
         {
@@ -5117,6 +5391,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR75",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -5218,6 +5493,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR76",
+      "workType": "Article",
       "doi": "10.1590/0001-3765201820180460",
       "authors": [
         {
@@ -5321,6 +5597,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR77",
+      "workType": "Article",
       "doi": "10.1093/biosci/bix130",
       "authors": [
         {
@@ -5422,6 +5699,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR78",
+      "workType": "Article",
       "doi": "10.3791/54741",
       "authors": [
         {
@@ -5526,6 +5804,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR79",
+      "workType": "Article",
       "doi": "10.1093/bioinformatics/btq461",
       "authors": [
         {
@@ -5569,6 +5848,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR80",
+      "workType": "Article",
       "doi": "10.1038/ismej.2017.119",
       "authors": [
         {
@@ -5632,6 +5912,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR81",
+      "workType": "Article",
       "doi": "10.1093/molbev/mst010",
       "authors": [
         {
@@ -5684,6 +5965,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR82",
+      "workType": "Article",
       "doi": "10.1093/molbev/msw054",
       "authors": [
         {
@@ -5744,6 +6026,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR83",
+      "workType": "Article",
       "doi": "10.1007/BF01731581",
       "authors": [
         {
@@ -5786,6 +6069,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR84",
+      "workType": "Article",
       "doi": "10.1038/nmeth.2109",
       "authors": [
         {
@@ -5855,6 +6139,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR85",
+      "workType": "Article",
       "doi": "10.1093/sysbio/sys029",
       "authors": [
         {
@@ -5981,6 +6266,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR86",
+      "workType": "Article",
       "doi": "10.4137/EBO.S21501",
       "authors": [
         {
@@ -6024,6 +6310,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR87",
+      "workType": "Article",
       "doi": "10.1126/science.1123061",
       "authors": [
         {
@@ -6112,11 +6399,31 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR88"
+      "id": "CR88",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Core",
+            "Team"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "url": "https://www.Rproject.org/",
+      "text": "R Core Team. R: A Language and Environment for Statistical Computing. (R Foundation for Statistical Computing, 2020). https://www.Rproject.org/ ."
     },
     {
       "type": "Reference",
       "id": "CR89",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -6132,25 +6439,57 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Ggplot2: Elegant graphics for data analysis"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Ggplot2: Elegant graphics for data analysis"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
-      "id": "CR90"
+      "id": "CR90",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Oksanen"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kindt"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "O’Hara"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "text": "Oksanen, J., Kindt, R. & O’Hara, B. Package VEGAN. Community Ecology Package , Version 2 (2013)."
     },
     {
       "type": "Reference",
       "id": "CR91",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -6175,25 +6514,59 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "An R Companion to Applied Regression"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An R Companion to Applied Regression"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
-      "id": "CR92"
+      "id": "CR92",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Adler"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nenadic"
+          ],
+          "givenNames": [
+            "O."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zucchini"
+          ],
+          "givenNames": [
+            "W."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "url": "http://CRAN.R-project.org/package=rgl",
+      "text": "Adler D., Nenadic, O. & Zucchini, W. rgl: 3D visualization device system (OpenGL). R package version 0.93.945. http://CRAN.R-project.org/package=rgl (2013)."
     },
     {
       "type": "Reference",
       "id": "CR93",
+      "workType": "Article",
       "doi": "10.1093/bioinformatics/btu393",
       "authors": [
         {
@@ -6235,11 +6608,50 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR94"
+      "id": "CR94",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schiettekatte"
+          ],
+          "givenNames": [
+            "N.",
+            "M.",
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brandl"
+          ],
+          "givenNames": [
+            "S.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Casey"
+          ],
+          "givenNames": [
+            "J.",
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "text": "Schiettekatte, N. M. D., Brandl, S. J. & Casey, J. M. Fishualize: Color Palettes Based On Fish Species . CRAN version 0.2.0 (2019)."
     },
     {
       "type": "Reference",
       "id": "CR95",
+      "workType": "Article",
       "doi": "10.2307/2531487",
       "authors": [
         {
@@ -6280,11 +6692,48 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR96"
+      "id": "CR96",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hsieh"
+          ],
+          "givenNames": [
+            "T.",
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ma"
+          ],
+          "givenNames": [
+            "K.",
+            "H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chao"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "text": "Hsieh T. C., Ma, K. H. & Chao, A. iNEXT: Interpolation and Extrapolation for Species Diversity . R package version 2.0.20 (2020)."
     },
     {
       "type": "Reference",
       "id": "CR97",
+      "workType": "Article",
       "doi": "10.1111/j.1461-0248.2004.00707.x",
       "authors": [
         {
@@ -6356,6 +6805,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR98",
+      "workType": "Article",
       "doi": "10.1002/ece3.2186",
       "authors": [
         {
@@ -6516,7 +6966,55 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "CR99"
+      "id": "CR99",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chao"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ma"
+          ],
+          "givenNames": [
+            "K.",
+            "H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hsieh"
+          ],
+          "givenNames": [
+            "T.",
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chiu"
+          ],
+          "givenNames": [
+            "C.",
+            "H."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "url": "http://chao.stat.nthu.edu.tw/wordpress/software_download/",
+      "text": "Chao A., Ma, K. H., Hsieh, T. C. & Chiu, C. H. SpadeR (Species-richness Prediction and Diversity Estimation in R): An R package in CRAN. Program and User’s Guide also published at http://chao.stat.nthu.edu.tw/wordpress/software_download/ (2016)."
     }
   ],
   "title": [

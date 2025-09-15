@@ -129,6 +129,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c1",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -191,6 +192,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c2",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -263,6 +265,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c3",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -342,6 +345,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c4",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -421,6 +425,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c5",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -480,6 +485,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c6",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -530,6 +536,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c7",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -572,6 +579,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c8",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -622,6 +630,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c9",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -672,6 +681,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c10",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -722,6 +732,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c11",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -763,6 +774,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c12",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -831,6 +843,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c13",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -883,6 +896,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c14",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -933,6 +947,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c15",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1011,6 +1026,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c16",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1081,6 +1097,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c17",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1162,6 +1179,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c18",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1232,6 +1250,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c19",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1273,6 +1292,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c20",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1314,6 +1334,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c21",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1384,6 +1405,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c22",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1425,6 +1447,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c23",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1484,6 +1507,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c24",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1524,6 +1548,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c25",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1566,6 +1591,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c26",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1637,6 +1663,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c27",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1678,6 +1705,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c28",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1757,6 +1785,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c29",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1798,6 +1827,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c30",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1858,6 +1888,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c31",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1919,6 +1950,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c32",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1969,6 +2001,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c33",
+      "workType": "Article",
       "doi": "10.1016/j.devcel.2024.06.023",
       "authors": [
         {
@@ -2010,6 +2043,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c34",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2052,6 +2086,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c35",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2093,6 +2128,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c36",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2134,6 +2170,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c37",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2194,6 +2231,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c38",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2245,6 +2283,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c39",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2314,6 +2353,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c40",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2392,6 +2432,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c41",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2470,6 +2511,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c42",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2511,6 +2553,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c43",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2553,6 +2596,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c44",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2632,6 +2676,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c45",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2674,6 +2719,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c46",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2716,6 +2762,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c47",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2756,6 +2803,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c48",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2815,6 +2863,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c49",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2866,6 +2915,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c50",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2907,6 +2957,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c51",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2974,6 +3025,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c52",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3015,6 +3067,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c53",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3065,6 +3118,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c54",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3125,6 +3179,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c55",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3168,6 +3223,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c56",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3209,6 +3265,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c57",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3250,6 +3307,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c58",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3329,6 +3387,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c59",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3391,6 +3450,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c60",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3433,6 +3493,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c61",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3484,6 +3545,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c62",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3545,6 +3607,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c63",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3605,6 +3668,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c64",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3655,6 +3719,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c65",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3694,6 +3759,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c66",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3765,6 +3831,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c67",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3807,6 +3874,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c68",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3884,6 +3952,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c69",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3925,6 +3994,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c70",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3966,6 +4036,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c71",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4007,6 +4078,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c72",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4058,6 +4130,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c73",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4110,6 +4183,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c74",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4181,6 +4255,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c75",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4223,6 +4298,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c76",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4265,6 +4341,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c77",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4325,6 +4402,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c78",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4388,6 +4466,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c79",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4429,6 +4508,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c80",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4469,6 +4549,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c81",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4511,6 +4592,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c82",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4588,6 +4670,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c83",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4647,6 +4730,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c84",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4697,6 +4781,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c85",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4738,6 +4823,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c86",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4780,6 +4866,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c87",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4850,6 +4937,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c88",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",

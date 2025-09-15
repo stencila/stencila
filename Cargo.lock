@@ -9325,6 +9325,7 @@ dependencies = [
  "quick-xml 0.37.5",
  "roxmltree",
  "stencila-codec",
+ "stencila-codec-biblio",
  "stencila-codec-jats-trait",
  "stencila-codec-text-trait",
  "tokio",

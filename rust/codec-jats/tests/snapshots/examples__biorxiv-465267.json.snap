@@ -131,6 +131,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c1",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -202,6 +203,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c2",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -273,6 +275,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c3",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -361,6 +364,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c4",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -430,6 +434,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c5",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -516,6 +521,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c6",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -576,6 +582,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c7",
+      "workType": "Article",
       "doi": "10.1111/j.1461-0248.2007.01137.x",
       "authors": [
         {
@@ -629,6 +636,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c8",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -680,6 +688,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c9",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -730,6 +739,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c10",
+      "workType": "Article",
       "doi": "10.1073/pnas.1014353108",
       "authors": [
         {
@@ -783,6 +793,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c11",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -843,6 +854,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c12",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -903,6 +915,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c13",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -971,6 +984,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c14",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1022,6 +1036,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c15",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1093,6 +1108,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c16",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1145,6 +1161,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c17",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1206,6 +1223,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c18",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -1232,21 +1250,19 @@ expression: article
         "type": "Date",
         "value": "1996"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Null models in ecology"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Null models in ecology"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "c19",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1299,6 +1315,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c20",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1359,6 +1376,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c21",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1410,6 +1428,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c22",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1463,6 +1482,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c23",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1506,6 +1526,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c24",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1558,6 +1579,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c25",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1609,6 +1631,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c26",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1687,6 +1710,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c27",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1740,6 +1764,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c28",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1800,6 +1825,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c29",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1850,6 +1876,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c30",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1893,6 +1920,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c31",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1961,6 +1989,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c32",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2064,21 +2093,19 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Synthetic matrix ensemble for nestedness analysis"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Synthetic matrix ensemble for nestedness analysis"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "c34",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2142,6 +2169,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c35",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2184,6 +2212,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c36",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2264,6 +2293,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c37",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2345,6 +2375,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c38",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2415,6 +2446,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c39",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -2458,21 +2490,19 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Hybrid structural arrangements mediate stability and feasibility in mutualistic networks"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Hybrid structural arrangements mediate stability and feasibility in mutualistic networks"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "c40",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2541,6 +2571,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c41",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2740,6 +2771,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c45",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2792,6 +2824,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c46",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2873,6 +2906,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c47",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2935,6 +2969,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c48",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3003,6 +3038,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c49",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3071,6 +3107,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c50",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3131,6 +3168,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c51",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3259,6 +3297,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c53",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3311,6 +3350,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c54",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3391,6 +3431,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c55",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3453,6 +3494,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c56",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3504,6 +3546,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c57",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3563,6 +3606,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c58",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3606,6 +3650,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c59",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3708,6 +3753,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c61",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3750,6 +3796,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c62",
+      "workType": "Article",
       "doi": "10.3390/e12051264",
       "authors": [
         {
@@ -3802,6 +3849,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c63",
+      "workType": "Article",
       "doi": "10.1016/j.physrep.2016.09.002",
       "authors": [
         {
@@ -3853,6 +3901,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c64",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3904,6 +3953,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c65",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3972,6 +4022,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c66",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4053,6 +4104,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c67",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4115,6 +4167,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c68",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4188,6 +4241,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c69",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4257,14 +4311,42 @@ expression: article
     {
       "type": "Reference",
       "id": "c70",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "Web of Life"
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2012"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "ecological networks database"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "http://www.web-of-life.es/"
+            }
+          }
+        ]
       }
     },
     {
       "type": "Reference",
       "id": "c71",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4318,6 +4400,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c72",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4377,6 +4460,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c73",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4448,6 +4532,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c74",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4509,6 +4594,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c75",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4560,6 +4646,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c76",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4602,6 +4689,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c77",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4652,6 +4740,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c78",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",

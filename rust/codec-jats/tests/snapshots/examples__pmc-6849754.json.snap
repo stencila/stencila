@@ -391,6 +391,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0001",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -458,6 +459,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0002",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -544,6 +546,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0003",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -630,6 +633,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0004",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -716,6 +720,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0005",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -793,6 +798,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0006",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -879,6 +885,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0007",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -894,21 +901,19 @@ expression: article
         "type": "Date",
         "value": "\n          1971"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Ratio Correlation: A Manual for Students of Petrology and Geochemistry"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Ratio Correlation: A Manual for Students of Petrology and Geochemistry"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "ele13210-bib-0008",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1004,6 +1009,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0010",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1107,6 +1113,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0011",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1193,6 +1200,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0012",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1279,6 +1287,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0013",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1365,6 +1374,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0014",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1451,6 +1461,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0015",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1537,6 +1548,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0016",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1693,6 +1705,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0018",
+      "workType": "Article",
       "doi": "10.4225/35/569434cfba16e",
       "authors": [
         {
@@ -1775,6 +1788,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0019",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1816,6 +1830,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0020",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1866,6 +1881,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0021",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1907,6 +1923,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0022",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1957,6 +1974,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0023",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2016,6 +2034,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0024",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2109,6 +2128,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0025",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2177,6 +2197,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0026",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2280,6 +2301,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0027",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2321,6 +2343,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0028",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2371,6 +2394,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0029",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2438,6 +2462,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0030",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2524,6 +2549,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0031",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2573,6 +2599,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0032",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2632,6 +2659,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0033",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2726,6 +2754,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0035",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2811,6 +2840,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0036",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2897,6 +2927,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0037",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2983,6 +3014,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0038",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3069,6 +3101,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0039",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3155,6 +3188,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0040",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3223,6 +3257,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0041",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3282,6 +3317,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0042",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3341,6 +3377,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0043",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3418,6 +3455,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0044",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3459,6 +3497,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0045",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3545,6 +3584,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0046",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3639,6 +3679,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0047",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3725,6 +3766,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0048",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3811,6 +3853,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0049",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3852,6 +3895,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0050",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3937,6 +3981,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0051",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4004,6 +4049,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0052",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4053,6 +4099,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0053",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4103,6 +4150,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0054",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4153,6 +4201,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0055",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4239,6 +4288,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0056",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4325,6 +4375,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0057",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4393,6 +4444,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0058",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4487,6 +4539,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0059",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4573,6 +4626,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0060",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4659,6 +4713,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0061",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4709,6 +4764,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0062",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4812,6 +4868,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0063",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4915,6 +4972,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0064",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -5001,6 +5059,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0065",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -5087,6 +5146,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0066",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -5173,6 +5233,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0067",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -5259,6 +5320,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0068",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -5345,6 +5407,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0069",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -5404,6 +5467,7 @@ expression: article
     {
       "type": "Reference",
       "id": "ele13210-bib-0070",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -5500,17 +5564,14 @@ expression: article
         "type": "Date",
         "value": "\n          2009"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Mixed Effects Models and Extensions in Ecology"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mixed Effects Models and Extensions in Ecology"
           }
-        ]
-      }
+        }
+      ]
     }
   ],
   "title": [

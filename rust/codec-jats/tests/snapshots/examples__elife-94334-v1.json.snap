@@ -188,6 +188,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib1",
+      "workType": "Article",
       "doi": "10.1074/jbc.M306783200",
       "authors": [
         {
@@ -257,6 +258,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib2",
+      "workType": "Article",
       "doi": "10.1038/nature22046",
       "authors": [
         {
@@ -326,6 +328,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib3",
+      "workType": "Article",
       "doi": "10.1128/MCB.23.18.6585-6596.2003",
       "authors": [
         {
@@ -394,6 +397,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib4",
+      "workType": "Article",
       "doi": "10.1016/s0092-8674(00)00007-6",
       "authors": [
         {
@@ -455,6 +459,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib5",
+      "workType": "Article",
       "doi": "10.1128/MCB.01000-09",
       "authors": [
         {
@@ -534,6 +539,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib6",
+      "workType": "Article",
       "doi": "10.1074/jbc.M609322200",
       "authors": [
         {
@@ -606,6 +612,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib7",
+      "workType": "Article",
       "doi": "10.1093/emboj/20.22.6485",
       "authors": [
         {
@@ -694,6 +701,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib8",
+      "workType": "Article",
       "doi": "10.1093/emboj/17.9.2687",
       "authors": [
         {
@@ -757,6 +765,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib9",
+      "workType": "Article",
       "doi": "10.1038/ncb2842",
       "authors": [
         {
@@ -810,6 +819,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib10",
+      "workType": "Article",
       "doi": "10.1073/pnas.0609636104",
       "authors": [
         {
@@ -889,6 +899,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib11",
+      "workType": "Article",
       "doi": "10.1016/j.cub.2009.12.033",
       "authors": [
         {
@@ -969,6 +980,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib12",
+      "workType": "Article",
       "doi": "10.1242/jcs.018366",
       "authors": [
         {
@@ -1039,6 +1051,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib13",
+      "workType": "Article",
       "doi": "10.1016/s1097-2765(00)80340-8",
       "authors": [
         {
@@ -1110,6 +1123,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib14",
+      "workType": "Article",
       "doi": "10.1128/MCB.00566-12",
       "authors": [
         {
@@ -1208,6 +1222,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib15",
+      "workType": "Article",
       "doi": "10.1371/journal.pbio.0000033",
       "authors": [
         {
@@ -1257,6 +1272,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib16",
+      "workType": "Article",
       "doi": "10.1016/s1097-2765(00)80128-8",
       "authors": [
         {
@@ -1299,6 +1315,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib17",
+      "workType": "Article",
       "doi": "10.4161/cc.7.4.5323",
       "authors": [
         {
@@ -1377,6 +1394,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib18",
+      "workType": "Article",
       "doi": "10.1093/genetics/161.2.521",
       "authors": [
         {
@@ -1440,6 +1458,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib19",
+      "workType": "Article",
       "doi": "10.1074/jbc.M202540200",
       "authors": [
         {
@@ -1540,6 +1559,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib20",
+      "workType": "Article",
       "doi": "10.1016/s0092-8674(01)00580-3",
       "authors": [
         {
@@ -1628,6 +1648,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib21",
+      "workType": "Article",
       "doi": "10.1083/jcb.200612031",
       "authors": [
         {
@@ -1708,6 +1729,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib22",
+      "workType": "Article",
       "doi": "10.1371/journal.pgen.1000015",
       "authors": [
         {
@@ -1759,6 +1781,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib23",
+      "workType": "Article",
       "doi": "10.15252/embj.2019101801",
       "authors": [
         {
@@ -1819,6 +1842,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib24",
+      "workType": "Article",
       "doi": "10.1038/emboj.2008.81",
       "authors": [
         {
@@ -1934,6 +1958,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib25",
+      "workType": "Article",
       "doi": "10.1016/s0092-8674(00)81482-8",
       "authors": [
         {
@@ -2025,6 +2050,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib26",
+      "workType": "Article",
       "doi": "10.1038/nsmb.2737",
       "authors": [
         {
@@ -2096,6 +2122,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib27",
+      "workType": "Article",
       "doi": "10.1016/s1097-2765(03)00058-3",
       "authors": [
         {
@@ -2196,6 +2223,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib28",
+      "workType": "Article",
       "doi": "10.1128/MCB.00994-10",
       "authors": [
         {
@@ -2266,6 +2294,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib29",
+      "workType": "Article",
       "doi": "10.1074/jbc.M605176200",
       "authors": [
         {
@@ -2339,6 +2368,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib30",
+      "workType": "Article",
       "doi": "10.1038/sj.embor.7400911",
       "authors": [
         {
@@ -2426,6 +2456,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib31",
+      "workType": "Article",
       "doi": "10.1038/ncomms9706",
       "authors": [
         {
@@ -2520,6 +2551,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib32",
+      "workType": "Article",
       "doi": "10.1038/cr.2014.147",
       "authors": [
         {
@@ -2571,6 +2603,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib33",
+      "workType": "Article",
       "doi": "10.3390/genes11020195",
       "authors": [
         {
@@ -2631,6 +2664,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib34",
+      "workType": "Article",
       "doi": "10.1038/s41580-023-00593-z",
       "authors": [
         {
@@ -2686,6 +2720,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib35",
+      "workType": "Article",
       "doi": "10.1101/cshperspect.a016428",
       "authors": [
         {
@@ -2736,6 +2771,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib36",
+      "workType": "Article",
       "doi": "10.1101/gad.903501",
       "authors": [
         {
@@ -2798,6 +2834,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib37",
+      "workType": "Article",
       "doi": "10.1016/j.celrep.2019.06.068",
       "authors": [
         {
@@ -2899,6 +2936,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib38",
+      "workType": "Article",
       "doi": "10.4161/auto.27707",
       "authors": [
         {
@@ -2986,6 +3024,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib39",
+      "workType": "Article",
       "doi": "10.1128/MCB.16.5.2164",
       "authors": [
         {
@@ -3050,6 +3089,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib40",
+      "workType": "Article",
       "doi": "10.1002/yea.2967",
       "authors": [
         {
@@ -3102,6 +3142,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib41",
+      "workType": "Article",
       "doi": "10.1016/j.cub.2015.08.051",
       "authors": [
         {
@@ -3144,6 +3185,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib42",
+      "workType": "Article",
       "doi": "10.1016/j.molcel.2009.10.014",
       "authors": [
         {
@@ -3197,6 +3239,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib43",
+      "workType": "Article",
       "doi": "10.1038/nmeth.1401",
       "authors": [
         {
@@ -3275,6 +3318,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib44",
+      "workType": "Article",
       "doi": "10.1073/pnas.0703252104",
       "authors": [
         {
@@ -3378,6 +3422,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib45",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3464,6 +3509,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib46",
+      "workType": "Article",
       "doi": "10.1093/emboj/18.22.6561",
       "authors": [
         {
@@ -3579,6 +3625,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib47",
+      "workType": "Article",
       "doi": "10.1016/s1097-2765(01)00177-0",
       "authors": [
         {
@@ -3659,6 +3706,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib48",
+      "workType": "Article",
       "doi": "10.1534/genetics.109.112854",
       "authors": [
         {
@@ -3746,6 +3794,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib49",
+      "workType": "Article",
       "doi": "10.1074/jbc.273.10.5858",
       "authors": [
         {
@@ -3829,6 +3878,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib50",
+      "workType": "Article",
       "doi": "10.1038/s41567-022-01601-3",
       "authors": [
         {
@@ -3908,6 +3958,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib51",
+      "workType": "Article",
       "doi": "10.1126/science.286.5442.1166",
       "authors": [
         {
@@ -4005,6 +4056,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib52",
+      "workType": "Article",
       "doi": "10.1016/s1097-2765(02)00532-4",
       "authors": [
         {
@@ -4113,6 +4165,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib53",
+      "workType": "Article",
       "doi": "10.1128/mcb.14.11.7476-7482.1994",
       "authors": [
         {
@@ -4173,6 +4226,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib54",
+      "workType": "Article",
       "doi": "10.1016/j.cub.2004.09.047",
       "authors": [
         {
@@ -4281,6 +4335,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib55",
+      "workType": "Article",
       "doi": "10.1073/pnas.0701622104",
       "authors": [
         {
@@ -4352,6 +4407,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib56",
+      "workType": "Article",
       "doi": "10.1016/j.cub.2005.06.063",
       "authors": [
         {
@@ -4452,6 +4508,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib57",
+      "workType": "Article",
       "doi": "10.1093/nar/gkv520",
       "authors": [
         {
@@ -4563,6 +4620,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib58",
+      "workType": "Article",
       "doi": "10.1073/pnas.0611259104",
       "authors": [
         {
@@ -4633,6 +4691,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib59",
+      "workType": "Article",
       "doi": "10.1016/j.molcel.2008.12.022",
       "authors": [
         {
@@ -4696,6 +4755,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib60",
+      "workType": "Article",
       "doi": "10.1016/s1097-2765(02)00593-2",
       "authors": [
         {
@@ -4804,6 +4864,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib61",
+      "workType": "Article",
       "doi": "10.1002/yea.320101310",
       "authors": [
         {
@@ -4884,6 +4945,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib62",
+      "workType": "Article",
       "doi": "10.1146/annurev-biochem-011520-104722",
       "authors": [
         {
@@ -4947,6 +5009,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib63",
+      "workType": "Article",
       "doi": "10.1093/nar/gkaa355",
       "authors": [
         {
@@ -5029,6 +5092,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib64",
+      "workType": "Article",
       "doi": "10.1038/s41467-020-19532-z",
       "authors": [
         {
@@ -5188,6 +5252,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib65",
+      "workType": "Article",
       "doi": "10.1073/pnas.062502299",
       "authors": [
         {
@@ -5239,6 +5304,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib66",
+      "workType": "Article",
       "doi": "10.1016/0092-8674(93)90321-g",
       "authors": [
         {
@@ -5291,6 +5357,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib67",
+      "workType": "Article",
       "doi": "10.1016/j.cell.2008.08.037",
       "authors": [
         {
@@ -5372,6 +5439,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib68",
+      "workType": "Article",
       "doi": "10.1126/science.1083430",
       "authors": [
         {

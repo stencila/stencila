@@ -276,6 +276,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0001",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -318,6 +319,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0002",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -360,6 +362,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0003",
+      "workType": "Article",
       "doi": "10.1038/nature03893",
       "authors": [
         {
@@ -439,6 +442,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0004",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -508,6 +512,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0005",
+      "workType": "Article",
       "doi": "10.1016/j.zool.2004.03.002",
       "authors": [
         {
@@ -577,6 +582,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0006",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -662,6 +668,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0007",
+      "workType": "Article",
       "doi": "10.1038/nature04119",
       "authors": [
         {
@@ -722,6 +729,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0008",
+      "workType": "Article",
       "doi": "10.1038/nature07339",
       "authors": [
         {
@@ -801,6 +809,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0009",
+      "workType": "Article",
       "doi": "10.1016/j.zool.2018.10.003",
       "authors": [
         {
@@ -881,6 +890,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0010",
+      "workType": "Article",
       "doi": "10.1093/iob/obz026",
       "authors": [
         {
@@ -979,6 +989,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0011",
+      "workType": "Article",
       "doi": "10.1111/jfb.13802",
       "authors": [
         {
@@ -1068,6 +1079,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0012",
+      "workType": "Article",
       "doi": "10.1093/icb/icm055",
       "authors": [
         {
@@ -1111,6 +1123,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0013",
+      "workType": "Article",
       "doi": "10.1038/s41586-020-2100-8",
       "authors": [
         {
@@ -1190,6 +1203,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0014",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1249,6 +1263,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0015",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1301,36 +1316,16 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0016",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Courtenay"
-          ],
-          "givenNames": [
-            "W",
-            "R"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Williams"
-          ],
-          "givenNames": [
-            "J",
-            "D"
-          ]
-        }
-      ],
       "date": {
         "type": "Date",
         "value": "2004"
-      }
+      },
+      "text": "Courtenay  WR  Jr  ,  Williams  JD  ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp."
     },
     {
       "type": "Reference",
       "id": "inz212599-bib-0017",
+      "workType": "Article",
       "doi": "10.1038/nature04639",
       "authors": [
         {
@@ -1394,6 +1389,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0018",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1462,6 +1458,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0019",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1521,6 +1518,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0020",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1563,6 +1561,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0021",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1643,6 +1642,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0022",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1685,6 +1685,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0023",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1727,6 +1728,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0024",
+      "workType": "Article",
       "doi": "10.1038/srep33734",
       "authors": [
         {
@@ -1780,6 +1782,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0025",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1857,6 +1860,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0026",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -1873,22 +1877,20 @@ expression: article
         "type": "Date",
         "value": "1974"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "How Mammals Run. Anatomical Adaptations"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "How Mammals Run. Anatomical Adaptations"
           }
-        ]
-      },
+        }
+      ],
       "pageStart": 367
     },
     {
       "type": "Reference",
       "id": "inz212599-bib-0027",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1930,6 +1932,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0028",
+      "workType": "Article",
       "doi": "10.1093/icb/ict052",
       "authors": [
         {
@@ -1993,6 +1996,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0029",
+      "workType": "Article",
       "doi": "10.1242/jeb.000687",
       "authors": [
         {
@@ -2035,6 +2039,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0030",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2094,6 +2099,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0031",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2135,6 +2141,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0032",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2177,6 +2184,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0033",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2262,6 +2270,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0034",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0096516",
       "authors": [
         {
@@ -2313,6 +2322,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0035",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2354,6 +2364,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0036",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2413,6 +2424,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0037",
+      "workType": "Article",
       "doi": "10.1093/icb/ict051",
       "authors": [
         {
@@ -2466,6 +2478,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0038",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2535,6 +2548,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0039",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2594,6 +2608,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0040",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2662,6 +2677,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0041",
+      "workType": "Article",
       "doi": "10.1038/nature08623",
       "authors": [
         {
@@ -2741,6 +2757,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0042",
+      "workType": "Article",
       "doi": "10.1002/aja.1000890202",
       "authors": [
         {
@@ -2783,6 +2800,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0043",
+      "workType": "Article",
       "doi": "10.1111/jfb.12318",
       "authors": [
         {
@@ -2836,6 +2854,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0044",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2905,6 +2924,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0045",
+      "workType": "Article",
       "doi": "10.1093/icb/ict022",
       "authors": [
         {
@@ -2968,6 +2988,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0046",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3027,6 +3048,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0047",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -3068,6 +3090,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0048",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -3126,6 +3149,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0049",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3168,6 +3192,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0050",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3236,6 +3261,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0051",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -3252,21 +3278,19 @@ expression: article
         "type": "Date",
         "value": "1968"
       },
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "The origin of terrestrial vertebrates"
-            }
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The origin of terrestrial vertebrates"
           }
-        ]
-      }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "inz212599-bib-0052",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3346,6 +3370,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0053",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -3387,6 +3412,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0054",
+      "workType": "Article",
       "doi": "10.1038/nature04637",
       "authors": [
         {
@@ -3467,6 +3493,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0055",
+      "workType": "Article",
       "doi": "10.1073/pnas.1322559111",
       "authors": [
         {
@@ -3547,6 +3574,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0056",
+      "workType": "Article",
       "doi": "10.1093/icb/icz145",
       "authors": [
         {
@@ -3607,6 +3635,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0057",
+      "workType": "Article",
       "doi": "10.1242/jeb.01237",
       "authors": [
         {
@@ -3660,6 +3689,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0058",
+      "workType": "Article",
       "doi": "10.1002/bies.201900061",
       "authors": [
         {
@@ -3701,6 +3731,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0059",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -3769,6 +3800,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0060",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -3819,6 +3851,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0061",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3871,6 +3904,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0062",
+      "workType": "Article",
       "doi": "10.1016/j.zool.2015.06.002",
       "authors": [
         {
@@ -3953,6 +3987,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0063",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4005,6 +4040,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0064",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -4047,6 +4083,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0065",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",

@@ -4,10 +4,11 @@ use roxmltree::Node;
 use stencila_codec::{
     Losses,
     stencila_schema::{
-        Article, Author, Block, Date, Person, Reference, ReferenceOptions, Section, SectionType,
-        shortcuts::t,
+        Article, Author, Block, CreativeWorkType, Date, Person, Reference, ReferenceOptions,
+        Section, SectionType, shortcuts::t,
     },
 };
+use stencila_codec_biblio::decode::text_to_reference;
 
 use crate::decode::body::{decode_blocks, decode_sec};
 
@@ -64,9 +65,8 @@ fn decode_ref_list(path: &str, node: &Node, article: &mut Article, losses: &mut 
             let child_path = &extend_path(path, "ref");
             child
                 .children()
-                .filter(|grandchild| grandchild.tag_name().name().contains("citation"))
+                .find(|grandchild| grandchild.tag_name().name().contains("citation"))
                 .map(|grandchild| decode_citation(child_path, id, &grandchild, losses))
-                .collect_vec()
         })
         .collect_vec();
 
@@ -75,9 +75,19 @@ fn decode_ref_list(path: &str, node: &Node, article: &mut Article, losses: &mut 
     article.references = (!references.is_empty()).then_some(references);
 }
 
-/// Decode any node that contains `<citation>` element
+/// Decode any node that contains `<citation>` or `<mixed-citation>` element
 fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Reference {
-    record_attrs_lost(path, node, [], losses);
+    let work_type = node.attribute("publication-type").and_then(|pt| {
+        Some(match pt {
+            "journal" => CreativeWorkType::Article,
+            "book" => CreativeWorkType::Book,
+            "data" => CreativeWorkType::Dataset,
+            "website" => CreativeWorkType::WebPage,
+            _ => return None,
+        })
+    });
+
+    record_attrs_lost(path, node, ["publication-type"], losses);
 
     let mut doi = None;
     let mut authors = Vec::new();
@@ -122,33 +132,65 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
         }
     }
 
+    let id = Some(id.into());
+
     let authors = (!authors.is_empty()).then_some(authors);
 
-    let is_part_of = source
-        .map(|title| Reference {
-            title: Some(vec![t(title)]),
+    let is_part_of = if let Some(source) = source {
+        if title.is_none() {
+            title = Some(vec![t(source)]);
+
+            None
+        } else {
+            Some(Box::new(Reference {
+                title: Some(vec![t(source)]),
+                options: Box::new(ReferenceOptions {
+                    volume_number,
+                    issue_number,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }))
+        }
+    } else {
+        None
+    };
+
+    // If at least authors and title are not present (can be common for <mixed-citation>)
+    // then parse the text of the element as a citation and use that
+    if authors.is_none() || title.is_none() {
+        let text = node
+            .descendants()
+            .filter(|node| node.is_text())
+            .map(|node| {
+                node.text()
+                    .unwrap_or_default()
+                    .replace("\n", " ")
+                    .trim()
+                    .to_string()
+            })
+            .join(" ");
+
+        Reference {
+            id,
+            ..text_to_reference(&text)
+        }
+    } else {
+        Reference {
+            id,
+            work_type,
+            doi,
+            authors,
+            date,
+            title,
+            is_part_of,
             options: Box::new(ReferenceOptions {
-                volume_number,
-                issue_number,
+                page_start,
+                page_end,
                 ..Default::default()
             }),
             ..Default::default()
-        })
-        .map(Box::new);
-
-    Reference {
-        id: Some(id.into()),
-        doi,
-        authors,
-        date,
-        title,
-        is_part_of,
-        options: Box::new(ReferenceOptions {
-            page_start,
-            page_end,
-            ..Default::default()
-        }),
-        ..Default::default()
+        }
     }
 }
 
