@@ -982,6 +982,17 @@ pub enum StructuringOperation {
     /// structure and linking.
     MathToCitations,
 
+    /// Normalize citation formatting and grouping
+    ///
+    /// Removes parentheses and square brackets around citations, groups
+    /// adjacent citations into citation groups, handles commas and semicolons
+    /// between citations by grouping them, handles simple citation ranges
+    /// (e.g., dash between two numeric citations), extracts citations from
+    /// superscripts, and sets appropriate citation modes: Parenthetical for
+    /// citations that had brackets/parentheses removed, Narrative for other
+    /// standalone citations, and None for citations within citation groups.
+    NormalizeCitations,
+
     /// Remove content before the first primary heading
     ///
     /// In scholarly articles, author bylines and affiliations usually occur

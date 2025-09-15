@@ -9,7 +9,6 @@ use stencila_codec::{
 mod back;
 mod body;
 mod front;
-mod inlines;
 mod utilities;
 
 use back::decode_back;

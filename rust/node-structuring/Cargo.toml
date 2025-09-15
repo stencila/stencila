@@ -16,7 +16,6 @@ stencila-schema = { path = "../schema" }
 tracing = { workspace = true }
 
 [dev-dependencies]
-glob = { workspace = true }
 insta = { workspace = true }
 pretty_assertions = { workspace = true }
 stencila-codec-json = { path = "../codec-json" }

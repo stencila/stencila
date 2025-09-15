@@ -1,0 +1,61 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Parenthetical "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "smith-2003",
+          "citationMode": "Parenthetical",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Smith 2023"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and narrative "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "jones-2004",
+          "citationMode": "Narrative",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Jones 2024"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " citations."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "normalize-citations"
+  ]
+}

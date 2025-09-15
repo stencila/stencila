@@ -22,10 +22,7 @@ use stencila_codec_text_trait::to_text;
 
 use crate::encode::serialize_node;
 
-use super::{
-    inlines::normalize_inlines,
-    utilities::{extend_path, record_attrs_lost, record_node_lost},
-};
+use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
 
 const XLINK: &str = "http://www.w3.org/1999/xlink";
 
@@ -950,7 +947,7 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
         inlines.push(inline);
     }
 
-    normalize_inlines(inlines)
+    inlines
 }
 
 /// Decode a `<inline-media>` to a [`Inline::AudioObject`], [`Inline::ImageObject`],

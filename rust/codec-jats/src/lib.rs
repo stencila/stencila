@@ -1,6 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
-    eyre::Result,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, StructuringOptions,
+    async_trait, eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
 };
@@ -88,6 +88,11 @@ impl Codec for JatsCodec {
             // If not in the above lists then no support
             _ => None,
         }
+    }
+
+    fn structuring_options(&self, _format: &Format) -> StructuringOptions {
+        use stencila_codec::StructuringOperation::*;
+        StructuringOptions::new([NormalizeCitations], [])
     }
 
     async fn from_str(

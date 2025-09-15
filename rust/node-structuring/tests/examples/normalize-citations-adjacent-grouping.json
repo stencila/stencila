@@ -1,0 +1,47 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Multiple studies confirm this ["
+        },
+        {
+          "type": "Citation",
+          "target": "ref-1",
+
+          "content": [
+            {
+              "type": "Text",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", "
+        },
+        {
+          "type": "Citation",
+          "target": "ref-2",
+
+          "content": [
+            {
+              "type": "Text",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "]."
+        }
+      ]
+    }
+  ]
+}

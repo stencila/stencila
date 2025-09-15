@@ -1,0 +1,31 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Smith argues ("
+        },
+        {
+          "type": "Citation",
+          "target": "smith-2023",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Smith 2023"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ") that this is true."
+        }
+      ]
+    }
+  ]
+}
