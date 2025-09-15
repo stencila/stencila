@@ -1,0 +1,60 @@
+{
+  "type": "Article",
+  "structuring": [
+    "normalize-citations"
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Studies "
+        },
+        {
+          "type": "Citation",
+          "target": "ref1",
+          "content": [
+            {
+              "type": "Text",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", "
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref2",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "2"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref3",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " show this."
+        }
+      ]
+    }
+  ]
+}

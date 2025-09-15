@@ -441,15 +441,15 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
         } else if let Inline::CitationGroup(current) = &mut inline {
             if let Some(Inline::Text(Text { value, .. })) = output.last()
                 && value.trim() == ","
-                && let Some(Inline::Citation(mut citation)) = output.iter().rev().nth(1).cloned()
+                && let Some(Inline::Citation(citation)) = output.iter().rev().nth(1)
             {
                 // Comma between a citation and a citation group so pop off both and add
                 // the citation to the current group
-                output.pop();
-                output.pop();
+                let mut citation = citation.clone();
+                output.pop(); // Remove comma text
+                output.pop(); // Remove citation
                 citation.citation_mode = None;
-                current.items.push(citation);
-                continue;
+                current.items.insert(0, citation); // Insert at beginning to maintain order
             }
         } else if let Inline::Superscript(Superscript { content, .. }) = &inline {
             if let (1, Some(Inline::Citation(..) | Inline::CitationGroup(..))) =
