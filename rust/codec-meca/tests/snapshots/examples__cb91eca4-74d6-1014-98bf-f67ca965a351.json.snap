@@ -219,6 +219,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c1",
+      "workType": "Article",
       "doi": "10.1534/genetics.114.169730",
       "authors": [
         {
@@ -297,6 +298,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -314,6 +316,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c2",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -339,6 +342,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -356,6 +360,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c3",
+      "workType": "Article",
       "doi": "10.1038/s41467-021-22861-2",
       "authors": [
         {
@@ -484,6 +489,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -500,6 +506,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c4",
+      "workType": "Article",
       "doi": "10.1038/nbt.3026",
       "authors": [
         {
@@ -612,6 +619,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -629,6 +637,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c5",
+      "workType": "Article",
       "doi": "10.1534/g3.117.040824",
       "authors": [
         {
@@ -709,6 +718,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -726,6 +736,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c6",
+      "workType": "Article",
       "doi": "10.7554/eLife.12677",
       "authors": [
         {
@@ -831,6 +842,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -845,6 +857,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c7",
+      "workType": "Article",
       "doi": "10.1534/g3.116.038133",
       "authors": [
         {
@@ -918,6 +931,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -935,6 +949,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c8",
+      "workType": "Article",
       "doi": "10.7554/eLife.13450",
       "authors": [
         {
@@ -1010,6 +1025,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1024,6 +1040,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c9",
+      "workType": "Article",
       "doi": "10.3390/ijms232415863",
       "authors": [
         {
@@ -1068,6 +1085,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1139,6 +1157,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1152,6 +1171,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c11",
+      "workType": "Article",
       "doi": "10.1242/dev.200332",
       "authors": [
         {
@@ -1216,6 +1236,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1232,6 +1253,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c12",
+      "workType": "Article",
       "doi": "10.1534/genetics.115.179382",
       "authors": [
         {
@@ -1285,6 +1307,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1302,6 +1325,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c13",
+      "workType": "Article",
       "doi": "10.15252/embj.2020105280",
       "authors": [
         {
@@ -1394,6 +1418,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1410,6 +1435,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c14",
+      "workType": "Article",
       "doi": "10.1038/s41556-021-00827-2",
       "authors": [
         {
@@ -1561,6 +1587,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1578,6 +1605,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c15",
+      "workType": "Article",
       "doi": "10.1038/nmeth.2413",
       "authors": [
         {
@@ -1711,6 +1739,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1728,6 +1757,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c16",
+      "workType": "Article",
       "doi": "10.1534/g3.119.400314",
       "authors": [
         {
@@ -1802,6 +1832,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1845,6 +1876,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1860,6 +1892,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c18",
+      "workType": "Article",
       "doi": "10.1126/sciadv.abd9941",
       "authors": [
         {
@@ -1985,6 +2018,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2001,6 +2035,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c19",
+      "workType": "Article",
       "doi": "10.1186/s13059-015-0784-0",
       "authors": [
         {
@@ -2045,6 +2080,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2117,13 +2153,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " research "
+                "string": " research ("
               }
             },
             {
               "type": "Citation",
               "target": "c9",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2136,7 +2171,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". There are many applications for genome editing including engineering specific mutations and endogenously tagging genes. In "
+                "string": "). There are many applications for genome editing including engineering specific mutations and endogenously tagging genes. In "
               }
             },
             {
@@ -2153,13 +2188,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", a co-CRISPR strategy using dominant phenotypic markers "
+                "string": ", a co-CRISPR strategy using dominant phenotypic markers ("
               }
             },
             {
               "type": "Citation",
               "target": "c1",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2172,7 +2206,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " has been a very successful method to facilitate reproducible and reliable genome editing. The most widely used co-CRISPR gene is "
+                "string": ") has been a very successful method to facilitate reproducible and reliable genome editing. The most widely used co-CRISPR gene is "
               }
             },
             {
@@ -2223,13 +2257,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " guide sequence is very efficient with homozygous Dpy or DpyRol worms frequently observed in the F1 generation of CRISPR edited worms "
+                "string": " guide sequence is very efficient with homozygous Dpy or DpyRol worms frequently observed in the F1 generation of CRISPR edited worms ("
               }
             },
             {
               "type": "Citation",
               "target": "c1",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2242,7 +2275,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". One difficulty in designing new CRISPR experiments is that there is no method to accurately predict the efficiency of a guide RNA "
+                "string": "). One difficulty in designing new CRISPR experiments is that there is no method to accurately predict the efficiency of a guide RNA "
               }
             },
             {
@@ -2276,13 +2309,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " guide sequence to create an entry strain for your gene of interest to facilitate genome editing with a single efficient guide RNA "
+                "string": " guide sequence to create an entry strain for your gene of interest to facilitate genome editing with a single efficient guide RNA ("
               }
             },
             {
               "type": "Citation",
               "target": "c5",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2295,7 +2327,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". You can create a “d10 entry” strain by inserting "
+                "string": "). You can create a “d10 entry” strain by inserting "
               }
             },
             {
@@ -2312,13 +2344,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " guide sequence at your region of interest and then use this strain in a second round of CRISPR genome editing to reliably introduce your desired edits "
+                "string": " guide sequence at your region of interest and then use this strain in a second round of CRISPR genome editing to reliably introduce your desired edits ("
               }
             },
             {
               "type": "Citation",
               "target": "c5",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2331,90 +2362,115 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". There are many advantages to this d10 entry strain approach including increasing the reliability of low efficiency knock-in edits, easily editing the same gene multiple times, and the ability to engineer scarless edits. This method has proven to be effective as evidenced by the many publications that cite this strategy "
+                "string": "). There are many advantages to this d10 entry strain approach including increasing the reliability of low efficiency knock-in edits, easily editing the same gene multiple times, and the ability to engineer scarless edits. This method has proven to be effective as evidenced by the many publications that cite this strategy ("
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "c3",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "c3",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Dietz et al., 2021"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c11",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Lynch et al., 2022"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c13",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Placentino et al., 2021"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c14",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Schreier et al., 2022"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c16",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Silva-García et al., 2019"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c18",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Vigne et al., 2021"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "Dietz et al., 2021"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". There are several situations where a d10 entry strain is not possible such as if your gene of interest is closely linked to "
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c11",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Lynch et al., 2022"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c13",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Placentino et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c14",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Schreier et al., 2022"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c16",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Silva-García et al., 2019"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c18",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Vigne et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). There are several situations where a d10 entry strain is not possible such as if your gene of interest is closely linked to "
               }
             },
             {
@@ -2476,13 +2532,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and the closest adjacent PAM was 25 nucleotides from the start codon. After screening 4520 co-CRISPR positive F1 and not isolating the desired knock-in, I decided to attempt the “d10 entry” strain approach "
+                "string": " and the closest adjacent PAM was 25 nucleotides from the start codon. After screening 4520 co-CRISPR positive F1 and not isolating the desired knock-in, I decided to attempt the “d10 entry” strain approach ("
               }
             },
             {
               "type": "Citation",
               "target": "c5",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2495,7 +2550,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". I designed an ssODN repair template that included a 25bp deletion and insertion of the d10 guide sequence on the antisense strand directly after the start codon ("
+                "string": "). I designed an ssODN repair template that included a 25bp deletion and insertion of the d10 guide sequence on the antisense strand directly after the start codon ("
               }
             },
             {
@@ -2633,42 +2688,43 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " sequences so I refer to it as a “synthetic guide”. I reasoned that this sequence may have high on-target efficiency because it exhibits some of the qualities that have been previously reported in efficient Cas9 guide sequences including a high GC content (40%), multiple CA or AC dinucleotides, and a G in the 20 position "
+                "string": " sequences so I refer to it as a “synthetic guide”. I reasoned that this sequence may have high on-target efficiency because it exhibits some of the qualities that have been previously reported in efficient Cas9 guide sequences including a high GC content (40%), multiple CA or AC dinucleotides, and a G in the 20 position ("
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "c4",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "c4",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Doench et al., 2014"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c19",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Wong et al., 2015"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "Doench et al., 2014"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". To check for off target sites in the "
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c19",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Wong et al., 2015"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). To check for off target sites in the "
               }
             },
             {
@@ -2999,13 +3055,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). This is lower than the reported efficiency of d10 entry strains which ranged from 3-19% "
+                "string": "). This is lower than the reported efficiency of d10 entry strains which ranged from 3-19% ("
               }
             },
             {
               "type": "Citation",
               "target": "c5",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3018,42 +3073,43 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " but is still sufficient for use in generating entry strains. Interestingly, both of these guide sequences exhibited a wide range of efficiencies when inserted at different genomic loci; this observation highlights how CRISPR efficiency can be affected by non-sequence specific factors such as chromatin state "
+                "string": ") but is still sufficient for use in generating entry strains. Interestingly, both of these guide sequences exhibited a wide range of efficiencies when inserted at different genomic loci; this observation highlights how CRISPR efficiency can be affected by non-sequence specific factors such as chromatin state ("
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "c6",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "c6",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Horlbeck et al., 2016"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c8",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Isaac et al., 2016"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "Horlbeck et al., 2016"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c8",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Isaac et al., 2016"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
               }
             }
           ]
@@ -3204,42 +3260,43 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " (OP50) using standard worm maintenance techniques "
+                    "string": " (OP50) using standard worm maintenance techniques ("
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Citation",
+                  "target": "c2",
+                  "content": [
                     {
-                      "type": "Citation",
-                      "target": "c2",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "Brenner, 1974"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c17",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "Stiernagle, 2006"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "Brenner, 1974"
+                      }
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "."
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c17",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Stiernagle, 2006"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")."
                   }
                 }
               ]
@@ -3329,13 +3386,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "mNeonGreen(mNG) is licensed by Allele Biotechnology and Pharmaceuticals "
+                    "string": "mNeonGreen(mNG) is licensed by Allele Biotechnology and Pharmaceuticals ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c15",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -3348,7 +3404,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": "). "
                   }
                 },
                 {
@@ -3365,13 +3421,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " codon optimised mNeonGreen "
+                    "string": " codon optimised mNeonGreen ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c7",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -3384,13 +3439,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " was amplified from a plasmid, dg353 (a gift from D. Glauser), and a 12 amino acid flexible linker (GTGGGGSGGGGS) was added to the 3’ end of the mNG sequence as previously described "
+                    "string": ") was amplified from a plasmid, dg353 (a gift from D. Glauser), and a 12 amino acid flexible linker (GTGGGGSGGGGS) was added to the 3’ end of the mNG sequence as previously described ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c10",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -3403,7 +3457,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". 35 base pair homology arms were added to the mNG sequence with two rounds of high-fidelity PCR as per manufacturer’s instructions (Velocity, BIO-21098, Meridian BioScience)."
+                    "string": "). 35 base pair homology arms were added to the mNG sequence with two rounds of high-fidelity PCR as per manufacturer’s instructions (Velocity, BIO-21098, Meridian BioScience)."
                   }
                 }
               ]
@@ -3448,13 +3502,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "CRISPR experiments were performed by microinjection of the Cas9 ribonucleoprotein complex "
+                    "string": "CRISPR experiments were performed by microinjection of the Cas9 ribonucleoprotein complex ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c12",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -3467,13 +3520,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". CRISPR reagents were purchased from IDT: Alt-R Cas9 Nuclease V3 (IDT, #1081058), Alt-R tracrRNA (IDT, #1072533), and custom synthesised gene specific Alt-R crRNA. All RNA for CRISPR experiments was reconstituted with 5 mM Tris (pH 7.5) and stored at −75°C. Single-stranded oligonucleotides (ssODN) repair templates were ordered from Sigma-Merck and reconstituted with 1 M Tris pH 7.4 and kept at −20°C. CRISPR mixes were prepared as previously described "
+                    "string": "). CRISPR reagents were purchased from IDT: Alt-R Cas9 Nuclease V3 (IDT, #1081058), Alt-R tracrRNA (IDT, #1072533), and custom synthesised gene specific Alt-R crRNA. All RNA for CRISPR experiments was reconstituted with 5 mM Tris (pH 7.5) and stored at −75°C. Single-stranded oligonucleotides (ssODN) repair templates were ordered from Sigma-Merck and reconstituted with 1 M Tris pH 7.4 and kept at −20°C. CRISPR mixes were prepared as previously described ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c10",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -3486,7 +3538,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " and incubated at 37°C for 15 min prior to microinjection into the gonads of young adult hermaphrodites. A co-CRISPR approach with "
+                    "string": ") and incubated at 37°C for 15 min prior to microinjection into the gonads of young adult hermaphrodites. A co-CRISPR approach with "
                   }
                 },
                 {
@@ -3520,13 +3572,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " was used "
+                    "string": " was used ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c1",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -3539,7 +3590,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "; F1 progeny with the co-CRISPR marker phenotype were pooled in groups of 3-8 worms and edits were detected by PCR. The "
+                    "string": "); F1 progeny with the co-CRISPR marker phenotype were pooled in groups of 3-8 worms and edits were detected by PCR. The "
                   }
                 },
                 {
@@ -4067,6 +4118,10 @@ expression: article
       "type": "Organization"
     }
   ],
+  "isPartOf": {
+    "type": "Periodical",
+    "name": "bioRxiv"
+  },
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"

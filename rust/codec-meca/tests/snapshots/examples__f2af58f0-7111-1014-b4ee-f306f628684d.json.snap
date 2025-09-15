@@ -129,6 +129,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c1",
+      "workType": "Article",
       "doi": "10.1152/physrev.00007.2015",
       "authors": [
         {
@@ -176,6 +177,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -193,6 +195,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c2",
+      "workType": "Article",
       "doi": "10.1083/jcb.200103035",
       "authors": [
         {
@@ -277,6 +280,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -294,6 +298,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c3",
+      "workType": "Article",
       "doi": "10.1093/genetics/77.1.71",
       "authors": [
         {
@@ -320,6 +325,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -337,6 +343,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c4",
+      "workType": "Article",
       "doi": "10.1038/nature12354",
       "authors": [
         {
@@ -479,6 +486,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -496,6 +504,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c5",
+      "workType": "Article",
       "doi": "10.1016/j.ymgme.2012.07.023",
       "authors": [
         {
@@ -533,6 +542,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -550,6 +560,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c6",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -607,6 +618,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -623,6 +635,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c7",
+      "workType": "Article",
       "doi": "10.1534/g3.115.018465",
       "authors": [
         {
@@ -694,6 +707,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -711,6 +725,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c8",
+      "workType": "Article",
       "doi": "10.1186/gb-2007-8-9-r188",
       "authors": [
         {
@@ -805,6 +820,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -821,6 +837,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c9",
+      "workType": "Article",
       "doi": "10.1073/pnas.1811379116",
       "authors": [
         {
@@ -1013,6 +1030,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1030,6 +1048,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c10",
+      "workType": "Article",
       "doi": "10.3389/fphys.2021.647010",
       "authors": [
         {
@@ -1085,6 +1104,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1100,6 +1120,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c11",
+      "workType": "Article",
       "doi": "10.1038/84397",
       "authors": [
         {
@@ -1144,6 +1165,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1161,6 +1183,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c12",
+      "workType": "Article",
       "doi": "10.1007/s00441-009-0822-x",
       "authors": [
         {
@@ -1197,6 +1220,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1214,6 +1238,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c13",
+      "workType": "Article",
       "doi": "10.1038/nmeth.2089",
       "authors": [
         {
@@ -1261,6 +1286,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1323,13 +1349,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ") gene, leading to the absence of dystrophin, a critical cytoskeletal protein that connects the intracellular actin cytoskeleton to the extracellular matrix via the dystrophin-associated protein complex (DAPC) (Duan et al., n.d.). The loss of dystrophin leads to the destabilization of the DAPC and compromises the structural integrity of the sarcolemma, rendering it susceptible to damage during muscle contraction and stretching "
+                "string": ") gene, leading to the absence of dystrophin, a critical cytoskeletal protein that connects the intracellular actin cytoskeleton to the extracellular matrix via the dystrophin-associated protein complex (DAPC) (Duan et al., n.d.). The loss of dystrophin leads to the destabilization of the DAPC and compromises the structural integrity of the sarcolemma, rendering it susceptible to damage during muscle contraction and stretching ("
               }
             },
             {
               "type": "Citation",
               "target": "c1",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -1342,13 +1367,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Consequently, repeated mechanical stress leads to sarcolemmal tears, increased sarcoplasmic calcium influx, proteolytic enzyme activation, and eventual muscle fiber necrosis "
+                "string": "). Consequently, repeated mechanical stress leads to sarcolemmal tears, increased sarcoplasmic calcium influx, proteolytic enzyme activation, and eventual muscle fiber necrosis ("
               }
             },
             {
               "type": "Citation",
               "target": "c10",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -1361,7 +1385,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Over time, the regenerative capacity of muscle tissue diminishes, resulting in replacement of muscle fibers with fibrotic and adipose tissue."
+                "string": "). Over time, the regenerative capacity of muscle tissue diminishes, resulting in replacement of muscle fibers with fibrotic and adipose tissue."
               }
             }
           ]
@@ -1389,77 +1413,79 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", the gene MUA-3 encodes a transmembrane cell adhesion receptor that shares functional properties with human fibrillin-1 and 2 (FBN1, FBN2), which are components of connective tissue microfibrils and the extracellular matrix (ECM)"
+                "string": ", the gene MUA-3 encodes a transmembrane cell adhesion receptor that shares functional properties with human fibrillin-1 and 2 (FBN1, FBN2), which are components of connective tissue microfibrils and the extracellular matrix (ECM)("
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "c5",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "c5",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Davis & Summers, 2012"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c12",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Ramirez & Sakai, 2010"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "Davis & Summers, 2012"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". MUA-3 localizes to hypodermal cells, facilitating the attachment of body wall muscles to the overlying cuticle, and is essential for maintaining the integrity of hemidesmosome-like structures that anchor muscle cells in the worm "
+                "string": "; "
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "c12",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "c2",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Bercher et al., 2001"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c7",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Fotopoulos et al., 2015"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "Ramirez & Sakai, 2010"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". Mutations in "
+                "string": "). MUA-3 localizes to hypodermal cells, facilitating the attachment of body wall muscles to the overlying cuticle, and is essential for maintaining the integrity of hemidesmosome-like structures that anchor muscle cells in the worm ("
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c2",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Bercher et al., 2001"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c7",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Fotopoulos et al., 2015"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Mutations in "
               }
             },
             {
@@ -1504,42 +1530,43 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " in both healthy (ZW495) and dystrophic (AVG6) worms expressing muscle-specific GCaMP protein, using fluorescence as an indirect indicator of calcium "
+                "string": " in both healthy (ZW495) and dystrophic (AVG6) worms expressing muscle-specific GCaMP protein, using fluorescence as an indirect indicator of calcium ("
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "c4",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "c4",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Chen et al., 2013"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "c11",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Nakai et al., 2001"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "Chen et al., 2013"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". Downregulating "
+                "string": "; "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c11",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Nakai et al., 2001"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Downregulating "
               }
             },
             {
@@ -2187,13 +2214,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " OP50 as previously described "
+                    "string": " OP50 as previously described ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c3",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -2206,7 +2232,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Strains used in this study included the ZW495 strain ("
+                    "string": "). Strains used in this study included the ZW495 strain ("
                   }
                 },
                 {
@@ -2302,42 +2328,43 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " were imaged as previously described "
+                    "string": " were imaged as previously described ("
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Citation",
+                  "target": "c8",
+                  "content": [
                     {
-                      "type": "Citation",
-                      "target": "c8",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "Fox et al., 2007"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c9",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "Hughes et al., 2019"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "Fox et al., 2007"
+                      }
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Motion recording was followed by single-frame fluorescence imaging under blue-light illumination using a Sola Light Engine. Images were acquired to minimize fluorophore bleaching."
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c9",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Hughes et al., 2019"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Motion recording was followed by single-frame fluorescence imaging under blue-light illumination using a Sola Light Engine. Images were acquired to minimize fluorophore bleaching."
                   }
                 }
               ]
@@ -2376,13 +2403,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "ImageJ was used to draw a region of interest (ROI) around each specified region of animal muscle to measure maximum GCaMP2 brightness (indicating relative calcium levels) "
+                    "string": "ImageJ was used to draw a region of interest (ROI) around each specified region of animal muscle to measure maximum GCaMP2 brightness (indicating relative calcium levels) ("
                   }
                 },
                 {
                   "type": "Citation",
                   "target": "c13",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -2395,7 +2421,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". A matched ROI outside the animal served as background. The brightness ratio was calculated as animal fluorescence in the region of interest divided by adjacent background fluorescence."
+                    "string": "). A matched ROI outside the animal served as background. The brightness ratio was calculated as animal fluorescence in the region of interest divided by adjacent background fluorescence."
                   }
                 }
               ]
@@ -2775,6 +2801,10 @@ expression: article
       "type": "Organization"
     }
   ],
+  "isPartOf": {
+    "type": "Periodical",
+    "name": "bioRxiv"
+  },
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"
