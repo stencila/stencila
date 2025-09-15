@@ -3273,7 +3273,6 @@ expression: article
             {
               "type": "Citation",
               "target": "bib.bib11",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3286,7 +3285,6 @@ expression: article
             {
               "type": "Citation",
               "target": "bib.bib12",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -4473,7 +4471,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "bib.bib39",
-                  "citationMode": "Narrative",
                   "content": [
                     {
                       "type": "Text",
@@ -4486,7 +4483,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "bib.bib35",
-                  "citationMode": "Narrative",
                   "content": [
                     {
                       "type": "Text",
@@ -4499,7 +4495,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "bib.bib8",
-                  "citationMode": "Narrative",
                   "content": [
                     {
                       "type": "Text",
@@ -4512,7 +4507,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "bib.bib13",
-                  "citationMode": "Narrative",
                   "content": [
                     {
                       "type": "Text",
@@ -5398,7 +5392,6 @@ expression: article
                     {
                       "type": "Citation",
                       "target": "bib.bib57",
-                      "citationMode": "Narrative",
                       "content": [
                         {
                           "type": "Text",
@@ -5411,7 +5404,6 @@ expression: article
                     {
                       "type": "Citation",
                       "target": "bib.bib10",
-                      "citationMode": "Narrative",
                       "content": [
                         {
                           "type": "Text",

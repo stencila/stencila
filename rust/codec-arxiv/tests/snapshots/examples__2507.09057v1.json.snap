@@ -2541,7 +2541,6 @@ expression: article
             {
               "type": "Citation",
               "target": "bib.bib37",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2554,7 +2553,6 @@ expression: article
             {
               "type": "Citation",
               "target": "bib.bib16",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2616,7 +2614,6 @@ expression: article
             {
               "type": "Citation",
               "target": "bib.bib23",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2629,7 +2626,6 @@ expression: article
             {
               "type": "Citation",
               "target": "bib.bib2",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2642,7 +2638,6 @@ expression: article
             {
               "type": "Citation",
               "target": "bib.bib3",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",

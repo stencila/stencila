@@ -194,7 +194,7 @@ pub fn decode_citation(
 
     // Handle multiple citations as CitationGroup, single citations as Citation
     if ref_links.len() > 1 {
-        create_citation_group(parser, tag, ref_links, mode)
+        create_citation_group(parser, tag, ref_links)
     } else {
         create_single_citation(parser, tag, ref_links, mode)
     }
@@ -213,11 +213,13 @@ fn extract_fragment_id(url: &str) -> String {
 }
 
 /// Create a citation group for multiple references
+/// 
+/// Does not set citation mode on citation items because they are part of the
+/// group which is by definition, parenthetical.
 fn create_citation_group(
     parser: &Parser,
     tag: &HTMLTag,
     ref_links: Vec<(String, &HTMLTag)>,
-    mode: CitationMode,
 ) -> Inline {
     let mut items = Vec::new();
     let total_count = ref_links.len();
@@ -229,7 +231,6 @@ fn create_citation_group(
 
         let mut citation = Citation {
             target,
-            citation_mode: Some(mode),
             ..Default::default()
         };
 
