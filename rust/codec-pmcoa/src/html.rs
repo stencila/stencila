@@ -471,8 +471,8 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
                             let target = href_val.trim_start_matches('#');
 
                             // Check if this is a figure or table reference
-                            if target.contains(".g") || target.contains(".t") {
-                                // This is a figure (.g001) or table (.t001) reference -> Link
+                            if target.contains(".g") || target.contains(".t") || target.contains(".s") {
+                                // This is a figure, table, or supplement reference
                                 lnk(content, ["#", target].concat())
                             } else {
                                 // This is a citation reference (.ref001)
