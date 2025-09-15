@@ -221,6 +221,9 @@ fn decode_article(parser: &Parser, body_section: &HTMLTag) -> Result<Article> {
                 "section" if class.contains("ref-list") => {
                     references = Some(decode_references(parser, tag)?);
                 }
+                "section" if class.contains("associated-data") => {
+                    // Skip as repeats supplementary materials section
+                }
                 "section" => {
                     // Regular content section
                     let section = decode_section(parser, tag)?;
