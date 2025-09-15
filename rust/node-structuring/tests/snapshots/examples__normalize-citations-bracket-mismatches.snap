@@ -11,29 +11,37 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "Citation with no content "
+            "string": "Unmatched opening "
           }
         },
         {
           "type": "Citation",
           "target": "ref1",
-          "citationMode": "Parenthetical"
+          "citationMode": "Parenthetical",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "1"
+              }
+            }
+          ]
         },
         {
           "type": "Text",
           "value": {
-            "string": " and normal "
+            "string": " and unmatched closing "
           }
         },
         {
           "type": "Citation",
           "target": "ref2",
-          "citationMode": "Parenthetical",
+          "citationMode": "Narrative",
           "content": [
             {
               "type": "Text",
               "value": {
-                "string": "Smith 2023"
+                "string": "2"
               }
             }
           ]
@@ -41,56 +49,18 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": ". Citation with empty text "
+            "string": " and mixed "
           }
         },
         {
           "type": "Citation",
           "target": "ref3",
-          "citationMode": "Narrative",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": ""
-              }
-            }
-          ]
-        },
-        {
-          "type": "Text",
-          "value": {
-            "string": ""
-          }
-        },
-        {
-          "type": "Citation",
-          "target": "ref4",
-          "citationMode": "Narrative",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "4"
-              }
-            }
-          ]
-        },
-        {
-          "type": "Text",
-          "value": {
-            "string": " and whitespace-only "
-          }
-        },
-        {
-          "type": "Citation",
-          "target": "ref5",
           "citationMode": "Parenthetical",
           "content": [
             {
               "type": "Text",
               "value": {
-                "string": "  \n  "
+                "string": "3"
               }
             }
           ]
@@ -98,7 +68,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "."
+            "string": " brackets."
           }
         }
       ]

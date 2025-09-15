@@ -9,15 +9,21 @@
       "content": [
         {
           "type": "Text",
-          "value": "Citation with no content ["
+          "value": "Unmatched opening ["
         },
         {
           "type": "Citation",
-          "target": "ref1"
+          "target": "ref1",
+          "content": [
+            {
+              "type": "Text",
+              "value": "1"
+            }
+          ]
         },
         {
           "type": "Text",
-          "value": "] and normal ("
+          "value": " and unmatched closing "
         },
         {
           "type": "Citation",
@@ -25,13 +31,13 @@
           "content": [
             {
               "type": "Text",
-              "value": "Smith 2023"
+              "value": "2"
             }
           ]
         },
         {
           "type": "Text",
-          "value": "). Citation with empty text "
+          "value": "] and mixed ("
         },
         {
           "type": "Citation",
@@ -39,41 +45,13 @@
           "content": [
             {
               "type": "Text",
-              "value": ""
+              "value": "3"
             }
           ]
         },
         {
           "type": "Text",
-          "value": ""
-        },
-        {
-          "type": "Citation",
-          "target": "ref4",
-          "content": [
-            {
-              "type": "Text",
-              "value": "4"
-            }
-          ]
-        },
-        {
-          "type": "Text",
-          "value": " and whitespace-only ("
-        },
-        {
-          "type": "Citation",
-          "target": "ref5",
-          "content": [
-            {
-              "type": "Text",
-              "value": "  \n  "
-            }
-          ]
-        },
-        {
-          "type": "Text",
-          "value": ")."
+          "value": "] brackets."
         }
       ]
     }

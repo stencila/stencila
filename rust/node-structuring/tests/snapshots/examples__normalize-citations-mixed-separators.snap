@@ -1,6 +1,5 @@
 ---
 source: rust/node-structuring/tests/examples.rs
-assertion_line: 77
 expression: node
 ---
 {
@@ -12,7 +11,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "Studies "
+            "string": "Mixed separators "
           }
         },
         {
@@ -25,7 +24,7 @@ expression: node
                 {
                   "type": "Text",
                   "value": {
-                    "string": "1"
+                    "string": "Smith 2020"
                   }
                 }
               ]
@@ -37,7 +36,7 @@ expression: node
                 {
                   "type": "Text",
                   "value": {
-                    "string": "2"
+                    "string": "Jones 2021"
                   }
                 }
               ]
@@ -49,7 +48,19 @@ expression: node
                 {
                   "type": "Text",
                   "value": {
-                    "string": "3"
+                    "string": "Brown 2022"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref4",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Davis 2023"
                   }
                 }
               ]
@@ -59,7 +70,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": " show this."
+            "string": " should group."
           }
         }
       ]

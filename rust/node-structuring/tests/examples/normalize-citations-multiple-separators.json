@@ -9,15 +9,21 @@
       "content": [
         {
           "type": "Text",
-          "value": "Citation with no content ["
+          "value": "Multiple commas ("
         },
         {
           "type": "Citation",
-          "target": "ref1"
+          "target": "ref1",
+          "content": [
+            {
+              "type": "Text",
+              "value": "1"
+            }
+          ]
         },
         {
           "type": "Text",
-          "value": "] and normal ("
+          "value": ", "
         },
         {
           "type": "Citation",
@@ -25,13 +31,13 @@
           "content": [
             {
               "type": "Text",
-              "value": "Smith 2023"
+              "value": "2"
             }
           ]
         },
         {
           "type": "Text",
-          "value": "). Citation with empty text "
+          "value": ", "
         },
         {
           "type": "Citation",
@@ -39,13 +45,13 @@
           "content": [
             {
               "type": "Text",
-              "value": ""
+              "value": "3"
             }
           ]
         },
         {
           "type": "Text",
-          "value": ""
+          "value": ", "
         },
         {
           "type": "Citation",
@@ -59,7 +65,7 @@
         },
         {
           "type": "Text",
-          "value": " and whitespace-only ("
+          "value": ") and semicolons ["
         },
         {
           "type": "Citation",
@@ -67,13 +73,41 @@
           "content": [
             {
               "type": "Text",
-              "value": "  \n  "
+              "value": "5"
             }
           ]
         },
         {
           "type": "Text",
-          "value": ")."
+          "value": "; "
+        },
+        {
+          "type": "Citation",
+          "target": "ref6",
+          "content": [
+            {
+              "type": "Text",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "; "
+        },
+        {
+          "type": "Citation",
+          "target": "ref7",
+          "content": [
+            {
+              "type": "Text",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "]."
         }
       ]
     }

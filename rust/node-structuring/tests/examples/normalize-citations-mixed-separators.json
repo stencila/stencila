@@ -9,15 +9,21 @@
       "content": [
         {
           "type": "Text",
-          "value": "Citation with no content ["
+          "value": "Mixed separators ("
         },
         {
           "type": "Citation",
-          "target": "ref1"
+          "target": "ref1",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Smith 2020"
+            }
+          ]
         },
         {
           "type": "Text",
-          "value": "] and normal ("
+          "value": ", "
         },
         {
           "type": "Citation",
@@ -25,13 +31,13 @@
           "content": [
             {
               "type": "Text",
-              "value": "Smith 2023"
+              "value": "Jones 2021"
             }
           ]
         },
         {
           "type": "Text",
-          "value": "). Citation with empty text "
+          "value": "; "
         },
         {
           "type": "Citation",
@@ -39,13 +45,13 @@
           "content": [
             {
               "type": "Text",
-              "value": ""
+              "value": "Brown 2022"
             }
           ]
         },
         {
           "type": "Text",
-          "value": ""
+          "value": ", "
         },
         {
           "type": "Citation",
@@ -53,27 +59,13 @@
           "content": [
             {
               "type": "Text",
-              "value": "4"
+              "value": "Davis 2023"
             }
           ]
         },
         {
           "type": "Text",
-          "value": " and whitespace-only ("
-        },
-        {
-          "type": "Citation",
-          "target": "ref5",
-          "content": [
-            {
-              "type": "Text",
-              "value": "  \n  "
-            }
-          ]
-        },
-        {
-          "type": "Text",
-          "value": ")."
+          "value": ") should group."
         }
       ]
     }
