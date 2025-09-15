@@ -18,7 +18,7 @@ use stencila_codec::{
         Section, SectionType, Table, TableCell, TableRow, shortcuts::t,
     },
 };
-use stencila_codec_biblio::decode::text_to_author;
+use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
 
 /// Decode a PMC HTML file to a Stencila [`Node`]
 #[tracing::instrument]
@@ -762,8 +762,7 @@ fn decode_references(parser: &Parser, ref_section: &HTMLTag) -> Result<Vec<Refer
                     if let Some(li_tag) = li_child.as_tag()
                         && li_tag.name().as_utf8_str() == "li"
                     {
-                        let reference = decode_reference(parser, li_tag)?;
-                        references.push(reference);
+                        references.push(decode_reference(parser, li_tag));
                     }
                 }
             } else if tag_name.as_ref() == "section" {
@@ -776,11 +775,8 @@ fn decode_references(parser: &Parser, ref_section: &HTMLTag) -> Result<Vec<Refer
 }
 
 /// Decode a single reference
-fn decode_reference(parser: &Parser, li_tag: &HTMLTag) -> Result<Reference> {
-    // Get the ID from the li element
-    let id = get_attr(li_tag, "id");
-
-    // Get the citation text from the cite element
+fn decode_reference(parser: &Parser, li_tag: &HTMLTag) -> Reference {
+    // Get the reference text from the <cite> element
     let citation_text = if let Some(cite_tag) = li_tag
         .query_selector(parser, "cite")
         .and_then(|mut nodes| nodes.next())
@@ -792,76 +788,11 @@ fn decode_reference(parser: &Parser, li_tag: &HTMLTag) -> Result<Reference> {
         get_text(parser, li_tag)
     };
 
-    // Try to parse structured information from citation text
-    let parsed = parse_citation_text(&citation_text);
+    // Parse the structured reference
+    let mut reference = text_to_reference(&citation_text);
 
-    Ok(Reference {
-        id,
-        title: if parsed.title.is_empty() {
-            if citation_text.is_empty() {
-                None
-            } else {
-                Some(vec![t(citation_text)])
-            }
-        } else {
-            Some(vec![t(parsed.title)])
-        },
-        doi: parsed.doi,
-        date: parsed.date,
-        ..Default::default()
-    })
-}
+    // Get the reference id from the li element
+    reference.id = get_attr(li_tag, "id");
 
-/// Parse citation text to extract structured information
-fn parse_citation_text(text: &str) -> ParsedCitation {
-    let mut result = ParsedCitation {
-        title: String::new(),
-        doi: None,
-        date: None,
-    };
-
-    // Extract DOI
-    if let Some(doi_start) = text.find("doi: ") {
-        let doi_part = &text[doi_start + 5..];
-        if let Some(doi_end) = doi_part.find(' ') {
-            result.doi = Some(doi_part[..doi_end].trim().to_string());
-        } else {
-            result.doi = Some(doi_part.trim().to_string());
-        }
-    }
-
-    // Extract year - look for pattern like "2015;" or ". 2015;"
-    let year_pattern = regex::Regex::new(r"\b(19|20)\d{2}[;\.]").expect("Invalid regex");
-    if let Some(capture) = year_pattern.find(text) {
-        let year_str = capture.as_str().trim_end_matches(&[';', '.'][..]);
-        result.date = Some(Date {
-            value: year_str.to_string(),
-            ..Default::default()
-        });
-    }
-
-    // Extract title - try to find the article title (before journal name)
-    // Look for pattern: "Authors. Title. Journal..."
-    let parts: Vec<&str> = text.split(". ").collect();
-    if parts.len() >= 3 {
-        // Skip first part (authors), take second part as potential title
-        let potential_title = parts[1].trim();
-        // Basic check - if it doesn't look like a journal name, use it as title
-        if !potential_title.is_empty() && potential_title.len() > 10 {
-            result.title = potential_title.to_string();
-        }
-    }
-
-    // If we couldn't extract a title, use the full text
-    if result.title.is_empty() {
-        result.title = text.to_string();
-    }
-
-    result
-}
-
-struct ParsedCitation {
-    title: String,
-    doi: Option<String>,
-    date: Option<Date>,
+    reference
 }
