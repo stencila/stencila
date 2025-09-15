@@ -178,25 +178,6 @@ expression: article
       "emails": [
         "haber@brandeis.edu"
       ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Aguilera"
-      ],
-      "givenNames": [
-        "Andrés"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Cooper"
-      ],
-      "givenNames": [
-        "Jonathan",
-        "A"
-      ]
     }
   ],
   "datePublished": {
@@ -21440,6 +21421,27 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "heading",
       "value": "Chromosomes and Gene Expression"
+    }
+  ],
+  "editors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Aguilera"
+      ],
+      "givenNames": [
+        "Andrés"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Cooper"
+      ],
+      "givenNames": [
+        "Jonathan",
+        "A"
+      ]
     }
   ],
   "funders": [

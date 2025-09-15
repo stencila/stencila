@@ -471,22 +471,53 @@ fn decode_funding_source(path: &str, node: &Node, losses: &mut Losses) -> Person
 fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
-    let mut authors = node
+    let mut authors = Vec::new();
+    let mut editors = Vec::new();
+    for child in node
         .children()
         .filter(|child| child.tag_name().name() == "contrib")
-        .map(|child| decode_contrib(path, &child, node, losses))
-        .collect();
+    {
+        let (contrib_type, contributor) = decode_contrib(path, &child, node, losses);
+        if contrib_type.contains("author") {
+            let author = match contributor {
+                PersonOrOrganization::Person(person) => Author::Person(person),
+                PersonOrOrganization::Organization(org) => Author::Organization(org),
+            };
+            authors.push(author);
+        } else if contrib_type.contains("editor") { // Allows for variants such as "senior_editor"
+            if let PersonOrOrganization::Person(person) = contributor {
+                editors.push(person);
+            }
+        }
+    }
 
-    if let Some(ref mut vector) = article.authors {
-        vector.append(&mut authors);
-    } else {
-        article.authors = Some(authors);
+    if !authors.is_empty() {
+        match &mut article.authors {
+            Some(existing) => existing.extend(authors),
+            None => article.authors = Some(authors),
+        }
+    }
+
+    if !editors.is_empty() {
+        match &mut article.options.editors {
+            Some(existing) => existing.extend(editors),
+            None => article.options.editors = Some(editors),
+        }
     }
 }
 
 /// Decode a `<contrib>` element
-fn decode_contrib(path: &str, node: &Node, parent: &Node, losses: &mut Losses) -> Author {
-    record_attrs_lost(path, node, [], losses);
+fn decode_contrib(
+    path: &str,
+    node: &Node,
+    parent: &Node,
+    losses: &mut Losses,
+) -> (String, PersonOrOrganization) {
+    let contrib_type = node
+        .attribute("contrib-type")
+        .map_or_else(|| "author".to_string(), |ct| ct.to_lowercase().to_string());
+
+    record_attrs_lost(path, node, ["contrib-type"], losses);
 
     let mut family_names = Vec::new();
     let mut given_names = Vec::new();
@@ -549,7 +580,7 @@ fn decode_contrib(path: &str, node: &Node, parent: &Node, losses: &mut Losses) -
     let emails = (!emails.is_empty()).then_some(emails);
     let affiliations = (!affiliations.is_empty()).then_some(affiliations);
 
-    Author::Person(Person {
+    let contributor = PersonOrOrganization::Person(Person {
         orcid,
         family_names,
         given_names,
@@ -559,7 +590,9 @@ fn decode_contrib(path: &str, node: &Node, parent: &Node, losses: &mut Losses) -
             ..Default::default()
         }),
         ..Default::default()
-    })
+    });
+
+    (contrib_type, contributor)
 }
 
 /// Decode an `<aff>` element

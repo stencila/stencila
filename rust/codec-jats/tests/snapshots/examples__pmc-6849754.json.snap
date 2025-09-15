@@ -381,15 +381,6 @@ expression: article
       "givenNames": [
         "Shuang‐Xi"
       ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Niu"
-      ],
-      "givenNames": [
-        "Shuli"
-      ]
     }
   ],
   "datePublished": {
@@ -20684,6 +20675,17 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "heading",
       "value": "Letters"
+    }
+  ],
+  "editors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Niu"
+      ],
+      "givenNames": [
+        "Shuli"
+      ]
     }
   ],
   "dateReceived": {
