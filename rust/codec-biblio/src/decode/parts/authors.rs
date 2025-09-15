@@ -82,7 +82,7 @@ pub fn person_family_initials(input: &mut &str) -> Result<Author> {
         // Family names
         terminated(separated(1.., name, multispace1), multispace1),
         // Initials (not separated by anything)
-        repeat(1.., initial_letter.map(|letter| [letter, "."].concat())),
+        repeat(1.., initial_letter.map(String::from)),
     )
         .map(|(family_names, given_names): (Vec<String>, Vec<String>)| {
             Author::Person(Person {
@@ -110,15 +110,13 @@ pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
             multispace0,
             (
                 // Parse first initial
-                (initial_letter, ".").take().map(String::from),
+                terminated(initial_letter, ".").map(String::from),
                 // Parse remaining initials
                 repeat(
                     0..,
                     preceded(
                         multispace0,
-                        (opt(one_hyphen), initial_letter, ".")
-                            .take()
-                            .map(String::from),
+                        terminated((opt(one_hyphen), initial_letter).take(), ".").map(String::from),
                     ),
                 ),
             )
@@ -150,9 +148,6 @@ pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
 ///
 /// Does not handle missing comma after family name because that would parse
 /// incorrect multiple family names incorrectly.
-///
-/// Note that the terminating period is intentionally included in the given
-/// names to indicate it is an initial, not a complete given name.
 pub fn person_family_given(input: &mut &str) -> Result<Author> {
     (
         // Family names
@@ -398,7 +393,6 @@ fn initial_letter<'s>(input: &mut &'s str) -> Result<&'s str> {
 /// Parse an initial: single uppercase alphabetic character, optionally with a period
 ///
 /// This parser matches patterns like "A", "B.", "M", "J." and takes the period if present.
-/// The result includes the period to indicate it's an initial rather than a full name.
 fn initial(input: &mut &str) -> Result<String> {
     (
         initial_letter,
@@ -407,13 +401,7 @@ fn initial(input: &mut &str) -> Result<String> {
         peek(not(take_while(1.., |c: char| c.is_alphabetic()))),
     )
         .take()
-        .map(|initial: &str| {
-            if initial.ends_with(".") {
-                initial.to_string()
-            } else {
-                [initial, "."].concat()
-            }
-        })
+        .map(|init| init.trim_end_matches('.').to_string())
         .parse_next(input)
 }
 
@@ -556,13 +544,13 @@ mod tests {
     #[test]
     fn test_initial() -> Result<()> {
         // Standard initials with periods
-        assert_eq!(initial(&mut "A."), Ok("A.".to_string()));
-        assert_eq!(initial(&mut "B."), Ok("B.".to_string()));
-        assert_eq!(initial(&mut "Z."), Ok("Z.".to_string()));
+        assert_eq!(initial(&mut "A."), Ok("A".to_string()));
+        assert_eq!(initial(&mut "B."), Ok("B".to_string()));
+        assert_eq!(initial(&mut "Z."), Ok("Z".to_string()));
 
         // Initials without periods
-        assert_eq!(initial(&mut "A"), Ok("A.".to_string()));
-        assert_eq!(initial(&mut "M"), Ok("M.".to_string()));
+        assert_eq!(initial(&mut "A"), Ok("A".to_string()));
+        assert_eq!(initial(&mut "M"), Ok("M".to_string()));
 
         // Should not match lowercase
         assert!(initial(&mut "a.").is_err());
@@ -603,7 +591,7 @@ mod tests {
         assert_eq!(
             items.last().cloned(),
             Some(Author::Person(Person {
-                given_names: Some(vec!["R.".into()]),
+                given_names: Some(vec!["R".into()]),
                 family_names: Some(vec!["Johnson".into()]),
                 ..Default::default()
             }))
@@ -615,7 +603,7 @@ mod tests {
         assert_eq!(
             items.pop(),
             Some(Author::Person(Person {
-                given_names: Some(vec!["L.".into()]),
+                given_names: Some(vec!["L".into()]),
                 family_names: Some(vec!["Chen".into()]),
                 ..Default::default()
             }))
@@ -636,7 +624,7 @@ mod tests {
         }) = author(&mut "Smith, J. A.")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
-            assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
+            assert_eq!(given_names, Some(vec!["J".to_string(), "A".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -649,7 +637,7 @@ mod tests {
         }) = author(&mut "Smith, J A.")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
-            assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
+            assert_eq!(given_names, Some(vec!["J".to_string(), "A".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -665,10 +653,7 @@ mod tests {
                 family_names,
                 Some(vec!["One".to_string(), "Two".to_string()])
             );
-            assert_eq!(
-                given_names,
-                Some(vec!["John".to_string(), "A.".to_string()])
-            );
+            assert_eq!(given_names, Some(vec!["John".to_string(), "A".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -681,7 +666,7 @@ mod tests {
         }) = author(&mut "Johnson, M.")?
         {
             assert_eq!(family_names, Some(vec!["Johnson".to_string()]));
-            assert_eq!(given_names, Some(vec!["M.".to_string()]));
+            assert_eq!(given_names, Some(vec!["M".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -694,7 +679,7 @@ mod tests {
         }) = author(&mut "Wilson, R")?
         {
             assert_eq!(family_names, Some(vec!["Wilson".to_string()]));
-            assert_eq!(given_names, Some(vec!["R.".to_string()]));
+            assert_eq!(given_names, Some(vec!["R".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -709,7 +694,7 @@ mod tests {
             assert_eq!(family_names, Some(vec!["Brown".to_string()]));
             assert_eq!(
                 given_names,
-                Some(vec!["A.".to_string(), "B.".to_string(), "C.".to_string()])
+                Some(vec!["A".to_string(), "B".to_string(), "C".to_string()])
             );
         } else {
             unreachable!("expected person")
@@ -725,7 +710,7 @@ mod tests {
             assert_eq!(family_names, Some(vec!["Garcia".to_string()]));
             assert_eq!(
                 given_names,
-                Some(vec!["Maria".to_string(), "J.".to_string()])
+                Some(vec!["Maria".to_string(), "J".to_string()])
             );
         } else {
             unreachable!("expected person")
@@ -739,7 +724,7 @@ mod tests {
         }) = author(&mut "Smith-Jones, K. L.")?
         {
             assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
-            assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
+            assert_eq!(given_names, Some(vec!["K".to_string(), "L".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -775,7 +760,7 @@ mod tests {
                     "Berg".to_string()
                 ])
             );
-            assert_eq!(given_names, Some(vec!["P.".to_string(), "Q.".to_string()]));
+            assert_eq!(given_names, Some(vec!["P".to_string(), "Q".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -793,7 +778,7 @@ mod tests {
         }) = author(&mut "Johnson M")?
         {
             assert_eq!(family_names, Some(vec!["Johnson".to_string()]));
-            assert_eq!(given_names, Some(vec!["M.".to_string()]));
+            assert_eq!(given_names, Some(vec!["M".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -808,7 +793,7 @@ mod tests {
             assert_eq!(family_names, Some(vec!["Brown".to_string()]));
             assert_eq!(
                 given_names,
-                Some(vec!["A.".to_string(), "B.".to_string(), "C.".to_string()])
+                Some(vec!["A".to_string(), "B".to_string(), "C".to_string()])
             );
         } else {
             unreachable!("expected person")
@@ -829,7 +814,7 @@ mod tests {
                     "Berg".to_string()
                 ])
             );
-            assert_eq!(given_names, Some(vec!["P.".to_string(), "Q.".to_string()]));
+            assert_eq!(given_names, Some(vec!["P".to_string(), "Q".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -842,7 +827,7 @@ mod tests {
         }) = author(&mut "Smith-Jones KL")?
         {
             assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
-            assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
+            assert_eq!(given_names, Some(vec!["K".to_string(), "L".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -860,7 +845,7 @@ mod tests {
         }) = author(&mut "Smith, J. A.")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
-            assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
+            assert_eq!(given_names, Some(vec!["J".to_string(), "A".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -873,7 +858,7 @@ mod tests {
         }) = author(&mut "Johnson, M.")?
         {
             assert_eq!(family_names, Some(vec!["Johnson".to_string()]));
-            assert_eq!(given_names, Some(vec!["M.".to_string()]));
+            assert_eq!(given_names, Some(vec!["M".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -888,7 +873,7 @@ mod tests {
             assert_eq!(family_names, Some(vec!["Brown".to_string()]));
             assert_eq!(
                 given_names,
-                Some(vec!["A.".to_string(), "B.".to_string(), "C.".to_string()])
+                Some(vec!["A".to_string(), "B".to_string(), "C".to_string()])
             );
         } else {
             unreachable!("expected person")
@@ -909,7 +894,7 @@ mod tests {
                     "Berg".to_string()
                 ])
             );
-            assert_eq!(given_names, Some(vec!["P.".to_string(), "Q.".to_string()]));
+            assert_eq!(given_names, Some(vec!["P".to_string(), "Q".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -922,7 +907,7 @@ mod tests {
         }) = author(&mut "Smith-Jones, K. L.")?
         {
             assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
-            assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
+            assert_eq!(given_names, Some(vec!["K".to_string(), "L".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -935,7 +920,7 @@ mod tests {
         }) = author(&mut "Smith P. A.")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
-            assert_eq!(given_names, Some(vec!["P.".to_string(), "A.".to_string()]));
+            assert_eq!(given_names, Some(vec!["P".to_string(), "A".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -948,7 +933,7 @@ mod tests {
         }) = author(&mut "Pfohl, S.R.")?
         {
             assert_eq!(family_names, Some(vec!["Pfohl".to_string()]));
-            assert_eq!(given_names, Some(vec!["S.".to_string(), "R.".to_string()]));
+            assert_eq!(given_names, Some(vec!["S".to_string(), "R".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -961,7 +946,7 @@ mod tests {
         }) = author(&mut "Kim R.B.")?
         {
             assert_eq!(family_names, Some(vec!["Kim".to_string()]));
-            assert_eq!(given_names, Some(vec!["R.".to_string(), "B.".to_string()]));
+            assert_eq!(given_names, Some(vec!["R".to_string(), "B".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -976,7 +961,7 @@ mod tests {
             assert_eq!(family_names, Some(vec!["Mitchell".to_string()]));
             assert_eq!(
                 given_names,
-                Some(vec!["C.".to_string(), "S.".to_string(), "T.".to_string()])
+                Some(vec!["C".to_string(), "S".to_string(), "T".to_string()])
             );
         } else {
             unreachable!("expected person")
@@ -995,7 +980,7 @@ mod tests {
         }) = author(&mut "J. A. Smith")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
-            assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
+            assert_eq!(given_names, Some(vec!["J".to_string(), "A".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -1008,7 +993,7 @@ mod tests {
         }) = author(&mut "J A Smith")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
-            assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
+            assert_eq!(given_names, Some(vec!["J".to_string(), "A".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -1020,10 +1005,7 @@ mod tests {
             ..
         }) = person_given_family(&mut "John A. Smith")?
         {
-            assert_eq!(
-                given_names,
-                Some(vec!["John".to_string(), "A.".to_string()])
-            );
+            assert_eq!(given_names, Some(vec!["John".to_string(), "A".to_string()]));
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
         } else {
             unreachable!("expected person")
@@ -1037,7 +1019,7 @@ mod tests {
         }) = author(&mut "M. Johnson")?
         {
             assert_eq!(family_names, Some(vec!["Johnson".to_string()]));
-            assert_eq!(given_names, Some(vec!["M.".to_string()]));
+            assert_eq!(given_names, Some(vec!["M".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -1052,7 +1034,7 @@ mod tests {
             assert_eq!(family_names, Some(vec!["Brown".to_string()]));
             assert_eq!(
                 given_names,
-                Some(vec!["A.".to_string(), "B.".to_string(), "C.".to_string()])
+                Some(vec!["A".to_string(), "B".to_string(), "C".to_string()])
             );
         } else {
             unreachable!("expected person")
@@ -1065,7 +1047,7 @@ mod tests {
             ..
         }) = author(&mut "K. L. Smith-Jones")?
         {
-            assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
+            assert_eq!(given_names, Some(vec!["K".to_string(), "L".to_string()]));
             assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
         } else {
             unreachable!("expected person")
@@ -1078,7 +1060,7 @@ mod tests {
             ..
         }) = author(&mut "S  I. Sanchez   Gomez")?
         {
-            assert_eq!(given_names, Some(vec!["S.".to_string(), "I.".to_string()]));
+            assert_eq!(given_names, Some(vec!["S".to_string(), "I".to_string()]));
             assert_eq!(
                 family_names,
                 Some(vec!["Sanchez".to_string(), "Gomez".to_string()])
@@ -1104,7 +1086,7 @@ mod tests {
         }) = &items[0]
         {
             assert_eq!(family_names, &Some(vec!["Pfohl".to_string()]));
-            assert_eq!(given_names, &Some(vec!["S.".to_string(), "R.".to_string()]));
+            assert_eq!(given_names, &Some(vec!["S".to_string(), "R".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -1117,7 +1099,7 @@ mod tests {
         }) = &items[1]
         {
             assert_eq!(family_names, &Some(vec!["Kim".to_string()]));
-            assert_eq!(given_names, &Some(vec!["R.".to_string(), "B.".to_string()]));
+            assert_eq!(given_names, &Some(vec!["R".to_string(), "B".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -1130,7 +1112,7 @@ mod tests {
         }) = &items[2]
         {
             assert_eq!(family_names, &Some(vec!["Coan".to_string()]));
-            assert_eq!(given_names, &Some(vec!["G.".to_string(), "S.".to_string()]));
+            assert_eq!(given_names, &Some(vec!["G".to_string(), "S".to_string()]));
         } else {
             unreachable!("expected person")
         }
@@ -1143,7 +1125,7 @@ mod tests {
         }) = &items[3]
         {
             assert_eq!(family_names, &Some(vec!["Mitchell".to_string()]));
-            assert_eq!(given_names, &Some(vec!["C.".to_string(), "S.".to_string()]));
+            assert_eq!(given_names, &Some(vec!["C".to_string(), "S".to_string()]));
         } else {
             unreachable!("expected person")
         }

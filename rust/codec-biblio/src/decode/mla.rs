@@ -382,7 +382,7 @@ mod tests {
         assert_eq!(
             mla_authors(&mut r#"Brown, A. B."#)?,
             vec![Author::Person(Person {
-                given_names: Some(vec!["A.".to_string(), "B.".to_string()]),
+                given_names: Some(vec!["A".to_string(), "B".to_string()]),
                 family_names: Some(vec!["Brown".to_string()]),
                 ..Default::default()
             })]
@@ -427,12 +427,12 @@ mod tests {
             mla_authors(&mut r#"Wilson, R. A., and B. C. Taylor"#)?,
             vec![
                 Author::Person(Person {
-                    given_names: Some(vec!["R.".to_string(), "A.".to_string()]),
+                    given_names: Some(vec!["R".to_string(), "A".to_string()]),
                     family_names: Some(vec!["Wilson".to_string()]),
                     ..Default::default()
                 }),
                 Author::Person(Person {
-                    given_names: Some(vec!["B.".to_string(), "C.".to_string()]),
+                    given_names: Some(vec!["B".to_string(), "C".to_string()]),
                     family_names: Some(vec!["Taylor".to_string()]),
                     ..Default::default()
                 })
@@ -602,7 +602,7 @@ mod tests {
                     ..Default::default()
                 },
                 Person {
-                    given_names: Some(vec!["J.".to_string(), "K.".to_string()]),
+                    given_names: Some(vec!["J".to_string(), "K".to_string()]),
                     family_names: Some(vec!["Taylor".to_string()]),
                     ..Default::default()
                 }
@@ -630,7 +630,7 @@ mod tests {
         assert_eq!(
             mla_editors(&mut r#"A. B. Wilson"#)?,
             vec![Person {
-                given_names: Some(vec!["A.".to_string(), "B.".to_string()]),
+                given_names: Some(vec!["A".to_string(), "B".to_string()]),
                 family_names: Some(vec!["Wilson".to_string()]),
                 ..Default::default()
             }]

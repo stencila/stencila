@@ -125,7 +125,7 @@ expression: article
             "Anyaso-Samuel"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -134,7 +134,7 @@ expression: article
             "Bandyopadhyay"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -143,7 +143,7 @@ expression: article
             "Datta"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         }
       ],
@@ -187,7 +187,7 @@ expression: article
             "Anyaso-Samuel"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -196,7 +196,7 @@ expression: article
             "Datta"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         }
       ],
@@ -236,7 +236,7 @@ expression: article
             "Balabdaoui"
           ],
           "givenNames": [
-            "F."
+            "F"
           ]
         },
         {
@@ -245,7 +245,7 @@ expression: article
             "Durot"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         },
         {
@@ -254,7 +254,7 @@ expression: article
             "Jankowski"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         }
       ],
@@ -275,7 +275,7 @@ expression: article
             "Bandyopadhyay"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -284,7 +284,7 @@ expression: article
             "Canale"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         }
       ],
@@ -328,7 +328,7 @@ expression: article
             "Besag"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         }
       ],
@@ -372,7 +372,7 @@ expression: article
             "Bietti"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -381,7 +381,7 @@ expression: article
             "Bruna"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -390,7 +390,7 @@ expression: article
             "Sanford"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         },
         {
@@ -399,8 +399,8 @@ expression: article
             "Song"
           ],
           "givenNames": [
-            "M.",
-            "J."
+            "M",
+            "J"
           ]
         }
       ],
@@ -449,7 +449,7 @@ expression: article
             "Chraibi"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         },
         {
@@ -458,7 +458,7 @@ expression: article
             "Baaddi"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         },
         {
@@ -467,7 +467,7 @@ expression: article
             "Akerzoul"
           ],
           "givenNames": [
-            "N."
+            "N"
           ]
         },
         {
@@ -476,7 +476,7 @@ expression: article
             "Touré"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         }
       ],
@@ -518,7 +518,7 @@ expression: article
             "Coventry"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -527,7 +527,7 @@ expression: article
             "Griffiths"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -536,7 +536,7 @@ expression: article
             "Scully"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         },
         {
@@ -545,7 +545,7 @@ expression: article
             "Tonetti"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -589,7 +589,7 @@ expression: article
             "Datta"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -598,7 +598,7 @@ expression: article
             "Banerjee"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -607,8 +607,8 @@ expression: article
             "Hodges"
           ],
           "givenNames": [
-            "J.",
-            "S."
+            "J",
+            "S"
           ]
         },
         {
@@ -617,7 +617,7 @@ expression: article
             "Gao"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         }
       ],
@@ -661,8 +661,8 @@ expression: article
             "Escobar"
           ],
           "givenNames": [
-            "M.",
-            "D."
+            "M",
+            "D"
           ]
         },
         {
@@ -671,7 +671,7 @@ expression: article
             "West"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -715,8 +715,8 @@ expression: article
             "Ferguson"
           ],
           "givenNames": [
-            "T.",
-            "S."
+            "T",
+            "S"
           ]
         }
       ],
@@ -760,8 +760,8 @@ expression: article
             "Fernandes"
           ],
           "givenNames": [
-            "J.",
-            "K."
+            "J",
+            "K"
           ]
         },
         {
@@ -770,8 +770,8 @@ expression: article
             "Wiegand"
           ],
           "givenNames": [
-            "R.",
-            "E."
+            "R",
+            "E"
           ]
         },
         {
@@ -780,8 +780,8 @@ expression: article
             "Salinas"
           ],
           "givenNames": [
-            "C.",
-            "F."
+            "C",
+            "F"
           ]
         },
         {
@@ -790,8 +790,8 @@ expression: article
             "Grossi"
           ],
           "givenNames": [
-            "S.",
-            "G."
+            "S",
+            "G"
           ]
         },
         {
@@ -800,8 +800,8 @@ expression: article
             "Sanders"
           ],
           "givenNames": [
-            "J.",
-            "J."
+            "J",
+            "J"
           ]
         },
         {
@@ -810,8 +810,8 @@ expression: article
             "Lopes-Virella"
           ],
           "givenNames": [
-            "M.",
-            "F."
+            "M",
+            "F"
           ]
         },
         {
@@ -820,8 +820,8 @@ expression: article
             "Slate"
           ],
           "givenNames": [
-            "E.",
-            "H."
+            "E",
+            "H"
           ]
         }
       ],
@@ -864,8 +864,8 @@ expression: article
             "Genco"
           ],
           "givenNames": [
-            "R.",
-            "J."
+            "R",
+            "J"
           ]
         },
         {
@@ -874,8 +874,8 @@ expression: article
             "Borgnakke"
           ],
           "givenNames": [
-            "W.",
-            "S."
+            "W",
+            "S"
           ]
         }
       ],
@@ -919,7 +919,7 @@ expression: article
             "Gu"
           ],
           "givenNames": [
-            "Y."
+            "Y"
           ]
         }
       ],
@@ -951,8 +951,8 @@ expression: article
             "Henderson"
           ],
           "givenNames": [
-            "N.",
-            "C."
+            "N",
+            "C"
           ]
         },
         {
@@ -961,8 +961,8 @@ expression: article
             "Louis"
           ],
           "givenNames": [
-            "T.",
-            "A."
+            "T",
+            "A"
           ]
         },
         {
@@ -971,8 +971,8 @@ expression: article
             "Rosner"
           ],
           "givenNames": [
-            "G.",
-            "L."
+            "G",
+            "L"
           ]
         },
         {
@@ -981,7 +981,7 @@ expression: article
             "Varadhan"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -1025,7 +1025,7 @@ expression: article
             "Hougaard"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -1068,7 +1068,7 @@ expression: article
             "Ioannidou"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         }
       ],
@@ -1110,7 +1110,7 @@ expression: article
             "Ishwaran"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         },
         {
@@ -1119,8 +1119,8 @@ expression: article
             "James"
           ],
           "givenNames": [
-            "L.",
-            "F."
+            "L",
+            "F"
           ]
         }
       ],
@@ -1163,7 +1163,7 @@ expression: article
             "Kindler"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -1172,7 +1172,7 @@ expression: article
             "Holtfreter"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         },
         {
@@ -1181,7 +1181,7 @@ expression: article
             "Koppe"
           ],
           "givenNames": [
-            "T."
+            "T"
           ]
         }
       ],
@@ -1224,8 +1224,8 @@ expression: article
             "Koslovsky"
           ],
           "givenNames": [
-            "M.",
-            "D."
+            "M",
+            "D"
           ]
         },
         {
@@ -1234,8 +1234,8 @@ expression: article
             "Swartz"
           ],
           "givenNames": [
-            "M.",
-            "D."
+            "M",
+            "D"
           ]
         },
         {
@@ -1244,7 +1244,7 @@ expression: article
             "Chan"
           ],
           "givenNames": [
-            "W."
+            "W"
           ]
         },
         {
@@ -1253,7 +1253,7 @@ expression: article
             "Leon-Novelo"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         },
         {
@@ -1262,8 +1262,8 @@ expression: article
             "Wilkinson"
           ],
           "givenNames": [
-            "A.",
-            "V."
+            "A",
+            "V"
           ]
         },
         {
@@ -1272,8 +1272,8 @@ expression: article
             "Kendzor"
           ],
           "givenNames": [
-            "D.",
-            "E."
+            "D",
+            "E"
           ]
         },
         {
@@ -1282,8 +1282,8 @@ expression: article
             "Businelle"
           ],
           "givenNames": [
-            "M.",
-            "S."
+            "M",
+            "S"
           ]
         }
       ],
@@ -1327,7 +1327,7 @@ expression: article
             "Lan"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         },
         {
@@ -1336,7 +1336,7 @@ expression: article
             "Bandyopadhyay"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -1345,7 +1345,7 @@ expression: article
             "Datta"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         }
       ],
@@ -1389,7 +1389,7 @@ expression: article
             "Lin"
           ],
           "givenNames": [
-            "W."
+            "W"
           ]
         },
         {
@@ -1398,7 +1398,7 @@ expression: article
             "Kulasekera"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         }
       ],
@@ -1442,7 +1442,7 @@ expression: article
             "Maatouk"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         },
         {
@@ -1451,7 +1451,7 @@ expression: article
             "Bay"
           ],
           "givenNames": [
-            "X."
+            "X"
           ]
         }
       ],
@@ -1495,7 +1495,7 @@ expression: article
             "Mdala"
           ],
           "givenNames": [
-            "I."
+            "I"
           ]
         },
         {
@@ -1504,7 +1504,7 @@ expression: article
             "Olsen"
           ],
           "givenNames": [
-            "I."
+            "I"
           ]
         },
         {
@@ -1513,8 +1513,8 @@ expression: article
             "Haffajee"
           ],
           "givenNames": [
-            "A.",
-            "D."
+            "A",
+            "D"
           ]
         },
         {
@@ -1523,8 +1523,8 @@ expression: article
             "Socransky"
           ],
           "givenNames": [
-            "S.",
-            "S."
+            "S",
+            "S"
           ]
         },
         {
@@ -1533,7 +1533,7 @@ expression: article
             "Thoresen"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -1543,8 +1543,8 @@ expression: article
             "Blasio"
           ],
           "givenNames": [
-            "B.",
-            "F."
+            "B",
+            "F"
           ]
         }
       ],
@@ -1588,7 +1588,7 @@ expression: article
             "Meira-Machado"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         },
         {
@@ -1598,7 +1598,7 @@ expression: article
             "Uña-Alvarez"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -1607,7 +1607,7 @@ expression: article
             "Cadarso-Suárez"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         },
         {
@@ -1616,8 +1616,8 @@ expression: article
             "Andersen"
           ],
           "givenNames": [
-            "P.",
-            "K."
+            "P",
+            "K"
           ]
         }
       ],
@@ -1661,8 +1661,8 @@ expression: article
             "Meyer"
           ],
           "givenNames": [
-            "M.",
-            "C."
+            "M",
+            "C"
           ]
         },
         {
@@ -1671,8 +1671,8 @@ expression: article
             "Hackstadt"
           ],
           "givenNames": [
-            "A.",
-            "J."
+            "A",
+            "J"
           ]
         },
         {
@@ -1681,8 +1681,8 @@ expression: article
             "Hoeting"
           ],
           "givenNames": [
-            "J.",
-            "A."
+            "J",
+            "A"
           ]
         }
       ],
@@ -1726,7 +1726,7 @@ expression: article
             "Murray"
           ],
           "givenNames": [
-            "I."
+            "I"
           ]
         },
         {
@@ -1735,8 +1735,8 @@ expression: article
             "Adams"
           ],
           "givenNames": [
-            "R.",
-            "P."
+            "R",
+            "P"
           ]
         },
         {
@@ -1745,8 +1745,8 @@ expression: article
             "MacKay"
           ],
           "givenNames": [
-            "D.",
-            "J."
+            "D",
+            "J"
           ]
         }
       ],
@@ -1789,7 +1789,7 @@ expression: article
             "Pitman"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         }
       ],
@@ -1821,8 +1821,8 @@ expression: article
             "Rasmussen"
           ],
           "givenNames": [
-            "C.",
-            "E."
+            "C",
+            "E"
           ]
         },
         {
@@ -1831,9 +1831,9 @@ expression: article
             "Williams"
           ],
           "givenNames": [
-            "C.",
-            "K.",
-            "I."
+            "C",
+            "K",
+            "I"
           ]
         }
       ],
@@ -1865,7 +1865,7 @@ expression: article
             "Ray"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         },
         {
@@ -1874,7 +1874,7 @@ expression: article
             "Pati"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -1883,7 +1883,7 @@ expression: article
             "Bhattacharya"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         }
       ],
@@ -1926,7 +1926,7 @@ expression: article
             "Reich"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         },
         {
@@ -1935,7 +1935,7 @@ expression: article
             "Bandyopadhyay"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         }
       ],
@@ -1979,7 +1979,7 @@ expression: article
             "Sethuraman"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         }
       ],
@@ -2022,8 +2022,8 @@ expression: article
             "Turnbull"
           ],
           "givenNames": [
-            "B.",
-            "W."
+            "B",
+            "W"
           ]
         }
       ],
@@ -2068,7 +2068,7 @@ expression: article
             "Hout"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         }
       ],
@@ -2089,7 +2089,7 @@ expression: article
             "Wan"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         }
       ],
@@ -2121,7 +2121,7 @@ expression: article
             "Wang"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -2130,8 +2130,8 @@ expression: article
             "Ghosh"
           ],
           "givenNames": [
-            "S.",
-            "K."
+            "S",
+            "K"
           ]
         }
       ],
@@ -2175,7 +2175,7 @@ expression: article
             "Wang"
           ],
           "givenNames": [
-            "X."
+            "X"
           ]
         },
         {
@@ -2184,7 +2184,7 @@ expression: article
             "Li"
           ],
           "givenNames": [
-            "F."
+            "F"
           ]
         }
       ],
@@ -2227,8 +2227,8 @@ expression: article
             "Wiebe"
           ],
           "givenNames": [
-            "C.",
-            "B."
+            "C",
+            "B"
           ]
         },
         {
@@ -2237,8 +2237,8 @@ expression: article
             "Putnins"
           ],
           "givenNames": [
-            "E.",
-            "E."
+            "E",
+            "E"
           ]
         }
       ],
@@ -2282,8 +2282,8 @@ expression: article
             "Wood"
           ],
           "givenNames": [
-            "A.",
-            "T."
+            "A",
+            "T"
           ]
         },
         {
@@ -2292,7 +2292,7 @@ expression: article
             "Chan"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         }
       ],
@@ -2336,8 +2336,8 @@ expression: article
             "Zee"
           ],
           "givenNames": [
-            "K.",
-            "-Y."
+            "K",
+            "-Y"
           ]
         }
       ],
@@ -2380,7 +2380,7 @@ expression: article
             "Zhao"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -2389,7 +2389,7 @@ expression: article
             "Hu"
           ],
           "givenNames": [
-            "T."
+            "T"
           ]
         },
         {
@@ -2398,7 +2398,7 @@ expression: article
             "Ma"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         },
         {
@@ -2407,7 +2407,7 @@ expression: article
             "Wang"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         },
         {
@@ -2416,7 +2416,7 @@ expression: article
             "Sun"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         }
       ],

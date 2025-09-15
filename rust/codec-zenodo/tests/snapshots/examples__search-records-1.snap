@@ -82,7 +82,7 @@ expression: node
             "Birla"
           ],
           "givenNames": [
-            "N."
+            "N"
           ]
         }
       ],
@@ -111,7 +111,7 @@ expression: node
             "Pedregosa"
           ],
           "givenNames": [
-            "F."
+            "F"
           ]
         },
         {
@@ -120,7 +120,7 @@ expression: node
             "Varoquaux"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -129,7 +129,7 @@ expression: node
             "Gramfort"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -138,7 +138,7 @@ expression: node
             "Michel"
           ],
           "givenNames": [
-            "V."
+            "V"
           ]
         },
         {
@@ -147,7 +147,7 @@ expression: node
             "Thirion"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         },
         {
@@ -156,7 +156,7 @@ expression: node
             "Grisel"
           ],
           "givenNames": [
-            "O."
+            "O"
           ]
         },
         {
@@ -165,7 +165,7 @@ expression: node
             "Duchesnay"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         }
       ],
@@ -208,7 +208,7 @@ expression: node
             "McKinney"
           ],
           "givenNames": [
-            "W."
+            "W"
           ]
         }
       ],
@@ -250,8 +250,8 @@ expression: node
             "Hunter"
           ],
           "givenNames": [
-            "J.",
-            "D."
+            "J",
+            "D"
           ]
         }
       ],
@@ -295,7 +295,7 @@ expression: node
             "Waskom"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -338,7 +338,7 @@ expression: node
             "James"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -347,7 +347,7 @@ expression: node
             "Witten"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -356,7 +356,7 @@ expression: node
             "Hastie"
           ],
           "givenNames": [
-            "T."
+            "T"
           ]
         },
         {
@@ -365,7 +365,7 @@ expression: node
             "Tibshirani"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -397,7 +397,7 @@ expression: node
             "Tibshirani"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -441,7 +441,7 @@ expression: node
             "Raschka"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -450,7 +450,7 @@ expression: node
             "Mirjalili"
           ],
           "givenNames": [
-            "V."
+            "V"
           ]
         }
       ],
