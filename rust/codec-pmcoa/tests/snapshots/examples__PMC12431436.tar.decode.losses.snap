@@ -2,7 +2,6 @@
 source: rust/codec-pmcoa/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ref-list/ref/@publication-type: 35
 //article/body/sec/@id: 6
 //article/body/sec/p/italic/@toggle: 9
 //article/body/sec/sec/@id: 14
@@ -21,7 +20,6 @@ expression: info.losses
 //article/front/article-meta/aff: 7
 //article/front/article-meta/article-categories/subj-group/subj-group: 19
 //article/front/article-meta/author-notes: 1
-//article/front/article-meta/contrib-group/@contrib-type: 15
 //article/front/article-meta/contrib-group/@corresp: 2
 //article/front/article-meta/contrib-group/role: 32
 //article/front/article-meta/contrib-group/xref: 2

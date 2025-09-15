@@ -205,55 +205,150 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref001",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "World Health Organization, fact sheet Dengue and severe dengue, 2024 April 23 [Cited 2025 Jul 24]. Available from:  https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue"
+            "string": "fact sheet Dengue and severe dengue, 2024 April 23 [Cited 2025 Jul 24]"
           }
         }
-      ]
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref002",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "World Health Organization, fact sheet Yellow fever, 2023 May 31 [Cited 2025 Jul 24]. Available from:  https://www.who.int/news-room/fact-sheets/detail/yellow-fever"
+            "string": "fact sheet Yellow fever, 2023 May 31 [Cited 2025 Jul 24]"
           }
         }
-      ]
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/detail/yellow-fever"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref003",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "World Health Organization, fact sheet Chikungunya, 2025 April 14 [Cited 2025 Jul 24]. Available from:  https://www.who.int/news-room/fact-sheets/detail/chikungunya"
+            "string": "fact sheet Chikungunya, 2025 April 14 [Cited 2025 Jul 24]"
           }
         }
-      ]
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/detail/chikungunya"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref004",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "World Health Organization, fact sheet Zika virus, 2022 December 8 [Cited 2025 Jul 24]. Available from:  https://www.who.int/news-room/fact-sheets/zika-virus"
+            "string": "fact sheet Zika virus, 2022 December 8 [Cited 2025 Jul 24]"
           }
         }
-      ]
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/zika-virus"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref005",
+      "workType": "Article",
       "doi": "10.1093/infdis/jiv173",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Whitehorn"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kien"
+          ],
+          "givenNames": [
+            "D",
+            "T",
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nguyen"
+          ],
+          "givenNames": [
+            "N",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nguyen"
+          ],
+          "givenNames": [
+            "H",
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kyrylos"
+          ],
+          "givenNames": [
+            "P",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carrington"
+          ],
+          "givenNames": [
+            "L",
+            "B"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2015"
@@ -265,15 +360,88 @@ expression: article
             "string": "Comparative Susceptibility of Aedes albopictus and Aedes aegypti to Dengue Virus Infection After Feeding on Blood of Viremic Humans: Implications for Public Health"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Infect Dis"
+            }
+          }
+        ],
+        "volumeNumber": 212,
+        "issueNumber": 8
+      },
+      "pageStart": 1182,
+      "pageEnd": 90
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref006",
+      "workType": "Article",
       "doi": "10.5365/wpsar.2023.14.1.973",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Togami"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chiew"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lowbridge"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Biaukula"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bell"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yajima"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
-        "value": "2019"
+        "value": "2023"
       },
       "title": [
         {
@@ -282,12 +450,90 @@ expression: article
             "string": "Epidemiology of dengue reported in the World Health Organization’s Western Pacific Region, 2013-2019"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Western Pac Surveill Response J"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 1
+      },
+      "pageStart": 1,
+      "pageEnd": 16
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref007",
+      "workType": "Article",
       "doi": "10.1371/journal.pntd.0001760",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brady"
+          ],
+          "givenNames": [
+            "O",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gething"
+          ],
+          "givenNames": [
+            "P",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bhatt"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Messina"
+          ],
+          "givenNames": [
+            "J",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brownstein"
+          ],
+          "givenNames": [
+            "J",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoen"
+          ],
+          "givenNames": [
+            "A",
+            "G"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2012"
@@ -299,12 +545,67 @@ expression: article
             "string": "Refining the global spatial limits of dengue virus transmission by evidence-based consensus"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS Negl Trop Dis"
+            }
+          }
+        ],
+        "volumeNumber": 6,
+        "issueNumber": 8
+      },
+      "pageStart": "e1760"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref008",
+      "workType": "Article",
       "doi": "10.1016/j.ijregi.2024.100459",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haider"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hasan"
+          ],
+          "givenNames": [
+            "M",
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Onyango"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Asaduzzaman"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2024"
@@ -316,12 +617,84 @@ expression: article
             "string": "Global landmark: 2023 marks the worst year for dengue cases with millions infected and thousands of deaths reported"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "IJID Reg"
+            }
+          }
+        ],
+        "volumeNumber": 13
+      },
+      "pageStart": 100459
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref009",
+      "workType": "Article",
       "doi": "10.1038/ni.2542",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Goic"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vodovar"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mondotte"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Monot"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frangeul"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Blanc"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2013"
@@ -333,12 +706,60 @@ expression: article
             "string": "RNA-mediated interference and reverse transcription control the persistence of RNA viruses in the insect model Drosophila"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Immunol"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 4
+      },
+      "pageStart": 396,
+      "pageEnd": 403
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref010",
+      "workType": "Article",
       "doi": "10.1016/j.virol.2016.08.022",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nag"
+          ],
+          "givenNames": [
+            "D",
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brecher"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kramer"
+          ],
+          "givenNames": [
+            "L",
+            "D"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2016"
@@ -350,12 +771,50 @@ expression: article
             "string": "DNA forms of arboviral RNA genomes are generated following infection in mosquito cell cultures"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Virology"
+            }
+          }
+        ],
+        "volumeNumber": 498
+      },
+      "pageStart": 164,
+      "pageEnd": 71
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref011",
+      "workType": "Article",
       "doi": "10.1099/jgv.0.000945",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nag"
+          ],
+          "givenNames": [
+            "D",
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kramer"
+          ],
+          "givenNames": [
+            "L",
+            "D"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2017"
@@ -367,12 +826,87 @@ expression: article
             "string": "Patchy DNA forms of the Zika virus RNA genome are generated following infection in mosquito cell cultures and in mosquitoes"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Gen Virol"
+            }
+          }
+        ],
+        "volumeNumber": 98,
+        "issueNumber": 11
+      },
+      "pageStart": 2731,
+      "pageEnd": 7
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref012",
+      "workType": "Article",
       "doi": "10.1038/ncomms12410",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Goic"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stapleford"
+          ],
+          "givenNames": [
+            "K",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frangeul"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Doucet"
+          ],
+          "givenNames": [
+            "A",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gausson"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Blanc"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2016"
@@ -384,12 +918,65 @@ expression: article
             "string": "Virus-derived DNA drives mosquito vector tolerance to arboviral infection"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Commun"
+            }
+          }
+        ],
+        "volumeNumber": 7
+      },
+      "pageStart": 12410
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref013",
+      "workType": "Article",
       "doi": "10.1016/j.isci.2023.108598",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rodriguez-Andres"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Axford"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoffmann"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fazakerley"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2023"
@@ -401,12 +988,49 @@ expression: article
             "string": "Mosquito transgenerational antiviral immunity is mediated by vertical transfer of virus DNA sequences and RNAi"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "iScience"
+            }
+          }
+        ],
+        "volumeNumber": 27,
+        "issueNumber": 1
+      },
+      "pageStart": 108598
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref014",
+      "workType": "Article",
       "doi": "10.3390/diagnostics15020123",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lakshmanan"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "B",
+            "M"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2025"
@@ -418,12 +1042,57 @@ expression: article
             "string": "Impact of Point-of-Care Testing on Diagnosis, Treatment, and Surveillance of Vaccine-Preventable Viral Infections"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Diagnostics (Basel)"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 2
+      },
+      "pageStart": 123
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref015",
+      "workType": "Article",
       "doi": "10.3390/cells10081931",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Soroka"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wasowicz"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rymaszewska"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2021"
@@ -435,12 +1104,84 @@ expression: article
             "string": "Loop-Mediated Isothermal Amplification (LAMP): The Better Sibling of PCR?"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cells"
+            }
+          }
+        ],
+        "volumeNumber": 10,
+        "issueNumber": 8
+      },
+      "pageStart": 1931
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref016",
+      "workType": "Article",
       "doi": "10.1093/nar/28.12.e63",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Notomi"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Okayama"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Masubuchi"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yonekawa"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Watanabe"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Amino"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2000"
@@ -452,12 +1193,84 @@ expression: article
             "string": "Loop-mediated isothermal amplification of DNA"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nucleic Acids Res"
+            }
+          }
+        ],
+        "volumeNumber": 28,
+        "issueNumber": 12
+      },
+      "pageStart": "E63"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref017",
+      "workType": "Article",
       "doi": "10.1186/s12866-015-0595-1",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhong"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lu"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pu"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2015"
@@ -469,12 +1282,57 @@ expression: article
             "string": "Development of reverse-transcription loop-mediated isothermal amplification assay for rapid detection and differentiation of dengue virus serotypes 1-4"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "BMC Microbiol"
+            }
+          }
+        ],
+        "volumeNumber": 15
+      },
+      "pageStart": 265
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref018",
+      "workType": "Article",
       "doi": "10.1016/j.crmicr.2022.100120",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Garg"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ahmad"
+          ],
+          "givenNames": [
+            "F",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kar"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -486,12 +1344,74 @@ expression: article
             "string": "Recent advances in loop-mediated isothermal amplification (LAMP) for rapid and efficient detection of pathogens"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Curr Res Microb Sci"
+            }
+          }
+        ],
+        "volumeNumber": 3
+      },
+      "pageStart": 100120
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref019",
+      "workType": "Article",
       "doi": "10.3389/fmicb.2024.1406632",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yang"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Han"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lu"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2024"
@@ -503,12 +1423,58 @@ expression: article
             "string": "Advancements and applications of loop-mediated isothermal amplification technology: a comprehensive overview"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Front Microbiol"
+            }
+          }
+        ],
+        "volumeNumber": 15
+      },
+      "pageStart": 1406632
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref020",
+      "workType": "Article",
       "doi": "10.1080/14737159.2023.2169071",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Choi"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moehling"
+          ],
+          "givenNames": [
+            "T",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Meagher"
+          ],
+          "givenNames": [
+            "R",
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2023"
@@ -520,12 +1486,85 @@ expression: article
             "string": "Advances in RT-LAMP for COVID-19 testing and diagnosis"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Expert Rev Mol Diagn"
+            }
+          }
+        ],
+        "volumeNumber": 23,
+        "issueNumber": 1
+      },
+      "pageStart": 9,
+      "pageEnd": 28
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref021",
+      "workType": "Article",
       "doi": "10.1016/j.bbrc.2008.09.061",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aonuma"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Suzuki"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Iseki"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Perera"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nelson"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Igarashi"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2008"
@@ -537,12 +1576,85 @@ expression: article
             "string": "Rapid identification of Plasmodium-carrying mosquitoes using loop-mediated isothermal amplification"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biochem Biophys Res Commun"
+            }
+          }
+        ],
+        "volumeNumber": 376,
+        "issueNumber": 4
+      },
+      "pageStart": 671,
+      "pageEnd": 6
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref022",
+      "workType": "Article",
       "doi": "10.1186/1756-3305-2-15",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aonuma"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yoshimura"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Perera"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shinzawa"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bando"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Oshiro"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2009"
@@ -554,7 +1666,22 @@ expression: article
             "string": "Loop-mediated isothermal amplification applied to filarial parasites detection in the mosquito vectors: Dirofilaria immitis as a study model"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Parasit Vectors"
+            }
+          }
+        ],
+        "volumeNumber": 2,
+        "issueNumber": 1
+      },
+      "pageStart": 15
     },
     {
       "type": "Reference",
@@ -564,19 +1691,72 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LAMP Detection of Virus-Derived DNA of Zika Virus in Vector Mosquito"
-          }
-        }
-      ]
+      "text": "Aonuma H, Iizuka I, Li J-C, Ote M, Tajima S, Saijo M, et al. LAMP Detection of Virus-Derived DNA of Zika Virus in Vector Mosquito. Front Trop Dis. 2022;3. doi: 10.3389/fitd.2022.759375"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref024",
+      "workType": "Article",
       "doi": "10.1186/1743-422X-6-10",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gurukumar"
+          ],
+          "givenNames": [
+            "K",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Priyadarshini"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Patil"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bhagat"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Singh"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shah"
+          ],
+          "givenNames": [
+            "P",
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2009"
@@ -588,23 +1768,43 @@ expression: article
             "string": "Development of real time PCR for detection and quantitation of Dengue Viruses"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Virol J"
+            }
+          }
+        ],
+        "volumeNumber": 6
+      },
+      "pageStart": 10
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref025",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Agafonkin"
+          ],
+          "givenNames": [
+            "Volodymyr"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2020"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Leaflet 1.7.1"
-          }
-        }
-      ]
+      "url": "https://leafletjs.com",
+      "text": "Volodymyr Agafonkin. Leaflet 1.7.1. 2020. Available from:  https://leafletjs.com"
     },
     {
       "type": "Reference",
@@ -613,18 +1813,18 @@ expression: article
         "type": "Date",
         "value": "2009"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples"
-          }
-        }
-      ]
+      "text": "Biggerstaff, Brad J. PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention, Fort Collins, CO, U.S.A., 2009."
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref027",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2017"
@@ -636,15 +1836,89 @@ expression: article
             "string": "Dengue fever-Burkina Faso"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "WHO"
+            }
+          }
+        ],
+        "volumeNumber": "Available"
+      },
+      "url": "https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en",
+      "pageStart": "from"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref028",
+      "workType": "Article",
       "doi": "10.1371/journal.pntd.0010059",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Badolo"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sombié"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yaméogo"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wangrawa"
+          ],
+          "givenNames": [
+            "D",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sanon"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pignatelli"
+          ],
+          "givenNames": [
+            "P",
+            "M"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
-        "value": "2017"
+        "value": "2022"
       },
       "title": [
         {
@@ -653,12 +1927,85 @@ expression: article
             "string": "First comprehensive analysis of Aedes aegypti bionomics during an arbovirus outbreak in west Africa: Dengue in Ouagadougou, Burkina Faso, 2016-2017"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS Negl Trop Dis"
+            }
+          }
+        ],
+        "volumeNumber": 16,
+        "issueNumber": 7
+      },
+      "pageStart": "e0010059"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref029",
+      "workType": "Article",
       "doi": "10.1016/j.celrep.2020.108506",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mondotte"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gausson"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frangeul"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Suzuki"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vazeille"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mongelli"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2020"
@@ -670,12 +2017,84 @@ expression: article
             "string": "Evidence For Long-Lasting Transgenerational Antiviral Immunity in Insects"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell Rep"
+            }
+          }
+        ],
+        "volumeNumber": 33,
+        "issueNumber": 11
+      },
+      "pageStart": 108506
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref030",
+      "workType": "Article",
       "doi": "10.3389/fmicb.2019.01056",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wan"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yang"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2019"
@@ -687,12 +2106,59 @@ expression: article
             "string": "A Mismatch-Tolerant Reverse Transcription Loop-Mediated Isothermal Amplification Method and Its Application on Simultaneous Detection of All Four Serotype of Dengue Viruses"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Front Microbiol"
+            }
+          }
+        ],
+        "volumeNumber": 10
+      },
+      "pageStart": 1056
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref031",
+      "workType": "Article",
       "doi": "10.1039/d3an01927f",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moehling"
+          ],
+          "givenNames": [
+            "T",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Browne"
+          ],
+          "givenNames": [
+            "E",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Meagher"
+          ],
+          "givenNames": [
+            "R",
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2024"
@@ -704,12 +2170,59 @@ expression: article
             "string": "Effects of single and multiple nucleotide mutations on loop-mediated isothermal amplification"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Analyst"
+            }
+          }
+        ],
+        "volumeNumber": 149,
+        "issueNumber": 6
+      },
+      "pageStart": 1701,
+      "pageEnd": 8
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref032",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0259610",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tamanaha"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tanner"
+          ],
+          "givenNames": [
+            "N",
+            "A"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -721,12 +2234,89 @@ expression: article
             "string": "Profiling RT-LAMP tolerance of sequence variation for SARS-CoV-2 RNA detection"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS One"
+            }
+          }
+        ],
+        "volumeNumber": 17,
+        "issueNumber": 3
+      },
+      "pageStart": "e0259610"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref033",
+      "workType": "Article",
       "doi": "10.3389/fitd.2022.920224",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hien"
+          ],
+          "givenNames": [
+            "A",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sangaré"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ouattara"
+          ],
+          "givenNames": [
+            "E",
+            "L",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sawadogo"
+          ],
+          "givenNames": [
+            "S",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Soma"
+          ],
+          "givenNames": [
+            "D",
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Maiga"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -738,12 +2328,86 @@ expression: article
             "string": "Chikungunya (Togaviridae) and dengue 2 (Flaviviridae) viruses detected from Aedes aegypti mosquitoes in Burkina Faso by qRT-PCR technique: Preliminary results and perspective for molecular characterization of arbovirus circulation in vector populations"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Front Trop Dis"
+            }
+          }
+        ],
+        "volumeNumber": 3
+      },
+      "pageStart": "doi"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref034",
+      "workType": "Article",
       "doi": "10.3390/v17060818",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tenywa"
+          ],
+          "givenNames": [
+            "F",
+            "S",
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hälg"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Makame"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moore"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dogan"
+          ],
+          "givenNames": [
+            "O"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mapipi"
+          ],
+          "givenNames": [
+            "H",
+            "I"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2025"
@@ -755,12 +2419,85 @@ expression: article
             "string": "DENV-2 Circulation and Host Preference Among Highly Anthropophilic, Outdoor-Biting Aedes aegypti in Dar es Salaam, Tanzania"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Viruses"
+            }
+          }
+        ],
+        "volumeNumber": 17,
+        "issueNumber": 6
+      },
+      "pageStart": 818
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref035",
+      "workType": "Article",
       "doi": "10.4269/ajtmh.24-0685",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mutua"
+          ],
+          "givenNames": [
+            "M",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rimal"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shrestha"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kharbuja"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dulal"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Subedi"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2025"
@@ -772,14 +2509,47 @@ expression: article
             "string": "Detection of Dengue and Chikungunya Viruses in Mosquitoes from Nepal"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Am J Trop Med Hyg"
+            }
+          }
+        ],
+        "volumeNumber": 113,
+        "issueNumber": 2
+      },
+      "pageStart": 378,
+      "pageEnd": 81
     }
   ],
   "title": [
     {
       "type": "Text",
       "value": {
-        "string": "Dissecting the dynamics of virus-derived DNA of dengue virus 2 (DENV-2) in Aedes mosquitoes"
+        "string": "Dissecting the dynamics of virus-derived DNA of dengue virus 2 (DENV-2) in "
+      }
+    },
+    {
+      "type": "Emphasis",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Aedes"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Text",
+      "value": {
+        "string": " mosquitoes"
       }
     }
   ],

@@ -199,15 +199,6 @@ expression: article
       "givenNames": [
         "Hirotaka"
       ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Liu"
-      ],
-      "givenNames": [
-        "Jisheng"
-      ]
     }
   ],
   "datePublished": {
@@ -217,24 +208,151 @@ expression: article
   "references": [
     {
       "type": "Reference",
-      "id": "pone.0332245.ref001"
+      "id": "pone.0332245.ref001",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "fact sheet Dengue and severe dengue, 2024 April 23 [Cited 2025 Jul 24]"
+          }
+        }
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue"
     },
     {
       "type": "Reference",
-      "id": "pone.0332245.ref002"
+      "id": "pone.0332245.ref002",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "fact sheet Yellow fever, 2023 May 31 [Cited 2025 Jul 24]"
+          }
+        }
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/detail/yellow-fever"
     },
     {
       "type": "Reference",
-      "id": "pone.0332245.ref003"
+      "id": "pone.0332245.ref003",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "fact sheet Chikungunya, 2025 April 14 [Cited 2025 Jul 24]"
+          }
+        }
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/detail/chikungunya"
     },
     {
       "type": "Reference",
-      "id": "pone.0332245.ref004"
+      "id": "pone.0332245.ref004",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "fact sheet Zika virus, 2022 December 8 [Cited 2025 Jul 24]"
+          }
+        }
+      ],
+      "url": "https://www.who.int/news-room/fact-sheets/zika-virus"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref005",
+      "workType": "Article",
       "doi": "10.1093/infdis/jiv173",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Whitehorn"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kien"
+          ],
+          "givenNames": [
+            "D",
+            "T",
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nguyen"
+          ],
+          "givenNames": [
+            "N",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nguyen"
+          ],
+          "givenNames": [
+            "H",
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kyrylos"
+          ],
+          "givenNames": [
+            "P",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carrington"
+          ],
+          "givenNames": [
+            "L",
+            "B"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2015"
@@ -249,6 +367,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -266,7 +385,64 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref006",
+      "workType": "Article",
       "doi": "10.5365/wpsar.2023.14.1.973",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Togami"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chiew"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lowbridge"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Biaukula"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bell"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yajima"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2023"
@@ -281,6 +457,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -298,7 +475,69 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref007",
+      "workType": "Article",
       "doi": "10.1371/journal.pntd.0001760",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brady"
+          ],
+          "givenNames": [
+            "O",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gething"
+          ],
+          "givenNames": [
+            "P",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bhatt"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Messina"
+          ],
+          "givenNames": [
+            "J",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brownstein"
+          ],
+          "givenNames": [
+            "J",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoen"
+          ],
+          "givenNames": [
+            "A",
+            "G"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2012"
@@ -313,6 +552,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -328,7 +568,47 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref008",
+      "workType": "Article",
       "doi": "10.1016/j.ijregi.2024.100459",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haider"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hasan"
+          ],
+          "givenNames": [
+            "M",
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Onyango"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Asaduzzaman"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2024"
@@ -343,6 +623,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -358,7 +639,65 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref009",
+      "workType": "Article",
       "doi": "10.1038/ni.2542",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Goic"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vodovar"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mondotte"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Monot"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frangeul"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Blanc"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2013"
@@ -373,6 +712,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -390,7 +730,39 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref010",
+      "workType": "Article",
       "doi": "10.1016/j.virol.2016.08.022",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nag"
+          ],
+          "givenNames": [
+            "D",
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brecher"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kramer"
+          ],
+          "givenNames": [
+            "L",
+            "D"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2016"
@@ -405,6 +777,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -421,7 +794,30 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref011",
+      "workType": "Article",
       "doi": "10.1099/jgv.0.000945",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nag"
+          ],
+          "givenNames": [
+            "D",
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kramer"
+          ],
+          "givenNames": [
+            "L",
+            "D"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2017"
@@ -436,6 +832,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -453,7 +850,66 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref012",
+      "workType": "Article",
       "doi": "10.1038/ncomms12410",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Goic"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stapleford"
+          ],
+          "givenNames": [
+            "K",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frangeul"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Doucet"
+          ],
+          "givenNames": [
+            "A",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gausson"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Blanc"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2016"
@@ -468,6 +924,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -483,7 +940,46 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref013",
+      "workType": "Article",
       "doi": "10.1016/j.isci.2023.108598",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rodriguez-Andres"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Axford"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoffmann"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fazakerley"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2023"
@@ -498,6 +994,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -514,7 +1011,29 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref014",
+      "workType": "Article",
       "doi": "10.3390/diagnostics15020123",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lakshmanan"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "B",
+            "M"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2025"
@@ -529,6 +1048,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -545,7 +1065,37 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref015",
+      "workType": "Article",
       "doi": "10.3390/cells10081931",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Soroka"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wasowicz"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rymaszewska"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2021"
@@ -560,6 +1110,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -576,7 +1127,64 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref016",
+      "workType": "Article",
       "doi": "10.1093/nar/28.12.e63",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Notomi"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Okayama"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Masubuchi"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yonekawa"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Watanabe"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Amino"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2000"
@@ -591,6 +1199,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -606,7 +1215,64 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref017",
+      "workType": "Article",
       "doi": "10.1186/s12866-015-0595-1",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhong"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lu"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pu"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2015"
@@ -621,6 +1287,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -636,7 +1303,38 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref018",
+      "workType": "Article",
       "doi": "10.1016/j.crmicr.2022.100120",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Garg"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ahmad"
+          ],
+          "givenNames": [
+            "F",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kar"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -651,6 +1349,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -666,7 +1365,55 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref019",
+      "workType": "Article",
       "doi": "10.3389/fmicb.2024.1406632",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yang"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Han"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lu"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2024"
@@ -681,6 +1428,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -696,7 +1444,39 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref020",
+      "workType": "Article",
       "doi": "10.1080/14737159.2023.2169071",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Choi"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moehling"
+          ],
+          "givenNames": [
+            "T",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Meagher"
+          ],
+          "givenNames": [
+            "R",
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2023"
@@ -711,6 +1491,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -728,7 +1509,64 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref021",
+      "workType": "Article",
       "doi": "10.1016/j.bbrc.2008.09.061",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aonuma"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Suzuki"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Iseki"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Perera"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nelson"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Igarashi"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2008"
@@ -743,6 +1581,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -760,7 +1599,64 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref022",
+      "workType": "Article",
       "doi": "10.1186/1756-3305-2-15",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aonuma"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yoshimura"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Perera"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shinzawa"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bando"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Oshiro"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2009"
@@ -775,6 +1671,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -791,7 +1688,64 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref023",
+      "workType": "Article",
       "doi": "10.3389/fitd.2022.759375",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aonuma"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Iizuka"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "J-C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ote"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tajima"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Saijo"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -806,6 +1760,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -820,7 +1775,67 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref024",
+      "workType": "Article",
       "doi": "10.1186/1743-422X-6-10",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gurukumar"
+          ],
+          "givenNames": [
+            "K",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Priyadarshini"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Patil"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bhagat"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Singh"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shah"
+          ],
+          "givenNames": [
+            "P",
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2009"
@@ -835,6 +1850,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -849,24 +1865,148 @@ expression: article
     },
     {
       "type": "Reference",
-      "id": "pone.0332245.ref025"
+      "id": "pone.0332245.ref025",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Agafonkin"
+          ],
+          "givenNames": [
+            "Volodymyr"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "url": "https://leafletjs.com",
+      "text": "Volodymyr Agafonkin. Leaflet 1.7.1. 2020. Available from: https://leafletjs.com"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref026",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Biggerstaff"
+          ],
+          "givenNames": [
+            "Brad",
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2009"
-      }
+      },
+      "text": "Biggerstaff, Brad J . PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention , Fort Collins, CO, U.S.A ., 2009 ."
     },
     {
       "type": "Reference",
-      "id": "pone.0332245.ref027"
+      "id": "pone.0332245.ref027",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "World Health Organization"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dengue fever-Burkina Faso"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "WHO"
+            }
+          }
+        ],
+        "volumeNumber": "Available"
+      },
+      "url": "https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en",
+      "pageStart": "from"
     },
     {
       "type": "Reference",
       "id": "pone.0332245.ref028",
+      "workType": "Article",
       "doi": "10.1371/journal.pntd.0010059",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Badolo"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sombié"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yaméogo"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wangrawa"
+          ],
+          "givenNames": [
+            "D",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sanon"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pignatelli"
+          ],
+          "givenNames": [
+            "P",
+            "M"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -881,6 +2021,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -896,7 +2037,65 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref029",
+      "workType": "Article",
       "doi": "10.1016/j.celrep.2020.108506",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mondotte"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gausson"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frangeul"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Suzuki"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vazeille"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mongelli"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2020"
@@ -911,6 +2110,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -927,7 +2127,64 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref030",
+      "workType": "Article",
       "doi": "10.3389/fmicb.2019.01056",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wan"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yang"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2019"
@@ -942,6 +2199,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -957,7 +2215,40 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref031",
+      "workType": "Article",
       "doi": "10.1039/d3an01927f",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moehling"
+          ],
+          "givenNames": [
+            "T",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Browne"
+          ],
+          "givenNames": [
+            "E",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Meagher"
+          ],
+          "givenNames": [
+            "R",
+            "J"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2024"
@@ -972,6 +2263,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -989,7 +2281,38 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref032",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0259610",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tamanaha"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tanner"
+          ],
+          "givenNames": [
+            "N",
+            "A"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -1004,6 +2327,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1019,7 +2343,69 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref033",
+      "workType": "Article",
       "doi": "10.3389/fitd.2022.920224",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hien"
+          ],
+          "givenNames": [
+            "A",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sangaré"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ouattara"
+          ],
+          "givenNames": [
+            "E",
+            "L",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sawadogo"
+          ],
+          "givenNames": [
+            "S",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Soma"
+          ],
+          "givenNames": [
+            "D",
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Maiga"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2022"
@@ -1034,6 +2420,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1048,7 +2435,67 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref034",
+      "workType": "Article",
       "doi": "10.3390/v17060818",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tenywa"
+          ],
+          "givenNames": [
+            "F",
+            "S",
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hälg"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Makame"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moore"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dogan"
+          ],
+          "givenNames": [
+            "O"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mapipi"
+          ],
+          "givenNames": [
+            "H",
+            "I"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2025"
@@ -1063,6 +2510,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1079,7 +2527,65 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref035",
+      "workType": "Article",
       "doi": "10.4269/ajtmh.24-0685",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mutua"
+          ],
+          "givenNames": [
+            "M",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rimal"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shrestha"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kharbuja"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dulal"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Subedi"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2025"
@@ -1094,6 +2600,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -4738,6 +6245,17 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
       "value": "Biology and Life Sciences"
+    }
+  ],
+  "editors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Liu"
+      ],
+      "givenNames": [
+        "Jisheng"
+      ]
     }
   ],
   "dateReceived": {
