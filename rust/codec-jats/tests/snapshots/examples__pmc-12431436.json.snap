@@ -2664,66 +2664,43 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Arthropod-borne viruses (arboviruses) including dengue, yellow fever, chikungunya, and Zika viruses, pose public health threats in tropical and subtropical locations "
+                "string": "Arthropod-borne viruses (arboviruses) including dengue, yellow fever, chikungunya, and Zika viruses, pose public health threats in tropical and subtropical locations ["
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref001",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref1",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "1"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref2",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "2"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref3",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "3"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref4",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "4"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". Dengue is a mosquito-borne disease caused by dengue virus (DENV) and is primarily transmitted by "
+                "string": "–"
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref004",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "4"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "]. Dengue is a mosquito-borne disease caused by dengue virus (DENV) and is primarily transmitted by "
               }
             },
             {
@@ -2757,7 +2734,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " "
+                "string": " ["
               }
             },
             {
@@ -2775,7 +2752,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". There are four DENV serotypes (DENV-1, DENV-2, DENV-3, and DENV-4), each exhibiting distinct epidemiological patterns "
+                "string": "]. There are four DENV serotypes (DENV-1, DENV-2, DENV-3, and DENV-4), each exhibiting distinct epidemiological patterns ["
               }
             },
             {
@@ -2793,7 +2770,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Dengue is endemic in over 100 countries, and multiple DENV serotypes often co-circulate within the same regions "
+                "string": "]. Dengue is endemic in over 100 countries, and multiple DENV serotypes often co-circulate within the same regions ["
               }
             },
             {
@@ -2811,7 +2788,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". A study on the prevalence of dengue estimated that 3.9 billion people are at risk of infection "
+                "string": "]. A study on the prevalence of dengue estimated that 3.9 billion people are at risk of infection ["
               }
             },
             {
@@ -2829,7 +2806,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". In 2023, the number of dengue cases reached an all-time high, affecting more than 80 countries "
+                "string": "]. In 2023, the number of dengue cases reached an all-time high, affecting more than 80 countries ["
               }
             },
             {
@@ -2847,7 +2824,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Persistent transmission, coupled with an unexpected surge in cases, led to a historic peak of more than 6.5 million cases and more than 7,300 dengue-related deaths "
+                "string": "]. Persistent transmission, coupled with an unexpected surge in cases, led to a historic peak of more than 6.5 million cases and more than 7,300 dengue-related deaths ["
               }
             },
             {
@@ -2865,7 +2842,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": "]."
               }
             }
           ]
@@ -2876,101 +2853,25 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "When insects are infected with RNA viruses, virus-derived DNA (vDNA) is generated within their bodies "
+                "string": "When insects are infected with RNA viruses, virus-derived DNA (vDNA) is generated within their bodies ["
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref009",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref9",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "9"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref10",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "10"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref11",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "11"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref12",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "12"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "9"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". DNA form of RNA viruses have been shown to be generated by endogenous reverse transcriptase activity in insect cells "
-              }
-            },
-            {
-              "type": "CitationGroup",
-              "items": [
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref009",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "9"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref012",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "12"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ". vDNA enhances the RNAi-mediated antiviral immune response by regulating the number of viruses within the mosquito, thereby enabling the mosquito to survive while retaining the virus "
+                "string": "–"
               }
             },
             {
@@ -2988,7 +2889,61 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Recently, vertical transfer of vDNA from experimentally infected female "
+                "string": "]. DNA form of RNA viruses have been shown to be generated by endogenous reverse transcriptase activity in insect cells ["
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref009",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "9"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ","
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref012",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "12"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "]. vDNA enhances the RNAi-mediated antiviral immune response by regulating the number of viruses within the mosquito, thereby enabling the mosquito to survive while retaining the virus ["
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref012",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "12"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "]. Recently, vertical transfer of vDNA from experimentally infected female "
               }
             },
             {
@@ -3005,7 +2960,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " mosquitoes to their offspring was demonstrated "
+                "string": " mosquitoes to their offspring was demonstrated ["
               }
             },
             {
@@ -3023,7 +2978,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". The production of vDNA in experimentally infected mosquitoes suggests that vDNA is present also among naturally infected wild mosquitoes and their offspring, either as a trace of viral infection or a result of vertical transfer in wild populations."
+                "string": "]. The production of vDNA in experimentally infected mosquitoes suggests that vDNA is present also among naturally infected wild mosquitoes and their offspring, either as a trace of viral infection or a result of vertical transfer in wild populations."
               }
             }
           ]
@@ -3034,7 +2989,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "To investigate the presence of vDNA in wild mosquito, a sensitive and reliable detection method is essential. Such a method allow for monitoring of vDNA in field-collected mosquitoes, providing insight into natural infections in mosquito populations. Various diagnostic approaches has been employed to detect DENV, including nucleic acid amplification techniques, Immunoassays, and CRISPR-based assays "
+                "string": "To investigate the presence of vDNA in wild mosquito, a sensitive and reliable detection method is essential. Such a method allow for monitoring of vDNA in field-collected mosquitoes, providing insight into natural infections in mosquito populations. Various diagnostic approaches has been employed to detect DENV, including nucleic acid amplification techniques, Immunoassays, and CRISPR-based assays ["
               }
             },
             {
@@ -3052,7 +3007,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Loop-mediated isothermal amplification (LAMP) is a molecular diagnostic method that offers rapid results, isothermal reaction conditions, and high sensitivity "
+                "string": "]. Loop-mediated isothermal amplification (LAMP) is a molecular diagnostic method that offers rapid results, isothermal reaction conditions, and high sensitivity ["
               }
             },
             {
@@ -3070,7 +3025,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". LAMP uses 4–6 primers, and the reaction proceeds at constant temperature using "
+                "string": "]. LAMP uses 4–6 primers, and the reaction proceeds at constant temperature using "
               }
             },
             {
@@ -3087,7 +3042,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " polymerase "
+                "string": " polymerase ["
               }
             },
             {
@@ -3105,7 +3060,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Due to the characteristics of "
+                "string": "]. Due to the characteristics of "
               }
             },
             {
@@ -3122,159 +3077,169 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " polymerase, LAMP exhibits higher sensitivity, comparable to or even surpassing that of qPCR "
+                "string": " polymerase, LAMP exhibits higher sensitivity, comparable to or even surpassing that of qPCR ["
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref015",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref015",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "15"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref017",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "17"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "15"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". LAMP has been widely applied to detect pathogens with DNA genomes such as parasites and bacteria "
+                "string": ","
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref017",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref018",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "18"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref019",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "19"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "17"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". In addition, reverse-transcription (RT)-LAMP, which incorporates transcriptase into the reaction, has been increasingly used for detecting RNA pathogens such as viruses "
+                "string": "]. LAMP has been widely applied to detect pathogens with DNA genomes such as parasites and bacteria ["
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref018",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref017",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "17"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref018",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "18"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref020",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "20"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "18"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". The genomic DNA of parasites (filaria and malaria parasites) in mosquitoes has been detected using LAMP "
+                "string": ","
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref019",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref021",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "21"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref022",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "22"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "19"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". These findings suggest that LAMP is a feasible method for detecting and tracing vDNA in virus-infected mosquitoes. Moreover, since the amount of vDNA is expected to be lower than that of viral RNA "
+                "string": "]. In addition, reverse-transcription (RT)-LAMP, which incorporates transcriptase into the reaction, has been increasingly used for detecting RNA pathogens such as viruses ["
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref017",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "17"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ","
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref018",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "18"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ","
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref020",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "20"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "]. The genomic DNA of parasites (filaria and malaria parasites) in mosquitoes has been detected using LAMP ["
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref021",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "21"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ","
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref022",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "22"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "]. These findings suggest that LAMP is a feasible method for detecting and tracing vDNA in virus-infected mosquitoes. Moreover, since the amount of vDNA is expected to be lower than that of viral RNA ["
               }
             },
             {
@@ -3292,7 +3257,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", LAMP is anticipated to facilitate gaining insight into the dynamics of vDNA. Indeed, LAMP has been successfully used to detect Zika virus vDNA in infected "
+                "string": "], LAMP is anticipated to facilitate gaining insight into the dynamics of vDNA. Indeed, LAMP has been successfully used to detect Zika virus vDNA in infected "
               }
             },
             {
@@ -3309,7 +3274,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " mosquitoes "
+                "string": " mosquitoes ["
               }
             },
             {
@@ -3327,7 +3292,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": "]."
               }
             }
           ]
@@ -3721,7 +3686,481 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
+              "rows": [
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "MOI of DENV-2"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "columnSpan": 2
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "dpi"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−4"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−2"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "3"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "4"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "5"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "6"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "7"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "notes": [
                 {
                   "type": "Paragraph",
@@ -3733,12 +4172,6 @@ expression: article
                       }
                     }
                   ]
-                }
-              ],
-              "images": [
-                {
-                  "type": "ImageObject",
-                  "contentUrl": "pone.0332245.t003.jpg"
                 }
               ]
             }
@@ -3930,7 +4363,905 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
+              "rows": [
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "RNA"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "columnSpan": 2
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "vDNA"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "columnSpan": 2
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "MOI of DENV-2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "RT-qPCR"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "RT-LAMP"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "qPCR"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "LAMP"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−1"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + (+)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−2"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + (+)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−3"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + (+)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−4"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + +"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−5"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "+ + –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−6"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−7"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1 × 10"
+                              }
+                            },
+                            {
+                              "type": "Superscript",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "−8"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "(+) – –"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                      – – –\n                    "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "notes": [
                 {
                   "type": "Paragraph",
@@ -3942,12 +5273,6 @@ expression: article
                       }
                     }
                   ]
-                }
-              ],
-              "images": [
-                {
-                  "type": "ImageObject",
-                  "contentUrl": "pone.0332245.t002.jpg"
                 }
               ]
             },
@@ -3969,7 +5294,588 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
+              "rows": [
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Location of collection"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Houses"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Mosquitoes"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Pools"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Pool size"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Positive pools"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Infection rate* (95%CI)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1200 logements"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "70"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "228"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "112"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1-13"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "6"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "26.52"
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": " (11.06–53.82)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Tabtenga"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "61"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "139"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "95"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1-10"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "5"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "36.18"
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": " (13.70–77.61)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Goundry"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "13"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "30"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "19"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1-5"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "33.24"
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": " (1.94–150.42)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Total"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "144"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "397"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "226"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "12"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": []
+                    }
+                  ]
+                }
+              ],
               "notes": [
                 {
                   "type": "Paragraph",
@@ -3992,12 +5898,6 @@ expression: article
                       }
                     }
                   ]
-                }
-              ],
-              "images": [
-                {
-                  "type": "ImageObject",
-                  "contentUrl": "pone.0332245.t004.jpg"
                 }
               ]
             },
@@ -5102,11 +7002,266 @@ expression: article
                   ]
                 }
               ],
-              "rows": [],
-              "images": [
+              "rows": [
                 {
-                  "type": "ImageObject",
-                  "contentUrl": "pone.0332245.t001.jpg"
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Primer"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sequence (5’ → 3’)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F3"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "CATAGGGGAGTCGTCACC"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "B3"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "TTGGATACCCAGTACATCTC"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "FIP (F1c-F2)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "CAAAATTGGATGTTGTTGTTCAACCTAGAAGCAGGACGAACACT"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "BIP (B1c-B2)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ATGCCCTCAGTCATAGAAAAAATGGAGTTTCGTGAGAGTGGATT"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "LF"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "TTTTCCACTAAGTTGAGGACTCTG"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "LB"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "AAGCACTACAAAGGAAATATGGAGG"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -5213,7 +7368,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "The qPCR reactions were performed with 2 μl of the cDNA obtained or DNA extracted from infected cells, which was combined with TaqMan Fast Advanced Master Mix (#4444557, Thermo Fisher Scientific Inc.), 900 nM of the forward primer (GAR AGA CCA GAG ATC CTG CTG TCT), and 250 nM of the MGB probe (FAM-AGC ATC ATT CCA GGC AC) in a reaction volume of 20 μl "
+                    "string": "The qPCR reactions were performed with 2 μl of the cDNA obtained or DNA extracted from infected cells, which was combined with TaqMan Fast Advanced Master Mix (#4444557, Thermo Fisher Scientific Inc.), 900 nM of the forward primer (GAR AGA CCA GAG ATC CTG CTG TCT), and 250 nM of the MGB probe (FAM-AGC ATC ATT CCA GGC AC) in a reaction volume of 20 μl ["
                   }
                 },
                 {
@@ -5231,7 +7386,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". The qPCR reactions were performed using a StepOnePlus PCR system (Thermo Fisher Scientific Inc.) with the following cycling conditions: 2 min at 50°C and 20 s at 95°C, followed by 40 cycles of 1 s at 95°C and 20 s at 60°C. The probe and all primers were purchased from a commercial company (Integrated DNA Technologies Inc.). The same primers and probe were used for the qPCR analysis of DNA samples."
+                    "string": "]. The qPCR reactions were performed using a StepOnePlus PCR system (Thermo Fisher Scientific Inc.) with the following cycling conditions: 2 min at 50°C and 20 s at 95°C, followed by 40 cycles of 1 s at 95°C and 20 s at 60°C. The probe and all primers were purchased from a commercial company (Integrated DNA Technologies Inc.). The same primers and probe were used for the qPCR analysis of DNA samples."
                   }
                 }
               ]
@@ -5259,7 +7414,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Wild mosquitoes were collected in or near Ouagadougou, the capital of Burkina Faso, an endemic location for DENV-2. Mosquito collections were conducted between August 15 and November 1, 2017. Three collection sites were established in 3 villages, 1200 logements (12  °22’N, 1 °29’W), Tabtenga (12  °22’N, 1 °27’W), and Goundry (12  °30’N, 1 °20’W), selected for differences in ecological characteristics, human population size, and housing type. Consent forms were obtained from households in each village. Mosquitoes were collected inside and outside the houses of approximately 1,000 households by aspiration. The collected mosquitoes were killed and transported to the laboratory of Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso, in a dry, ambient-temperature environment. Mosquitoes were identified to the species level using a microscope at room temperature, and each mosquito pool was assigned an ID number. The mosquitoes were then stored at −30°C. The locations of households where mosquitoes were collected were recorded based on Global Positioning System (GPS) data. Households where mosquitoes were collected and the households from which positive mosquitoes were obtained were plotted on maps using Leaflet 1.7.1 "
+                    "string": "Wild mosquitoes were collected in or near Ouagadougou, the capital of Burkina Faso, an endemic location for DENV-2. Mosquito collections were conducted between August 15 and November 1, 2017. Three collection sites were established in 3 villages, 1200 logements (12  °22’N, 1 °29’W), Tabtenga (12  °22’N, 1 °27’W), and Goundry (12  °30’N, 1 °20’W), selected for differences in ecological characteristics, human population size, and housing type. Consent forms were obtained from households in each village. Mosquitoes were collected inside and outside the houses of approximately 1,000 households by aspiration. The collected mosquitoes were killed and transported to the laboratory of Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso, in a dry, ambient-temperature environment. Mosquitoes were identified to the species level using a microscope at room temperature, and each mosquito pool was assigned an ID number. The mosquitoes were then stored at −30°C. The locations of households where mosquitoes were collected were recorded based on Global Positioning System (GPS) data. Households where mosquitoes were collected and the households from which positive mosquitoes were obtained were plotted on maps using Leaflet 1.7.1 ["
                   }
                 },
                 {
@@ -5277,7 +7432,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " and OpenStreetMap data (openstreetmap.org). The base map was generated using OpenStreetMap data (© OpenStreetMap contributors) and Esri World Imagery (© Esri, Maxar, Earthstar Geographics, and the GIS User Community). Contains information from OpenStreetMap and OpenStreetMap Foundation, which is made available under the Open Database License ("
+                    "string": "] and OpenStreetMap data (openstreetmap.org). The base map was generated using OpenStreetMap data (© OpenStreetMap contributors) and Esri World Imagery (© Esri, Maxar, Earthstar Geographics, and the GIS User Community). Contains information from OpenStreetMap and OpenStreetMap Foundation, which is made available under the Open Database License ("
                   }
                 },
                 {
@@ -5324,7 +7479,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "The infection rate (IR) of mosquitoes was estimated using PooledInfRate version 4.0 (CDC) "
+                    "string": "The infection rate (IR) of mosquitoes was estimated using PooledInfRate version 4.0 (CDC) ["
                   }
                 },
                 {
@@ -5342,7 +7497,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". The number of individuals and positive/negative vDNA-LAMP results for each pool were entered into the worksheet. The output included the bias-corrected maximum likelihood estimate (MLE) and 95% skewness-corrected score confidence interval. The IR was expressed as the number of infections per 1,000 individuals."
+                    "string": "]. The number of individuals and positive/negative vDNA-LAMP results for each pool were entered into the worksheet. The output included the bias-corrected maximum likelihood estimate (MLE) and 95% skewness-corrected score confidence interval. The IR was expressed as the number of infections per 1,000 individuals."
                   }
                 }
               ]
@@ -5769,7 +7924,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "), consistent with previously reported results "
+                    "string": "), consistent with previously reported results ["
                   }
                 },
                 {
@@ -5787,7 +7942,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". The observation that the elevation in turbidity occurred 45 minutes after the initiation of the reaction suggests a relatively limited production of DENV-2 vDNA in these infected cells (equivalent to approximately 2.63 × 10"
+                    "string": "]. The observation that the elevation in turbidity occurred 45 minutes after the initiation of the reaction suggests a relatively limited production of DENV-2 vDNA in these infected cells (equivalent to approximately 2.63 × 10"
                   }
                 },
                 {
@@ -6283,7 +8438,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Finally, we investigated whether DENV-2 vDNA is present and detectable in wild mosquitoes collected in dengue-endemic areas. Burkina Faso, a landlocked country in West Africa, is one of the most dengue-endemic countries on the African continent, notably marked by a severe outbreak in the capital city of Ouagadougou in 2017, wherein over 10,000 cases were reported "
+                    "string": "Finally, we investigated whether DENV-2 vDNA is present and detectable in wild mosquitoes collected in dengue-endemic areas. Burkina Faso, a landlocked country in West Africa, is one of the most dengue-endemic countries on the African continent, notably marked by a severe outbreak in the capital city of Ouagadougou in 2017, wherein over 10,000 cases were reported ["
                   }
                 },
                 {
@@ -6301,7 +8456,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Within this region, the "
+                    "string": "]. Within this region, the "
                   }
                 },
                 {
@@ -6318,7 +8473,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " mosquito emerged as the primary vector for the dengue virus, exhibiting a preference for human hosts "
+                    "string": " mosquito emerged as the primary vector for the dengue virus, exhibiting a preference for human hosts ["
                   }
                 },
                 {
@@ -6336,7 +8491,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". In this study, wild "
+                    "string": "]. In this study, wild "
                   }
                 },
                 {
@@ -6477,7 +8632,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " infected with the Flock House virus "
+                "string": " infected with the Flock House virus ["
               }
             },
             {
@@ -6495,7 +8650,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", and its generation has since been observed in other insect species. Information about from when vDNA is generated and can be detected after viral infection is crucial for understanding the dynamics of vDNA. In this study, mosquito cells were infected with DENV-2 at two different MOIs, followed by the subsequent identification of vDNA post-infection to elucidate the temporal dynamics of vDNA synthesis within mosquito cells. The results suggested an association between the vDNA detection in mosquito cells at specific time points and the initial number of viral particles introduced during infection. It is predicted that the timing of vDNA production in vector mosquitoes also depends on the viral load ingested through infected blood. However, notable variations in vDNA detection were observed among cells harvested on the same day post-infection ("
+                "string": "], and its generation has since been observed in other insect species. Information about from when vDNA is generated and can be detected after viral infection is crucial for understanding the dynamics of vDNA. In this study, mosquito cells were infected with DENV-2 at two different MOIs, followed by the subsequent identification of vDNA post-infection to elucidate the temporal dynamics of vDNA synthesis within mosquito cells. The results suggested an association between the vDNA detection in mosquito cells at specific time points and the initial number of viral particles introduced during infection. It is predicted that the timing of vDNA production in vector mosquitoes also depends on the viral load ingested through infected blood. However, notable variations in vDNA detection were observed among cells harvested on the same day post-infection ("
               }
             },
             {
@@ -6565,7 +8720,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " mosquitoes "
+                "string": " mosquitoes ["
               }
             },
             {
@@ -6583,7 +8738,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Comparative analysis of viral RNA and vDNA revealed that the quantity of vDNA generated in cells is minute, approximately two orders of magnitude lower than that of viral RNA."
+                "string": "]. Comparative analysis of viral RNA and vDNA revealed that the quantity of vDNA generated in cells is minute, approximately two orders of magnitude lower than that of viral RNA."
               }
             }
           ]
@@ -6645,7 +8800,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " viral copies by RT-LAMP "
+                "string": " viral copies by RT-LAMP ["
               }
             },
             {
@@ -6663,54 +8818,25 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Primer sets designed for broad detection of diverse variant sequences are often limited by the designable region, which may result in reduced sensitivity "
+                "string": "]. Primer sets designed for broad detection of diverse variant sequences are often limited by the designable region, which may result in reduced sensitivity ["
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref030",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref30",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "30"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref31",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "31"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref32",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "32"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "30"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". Primer design focused on specific variants may help further enhance sensitivity "
+                "string": "–"
               }
             },
             {
@@ -6728,7 +8854,25 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": "]. Primer design focused on specific variants may help further enhance sensitivity ["
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref032",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "32"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "]."
               }
             }
           ]
@@ -6761,7 +8905,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Detection of DENV-2 vDNA in certain wild mosquitoes collected in Burkina Faso demonstrated the presence of vDNA in natural settings. Amplification was observed only in a limited number of mosquito pools collected in Burkina Faso, rather than broadly across all mosquitoes. This indicates that the viral sequence targeted by the primers is unlikely to have been integrated into the mosquito genome, but rather produced in a mosquito after they had infected with DENV-2, at least in the study area. Furthermore, the locations where the mosquitoes were collected facilitated the identification of sites where DENV-2 vDNA-positive mosquitoes were distributed. This information was used to determine the infection rate of mosquitoes at each location. Though the infection rate observed in our study was relatively low, DENV infection among wild mosquitoes in Burkina Faso has generally been reported to be low. This aligns with previous data obtained using the qRT-PCR method "
+                "string": "Detection of DENV-2 vDNA in certain wild mosquitoes collected in Burkina Faso demonstrated the presence of vDNA in natural settings. Amplification was observed only in a limited number of mosquito pools collected in Burkina Faso, rather than broadly across all mosquitoes. This indicates that the viral sequence targeted by the primers is unlikely to have been integrated into the mosquito genome, but rather produced in a mosquito after they had infected with DENV-2, at least in the study area. Furthermore, the locations where the mosquitoes were collected facilitated the identification of sites where DENV-2 vDNA-positive mosquitoes were distributed. This information was used to determine the infection rate of mosquitoes at each location. Though the infection rate observed in our study was relatively low, DENV infection among wild mosquitoes in Burkina Faso has generally been reported to be low. This aligns with previous data obtained using the qRT-PCR method ["
               }
             },
             {
@@ -6779,7 +8923,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, it is essential to note that, as previously discussed, the estimated vDNA amount in infected mosquitoes is considerably lower than that of viral RNA. Infection rates determined based on vDNA detection are likely to be underestimated, suggesting that the actual infection rate in mosquitoes is substantially higher. In other words, the positive detection of vDNA indicated the existence of more infected mosquitoes, implying a significantly higher actual infection rate."
+                "string": "]. However, it is essential to note that, as previously discussed, the estimated vDNA amount in infected mosquitoes is considerably lower than that of viral RNA. Infection rates determined based on vDNA detection are likely to be underestimated, suggesting that the actual infection rate in mosquitoes is substantially higher. In other words, the positive detection of vDNA indicated the existence of more infected mosquitoes, implying a significantly higher actual infection rate."
               }
             }
           ]
@@ -6790,42 +8934,43 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Based on previous reports of mosquito surveys and the findings obtained in this study, it is evident that the direct detection of viral RNA stands out as the most sensitive and reliable method for virus detection in mosquitoes. Accordingly, viral RNA detection has been employed as the standard approach in mosquito virus surveillance "
+                "string": "Based on previous reports of mosquito surveys and the findings obtained in this study, it is evident that the direct detection of viral RNA stands out as the most sensitive and reliable method for virus detection in mosquitoes. Accordingly, viral RNA detection has been employed as the standard approach in mosquito virus surveillance ["
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Citation",
+              "target": "pone.0332245.ref034",
+              "content": [
                 {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref034",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "34"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Citation",
-                  "target": "pone.0332245.ref035",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "35"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "34"
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ". On the other hand, it is important to emphasize that the wild mosquitoes collected and used in this study were preserved in a deceased and desiccated state. Consequently, vDNA-based detection represents a survey method that is not affected by the preservation conditions of collected mosquitoes. This feature proves advantageous for practical survey efforts in endemic locations where the handling of RNA is logistically challenging. Moreover, the vDNA-LAMP method facilitates the amplification of target vDNA in isothermal conditions, eliminating the need for costly equipment. This method is anticipated to streamline the process of mosquito monitoring in areas endemic to arbovirus-borne diseases."
+                "string": ","
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "pone.0332245.ref035",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "35"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "]. On the other hand, it is important to emphasize that the wild mosquitoes collected and used in this study were preserved in a deceased and desiccated state. Consequently, vDNA-based detection represents a survey method that is not affected by the preservation conditions of collected mosquitoes. This feature proves advantageous for practical survey efforts in endemic locations where the handling of RNA is logistically challenging. Moreover, the vDNA-LAMP method facilitates the amplification of target vDNA in isothermal conditions, eliminating the need for costly equipment. This method is anticipated to streamline the process of mosquito monitoring in areas endemic to arbovirus-borne diseases."
               }
             }
           ]

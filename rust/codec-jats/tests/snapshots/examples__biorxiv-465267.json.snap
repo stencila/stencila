@@ -4930,17 +4930,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": "."
               }
             },
             {
-              "type": "Citation",
-              "target": "c1",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "1"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c1",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -4965,17 +4982,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": "."
               }
             },
             {
-              "type": "Citation",
-              "target": "c2",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "2"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c2",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -4983,17 +5017,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " unveiled the prevalence of modular configuration among pollination communities with a high (> 150) number of species. In the following years, both nestedness and modularity were recognized to strongly affect some beneficial properties –the former was linked to the promotion of diversity "
+                "string": " unveiled the prevalence of modular configuration among pollination communities with a high (> 150) number of species. In the following years, both nestedness and modularity were recognized to strongly affect some beneficial properties –the former was linked to the promotion of diversity"
               }
             },
             {
-              "type": "Citation",
-              "target": "c3",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "3"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c3",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5001,17 +5052,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and the maximization of abundances "
+                "string": " and the maximization of abundances"
               }
             },
             {
-              "type": "Citation",
-              "target": "c4",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "4"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c4",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5019,12 +5087,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", while the latter was associated to the enhancing of stability "
+                "string": ", while the latter was associated to the enhancing of stability"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c5",
@@ -5036,6 +5104,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5054,12 +5128,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " – leading to a great consensus about the crucial role they play in the dynamics of natural systems "
+                "string": " – leading to a great consensus about the crucial role they play in the dynamics of natural systems"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c7",
@@ -5071,6 +5145,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5085,6 +5165,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c9",
                   "content": [
@@ -5095,6 +5181,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5109,6 +5201,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c11",
                   "content": [
@@ -5119,6 +5217,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5133,6 +5237,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c13",
                   "content": [
@@ -5145,6 +5255,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c14",
                   "content": [
@@ -5155,6 +5271,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5184,12 +5306,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "The importance of interaction structure in the behavior of ecological communities fueled, consequently, a long series of studies aimed to assess the statistical significance of the emergent patterns. Herein, null models stand up as one of the ubiquitous tools to address this class of problems, in particular referring to nestedness "
+                "string": "The importance of interaction structure in the behavior of ecological communities fueled, consequently, a long series of studies aimed to assess the statistical significance of the emergent patterns. Herein, null models stand up as one of the ubiquitous tools to address this class of problems, in particular referring to nestedness"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c16",
@@ -5201,6 +5323,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5219,17 +5347,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Paraphrasing Gotelli and Graves "
+                "string": ". Paraphrasing Gotelli and Graves"
               }
             },
             {
-              "type": "Citation",
-              "target": "c18",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "18"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c18",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "18"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5248,12 +5393,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "The selection of these constraints has important effects, and yields many controversial aspects concerning the use of null models. On the one hand, dealing with too loose constraints could misguide us to think that a structural pattern really exists (type I error) "
+                "string": "The selection of these constraints has important effects, and yields many controversial aspects concerning the use of null models. On the one hand, dealing with too loose constraints could misguide us to think that a structural pattern really exists (type I error)"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c19",
@@ -5265,6 +5410,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5283,12 +5434,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". On the other hand, imposing too strict constraints will increase the chance of falsely rejecting the statistical significance of the considered pattern (type II error) "
+                "string": ". On the other hand, imposing too strict constraints will increase the chance of falsely rejecting the statistical significance of the considered pattern (type II error)"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c16",
@@ -5302,6 +5453,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c19",
                   "content": [
@@ -5312,6 +5469,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5330,17 +5493,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". For instance, if the null hypothesis refers to species interactions, the first point of view could translate into an ensemble of networks in which degrees are proportionally constrained, matching only on average the marginal total of the original matrix "
+                "string": ". For instance, if the null hypothesis refers to species interactions, the first point of view could translate into an ensemble of networks in which degrees are proportionally constrained, matching only on average the marginal total of the original matrix"
               }
             },
             {
-              "type": "Citation",
-              "target": "c1",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "1"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c1",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5348,17 +5528,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". The second approach, instead, might fix node degrees by swapping pairs of interactions such that both row and column totals are preserved "
+                "string": ". The second approach, instead, might fix node degrees by swapping pairs of interactions such that both row and column totals are preserved"
               }
             },
             {
-              "type": "Citation",
-              "target": "c22",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "22"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c22",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "22"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5377,12 +5574,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Since the 70s, scholars have struggled to overcome the aforementioned limitations "
+                "string": "Since the 70s, scholars have struggled to overcome the aforementioned limitations"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c23",
@@ -5394,6 +5591,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5412,12 +5615,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Later, a myriad of papers have addressed the ambiguities in pattern assessment, both improving existing algorithms, and introducing new ones "
+                "string": ". Later, a myriad of papers have addressed the ambiguities in pattern assessment, both improving existing algorithms, and introducing new ones"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c25",
@@ -5429,6 +5632,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5443,6 +5652,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c27",
                   "content": [
@@ -5455,6 +5670,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c28",
                   "content": [
@@ -5465,6 +5686,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5483,12 +5710,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Many of these, however, present some limitations that need to be further explored or extended, both on the conceptual and technical side. First, many of the works about null models take into account a reduced number of real world networks "
+                "string": ". Many of these, however, present some limitations that need to be further explored or extended, both on the conceptual and technical side. First, many of the works about null models take into account a reduced number of real world networks"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c30",
@@ -5502,6 +5729,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c31",
                   "content": [
@@ -5512,6 +5745,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5581,17 +5820,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": "."
               }
             },
             {
-              "type": "Citation",
-              "target": "c21",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "21"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c21",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "21"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5633,17 +5889,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": "."
               }
             },
             {
-              "type": "Citation",
-              "target": "c33",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "33"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c33",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "33"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5662,12 +5935,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Moreover, another pressing issue relates to the structural arrangements under consideration. So far, the debate has focused almost exclusively on nestedness, while modularity, for example, has been mostly left aside with few exceptions "
+                "string": "Moreover, another pressing issue relates to the structural arrangements under consideration. So far, the debate has focused almost exclusively on nestedness, while modularity, for example, has been mostly left aside with few exceptions"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c34",
@@ -5679,6 +5952,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5731,12 +6010,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". in-block nestedness, which describes networks compound by weakly interlinked blocks with internal nested character "
+                "string": ". in-block nestedness, which describes networks compound by weakly interlinked blocks with internal nested character"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c36",
@@ -5750,6 +6029,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "c37",
                   "content": [
@@ -5760,6 +6045,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5778,17 +6069,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". This has recently attracted a lot of attention to be predominant in real mutualistic communities "
+                "string": ". This has recently attracted a lot of attention to be predominant in real mutualistic communities"
               }
             },
             {
-              "type": "Citation",
-              "target": "c39",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "39"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c39",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "39"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -5796,12 +6104,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and to emerge as a consequence of micro- "
+                "string": " and to emerge as a consequence of micro-"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "c40",
@@ -5813,6 +6121,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -5831,17 +6145,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and macroscopic "
+                "string": " and macroscopic"
               }
             },
             {
-              "type": "Citation",
-              "target": "c42",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "42"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c42",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "42"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]
@@ -6067,12 +6398,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Nestedness, originally conceived in the field of biogeography "
+                        "string": "Nestedness, originally conceived in the field of biogeography"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c43",
@@ -6086,6 +6417,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c44",
                           "content": [
@@ -6096,6 +6433,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -6114,12 +6457,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", constitutes a frequent architectural pattern both inside "
+                        "string": ", constitutes a frequent architectural pattern both inside"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c1",
@@ -6131,6 +6474,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -6149,12 +6498,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " and outside Ecology "
+                        "string": " and outside Ecology"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c46",
@@ -6166,6 +6515,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -6180,6 +6535,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c48",
                           "content": [
@@ -6192,6 +6553,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c49",
                           "content": [
@@ -6202,6 +6569,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -6340,17 +6713,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " and its neighborhood, respectively "
+                        "string": " and its neighborhood, respectively"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c1",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "1"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c1",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -6463,17 +6853,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Even though perfectly nested patterns are extremely rare in real complex networks, many of these exhibit a highly nested haracter. Quantifying nestedness has rendered itself a large amount of definitions "
+                        "string": "Even though perfectly nested patterns are extremely rare in real complex networks, many of these exhibit a highly nested haracter. Quantifying nestedness has rendered itself a large amount of definitions"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c50",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "50"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c50",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "50"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -6481,12 +6888,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". From an algebraic perspective, the spectral properties of perfectly nested graphs have been studied by mathematicians "
+                        "string": ". From an algebraic perspective, the spectral properties of perfectly nested graphs have been studied by mathematicians"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c51",
@@ -6498,6 +6905,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -6533,17 +6946,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". "
+                        "string": "."
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c11",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "11"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c11",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "11"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -6551,17 +6981,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", which quantifies nestedness with respect to the maximum eigenvalue of binary and weighted graphs’ adjacency matrices. Ecologists have also dedicated many efforts to evaluate nestedness in real systems. In first place, there are measures based on counting misplaced relations to complete a perfect upper triangular nested structure in the biadjacency matrix, such as the Nested Temperature (NT) measure, introduced by Atmar and Patterson "
+                        "string": ", which quantifies nestedness with respect to the maximum eigenvalue of binary and weighted graphs’ adjacency matrices. Ecologists have also dedicated many efforts to evaluate nestedness in real systems. In first place, there are measures based on counting misplaced relations to complete a perfect upper triangular nested structure in the biadjacency matrix, such as the Nested Temperature (NT) measure, introduced by Atmar and Patterson"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c53",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "53"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c53",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "53"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -6586,17 +7033,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". "
+                        "string": "."
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c54",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "54"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c54",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "54"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -6604,12 +7068,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " developed overlap metrics, like the Node Overlap and Decreasing Fill (NODF), which considers the amount of common neighbours between every two pairs of nodes in matrix A, alongside with its weighted version "
+                        "string": " developed overlap metrics, like the Node Overlap and Decreasing Fill (NODF), which considers the amount of common neighbours between every two pairs of nodes in matrix A, alongside with its weighted version"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c55",
@@ -6623,6 +7087,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c56",
                           "content": [
@@ -6633,6 +7103,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -7265,17 +7741,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " is conveniently corrected by a null model that discounts the expected change of each species have to share a neighbor "
+                        "string": " is conveniently corrected by a null model that discounts the expected change of each species have to share a neighbor"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c38",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "38"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c38",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "38"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -7779,12 +8272,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". with no intergroup links. Modular structure is a rather ubiquitous mesoscale architecture "
+                        "string": ". with no intergroup links. Modular structure is a rather ubiquitous mesoscale architecture"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c58",
@@ -7796,6 +8289,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -7810,6 +8309,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c60",
                           "content": [
@@ -7820,6 +8325,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -7838,17 +8349,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " and appears in several fields, as diverse as biology "
+                        "string": " and appears in several fields, as diverse as biology"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c59",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "59"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c59",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "59"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -7856,17 +8384,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " and cognitive science "
+                        "string": " and cognitive science"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c62",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "62"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c62",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "62"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -7885,12 +8430,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "The problem of identifying community structure constitutes itself a sub-area of network science. Over the last decades, scholars have developed a rich collection of algorithms and methodologies to infer these communities from relational data "
+                        "string": "The problem of identifying community structure constitutes itself a sub-area of network science. Over the last decades, scholars have developed a rich collection of algorithms and methodologies to infer these communities from relational data"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c61",
@@ -7902,6 +8447,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -7937,17 +8488,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " ∈ [0, 1) "
+                        "string": " ∈ [0, 1)"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c64",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "64"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c64",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "64"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8346,17 +8914,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Over the last decade, nestedness and modularity have concentrated most of the attention in community ecology, as they seem to have deep implications on the dynamics and other ecological properties. Nestedness, indeed, promotes the diversity of species "
+                        "string": "Over the last decade, nestedness and modularity have concentrated most of the attention in community ecology, as they seem to have deep implications on the dynamics and other ecological properties. Nestedness, indeed, promotes the diversity of species"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c3",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "3"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c3",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "3"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8364,12 +8949,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", but restrains instead the local asymptotic stability "
+                        "string": ", but restrains instead the local asymptotic stability"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c9",
@@ -8381,6 +8966,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -8399,12 +8990,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", a quality that is maximized by modular organization "
+                        "string": ", a quality that is maximized by modular organization"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c10",
@@ -8416,6 +9007,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -8445,12 +9042,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "The existence of concurrent nested and modular organizations has been debated in different situations "
+                        "string": "The existence of concurrent nested and modular organizations has been debated in different situations"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c2",
@@ -8462,6 +9059,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -8480,17 +9083,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", but empirical "
+                        "string": ", but empirical"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c34",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "34"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c34",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "34"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8498,17 +9118,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " and later analytical "
+                        "string": " and later analytical"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c65",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "65"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c65",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "65"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8516,17 +9153,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " evidence proved that macroscale nestedness and modular mesoscale cannot coexist easily "
+                        "string": " evidence proved that macroscale nestedness and modular mesoscale cannot coexist easily"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c65",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "65"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c65",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "65"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8568,12 +9222,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "., within modules "
+                        "string": "., within modules"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c37",
@@ -8585,6 +9239,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -8649,17 +9309,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". "
+                        "string": "."
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c36",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "36"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c36",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "36"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8667,17 +9344,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". This has been found to unfold from an abundance-maximization process "
+                        "string": ". This has been found to unfold from an abundance-maximization process"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c4",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "4"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c4",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "4"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8685,12 +9379,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " on top of a niche-structured population "
+                        "string": " on top of a niche-structured population"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c40",
@@ -8702,6 +9396,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -8720,17 +9420,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", providing a bottom-up perspective on nestedness-modularity, able to trade off stability and diversity in mutualistic communities "
+                        "string": ", providing a bottom-up perspective on nestedness-modularity, able to trade off stability and diversity in mutualistic communities"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c39",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "39"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c39",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "39"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8738,17 +9455,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". Significantly, in-block nestedness has been shown to be the predominant pattern in a significant amount of real plant-animal communities "
+                        "string": ". Significantly, in-block nestedness has been shown to be the predominant pattern in a significant amount of real plant-animal communities"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c39",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "39"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c39",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "39"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8756,17 +9490,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", as well as outside of ecology "
+                        "string": ", as well as outside of ecology"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c66",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "66"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c66",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "66"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -8785,12 +9536,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "The original approaches "
+                        "string": "The original approaches"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c37",
@@ -8804,6 +9555,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c67",
                           "content": [
@@ -8814,6 +9571,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -8832,17 +9595,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " to detect nested compartments started first optimizing modularity, then subsequently computing the level of nestedness exclusively for nodes within the detected communities. Although this sequential procedure delivers good results in many situations (since, often, detected modules gather nodes with degree heterogeneity), a specialized fitness function is required for the general case. Thus, as in the case of modularity, in-block nestedness detection is a hard computational problem where the use of heuristic algorithms is mandatory. Using the formulation developed in "
+                        "string": " to detect nested compartments started first optimizing modularity, then subsequently computing the level of nestedness exclusively for nodes within the detected communities. Although this sequential procedure delivers good results in many situations (since, often, detected modules gather nodes with degree heterogeneity), a specialized fitness function is required for the general case. Thus, as in the case of modularity, in-block nestedness detection is a hard computational problem where the use of heuristic algorithms is mandatory. Using the formulation developed in"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c38",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "38"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c38",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "38"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -9081,17 +9861,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "We carry out the analysis of the robustness of different types of null models over three sets of synthetic networks with the three patterns of interest. So far, many of the works concerning the study of structured interactions in Ecology proceed by quantifying the degree of a given pattern over networks with a random organization, or nested networks constructed in contrived way. The only exception, to the best of our knowledge, is constituted by Beckett and Williams "
+                    "string": "We carry out the analysis of the robustness of different types of null models over three sets of synthetic networks with the three patterns of interest. So far, many of the works concerning the study of structured interactions in Ecology proceed by quantifying the degree of a given pattern over networks with a random organization, or nested networks constructed in contrived way. The only exception, to the best of our knowledge, is constituted by Beckett and Williams"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c33",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "33"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c33",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "33"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -9099,17 +9896,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", who construct synthetic perfect nested matrices with varying levels of connectance, by employing the unit ball equation, and then iteratively perform rewires to degrade the ideal structure, introducing noise. Thus, one of the main contributions of the current manuscript is the generation of networks with a well-defined structure, as a variation of the model introduced in "
+                    "string": ", who construct synthetic perfect nested matrices with varying levels of connectance, by employing the unit ball equation, and then iteratively perform rewires to degrade the ideal structure, introducing noise. Thus, one of the main contributions of the current manuscript is the generation of networks with a well-defined structure, as a variation of the model introduced in"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c38",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "38"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c38",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "38"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -10017,17 +10831,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Examples of synthetic network generation with the model introduced in "
+                        "string": "Examples of synthetic network generation with the model introduced in"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c38",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "38"
+                            "string": "\n              "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c38",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "38"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n            "
                           }
                         }
                       ]
@@ -10496,17 +11327,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\nwhere the numerator takes into account the amount of removed links, while the denominator regards the possible matrix entries where those links can be placed. For further details regarding the network generation model we refer the reader to "
+                    "string": "\nwhere the numerator takes into account the amount of removed links, while the denominator regards the possible matrix entries where those links can be placed. For further details regarding the network generation model we refer the reader to"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c38",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "38"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c38",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "38"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -10542,12 +11390,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "To explore our hypothesis in real scenarios, we perform experiments on 192 bipartite ecological networks from two papers and two online databases: 35 trophic networks from "
+                    "string": "To explore our hypothesis in real scenarios, we perform experiments on 192 bipartite ecological networks from two papers and two online databases: 35 trophic networks from"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "c68",
@@ -10559,6 +11407,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -10577,17 +11431,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", 141 mutualistic networks from the Web of Life dataset "
+                    "string": ", 141 mutualistic networks from the Web of Life dataset"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c70",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "70"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c70",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "70"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -10659,12 +11530,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "The appropriate selection of a null model has been a center of debate in the ecology literature for many decades. The first attempts to estimate the significance of structural patterns in ecological networks date back to the 70s "
+                    "string": "The appropriate selection of a null model has been a center of debate in the ecology literature for many decades. The first attempts to estimate the significance of structural patterns in ecological networks date back to the 70s"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "c23",
@@ -10676,6 +11547,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -10694,17 +11571,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". In this context, scholars introduced approaches relying on the generation of random networks, either by keeping fixed the number of rows (or columns) nodes degrees and allowing the number of columns (or rows) nodes degrees to change "
+                    "string": ". In this context, scholars introduced approaches relying on the generation of random networks, either by keeping fixed the number of rows (or columns) nodes degrees and allowing the number of columns (or rows) nodes degrees to change"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c23",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "23"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c23",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "23"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -10712,17 +11606,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " ; or by generating networks that exactly preserved degrees of both guilds "
+                    "string": " ; or by generating networks that exactly preserved degrees of both guilds"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c24",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "24"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c24",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "24"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -10730,12 +11641,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Afterward, models that preserves, on average, nodes degrees in both guilds were also introduced "
+                    "string": ". Afterward, models that preserves, on average, nodes degrees in both guilds were also introduced"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "c71",
@@ -10747,6 +11658,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -10765,12 +11682,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". More recently, models based on constructing maximum-entropy ensembles of networks with an expected degree sequence were also exploited to assess statistical significance "
+                    "string": ". More recently, models based on constructing maximum-entropy ensembles of networks with an expected degree sequence were also exploited to assess statistical significance"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "c48",
@@ -10782,6 +11699,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -10828,17 +11751,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": "."
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c22",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "22"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c22",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "22"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -10908,17 +11848,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Below, we provide details for these three basic classes of null models and describe some of the implementations for each case, with special attention to those that were employed in the present work. It worth highlighting that in all of our implementations, the corresponding constraints were applied for both rows and columns nodes. Therefore, we will talk about EE, FF, and PP models, according the nomenclature employed in "
+                    "string": "Below, we provide details for these three basic classes of null models and describe some of the implementations for each case, with special attention to those that were employed in the present work. It worth highlighting that in all of our implementations, the corresponding constraints were applied for both rows and columns nodes. Therefore, we will talk about EE, FF, and PP models, according the nomenclature employed in"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c16",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "16"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c16",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "16"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -11055,12 +12012,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "., it is prone to type I statistical errors "
+                        "string": "., it is prone to type I statistical errors"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c19",
@@ -11074,6 +12031,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c73",
                           "content": [
@@ -11084,6 +12047,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -11130,17 +12099,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "In the other extreme of the spectrum "
+                        "string": "In the other extreme of the spectrum"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c74",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "74"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c74",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "74"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11148,17 +12134,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", the FF model enforces row-nodes’ and column-nodes’ degrees to be strictly preserved. It is thus the most restrictive null model. The usage of this type of model to assess the probability that an observed pattern could be explained by chance alone has been applied since the 70s "
+                        "string": ", the FF model enforces row-nodes’ and column-nodes’ degrees to be strictly preserved. It is thus the most restrictive null model. The usage of this type of model to assess the probability that an observed pattern could be explained by chance alone has been applied since the 70s"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c24",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "24"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c24",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "24"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11166,17 +12169,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". A typical way for generating random matrices under this constraint is through the application of some form of swap algorithm, performing exchanges between pairs of interacting nodes without altering the network’s degree sequence "
+                        "string": ". A typical way for generating random matrices under this constraint is through the application of some form of swap algorithm, performing exchanges between pairs of interacting nodes without altering the network’s degree sequence"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c22",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "22"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c22",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "22"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11195,17 +12215,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Noteworthy, generating random matrices by exactly preserving the degrees is far from being a trivial task. Swap methods tend to generate repeated matrices that closely resemble the original network. Thus, in order to produce a truly representative set of matrices within the universe of possible matrix configurations, a very large number of matrices need be generated "
+                        "string": "Noteworthy, generating random matrices by exactly preserving the degrees is far from being a trivial task. Swap methods tend to generate repeated matrices that closely resemble the original network. Thus, in order to produce a truly representative set of matrices within the universe of possible matrix configurations, a very large number of matrices need be generated"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c75",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "75"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c75",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "75"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11213,12 +12250,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ", which might not be possible in some scenarios. As a consequence, this model is susceptible to type II errors, particularly, when it comes to the assessment of nested patterns "
+                        "string": ", which might not be possible in some scenarios. As a consequence, this model is susceptible to type II errors, particularly, when it comes to the assessment of nested patterns"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "c16",
@@ -11230,6 +12267,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -11248,17 +12291,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". On the other hand, it also tends to generate matrices with more checkerboard units "
+                        "string": ". On the other hand, it also tends to generate matrices with more checkerboard units"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c2",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "2"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c2",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "2"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11266,30 +12326,18 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " than expected by chance "
+                        "string": " than expected by chance"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c25",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "25"
+                            "string": "\n            "
                           }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ", producing a biased sample. To solve the latter downside, scholars have introduced variations of the swap methods, and alternative methods that are able to generate a uniform sample of null matrices with fixed row and column degrees "
-                      }
-                    },
-                    {
-                      "type": "CitationGroup",
-                      "items": [
+                        },
                         {
                           "type": "Citation",
                           "target": "c25",
@@ -11301,6 +12349,41 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", producing a biased sample. To solve the latter downside, scholars have introduced variations of the swap methods, and alternative methods that are able to generate a uniform sample of null matrices with fixed row and column degrees"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "c25",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "25"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -11315,6 +12398,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c27",
                           "content": [
@@ -11327,6 +12416,12 @@ expression: article
                           ]
                         },
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
+                        },
+                        {
                           "type": "Citation",
                           "target": "c28",
                           "content": [
@@ -11337,6 +12432,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -11366,17 +12467,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "In this work, we employ the Curveball algorithm, introduced in "
+                        "string": "In this work, we employ the Curveball algorithm, introduced in"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c26",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "26"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c26",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "26"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11384,17 +12502,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " as an FF model, as a fast and efficient alternative to generate random matrices with fixed nodes’ degrees guaranteeing a uniform sample "
+                        "string": " as an FF model, as a fast and efficient alternative to generate random matrices with fixed nodes’ degrees guaranteeing a uniform sample"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c76",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "76"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c76",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "76"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11436,17 +12571,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "., representing species per site or plant-pollinator matrices, in the ecological context–, for each row (column) node, a list is created containing all the column (row) indices with nonzero elements. Then, the algorithm iteratively chooses at random two row lists (columns), identifies the column (row) indices that are present in list, but not in the other, and vice-versa, and performs random “trades” of the column (row) indices. The number of trades for each pair of lists will go from zero to the size of the smallest list of column indices. In this work, we resort to the Python implementation of the algorithm that was provided by the authors in "
+                        "string": "., representing species per site or plant-pollinator matrices, in the ecological context–, for each row (column) node, a list is created containing all the column (row) indices with nonzero elements. Then, the algorithm iteratively chooses at random two row lists (columns), identifies the column (row) indices that are present in list, but not in the other, and vice-versa, and performs random “trades” of the column (row) indices. The number of trades for each pair of lists will go from zero to the size of the smallest list of column indices. In this work, we resort to the Python implementation of the algorithm that was provided by the authors in"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c26",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "26"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c26",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "26"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11482,17 +12634,34 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Somewhere between the extremes –and limitations– described above "
+                        "string": "Somewhere between the extremes –and limitations– described above"
                       }
                     },
                     {
-                      "type": "Citation",
-                      "target": "c74",
+                      "type": "Superscript",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "74"
+                            "string": "\n            "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c74",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "74"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
                           }
                         }
                       ]
@@ -11543,17 +12712,34 @@ expression: article
                         {
                           "type": "Text",
                           "value": {
-                            "string": ". in 2003 "
+                            "string": ". in 2003"
                           }
                         },
                         {
-                          "type": "Citation",
-                          "target": "c1",
+                          "type": "Superscript",
                           "content": [
                             {
                               "type": "Text",
                               "value": {
-                                "string": "1"
+                                "string": "\n              "
+                              }
+                            },
+                            {
+                              "type": "Citation",
+                              "target": "c1",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "1"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n            "
                               }
                             }
                           ]
@@ -11776,17 +12962,34 @@ expression: article
                         {
                           "type": "Text",
                           "value": {
-                            "string": "Introduced in the last decade "
+                            "string": "Introduced in the last decade"
                           }
                         },
                         {
-                          "type": "Citation",
-                          "target": "c77",
+                          "type": "Superscript",
                           "content": [
                             {
                               "type": "Text",
                               "value": {
-                                "string": "77"
+                                "string": "\n              "
+                              }
+                            },
+                            {
+                              "type": "Citation",
+                              "target": "c77",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "77"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n            "
                               }
                             }
                           ]
@@ -11794,17 +12997,34 @@ expression: article
                         {
                           "type": "Text",
                           "value": {
-                            "string": ", this is a statistical physics framework that facilitates the analytic computation of the expected properties of an ensemble of networks. Under this formulation, the expected values and standard deviation of the network properties are calculated by finding a probability distribution over an ensemble of networks –which, on average preserve the network’s degree sequence–, that maximizes the entropy of the network. This approach can be applied to both uni- and bipartite networks, and has been recently exploited to assess the significance of nestedness structural arrangements in economic "
+                            "string": ", this is a statistical physics framework that facilitates the analytic computation of the expected properties of an ensemble of networks. Under this formulation, the expected values and standard deviation of the network properties are calculated by finding a probability distribution over an ensemble of networks –which, on average preserve the network’s degree sequence–, that maximizes the entropy of the network. This approach can be applied to both uni- and bipartite networks, and has been recently exploited to assess the significance of nestedness structural arrangements in economic"
                           }
                         },
                         {
-                          "type": "Citation",
-                          "target": "c78",
+                          "type": "Superscript",
                           "content": [
                             {
                               "type": "Text",
                               "value": {
-                                "string": "78"
+                                "string": "\n              "
+                              }
+                            },
+                            {
+                              "type": "Citation",
+                              "target": "c78",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "78"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n            "
                               }
                             }
                           ]
@@ -11812,17 +13032,34 @@ expression: article
                         {
                           "type": "Text",
                           "value": {
-                            "string": ", and ecological "
+                            "string": ", and ecological"
                           }
                         },
                         {
-                          "type": "Citation",
-                          "target": "c72",
+                          "type": "Superscript",
                           "content": [
                             {
                               "type": "Text",
                               "value": {
-                                "string": "72"
+                                "string": "\n              "
+                              }
+                            },
+                            {
+                              "type": "Citation",
+                              "target": "c72",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "72"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n            "
                               }
                             }
                           ]
@@ -12222,17 +13459,34 @@ expression: article
                         {
                           "type": "Text",
                           "value": {
-                            "string": ", e.g., the graph’s average degree. The next step consists on the calculation of the exact values of the Lagrange multipliers. Following the approach presented in "
+                            "string": ", e.g., the graph’s average degree. The next step consists on the calculation of the exact values of the Lagrange multipliers. Following the approach presented in"
                           }
                         },
                         {
-                          "type": "Citation",
-                          "target": "c77",
+                          "type": "Superscript",
                           "content": [
                             {
                               "type": "Text",
                               "value": {
-                                "string": "77"
+                                "string": "\n              "
+                              }
+                            },
+                            {
+                              "type": "Citation",
+                              "target": "c77",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "77"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n            "
                               }
                             }
                           ]
@@ -14306,17 +15560,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": "."
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c74",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "74"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c74",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "74"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -14438,17 +15709,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ": NODF "
+                    "string": ": NODF"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c54",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "54"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c54",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "54"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -14472,8 +15760,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "c51",
@@ -14485,6 +15773,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -14521,17 +15815,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", as in "
+                    "string": ", as in"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c32",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "32"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c32",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "32"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -14640,17 +15951,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "More intriguingly, the FF and Max-entropy models identify a large fraction of nested-by-construction networks as being significantly modular (24.2% and 46.37%, respectively). To some extent, this could be explained by the densest nested matrices in the collection "
+                    "string": "More intriguingly, the FF and Max-entropy models identify a large fraction of nested-by-construction networks as being significantly modular (24.2% and 46.37%, respectively). To some extent, this could be explained by the densest nested matrices in the collection"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c38",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "38"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c38",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "38"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -15476,17 +16804,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " larger than expected "
+                    "string": " larger than expected"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c38",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "38"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c38",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "38"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -15586,17 +16931,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " ≤2 consistently throughout the whole set. Such result is not surprising, since by construction, all the networks present a clearly modular planted structure, and as mentioned above, we have evidence that these two patterns may not be structurally compatible "
+                    "string": " ≤2 consistently throughout the whole set. Such result is not surprising, since by construction, all the networks present a clearly modular planted structure, and as mentioned above, we have evidence that these two patterns may not be structurally compatible"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c65",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "65"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c65",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "65"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -15887,17 +17249,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": "."
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c65",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "65"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c65",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "65"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -16495,17 +17874,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") blocks. Such coherence contrasts with the assessment of significance for 𝒩, which deserve to be examined in more detail. It is known that global nestedness decreases with the number of blocks in a network, regardless of their internal nested structure "
+                    "string": ") blocks. Such coherence contrasts with the assessment of significance for 𝒩, which deserve to be examined in more detail. It is known that global nestedness decreases with the number of blocks in a network, regardless of their internal nested structure"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c65",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "65"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c65",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "65"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -16854,17 +18250,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " 2). Results for the strictest schemes –FF and Max-entropy models–, show, in the case of nestedness, a good agreement with the results in the synthetic matrices (and the literature "
+                    "string": " 2). Results for the strictest schemes –FF and Max-entropy models–, show, in the case of nestedness, a good agreement with the results in the synthetic matrices (and the literature"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c72",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "72"
+                        "string": "\n          "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c72",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "72"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
                       }
                     }
                   ]
@@ -16872,7 +18285,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", yielding non-significant "
+                    "string": "), yielding non-significant "
                   }
                 },
                 {
@@ -16918,12 +18331,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Moving on, results for modularity in the FF and Max-entropy model render inconsistent results, suggesting once again the esence of biases in the Max-entropy model with regard to the assessment of modular patterns. Finally, we observe that a elevant fraction of the networks exhibit significant in-block nestedness structure even with the most restrictive algorithms, in close agreement with recent studies suggesting the presence of in-block nestedness as a frequent pattern in ecological communities "
+                    "string": "Moving on, results for modularity in the FF and Max-entropy model render inconsistent results, suggesting once again the esence of biases in the Max-entropy model with regard to the assessment of modular patterns. Finally, we observe that a elevant fraction of the networks exhibit significant in-block nestedness structure even with the most restrictive algorithms, in close agreement with recent studies suggesting the presence of in-block nestedness as a frequent pattern in ecological communities"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "c42",
@@ -16937,6 +18350,12 @@ expression: article
                       ]
                     },
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
+                    },
+                    {
                       "type": "Citation",
                       "target": "c40",
                       "content": [
@@ -16947,6 +18366,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17018,17 +18443,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "With over 25000 networks of varying size, connectance and internal structure, we have observed the existence of ambiguities and biases in the concurrent assessment of network patterns, either over- or underestimating their significance. In particular, our use of an extensive ensemble of networks uncovers the weaknesses of both too restrictive (FF, Max-entropy) and too permissive (EE, Probabilistic) randomizing procedures. At the face of such results, we propose a variation of the Probabilistic model, that mitigates some of the limitations exhibited by the current models –in close agreement with recent research, regarding the convenience of quasi-FF approaches "
+                "string": "With over 25000 networks of varying size, connectance and internal structure, we have observed the existence of ambiguities and biases in the concurrent assessment of network patterns, either over- or underestimating their significance. In particular, our use of an extensive ensemble of networks uncovers the weaknesses of both too restrictive (FF, Max-entropy) and too permissive (EE, Probabilistic) randomizing procedures. At the face of such results, we propose a variation of the Probabilistic model, that mitigates some of the limitations exhibited by the current models –in close agreement with recent research, regarding the convenience of quasi-FF approaches"
               }
             },
             {
-              "type": "Citation",
-              "target": "c74",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "74"
+                    "string": "\n        "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c74",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "74"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
                   }
                 }
               ]

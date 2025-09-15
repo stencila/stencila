@@ -5705,7 +5705,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". In the majority of these models, C"
+                "string": "). In the majority of these models, C"
               }
             },
             {
@@ -5757,7 +5757,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". The applicability of the theory relies on knowledge of\n        photosynthetic capacity, which varies both among species and over time and space, in\n        response to environmental conditions (Ali "
+                "string": "). The applicability of the theory relies on knowledge of\n        photosynthetic capacity, which varies both among species and over time and space, in\n        response to environmental conditions (Ali "
               }
             },
             {
@@ -5810,7 +5810,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": ")."
               }
             }
           ]
@@ -5856,7 +5856,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Many global models use these empirical relationships to\n        predict the maximum rate of Rubisco carboxylation ("
+                "string": "). Many global models use these empirical relationships to\n        predict the maximum rate of Rubisco carboxylation ("
               }
             },
             {
@@ -5942,7 +5942,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". This approach inherently assumes that variation in "
+                "string": "). This approach inherently assumes that variation in "
               }
             },
             {
@@ -6045,7 +6045,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, there are several important limitations to the\n        N‐supply approach for predicting "
+                "string": "). However, there are several important limitations to the\n        N‐supply approach for predicting "
               }
             },
             {
@@ -6216,7 +6216,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Second, an increase in "
+                "string": "). Second, an increase in "
               }
             },
             {
@@ -6372,7 +6372,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " suggests that high "
+                "string": ") suggests that high "
               }
             },
             {
@@ -6417,7 +6417,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Photosynthetic coordination theory provides an approach to predict dynamic responses of\n        photosynthetic capacity to environmental constraints. Originally proposed by Von Caemmerer\n        & Farquhar "
+                "string": "Photosynthetic coordination theory provides an approach to predict dynamic responses of\n        photosynthetic capacity to environmental constraints. Originally proposed by Von Caemmerer\n        & Farquhar ("
               }
             },
             {
@@ -6435,7 +6435,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and further developed by Chen "
+                "string": ") and further developed by Chen "
               }
             },
             {
@@ -6452,7 +6452,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": ". ("
               }
             },
             {
@@ -6470,7 +6470,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", Maire "
+                "string": "), Maire "
               }
             },
             {
@@ -6487,7 +6487,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": ". ("
               }
             },
             {
@@ -6505,7 +6505,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and Wang "
+                "string": ") and Wang "
               }
             },
             {
@@ -6522,7 +6522,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": ". ("
               }
             },
             {
@@ -6540,7 +6540,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", it states that photosynthesis tends to be equally limited by\n        electron transport and carboxylation under average environmental conditions. Notably, while\n        this implicitly assumes dynamic nutrient partitioning within leaves, it does not assume any\n        nutrient availability constraint on carboxylation rates, electron transport rates or the\n        partitioning of nitrogen between the two. While this response may be possible under any\n        given amount of N availability, here, we present a ‘strong’ form of the\n        coordination theory, which assumes that plants are able to acquire the N necessary to build\n        leaves that can photosynthesize at the fastest possible rate given light availability and\n        biophysical constraints, for example, through increased belowground allocation (Drake "
+                "string": "), it states that photosynthesis tends to be equally limited by\n        electron transport and carboxylation under average environmental conditions. Notably, while\n        this implicitly assumes dynamic nutrient partitioning within leaves, it does not assume any\n        nutrient availability constraint on carboxylation rates, electron transport rates or the\n        partitioning of nitrogen between the two. While this response may be possible under any\n        given amount of N availability, here, we present a ‘strong’ form of the\n        coordination theory, which assumes that plants are able to acquire the N necessary to build\n        leaves that can photosynthesize at the fastest possible rate given light availability and\n        biophysical constraints, for example, through increased belowground allocation (Drake "
               }
             },
             {
@@ -6610,7 +6610,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". This is quite different, in formulation and consequences, from\n        other interpretations that focus on the partitioning of a fixed amount of N to "
+                "string": "). This is quite different, in formulation and consequences, from\n        other interpretations that focus on the partitioning of a fixed amount of N to "
               }
             },
             {
@@ -6713,7 +6713,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": ")."
               }
             }
           ]
@@ -6775,7 +6775,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ".\n        "
+                "string": ".\n        ("
               }
             },
             {
@@ -6793,7 +6793,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", Wang "
+                "string": "), Wang "
               }
             },
             {
@@ -6810,7 +6810,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": ". ("
               }
             },
             {
@@ -6828,7 +6828,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and Togashi "
+                "string": ") and Togashi "
               }
             },
             {
@@ -6845,7 +6845,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". "
+                "string": ". ("
               }
             },
             {
@@ -6863,7 +6863,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", our approach works by combining photosynthetic coordination\n        theory with ‘least‐cost’ theory for understanding investments in\n        carboxylation and water transport capacities for photosynthesis (Wright "
+                "string": "), our approach works by combining photosynthetic coordination\n        theory with ‘least‐cost’ theory for understanding investments in\n        carboxylation and water transport capacities for photosynthesis (Wright "
               }
             },
             {
@@ -6933,7 +6933,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". The least‐cost hypothesis posits that these investments\n        are co‐optimized in relation to environmental properties such that a given\n        photosynthetic rate is achieved at the lowest total cost (i.e. respiration). From this\n        principle, one can predict the optimal CO"
+                "string": "). The least‐cost hypothesis posits that these investments\n        are co‐optimized in relation to environmental properties such that a given\n        photosynthetic rate is achieved at the lowest total cost (i.e. respiration). From this\n        principle, one can predict the optimal CO"
               }
             },
             {
@@ -7105,7 +7105,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". By drawing together the least‐cost and coordination\n        theory, an important step forward is possible: as outlined in the Methods, "
+                "string": "). By drawing together the least‐cost and coordination\n        theory, an important step forward is possible: as outlined in the Methods, "
               }
             },
             {
@@ -7772,7 +7772,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -7790,7 +7790,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Carswell "
+                    "string": "), Carswell "
                   }
                 },
                 {
@@ -7807,7 +7807,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -7825,7 +7825,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", De Kauwe "
+                    "string": "), De Kauwe "
                   }
                 },
                 {
@@ -7842,7 +7842,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -7860,7 +7860,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Domingues "
+                    "string": "), Domingues "
                   }
                 },
                 {
@@ -7877,42 +7877,43 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Citation",
+                  "target": "ele13210-bib-0013",
+                  "content": [
                     {
-                      "type": "Citation",
-                      "target": "ele13210-bib-0013",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "2010"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "ele13210-bib-0014",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "2015"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "2010"
+                      }
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Ellsworth & Crous "
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "ele13210-bib-0014",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2015"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), Ellsworth & Crous ("
                   }
                 },
                 {
@@ -7930,7 +7931,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Keenan & Niinemets "
+                    "string": "), Keenan & Niinemets ("
                   }
                 },
                 {
@@ -7948,7 +7949,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Maire "
+                    "string": "), Maire "
                   }
                 },
                 {
@@ -7965,7 +7966,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -7983,7 +7984,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Meir "
+                    "string": "), Meir "
                   }
                 },
                 {
@@ -8000,7 +8001,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8018,7 +8019,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Niinemets "
+                    "string": "), Niinemets "
                   }
                 },
                 {
@@ -8035,7 +8036,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8053,7 +8054,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Rogers "
+                    "string": "), Rogers "
                   }
                 },
                 {
@@ -8070,7 +8071,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8088,7 +8089,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Serbin "
+                    "string": "), Serbin "
                   }
                 },
                 {
@@ -8105,7 +8106,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8123,7 +8124,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Smith & Dukes "
+                    "string": "), Smith & Dukes ("
                   }
                 },
                 {
@@ -8141,7 +8142,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Tarvainen "
+                    "string": "), Tarvainen "
                   }
                 },
                 {
@@ -8158,7 +8159,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8176,7 +8177,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Togashi "
+                    "string": "), Togashi "
                   }
                 },
                 {
@@ -8193,42 +8194,43 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Citation",
+                  "target": "ele13210-bib-0059",
+                  "content": [
                     {
-                      "type": "Citation",
-                      "target": "ele13210-bib-0059",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "2018a"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "ele13210-bib-0060",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "b"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "2018a"
+                      }
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", the TRY plant trait database (Kattge "
+                    "string": ","
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "ele13210-bib-0060",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "b"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), the TRY plant trait database (Kattge "
                   }
                 },
                 {
@@ -8263,7 +8265,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Wang "
+                    "string": "), Wang "
                   }
                 },
                 {
@@ -8280,7 +8282,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8298,7 +8300,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " and Wohlfahrt "
+                    "string": ") and Wohlfahrt "
                   }
                 },
                 {
@@ -8315,7 +8317,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8333,7 +8335,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " (Figure S1 and S2). "
+                    "string": ") (Figure S1 and S2). "
                   }
                 },
                 {
@@ -8537,7 +8539,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -8555,7 +8557,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "; see "
+                    "string": "); see "
                   }
                 },
                 {
@@ -8829,7 +8831,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Growing season was operationally defined as months with mean\n          temperatures greater than 0 °C. The elevation ("
+                    "string": "). Growing season was operationally defined as months with mean\n          temperatures greater than 0 °C. The elevation ("
                   }
                 },
                 {
@@ -8881,7 +8883,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". The ratio of actual evapotranspiration to equilibrium\n          evapotranspiration (Priestley‐Taylor coefficient, α), which represents the\n          plant‐available surface moisture, was calculated at each 0.5° resolution site\n          using the SPLASH model run at a monthly timescale (Davis "
+                    "string": "). The ratio of actual evapotranspiration to equilibrium\n          evapotranspiration (Priestley‐Taylor coefficient, α), which represents the\n          plant‐available surface moisture, was calculated at each 0.5° resolution site\n          using the SPLASH model run at a monthly timescale (Davis "
                   }
                 },
                 {
@@ -8916,7 +8918,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Soil cation exchange capacity (CEC; cmol"
+                    "string": "). Soil cation exchange capacity (CEC; cmol"
                   }
                 },
                 {
@@ -9081,7 +9083,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -9099,7 +9101,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " and Dong "
+                    "string": ") and Dong "
                   }
                 },
                 {
@@ -9116,7 +9118,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -9134,7 +9136,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " by combining the coordination theory of photosynthesis (Maire "
+                    "string": ") by combining the coordination theory of photosynthesis (Maire "
                   }
                 },
                 {
@@ -9169,7 +9171,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " with the least‐cost hypothesis (Wright "
+                    "string": ") with the least‐cost hypothesis (Wright "
                   }
                 },
                 {
@@ -9239,7 +9241,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". The combination of the two theories is done by calculating\n          an optimal intercellular CO"
+                    "string": "). The combination of the two theories is done by calculating\n          an optimal intercellular CO"
                   }
                 },
                 {
@@ -9376,7 +9378,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -9394,7 +9396,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". We then describe how we use coordination theory to predict\n          optimal "
+                    "string": "). We then describe how we use coordination theory to predict\n          optimal "
                   }
                 },
                 {
@@ -9598,7 +9600,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -9616,7 +9618,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ":"
+                    "string": "):"
                   }
                 }
               ]
@@ -9775,7 +9777,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", "
+                    "string": "), "
                   }
                 },
                 {
@@ -10060,7 +10062,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -10078,7 +10080,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " using "
+                    "string": ") using "
                   }
                 },
                 {
@@ -10229,7 +10231,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". We used a constant "
+                    "string": "). We used a constant "
                   }
                 },
                 {
@@ -10396,7 +10398,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " and equations 1 and 2, as in Wang "
+                    "string": ") and equations 1 and 2, as in Wang "
                   }
                 },
                 {
@@ -10413,7 +10415,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ".\n          "
+                    "string": ".\n          ("
                   }
                 },
                 {
@@ -10431,7 +10433,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "."
+                    "string": ")."
                   }
                 },
                 {
@@ -10461,7 +10463,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". "
+                    "string": ". ("
                   }
                 },
                 {
@@ -10479,7 +10481,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". In cases where "
+                    "string": "). In cases where "
                   }
                 },
                 {
@@ -11818,7 +11820,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". We adopted a value of "
+                    "string": "). We adopted a value of "
                   }
                 },
                 {
@@ -11892,7 +11894,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", 0.23 in soya bean (Harley "
+                    "string": "), 0.23 in soya bean (Harley "
                   }
                 },
                 {
@@ -11927,7 +11929,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", 0.28 in "
+                    "string": "), 0.28 in "
                   }
                 },
                 {
@@ -11962,7 +11964,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", and 0.26 in a seven‐species analysis (Ehleringer\n          & Björkman "
+                    "string": "), and 0.26 in a seven‐species analysis (Ehleringer\n          & Björkman "
                   }
                 },
                 {
@@ -11980,7 +11982,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). The curvature term, "
+                    "string": ")). The curvature term, "
                   }
                 },
                 {
@@ -12011,7 +12013,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Eqn "
+                    "string": "). Eqn "
                   }
                 },
                 {
@@ -12215,7 +12217,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", as proposed by Farquhar\n          "
+                    "string": ", as proposed by Farquhar\n          ("
                   }
                 },
                 {
@@ -12233,7 +12235,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". As such, we took the derivative of "
+                    "string": "). As such, we took the derivative of "
                   }
                 },
                 {
@@ -12948,7 +12950,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " itself (i.e. the saturation point of\n          the Michaelis–Menten curve) is also sensitive to temperature. As such, we used a\n          formulation from Kattge & Knorr "
+                    "string": " itself (i.e. the saturation point of\n          the Michaelis–Menten curve) is also sensitive to temperature. As such, we used a\n          formulation from Kattge & Knorr ("
                   }
                 },
                 {
@@ -12966,7 +12968,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " to incorporate this temperature response, which yielded "
+                    "string": ") to incorporate this temperature response, which yielded "
                   }
                 },
                 {
@@ -13426,7 +13428,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ":"
+                    "string": "):"
                   }
                 }
               ]
@@ -13498,7 +13500,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " from Kattge & Knorr "
+                    "string": " from Kattge & Knorr ("
                   }
                 },
                 {
@@ -13516,7 +13518,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", with a slope of −1.07 J mol"
+                    "string": "), with a slope of −1.07 J mol"
                   }
                 },
                 {
@@ -13602,7 +13604,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "."
+                    "string": ")."
                   }
                 }
               ]
@@ -13825,7 +13827,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") using\n          temperature response formulations from Kattge & Knorr "
+                    "string": ") using\n          temperature response formulations from Kattge & Knorr ("
                   }
                 },
                 {
@@ -13843,7 +13845,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ":"
+                    "string": "):"
                   }
                 }
               ]
@@ -14017,7 +14019,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " following Kattge & Knorr "
+                    "string": " following Kattge & Knorr ("
                   }
                 },
                 {
@@ -14035,7 +14037,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Next, we used the theoretical model described above to\n          predict "
+                    "string": "). Next, we used the theoretical model described above to\n          predict "
                   }
                 },
                 {
@@ -14147,7 +14149,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") to compare predicted and observed rates of "
+                    "string": ")) to compare predicted and observed rates of "
                   }
                 },
                 {
@@ -14269,7 +14271,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " (Supplementary Information). Additionally, because some "
+                    "string": ") (Supplementary Information). Additionally, because some "
                   }
                 },
                 {
@@ -14338,7 +14340,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", we ran a similar model‐data comparison as above using\n          only data derived using "
+                    "string": "), we ran a similar model‐data comparison as above using\n          only data derived using "
                   }
                 },
                 {
@@ -14938,7 +14940,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". We also calculated the variance inflation factor ("
+                    "string": "). We also calculated the variance inflation factor ("
                   }
                 },
                 {
@@ -15041,7 +15043,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "."
+                    "string": ")."
                   }
                 }
               ]
@@ -15100,7 +15102,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " that were standardized to top of the canopy light values ("
+                    "string": ") that were standardized to top of the canopy light values ("
                   }
                 },
                 {
@@ -15220,7 +15222,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Separate model‐data comparisons, as described above,\n          were performed for the full dataset without the CANTRIP data and with only the CANTRIP\n          data. We used Student's "
+                    "string": "). Separate model‐data comparisons, as described above,\n          were performed for the full dataset without the CANTRIP data and with only the CANTRIP\n          data. We used Student's "
                   }
                 },
                 {
@@ -15997,7 +15999,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", which are not influenced by canopy shading. The model tended\n          to underpredict the CANTRIP "
+                    "string": "), which are not influenced by canopy shading. The model tended\n          to underpredict the CANTRIP "
                   }
                 },
                 {
@@ -18292,7 +18294,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and light (e.g. Meir "
+                "string": ") and light (e.g. Meir "
               }
             },
             {
@@ -18327,7 +18329,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " gradient studies. These results suggest that future, warmer\n        conditions may favour increased photosynthetic potential, although this may be balanced by\n        decreases in "
+                "string": ") gradient studies. These results suggest that future, warmer\n        conditions may favour increased photosynthetic potential, although this may be balanced by\n        decreases in "
               }
             },
             {
@@ -18396,7 +18398,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": ")."
               }
             }
           ]
@@ -18630,7 +18632,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Growing season was defined as months having temperatures\n            greater than 0 °C. Elevation ("
+                    "string": "). Growing season was defined as months having temperatures\n            greater than 0 °C. Elevation ("
                   }
                 },
                 {
@@ -18702,7 +18704,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Atmospheric "
+                    "string": "). Atmospheric "
                   }
                 },
                 {
@@ -18844,7 +18846,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and, for intrinsic quantum efficiency, that observed\n        variability may be due to measurement technique rather than meaningful biological variation\n        (Skillman "
+                "string": ") and, for intrinsic quantum efficiency, that observed\n        variability may be due to measurement technique rather than meaningful biological variation\n        (Skillman "
               }
             },
             {
@@ -18862,7 +18864,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". This suggests that the bias in the light response may be due\n        to variability in leaf position and angle, which influence the actual light reaching the\n        leaf surface. Our comparison to the CANTRIP dataset (Keenan & Niinemets "
+                "string": "). This suggests that the bias in the light response may be due\n        to variability in leaf position and angle, which influence the actual light reaching the\n        leaf surface. Our comparison to the CANTRIP dataset (Keenan & Niinemets "
               }
             },
             {
@@ -18880,7 +18882,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " indeed suggests that measured leaves likely were not receiving\n        full sunlight, which would have contributed to the model overestimation that we observed.\n        The combined impact of light availability, leaf position and canopy architecture is a major\n        research need for scaling from leaf to whole‐plant responses at large scales."
+                "string": ") indeed suggests that measured leaves likely were not receiving\n        full sunlight, which would have contributed to the model overestimation that we observed.\n        The combined impact of light availability, leaf position and canopy architecture is a major\n        research need for scaling from leaf to whole‐plant responses at large scales."
               }
             }
           ]
@@ -18909,7 +18911,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and controlled‐environment (Scafaro "
+                "string": ") and controlled‐environment (Scafaro "
               }
             },
             {
@@ -18962,7 +18964,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " studies. Nonetheless, temperature was an important determinant\n        of optimal "
+                "string": ") studies. Nonetheless, temperature was an important determinant\n        of optimal "
               }
             },
             {
@@ -19109,7 +19111,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". This phenomenon is also observable as a reduction in the\n        optimal ratio of "
+                "string": "). This phenomenon is also observable as a reduction in the\n        optimal ratio of "
               }
             },
             {
@@ -19241,7 +19243,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": ")."
               }
             }
           ]
@@ -19518,7 +19520,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Nonetheless, our strategy allows for a prediction of "
+                "string": "). Nonetheless, our strategy allows for a prediction of "
               }
             },
             {
@@ -19600,7 +19602,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Predicting "
+                "string": "). Predicting "
               }
             },
             {
@@ -19753,7 +19755,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " to create our predictions. While our predictions were able to\n        pick up large spatial trends, the ability of our model to simulate temporal variation is\n        untested here. Better temporal data, coupled with a firmer understanding of the timescale of\n        photosynthetic acclimation, should lead to better temporal predictions."
+                "string": ") to create our predictions. While our predictions were able to\n        pick up large spatial trends, the ability of our model to simulate temporal variation is\n        untested here. Better temporal data, coupled with a firmer understanding of the timescale of\n        photosynthetic acclimation, should lead to better temporal predictions."
               }
             }
           ]
@@ -19833,7 +19835,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, because soil acidity tends to correlate with rainfall\n        (Slessarev "
+                "string": "). However, because soil acidity tends to correlate with rainfall\n        (Slessarev "
               }
             },
             {
@@ -19868,7 +19870,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", the overprediction may partly be the result of an\n        overestimation of light availability in wet, tropical regions, as mentioned above. The leaf "
+                "string": "), the overprediction may partly be the result of an\n        overestimation of light availability in wet, tropical regions, as mentioned above. The leaf "
               }
             },
             {
@@ -20001,7 +20003,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, neither soil pH nor leaf "
+                "string": "). However, neither soil pH nor leaf "
               }
             },
             {
@@ -20133,7 +20135,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", models that include soil water stress impacts on "
+                "string": "), models that include soil water stress impacts on "
               }
             },
             {
@@ -20202,7 +20204,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Nonetheless, our model did not show any bias in relation to an\n        index of soil water availability, α. The least‐cost theory, as originally\n        presented (Wright "
+                "string": "). Nonetheless, our model did not show any bias in relation to an\n        index of soil water availability, α. The least‐cost theory, as originally\n        presented (Wright "
               }
             },
             {
@@ -20237,7 +20239,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", does implicitly assume soil moisture costs to photosynthesis\n        and future work devoted to including these costs explicitly into the quantitative theory\n        could improve model predictions. Optimality based plant hydraulic transport models (e.g.\n        Sperry "
+                "string": "), does implicitly assume soil moisture costs to photosynthesis\n        and future work devoted to including these costs explicitly into the quantitative theory\n        could improve model predictions. Optimality based plant hydraulic transport models (e.g.\n        Sperry "
               }
             },
             {
@@ -20272,7 +20274,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " could be used for this purpose."
+                "string": ") could be used for this purpose."
               }
             }
           ]
@@ -20283,7 +20285,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Our findings are consistent with the hypothesis that photosynthetic demand drives leaf\n        nitrogen content, rather than the other way around. This was previously suggested by Evans "
+                "string": "Our findings are consistent with the hypothesis that photosynthetic demand drives leaf\n        nitrogen content, rather than the other way around. This was previously suggested by Evans ("
               }
             },
             {
@@ -20301,7 +20303,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", after which photosynthetic theory has been used to\n        successfully predict leaf nitrogen concentrations (Dong "
+                "string": "), after which photosynthetic theory has been used to\n        successfully predict leaf nitrogen concentrations (Dong "
               }
             },
             {
@@ -20336,7 +20338,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, most current carbon cycle models utilize leaf N\n        content to predict "
+                "string": "). However, most current carbon cycle models utilize leaf N\n        content to predict "
               }
             },
             {
@@ -20388,7 +20390,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Our data suggest that leaf N concentration is more likely a\n        consequence of demand for "
+                "string": "). Our data suggest that leaf N concentration is more likely a\n        consequence of demand for "
               }
             },
             {

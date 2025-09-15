@@ -7130,17 +7130,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Historical ichthyological surveys in freshwater ecosystems globally were conducted with whole-specimen, capture-based sampling using conventional fishing methods such as gill nets, cast nets, hook and line, dipnets, seines, and rotenone—the last a chemical ichthyocide. Although the use of ichthyocides is considered advantageous in the tropics where unknown quantities of diversity remain to be described (e.g., "
+                "string": "Historical ichthyological surveys in freshwater ecosystems globally were conducted with whole-specimen, capture-based sampling using conventional fishing methods such as gill nets, cast nets, hook and line, dipnets, seines, and rotenone—the last a chemical ichthyocide. Although the use of ichthyocides is considered advantageous in the tropics where unknown quantities of diversity remain to be described (e.g.,"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR1",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "1"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR1",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7148,17 +7165,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", collecting fishes with rotenone has been banned as a sampling method in many regions due to its extraordinary power to kill fishes and associated fauna (e.g., "
+                "string": "), collecting fishes with rotenone has been banned as a sampling method in many regions due to its extraordinary power to kill fishes and associated fauna (e.g.,"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR2",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "2"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR2",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7166,7 +7200,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Capture-based methods other than rotenone are less powerful, especially for collecting small cryptobenthic species, and all capture-based methods may result in low capture rates in hard-to-sample environments, such as rapids, waterfalls, and deep-water reaches. Yet, by undersampling we increase the likelihood of overlooking, and in the sense of the biodiversity crisis globally missing, heretofore unaccounted-for species diversity."
+                "string": "). Capture-based methods other than rotenone are less powerful, especially for collecting small cryptobenthic species, and all capture-based methods may result in low capture rates in hard-to-sample environments, such as rapids, waterfalls, and deep-water reaches. Yet, by undersampling we increase the likelihood of overlooking, and in the sense of the biodiversity crisis globally missing, heretofore unaccounted-for species diversity."
               }
             }
           ]
@@ -7177,17 +7211,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Recently, DNA barcodes from environmental samples (eDNA), a non-invasive and quickly developing methodology that captures genetic material of multiple organisms, has emerged as a complementary, and a possible alternative approach, to repeated whole-specimen capture methods. Universal eDNA metabarcoding primers based on short variable DNA regions (typically ribosomal RNA—12S rRNA, e.g., "
+                "string": "Recently, DNA barcodes from environmental samples (eDNA), a non-invasive and quickly developing methodology that captures genetic material of multiple organisms, has emerged as a complementary, and a possible alternative approach, to repeated whole-specimen capture methods. Universal eDNA metabarcoding primers based on short variable DNA regions (typically ribosomal RNA—12S rRNA, e.g.,"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR3",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "3"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR3",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7195,12 +7246,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " were developed to detect multiple species of fishes through next-generation sequencing (NGS) of free DNA molecules that exist in nature (e.g., lost scales, excrement, and mucosal secretions in the water "
+                "string": ") were developed to detect multiple species of fishes through next-generation sequencing (NGS) of free DNA molecules that exist in nature (e.g., lost scales, excrement, and mucosal secretions in the water"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          "
+                  }
+                },
                 {
                   "type": "Citation",
                   "target": "CR4",
@@ -7214,16 +7271,10 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR5",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "5"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          –\n          "
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7236,13 +7287,19 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": ")."
               }
             }
           ]
@@ -7253,12 +7310,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "The Amazon rainforest and basin maintain the most diverse riverine ichthyofauna on Earth, with more than 2700 species classified in 18 orders and 60 families "
+                "string": "The Amazon rainforest and basin maintain the most diverse riverine ichthyofauna on Earth, with more than 2700 species classified in 18 orders and 60 families"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "CR7",
@@ -7270,6 +7327,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7288,17 +7351,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Such numbers are underestimates as many undescribed taxa await discovery and formal description "
+                "string": ". Such numbers are underestimates as many undescribed taxa await discovery and formal description"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR9",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "9"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR9",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "9"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7306,17 +7386,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". The evolution of this fauna, one-fifth of the world’s freshwater fishes "
+                "string": ". The evolution of this fauna, one-fifth of the world’s freshwater fishes"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR10",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "10"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR10",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "10"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7324,17 +7421,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", dates to at least the upper Cretaceous and lower Cenozoic, ~ 120–150 million years before present (mybp "
+                "string": ", dates to at least the upper Cretaceous and lower Cenozoic, ~ 120–150 million years before present (mybp"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR11",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "11"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR11",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "11"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7342,30 +7456,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". The Characiphysae—catfishes (Siluriformes), piranhas and allies (Characiformes) and electric fishes (Gymnotiformes)—represent more than 75% of the fishes in Amazonian aquatic ecosystems "
+                "string": "). The Characiphysae—catfishes (Siluriformes), piranhas and allies (Characiformes) and electric fishes (Gymnotiformes)—represent more than 75% of the fishes in Amazonian aquatic ecosystems"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR7",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "7"
+                    "string": "\n          "
                   }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ". That overwhelming fish diversity is also represented by, among other taxa, cichlids (Cichliformes), killifishes (Cyprinodontiformes), river stingrays (Myliobatiformes), pufferfishes (Tetraodontiformes), and silver croakers (Perciformes) "
-              }
-            },
-            {
-              "type": "CitationGroup",
-              "items": [
+                },
                 {
                   "type": "Citation",
                   "target": "CR7",
@@ -7377,6 +7479,41 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". That overwhelming fish diversity is also represented by, among other taxa, cichlids (Cichliformes), killifishes (Cyprinodontiformes), river stingrays (Myliobatiformes), pufferfishes (Tetraodontiformes), and silver croakers (Perciformes)"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Citation",
+                  "target": "CR7",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7391,6 +7528,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "CR13",
                   "content": [
@@ -7407,17 +7550,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Over time these fishes have diversified under a wildly varied set of environmental conditions to inhabit myriad aquatic systems "
+                "string": ". Over time these fishes have diversified under a wildly varied set of environmental conditions to inhabit myriad aquatic systems"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR14",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "14"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR14",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "14"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7425,12 +7585,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". In contrast to the proposed ancient age of those lineages, most species-level diversification is hypothesized to have occurred relatively recently, less than 10 mybp (e.g., "
+                "string": ". In contrast to the proposed ancient age of those lineages, most species-level diversification is hypothesized to have occurred relatively recently, less than 10 mybp (e.g.,"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "CR13",
@@ -7442,6 +7602,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7460,7 +7626,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": ")."
               }
             }
           ]
@@ -7471,12 +7637,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Accurate and thorough sampling is the critical first step towards a more complete knowledge of biodiversity, a path that also requires the proper identification of collected samples. Specimens of Amazonian fishes have been identified almost exclusively based on morphology, but given that molecular evolutionary rates can far outpace divergence in phenotypes, recent studies that integrate molecular and morphological data have greatly improved our understanding of species diversity, including that of fishes "
+                "string": "Accurate and thorough sampling is the critical first step towards a more complete knowledge of biodiversity, a path that also requires the proper identification of collected samples. Specimens of Amazonian fishes have been identified almost exclusively based on morphology, but given that molecular evolutionary rates can far outpace divergence in phenotypes, recent studies that integrate molecular and morphological data have greatly improved our understanding of species diversity, including that of fishes"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "CR15",
@@ -7488,6 +7654,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7506,17 +7678,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". DNA barcoding—which typically uses the mitochondrial COI (Cytochrome Oxidase subunit I) gene to identify candidate species "
+                "string": ". DNA barcoding—which typically uses the mitochondrial COI (Cytochrome Oxidase subunit I) gene to identify candidate species"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR17",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "17"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR17",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "17"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7524,12 +7713,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "—is now a common molecular method used in taxonomic studies of fishes and has been valuable in revealing cryptic species diversity and in helping to resolve complex taxonomic issues "
+                "string": "—is now a common molecular method used in taxonomic studies of fishes and has been valuable in revealing cryptic species diversity and in helping to resolve complex taxonomic issues"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "CR15",
@@ -7543,6 +7732,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "CR18",
                   "content": [
@@ -7553,6 +7748,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7582,12 +7783,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Accordingly, the demand for samples appropriate for DNA barcoding, i.e., properly preserved and vouchered in ichthyological collections by the scientific community, has increased significantly. This demand is correlated directly with efforts to collect DNA-worthy samples during biodiversity surveys along with museum vouchers and has become a common practice among scientists worldwide "
+                "string": "Accordingly, the demand for samples appropriate for DNA barcoding, i.e., properly preserved and vouchered in ichthyological collections by the scientific community, has increased significantly. This demand is correlated directly with efforts to collect DNA-worthy samples during biodiversity surveys along with museum vouchers and has become a common practice among scientists worldwide"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          "
+                  }
+                },
                 {
                   "type": "Citation",
                   "target": "CR20",
@@ -7601,16 +7808,10 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR21",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "21"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          –\n          "
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7623,23 +7824,11 @@ expression: article
                       }
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ". Concomitant with sampling and curating efforts, new public platforms have been created to help close gaps in shared sample information (e.g., Global Genome Biodiversity Network "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "CR23",
-              "content": [
+                },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "23"
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7647,17 +7836,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " and facilitate access to the sequences (e.g., BOLD). In contrast to this trend, historically few efforts to collect a substantial number of tissue samples during ichthyological surveys—possibly because of the lack of infrastructure to maintain such a collection—results in a lack of robust reference libraries for Amazonian fishes (e.g., "
+                "string": ". Concomitant with sampling and curating efforts, new public platforms have been created to help close gaps in shared sample information (e.g., Global Genome Biodiversity Network"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR24",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "24"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR23",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "23"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7665,17 +7871,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". In addition, although GenBank is often a reliable resource "
+                "string": ") and facilitate access to the sequences (e.g., BOLD). In contrast to this trend, historically few efforts to collect a substantial number of tissue samples during ichthyological surveys—possibly because of the lack of infrastructure to maintain such a collection—results in a lack of robust reference libraries for Amazonian fishes (e.g.,"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR25",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "25"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR24",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "24"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7683,12 +7906,47 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", several samples of Amazonian fishes are poorly identified in GenBank, and some lack properly preserved voucher specimens—a problem that extends to other fishes as well (e.g., "
+                "string": "). In addition, although GenBank is often a reliable resource"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR25",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "25"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", several samples of Amazonian fishes are poorly identified in GenBank, and some lack properly preserved voucher specimens—a problem that extends to other fishes as well (e.g.,"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "CR26",
@@ -7700,6 +7958,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7718,7 +7982,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "."
+                "string": ")."
               }
             }
           ]
@@ -7729,17 +7993,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Most metabarcoding inventories of freshwater fishes have been conducted in temperate habitats with well-characterized species diversity "
+                "string": "Most metabarcoding inventories of freshwater fishes have been conducted in temperate habitats with well-characterized species diversity"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR28",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "28"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR28",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "28"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7747,12 +8028,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". There have been only a few attempts to use eDNA metabarcoding in ichthyological surveys in the Neotropical region "
+                "string": ". There have been only a few attempts to use eDNA metabarcoding in ichthyological surveys in the Neotropical region"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          "
+                  }
+                },
                 {
                   "type": "Citation",
                   "target": "CR29",
@@ -7764,6 +8051,47 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          –\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR32",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "32"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", an area where understanding species-level diversity is more complex. For example"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          "
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7778,16 +8106,27 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR31",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "31"
-                      }
-                    }
-                  ]
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", built 12S eDNA metabarcoding primers based on a reference library for over 130 species known to occur in the rivers and streams of the French Guiana, and the eDNA results were compared with capture-based sampling methodologies. They recovered a similar number of species, with a partial match to species identification, using both capture-based and eDNA approaches. Conversely"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          "
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7800,23 +8139,11 @@ expression: article
                       }
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ", an area where understanding species-level diversity is more complex. For example "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "CR30",
-              "content": [
+                },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "30"
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7824,35 +8151,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", built 12S eDNA metabarcoding primers based on a reference library for over 130 species known to occur in the rivers and streams of the French Guiana, and the eDNA results were compared with capture-based sampling methodologies. They recovered a similar number of species, with a partial match to species identification, using both capture-based and eDNA approaches. Conversely "
+                "string": ", used MiFish primers"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR32",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "32"
+                    "string": "\n          "
                   }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ", used MiFish primers "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "CR3",
-              "content": [
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR3",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "3"
+                    "string": "\n        "
                   }
                 }
               ]
@@ -7871,12 +8197,12 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Despite the problems inherent in the development of new methodologies, eDNA technology and associated bioinformatics are evolving at accelerated rates and will soon play a central role in the inventory of fish diversity "
+                "string": "Despite the problems inherent in the development of new methodologies, eDNA technology and associated bioinformatics are evolving at accelerated rates and will soon play a central role in the inventory of fish diversity"
               }
             },
             {
-              "type": "CitationGroup",
-              "items": [
+              "type": "Superscript",
+              "content": [
                 {
                   "type": "Citation",
                   "target": "CR6",
@@ -7888,6 +8214,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7902,6 +8234,12 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
+                },
+                {
                   "type": "Citation",
                   "target": "CR33",
                   "content": [
@@ -7912,6 +8250,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ","
+                  }
                 },
                 {
                   "type": "Citation",
@@ -7930,17 +8274,34 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Freshwater ecosystems, many of which are poorly explored, are under severe and fast-paced threats due to anthropogenic activities "
+                "string": ". Freshwater ecosystems, many of which are poorly explored, are under severe and fast-paced threats due to anthropogenic activities"
               }
             },
             {
-              "type": "Citation",
-              "target": "CR35",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "35"
+                    "string": "\n          "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR35",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "35"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
                   }
                 }
               ]
@@ -16226,17 +16587,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "B). The Stress = 0.0524 of the NMDS plot indicated that its first three axes provided an appropriate three-dimensional representation of the habitats according to their species composition "
+                    "string": "B). The Stress = 0.0524 of the NMDS plot indicated that its first three axes provided an appropriate three-dimensional representation of the habitats according to their species composition"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR36",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "36"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR36",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "36"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16798,17 +17176,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "The detection of 222 species in 11 samples from three stations confirms that eDNA is highly sensitive. However, the low number (28%) of matching sequences with identity of > 98.5% in the public reference libraries suggests severe gaps in the library for Amazonian fishes. It corroborates a recent global gap analysis of reference databases "
+                    "string": "The detection of 222 species in 11 samples from three stations confirms that eDNA is highly sensitive. However, the low number (28%) of matching sequences with identity of > 98.5% in the public reference libraries suggests severe gaps in the library for Amazonian fishes. It corroborates a recent global gap analysis of reference databases"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR24",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "24"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR24",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "24"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16827,17 +17222,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Conversely, studies that built reference libraries for highly diverse fish communities considerably improved the match ratio to species identification between capture-based and eDNA approaches "
+                    "string": "Conversely, studies that built reference libraries for highly diverse fish communities considerably improved the match ratio to species identification between capture-based and eDNA approaches"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR30",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "30"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR30",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "30"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16845,17 +17257,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", for example, identified 65% of 203 species of Guianese fishes. Likewise "
+                    "string": ", for example, identified 65% of 203 species of Guianese fishes. Likewise"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR37",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "37"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR37",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "37"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16863,17 +17292,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", detected and correctly assigned all 67 species with 12S previously designed primers and reference library in the São Francisco River, Brazil. In contrast "
+                    "string": ", detected and correctly assigned all 67 species with 12S previously designed primers and reference library in the São Francisco River, Brazil. In contrast"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR32",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "32"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR32",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "32"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16892,17 +17338,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "The DNA barcoding and eDNA metabarcoding both rely on short, variable, standardized DNA regions, which can be amplified by PCR, sequenced, and analyzed to identify taxa. The eDNA approach for vertebrates does not efficiently employ the COI gene because interspecific genetic variation prevents the use of universal primers "
+                    "string": "The DNA barcoding and eDNA metabarcoding both rely on short, variable, standardized DNA regions, which can be amplified by PCR, sequenced, and analyzed to identify taxa. The eDNA approach for vertebrates does not efficiently employ the COI gene because interspecific genetic variation prevents the use of universal primers"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR38",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "38"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR38",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "38"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16910,17 +17373,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " and can result in non-specific amplifications ( "
+                    "string": " and can result in non-specific amplifications ("
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR39",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "39"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR39",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "39"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16928,17 +17408,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "; but see "
+                    "string": "; but see"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR40",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "40"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR40",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "40"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16946,17 +17443,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Instead, rRNA genes used in DNA metabarcoding, such as 12S rRNA (e.g., "
+                    "string": "). Instead, rRNA genes used in DNA metabarcoding, such as 12S rRNA (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR3",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "3"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR3",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "3"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16964,17 +17478,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", have the acceptable resolution at the species level and an elevated copy number per cell due to the number of mitochondria per cell. Similarly, rRNA genes are preferable over single-copy nuclear DNA, which is less likely to be detected in the environment. Yet, the low substitution rate of rRNA genes will compromise the identification of rapidly evolved and complex fish assemblages such as those in the Neotropical region. Thus, it is likely that, in the near future, DNA barcoding and eDNA metabarcoding methods will converge to use large portions of the mitochondrial genome. Regardless of the fragment or the threshold used to delimit species (e.g., "
+                    "string": "), have the acceptable resolution at the species level and an elevated copy number per cell due to the number of mitochondria per cell. Similarly, rRNA genes are preferable over single-copy nuclear DNA, which is less likely to be detected in the environment. Yet, the low substitution rate of rRNA genes will compromise the identification of rapidly evolved and complex fish assemblages such as those in the Neotropical region. Thus, it is likely that, in the near future, DNA barcoding and eDNA metabarcoding methods will converge to use large portions of the mitochondrial genome. Regardless of the fragment or the threshold used to delimit species (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR32",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "32"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR32",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "32"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -16982,7 +17513,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", it is essential that studies involving eDNA for assessing fish diversity move towards building robust mitochondrial DNA reference libraries based on vouchered specimens."
+                    "string": "), it is essential that studies involving eDNA for assessing fish diversity move towards building robust mitochondrial DNA reference libraries based on vouchered specimens."
                   }
                 }
               ]
@@ -16993,17 +17524,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "In addition to the two aforementioned factors, other specific issues such as low sampling effort in the stream (i.e., restricted to a 50-m stretch), difficulty to sample cryptobiotic habits, hidden species diversity, and lack of an appropriate threshold for taxonomic assignments "
+                    "string": "In addition to the two aforementioned factors, other specific issues such as low sampling effort in the stream (i.e., restricted to a 50-m stretch), difficulty to sample cryptobiotic habits, hidden species diversity, and lack of an appropriate threshold for taxonomic assignments"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR32",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "32"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR32",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "32"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17039,12 +17587,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Amazonian aquatic environments are characterized by specialized fish communities segregated across a variety of habitats, such as streams, rivers, and their microhabitats "
+                    "string": "Amazonian aquatic environments are characterized by specialized fish communities segregated across a variety of habitats, such as streams, rivers, and their microhabitats"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "CR14",
@@ -17056,6 +17604,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17074,12 +17628,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". In streams, diverse microhabitats are home to leaf-dwelling, sand-dwelling, and pool-dwelling fish communities "
+                    "string": ". In streams, diverse microhabitats are home to leaf-dwelling, sand-dwelling, and pool-dwelling fish communities"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    },
                     {
                       "type": "Citation",
                       "target": "CR42",
@@ -17093,16 +17653,10 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Citation",
-                      "target": "CR43",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "43"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            –\n            "
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17115,23 +17669,11 @@ expression: article
                           }
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ". Similarly, rivers have specialized fish groups living in high-energy or deep water (> 5 m) environments. It is critical that fishes inhabiting all aquatic environments are sampled in biodiversity inventories. Perhaps unsurprisingly, it is incredibly difficult to sample and therefore assess some microhabitats by CBS. For example, some species are buried deep in the roots of plants in the riparian zone (e.g., "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "CR45",
-                  "content": [
+                    },
                     {
                       "type": "Text",
                       "value": {
-                        "string": "45"
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17139,7 +17681,42 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", leaf litter, or in the sand of streams that are extremely difficult to collect with traditional sampling gear. These life history strategies naturally obscure the number of fish species living in these areas due to microhabitat partitioning and undescribed diversity. We corroborate the potential effectiveness of MBS to detect specialized fish assemblages across heterogeneous aquatic environments. More intensive sampling efforts might be required to detect low-occurrence taxa as well as to appropriately sample microhabitats, e.g., filtering a higher amount of water or collecting water from temporary pools and the river bottom."
+                    "string": ". Similarly, rivers have specialized fish groups living in high-energy or deep water (> 5 m) environments. It is critical that fishes inhabiting all aquatic environments are sampled in biodiversity inventories. Perhaps unsurprisingly, it is incredibly difficult to sample and therefore assess some microhabitats by CBS. For example, some species are buried deep in the roots of plants in the riparian zone (e.g.,"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR45",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "45"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), leaf litter, or in the sand of streams that are extremely difficult to collect with traditional sampling gear. These life history strategies naturally obscure the number of fish species living in these areas due to microhabitat partitioning and undescribed diversity. We corroborate the potential effectiveness of MBS to detect specialized fish assemblages across heterogeneous aquatic environments. More intensive sampling efforts might be required to detect low-occurrence taxa as well as to appropriately sample microhabitats, e.g., filtering a higher amount of water or collecting water from temporary pools and the river bottom."
                   }
                 }
               ]
@@ -17210,12 +17787,12 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "The difference in species composition between the two methodologies that was detected possibly is due to sampling bias in MBS. Water samples for MBS were only collected at the river surface, detecting mostly free DNA of fish assemblages occurring at midwater and near the surface, where species-diverse Characiformes are the dominant assemblage. Despite that, as aforementioned, MBS was also able to take a snapshot of the benthic fish fauna by detecting many catfish species typically restricted to river channels (e.g., "
+                        "string": "The difference in species composition between the two methodologies that was detected possibly is due to sampling bias in MBS. Water samples for MBS were only collected at the river surface, detecting mostly free DNA of fish assemblages occurring at midwater and near the surface, where species-diverse Characiformes are the dominant assemblage. Despite that, as aforementioned, MBS was also able to take a snapshot of the benthic fish fauna by detecting many catfish species typically restricted to river channels (e.g.,"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
                         {
                           "type": "Citation",
                           "target": "CR46",
@@ -17227,6 +17804,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ","
+                          }
                         },
                         {
                           "type": "Citation",
@@ -17245,7 +17828,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ". For example, MBS detected river-dwelling fishes living near the surface, as well as some deep-water (> 5 m depth) inhabitants e.g., "
+                        "string": "). For example, MBS detected river-dwelling fishes living near the surface, as well as some deep-water (> 5 m depth) inhabitants e.g., "
                       }
                     },
                     {
@@ -17262,12 +17845,18 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " spp.—goliath catfishes; Pleuronectiformes—flatfishes; and a large number of unidentified species of electric fishes (sequences identities within the range of 80–98.5%) belonging to the families Apteronotidae (10 species) and Sternopygidae (15 species)—common, but often underestimated components of rivers (e.g., "
+                        "string": " spp.—goliath catfishes; Pleuronectiformes—flatfishes; and a large number of unidentified species of electric fishes (sequences identities within the range of 80–98.5%) belonging to the families Apteronotidae (10 species) and Sternopygidae (15 species)—common, but often underestimated components of rivers (e.g.,"
                       }
                     },
                     {
-                      "type": "CitationGroup",
-                      "items": [
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n              "
+                          }
+                        },
                         {
                           "type": "Citation",
                           "target": "CR48",
@@ -17281,16 +17870,10 @@ expression: article
                           ]
                         },
                         {
-                          "type": "Citation",
-                          "target": "CR49",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "49"
-                              }
-                            }
-                          ]
+                          "type": "Text",
+                          "value": {
+                            "string": "\n              –\n              "
+                          }
                         },
                         {
                           "type": "Citation",
@@ -17303,13 +17886,19 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n            "
+                          }
                         }
                       ]
                     },
                     {
                       "type": "Text",
                       "value": {
-                        "string": "."
+                        "string": ")."
                       }
                     }
                   ]
@@ -17350,17 +17939,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Typically, Characiformes, Siluriformes, Gymnotiformes, Cichliformes, Cyprinodontiformes, Beloniformes, and Synbranchiformes are the dominant orders in Amazonian streams (e.g., "
+                    "string": "Typically, Characiformes, Siluriformes, Gymnotiformes, Cichliformes, Cyprinodontiformes, Beloniformes, and Synbranchiformes are the dominant orders in Amazonian streams (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR51",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "51"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR51",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "51"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17368,7 +17974,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". At station 2, both approaches detected species belonging to Characiformes, Siluriformes, Gymnotiformes, and Cichliformes. In addition, CBS found Beloniformes and Cyprinodontiformes whereas MBS detected Synbranchiformes for a total of seven orders. The absence of Beloniformes in the MBS may be due to the poor reference library for comparisons, and the absence of Synbranchiformes in the CBS here could be due to the difficulty in collecting cryptobiotic species. We were able to detect at a fine-scale specialized species assemblage restricted to microhabitats. For example, we captured members of the leaf-dwelling (e.g., "
+                    "string": "). At station 2, both approaches detected species belonging to Characiformes, Siluriformes, Gymnotiformes, and Cichliformes. In addition, CBS found Beloniformes and Cyprinodontiformes whereas MBS detected Synbranchiformes for a total of seven orders. The absence of Beloniformes in the MBS may be due to the poor reference library for comparisons, and the absence of Synbranchiformes in the CBS here could be due to the difficulty in collecting cryptobiotic species. We were able to detect at a fine-scale specialized species assemblage restricted to microhabitats. For example, we captured members of the leaf-dwelling (e.g., "
                   }
                 },
                 {
@@ -17430,17 +18036,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " streams ranges from ca. 30–170 species "
+                    "string": " streams ranges from ca. 30–170 species"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR52",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "52"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR52",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "52"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17448,17 +18071,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " with Characiformes and Siluriformes being the most species-rich orders (e.g., "
+                    "string": " with Characiformes and Siluriformes being the most species-rich orders (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR53",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "53"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR53",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "53"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17466,12 +18106,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Quantification of fish richness in these streams depends upon the sampling methodology employed and its substrate composition (for reviews see "
+                    "string": "). Quantification of fish richness in these streams depends upon the sampling methodology employed and its substrate composition (for reviews see"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    },
                     {
                       "type": "Citation",
                       "target": "CR54",
@@ -17483,6 +18129,82 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            –\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR56",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "56"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). For example, in litter banks-rich streams, Gymnotiformes species diversity can surpass Siluriformes (e.g.,"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR57",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "57"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). In station 2, according to CBS, Characiformes and Siluriformes were the dominant orders. In contrast, Characiformes followed by Gymnotiformes were the more species-diverse groups. The extremely high number of species detected by MBS in the sampled stream, more than twice that of CBS, primarily in the two dominant orders, Characiformes and Gymnotiformes, is likely related to five different issues. First, MBS was collected near the confluence between the river and stream, which may have resulted in occasional, wandering river fishes. Second, the CBS was conducted with a standardized sampling effort in a restrict (50-m) stretch of the stream (e.g.,"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17497,33 +18219,9 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Citation",
-                      "target": "CR56",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "56"
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ". For example, in litter banks-rich streams, Gymnotiformes species diversity can surpass Siluriformes (e.g., "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "CR57",
-                  "content": [
-                    {
                       "type": "Text",
                       "value": {
-                        "string": "57"
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17531,25 +18229,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". In station 2, according to CBS, Characiformes and Siluriformes were the dominant orders. In contrast, Characiformes followed by Gymnotiformes were the more species-diverse groups. The extremely high number of species detected by MBS in the sampled stream, more than twice that of CBS, primarily in the two dominant orders, Characiformes and Gymnotiformes, is likely related to five different issues. First, MBS was collected near the confluence between the river and stream, which may have resulted in occasional, wandering river fishes. Second, the CBS was conducted with a standardized sampling effort in a restrict (50-m) stretch of the stream (e.g., "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "CR55",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "55"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ", not including its headwaters and areas near its mouth. Third, Characiformes undoubtedly contain hidden species diversity. This is corroborated by the historical difficulty in identification of small tetra species, wherein one named species may represent several undescribed species, such as in "
+                    "string": "), not including its headwaters and areas near its mouth. Third, Characiformes undoubtedly contain hidden species diversity. This is corroborated by the historical difficulty in identification of small tetra species, wherein one named species may represent several undescribed species, such as in "
                   }
                 },
                 {
@@ -17566,12 +18246,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " (e.g., "
+                    "string": " (e.g.,"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "CR58",
@@ -17583,6 +18263,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17601,17 +18287,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Fourth, diversity is also underestimated for the Gymnotiformes (e.g., "
+                    "string": "). Fourth, diversity is also underestimated for the Gymnotiformes (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR60",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "60"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR60",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "60"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17619,17 +18322,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", for which difficulties in capturing species with cryptobiotic habits possibly play a critical role in the underestimation of their diversity by CBS methods (sub-estimative may reach three times the local species richness and up to 10 times the specimens abundance; JZ, unpublished data). Fifth, overestimation may be due to intraspecific variety caused by amplicon sequence variants (ASVs). Any thresholds for taxonomic assignments (e.g., 98.5% as used here) are arbitrary and should reflect both over- and underestimation of species diversity, considering that there are several morphologically cryptic species with large molecular divergence and morphologically distinct species with small genetic divergence. The dereplicated reads were denoised by removing all putatively chimeric and erroneous detections to keep only true sequences, yet overestimations in the number of species may still be the result of ASVs (e.g., "
+                    "string": "), for which difficulties in capturing species with cryptobiotic habits possibly play a critical role in the underestimation of their diversity by CBS methods (sub-estimative may reach three times the local species richness and up to 10 times the specimens abundance; JZ, unpublished data). Fifth, overestimation may be due to intraspecific variety caused by amplicon sequence variants (ASVs). Any thresholds for taxonomic assignments (e.g., 98.5% as used here) are arbitrary and should reflect both over- and underestimation of species diversity, considering that there are several morphologically cryptic species with large molecular divergence and morphologically distinct species with small genetic divergence. The dereplicated reads were denoised by removing all putatively chimeric and erroneous detections to keep only true sequences, yet overestimations in the number of species may still be the result of ASVs (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR32",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "32"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR32",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "32"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17637,7 +18357,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". For example, our recognition of the nine species of "
+                    "string": "). For example, our recognition of the nine species of "
                   }
                 },
                 {
@@ -17781,12 +18501,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "The biodiversity crisis is one of the grand challenges of the twenty-first century "
+                    "string": "The biodiversity crisis is one of the grand challenges of the twenty-first century"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "CR61",
@@ -17798,6 +18518,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17816,12 +18542,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " with the next two decades critical for the conservation of freshwater environments. Freshwater ecosystems worldwide hold ca. 30% of vertebrate diversity, including ca. 50% of all fish species diversity, and are one of the most vulnerable environments on Earth "
+                    "string": " with the next two decades critical for the conservation of freshwater environments. Freshwater ecosystems worldwide hold ca. 30% of vertebrate diversity, including ca. 50% of all fish species diversity, and are one of the most vulnerable environments on Earth"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "CR35",
@@ -17833,6 +18559,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17847,28 +18579,10 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Citation",
-                      "target": "CR63",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "63"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "CR64",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "64"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "–"
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17898,12 +18612,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Combining specimens, DNA sampling and taxonomic identification is required to obtain a comprehensive assessment of biodiversity. Yet, DNA samples are available for fewer than 10% of the specimens deposited in most fish repositories. Since most fish specimens deposited in museums and other repositories were collected before the development of PCR, a vast majority were fixed in formalin, a standard method of fixation for over a century. Despite the advances in the techniques of DNA extraction from formalin-fixed materials, the success of these techniques is still limited, especially for specimens stored for long periods in unbuffered solutions "
+                    "string": "Combining specimens, DNA sampling and taxonomic identification is required to obtain a comprehensive assessment of biodiversity. Yet, DNA samples are available for fewer than 10% of the specimens deposited in most fish repositories. Since most fish specimens deposited in museums and other repositories were collected before the development of PCR, a vast majority were fixed in formalin, a standard method of fixation for over a century. Despite the advances in the techniques of DNA extraction from formalin-fixed materials, the success of these techniques is still limited, especially for specimens stored for long periods in unbuffered solutions"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    },
                     {
                       "type": "Citation",
                       "target": "CR66",
@@ -17917,16 +18637,10 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Citation",
-                      "target": "CR67",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "67"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            –\n            "
+                      }
                     },
                     {
                       "type": "Citation",
@@ -17939,23 +18653,11 @@ expression: article
                           }
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ". Thus, well-identified vouchered DNA tissue samples are critical for the identification of unknown DNA in environmental samples. These DNA tissues may be stored as dried, frozen, or alcohol-fixed samples or as cryopreserved living samples that have broad potential applications (e.g., "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "CR69",
-                  "content": [
+                    },
                     {
                       "type": "Text",
                       "value": {
-                        "string": "69"
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -17963,7 +18665,42 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". However, scientific collections in regions holding most of the fish diversity, such as the Neotropics, often lack the ideal infrastructure to hold long-term genetic resources (e.g. ultrafreezers, liquid nitrogen storage, cryo-facilities). Nevertheless, GGBN has targeted and sometimes funded Neotropical institutions to build biorepository capacity and to make their collections globally discoverable."
+                    "string": ". Thus, well-identified vouchered DNA tissue samples are critical for the identification of unknown DNA in environmental samples. These DNA tissues may be stored as dried, frozen, or alcohol-fixed samples or as cryopreserved living samples that have broad potential applications (e.g.,"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR69",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "69"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). However, scientific collections in regions holding most of the fish diversity, such as the Neotropics, often lack the ideal infrastructure to hold long-term genetic resources (e.g. ultrafreezers, liquid nitrogen storage, cryo-facilities). Nevertheless, GGBN has targeted and sometimes funded Neotropical institutions to build biorepository capacity and to make their collections globally discoverable."
                   }
                 }
               ]
@@ -17974,12 +18711,12 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "These limitations are particularly worrisome given the stark reality of anthropogenic destruction, climate change and the great extent of predicted unknown diversity that remains to be described in the Amazon rainforest "
+                    "string": "These limitations are particularly worrisome given the stark reality of anthropogenic destruction, climate change and the great extent of predicted unknown diversity that remains to be described in the Amazon rainforest"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
                     {
                       "type": "Citation",
                       "target": "CR70",
@@ -17991,6 +18728,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ","
+                      }
                     },
                     {
                       "type": "Citation",
@@ -18009,17 +18752,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". These factors make this area and Earth’s other hotspots of biodiversity priority targets for complete species inventories in the next decade before suffering irreversible damage (e.g., "
+                    "string": ". These factors make this area and Earth’s other hotspots of biodiversity priority targets for complete species inventories in the next decade before suffering irreversible damage (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR72",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "72"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR72",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "72"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18027,17 +18787,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Another advantage of eDNA is the long-term biodiversity monitoring in preserved areas/conservation units (e.g., "
+                    "string": "). Another advantage of eDNA is the long-term biodiversity monitoring in preserved areas/conservation units (e.g.,"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR73",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "73"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR73",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "73"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18045,17 +18822,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". The use of eDNA is a highly valuable and cost-effective way to monitor biodiversity, especially in areas with low anthropogenic threats "
+                    "string": "). The use of eDNA is a highly valuable and cost-effective way to monitor biodiversity, especially in areas with low anthropogenic threats"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR74",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "74"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR74",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "74"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18074,12 +18868,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "In the face of these challenges, natural history museums should play a primary role in the development of eDNA as a tool of biodiversity inventories as well as to track changes in biodiversity hotspots by: (1) prioritizing expeditions to jointly secure DNA samples, vouchers, and eDNA in Earth’s hotspots of biodiversity; (2) adapting their biorepositories to archive eDNA samples, which as a consequence, would provide samples not only for analysis with current but heretofore unseen technologies; (3) creating reference libraries for the mitochondrial genome; (4) backing up DNA samples with species-level accuracy on the identification of vouchered specimens; (5) expanding and improving their tissue biobanks. It is crucial that these modifications for eDNA storage also occur in museums throughout the tropics, but especially in Neotropical and Afrotropical countries, which host most of the freshwater fish diversity yet lack the resources to build and maintain these tissue collections in perpetuity "
+                    "string": "In the face of these challenges, natural history museums should play a primary role in the development of eDNA as a tool of biodiversity inventories as well as to track changes in biodiversity hotspots by: (1) prioritizing expeditions to jointly secure DNA samples, vouchers, and eDNA in Earth’s hotspots of biodiversity; (2) adapting their biorepositories to archive eDNA samples, which as a consequence, would provide samples not only for analysis with current but heretofore unseen technologies; (3) creating reference libraries for the mitochondrial genome; (4) backing up DNA samples with species-level accuracy on the identification of vouchered specimens; (5) expanding and improving their tissue biobanks. It is crucial that these modifications for eDNA storage also occur in museums throughout the tropics, but especially in Neotropical and Afrotropical countries, which host most of the freshwater fish diversity yet lack the resources to build and maintain these tissue collections in perpetuity"
                   }
                 },
                 {
-                  "type": "CitationGroup",
-                  "items": [
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    },
                     {
                       "type": "Citation",
                       "target": "CR75",
@@ -18093,16 +18893,10 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Citation",
-                      "target": "CR76",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "76"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            –\n            "
+                      }
                     },
                     {
                       "type": "Citation",
@@ -18115,6 +18909,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
                     }
                   ]
                 },
@@ -18419,17 +19219,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "We extracted eDNA from the filter cartridges using a DNeasy Blood & Tissue kit (Qiagen, Hilden, Germany) following the methods developed and visualized by "
+                    "string": "We extracted eDNA from the filter cartridges using a DNeasy Blood & Tissue kit (Qiagen, Hilden, Germany) following the methods developed and visualized by"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR78",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "78"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR78",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "78"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18571,17 +19388,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "We employed a two-step PCR for paired-end library preparation on the MiSeq platform (Illumina, CA, USA) and generally followed the methods developed by "
+                    "string": "We employed a two-step PCR for paired-end library preparation on the MiSeq platform (Illumina, CA, USA) and generally followed the methods developed by"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR3",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "3"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR3",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "3"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18751,17 +19585,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "We performed data preprocessing and analysis of MiSeq raw reads using USEARCH v10.0.240 "
+                    "string": "We performed data preprocessing and analysis of MiSeq raw reads using USEARCH v10.0.240"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR79",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "79"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR79",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "79"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18854,17 +19705,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " command and all singletons, doubletons, and tripletons were removed from the subsequent analysis following the recommendation by the author of the program "
+                    "string": " command and all singletons, doubletons, and tripletons were removed from the subsequent analysis following the recommendation by the author of the program"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR79",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "79"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR79",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "79"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18889,17 +19757,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " command to generate amplicon sequence variants (ASVs) that remove all putatively chimeric and erroneous sequences "
+                    "string": " command to generate amplicon sequence variants (ASVs) that remove all putatively chimeric and erroneous sequences"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR80",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "80"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR80",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "80"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18980,17 +19865,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "We refined the above automatic taxonomic assignments with reference to a family-level phylogeny based on MiFish sequences from both MOTUs and the reference database. For each family, we assembled representative sequences (most abundant reads) from MOTUs (including U98.5) and added all reference sequences from that family and an outgroup (a sequence from a closely-related family) in FASTA format. We subjected the FASTA file to multiple alignment using MAFFT "
+                    "string": "We refined the above automatic taxonomic assignments with reference to a family-level phylogeny based on MiFish sequences from both MOTUs and the reference database. For each family, we assembled representative sequences (most abundant reads) from MOTUs (including U98.5) and added all reference sequences from that family and an outgroup (a sequence from a closely-related family) in FASTA format. We subjected the FASTA file to multiple alignment using MAFFT"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR81",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "81"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR81",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "81"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -18998,17 +19900,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " with a default set of parameters. We constructed a neighbor-joining (NJ) tree with the aligned sequences in MEGA7 "
+                    "string": " with a default set of parameters. We constructed a neighbor-joining (NJ) tree with the aligned sequences in MEGA7"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR82",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "82"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR82",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "82"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19016,17 +19935,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " using pairwise deletion of gaps and the Kimura two-parameter distances "
+                    "string": " using pairwise deletion of gaps and the Kimura two-parameter distances"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR83",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "83"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR83",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "83"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19034,17 +19970,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " with the among-site rate variations modeled with gamma distributions (shape parameter = 1). We assessed statistical support for internal branches of the NJ tree using the bootstrap resampling technique (100 resamplings). In addition, aligned sequences were submitted to Bayesian Inference (BI) analyses run for 10 million generations sampling every 1000 generations to determine posterior probability for each MOTU and reference sequences. Models were obtained on JModeltest2 "
+                    "string": " with the among-site rate variations modeled with gamma distributions (shape parameter = 1). We assessed statistical support for internal branches of the NJ tree using the bootstrap resampling technique (100 resamplings). In addition, aligned sequences were submitted to Bayesian Inference (BI) analyses run for 10 million generations sampling every 1000 generations to determine posterior probability for each MOTU and reference sequences. Models were obtained on JModeltest2"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR84",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "84"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR84",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "84"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19052,17 +20005,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". BI analyses were run in the Mr. Bayes v3.2.7 "
+                    "string": ". BI analyses were run in the Mr. Bayes v3.2.7"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR85",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "85"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR85",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "85"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19070,17 +20040,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Some of the BI analyses were conducted on the CIPRES science gateway v3.3 "
+                    "string": ". Some of the BI analyses were conducted on the CIPRES science gateway v3.3"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR86",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "86"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR86",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "86"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19088,17 +20075,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Trees were analyzed and rendered in iTOL v5.7 "
+                    "string": ". Trees were analyzed and rendered in iTOL v5.7"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR87",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "87"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR87",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "87"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19146,17 +20150,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). After merging the two overlapping paired-end FASTq files (1,826,828 reads [96.0%]), the primer-trimmed sequences were subjected to quality filtering to remove low-quality reads (1,802,098 reads [94.7%]). The remaining reads were dereplicated for subsequent analysis, and single- to tripletons were removed from the unique sequences as recommended by the author of the program "
+                    "string": "). After merging the two overlapping paired-end FASTq files (1,826,828 reads [96.0%]), the primer-trimmed sequences were subjected to quality filtering to remove low-quality reads (1,802,098 reads [94.7%]). The remaining reads were dereplicated for subsequent analysis, and single- to tripletons were removed from the unique sequences as recommended by the author of the program"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR79",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "79"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR79",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "79"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19210,17 +20231,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "All statistical analyses were conducted in R v.4.0.2 "
+                    "string": "All statistical analyses were conducted in R v.4.0.2"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR88",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "88"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR88",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "88"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19282,13 +20320,30 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR89",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "89"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR89",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "89"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19296,17 +20351,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Composition per Similarity among all 11 samples, three stations, versus stream and river assemblages were calculated using the Pearson correlation coefficient. Then, we calculated Jaccard’s dissimilarities, and the coefficient values were ordinated using non-metric multidimensional scaling (NMDS) to visualize how replicated eDNA data discriminate sites and habitat (streams vs. rivers) patterns and to determine the sampling effort needed to identify community changes among sites in the VEGAN package version 2.4-4 "
+                    "string": ". Composition per Similarity among all 11 samples, three stations, versus stream and river assemblages were calculated using the Pearson correlation coefficient. Then, we calculated Jaccard’s dissimilarities, and the coefficient values were ordinated using non-metric multidimensional scaling (NMDS) to visualize how replicated eDNA data discriminate sites and habitat (streams vs. rivers) patterns and to determine the sampling effort needed to identify community changes among sites in the VEGAN package version 2.4-4"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR90",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "90"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR90",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "90"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19314,17 +20386,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". A 3D graph was produced in CAR "
+                    "string": ". A 3D graph was produced in CAR"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR91",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "91"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR91",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "91"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19332,17 +20421,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " and GLR version 0.103.5 "
+                    "string": " and GLR version 0.103.5"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR92",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "92"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR92",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "92"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19350,17 +20456,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " packages. Differences in species compositions between sites and habitat types were statistically tested by permutational analysis of similarities (ANOSIM). It allowed for test of the statistical significance of similarity between groups comparing to the within groups similarity using the rank of similarity values "
+                    "string": " packages. Differences in species compositions between sites and habitat types were statistically tested by permutational analysis of similarities (ANOSIM). It allowed for test of the statistical significance of similarity between groups comparing to the within groups similarity using the rank of similarity values"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR36",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "36"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR36",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "36"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19368,17 +20491,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". A chord diagram showing the inter-relationship between species composition and habitat (river versus stream) was produced using the Circlize package "
+                    "string": ". A chord diagram showing the inter-relationship between species composition and habitat (river versus stream) was produced using the Circlize package"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR93",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "93"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR93",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "93"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19386,17 +20526,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Fish silhouettes were produced in Fishsualize v. 0.2.1 "
+                    "string": ". Fish silhouettes were produced in Fishsualize v. 0.2.1"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR94",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "94"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR94",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "94"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19432,17 +20589,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Water samples station 1 and station 2: the number of detected taxa between CBS and MBS were represented by Venn diagrams. Rarefaction species accumulation curve for capture-based sampling were calculated for stations 1 and 2 "
+                    "string": "Water samples station 1 and station 2: the number of detected taxa between CBS and MBS were represented by Venn diagrams. Rarefaction species accumulation curve for capture-based sampling were calculated for stations 1 and 2"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR95",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "95"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR95",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "95"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19450,17 +20624,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " using iNEXT package in R "
+                    "string": " using iNEXT package in R"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR96",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "96"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR96",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "96"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19502,17 +20693,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Bias-corrected estimators Chao II "
+                    "string": ". Bias-corrected estimators Chao II"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR97",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "97"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR97",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "97"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19524,13 +20732,30 @@ expression: article
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR98",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "98"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR98",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "98"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19538,17 +20763,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". It was calculated in SpadeR package in R "
+                    "string": ". It was calculated in SpadeR package in R"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR99",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "99"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR99",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "99"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
@@ -19573,17 +20815,34 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " in VEGAN package v2.5.4 "
+                    "string": " in VEGAN package v2.5.4"
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "CR90",
+                  "type": "Superscript",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "90"
+                        "string": "\n            "
+                      }
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "CR90",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "90"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
                       }
                     }
                   ]
