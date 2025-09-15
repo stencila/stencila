@@ -545,6 +545,7 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
     let mut caption = None;
     let mut label = None;
     let mut rows = Vec::new();
+    let mut notes = Vec::new();
 
     for child in section
         .children()
@@ -554,9 +555,10 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
     {
         if let Some(tag) = child.as_tag() {
             let tag_name = tag.name().as_utf8_str();
+            let tag_class = get_class(tag);
 
             match tag_name.as_ref() {
-                "h4" if get_class(tag).contains("obj_head") => {
+                "h4" if tag_class.contains("obj_head") => {
                     let mut caption_inlines = decode_inlines(parser, tag)?;
 
                     label = extract_and_clean_table_label(&mut caption_inlines);
@@ -567,8 +569,7 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
                     };
                     caption = Some(vec![Block::Paragraph(paragraph)]);
                 }
-                "div" if get_class(tag).contains("tbl-box") => {
-                    // Find the actual table element
+                "div" if tag_class.contains("tbl-box") => {
                     if let Some(table_tag) = tag
                         .query_selector(parser, "table")
                         .and_then(|mut nodes| nodes.next())
@@ -576,6 +577,19 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
                         .and_then(|node| node.as_tag())
                     {
                         rows = decode_table_rows(parser, table_tag)?;
+                    }
+                }
+                "div" if tag_class.contains("tw-foot") => {
+                    if let Some(mut ps) = tag.query_selector(parser, "p") {
+                        while let Some(p) = ps
+                            .next()
+                            .and_then(|node| node.get(parser))
+                            .and_then(|node| node.as_tag())
+                        {
+                            if let Ok(p) = decode_paragraph(parser, p) {
+                                notes.push(Block::Paragraph(p));
+                            }
+                        }
                     }
                 }
                 _ => {}
@@ -588,6 +602,7 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
     }
 
     let label_automatically = label.is_some().then_some(false);
+    let notes = (!notes.is_empty()).then_some(notes);
 
     Ok(Some(Table {
         id,
@@ -595,6 +610,7 @@ fn decode_table_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Tab
         label_automatically,
         caption,
         rows,
+        notes,
         ..Default::default()
     }))
 }
@@ -754,36 +770,6 @@ fn decode_table_row(
         row_type,
         ..Default::default()
     })
-}
-
-/// Decode table notes from a tw-foot element
-fn decode_table_notes(parser: &Parser, tw_foot: &HTMLTag) -> Result<Vec<Block>> {
-    let mut notes = Vec::new();
-
-    for child in tw_foot
-        .children()
-        .top()
-        .iter()
-        .flat_map(|handle| handle.get(parser))
-    {
-        if let Some(tag) = child.as_tag() {
-            let tag_name = tag.name().as_utf8_str();
-
-            if tag_name.as_ref() == "div" && get_class(tag).contains("fn") {
-                // Extract the paragraph content from the footnote
-                let content = decode_inlines(parser, tag)?;
-                if !content.is_empty() {
-                    let paragraph = Paragraph {
-                        content,
-                        ..Default::default()
-                    };
-                    notes.push(Block::Paragraph(paragraph));
-                }
-            }
-        }
-    }
-
-    Ok(notes)
 }
 
 /// Decode a figure element
