@@ -5239,7 +5239,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c9",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5317,7 +5316,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c13",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5642,7 +5640,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c25",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5731,7 +5728,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c30",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5750,7 +5746,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c31",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5769,7 +5764,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c7",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6011,7 +6005,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c16",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6100,7 +6093,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c37",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6119,7 +6111,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c38",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6190,7 +6181,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c41",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6209,7 +6199,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c42",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6228,7 +6217,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c43",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6258,7 +6246,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c20",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6396,7 +6383,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c5",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -6451,7 +6437,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c17",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -6718,7 +6703,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c20",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7332,7 +7316,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c52",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7434,7 +7417,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c53",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7453,7 +7435,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c54",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7537,7 +7518,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c27",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7556,7 +7536,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c55",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7810,7 +7789,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c2",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7911,7 +7889,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c60",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8118,7 +8095,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c64",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8571,7 +8547,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c35",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8697,7 +8672,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c35",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8716,7 +8690,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c19",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8919,7 +8892,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c67",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9146,7 +9118,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c43",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9266,7 +9237,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c68",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10282,7 +10252,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c72",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10301,7 +10270,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c29",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10355,7 +10323,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c13",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10391,7 +10358,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c33",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10410,7 +10376,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c75",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10429,7 +10394,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c19",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10448,7 +10412,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c33",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10467,7 +10430,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c76",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10532,7 +10494,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c38",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10551,7 +10512,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c70",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10616,7 +10576,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c79",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10635,7 +10594,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c33",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10665,7 +10623,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c20",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10719,7 +10676,6 @@ expression: article
             {
               "type": "Citation",
               "target": "c70",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -10799,7 +10755,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c6",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10976,7 +10931,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c82",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10995,7 +10949,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c19",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -11059,7 +11012,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c18",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -11328,7 +11280,6 @@ expression: article
                     {
                       "type": "Citation",
                       "target": "c83",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -11347,7 +11298,6 @@ expression: article
                     {
                       "type": "Citation",
                       "target": "c84",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -11711,7 +11661,6 @@ expression: article
                     {
                       "type": "Citation",
                       "target": "c85",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -11991,7 +11940,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c85",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -12084,7 +12032,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c88",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -12802,7 +12749,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c1",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -13278,7 +13224,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "c2",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",

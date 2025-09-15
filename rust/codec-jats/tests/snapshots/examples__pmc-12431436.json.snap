@@ -2763,7 +2763,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref005",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2782,7 +2781,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref006",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2801,7 +2799,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref001",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2820,7 +2817,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref007",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2839,7 +2835,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref008",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2858,7 +2853,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref001",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -2982,7 +2976,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref012",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3018,7 +3011,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref013",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3048,7 +3040,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref014",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3067,7 +3058,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref015",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3103,7 +3093,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref016",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3291,7 +3280,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref010",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -3327,7 +3315,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref023",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5232,7 +5219,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref024",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5279,7 +5265,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref025",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5345,7 +5330,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref026",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5791,7 +5775,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref006",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -6306,7 +6289,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref027",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -6342,7 +6324,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "pone.0332245.ref028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -6502,7 +6483,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref009",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6591,7 +6571,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref029",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6672,7 +6651,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref017",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6738,7 +6716,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref032",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6790,7 +6767,6 @@ expression: article
             {
               "type": "Citation",
               "target": "pone.0332245.ref033",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",

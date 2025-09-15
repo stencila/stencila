@@ -5693,7 +5693,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0045",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5746,7 +5745,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0023",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5782,7 +5780,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0002",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5801,7 +5798,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0054",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5848,7 +5844,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0062",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -5935,7 +5930,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0044",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6039,7 +6033,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0063",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6211,7 +6204,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0041",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6298,7 +6290,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0001",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6334,7 +6325,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0029",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6370,7 +6360,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0035",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6434,7 +6423,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0061",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6470,7 +6458,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0008",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6506,7 +6493,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0035",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6542,7 +6528,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0066",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6578,7 +6563,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0016",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6614,7 +6598,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0058",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6718,7 +6701,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0003",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6799,7 +6781,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0015",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6835,7 +6816,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0065",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6871,7 +6851,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0060",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6907,7 +6886,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0069",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -6943,7 +6921,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0043",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -7081,7 +7058,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0043",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -7117,7 +7093,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0066",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -7803,7 +7778,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0004",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7839,7 +7813,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0006",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7875,7 +7848,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0012",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7946,7 +7918,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0018",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -7965,7 +7936,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0031",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8001,7 +7971,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0036",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8037,7 +8006,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0039",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8073,7 +8041,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0042",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8109,7 +8076,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0046",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8145,7 +8111,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0048",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8164,7 +8129,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0052",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8200,7 +8164,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0057",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8288,7 +8251,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0030",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8324,7 +8286,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0064",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8360,7 +8321,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0068",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8583,7 +8543,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0012",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8858,7 +8817,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0025",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8911,7 +8869,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0067",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -8947,7 +8904,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0011",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9131,7 +9087,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0066",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9167,7 +9122,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0015",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9203,7 +9157,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0035",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9239,7 +9192,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0069",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9275,7 +9227,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0043",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9431,7 +9382,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0043",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9654,7 +9604,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0043",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9779,7 +9728,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0038",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9815,7 +9763,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0043",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10119,7 +10066,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0005",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10271,7 +10217,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0043",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10439,7 +10384,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0009",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10475,7 +10419,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0066",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -10524,7 +10467,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0026",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -11864,7 +11806,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0022",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -11939,7 +11880,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0027",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -11975,7 +11915,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0024",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -12011,7 +11950,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0033",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -12030,7 +11968,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0017",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -12062,7 +11999,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0027",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -12285,7 +12221,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0021",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -13019,7 +12954,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -13480,7 +13414,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -13571,7 +13504,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -13658,7 +13590,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -13900,7 +13831,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -14093,7 +14023,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0028",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -14206,7 +14135,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0034",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -14329,7 +14257,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0007",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -14399,7 +14326,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0012",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -15000,7 +14926,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0070",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -15104,7 +15029,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0070",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -15164,7 +15088,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0031",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -15285,7 +15208,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0042",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -16063,7 +15985,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0031",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -18359,7 +18280,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0053",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -18395,7 +18315,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0040",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -18465,7 +18384,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0001",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -18700,7 +18618,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0025",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -18773,7 +18690,6 @@ expression: article
                 {
                   "type": "Citation",
                   "target": "ele13210-bib-0067",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -18916,7 +18832,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0020",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -18935,7 +18850,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0049",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -18954,7 +18868,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0031",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -18984,7 +18897,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0028",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19020,7 +18932,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0047",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19039,7 +18950,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0053",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19187,7 +19097,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0005",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19249,7 +19158,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0037",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19268,7 +19176,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0028",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19304,7 +19211,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0010",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19323,7 +19229,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0053",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19566,7 +19471,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0029",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19602,7 +19506,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0062",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19685,7 +19588,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0003",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19839,7 +19741,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0025",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19920,7 +19821,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0036",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -19956,7 +19856,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0050",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20090,7 +19989,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0019",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20223,7 +20121,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0055",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20293,7 +20190,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0032",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20329,7 +20225,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0069",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20365,7 +20260,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0056",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20395,7 +20289,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0019",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20431,7 +20324,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0015",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
@@ -20484,7 +20376,6 @@ expression: article
             {
               "type": "Citation",
               "target": "ele13210-bib-0051",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",

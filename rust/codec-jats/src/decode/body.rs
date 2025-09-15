@@ -7,7 +7,7 @@ use stencila_codec::{
     Losses,
     stencila_format::Format,
     stencila_schema::{
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
         CreativeWorkType, Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject,
         ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
@@ -1269,6 +1269,10 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<xref>` with `ref-type` of "bibr" or "ref" to a [`Inline::Citation`]
+///
+/// There is no builtin way to differentiate between narrative and parenthetical
+/// citations in JATS (it needs to be inferred from surrounding punctuation
+/// during structuring). So in this function, do not assume one or other.
 fn decode_xref_citation(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node.attribute("rid").map(String::from).unwrap_or_default();
 
@@ -1279,7 +1283,6 @@ fn decode_xref_citation(path: &str, node: &Node, losses: &mut Losses) -> Inline 
 
     Inline::Citation(Citation {
         target,
-        citation_mode: Some(CitationMode::Parenthetical),
         options: Box::new(CitationOptions {
             content,
             ..Default::default()
