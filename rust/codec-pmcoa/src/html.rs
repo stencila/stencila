@@ -39,6 +39,26 @@ pub(super) fn decode_html_path(
     // Extract metadata from meta tags
     let mut article = extract_metadata(&dom)?;
 
+    // Extract title from front-matter section
+    if let Some(front_matter) = dom
+        .query_selector("section.front-matter")
+        .and_then(|mut nodes| nodes.next())
+        .and_then(|node| node.get(parser))
+        .and_then(|node| node.as_tag())
+    {
+        if let Some(h1_tag) = front_matter
+            .query_selector(parser, "h1")
+            .and_then(|mut nodes| nodes.next())
+            .and_then(|node| node.get(parser))
+            .and_then(|node| node.as_tag())
+        {
+            let title_inlines = decode_inlines(parser, h1_tag)?;
+            if !title_inlines.is_empty() {
+                article.title = Some(title_inlines);
+            }
+        }
+    }
+
     // Extract abstract, content, and references
     if let Some(body_section) = dom
         .query_selector("section.body.main-article-body")
@@ -96,9 +116,6 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
             match name.as_str() {
                 "citation_doi" => {
                     article.doi = Some(content);
-                }
-                "citation_title" => {
-                    article.title = Some(vec![t(content)]);
                 }
                 "citation_publication_date" => {
                     article.date_published = Some(Date::new(content));
