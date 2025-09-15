@@ -68,7 +68,10 @@ async fn examples() -> Result<()> {
             if let Ok(operation) = StructuringOperation::from_str(&op) {
                 vec![operation]
             } else {
-                bail!("Unable to determine structuring operations for {}", path.display());
+                bail!(
+                    "Unable to determine structuring operations for {}",
+                    path.display()
+                );
             }
         };
 
