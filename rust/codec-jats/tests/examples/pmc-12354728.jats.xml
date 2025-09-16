@@ -1,0 +1,4071 @@
+<?xml version="1.0" ?>
+<!DOCTYPE pmc-articleset PUBLIC "-//NLM//DTD ARTICLE SET 2.0//EN"
+  "https://dtd.nlm.nih.gov/ncbi/pmc/articleset/nlm-articleset-2.0.dtd">
+<pmc-articleset>
+  <article
+    xmlns:mml="http://www.w3.org/1998/Math/MathML"
+    xmlns:ali="http://www.niso.org/schemas/ali/1.0/"
+    article-type="research-article"
+    xml:lang="en"
+    dtd-version="1.4"
+  >
+    <processing-meta
+      base-tagset="archiving"
+      mathml-version="3.0"
+      table-model="xhtml"
+      tagset-family="jats"
+    >
+      <restricted-by>pmc</restricted-by>
+    </processing-meta>
+    <front>
+      <journal-meta>
+        <journal-id journal-id-type="nlm-ta">Sci Rep</journal-id>
+        <journal-id journal-id-type="iso-abbrev">Sci Rep</journal-id>
+        <journal-id journal-id-type="pmc-domain-id">1579</journal-id>
+        <journal-id journal-id-type="pmc-domain">scirep</journal-id>
+        <journal-title-group>
+          <journal-title>Scientific Reports</journal-title>
+        </journal-title-group>
+        <issn pub-type="epub">2045-2322</issn>
+        <publisher>
+          <publisher-name>Nature Publishing Group</publisher-name>
+        </publisher>
+      </journal-meta>
+      <article-meta>
+        <article-id pub-id-type="pmcid">PMC12354728</article-id>
+        <article-id pub-id-type="pmcid-ver">PMC12354728.1</article-id>
+        <article-id pub-id-type="pmcaid">12354728</article-id>
+        <article-id pub-id-type="pmcaiid">12354728</article-id>
+        <article-id pub-id-type="pmid">40813597</article-id>
+        <article-id pub-id-type="doi">10.1038/s41598-025-15365-2</article-id>
+        <article-id pub-id-type="publisher-id">15365</article-id>
+        <article-version article-version-type="pmc-version">1</article-version>
+        <article-categories>
+          <subj-group subj-group-type="heading">
+            <subject>Article</subject>
+          </subj-group>
+        </article-categories>
+        <title-group>
+          <article-title
+          >Craniological differentiation amongst Southeast Asian small cats</article-title>
+        </title-group>
+        <contrib-group>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Azli</surname>
+              <given-names initials="AN">Athirah N.</given-names>
+            </name>
+            <xref ref-type="aff" rid="Aff1">1</xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Gomez</surname>
+              <given-names initials="CR">Chrishen R.</given-names>
+            </name>
+            <xref ref-type="aff" rid="Aff2">2</xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Kitchener</surname>
+              <given-names initials="AC">Andrew C.</given-names>
+            </name>
+            <xref ref-type="aff" rid="Aff3">3</xref>
+            <xref ref-type="aff" rid="Aff4">4</xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Chua</surname>
+              <given-names initials="MAH">Marcus A. H.</given-names>
+            </name>
+            <xref ref-type="aff" rid="Aff5">5</xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Maryanto</surname>
+              <given-names initials="I">Ibnu</given-names>
+            </name>
+            <xref ref-type="aff" rid="Aff6">6</xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Macdonald</surname>
+              <given-names initials="DW">David W.</given-names>
+            </name>
+            <xref ref-type="aff" rid="Aff2">2</xref>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Ahmed</surname>
+              <given-names initials="AB">Amirrudin Bin</given-names>
+            </name>
+            <xref ref-type="aff" rid="Aff1">1</xref>
+          </contrib>
+          <contrib contrib-type="author" corresp="yes">
+            <name name-style="western">
+              <surname>Yamaguchi</surname>
+              <given-names initials="N">Nobuyuki</given-names>
+            </name>
+            <address>
+              <email>human37564nobby@gmail.com</email>
+            </address>
+            <xref ref-type="aff" rid="Aff1">1</xref>
+            <xref ref-type="aff" rid="Aff2">2</xref>
+          </contrib>
+          <aff id="Aff1"><label>1</label><institution-wrap>
+            <institution-id
+              institution-id-type="ROR"
+            >https://ror.org/02474f074</institution-id>
+            <institution-id
+              institution-id-type="GRID"
+            >grid.412255.5</institution-id>
+            <institution-id
+              institution-id-type="ISNI"
+            >0000 0000 9284 9319</institution-id>
+            <institution
+            >Institute of Tropical Biodiversity and Sustainable Development, </institution>
+            <institution>University of Malaysia Terengganu, </institution>
+          </institution-wrap>21030 Kuala Nerus, Terengganu Malaysia </aff>
+          <aff id="Aff2"><label>2</label><institution-wrap>
+            <institution-id
+              institution-id-type="ROR"
+            >https://ror.org/052gg0110</institution-id>
+            <institution-id
+              institution-id-type="GRID"
+            >grid.4991.5</institution-id>
+            <institution-id
+              institution-id-type="ISNI"
+            >0000 0004 1936 8948</institution-id>
+            <institution
+            >The Wildlife Conservation Research Unit, The Recanati-Kaplan Centre, Department of Biology, </institution>
+            <institution>University of Oxford, </institution>
+          </institution-wrap>Oxford, UK </aff>
+          <aff id="Aff3"><label>3</label><institution-wrap>
+            <institution-id
+              institution-id-type="ROR"
+            >https://ror.org/00pxfwe85</institution-id>
+            <institution-id
+              institution-id-type="GRID"
+            >grid.422302.5</institution-id>
+            <institution-id
+              institution-id-type="ISNI"
+            >0000 0001 0943 6159</institution-id>
+            <institution>Department of Natural Sciences, </institution>
+            <institution>National Museums Scotland, </institution>
+          </institution-wrap>Chambers Street, Edinburgh, EH1 1JF UK </aff>
+          <aff id="Aff4"><label>4</label><institution-wrap>
+            <institution-id
+              institution-id-type="ROR"
+            >https://ror.org/01nrxwf90</institution-id>
+            <institution-id
+              institution-id-type="GRID"
+            >grid.4305.2</institution-id>
+            <institution-id
+              institution-id-type="ISNI"
+            >0000 0004 1936 7988</institution-id>
+            <institution
+            >School of Geosciences, University of Edinburgh, </institution>
+          </institution-wrap>Drummond Street, Edinburgh, EH8 9XP UK </aff>
+          <aff id="Aff5"><label>5</label><institution-wrap>
+            <institution-id
+              institution-id-type="ROR"
+            >https://ror.org/01tgyzw49</institution-id>
+            <institution-id
+              institution-id-type="GRID"
+            >grid.4280.e</institution-id>
+            <institution-id
+              institution-id-type="ISNI"
+            >0000 0001 2180 6431</institution-id>
+            <institution>Lee Kong Chian Natural History Museum, </institution>
+            <institution>National University of Singapore, </institution>
+          </institution-wrap>2 Conservatory Drive, Singapore, 117377 Singapore </aff>
+          <aff id="Aff6"><label
+          >6</label>Museum Zoologicum Bogoriense, Research Centre in Biosystematics and Evolution-BRIN, Jl. Raya Cibinong KM 47, Cibinong, Indonesia </aff>
+        </contrib-group>
+        <pub-date pub-type="epub">
+          <day>14</day>
+          <month>8</month>
+          <year>2025</year>
+        </pub-date>
+        <pub-date pub-type="collection">
+          <year>2025</year>
+        </pub-date>
+        <volume>15</volume>
+        <issue-id pub-id-type="pmc-issue-id">478255</issue-id>
+        <elocation-id>29845</elocation-id>
+        <history>
+          <date date-type="received">
+            <day>15</day>
+            <month>5</month>
+            <year>2025</year>
+          </date>
+          <date date-type="accepted">
+            <day>7</day>
+            <month>8</month>
+            <year>2025</year>
+          </date>
+        </history>
+        <pub-history>
+          <event event-type="pmc-release">
+            <date>
+              <day>14</day>
+              <month>08</month>
+              <year>2025</year>
+            </date>
+          </event>
+          <event event-type="pmc-live">
+            <date>
+              <day>16</day>
+              <month>08</month>
+              <year>2025</year>
+            </date>
+          </event>
+          <event event-type="pmc-last-change">
+            <date iso-8601-date="2025-08-16 14:25:44.280">
+              <day>16</day>
+              <month>08</month>
+              <year>2025</year>
+            </date>
+          </event>
+        </pub-history>
+        <permissions>
+          <copyright-statement>&#169; The Author(s) 2025</copyright-statement>
+          <copyright-year>2025</copyright-year>
+          <license>
+            <ali:license_ref
+              specific-use="textmining"
+              content-type="ccbyncndlicense"
+            >https://creativecommons.org/licenses/by-nc-nd/4.0/</ali:license_ref>
+            <license-p><bold
+            >Open Access</bold> This article is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License, which permits any non-commercial use, sharing, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if you modified the licensed material. You do not have permission under this licence to share adapted material derived from this article or parts of it. The images or other third party material in this article are included in the article&#8217;s Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article&#8217;s Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit <ext-link
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              ext-link-type="uri"
+              xlink:href="https://creativecommons.org/licenses/by-nc-nd/4.0/"
+            >http://creativecommons.org/licenses/by-nc-nd/4.0/</ext-link>.</license-p>
+          </license>
+        </permissions>
+        <self-uri
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          content-type="pmc-pdf"
+          xlink:href="41598_2025_Article_15365.pdf"
+        />
+        <abstract id="Abs1">
+          <p
+            id="Par1"
+          >Nine small felid species, including the introduced domestic cat, inhabit Southeast Asia. We analysed their skull morphology, using 36 selected morphometric measurements of up to 465 specimens. Of the species examined, the fishing cat and the Asian golden cat were the largest, whilst the mainland and Sunda leopard cats were the smallest. However, there was substantial overlap in size amongst these species. Principal Component Analysis and Quadratic Discriminant Analysis revealed that the skulls of fishing cats and flat-headed cats were clearly distinguishable from those of the other species. Additionally, the skulls of male Asian golden cats, female jungle cats, female Sunda leopard cats, and male marbled cats were well differentiated. In contrast, those of female Asian golden cats, male jungle cats, male domestic cats, and female marbled cats showed considerable morphological overlap with other morphospecies. When analysing only sympatric assemblages (i.e., on the continental mainland, Borneo, Sumatra, and Java), each morphospecies was generally well differentiated from the others although conspecific males and females were not clearly differentiated. Notable exceptions were female Asian golden cats and male jungle cats, female mainland leopard cats and female domestic cats, and female marbled cats and male domestic cats on the mainland, and female marbled cats and male domestic cats on Borneo and Sumatra. More detailed research is necessary to understand the impacts of introduced domestic cats on indigenous small wild felids in Southeast Asia through niche overlap and competition.</p>
+          <sec>
+            <title>Supplementary Information</title>
+            <p
+            >The online version contains supplementary material available at 10.1038/s41598-025-15365-2.</p>
+          </sec>
+        </abstract>
+        <kwd-group xml:lang="en">
+          <title>Keywords</title>
+          <kwd>Competition</kwd>
+          <kwd>Conservation</kwd>
+          <kwd>Domestic cat</kwd>
+          <kwd>Museum</kwd>
+          <kwd>Niche overlap</kwd>
+          <kwd>Small felids</kwd>
+        </kwd-group>
+        <kwd-group kwd-group-type="npg-subject">
+          <title>Subject terms</title>
+          <kwd>Zoology</kwd>
+          <kwd>Biodiversity</kwd>
+          <kwd>Conservation biology</kwd>
+        </kwd-group>
+        <custom-meta-group>
+          <custom-meta>
+            <meta-name>pmc-status-qastatus</meta-name>
+            <meta-value>0</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-live</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-embargo</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-released</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-open-access</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-olf</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-manuscript</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-legally-suppressed</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-has-pdf</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-has-supplement</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-pdf-only</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-suppress-copyright</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-is-real-version</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-is-scanned-article</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-preprint</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-in-epmc</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>issue-copyright-statement</meta-name>
+            <meta-value>&#169; Springer Nature Limited 2025</meta-value>
+          </custom-meta>
+        </custom-meta-group>
+      </article-meta>
+    </front>
+    <body>
+      <sec id="Sec1">
+        <title>Introduction</title>
+        <p
+          id="Par2"
+        >Southeast Asia, renowned for its exceptionally rich biodiversity, is home to eight indigenous small felid species, which are the Asian golden cat (<italic
+          toggle="yes"
+        >Catopuma temminckii</italic>), bay cat (<italic
+          toggle="yes"
+        >C. badia</italic>), fishing cat (<italic
+          toggle="yes"
+        >Prionailurus viverrinus</italic>), mainland leopard cat (<italic
+          toggle="yes"
+        >P. bengalensis</italic>), Sunda leopard cat (<italic
+          toggle="yes"
+        >P. javanensis</italic>), flat-headed cat (<italic
+          toggle="yes"
+        >P. planiceps</italic>), marbled cat (<italic
+          toggle="yes"
+        >Pardofelis marmorata</italic>), and jungle cat (<italic
+          toggle="yes"
+        >Felis chaus</italic>) (Fig. <xref
+          rid="MOESM1"
+          ref-type="media"
+        >S1</xref>)<sup><xref ref-type="bibr" rid="CR1">1</xref>,<xref
+          ref-type="bibr"
+          rid="CR2"
+        >2</xref></sup>. Amongst them, mainland leopard cat and Sunda leopard cat, which had hitherto been considered as subspecies of the former leopard cat (<italic
+          toggle="yes"
+        >P. bengalensis</italic>), were only recently suggested to be two separate species phylogenetically based on mitochondrial, X chromosome, and Y chromosome DNAs, with a possible hybrid zone on the Malay Peninsula<sup
+        >
+          <xref ref-type="bibr" rid="CR2">2</xref>
+          &#8211;
+          <xref ref-type="bibr" rid="CR4">4</xref>
+        </sup>. In addition to these wild species, the introduced domestic cat (<italic
+          toggle="yes"
+        >F. catus</italic>) is widespread in the region (Fig. <xref
+          rid="MOESM1"
+          ref-type="media"
+        >S1</xref>)<sup>
+          <xref ref-type="bibr" rid="CR5">5</xref>
+          &#8211;
+          <xref ref-type="bibr" rid="CR7">7</xref>
+        </sup>. These species were largely sympatric, on either the mainland (Asian golden cat, fishing cat, mainland leopard cat, flat-headed cat, marbled cat, jungle cat, and domestic cat) or the Sunda Islands (bay cat, marbled cat, flat-headed cat, Sunda leopard cat, and domestic cat on Borneo, Asian golden cat, marbled cat, flat-headed cat, Sunda leopard cat, and domestic cat on Sumatra, and fishing cat, Sunda leopard cat, and domestic cat on Java, although the fishing cat may be extinct on Java) until recent anthropogenic fragmentations of their ranges<sup
+        ><xref ref-type="bibr" rid="CR2">2</xref>,<xref
+          ref-type="bibr"
+          rid="CR8"
+        >8</xref></sup>. Therefore, they provide valuable model communities of closely-related obligate carnivores for studying niche partitioning. Furthermore, due to their charisma and popularity, they attract the interest of both researchers and the general public<sup
+        ><xref ref-type="bibr" rid="CR1">1</xref>,<xref
+          ref-type="bibr"
+          rid="CR8"
+        >8</xref>&#8211;<xref
+          ref-type="bibr"
+          rid="CR10"
+        >10</xref></sup>; this is particularly the case concerning the conservation of the fishing cat, Asian golden cat (both are classified as Vulnerable on the IUCN Red List), flat-headed cat (Endangered), and bay cat (Endangered and endemic to Borneo)<sup
+        >
+          <xref ref-type="bibr" rid="CR11">11</xref>
+          &#8211;
+          <xref ref-type="bibr" rid="CR14">14</xref>
+        </sup>. However, compared to large felids in the region (tiger (<italic
+          toggle="yes"
+        >Panthera tigris</italic>), leopard (<italic
+          toggle="yes"
+        >P. pardus</italic>), mainland clouded leopard (<italic
+          toggle="yes"
+        >Neofelis nebulosa</italic>), and Sunda clouded leopard (<italic
+          toggle="yes"
+        >N. diardi</italic>)), even the basic biology of these smaller species remains little known<sup
+        ><xref ref-type="bibr" rid="CR2">2</xref>,<xref
+          ref-type="bibr"
+          rid="CR8"
+        >8</xref>,<xref ref-type="bibr" rid="CR15">15</xref></sup>.</p>
+        <p
+          id="Par3"
+        >Studies on niche partitioning amongst small felids in Southeast Asia have primarily relied on modelling based on data collected through camera trapping<sup
+        ><xref ref-type="bibr" rid="CR1">1</xref>,<xref
+          ref-type="bibr"
+          rid="CR16"
+        >16</xref>&#8211;<xref
+          ref-type="bibr"
+          rid="CR19"
+        >19</xref></sup>, with only a few dietary analyses conducted in the region<sup
+        >
+          <xref ref-type="bibr" rid="CR20">20</xref>
+          &#8211;
+          <xref ref-type="bibr" rid="CR22">22</xref>
+        </sup>. However, due to anthropogenic range/habitat fragmentation and associated faunal changes, the opportunity may have passed for collecting field data indicative of pre-fragmentation range overlap, and hence, niche partitioning in an evolutionary context. However, it may be possible to infer something of these relationships from morphological analysis, which may also shed light on the impact of niche overlap with the introduced domestic cat on indigenous wild felids.</p>
+        <p
+          id="Par4"
+        >Sympatric carnivorans are considered to differ from each other in distinct ways, including morphological differences, so as to reduce competition amongst species, as well as between sexes<sup
+        >
+          <xref ref-type="bibr" rid="CR23">23</xref>
+          &#8211;
+          <xref ref-type="bibr" rid="CR25">25</xref>
+        </sup>. Skull morphology is a valuable tool for assessing niche overlap amongst sympatric and closely related carnivorans<sup
+        >
+          <xref ref-type="bibr" rid="CR25">25</xref>
+          &#8211;
+          <xref ref-type="bibr" rid="CR28">28</xref>
+        </sup>. Some previous studies have highlighted possible character displacement and range overlap amongst &#8220;morphospecies&#8221; (i.e. male and female are different morphospecies where clear sexual dimorphism occurs) in felids by focusing on size differences of skull, canine, and carnassial<sup
+        ><xref ref-type="bibr" rid="CR24">24</xref>,<xref
+          ref-type="bibr"
+          rid="CR29"
+        >29</xref>,<xref
+          ref-type="bibr"
+          rid="CR30"
+        >30</xref></sup>. Previous studies of the skull morphology of Southeast Asian small felids have been limited by small sample sizes and have not supported statistical analysis of niche overlap amongst morphospecies<sup
+        ><xref ref-type="bibr" rid="CR27">27</xref>,<xref
+          ref-type="bibr"
+          rid="CR31"
+        >31</xref>,<xref
+          ref-type="bibr"
+          rid="CR32"
+        >32</xref></sup>. A comparison of skull morphology of Southeast Asian small felids, not only species but also morphospecies, based on a large dataset, could significantly enhance understanding of the morphological evidence for niche partitioning amongst them.</p>
+        <p
+          id="Par5"
+        >To address this knowledge gap, we analyse the skull morphology of all nine small felid species in Southeast Asia, including the domestic cat, using arguably the largest single dataset in existence. We investigate the extent of skull morphology overlap amongst sympatric species/morphospecies as a proxy for niche overlap. Our hypothesis is that sympatric small cat species/morphospecies are differentiated based on skull morphology, following the suggestion that sympatric carnivorans are likely to have evolved in ways that reduce competition.</p>
+      </sec>
+      <sec id="Sec2">
+        <title>Results</title>
+        <sec id="Sec3">
+          <title
+          >Size differences in skull, canine, and carnassial measurements amongst species</title>
+          <p
+            id="Par6"
+          >In all nine species examined, males were significantly larger than females in terms of greatest skull length, anteroposterior diameter of the upper canine, and length of the upper carnassial (Pm<sup
+          >4</sup>) (Table <xref
+            rid="MOESM1"
+            ref-type="media"
+          >S1</xref>). Amongst these species, the fishing cat and Asian golden cat were the largest, whilst the mainland leopard cat, Sunda leopard cat, and domestic cat were the smallest. However, considerable overlap was observed in these three morphological variables between morphospecies within similar size ranges (Fig. S2).</p>
+        </sec>
+        <sec id="Sec4">
+          <title>Differentiation of skull morphology amongst species</title>
+          <p
+            id="Par7"
+          >Principal Component Analysis (PCA) on 36 cranial variables from 373 skulls extracted two principal components (PCs) with eigenvalues greater than one, explaining 86.7% and 3.9% of the total variance, respectively. Biplots suggested mandible length (coronoid process), lateral snout, and greatest length were the top three variables most strongly influencing PC1 whilst postorbital breadth, interorbital breadth, and brain case were the top three for PC2 (Fig. S3). Scatterplots of these two PCs revealed clear morphological differentiation of fishing cats and flat-headed cats from the other species. In contrast, extensive overlap was observed between the skulls of mainland and Sunda leopard cats, which also partially overlapped with those of domestic cats (Fig.&#160;<xref
+            rid="Fig1"
+            ref-type="fig"
+          >1</xref>). Partial overlap was found amongst the skulls of domestic cats, marbled cats, bay cats, and jungle cats, as well as between jungle cats and Asian golden cats (Fig.&#160;<xref
+            rid="Fig1"
+            ref-type="fig"
+          >1</xref>). Quadratic Discriminant Analysis (QDA), conducted on eight species (excluding the bay cat due to a limited sample size, <italic
+            toggle="yes"
+          >n</italic>&#8201;=&#8201;2), extracted two discriminant functions (DFs) that explained 95.4% of the variance. At the species level 81.4% of skulls were correctly classified (Table&#160;<xref
+            rid="Tab1"
+            ref-type="table"
+          >1</xref>). The classification results (Table&#160;<xref
+            rid="Tab1"
+            ref-type="table"
+          >1</xref>) indicated that fishing cats and flat-headed cats were most clearly distinguished from the other species, while the remaining species showed less clear separation.</p>
+          <p id="Par8">
+            <fig id="Fig1" position="float" orientation="portrait">
+              <label>Fig. 1</label>
+              <caption>
+                <p
+                > Scatter plots of nine small cats in the Southeast Asia based on the first two principal components (PCs). Species are <italic
+                  toggle="yes"
+                >Prionailurus viverrinus</italic> (Pv), <italic
+                  toggle="yes"
+                >P. planiceps</italic> (Pp), <italic
+                  toggle="yes"
+                >P. bengalensis</italic> (Pb), <italic
+                  toggle="yes"
+                >P. javanensis</italic> (Pj), <italic
+                  toggle="yes"
+                >Catopuma temminckii</italic> (Ct), <italic
+                  toggle="yes"
+                >C. badia</italic> (Cb), <italic
+                  toggle="yes"
+                >Pardofelis marmorata</italic> (Pm), <italic
+                  toggle="yes"
+                >Felis chaus</italic> (Fc), and <italic
+                  toggle="yes"
+                >F. catus</italic> (Fca).</p>
+              </caption>
+              <graphic
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                id="d33e485"
+                position="float"
+                orientation="portrait"
+                xlink:href="41598_2025_15365_Fig1_HTML.jpg"
+              />
+            </fig>
+          </p>
+          <p id="Par9">
+            <table-wrap id="Tab1" position="float" orientation="portrait">
+              <label>Table 1</label>
+              <caption>
+                <p
+                >Classification table of eight small cats in the Southeast Asia by quadratic discriminant analysis. Species are <italic
+                  toggle="yes"
+                >Prionailurus viverrinus</italic> (Pv), <italic
+                  toggle="yes"
+                >P. planiceps</italic> (Pp), <italic
+                  toggle="yes"
+                >P. bengalensis</italic> (Pb), <italic
+                  toggle="yes"
+                >P. javanensis</italic> (Pj), <italic
+                  toggle="yes"
+                >Catopuma temminckii</italic> (Ct), <italic
+                  toggle="yes"
+                >Pardofelis marmorata</italic> (Pm), <italic
+                  toggle="yes"
+                >Felis Chaus</italic> (Fc), and <italic
+                  toggle="yes"
+                >F. catus</italic> (Fca). 81.4% of the original groups were correctly classified, and cross-validation classified 81.1% correctly.</p>
+              </caption>
+              <table frame="hsides" rules="groups">
+                <thead>
+                  <tr>
+                    <th align="left" rowspan="2" colspan="1" />
+                    <th align="left" rowspan="2" colspan="1" />
+                    <th align="left" rowspan="2" colspan="1">Species</th>
+                    <th
+                      align="left"
+                      colspan="8"
+                      rowspan="1"
+                    >Predicted group membership</th>
+                    <th align="left" colspan="1" rowspan="1" />
+                  </tr>
+                  <tr>
+                    <th align="left" colspan="1" rowspan="1">Ct</th>
+                    <th align="left" colspan="1" rowspan="1">Fc</th>
+                    <th align="left" colspan="1" rowspan="1">Fca</th>
+                    <th align="left" colspan="1" rowspan="1">Pb</th>
+                    <th align="left" colspan="1" rowspan="1">Pj</th>
+                    <th align="left" colspan="1" rowspan="1">Pm</th>
+                    <th align="left" colspan="1" rowspan="1">Pp</th>
+                    <th align="left" colspan="1" rowspan="1">Pv</th>
+                    <th align="left" colspan="1" rowspan="1">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td align="left" rowspan="16" colspan="1">Original</td>
+                    <td align="left" rowspan="8" colspan="1">Count</td>
+                    <td align="left" colspan="1" rowspan="1">Ct</td>
+                    <td align="left" colspan="1" rowspan="1">34</td>
+                    <td align="left" colspan="1" rowspan="1">9</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">43</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Fc</td>
+                    <td align="left" colspan="1" rowspan="1">9</td>
+                    <td align="left" colspan="1" rowspan="1">30</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">1</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">40</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Fca</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">1</td>
+                    <td align="left" colspan="1" rowspan="1">17</td>
+                    <td align="left" colspan="1" rowspan="1">3</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">3</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">24</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pb</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">3</td>
+                    <td align="left" colspan="1" rowspan="1">48</td>
+                    <td align="left" colspan="1" rowspan="1">20</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">71</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pj</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">11</td>
+                    <td align="left" colspan="1" rowspan="1">38</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">1</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">50</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pm</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">2</td>
+                    <td align="left" colspan="1" rowspan="1">4</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">20</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">26</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pp</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">2</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">53</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">55</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pv</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">0</td>
+                    <td align="left" colspan="1" rowspan="1">62</td>
+                    <td align="left" colspan="1" rowspan="1">62</td>
+                  </tr>
+                  <tr>
+                    <td align="left" rowspan="8" colspan="1">%</td>
+                    <td align="left" colspan="1" rowspan="1">Ct</td>
+                    <td align="left" colspan="1" rowspan="1">79.0</td>
+                    <td align="left" colspan="1" rowspan="1">21.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Fc</td>
+                    <td align="left" colspan="1" rowspan="1">22.5</td>
+                    <td align="left" colspan="1" rowspan="1">75.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">2.5</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Fca</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">4.2</td>
+                    <td align="left" colspan="1" rowspan="1">70.8</td>
+                    <td align="left" colspan="1" rowspan="1">12.5</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">12.5</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pb</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">4.2</td>
+                    <td align="left" colspan="1" rowspan="1">67.6</td>
+                    <td align="left" colspan="1" rowspan="1">28.2</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pj</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">22.0</td>
+                    <td align="left" colspan="1" rowspan="1">76.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">2.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pm</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">7.7</td>
+                    <td align="left" colspan="1" rowspan="1">15.4</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">76.9</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pp</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">3.6</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">96.4</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">Pv</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">0.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                    <td align="left" colspan="1" rowspan="1">100.0</td>
+                  </tr>
+                </tbody>
+              </table>
+            </table-wrap>
+          </p>
+        </sec>
+        <sec id="Sec5">
+          <title
+          >Differentiation of skull morphology amongst morphospecies</title>
+          <p
+            id="Par10"
+          >Principal Component Analysis conducted on 36 cranial variables from 331 skulls, representing 16 morphospecies (eight species &#215; two sexes), excluding the bay cat (with only one sexed specimen), extracted two PCs with eigenvalues greater than one, explaining 86.9% and 3.8% of the variance, respectively. Scatterplots based on these PCs indicated that fishing cats and flat-headed cats were distinctly separated from the other morphospecies, although partial overlap occurred between sexes within each species (Fig.&#160;<xref
+            rid="Fig2"
+            ref-type="fig"
+          >2</xref>).</p>
+          <p id="Par11">
+            <fig id="Fig2" position="float" orientation="portrait">
+              <label>Fig. 2</label>
+              <caption>
+                <p
+                > Scatter plots of 16 morphospecies of eight small cats in the Southeast Asia based on the first two principal components (PCs). Species are <italic
+                  toggle="yes"
+                >Prionailurus viverrinus</italic> (Pv), <italic
+                  toggle="yes"
+                >P. planiceps</italic> (Pp), <italic
+                  toggle="yes"
+                >P. bengalensis</italic> (Pb), <italic
+                  toggle="yes"
+                >P. javanensis</italic> (Pj), <italic
+                  toggle="yes"
+                >Catopuma temminckii</italic> (Ct), <italic
+                  toggle="yes"
+                >Pardofelis marmorata</italic> (Pm), <italic
+                  toggle="yes"
+                >Felis chaus</italic> (Fc), and <italic
+                  toggle="yes"
+                >F. catus</italic> (Fca). Males are indicated by &#8220;M&#8221; and triangles whilst females are by &#8220;F&#8221; and circles.</p>
+              </caption>
+              <graphic
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                id="d33e949"
+                position="float"
+                orientation="portrait"
+                xlink:href="41598_2025_15365_Fig2_HTML.jpg"
+              />
+            </fig>
+          </p>
+          <p
+            id="Par12"
+          >Conversely, skulls of mainland and Sunda leopard cats overlapped extensively, regardless of sex (Fig.&#160;<xref
+            rid="Fig2"
+            ref-type="fig"
+          >2</xref>). Domestic cat skull shapes did not overlap with those of the leopard cats as much as they did with unsexed specimens being included in this analysis (cf. Fig.&#160;<xref
+            rid="Fig1"
+            ref-type="fig"
+          >1</xref>). Skulls of domestic cats overlapped with those of female marbled cats, whereas male marbled cats were largely distinct from all other morphospecies (Fig.&#160;<xref
+            rid="Fig2"
+            ref-type="fig"
+          >2</xref>). Asian golden cats and jungle cats exhibited overlapping skull morphologies, particularly between female Asian golden cats and male jungle cats, whilst male Asian golden cats and female jungle cats showed no overlap (Fig.&#160;<xref
+            rid="Fig2"
+            ref-type="fig"
+          >2</xref>). Quadratic Discriminant Analysis on the 16 morphospecies (excluding bay cat) extracted two DFs explaining 92.1% of the variance, with 68.0% of skulls correctly classified (Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>). The classification results (Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>) showed that both male and female fishing cats and flat-headed cats were well separated from other morphospecies, with over 80.0% correctly classified for each group. Additionally, skulls of male Asian golden cats, female jungle cats, female Sunda leopard cats, and male marbled cats were also well differentiated (&gt;&#8201;81.3% correct classification; Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>). However, lower classification accuracy (&lt;&#8201;42.1%) was observed for female Asian golden cats, male jungle cats, male domestic cats, and female marbled cats (Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>). When considering geographical sympatry (i.e., mainland, Borneo, Sumatra, and Java), morphospecies generally overlapped only with the opposite sex of the same species (Tables S2&#8211;S5). Notable exceptions involving interspecific overlap were between female Asian golden cat and male jungle cat, female mainland leopard cat and female domestic cat, and female marbled cat and male domestic cat on the mainland, as well as female marbled cat and male domestic cat on Borneo and Sumatra (Tables S2&#8211;S5).</p>
+          <p id="Par13">
+            <table-wrap id="Tab2" position="float" orientation="portrait">
+              <label>Table 2</label>
+              <caption>
+                <p
+                >Classification table of 16 morphospecies of eight small cats in the Southeast Asia by quadratic discriminant analysis. Species are <italic
+                  toggle="yes"
+                >Prionailurus viverrinus</italic> (Pv), <italic
+                  toggle="yes"
+                >P. planiceps</italic> (Pp), <italic
+                  toggle="yes"
+                >P. bengalensis</italic> (Pb), <italic
+                  toggle="yes"
+                >P. javanensis</italic> (Pj), <italic
+                  toggle="yes"
+                >Catopuma temminckii</italic> (Ct), <italic
+                  toggle="yes"
+                >Pardofelis marmorata</italic> (Pm), <italic
+                  toggle="yes"
+                >Felis Chaus</italic> (Fc), and <italic
+                  toggle="yes"
+                >F. catus</italic> (Fca). Females are indicated by &#8220;F&#8221; and males by &#8220;M&#8221;. 68.0% of the original groups were correctly classified, and cross-validation classified 62.2% correctly.</p>
+              </caption>
+              <table frame="hsides" rules="groups">
+                <thead>
+                  <tr>
+                    <th align="left" rowspan="2" colspan="1">Original</th>
+                    <th align="left" rowspan="2" colspan="2">Species/sex</th>
+                    <th
+                      align="left"
+                      colspan="16"
+                      rowspan="1"
+                    >Predicted group membership</th>
+                    <th align="left" colspan="1" rowspan="1" />
+                  </tr>
+                  <tr>
+                    <th align="left" colspan="1" rowspan="1">CtF</th>
+                    <th align="left" colspan="1" rowspan="1">CtM</th>
+                    <th align="left" colspan="1" rowspan="1">FcF</th>
+                    <th align="left" colspan="1" rowspan="1">FcM</th>
+                    <th align="left" colspan="1" rowspan="1">FcaF</th>
+                    <th align="left" colspan="1" rowspan="1">FcaM</th>
+                    <th align="left" colspan="1" rowspan="1">PbF</th>
+                    <th align="left" colspan="1" rowspan="1">PbM</th>
+                    <th align="left" colspan="1" rowspan="1">PjF</th>
+                    <th align="left" colspan="1" rowspan="1">PjM</th>
+                    <th align="left" colspan="1" rowspan="1">PmF</th>
+                    <th align="left" colspan="1" rowspan="1">PmM</th>
+                    <th align="left" colspan="1" rowspan="1">PpF</th>
+                    <th align="left" colspan="1" rowspan="1">PpM</th>
+                    <th align="left" colspan="1" rowspan="1">PvF</th>
+                    <th align="left" colspan="1" rowspan="1">PvM</th>
+                    <th align="left" colspan="1" rowspan="1">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td align="left" rowspan="16" colspan="1" />
+                    <td align="left" rowspan="16" colspan="1">
+                      <p>Count</p>
+                      <p>(%)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>CtF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>7</p>
+                      <p>(35.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>5</p>
+                      <p>(25.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(5.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>7</p>
+                      <p>(35.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>20</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>CtM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>3</p>
+                      <p>(13.6)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>18</p>
+                      <p>(81.8)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(4.6)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>22</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>FcF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>13</p>
+                      <p>(81.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>2</p>
+                      <p>(12.5)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(6.2)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>16</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>FcM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>5</p>
+                      <p>(26.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>2</p>
+                      <p>(10.5)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>4</p>
+                      <p>(21.1)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>8</p>
+                      <p>(42.1)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>19</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>FcaF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>7</p>
+                      <p>(58.4)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(8.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>3</p>
+                      <p>(25.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(8.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>12</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>FcaM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(10.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>3</p>
+                      <p>(30.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>4</p>
+                      <p>(40.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(10.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(10.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>10</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PbF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(3.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>15</p>
+                      <p>(50.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>4</p>
+                      <p>(13.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>5</p>
+                      <p>(16.7)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>5</p>
+                      <p>(16.7)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>30</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PbM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(3.1)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>4</p>
+                      <p>(12.5)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>22</p>
+                      <p>(68.8)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(3.1)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>4</p>
+                      <p>(12.5)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>32</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PjF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>3</p>
+                      <p>(15.8)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>16</p>
+                      <p>(84.2)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>19</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PjM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>7</p>
+                      <p>(26.9)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(3.9)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>3</p>
+                      <p>(11.5)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>14</p>
+                      <p>(53.8)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(3.9)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>26</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PmF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(12.5)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(12.5)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>2</p>
+                      <p>(25.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>2</p>
+                      <p>(25.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>2</p>
+                      <p>(25.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>8</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PmM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(6.7)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>14</p>
+                      <p>(93.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>15</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PpF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(5.6)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>15</p>
+                      <p>(83.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>2</p>
+                      <p>(11.1)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>18</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PpM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(3.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>5</p>
+                      <p>(16.7)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>24</p>
+                      <p>(80.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>30</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PvF</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>1</p>
+                      <p>(4.3)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>19</p>
+                      <p>(82.6)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>3</p>
+                      <p>(13.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>23</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" colspan="1" rowspan="1">
+                      <bold>PvM</bold>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>0</p>
+                      <p>(0.0)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>4</p>
+                      <p>(12.9)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>27</p>
+                      <p>(87.1)</p>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                      <p>31</p>
+                      <p>(100.0)</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </table-wrap>
+          </p>
+        </sec>
+      </sec>
+      <sec id="Sec6">
+        <title>Discussion</title>
+        <sec id="Sec7">
+          <title
+          >Differentiating species/morphospecies based on skull morphology</title>
+          <p
+            id="Par14"
+          >In general, the results suggest that in general Southeast Asian small felids &#8211; both species and morphospecies &#8211; can be differentiated using QDA consistent with the hypothesis that sympatric felids have evolved to avoid competition. The results also suggest that variables related to the overall size of the skull, including mandible length (coronoid process), lateral snout, and greatest length, and those related to skull breadth, postorbital breadth, interorbital breadth, and brain case, might be useful for differentiating the species (Fig. S3). However, sexual dimorphism is not clearly reflected in most species, as conspecific males and females are not distinctly separated (Tables&#160;<xref
+            rid="Tab1"
+            ref-type="table"
+          >1</xref> and <xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>). Amongst the species, the fishing cat and flat-headed cat are most distinctly differentiated from the other species (Table&#160;<xref
+            rid="Tab1"
+            ref-type="table"
+          >1</xref>). At the morphospecies level, male marbled cats are clearly differentiated from all others (Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>). Female marbled cats would also be well distinguished from other indigenous morphospecies, were it not for the inclusion of domestic cats in the analysis (Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>). Mainland and Sunda leopard cats are not clearly differentiated and yet this is expected as they likely fill the same ecological niche although they were recently separated into two species phylogenetically. Unless clear evidence would suggest otherwise, it is safe to assume that mainland leopard cat and Sunda leopard cat form a single ecological species, and two morphospecies (i.e. male and female leopard cats), in their hybrid zone in the Malay Peninsula<sup
+          ><xref ref-type="bibr" rid="CR3">3</xref>,<xref
+            ref-type="bibr"
+            rid="CR4"
+          >4</xref></sup>. Notably, an overlap is observed between female Asian golden cats and male jungle cats (Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>). Additionally, overlap is evident between mainland leopard cats and domestic cats, especially between females (Table&#160;<xref
+            rid="Tab2"
+            ref-type="table"
+          >2</xref>), as well as between marbled cats and domestic cats to a lesser extent (again, particularly between females). We tentatively suggest that the bay cat may overlap, in terms of skull morphology, with the jungle cat, marbled cat, and domestic cat (Fig.&#160;<xref
+            rid="Fig1"
+            ref-type="fig"
+          >1</xref>). When only actual sympatric distributions are considered (i.e., mainland Southeast Asia, Borneo, Sumatra, and Java), the only notable overlap between indigenous morphospecies occurs between female Asian golden cats and male jungle cats. All other significant overlaps involve the domestic cat (Tables S2&#8211;S5).</p>
+        </sec>
+        <sec id="Sec8">
+          <title>Deduced niche overlap</title>
+          <p
+            id="Par15"
+          >Overall, the diet of all small felids worldwide is composed of rodents and other small vertebrates, and the general predation strategy is similar<sup
+          >
+            <xref ref-type="bibr" rid="CR27">27</xref>
+          </sup>. Consequently, some degree of interspecific competition is expected amongst sympatric species. The central assumption of our study is that greater similarity in skull morphology implies greater ecological niche overlap and thus increased potential for competition, assuming other factors remain constant. Based on this assumption, the fishing cat and flat-headed cat may occupy distinct ecological niches, with minimal overlap with other regional felids. This is likely due to their specialised habitat preferences (riparian environments) and diet (predominantly fish) (Table S6)<sup
+          ><xref ref-type="bibr" rid="CR11">11</xref>,<xref
+            ref-type="bibr"
+            rid="CR13"
+          >13</xref></sup>, which differ from those of the other species, and the size difference between the two species (Fig. S2) separating their niches. However, it is important to note that morphological differentiation does not necessarily preclude competition (and antagonistic interactions) in areas of sympatry. Owing to the paucity of information concerning the behaviour and ecology of the marbled cat, we cannot suggest a convincing adaptive reason for male marbled cats being clearly differentiated from all other morphospecies. However, the possible arboreal lifestyle of the marbled cat and the possibility of hunting relatively large prey for its body size<sup
+          ><xref ref-type="bibr" rid="CR33">33</xref>,<xref
+            ref-type="bibr"
+            rid="CR34"
+          >34</xref></sup> may be relevant. On the other hand, the highest potential for niche overlap amongst sympatric species or morphospecies appears to occur between female Asian golden cats and male jungle cats, female mainland leopard cats and female domestic cats, and female marbled cats and domestic cats.</p>
+        </sec>
+        <sec id="Sec9">
+          <title>Asian golden cat and jungle cat</title>
+          <p
+            id="Par16"
+          >The results suggest that, based on skull morphology, the niche overlap between the Asian golden cat and jungle cat &#8211; particularly between female Asian golden cats and male jungle cats &#8211; is amongst the greatest observed in Southeast Asian small felids. Consequently, competition between these two species, where they are sympatric, may be more intense compared to other small felid species in the region. However, the Asian golden cat is strongly associated with closed-canopy forests, habitats in which the jungle cat may not occur (Table S6)<sup
+          ><xref ref-type="bibr" rid="CR14">14</xref>,<xref
+            ref-type="bibr"
+            rid="CR35"
+          >35</xref></sup>. This difference in habitat preference may limit the extent of their sympatric range in Southeast Asia. The degree of polymorphism within Asian golden cat populations varies with latitude, being lowest in Peninsular Malaysia and Sumatra. This has led to the hypothesis of a southward population expansion of the Asian golden cat during the Late Pleistocene/Early Holocene<sup
+          ><xref ref-type="bibr" rid="CR36">36</xref>,<xref
+            ref-type="bibr"
+            rid="CR37"
+          >37</xref></sup>. In contrast, there is limited information regarding the colonisation of Southeast Asia by the jungle cat<sup
+          >
+            <xref ref-type="bibr" rid="CR30">30</xref>
+          </sup>. As such, it remains difficult to deduce the recent evolutionary histories of the two species, particularly in relation to their colonisation of, and competition in, Southeast Asia. Notably, jungle cats in the eastern part of their range, including Southeast Asia, are substantially smaller than those in the western part, and this size difference has been suggested to result from competition with sympatric small felids<sup
+          >
+            <xref ref-type="bibr" rid="CR30">30</xref>
+          </sup>. Our analysis, which includes jungle cats from across the species&#8217; range, shows that their average size is slightly smaller than that of the Asian golden cat (Fig. S2). In this context, the smaller size of jungle cats in Southeast Asia may help reducing niche overlap and competition with the Asian golden cat in the region. The indigenous small felids in Southeast Asia smaller than the jungle cat, which are the flat-headed cat (a riparian specialist), the marbled cat (possibly arboreal), and the mainland leopard cat, may exert limited competition. Amongst these species, only the mainland leopard cat might compete with the jungle cat, yet it is substantially smaller (Fig. S2), potentially allowing the jungle cat to have evolved a smaller size to alleviate competition with the Asian golden cat.</p>
+        </sec>
+        <sec id="Sec10">
+          <title
+          >Niche overlap between Indigenous small felids and domestic Cat</title>
+          <p
+            id="Par17"
+          >Free-ranging domestic cats pose significant conservation concerns worldwide<sup
+          ><xref ref-type="bibr" rid="CR38">38</xref>,<xref
+            ref-type="bibr"
+            rid="CR39"
+          >39</xref></sup>. However, there have been few studies on their impact on indigenous Southeast Asian small felids through niche overlap and competition. Our results indicate that when considering actual sympatry, with the exception of the female Asian golden cat and male jungle cat, all other dyads showing notable overlap involve the domestic cat (Tables S2-S5). It may be possible to suggest that the introduced domestic cat may not have been sympatric with other small felids in Southeast Asia long enough for evolutionary processes to reduce niche overlap, unlike in the case of indigenous species. The results suggest that potential niche overlap is greater between the domestic cat and the female mainland leopard cat (particularly with female domestic cats), as well as with the female marbled cat, compared to other dyads of small felids in Southeast Asia. The marbled cat&#8217;s putative arboreal lifestyle and its predation of relatively large arboreal prey for its body size<sup
+          ><xref ref-type="bibr" rid="CR33">33</xref>,<xref
+            ref-type="bibr"
+            rid="CR34"
+          >34</xref></sup> may help to reduce competition between female marbled cats and domestic cats. However, due to the limited knowledge regarding the behaviour and ecology of marbled cats<sup
+          ><xref ref-type="bibr" rid="CR33">33</xref>,<xref
+            ref-type="bibr"
+            rid="CR34"
+          >34</xref></sup>, it may be a premature conclusion that the negative impact of free-ranging domestic cats on marbled cats is minimal where they are sympatric. Similar caution is necessary regarding the interaction between domestic cats and mainland leopard cats. A study on the distribution of faeces suggests a possible difference in spatial use between free-ranging domestic cats and Iriomote cats (an island population of the mainland leopard cat on Iriomote Island, Japan), with domestic cats being more associated with human settlements, particularly garbage dumps<sup
+          >
+            <xref ref-type="bibr" rid="CR40">40</xref>
+          </sup>. A survey on Bohol Island, Philippines where there is no leopard cat, found that feral domestic cats were not recorded in primary forests<sup
+          >
+            <xref ref-type="bibr" rid="CR5">5</xref>
+          </sup>, suggesting that competition between mainland leopard cats and domestic cats may be reduced, at least in forested areas. However, leopard cats also inhabit areas outside primary forest habitats (Table S6), where they may be sympatric with free-ranging domestic cats. A study in Singapore showed that leopard cats and domestic cats had overlapping ranges in an oil palm plantation near secondary forest edges<sup
+          >
+            <xref ref-type="bibr" rid="CR41">41</xref>
+          </sup>. Free-ranging domestic cats exploit a wide range of habitats, including various forest and woodland types<sup
+          >
+            <xref ref-type="bibr" rid="CR42">42</xref>
+          </sup>. It is believed that habitat use by free-ranging domestic cats is influenced by factors such as prey availability, predation/competition, shelter availability, and human resource subsidies, although the evidence supporting these assertions remains weak, with most studies being observational or correlative<sup
+          >
+            <xref ref-type="bibr" rid="CR42">42</xref>
+          </sup>. Furthermore, the impact of domestic cats on indigenous small felids through niche overlap and competition is understudied, with Southeast Asia being a notably underrepresented region in terms of research on the effects of domestic cats on wildlife conservation<sup
+          >
+            <xref ref-type="bibr" rid="CR39">39</xref>
+          </sup>. Although hybridisation between free-ranging domestic cats and indigenous small wild felids has not been documented in Southeast Asia, domestic cat is known to hybridise with many different cat species<sup
+          ><xref ref-type="bibr" rid="CR39">39</xref>,<xref
+            ref-type="bibr"
+            rid="CR43"
+          >43</xref>&#8211;<xref
+            ref-type="bibr"
+            rid="CR45"
+          >45</xref></sup>, and it may be worth investigating whether or not such hybridisation occurs in the region. Further research will be necessary to understand the impact of the introduced domestic cat on indigenous small wild felids in Southeast Asia.</p>
+        </sec>
+      </sec>
+      <sec id="Sec11">
+        <title>Materials and methods</title>
+        <sec id="Sec12">
+          <title>Data collection</title>
+          <p
+            id="Par18"
+          >We examined a total of 438 skulls from the eight wild small felid species found in Southeast Asia: Asian golden cat (<italic
+            toggle="yes"
+          >Catopuma temminckii</italic>), bay cat (<italic
+            toggle="yes"
+          >C. badia</italic>), marbled cat (<italic
+            toggle="yes"
+          >Pardofelis marmorata</italic>), flat-headed cat (<italic
+            toggle="yes"
+          >Prionailurus planiceps</italic>), mainland leopard cat (<italic
+            toggle="yes"
+          >P. bengalensis</italic>), Sunda leopard cat (<italic
+            toggle="yes"
+          >P. javanensis</italic>), fishing cat (<italic
+            toggle="yes"
+          >P. viverrinus</italic>), and jungle cat (<italic
+            toggle="yes"
+          >Felis chaus</italic>). Additionally, we analysed 27 skulls of the domestic cat (<italic
+            toggle="yes"
+          >F. catus</italic>) obtained from natural history collections in Europe, North America, and Asia (see the Acknowledgements for the details). Specimen provenance was determined based on collection labels and associated records. We collected up to 56 morphometric measurements per skull, following a modified protocol based on ref.<sup
+          >
+            <xref ref-type="bibr" rid="CR46">46</xref>
+          </sup> (Table S7, Fig. S4). All measurements were taken by the same measurer (NY) to minimise measurer-related differences. A skull was classified as juvenile if the cemento-enamel junction of any permanent canine was not clearly visible above its alveolus. If all the cemento-enamel junctions were visible above the alveoli, a skull was classified as sub-adult if the basioccipital-basisphenoid suture was still open, or adult if the suture was closed. Sex was determined using museum labels when available, and, in some obvious cases with missing information, was inferred using sexual size dimorphism, especially in canine size (ref.<sup
+          >
+            <xref ref-type="bibr" rid="CR47">47</xref>
+          </sup>, but also see ref. 32). Additionally, we assessed whether specimens were wild or captive based on museum records.</p>
+        </sec>
+        <sec id="Sec13">
+          <title>Data analysis</title>
+          <p
+            id="Par19"
+          >Previous studies have highlighted possible character displacement and range overlap amongst morphospecies in felids by focusing on size differences of skull, canine, and carnassial<sup
+          ><xref ref-type="bibr" rid="CR24">24</xref>,<xref
+            ref-type="bibr"
+            rid="CR29"
+          >29</xref>,<xref
+            ref-type="bibr"
+            rid="CR30"
+          >30</xref></sup>. Analysis of variance (ANOVA) was used to detect significant difference in greatest length of skull, antero-posterior breadth of upper canine, and length of upper carnassial (Pm<sup
+          >4</sup>), between species and sexes. Principal Component Analysis (PCA) and Discriminant Analysis (DA) were carried out to assess skull morphology overlap and differentiation amongst species and sexes. Wild and captive animals are known to differ in their skull morphology in lion and tiger<sup
+          >
+            <xref ref-type="bibr" rid="CR48">48</xref>
+            &#8211;
+            <xref ref-type="bibr" rid="CR50">50</xref>
+          </sup>. It may be safe to assume the similar difference in small felids, which may have influenced our results. However, because we did not detect any substantial difference in the scatter plots, based on Principal Components (PCs) 1 and 2 between all animals pooled and wild animals only (Figs. S5 &amp; S6), we pooled both wild and captive animals together to increase the sample size. Similarly, the dates of the specimens we analysed ranged between 1819 and 2012 during which substantial (anthropogenic) environmental changes have occurred in the region, and the skull morphology of wild cats may have changed. The scatter plots between pre-1950 and post-1950, based on Principal Component (PC) 1 and 2, may tentatively suggest that skull morphology may have shifted between the two periods in fishing cat, Sunda leopard cat, marbled cat, and domestic cat (Figs. S7-S14). However, because there were extensive overlaps in skull morphology between the two periods in general, even in these four species, we pooled all animals together for the analysis regardless of their dates, for increasing the sample size. We included adult and sub-adult skulls. To increase sample sizes for certain species, we incorporated specimens collected outside Southeast Asia, particularly for the mainland leopard cat, jungle cat, and domestic cat, as their ranges extend beyond the region. Some skulls were damaged, limiting the number of variables measured. Consequently, we analysed a dataset that maximised the sample size whilst minimising the number of excluded variables, resulting in datasets containing 36 variables for 373 skulls including 185 males and 148 females (Tables S8 &amp; S9). Based on mitochondrial, X chromosome, and Y chromosome DNAs, it is possible that phylogenetic Sunda leopard cats occur in the Malay Peninsula alongside phylogenetic mainland leopard cats<sup
+          ><xref ref-type="bibr" rid="CR3">3</xref>,<xref
+            ref-type="bibr"
+            rid="CR4"
+          >4</xref></sup>. However, due to (1) lack of detailed phylogenetic information of each specimen and (2) mainland and Sunda leopard cats likely fill the same ecological niche, we classified all the leopard cat specimens from the Malay Peninsular as the mainland leopard cat. Discriminant Analysis is more statistically appropriate when applied to a reduced set of principal components (PCs) extracted through PCA rather than using the full set of original variables<sup
+          >
+            <xref ref-type="bibr" rid="CR51">51</xref>
+          </sup>, a methodology we followed. However, for each dataset analysed the Box&#8217;s <italic
+            toggle="yes"
+          >M</italic>, which tests if the variance/covariance matrices are equal across two or more groups (one of the assumptions for linear DA), was highly statistically significant suggesting that the assumption is violated<sup
+          >
+            <xref ref-type="bibr" rid="CR52">52</xref>
+          </sup>. Consequently, we applied Quadratic DA instead<sup>
+            <xref ref-type="bibr" rid="CR53">53</xref>
+          </sup>. All statistical analyses were conducted using SPSS 29 (IBM, Armonk) and/or R (<ext-link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            ext-link-type="uri"
+            xlink:href="https://www.r-project.org"
+          >https://www.r-project.org</ext-link>). The scripts for R that we used for PCA and QDA are found in the Supplementary Information.</p>
+        </sec>
+      </sec>
+      <sec id="Sec14" sec-type="supplementary-material">
+        <title>Supplementary Information</title>
+        <p>Below is the link to the electronic supplementary material.</p>
+        <p>
+          <supplementary-material
+            content-type="local-data"
+            id="MOESM1"
+            position="float"
+            orientation="portrait"
+          >
+            <media
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              xlink:href="41598_2025_15365_MOESM1_ESM.zip"
+              position="float"
+              orientation="portrait"
+            >
+              <caption>
+                <p>Supplementary Material 1</p>
+              </caption>
+            </media>
+          </supplementary-material>
+        </p>
+      </sec>
+    </body>
+    <back>
+      <fn-group>
+        <fn>
+          <p>
+            <bold>Publisher&#8217;s note</bold>
+          </p>
+          <p
+          >Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.</p>
+        </fn>
+      </fn-group>
+      <ack>
+        <title>Acknowledgements</title>
+        <p
+        >We thank museums and their staff who kindly allowed and helped NY accessing their collections (see the Supplementary Information for the full list).</p>
+      </ack>
+      <notes notes-type="author-contribution">
+        <title>Author contributions</title>
+        <p
+        >Conceived and general planning: ACK, ABA, DWM, NY, Data collection: NY, Data analysis: ANA, NY, Writing of the manuscript: ANA, CRG, MAHC, NY, Creation of figures: ANA, NY. Discussion on Southeast Asian small felids: CRG, IM, MAHC, NY. All authors reviewed the manuscript submitted.</p>
+      </notes>
+      <notes notes-type="data-availability">
+        <title>Data availability</title>
+        <p
+        >Data is provided on request. Contact Nobuyuki Yamaguchi (human37564nobby@gmail.com) for more information.</p>
+      </notes>
+      <notes>
+        <title>Declarations</title>
+        <notes id="FPar1" notes-type="COI-statement">
+          <title>Competing interests</title>
+          <p id="Par20">The authors declare no competing interests.</p>
+        </notes>
+      </notes>
+      <ref-list id="Bib1">
+        <title>References</title>
+        <ref id="CR1">
+          <label>1.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR1" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Wilting</surname>
+                  <given-names>A</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Duckworth</surname>
+                  <given-names>JW</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Breitenmoser-W&#252;rsten</surname>
+                  <given-names>C</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Belant</surname>
+                  <given-names>JL</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Mathai</surname>
+                  <given-names>J</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Distribution of and conservation priorities for Bornean small carnivores and cats</article-title>
+              <source>Raffles Bull. Zool. Suppl.</source>
+              <year>2016</year>
+              <volume>33</volume>
+              <fpage>1</fpage>
+              <lpage>217</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR1"
+              publication-type="journal"
+            >Wilting, A., Duckworth, J. W., Breitenmoser-W&#252;rsten, C., Belant, J. L. &amp; Mathai, J. Distribution of and conservation priorities for Bornean small carnivores and cats. <italic
+              toggle="yes"
+            >Raffles Bull. Zool. Suppl.</italic><bold
+            >33</bold>, 1&#8211;217 (2016).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR2">
+          <label>2.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR2" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Kitchener</surname>
+                  <given-names>AC</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >A revised taxonomy of the felidae: the final report of the cat classification task force of the IUCN cat specialist group</article-title>
+              <source>Cat News Special Issue</source>
+              <year>2017</year>
+              <volume>11</volume>
+              <fpage>1</fpage>
+              <lpage>80</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR2"
+              publication-type="journal"
+            >Kitchener, A. C. et al. A revised taxonomy of the felidae: the final report of the cat classification task force of the IUCN cat specialist group. <italic
+              toggle="yes"
+            >Cat News Special Issue</italic>. <bold
+            >11</bold>, 1&#8211;80 (2017).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR3">
+          <label>3.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR3" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Luo</surname>
+                  <given-names>SJ</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Sympatric Asian felid phylogeography reveals a major Indochinese&#8211;Sundaic divergence</article-title>
+              <source>Mol. Ecol.</source>
+              <year>2014</year>
+              <volume>23</volume>
+              <fpage>2072</fpage>
+              <lpage>2092</lpage>
+              <pub-id pub-id-type="pmid">24629132</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1111/mec.12716</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR3"
+              publication-type="journal"
+            >Luo, S. J. et al. Sympatric Asian felid phylogeography reveals a major Indochinese&#8211;Sundaic divergence. <italic
+              toggle="yes"
+            >Mol. Ecol.</italic><bold>23</bold>, 2072&#8211;2092 (2014).<pub-id
+              pub-id-type="pmid"
+            >24629132</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1111/mec.12716</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR4">
+          <label>4.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR4" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Patel</surname>
+                  <given-names>RP</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Genetic structure and phylogeography of the leopard cat (<italic
+                toggle="yes"
+              >Prionailurus bengalensis</italic>) inferred from mitochondrial genomes</article-title>
+              <source>J. Hered</source>
+              <year>2017</year>
+              <volume>108</volume>
+              <fpage>349</fpage>
+              <lpage>360</lpage>
+              <pub-id pub-id-type="pmid">28498987</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1093/jhered/esx017</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR4"
+              publication-type="journal"
+            >Patel, R. P. et al. Genetic structure and phylogeography of the leopard cat (<italic
+              toggle="yes"
+            >Prionailurus bengalensis</italic>) inferred from mitochondrial genomes. <italic
+              toggle="yes"
+            >J. Hered</italic>. <bold>108</bold>, 349&#8211;360 (2017).<pub-id
+              pub-id-type="pmid"
+            >28498987</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1093/jhered/esx017</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR5">
+          <label>5.</label>
+          <mixed-citation
+            publication-type="other"
+          >Bogdan, V., J&#367;nek, T. &amp; Vymyslick&#225;, P. J. Temporal overlaps of feral cats with prey and competitors in primary and human-altered habitats on Bohol Island. <italic
+            toggle="yes"
+          >Philippines PeerJ</italic><bold>4</bold>, e2288 (2016).<pub-id
+            pub-id-type="doi"
+            assigning-authority="pmc"
+          >10.7717/peerj.2288</pub-id><pub-id
+            pub-id-type="pmcid"
+          >PMC4994077</pub-id><pub-id
+            pub-id-type="pmid"
+          >27602271</pub-id></mixed-citation>
+        </ref>
+        <ref id="CR6">
+          <label>6.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR6" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Koch</surname>
+                  <given-names>K</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Algar</surname>
+                  <given-names>D</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Schwenk</surname>
+                  <given-names>K</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Feral cat globetrotters: genetic traces of historical human-mediated dispersal</article-title>
+              <source>Ecol. Evol.</source>
+              <year>2016</year>
+              <volume>6</volume>
+              <fpage>5321</fpage>
+              <lpage>5332</lpage>
+              <pub-id pub-id-type="pmid">27551385</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1002/ece3.2261</pub-id>
+              <pub-id pub-id-type="pmcid">PMC4984506</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR6"
+              publication-type="journal"
+            >Koch, K., Algar, D. &amp; Schwenk, K. Feral cat globetrotters: genetic traces of historical human-mediated dispersal. <italic
+              toggle="yes"
+            >Ecol. Evol.</italic><bold>6</bold>, 5321&#8211;5332 (2016).<pub-id
+              pub-id-type="pmid"
+            >27551385</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1002/ece3.2261</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC4984506</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR7">
+          <label>7.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR7" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Hong</surname>
+                  <given-names>A</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Mohd-Azlan</surname>
+                  <given-names>J</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >The urban avifauna of kuching, borneo, and the possible impact of cats on its structure</article-title>
+              <source>Kukila</source>
+              <year>2018</year>
+              <volume>21</volume>
+              <fpage>1</fpage>
+              <lpage>12</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR7"
+              publication-type="journal"
+            >Hong, A. &amp; Mohd-Azlan, J. The urban avifauna of kuching, borneo, and the possible impact of cats on its structure. <italic
+              toggle="yes"
+            >Kukila</italic><bold>21</bold>, 1&#8211;12 (2018).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR8">
+          <label>8.</label>
+          <mixed-citation
+            publication-type="other"
+          >Nowell, K. &amp; Jackson, P. <italic
+            toggle="yes"
+          >Wild Cats: Status Survey and Conservation Action Plan</italic> (IUCN/SSC Cat Specialist Group, 1996).</mixed-citation>
+        </ref>
+        <ref id="CR9">
+          <label>9.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR9" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Maiwald</surname>
+                  <given-names>MJ</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Mohd-Azlan</surname>
+                  <given-names>J</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Brodie</surname>
+                  <given-names>JF</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Resilience of terrestrial mammals to logging in an active concession in Sarawak</article-title>
+              <source>Borneo Mammalia</source>
+              <year>2021</year>
+              <volume>85</volume>
+              <fpage>115</fpage>
+              <lpage>122</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR9"
+              publication-type="journal"
+            >Maiwald, M. J., Mohd-Azlan, J. &amp; Brodie, J. F. Resilience of terrestrial mammals to logging in an active concession in Sarawak. <italic
+              toggle="yes"
+            >Borneo Mammalia</italic>. <bold
+            >85</bold>, 115&#8211;122 (2021).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR10">
+          <label>10.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR10" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Mohd-Azlan</surname>
+                  <given-names>J</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Ecology, occurrence and distribution of wild felids in sarawak, Malaysian Borneo</article-title>
+              <source>Oryx</source>
+              <year>2023</year>
+              <volume>57</volume>
+              <fpage>252</fpage>
+              <lpage>261</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR10"
+              publication-type="journal"
+            >Mohd-Azlan, J. et al. Ecology, occurrence and distribution of wild felids in sarawak, Malaysian Borneo. <italic
+              toggle="yes"
+            >Oryx</italic><bold
+            >57</bold>, 252&#8211;261 (2023).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR11">
+          <label>11.</label>
+          <mixed-citation
+            publication-type="other"
+          >Wilting, A. et al. Prionailurus planiceps. <italic
+            toggle="yes"
+          >IUCN Red List. Threatened Species</italic>. e.T18148A50662095 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2015).</mixed-citation>
+        </ref>
+        <ref id="CR12">
+          <label>12.</label>
+          <mixed-citation
+            publication-type="other"
+          >Hearn, A. et al. Catopuma badia (errata version published in 2017). <italic
+            toggle="yes"
+          >The IUCN Red List of Threatened Species</italic> e.T4037A112910221 <pub-id
+            pub-id-type="doi"
+          >10.2305/IUCN.UK.2016-1.RLTS.T4037A50650716.en</pub-id> (Accessed 4 Apr 2025) (2016).</mixed-citation>
+        </ref>
+        <ref id="CR13">
+          <label>13.</label>
+          <mixed-citation
+            publication-type="other"
+          >Mukherjee, S. et al. Prionailurus viverrinus. <italic
+            toggle="yes"
+          >IUCN Red List. Threatened Species</italic>. e.T18150A268618387 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2025).</mixed-citation>
+        </ref>
+        <ref id="CR14">
+          <label>14.</label>
+          <mixed-citation
+            publication-type="other"
+          >Petersen, W. J. et al. <italic
+            toggle="yes"
+          >Catopuma temminckii</italic>. <italic
+            toggle="yes"
+          >The IUCN Red List of Threatened Species</italic> e.T4038A245236583 (Accessed 4 Apr 2025) (2025).</mixed-citation>
+        </ref>
+        <ref id="CR15">
+          <label>15.</label>
+          <mixed-citation
+            publication-type="other"
+          >Chiaverini, L. et al. Identifying gaps in the conservation of small wild cats of Southeast Asia. <italic
+            toggle="yes"
+          >Biodivers. Conserv.</italic><bold
+          >2025</bold>, 1&#8211;25 (2025).</mixed-citation>
+        </ref>
+        <ref id="CR16">
+          <label>16.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR16" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Lynam</surname>
+                  <given-names>AJ</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Terrestrial activity patterns of wild cats from camera-trapping</article-title>
+              <source>Raffles Bull. Zool.</source>
+              <year>2013</year>
+              <volume>61</volume>
+              <fpage>407</fpage>
+              <lpage>415</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR16"
+              publication-type="journal"
+            >Lynam, A. J. et al. Terrestrial activity patterns of wild cats from camera-trapping. <italic
+              toggle="yes"
+            >Raffles Bull. Zool.</italic><bold
+            >61</bold>, 407&#8211;415 (2013).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR17">
+          <label>17.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR17" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Sunarto</surname>
+                  <given-names>S</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Kelly</surname>
+                  <given-names>MJ</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Parakkasi</surname>
+                  <given-names>K</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Hutajulu</surname>
+                  <given-names>MB</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Cat coexistence in central sumatra: ecological characteristics, spatial and temporal overlap, and implications for management</article-title>
+              <source>J. Zool.</source>
+              <year>2015</year>
+              <volume>296</volume>
+              <fpage>104</fpage>
+              <lpage>115</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR17"
+              publication-type="journal"
+            >Sunarto, S., Kelly, M. J., Parakkasi, K. &amp; Hutajulu, M. B. Cat coexistence in central sumatra: ecological characteristics, spatial and temporal overlap, and implications for management. <italic
+              toggle="yes"
+            >J. Zool.</italic><bold
+            >296</bold>, 104&#8211;115 (2015).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR18">
+          <label>18.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR18" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Hearn</surname>
+                  <given-names>AJ</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Spatio-temporal ecology of sympatric felids on borneo. Evidence for resource partitioning?</article-title>
+              <source>PLoS One</source>
+              <year>2018</year>
+              <volume>13</volume>
+              <fpage>e0200828</fpage>
+              <pub-id pub-id-type="pmid">30028844</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1371/journal.pone.0200828</pub-id>
+              <pub-id pub-id-type="pmcid">PMC6054408</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR18"
+              publication-type="journal"
+            >Hearn, A. J. et al. Spatio-temporal ecology of sympatric felids on borneo. Evidence for resource partitioning? <italic
+              toggle="yes"
+            >PLoS One</italic>. <bold>13</bold>, e0200828 (2018).<pub-id
+              pub-id-type="pmid"
+            >30028844</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1371/journal.pone.0200828</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC6054408</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR19">
+          <label>19.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR19" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Kyaw</surname>
+                  <given-names>PP</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Investigating carnivore guild structure: Spatial and temporal relationships amongst threatened felids in Myanmar</article-title>
+              <source>ISPRS Int. J. Geo-Inf</source>
+              <year>2021</year>
+              <volume>10</volume>
+              <fpage>808</fpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR19"
+              publication-type="journal"
+            >Kyaw, P. P. et al. Investigating carnivore guild structure: Spatial and temporal relationships amongst threatened felids in Myanmar. <italic
+              toggle="yes"
+            >ISPRS Int. J. Geo-Inf</italic>. <bold
+            >10</bold>, 808 (2021).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR20">
+          <label>20.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR20" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Kamler</surname>
+                  <given-names>JF</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Diet, prey selection, and activity of Asian golden cats and leopard cats in Northern Laos</article-title>
+              <source>J. Mammal</source>
+              <year>2020</year>
+              <volume>101</volume>
+              <fpage>1267</fpage>
+              <lpage>1278</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR20"
+              publication-type="journal"
+            >Kamler, J. F. et al. Diet, prey selection, and activity of Asian golden cats and leopard cats in Northern Laos. <italic
+              toggle="yes"
+            >J. Mammal</italic>. <bold
+            >101</bold>, 1267&#8211;1278 (2020).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR21">
+          <label>21.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR21" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Rostro-Garc&#237;a</surname>
+                  <given-names>S</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Small cats in big trouble? Diet, activity, and habitat use of jungle cats and leopard cats in threatened dry deciduous forests, Cambodia</article-title>
+              <source>Ecol. Evol.</source>
+              <year>2021</year>
+              <volume>11</volume>
+              <fpage>4205</fpage>
+              <lpage>4217</lpage>
+              <pub-id pub-id-type="pmid">33976804</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1002/ece3.7316</pub-id>
+              <pub-id pub-id-type="pmcid">PMC8093725</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR21"
+              publication-type="journal"
+            >Rostro-Garc&#237;a, S. et al. Small cats in big trouble? Diet, activity, and habitat use of jungle cats and leopard cats in threatened dry deciduous forests, Cambodia. <italic
+              toggle="yes"
+            >Ecol. Evol.</italic><bold>11</bold>, 4205&#8211;4217 (2021).<pub-id
+              pub-id-type="pmid"
+            >33976804</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1002/ece3.7316</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC8093725</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR22">
+          <label>22.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR22" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Wongson</surname>
+                  <given-names>T</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Dietary habits of fishing cats in a human-dominated wetland in coastal Thailand</article-title>
+              <source>Biodiversitas</source>
+              <year>2024</year>
+              <volume>25</volume>
+              <fpage>2788</fpage>
+              <lpage>2797</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR22"
+              publication-type="journal"
+            >Wongson, T. et al. Dietary habits of fishing cats in a human-dominated wetland in coastal Thailand. <italic
+              toggle="yes"
+            >Biodiversitas</italic><bold
+            >25</bold>, 2788&#8211;2797. 10.13057/biodiv/d250650 (2024).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR23">
+          <label>23.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR23" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Brown</surname>
+                  <given-names>WL</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Wilson</surname>
+                  <given-names>EO</given-names>
+                </name>
+              </person-group>
+              <article-title>Character displacement</article-title>
+              <source>Syst. Zool.</source>
+              <year>1956</year>
+              <volume>5</volume>
+              <fpage>49</fpage>
+              <lpage>64</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR23"
+              publication-type="journal"
+            >Brown, W. L. &amp; Wilson, E. O. Character displacement. <italic
+              toggle="yes"
+            >Syst. Zool.</italic><bold
+            >5</bold>, 49&#8211;64 (1956).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR24">
+          <label>24.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR24" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Dayan</surname>
+                  <given-names>T</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Simberloff</surname>
+                  <given-names>D</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Tchernov</surname>
+                  <given-names>E</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Yom-Tov</surname>
+                  <given-names>Y</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Feline canines: community-wide character displacement among the small cats of Israel</article-title>
+              <source>Am. Nat.</source>
+              <year>1990</year>
+              <volume>136</volume>
+              <fpage>39</fpage>
+              <lpage>60</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR24"
+              publication-type="journal"
+            >Dayan, T., Simberloff, D., Tchernov, E. &amp; Yom-Tov, Y. Feline canines: community-wide character displacement among the small cats of Israel. <italic
+              toggle="yes"
+            >Am. Nat.</italic><bold
+            >136</bold>, 39&#8211;60 (1990).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR25">
+          <label>25.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR25" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Michaud</surname>
+                  <given-names>M</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Veron</surname>
+                  <given-names>G</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Peign&#232;</surname>
+                  <given-names>S</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Blin</surname>
+                  <given-names>A</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Fabre</surname>
+                  <given-names>AC</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Are phenotypic disparity and rate of morphological evolution correlated with ecological diversity in carnivora??</article-title>
+              <source>Biol. J. Linn. Soc.</source>
+              <year>2018</year>
+              <volume>124</volume>
+              <fpage>294</fpage>
+              <lpage>307</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR25"
+              publication-type="journal"
+            >Michaud, M., Veron, G., Peign&#232;, S., Blin, A. &amp; Fabre, A. C. Are phenotypic disparity and rate of morphological evolution correlated with ecological diversity in carnivora?? <italic
+              toggle="yes"
+            >Biol. J. Linn. Soc.</italic><bold
+            >124</bold>, 294&#8211;307 (2018).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR26">
+          <label>26.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR26" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Meachen-Samuels</surname>
+                  <given-names>J</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Van Valkenburgh</surname>
+                  <given-names>B</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Forelimb indicators of prey&#8208;size preference in the felidae</article-title>
+              <source>J. Morphol.</source>
+              <year>2009</year>
+              <volume>270</volume>
+              <fpage>729</fpage>
+              <lpage>744</lpage>
+              <pub-id pub-id-type="pmid">19123240</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1002/jmor.10712</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR26"
+              publication-type="journal"
+            >Meachen-Samuels, J. &amp; Van Valkenburgh, B. Forelimb indicators of prey&#8208;size preference in the felidae. <italic
+              toggle="yes"
+            >J. Morphol.</italic><bold>270</bold>, 729&#8211;744 (2009).<pub-id
+              pub-id-type="pmid"
+            >19123240</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1002/jmor.10712</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR27">
+          <label>27.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR27" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Sicuro</surname>
+                  <given-names>FL</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Oliveira</surname>
+                  <given-names>LFB</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Skull morphology and functionality of extant felidae (Mammalia: Carnivora): A phylogenetic and evolutionary perspective</article-title>
+              <source>Zool. J. Linn. Soc.</source>
+              <year>2011</year>
+              <volume>161</volume>
+              <fpage>414</fpage>
+              <lpage>462</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR27"
+              publication-type="journal"
+            >Sicuro, F. L. &amp; Oliveira, L. F. B. Skull morphology and functionality of extant felidae (Mammalia: Carnivora): A phylogenetic and evolutionary perspective. <italic
+              toggle="yes"
+            >Zool. J. Linn. Soc.</italic><bold
+            >161</bold>, 414&#8211;462. 10.1111/j.1096-3642.2010.00636.x (2011).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR28">
+          <label>28.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR28" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Abramov</surname>
+                  <given-names>AV</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Puzachenko</surname>
+                  <given-names>AY</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Tumanov</surname>
+                  <given-names>IL</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Morphological differentiation of the skull in two closely-related Mustelid species (Carnivora: Mustelidae)</article-title>
+              <source>Zool. Stud.</source>
+              <year>2016</year>
+              <volume>55</volume>
+              <fpage>e1</fpage>
+              <pub-id pub-id-type="pmid">31966146</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.6620/ZS.2016.55-01</pub-id>
+              <pub-id pub-id-type="pmcid">PMC6511815</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR28"
+              publication-type="journal"
+            >Abramov, A. V., Puzachenko, A. Y. &amp; Tumanov, I. L. Morphological differentiation of the skull in two closely-related Mustelid species (Carnivora: Mustelidae). <italic
+              toggle="yes"
+            >Zool. Stud.</italic><bold>55</bold>, e1 (2016).<pub-id
+              pub-id-type="pmid"
+            >31966146</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.6620/ZS.2016.55-01</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC6511815</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR29">
+          <label>29.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR29" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Davies</surname>
+                  <given-names>TJ</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Meiri</surname>
+                  <given-names>S</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Barraclough</surname>
+                  <given-names>TG</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Gittleman</surname>
+                  <given-names>JL</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Species co-existence and character divergence across carnivores</article-title>
+              <source>Ecol. Lett.</source>
+              <year>2007</year>
+              <volume>10</volume>
+              <fpage>146</fpage>
+              <lpage>152</lpage>
+              <pub-id pub-id-type="pmid">17257102</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1111/j.1461-0248.2006.01005.x</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR29"
+              publication-type="journal"
+            >Davies, T. J., Meiri, S., Barraclough, T. G. &amp; Gittleman, J. L. Species co-existence and character divergence across carnivores. <italic
+              toggle="yes"
+            >Ecol. Lett.</italic><bold>10</bold>, 146&#8211;152 (2007).<pub-id
+              pub-id-type="pmid"
+            >17257102</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1111/j.1461-0248.2006.01005.x</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR30">
+          <label>30.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR30" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Mukherjee</surname>
+                  <given-names>S</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Groves</surname>
+                  <given-names>C</given-names>
+                </name>
+              </person-group>
+              <article-title>Geographic variation in jungle cat (<italic
+                toggle="yes"
+              >Felis chaus</italic> Schreber, 1777) (Mammalia, Carnivora, Felidae) body size: is competition responsible?</article-title>
+              <source>Biol. J. Linn. Soc.</source>
+              <year>2007</year>
+              <volume>92</volume>
+              <fpage>163</fpage>
+              <lpage>172</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR30"
+              publication-type="journal"
+            >Mukherjee, S. &amp; Groves, C. Geographic variation in jungle Cat (<italic
+              toggle="yes"
+            >Felis chaus</italic> schreber, 1777) (Mammalia, carnivora, Felidae) body size: is competition responsible? <italic
+              toggle="yes"
+            >Biol. J. Linn. Soc.</italic><bold
+            >92</bold>, 163&#8211;172 (2007).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR31">
+          <label>31.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR31" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Groves</surname>
+                  <given-names>CP</given-names>
+                </name>
+              </person-group>
+              <article-title>Leopard-cats: <italic
+                toggle="yes"
+              >Prionailurus bengalensis</italic> (Carnivora: Felidae) from Indonesia and the Philippines, with the description of two new subspecies</article-title>
+              <source>Z. S&#228;ugetierkd</source>
+              <year>1997</year>
+              <volume>62</volume>
+              <fpage>330</fpage>
+              <lpage>338</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR31"
+              publication-type="journal"
+            >Groves, C. P. Leopard-cats: <italic
+              toggle="yes"
+            >Prionailurus bengalensis</italic> (Carnivora: Felidae) from Indonesia and the Philippines, with the description of two new subspecies. <italic
+              toggle="yes"
+            >Z. S&#228;ugetierkd</italic>. <bold
+            >62</bold>, 330&#8211;338 (1997).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR32">
+          <label>32.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR32" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Sicuro</surname>
+                  <given-names>FL</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Oliveira</surname>
+                  <given-names>LFB</given-names>
+                </name>
+              </person-group>
+              <article-title>Variations in leopard cat (<italic
+                toggle="yes"
+              >Prionailurus bengalensis</italic>) skull morphology and body size: sexual and geographic influences</article-title>
+              <source>PeerJ</source>
+              <year>2015</year>
+              <volume>3</volume>
+              <fpage>e1309</fpage>
+              <pub-id pub-id-type="pmid">26500818</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.7717/peerj.1309</pub-id>
+              <pub-id pub-id-type="pmcid">PMC4614805</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR32"
+              publication-type="journal"
+            >Sicuro, F. L. &amp; Oliveira, L. F. B. Variations in leopard cat (<italic
+              toggle="yes"
+            >Prionailurus bengalensis</italic>) skull morphology and body size: sexual and geographic influences. <italic
+              toggle="yes"
+            >PeerJ</italic><bold>3</bold>, e1309 (2015).<pub-id
+              pub-id-type="pmid"
+            >26500818</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.7717/peerj.1309</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC4614805</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR33">
+          <label>33.</label>
+          <mixed-citation
+            publication-type="other"
+          >Borries, C., Primeau, Z. M., Ossi-Lupo, K., Dtubpraserit, S. &amp; Koenig, A. Possible predation attempt by a marbled cat on a juvenile Phayre&#8217;s leaf monkey. <italic
+            toggle="yes"
+          >Raffles Bull. Zool</italic><bold>62</bold>, (2014).</mixed-citation>
+        </ref>
+        <ref id="CR34">
+          <label>34.</label>
+          <mixed-citation
+            publication-type="other"
+          >Ross, J. et al. Pardofelis marmorata. <italic
+            toggle="yes"
+          >IUCN Red List. Threatened Species</italic>. e.T16218A97164299 10.2305/IUCN.UK.2016-1.RLTS.T16218A97164299.en (Accessed 6 Apr 2025) (2016).</mixed-citation>
+        </ref>
+        <ref id="CR35">
+          <label>35.</label>
+          <mixed-citation
+            publication-type="other"
+          >Gray, T. N. E. et al. Felis chaus (amended version of 2016 assessment). <italic
+            toggle="yes"
+          >The IUCN Red List of Threatened Species</italic> 2021, e.T8540A200639312 <pub-id
+            pub-id-type="doi"
+          >10.2305/IUCN.UK.2021-2.RLTS.T8540A200639312.en</pub-id> (Accessed 4 Apr 2025).</mixed-citation>
+        </ref>
+        <ref id="CR36">
+          <label>36.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR36" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Patel</surname>
+                  <given-names>RP</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Two species of Southeast Asian cats in the genus <italic
+                toggle="yes"
+              >Catopuma</italic> with diverging histories: an Island endemic forest specialist and a widespread habitat generalist</article-title>
+              <source>R Soc. Open. Sci.</source>
+              <year>2016</year>
+              <volume>3</volume>
+              <fpage>160350</fpage>
+              <pub-id pub-id-type="pmid">27853549</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1098/rsos.160350</pub-id>
+              <pub-id pub-id-type="pmcid">PMC5098974</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR36"
+              publication-type="journal"
+            >Patel, R. P. et al. Two species of Southeast Asian cats in the genus <italic
+              toggle="yes"
+            >Catopuma</italic> with diverging histories: an Island endemic forest specialist and a widespread habitat generalist. <italic
+              toggle="yes"
+            >R Soc. Open. Sci.</italic><bold>3</bold>, 160350 (2016).<pub-id
+              pub-id-type="pmid"
+            >27853549</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1098/rsos.160350</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC5098974</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR37">
+          <label>37.</label>
+          <mixed-citation
+            publication-type="other"
+          >Nijhawan, S., Mitapo, I., Pulu, J., Carbone, C. &amp; Rowcliffe, J. M. Does polymorphism make the Asiatic golden cat the most adaptable predator in the Eastern Himalayas? <italic
+            toggle="yes"
+          >Ecology</italic><bold>100</bold>, e02768 (2019).<pub-id
+            pub-id-type="doi"
+            assigning-authority="pmc"
+          >10.1002/ecy.2768</pub-id><pub-id
+            pub-id-type="pmid"
+          >31172504</pub-id></mixed-citation>
+        </ref>
+        <ref id="CR38">
+          <label>38.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR38" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Crowley</surname>
+                  <given-names>SL</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Cecchetti</surname>
+                  <given-names>M</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>McDonald</surname>
+                  <given-names>RA</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Our wild companions: domestic cats in the anthropocene</article-title>
+              <source>Trends Ecol. Evol.</source>
+              <year>2020</year>
+              <volume>35</volume>
+              <fpage>477</fpage>
+              <lpage>483</lpage>
+              <pub-id pub-id-type="pmid">32396814</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1016/j.tree.2020.01.008</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR38"
+              publication-type="journal"
+            >Crowley, S. L., Cecchetti, M. &amp; McDonald, R. A. Our wild companions: domestic cats in the anthropocene. <italic
+              toggle="yes"
+            >Trends Ecol. Evol.</italic><bold
+            >35</bold>, 477&#8211;483 (2020).<pub-id
+              pub-id-type="pmid"
+            >32396814</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1016/j.tree.2020.01.008</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR39">
+          <label>39.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR39" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Loss</surname>
+                  <given-names>SR</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Review and synthesis of the global literature on domestic cat impacts on wildlife</article-title>
+              <source>J. Anim. Ecol.</source>
+              <year>2022</year>
+              <volume>91</volume>
+              <fpage>1361</fpage>
+              <lpage>1372</lpage>
+              <pub-id pub-id-type="pmid">35593055</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1111/1365-2656.13745</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR39"
+              publication-type="journal"
+            >Loss, S. R. et al. Review and synthesis of the global literature on domestic cat impacts on wildlife. <italic
+              toggle="yes"
+            >J. Anim. Ecol.</italic><bold
+            >91</bold>, 1361&#8211;1372 (2022).<pub-id
+              pub-id-type="pmid"
+            >35593055</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1111/1365-2656.13745</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR40">
+          <label>40.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR40" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Watanabe</surname>
+                  <given-names>S</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Nakanishi</surname>
+                  <given-names>N</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Izawa</surname>
+                  <given-names>M</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Habitat and prey resource overlap between the Iriomote cat <italic
+                toggle="yes"
+              >Prionailurus iriomotensis</italic> and introduced feral cat <italic
+                toggle="yes"
+              >Felis catus</italic> based on assessment of scat content and distribution</article-title>
+              <source>Mamm. Study</source>
+              <year>2003</year>
+              <volume>28</volume>
+              <fpage>47</fpage>
+              <lpage>56</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR40"
+              publication-type="journal"
+            >Watanabe, S., Nakanishi, N. &amp; Izawa, M. Habitat and prey resource overlap between the Iriomote cat <italic
+              toggle="yes"
+            >Prionailurus iriomotensis</italic> and introduced feral Cat <italic
+              toggle="yes"
+            >Felis catus</italic> based on assessment of scat content and distribution. <italic
+              toggle="yes"
+            >Mamm. Study</italic>. <bold
+            >28</bold>, 47&#8211;56 (2003).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR41">
+          <label>41.</label>
+          <mixed-citation publication-type="other">Chua, M. A. H. <italic
+            toggle="yes"
+          >Ecology and conservation of the leopard cat Prionailurus bengalensis (Kerr, 1792) (Mammalia: Carnivora: Felidae) in Singapore</italic>. MSc thesis, National University of Singapore (2013).</mixed-citation>
+        </ref>
+        <ref id="CR42">
+          <label>42.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR42" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Doherty</surname>
+                  <given-names>TS</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Bengsen</surname>
+                  <given-names>AJ</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Davis</surname>
+                  <given-names>RA</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >A critical review of habitat use by feral cats and key directions for future research and management</article-title>
+              <source>Wildl. Res.</source>
+              <year>2015</year>
+              <volume>41</volume>
+              <fpage>435</fpage>
+              <lpage>446</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR42"
+              publication-type="journal"
+            >Doherty, T. S., Bengsen, A. J. &amp; Davis, R. A. A critical review of habitat use by feral cats and key directions for future research and management. <italic
+              toggle="yes"
+            >Wildl. Res.</italic><bold
+            >41</bold>, 435&#8211;446 (2015).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR43">
+          <label>43.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR43" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Driscoll</surname>
+                  <given-names>CA</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >The near Eastern origin of cat domestication</article-title>
+              <source>Science</source>
+              <year>2007</year>
+              <volume>317</volume>
+              <fpage>519</fpage>
+              <lpage>523</lpage>
+              <pub-id pub-id-type="pmid">17600185</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1126/science.1139518</pub-id>
+              <pub-id pub-id-type="pmcid">PMC5612713</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR43"
+              publication-type="journal"
+            >Driscoll, C. A. et al. The near Eastern origin of cat domestication. <italic
+              toggle="yes"
+            >Science</italic><bold>317</bold>, 519&#8211;523 (2007).<pub-id
+              pub-id-type="pmid"
+            >17600185</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1126/science.1139518</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC5612713</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR44">
+          <label>44.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR44" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Dickman</surname>
+                  <given-names>CR</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Legge</surname>
+                  <given-names>SM</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Woinarski</surname>
+                  <given-names>JC</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Assessing risks to wildlife from free-roaming hybrid cats: the proposed introduction of pet Savannah cats to Australia as a case study</article-title>
+              <source>Animals</source>
+              <year>2019</year>
+              <volume>9</volume>
+              <fpage>795</fpage>
+              <pub-id pub-id-type="pmid">31615026</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.3390/ani9100795</pub-id>
+              <pub-id pub-id-type="pmcid">PMC6826879</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR44"
+              publication-type="journal"
+            >Dickman, C. R., Legge, S. M. &amp; Woinarski, J. C. Assessing risks to wildlife from free-roaming hybrid cats: the proposed introduction of pet Savannah cats to Australia as a case study. <italic
+              toggle="yes"
+            >Animals</italic><bold>9</bold>, 795 (2019).<pub-id
+              pub-id-type="pmid"
+            >31615026</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.3390/ani9100795</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC6826879</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR45">
+          <label>45.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR45" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Yu</surname>
+                  <given-names>H</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Genomic evidence for the Chinese mountain cat as a wildcat conspecific (<italic
+                toggle="yes"
+              >Felis silvestris bieti</italic>) and its introgression to domestic cats</article-title>
+              <source>Sci. Adv.</source>
+              <year>2021</year>
+              <volume>7</volume>
+              <fpage>eabg0221</fpage>
+              <pub-id pub-id-type="pmid">34162544</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1126/sciadv.abg0221</pub-id>
+              <pub-id pub-id-type="pmcid">PMC8221621</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR45"
+              publication-type="journal"
+            >Yu, H. et al. Genomic evidence for the Chinese mountain cat as a wildcat conspecific (<italic
+              toggle="yes"
+            >Felis silvestris bieti</italic>) and its introgression to domestic cats. <italic
+              toggle="yes"
+            >Sci. Adv.</italic><bold>7</bold>, eabg0221 (2021).<pub-id
+              pub-id-type="pmid"
+            >34162544</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1126/sciadv.abg0221</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC8221621</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR46">
+          <label>46.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR46" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Yamaguchi</surname>
+                  <given-names>N</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Driscoll</surname>
+                  <given-names>CA</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Kitchener</surname>
+                  <given-names>AC</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Ward</surname>
+                  <given-names>JM</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Macdonald</surname>
+                  <given-names>DW</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Craniological differentiation between European wildcats (<italic
+                toggle="yes"
+              >Felis S.lvestris S.lvestris</italic>), African wildcats (<italic
+                toggle="yes"
+              >F. S. lybica</italic>) and Asian wildcats (<italic
+                toggle="yes"
+              >F. S. ornata</italic>): implications for their evolution and conservation</article-title>
+              <source>Biol. J. Linn. Soc.</source>
+              <year>2004</year>
+              <volume>83</volume>
+              <fpage>47</fpage>
+              <lpage>63</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR46"
+              publication-type="journal"
+            >Yamaguchi, N., Driscoll, C. A., Kitchener, A. C., Ward, J. M. &amp; Macdonald, D. W. Craniological differentiation between European wildcats (<italic
+              toggle="yes"
+            >Felis S.lvestris S.lvestris</italic>), African wildcats (<italic
+              toggle="yes"
+            >F. S. lybica</italic>) and Asian wildcats (<italic
+              toggle="yes"
+            >F. S. ornata</italic>): implications for their evolution and conservation. <italic
+              toggle="yes"
+            >Biol. J. Linn. Soc.</italic><bold
+            >83</bold>, 47&#8211;63 (2004).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR47">
+          <label>47.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR47" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Gittleman</surname>
+                  <given-names>JL</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Van Valkenburgh</surname>
+                  <given-names>B</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Sexual dimorphism in the canines and skulls of carnivores: effects of size, phylogeny, and behavioural ecology</article-title>
+              <source>J. Zool.</source>
+              <year>1997</year>
+              <volume>242</volume>
+              <fpage>97</fpage>
+              <lpage>117</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR47"
+              publication-type="journal"
+            >Gittleman, J. L. &amp; Van Valkenburgh, B. Sexual dimorphism in the canines and skulls of carnivores: effects of size, phylogeny, and behavioural ecology. <italic
+              toggle="yes"
+            >J. Zool.</italic><bold
+            >242</bold>, 97&#8211;117 (1997).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR48">
+          <label>48.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR48" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Yamaguchi</surname>
+                  <given-names>N</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Kitchener</surname>
+                  <given-names>AC</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Gilissen</surname>
+                  <given-names>E</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Macdonald</surname>
+                  <given-names>DW</given-names>
+                </name>
+              </person-group>
+              <article-title>Brain size of the lion (<italic
+                toggle="yes"
+              >Panthera leo</italic>) and the tiger (<italic
+                toggle="yes"
+              >P. tigris</italic>): implications for intrageneric phylogeny, intraspecific differences and the effects of captivity</article-title>
+              <source>Biol. J. Linn. Soc.</source>
+              <year>2009</year>
+              <volume>98</volume>
+              <fpage>85</fpage>
+              <lpage>93</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR48"
+              publication-type="journal"
+            >Yamaguchi, N., Kitchener, A. C., Gilissen, E. &amp; Macdonald, D. W. Brain size of the lion (<italic
+              toggle="yes"
+            >Panthera leo</italic>) and the tiger (<italic
+              toggle="yes"
+            >P. tigris</italic>): implications for intrageneric phylogeny, intraspecific differences and the effects of captivity. <italic
+              toggle="yes"
+            >Biol. J. Linn. Soc.</italic><bold
+            >98</bold>, 85&#8211;93 (2009).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR49">
+          <label>49.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR49" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Saragusty</surname>
+                  <given-names>J</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Comparative skull analysis suggests species-specific captivity-related malformation in lions (<italic
+                toggle="yes"
+              >Panthera leo</italic>)</article-title>
+              <source>PLoS One</source>
+              <year>2014</year>
+              <volume>9</volume>
+              <fpage>e94527</fpage>
+              <pub-id pub-id-type="pmid">24718586</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1371/journal.pone.0094527</pub-id>
+              <pub-id pub-id-type="pmcid">PMC3981823</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR49"
+              publication-type="journal"
+            >Saragusty, J. et al. Comparative skull analysis suggests species-specific captivity-related malformation in lions (<italic
+              toggle="yes"
+            >Panthera leo</italic>). <italic
+              toggle="yes"
+            >PLoS One</italic>. <bold>9</bold>, e94527 (2014).<pub-id
+              pub-id-type="pmid"
+            >24718586</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1371/journal.pone.0094527</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC3981823</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR50">
+          <label>50.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR50" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Cooper</surname>
+                  <given-names>DM</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Getting to the meat of it: the effects of a captive diet upon the skull morphology of the lion and tiger</article-title>
+              <source>Animals</source>
+              <year>2023</year>
+              <volume>13</volume>
+              <fpage>3616</fpage>
+              <pub-id pub-id-type="pmid">38066967</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.3390/ani13233616</pub-id>
+              <pub-id pub-id-type="pmcid">PMC10705091</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR50"
+              publication-type="journal"
+            >Cooper, D. M. et al. Getting to the meat of it: the effects of a captive diet upon the skull morphology of the lion and tiger. <italic
+              toggle="yes"
+            >Animals</italic><bold>13</bold>, 3616 (2023).<pub-id
+              pub-id-type="pmid"
+            >38066967</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.3390/ani13233616</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC10705091</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR51">
+          <label>51.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR51" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Nanova</surname>
+                  <given-names>O</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >Skull morphology analysis suggests the extinct cape lion, <italic
+                toggle="yes"
+              >Panthera leo melanochaita</italic> (Smith, 1842), is not distinctive</article-title>
+              <source>Sci. Rep.</source>
+              <year>2024</year>
+              <volume>14</volume>
+              <fpage>24251</fpage>
+              <pub-id pub-id-type="pmid">39414828</pub-id>
+              <pub-id
+                pub-id-type="doi"
+                assigning-authority="pmc"
+              >10.1038/s41598-024-74225-7</pub-id>
+              <pub-id pub-id-type="pmcid">PMC11484747</pub-id>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR51"
+              publication-type="journal"
+            >Nanova, O. et al. Skull morphology analysis suggests the extinct cape lion, <italic
+              toggle="yes"
+            >Panthera leo melanochaita</italic> (Smith, 1842), is not distinctive. <italic
+              toggle="yes"
+            >Sci. Rep.</italic><bold>14</bold>, 24251 (2024).<pub-id
+              pub-id-type="pmid"
+            >39414828</pub-id><pub-id
+              pub-id-type="doi"
+              assigning-authority="pmc"
+            >10.1038/s41598-024-74225-7</pub-id><pub-id
+              pub-id-type="pmcid"
+            >PMC11484747</pub-id></mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR52">
+          <label>52.</label>
+          <mixed-citation
+            publication-type="other"
+          >Tabachnick, B. G. &amp; Fidell, L. S. <italic
+            toggle="yes"
+          >Using Multivariate Statistics</italic> 7th edn (Pearson, 2019).</mixed-citation>
+        </ref>
+        <ref id="CR53">
+          <label>53.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR53" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Wu</surname>
+                  <given-names>R</given-names>
+                </name>
+                <name name-style="western">
+                  <surname>Hao</surname>
+                  <given-names>N</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Quadratic discriminant analysis by projection</article-title>
+              <source>J. Multivar. Anal.</source>
+              <year>2022</year>
+              <volume>190</volume>
+              <fpage>104987</fpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR53"
+              publication-type="journal"
+            >Wu, R. &amp; Hao, N. Quadratic discriminant analysis by projection. <italic
+              toggle="yes"
+            >J. Multivar. Anal.</italic><bold
+            >190</bold>, 104987 (2022).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR54">
+          <label>54.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR54" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Konecny</surname>
+                  <given-names>MJ</given-names>
+                </name>
+              </person-group>
+              <article-title
+              >Home range and activity patterns of feral house cats in the Galapagos Islands</article-title>
+              <source>Oikos</source>
+              <year>1987</year>
+              <volume>50</volume>
+              <fpage>17</fpage>
+              <lpage>23</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR54"
+              publication-type="journal"
+            >Konecny, M. J. Home range and activity patterns of feral house cats in the Galapagos Islands. <italic
+              toggle="yes"
+            >Oikos</italic><bold>50</bold>, 17&#8211;23 (1987).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR55">
+          <label>55.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR55" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Doherty</surname>
+                  <given-names>TS</given-names>
+                </name>
+                <etal />
+              </person-group>
+              <article-title
+              >A continental-scale analysis of feral cat diet in Australia</article-title>
+              <source>J. Biogeogr.</source>
+              <year>2015</year>
+              <volume>42</volume>
+              <fpage>964</fpage>
+              <lpage>975</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR55"
+              publication-type="journal"
+            >Doherty, T. S. et al. A continental-scale analysis of feral cat diet in Australia. <italic
+              toggle="yes"
+            >J. Biogeogr.</italic><bold
+            >42</bold>, 964&#8211;975 (2015).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR56">
+          <label>56.</label>
+          <citation-alternatives>
+            <element-citation id="ec-CR56" publication-type="journal">
+              <person-group person-group-type="author">
+                <name name-style="western">
+                  <surname>Izawa</surname>
+                  <given-names>M</given-names>
+                </name>
+              </person-group>
+              <article-title>Daily activities of the feral cat <italic
+                toggle="yes"
+              >Felis catus</italic> Linn</article-title>
+              <source>J. Mammal Soc. Jpn</source>
+              <year>1983</year>
+              <volume>9</volume>
+              <fpage>219</fpage>
+              <lpage>228</lpage>
+            </element-citation>
+            <mixed-citation
+              id="mc-CR56"
+              publication-type="journal"
+            >Izawa, M. Daily activities of the feral cat <italic
+              toggle="yes"
+            >Felis catus</italic> Linn. <italic
+              toggle="yes"
+            >J. Mammal Soc. Jpn</italic>. <bold
+            >9</bold>, 219&#8211;228 (1983).</mixed-citation>
+          </citation-alternatives>
+        </ref>
+        <ref id="CR57">
+          <label>57.</label>
+          <mixed-citation
+            publication-type="other"
+          >Ghimirey, Y. et al. Prionailurus bengalensis (amended version of 2022 assessment). <italic
+            toggle="yes"
+          >IUCN Red List. Threatened Species</italic>. e.T223138747A226150742 10.2305/IUCN.UK.2023-1.RLTS.T223138747A226150742.en (2023). (accessed 4 Apr 2025).</mixed-citation>
+        </ref>
+      </ref-list>
+    </back>
+  </article>
+</pmc-articleset>

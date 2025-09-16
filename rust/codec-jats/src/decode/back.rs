@@ -55,31 +55,47 @@ fn decode_ack(path: &str, node: &Node, losses: &mut Losses) -> Block {
 }
 
 /// Decode an `<ref-list>` element
-fn decode_ref_list(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    let references = node
-        .children()
-        .filter_map(|child| {
-            if let ("ref", Some(id)) = (child.tag_name().name(), child.attribute("id")) {
-                Some((id, child))
-            } else {
-                None
-            }
-        })
-        .flat_map(|(id, child)| {
-            let child_path = &extend_path(path, "ref");
-            child
-                .children()
-                .find(|grandchild| grandchild.tag_name().name().contains("citation"))
-                .map(|grandchild| decode_citation(child_path, id, &grandchild, losses))
-        })
-        .collect_vec();
+fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, ref_list, [], losses);
 
-    record_attrs_lost(path, node, [], losses);
+    let mut references = Vec::new();
+    for ref_elem in ref_list.children() {
+        if ref_elem.tag_name().name() != "ref" {
+            continue;
+        }
+        let Some(id) = ref_elem.attribute("id") else {
+            continue;
+        };
+
+        let child_path = &extend_path(path, "ref");
+
+        // The <ref> may has <citation>, <element-citation> and/or
+        // <mixed-citation> elements within it, or those elements may be nested
+        // within a <citation-alternatives>. This attempts to get the an
+        // <element-citation> first, falling back to a <citation> and <mixed-citation>
+        if let Some(element_citation) = ref_elem
+            .descendants()
+            .find(|elem| elem.tag_name().name() == "element-citation")
+            .or_else(|| {
+                ref_elem
+                    .descendants()
+                    .find(|elem| elem.tag_name().name() == "citation")
+            })
+            .or_else(|| {
+                ref_elem
+                    .descendants()
+                    .find(|elem| elem.tag_name().name() == "mixed-citation")
+            })
+        {
+            let reference = decode_citation(child_path, id, &element_citation, losses);
+            references.push(reference);
+        }
+    }
 
     article.references = (!references.is_empty()).then_some(references);
 }
 
-/// Decode any node that contains `<citation>` or `<mixed-citation>` element
+/// Decode a `<citation>`, `<element-citation>` or `<mixed-citation>` element
 fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Reference {
     let work_type = node.attribute("publication-type").and_then(|pt| {
         Some(match pt {
