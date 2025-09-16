@@ -559,11 +559,13 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> (String, Pers
             if let Some(value) = child.text() {
                 emails.push(value.into());
             }
+        } else if tag == "aff" {
+            affiliations.push(decode_aff(&child))
         } else if tag == "xref"
             && matches!(child.attribute("ref-type"), Some("aff"))
             && let Some(id) = child.attribute("rid")
         {
-            // Search up the tree for the <aff>
+            // Search up the tree for the <aff> with the id, starting at this node
             let mut ancestor = Some(*node);
             while let Some(ancestor_node) = ancestor {
                 if let Some(aff) = ancestor_node

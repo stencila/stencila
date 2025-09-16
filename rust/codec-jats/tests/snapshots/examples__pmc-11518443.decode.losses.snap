@@ -1,0 +1,23 @@
+---
+source: rust/codec-jats/tests/examples.rs
+expression: info.losses
+---
+//article/front/article-meta/abstract/sec/@id: 4
+//article/front/article-meta/article-categories/subj-group/subj-group: 1
+//article/front/article-meta/article-version/@article-version-type: 1
+//article/front/article-meta/author-notes: 1
+//article/front/article-meta/contrib-group/@corresp: 1
+//article/front/article-meta/contrib-group/xref: 1
+//article/front/article-meta/counts: 1
+//article/front/article-meta/custom-meta-group: 1
+//article/front/article-meta/elocation-id: 1
+//article/front/article-meta/issue-id: 1
+//article/front/article-meta/issue-title: 1
+//article/front/article-meta/permissions: 1
+//article/front/article-meta/pub-date/@iso-8601-date: 1
+//article/front/article-meta/pub-date/@pub-type: 2
+//article/front/article-meta/pub-history: 1
+//article/front/article-meta/self-uri: 2
+//article/front/journal-meta/issn: 2
+//article/front/journal-meta/journal-id: 5
+//article/processing-meta: 1

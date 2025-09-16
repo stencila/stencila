@@ -21627,6 +21627,14 @@ expression: article
   "editors": [
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "CABIMER, Universidad de Sevilla",
+          "ror": "03nb7bx92",
+          "address": "Spain"
+        }
+      ],
       "familyNames": [
         "Aguilera"
       ],
@@ -21636,6 +21644,14 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Fred Hutchinson Cancer Research Center",
+          "ror": "007ps6h72",
+          "address": "United States"
+        }
+      ],
       "familyNames": [
         "Cooper"
       ],

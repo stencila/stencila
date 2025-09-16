@@ -5,6 +5,7 @@ all: biorxiv-465267.jats.xml \
 	 pmc-6849754.jats.xml \
 	 pmc-8438044.jats.xml \
 	 pmc-9786276.jats.xml \
+	 pmc-11518443.jats.xml \
 	 pmc-12431436.jats.xml \
 	 format
 

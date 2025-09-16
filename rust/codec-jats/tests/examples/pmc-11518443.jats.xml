@@ -1,0 +1,371 @@
+<?xml version="1.0" ?>
+<!DOCTYPE pmc-articleset PUBLIC "-//NLM//DTD ARTICLE SET 2.0//EN"
+  "https://dtd.nlm.nih.gov/ncbi/pmc/articleset/nlm-articleset-2.0.dtd">
+<pmc-articleset>
+  <article
+    xmlns:mml="http://www.w3.org/1998/Math/MathML"
+    xmlns:ali="http://www.niso.org/schemas/ali/1.0/"
+    xml:lang="en"
+    article-type="abstract"
+    dtd-version="1.4"
+  >
+    <processing-meta
+      base-tagset="archiving"
+      mathml-version="3.0"
+      table-model="xhtml"
+      tagset-family="jats"
+    >
+      <restricted-by>pmc</restricted-by>
+    </processing-meta>
+    <front>
+      <journal-meta>
+        <journal-id journal-id-type="nlm-ta">Eur J Public Health</journal-id>
+        <journal-id
+          journal-id-type="iso-abbrev"
+        >Eur J Public Health</journal-id>
+        <journal-id journal-id-type="pmc-domain-id">733</journal-id>
+        <journal-id journal-id-type="pmc-domain">eurpub</journal-id>
+        <journal-id journal-id-type="publisher-id">eurpub</journal-id>
+        <journal-title-group>
+          <journal-title>The European Journal of Public Health</journal-title>
+        </journal-title-group>
+        <issn pub-type="ppub">1101-1262</issn>
+        <issn pub-type="epub">1464-360X</issn>
+        <publisher>
+          <publisher-name>Oxford University Press</publisher-name>
+        </publisher>
+      </journal-meta>
+      <article-meta>
+        <article-id pub-id-type="pmcid">PMC11518443</article-id>
+        <article-id pub-id-type="pmcid-ver">PMC11518443.1</article-id>
+        <article-id pub-id-type="pmcaid">11518443</article-id>
+        <article-id pub-id-type="pmcaiid">11518443</article-id>
+        <article-id pub-id-type="doi">10.1093/eurpub/ckae144.662</article-id>
+        <article-id pub-id-type="publisher-id">ckae144.662</article-id>
+        <article-version article-version-type="pmc-version">1</article-version>
+        <article-categories>
+          <subj-group subj-group-type="heading">
+            <subject>Parallel Programme</subject>
+            <subj-group subj-group-type="category-toc-heading">
+              <subject
+              >10.N. Scientific session: Gender and parenthood: short and long-term income, career, and health inequities</subject>
+            </subj-group>
+          </subj-group>
+          <subj-group subj-group-type="category-taxonomy-collection">
+            <subject>AcademicSubjects/MED00860</subject>
+            <subject>AcademicSubjects/SOC01210</subject>
+            <subject>AcademicSubjects/SOC02610</subject>
+          </subj-group>
+        </article-categories>
+        <title-group>
+          <article-title
+          >Differences in the work-family experience of mothers and fathers of a southern European country</article-title>
+        </title-group>
+        <contrib-group>
+          <contrib contrib-type="author" corresp="yes">
+            <name name-style="western">
+              <surname>Amaro</surname>
+              <given-names initials="J">J</given-names>
+            </name>
+            <aff>
+<institution
+            >EPI Unit, Institute of Public Health of the Porto University</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution>ITR, University of Porto</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution
+            >Department of Medicine, Faculty of Medicine of the Porto University</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <xref rid="ckae144.662-cor1" ref-type="corresp" />
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Lucas</surname>
+              <given-names initials="R">R</given-names>
+            </name>
+            <aff>
+<institution
+            >EPI Unit, Institute of Public Health of the Porto University</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution>ITR, University of Porto</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution>ICBAS, University of Porto</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Perelman</surname>
+              <given-names initials="J">J</given-names>
+            </name>
+            <aff>
+<institution
+            >Comprehensive Health Research Center, NOVA University Lisbon</institution>, Lisbon, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution
+            >Nova National School of Public Health, NOVA University Lisbon</institution>, Lisbon, <country
+              country="PT"
+            >Portugal</country></aff>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Fraga</surname>
+              <given-names initials="S">S</given-names>
+            </name>
+            <aff>
+<institution
+            >EPI Unit, Institute of Public Health of the Porto University</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution>ITR, University of Porto</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Maia</surname>
+              <given-names initials="S">S</given-names>
+            </name>
+            <aff>
+<institution
+            >EPI Unit, Institute of Public Health of the Porto University</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution>ITR, University of Porto</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Pereira</surname>
+              <given-names initials="M">M</given-names>
+            </name>
+            <aff>
+<institution
+            >Centro Investiga&#231;&#227;o em Antropologia Sa&#250;de, Coimbra University</institution>, Coimbra, <country
+              country="PT"
+            >Portugal</country></aff>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Mamelund</surname>
+              <given-names initials="SE">S E</given-names>
+            </name>
+            <aff>
+<institution>PANSOC, Oslo Metropolitan University</institution>, Oslo, <country
+              country="NO"
+            >Norway</country></aff>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Matias</surname>
+              <given-names initials="M">M</given-names>
+            </name>
+            <aff>
+<institution
+            >Faculty of Psychology and Educational Science, University of Porto</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+          </contrib>
+          <contrib contrib-type="author">
+            <name name-style="western">
+              <surname>Le&#227;o</surname>
+              <given-names initials="T">T</given-names>
+            </name>
+            <aff>
+<institution
+            >EPI Unit, Institute of Public Health of the Porto University</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution>ITR, University of Porto</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+            <aff>
+<institution
+            >Public Health Forensic Sciences Department, Faculty of Medicine of the Porto University</institution>, Porto, <country
+              country="PT"
+            >Portugal</country></aff>
+          </contrib>
+        </contrib-group>
+        <author-notes>
+          <corresp id="ckae144.662-cor1">Contact: <email
+          >jmcamaro@gmail.com</email></corresp>
+        </author-notes>
+        <pub-date pub-type="collection">
+          <month>11</month>
+          <year>2024</year>
+        </pub-date>
+        <pub-date pub-type="epub" iso-8601-date="2024-10-28">
+          <day>28</day>
+          <month>10</month>
+          <year>2024</year>
+        </pub-date>
+        <volume>34</volume>
+        <issue>Suppl 3</issue>
+        <issue-id pub-id-type="pmc-issue-id">473787</issue-id>
+        <issue-title
+        >17th European Public Health Conference 2024 Sailing the Waves of European Public Health: Exploring a Sea of Innovation Lisbon, Portugal 12&#8211;15 November 2024</issue-title>
+        <elocation-id>ckae144.662</elocation-id>
+        <pub-history>
+          <event event-type="pmc-release">
+            <date>
+              <day>28</day>
+              <month>10</month>
+              <year>2024</year>
+            </date>
+          </event>
+          <event event-type="pmc-live">
+            <date>
+              <day>29</day>
+              <month>10</month>
+              <year>2024</year>
+            </date>
+          </event>
+          <event event-type="pmc-last-change">
+            <date iso-8601-date="2024-10-29 11:25:30.950">
+              <day>29</day>
+              <month>10</month>
+              <year>2024</year>
+            </date>
+          </event>
+        </pub-history>
+        <permissions>
+          <copyright-statement
+          >&#169; The Author(s) 2024. Published by Oxford University Press on behalf of the European Public Health Association.</copyright-statement>
+          <copyright-year>2024</copyright-year>
+          <license>
+            <ali:license_ref
+              specific-use="textmining"
+              content-type="ccbynclicense"
+            >https://creativecommons.org/licenses/by-nc/4.0/</ali:license_ref>
+            <license-p
+            >This is an Open Access article distributed under the terms of the Creative Commons Attribution-NonCommercial License (<ext-link
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              ext-link-type="uri"
+              xlink:href="https://creativecommons.org/licenses/by-nc/4.0/"
+            >https://creativecommons.org/licenses/by-nc/4.0/</ext-link>), which permits non-commercial re-use, distribution, and reproduction in any medium, provided the original work is properly cited. For commercial re-use, please contact journals.permissions@oup.com</license-p>
+          </license>
+        </permissions>
+        <self-uri
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          content-type="pmc-pdf"
+          xlink:href="ckae144.662.pdf"
+        />
+        <self-uri
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xlink:href="ckae144.662.pdf"
+        />
+        <abstract>
+          <title>Abstract</title>
+          <sec id="s1875">
+            <title>Background</title>
+            <p
+            >The intense childrearing years often coincide with the heightened work demands and responsibilities of the career-building years. We aimed to evaluate the association between family-life stage and men&#8217;s and women&#8217;s experience of work and private demands, and the conflict between these demands.</p>
+          </sec>
+          <sec id="s1876">
+            <title>Methods</title>
+            <p
+            >We evaluated 3532 mothers and 731 fathers as part of the Portuguese population-based birth cohort Generation XXI (2018-2020). Data on family-life stage (exposure), work demands, private demands, and work-to-family conflict (outcomes) were retrieved at the 13-year follow-up wave, as well as data on sociodemographic and household characteristics. Family-life stage was operationalized according to the age of the youngest child: stage 1 (&#8804;5 years), stage 2 (6-11 years), and stage 3 (&#8805;12 years). Ordinal logistic regression models were used to estimate associations.</p>
+          </sec>
+          <sec id="s1877">
+            <title>Results</title>
+            <p
+            >Men reported more frequently long working hours, while women spent more time on household and child-related tasks. After adjustment for parents&#8217; and household characteristics, mothers and fathers with younger children were more likely to report spending more time on child-related tasks (ORmothers&#8201;=&#8201;1.83; 95%CI 1.44, 2.33; ORfathers&#8201;=&#8201;2.36; 95%CI 1.41, 3.94), compared to those with older children. Fathers with younger children were also more likely to report spending more time on household tasks (OR&#8201;=&#8201;2.20; 95%CI 1.30, 3.73 for routine tasks and OR&#8201;=&#8201;1.75; 95%CI 1.03, 2.97 for sporadic tasks). Mothers exhibited a significant association between family-life stage and time-based work-to-family conflict when they had younger children (OR&#8201;=&#8201;1.24; 95% CI 1.05, 1.47 for family-life stage 2 and OR&#8201;=&#8201;1.28; 95% CI 1.00, 1.63 for family-life stage 1).</p>
+          </sec>
+          <sec id="s1878">
+            <title>Conclusions</title>
+            <p
+            >Both fathers and mothers with young children experienced increased private demands, but only mothers experienced work-to-family conflict. This reveals that family and working arrangements remain marked by a gendered pattern against women.</p>
+          </sec>
+        </abstract>
+        <counts>
+          <page-count count="1" />
+        </counts>
+        <custom-meta-group>
+          <custom-meta>
+            <meta-name>pmc-status-qastatus</meta-name>
+            <meta-value>0</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-live</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-embargo</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-status-released</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-open-access</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-olf</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-manuscript</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-legally-suppressed</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-has-pdf</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-has-supplement</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-pdf-only</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-suppress-copyright</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-is-real-version</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-is-scanned-article</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-preprint</meta-name>
+            <meta-value>no</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-prop-in-epmc</meta-name>
+            <meta-value>yes</meta-value>
+          </custom-meta>
+          <custom-meta>
+            <meta-name>pmc-license-ref</meta-name>
+            <meta-value>CC BY-NC</meta-value>
+          </custom-meta>
+        </custom-meta-group>
+      </article-meta>
+    </front>
+  </article>
+</pmc-articleset>
