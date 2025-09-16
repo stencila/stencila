@@ -347,7 +347,7 @@ fn decode_abstract(parser: &Parser, abstract_section: &HTMLTag) -> Result<Vec<Bl
                                 }
                                 "p" => {
                                     let paragraph = decode_paragraph(parser, section_tag)?;
-                                    content.push(Block::Paragraph(paragraph));
+                                    content.push(paragraph);
                                 }
                                 _ => {}
                             }
@@ -366,7 +366,7 @@ fn decode_abstract(parser: &Parser, abstract_section: &HTMLTag) -> Result<Vec<Bl
                 "p" => {
                     // Direct paragraph in abstract
                     let paragraph = decode_paragraph(parser, tag)?;
-                    blocks.push(Block::Paragraph(paragraph));
+                    blocks.push(paragraph);
                 }
                 "h2" => {
                     // Skip abstract heading
@@ -390,54 +390,55 @@ fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
         .iter()
         .flat_map(|handle| handle.get(parser))
     {
-        if let Some(tag) = child.as_tag() {
-            let tag_name = tag.name().as_utf8_str();
+        let Some(tag) = child.as_tag() else {
+            continue;
+        };
 
-            match tag_name.as_ref() {
-                "h2" | "h3" => {
-                    let heading_text = get_text(parser, tag);
-                    let level = if tag_name == "h2" { 1 } else { 2 };
+        let tag_name = tag.name().as_utf8_str();
+        match tag_name.as_ref() {
+            "h2" | "h3" => {
+                let heading_text = get_text(parser, tag);
+                let level = if tag_name == "h2" { 1 } else { 2 };
 
-                    // Determine section type from heading text
-                    if section_type.is_none() {
-                        section_type = SectionType::from_text(&heading_text).ok();
-                    }
+                // Determine section type from heading text
+                if section_type.is_none() {
+                    section_type = SectionType::from_text(&heading_text).ok();
+                }
 
-                    let heading = Heading {
-                        level: level as i64,
-                        content: vec![t(heading_text)],
-                        ..Default::default()
-                    };
-                    content.push(Block::Heading(heading));
-                }
-                "p" => {
-                    let paragraph = decode_paragraph(parser, tag)?;
-                    content.push(Block::Paragraph(paragraph));
-                }
-                "section" => {
-                    let class = get_class(tag);
-                    if class.contains("tw") {
-                        if let Some(table) = decode_table(parser, tag)? {
-                            content.push(Block::Table(table));
-                        }
-                    } else if class.contains("sm") {
-                        if let Some(supplement) = decode_supplement(parser, tag)? {
-                            content.push(Block::Supplement(supplement));
-                        }
-                    } else {
-                        let subsection = decode_section(parser, tag)?;
-                        if !subsection.content.is_empty() {
-                            content.push(Block::Section(subsection));
-                        }
-                    }
-                }
-                "figure" => {
-                    if let Some(figure) = decode_figure(parser, tag)? {
-                        content.push(Block::Figure(figure));
-                    }
-                }
-                _ => {}
+                let heading = Heading {
+                    level: level as i64,
+                    content: vec![t(heading_text)],
+                    ..Default::default()
+                };
+                content.push(Block::Heading(heading));
             }
+            "p" => {
+                let paragraph = decode_paragraph(parser, tag)?;
+                content.push(paragraph);
+            }
+            "section" => {
+                let class = get_class(tag);
+                if class.contains("tw") {
+                    if let Some(table) = decode_table(parser, tag)? {
+                        content.push(Block::Table(table));
+                    }
+                } else if class.contains("sm") {
+                    if let Some(supplement) = decode_supplement(parser, tag)? {
+                        content.push(Block::Supplement(supplement));
+                    }
+                } else {
+                    let subsection = decode_section(parser, tag)?;
+                    if !subsection.content.is_empty() {
+                        content.push(Block::Section(subsection));
+                    }
+                }
+            }
+            "figure" => {
+                if let Some(figure) = decode_figure(parser, tag)? {
+                    content.push(Block::Figure(figure));
+                }
+            }
+            _ => {}
         }
     }
 
@@ -448,14 +449,32 @@ fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
     })
 }
 
-/// Decode a paragraph
-fn decode_paragraph(parser: &Parser, paragraph: &HTMLTag) -> Result<Paragraph> {
-    let content = decode_inlines(parser, paragraph)?;
+/// Decode block elements
+fn decode_blocks(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Block>> {
+    let mut blocks = Vec::new();
 
-    Ok(Paragraph {
-        content,
-        ..Default::default()
-    })
+    for child in tag.children().all(parser) {
+        let Some(child_tag) = child.as_tag() else {
+            continue;
+        };
+        let tag_name = child_tag.name().as_utf8_str();
+
+        match tag_name.as_ref() {
+            "p" => {
+                let paragraph = decode_paragraph(parser, child_tag)?;
+                blocks.push(paragraph);
+            }
+            _ => {}
+        }
+    }
+
+    Ok(blocks)
+}
+
+/// Decode a paragraph
+fn decode_paragraph(parser: &Parser, paragraph: &HTMLTag) -> Result<Block> {
+    let content = decode_inlines(parser, paragraph)?;
+    Ok(p(content))
 }
 
 /// Decode inline elements
@@ -607,8 +626,8 @@ fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
                             .and_then(|node| node.get(parser))
                             .and_then(|node| node.as_tag())
                         {
-                            if let Ok(p) = decode_paragraph(parser, p) {
-                                notes.push(Block::Paragraph(p));
+                            if let Ok(paragraph) = decode_paragraph(parser, p) {
+                                notes.push(paragraph);
                             }
                         }
                     }
@@ -754,14 +773,20 @@ fn decode_table_row(
             let tag_name = tag.name().as_utf8_str();
 
             if tag_name == "td" || tag_name == "th" {
-                let cell_inlines = decode_inlines(parser, tag)?;
-                let content = if cell_inlines.is_empty() {
-                    Vec::new()
+                let cell_blocks = decode_blocks(parser, tag)?;
+
+                let content = if cell_blocks.is_empty() {
+                    let cell_inlines = decode_inlines(parser, tag)?;
+                    if cell_inlines.is_empty() {
+                        Vec::new()
+                    } else {
+                        vec![Block::Paragraph(Paragraph {
+                            content: cell_inlines,
+                            ..Default::default()
+                        })]
+                    }
                 } else {
-                    vec![Block::Paragraph(Paragraph {
-                        content: cell_inlines,
-                        ..Default::default()
-                    })]
+                    cell_blocks
                 };
 
                 // Extract colspan and rowspan attributes
