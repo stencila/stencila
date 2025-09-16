@@ -10,8 +10,8 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 
-use crate::tar::download_tar;
 use crate::html::download_html;
+use crate::tar::download_tar;
 
 use super::html::decode_html;
 use super::tar::decode_tar;
@@ -72,30 +72,65 @@ pub(super) async fn decode_pmcid(
         .and_then(|opts| opts.no_artifacts)
         .unwrap_or_default();
 
-    let package_filename = format!("{pmcid}.tar.gz");
+    let tar_filename = format!("{pmcid}.tar.gz");
+    let html_filename = format!("{pmcid}.html");
 
     // Create temporary directory (must be kept alive for entire function)
     let temp_dir = tempdir()?;
 
-    // Determine where to store/look for the downloaded package
-    let package_path = if no_artifacts {
+    // Determine where to store/look for the downloaded files
+    let (tar_path, html_path) = if no_artifacts {
         // Don't cache, use temporary directory
-        temp_dir.path().join(&package_filename)
+        (
+            temp_dir.path().join(&tar_filename),
+            temp_dir.path().join(&html_filename),
+        )
     } else {
         // Use artifacts directory for caching
         let artifacts_key = format!("pmcoa-{}", pmcid.trim_start_matches("PMC"));
         let artifacts_dir = closest_artifacts_for(&current_dir()?, &artifacts_key).await?;
-        artifacts_dir.join(&package_filename)
+        (
+            artifacts_dir.join(&tar_filename),
+            artifacts_dir.join(&html_filename),
+        )
     };
 
-    // Download the package if needed
-    let should_download = !package_path.exists() || ignore_artifacts;
-    if should_download {
-        download_tar(pmcid, &package_path).await?;
-    }
+    // Try to download tar package first, fall back to HTML if that fails
+    let should_download_tar = !tar_path.exists() || ignore_artifacts;
+    let should_download_html = !html_path.exists() || ignore_artifacts;
 
-    // Decode package
-    let (node, .., info) = decode_path(&package_path, options).await?;
+    let file_path = if should_download_tar {
+        // Try to download tar package first
+        match download_tar(pmcid, &tar_path).await {
+            Ok(()) => {
+                tracing::debug!("Successfully downloaded tar package for {pmcid}");
+                tar_path
+            }
+            Err(tar_error) => {
+                tracing::debug!("Failed to download tar package for {pmcid}: {tar_error}");
+
+                if should_download_html {
+                    tracing::debug!("Falling back to HTML download for {pmcid}");
+                    download_html(pmcid, &html_path).await?;
+                }
+                html_path
+            }
+        }
+    } else if tar_path.exists() {
+        // Use existing tar package
+        tar_path
+    } else if should_download_html {
+        // No tar package exists, download HTML
+        tracing::debug!("No tar package found, downloading HTML for {pmcid}");
+        download_html(pmcid, &html_path).await?;
+        html_path
+    } else {
+        // Use existing HTML file
+        html_path
+    };
+
+    // Decode the downloaded file
+    let (node, .., info) = decode_path(&file_path, options).await?;
 
     Ok((node, info))
 }
