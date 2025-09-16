@@ -47,17 +47,15 @@ pub(super) fn decode_html_path(
         .and_then(|mut nodes| nodes.next())
         .and_then(|node| node.get(parser))
         .and_then(|node| node.as_tag())
-    {
-        if let Some(h1_tag) = front_matter
+        && let Some(h1_tag) = front_matter
             .query_selector(parser, "h1")
             .and_then(|mut nodes| nodes.next())
             .and_then(|node| node.get(parser))
             .and_then(|node| node.as_tag())
-        {
-            let title_inlines = decode_inlines(parser, h1_tag)?;
-            if !title_inlines.is_empty() {
-                article.title = Some(title_inlines);
-            }
+    {
+        let title_inlines = decode_inlines(parser, h1_tag)?;
+        if !title_inlines.is_empty() {
+            article.title = Some(title_inlines);
         }
     }
 
@@ -93,14 +91,13 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
         .and_then(|node| node.get(dom.parser()))
         .and_then(|node| node.as_tag())
         && let Some(href) = get_attr(canonical_node, "href")
+        && let Some(pmc) = href.strip_prefix("https://pmc.ncbi.nlm.nih.gov/articles/PMC")
     {
-        if let Some(pmc) = href.strip_prefix("https://pmc.ncbi.nlm.nih.gov/articles/PMC") {
-            identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-                property_id: Some("pmc".to_string()),
-                value: Primitive::String(pmc.trim_end_matches("/").into()),
-                ..Default::default()
-            }));
-        }
+        identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
+            property_id: Some("pmc".to_string()),
+            value: Primitive::String(pmc.trim_end_matches("/").into()),
+            ..Default::default()
+        }));
     }
 
     // Extract metadata from meta tags
@@ -459,12 +456,9 @@ fn decode_blocks(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Block>> {
         };
         let tag_name = child_tag.name().as_utf8_str();
 
-        match tag_name.as_ref() {
-            "p" => {
-                let paragraph = decode_paragraph(parser, child_tag)?;
-                blocks.push(paragraph);
-            }
-            _ => {}
+        if tag_name.as_ref() == "p" {
+            let paragraph = decode_paragraph(parser, child_tag)?;
+            blocks.push(paragraph);
         }
     }
 
@@ -656,53 +650,6 @@ fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
     }))
 }
 
-/// Extract table label from inlines and clean the prefix from the first text element
-///
-/// This function looks for "Table X" at the beginning of the first text element,
-/// extracts "X" as the label, and removes "Table X." from the text element.
-fn extract_and_clean_table_label(inlines: &mut Vec<Inline>) -> Option<String> {
-    const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
-
-    if let Some(Inline::Text(text)) = inlines.first_mut() {
-        let original_value = text.value.clone();
-
-        for prefix in PREFIXES {
-            if let Some(stripped) = original_value.strip_prefix(prefix) {
-                let trimmed = stripped.trim_start_matches(['.', ':', ' ']);
-
-                // Extract the number part
-                if let Some((number_part, rest)) = trimmed.split_once('.') {
-                    let label = number_part.trim().to_string();
-
-                    // Update the text element to remove the "Table X." prefix
-                    let cleaned_text = rest.trim_start();
-                    if cleaned_text.is_empty() {
-                        // If nothing remains, remove this text element entirely
-                        inlines.remove(0);
-                    } else {
-                        text.value = cleaned_text.into();
-                    }
-
-                    return Some(label);
-                } else if let Some(first_word) = trimmed.split_whitespace().next() {
-                    // Handle cases where there's no dot after the number
-                    let label = first_word.to_string();
-
-                    // Remove "Table X " from the beginning
-                    let to_remove = format!("{} {} ", prefix, first_word);
-                    if let Some(cleaned) = original_value.strip_prefix(&to_remove) {
-                        text.value = cleaned.into();
-                    }
-
-                    return Some(label);
-                }
-            }
-        }
-    }
-
-    None
-}
-
 /// Decode table rows
 fn decode_table_rows(parser: &Parser, table: &HTMLTag) -> Result<Vec<TableRow>> {
     let mut rows = Vec::new();
@@ -822,7 +769,8 @@ fn decode_table_row(
 /// Decode a figure element
 fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
     let id = get_attr(figure, "id");
-    let mut caption = None;
+    let mut caption = Vec::new();
+    let mut label = None;
     let mut content = Vec::new();
 
     for child in figure
@@ -837,21 +785,23 @@ fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
             match tag_name.as_ref() {
                 "h4" if get_class(tag).contains("obj_head") => {
                     // Figure caption from heading
-                    let caption_text = get_text(parser, tag);
-                    let paragraph = Paragraph {
-                        content: vec![t(caption_text)],
-                        ..Default::default()
-                    };
-                    caption = Some(vec![Block::Paragraph(paragraph)]);
+                    let mut caption_inlines = decode_inlines(parser, tag)?;
+                    if label.is_none() {
+                        label = extract_and_clean_figure_label(&mut caption_inlines);
+                    }
+                    if !caption_inlines.is_empty() {
+                        caption.push(p(caption_inlines));
+                    }
                 }
                 "figcaption" => {
                     // Figure caption
-                    let caption_inlines = decode_inlines(parser, tag)?;
-                    let paragraph = Paragraph {
-                        content: caption_inlines,
-                        ..Default::default()
-                    };
-                    caption = Some(vec![Block::Paragraph(paragraph)]);
+                    let mut caption_inlines = decode_inlines(parser, tag)?;
+                    if label.is_none() {
+                        label = extract_and_clean_figure_label(&mut caption_inlines);
+                    }
+                    if !caption_inlines.is_empty() {
+                        caption.push(p(caption_inlines));
+                    }
                 }
                 "p" if get_class(tag).contains("img-box") => {
                     // Find image elements
@@ -877,16 +827,115 @@ fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
         }
     }
 
-    if content.is_empty() && caption.is_none() {
+    if content.is_empty() && caption.is_empty() {
         return Ok(None);
     }
 
+    let label_automatically = label.is_some().then_some(false);
+    let caption = (!caption.is_empty()).then_some(caption);
+
     Ok(Some(Figure {
         id,
+        label,
+        label_automatically,
         caption,
         content,
         ..Default::default()
     }))
+}
+
+/// Extract table label from inlines and clean the prefix from the first text element
+///
+/// This function looks for "Table X" at the beginning of the first text element,
+/// extracts "X" as the label, and removes "Table X." from the text element.
+fn extract_and_clean_table_label(inlines: &mut Vec<Inline>) -> Option<String> {
+    const PREFIXES: &[&str] = &["Table", "table", "TABLE"];
+
+    if let Some(Inline::Text(text)) = inlines.first_mut() {
+        let original_value = text.value.clone();
+
+        for prefix in PREFIXES {
+            if let Some(stripped) = original_value.strip_prefix(prefix) {
+                let trimmed = stripped.trim_start_matches(['.', ':', ' ']);
+
+                // Extract the number part
+                if let Some((number_part, rest)) = trimmed.split_once('.') {
+                    let label = number_part.trim().to_string();
+
+                    // Update the text element to remove the "Table X." prefix
+                    let cleaned_text = rest.trim_start();
+                    if cleaned_text.is_empty() {
+                        // If nothing remains, remove this text element entirely
+                        inlines.remove(0);
+                    } else {
+                        text.value = cleaned_text.into();
+                    }
+
+                    return Some(label);
+                } else if let Some(first_word) = trimmed.split_whitespace().next() {
+                    // Handle cases where there's no dot after the number
+                    let label = first_word.to_string();
+
+                    // Remove "Table X " from the beginning
+                    let to_remove = format!("{} {} ", prefix, first_word);
+                    if let Some(cleaned) = original_value.strip_prefix(&to_remove) {
+                        text.value = cleaned.into();
+                    }
+
+                    return Some(label);
+                }
+            }
+        }
+    }
+
+    None
+}
+
+/// Extract figure label from inlines and clean the prefix from the first text element
+///
+/// This function looks for "Figure X" or "Fig X" at the beginning of the first text element,
+/// extracts "X" as the label, and removes "Figure X." or "Fig X." from the text element.
+fn extract_and_clean_figure_label(inlines: &mut Vec<Inline>) -> Option<String> {
+    const PREFIXES: &[&str] = &["Figure", "figure", "FIGURE", "Fig", "fig", "FIG"];
+
+    if let Some(Inline::Text(text)) = inlines.first_mut() {
+        let original_value = text.value.clone();
+
+        for prefix in PREFIXES {
+            if let Some(stripped) = original_value.strip_prefix(prefix) {
+                let trimmed = stripped.trim_start_matches(['.', ':', ' ']);
+
+                // Extract the number part
+                if let Some((number_part, rest)) = trimmed.split_once('.') {
+                    let label = number_part.trim().to_string();
+
+                    // Update the text element to remove the "Figure X." prefix
+                    let cleaned_text = rest.trim_start();
+                    if cleaned_text.is_empty() {
+                        // If nothing remains, remove this text element entirely
+                        inlines.remove(0);
+                    } else {
+                        text.value = cleaned_text.into();
+                    }
+
+                    return Some(label);
+                } else if let Some(first_word) = trimmed.split_whitespace().next() {
+                    // Handle cases where there's no dot after the number
+                    let label = first_word.to_string();
+
+                    // Remove "Figure X " from the beginning
+                    let to_remove = format!("{} {} ", prefix, first_word);
+                    if let Some(cleaned) = original_value.strip_prefix(&to_remove) {
+                        text.value = cleaned.into();
+                    }
+
+                    return Some(label);
+                }
+            }
+        }
+    }
+
+    None
 }
 
 /// Decode a supplement material element (section with class "sm")
@@ -962,10 +1011,9 @@ fn decode_supplement(parser: &Parser, supplement_section: &HTMLTag) -> Result<Op
                         .and_then(|mut nodes| nodes.next())
                         .and_then(|node| node.get(parser))
                         .and_then(|node| node.as_tag())
+                        && let Some(href) = get_attr(a_tag, "href")
                     {
-                        if let Some(href) = get_attr(a_tag, "href") {
-                            target = Some(["https://pmc.ncbi.nlm.nih.gov", &href].concat());
-                        }
+                        target = Some(["https://pmc.ncbi.nlm.nih.gov", &href].concat());
                     }
                 }
                 _ => {}

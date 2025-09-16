@@ -4380,7 +4380,20 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g003",
+              "label": "3",
+              "labelAutomatically": false,
               "caption": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Detection of DENV-2 vDNA produced in mosquito cultured cells."
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Paragraph",
                   "content": [
@@ -5334,7 +5347,20 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g004",
+              "label": "4",
+              "labelAutomatically": false,
               "caption": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DENV-2 vDNA detection in wild mosquitoes collected in endemic locations."
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Paragraph",
                   "content": [
@@ -6766,7 +6792,20 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g001",
+              "label": "1",
+              "labelAutomatically": false,
               "caption": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Schematic diagram of the DENV-2 RNA genome with LAMP primer positions for amplifying vDNA."
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Paragraph",
                   "content": [
@@ -7642,7 +7681,20 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g002",
+              "label": "2",
+              "labelAutomatically": false,
               "caption": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Sensitivity and serotype specificity of RT-LAMP for detecting DENV-2 genomic RNA."
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Paragraph",
                   "content": [

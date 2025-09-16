@@ -3243,6 +3243,8 @@ expression: article
             {
               "type": "Figure",
               "id": "Fig1",
+              "label": "1",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
@@ -6517,6 +6519,8 @@ expression: article
             {
               "type": "Figure",
               "id": "Fig2",
+              "label": "2",
+              "labelAutomatically": false,
               "caption": [
                 {
                   "type": "Paragraph",
