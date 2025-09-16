@@ -13,10 +13,11 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_schema::{
         Article, Author, Block, Citation, CreativeWorkVariant, Date, Figure, Heading, ImageObject,
-        Inline, IntegerOrString, Node, Paragraph, Periodical, Person, Primitive, PropertyValue,
-        PropertyValueOrString, PublicationIssue, PublicationVolume, Reference, Section,
-        SectionType, Supplement, Table, TableCell, TableCellOptions, TableRow, TableRowType,
-        shortcuts::{em, h1, lnk, p, stg, sub, sup, t, u},
+        Inline, IntegerOrString, Node, Organization, Paragraph, Periodical, Person, Primitive,
+        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
+        Section, SectionType, Supplement, Table, TableCell, TableCellOptions, TableRow,
+        TableRowType,
+        shortcuts::{em, h1, h2, lnk, p, stg, sub, sup, t, u},
     },
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
@@ -108,6 +109,7 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
         .map(|iter| iter.collect())
         .unwrap_or_default();
 
+    let mut authors = Vec::new();
     for node_handle in meta_nodes {
         if let Some(node) = node_handle.get(dom.parser())
             && let Some(tag) = node.as_tag()
@@ -124,7 +126,16 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
                 "citation_author" => {
                     let author = text_to_author(&content)
                         .unwrap_or_else(|| Author::Person(Person::from(content)));
-                    article.authors.get_or_insert_default().push(author);
+                    authors.push(author)
+                }
+                "citation_author_institution" => {
+                    let org = Organization {
+                        name: Some(content),
+                        ..Default::default()
+                    };
+                    if let Some(Author::Person(Person { affiliations, .. })) = authors.last_mut() {
+                        affiliations.get_or_insert_default().push(org);
+                    }
                 }
                 "citation_pmid" => {
                     identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
@@ -184,6 +195,10 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
         };
 
         article.options.is_part_of = Some(work);
+    }
+
+    if !authors.is_empty() {
+        article.authors = Some(authors);
     }
 
     if !identifiers.is_empty() {
@@ -327,13 +342,8 @@ fn decode_abstract(parser: &Parser, abstract_section: &HTMLTag) -> Result<Vec<Bl
                                 "h3" => {
                                     let heading_text = get_text(parser, section_tag);
                                     section_type = SectionType::from_text(&heading_text).ok();
-                                    // Add heading to content to match TAR format
-                                    let heading = Heading {
-                                        level: 1,
-                                        content: vec![t(heading_text)],
-                                        ..Default::default()
-                                    };
-                                    content.push(Block::Heading(heading));
+
+                                    content.push(h2([t(heading_text)]));
                                 }
                                 "p" => {
                                     let paragraph = decode_paragraph(parser, section_tag)?;

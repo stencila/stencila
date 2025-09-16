@@ -12,7 +12,7 @@ expression: article
       "content": [
         {
           "type": "Heading",
-          "level": 1,
+          "level": 2,
           "content": [
             {
               "type": "Text",
@@ -41,7 +41,7 @@ expression: article
       "content": [
         {
           "type": "Heading",
-          "level": 1,
+          "level": 2,
           "content": [
             {
               "type": "Text",
@@ -70,7 +70,7 @@ expression: article
       "content": [
         {
           "type": "Heading",
-          "level": 1,
+          "level": 2,
           "content": [
             {
               "type": "Text",
@@ -99,7 +99,7 @@ expression: article
       "content": [
         {
           "type": "Heading",
-          "level": 1,
+          "level": 2,
           "content": [
             {
               "type": "Text",
@@ -126,6 +126,23 @@ expression: article
   "authors": [
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "EPI Unit, Institute of Public Health of the Porto University",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "ITR, University of Porto",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "Department of Medicine, Faculty of Medicine of the Porto University",
+          "address": "Porto, Portugal"
+        }
+      ],
       "familyNames": [
         "Amaro"
       ],
@@ -135,6 +152,23 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "EPI Unit, Institute of Public Health of the Porto University",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "ITR, University of Porto",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "ICBAS, University of Porto",
+          "address": "Porto, Portugal"
+        }
+      ],
       "familyNames": [
         "Lucas"
       ],
@@ -144,6 +178,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Comprehensive Health Research Center, NOVA University Lisbon",
+          "address": "Lisbon, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "Nova National School of Public Health, NOVA University Lisbon",
+          "address": "Lisbon, Portugal"
+        }
+      ],
       "familyNames": [
         "Perelman"
       ],
@@ -153,6 +199,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "EPI Unit, Institute of Public Health of the Porto University",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "ITR, University of Porto",
+          "address": "Porto, Portugal"
+        }
+      ],
       "familyNames": [
         "Fraga"
       ],
@@ -162,6 +220,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "EPI Unit, Institute of Public Health of the Porto University",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "ITR, University of Porto",
+          "address": "Porto, Portugal"
+        }
+      ],
       "familyNames": [
         "Maia"
       ],
@@ -171,6 +241,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Centro Investigação em Antropologia Saúde, Coimbra University",
+          "address": "Coimbra, Portugal"
+        }
+      ],
       "familyNames": [
         "Pereira"
       ],
@@ -180,6 +257,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "PANSOC, Oslo Metropolitan University",
+          "address": "Oslo, Norway"
+        }
+      ],
       "familyNames": [
         "Mamelund"
       ],
@@ -190,6 +274,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Faculty of Psychology and Educational Science, University of Porto",
+          "address": "Porto, Portugal"
+        }
+      ],
       "familyNames": [
         "Matias"
       ],
@@ -199,6 +290,23 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "EPI Unit, Institute of Public Health of the Porto University",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "ITR, University of Porto",
+          "address": "Porto, Portugal"
+        },
+        {
+          "type": "Organization",
+          "name": "Public Health Forensic Sciences Department, Faculty of Medicine of the Porto University",
+          "address": "Porto, Portugal"
+        }
+      ],
       "familyNames": [
         "Leão"
       ],

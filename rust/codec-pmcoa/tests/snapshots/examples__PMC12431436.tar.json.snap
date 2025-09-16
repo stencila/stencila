@@ -73,6 +73,16 @@ expression: article
     {
       "type": "Person",
       "orcid": "0009-0000-2244-4292",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Aonuma"
       ],
@@ -82,6 +92,12 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
+        }
+      ],
       "familyNames": [
         "Sombié"
       ],
@@ -91,6 +107,12 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
+        }
+      ],
       "familyNames": [
         "Li"
       ],
@@ -100,6 +122,16 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Ote"
       ],
@@ -110,6 +142,16 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0003-2844-9582",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Saiki"
       ],
@@ -119,6 +161,16 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Ichimura"
       ],
@@ -129,6 +181,16 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0002-5454-6661",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Iizuka"
       ],
@@ -138,6 +200,16 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Odagawa"
       ],
@@ -147,6 +219,16 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Sakurai"
       ],
@@ -156,6 +238,16 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Yamaji"
       ],
@@ -165,6 +257,12 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Virology 1, National Institute of Infectious Diseases, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Saijo"
       ],
@@ -174,6 +272,12 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
+        }
+      ],
       "familyNames": [
         "Chen"
       ],
@@ -183,6 +287,12 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
+        }
+      ],
       "familyNames": [
         "Badolo"
       ],
@@ -193,6 +303,16 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0003-0432-6510",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+        },
+        {
+          "type": "Organization",
+          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+        }
+      ],
       "familyNames": [
         "Kanuka"
       ],
@@ -8454,6 +8574,12 @@ expression: article
   "editors": [
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Guangzhou University, CHINA"
+        }
+      ],
       "familyNames": [
         "Liu"
       ],
