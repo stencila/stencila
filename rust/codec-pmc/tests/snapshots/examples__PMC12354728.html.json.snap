@@ -1,5 +1,5 @@
 ---
-source: rust/codec-pmcoa/tests/examples.rs
+source: rust/codec-pmc/tests/examples.rs
 expression: article
 ---
 {
@@ -2249,8 +2249,7 @@ expression: article
               }
             },
             {
-              "type": "Citation",
-              "target": "MOESM1",
+              "type": "Link",
               "content": [
                 {
                   "type": "Text",
@@ -2258,7 +2257,8 @@ expression: article
                     "string": "S1"
                   }
                 }
-              ]
+              ],
+              "target": "#MOESM1"
             },
             {
               "type": "Text",
@@ -2383,8 +2383,7 @@ expression: article
               }
             },
             {
-              "type": "Citation",
-              "target": "MOESM1",
+              "type": "Link",
               "content": [
                 {
                   "type": "Text",
@@ -2392,7 +2391,8 @@ expression: article
                     "string": "S1"
                   }
                 }
-              ]
+              ],
+              "target": "#MOESM1"
             },
             {
               "type": "Text",
@@ -3104,8 +3104,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "MOESM1",
+                  "type": "Link",
                   "content": [
                     {
                       "type": "Text",
@@ -3113,7 +3112,8 @@ expression: article
                         "string": "S1"
                       }
                     }
-                  ]
+                  ],
+                  "target": "#MOESM1"
                 },
                 {
                   "type": "Text",

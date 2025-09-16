@@ -527,22 +527,24 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
                         if href_val.starts_with('#') {
                             let target = href_val.trim_start_matches('#');
 
-                            // Check if this is a figure or table reference
+                            // Get the inner text of the link to determine if it's a citation
+                            let link_text = get_text(parser, child_tag);
                             let target_lower = target.to_lowercase();
-                            if target_lower.starts_with("fig")
-                                || target_lower.contains(".g")
-                                || target_lower.starts_with("tab")
-                                || target_lower.contains(".t")
-                                || target_lower.starts_with("sec")
-                                || target_lower.contains(".s")
+
+                            // If the link text parses to an integer AND the target doesn't contain
+                            // figure/table/supplement identifiers, treat it as a citation
+                            if link_text.parse::<u16>().is_ok()
+                                && !target_lower.contains("fig")
+                                && !target_lower.contains("tab")
+                                && !target_lower.contains("sup")
                             {
-                                // This is a figure, table, or supplement reference
-                                lnk(content, ["#", target].concat())
-                            } else {
-                                // This is a citation reference (.ref001)
+                                // This is a citation reference (e.g., [1], [23])
                                 let mut citation = Citation::new(target.to_string());
                                 citation.options.content = Some(content);
                                 Inline::Citation(citation)
+                            } else {
+                                // This is a figure, table, or other reference
+                                lnk(content, ["#", target].concat())
                             }
                         } else {
                             // This is an external link
