@@ -201,6 +201,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR1",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -210,17 +211,78 @@ expression: article
           "givenNames": [
             "A"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duckworth"
+          ],
+          "givenNames": [
+            "J",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Breitenmoser-Würsten"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Belant"
+          ],
+          "givenNames": [
+            "J",
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mathai"
+          ],
+          "givenNames": [
+            "J"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2016"
       },
-      "text": "Wilting A Duckworth JW Breitenmoser-Würsten C Belant JL Mathai J Distribution of and conservation priorities for Bornean small carnivores and cats Raffles Bull. Zool. Suppl. 2016 33 1 217 Wilting, A., Duckworth, J. W., Breitenmoser-Würsten, C., Belant, J. L. & Mathai, J. Distribution of and conservation priorities for Bornean small carnivores and cats. Raffles Bull. Zool. Suppl. 33 , 1–217 (2016)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Distribution of and conservation priorities for Bornean small carnivores and cats"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Raffles Bull. Zool. Suppl."
+            }
+          }
+        ],
+        "volumeNumber": 33
+      },
+      "pageStart": 1,
+      "pageEnd": 217
     },
     {
       "type": "Reference",
       "id": "CR2",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -237,11 +299,34 @@ expression: article
         "type": "Date",
         "value": "2017"
       },
-      "text": "Kitchener AC A revised taxonomy of the felidae: the final report of the cat classification task force of the IUCN cat specialist group Cat News Special Issue 2017 11 1 80 Kitchener, A. C. et al. A revised taxonomy of the felidae: the final report of the cat classification task force of the IUCN cat specialist group. Cat News Special Issue . 11 , 1–80 (2017)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A revised taxonomy of the felidae: the final report of the cat classification task force of the IUCN cat specialist group"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cat News Special Issue"
+            }
+          }
+        ],
+        "volumeNumber": 11
+      },
+      "pageStart": 1,
+      "pageEnd": 80
     },
     {
       "type": "Reference",
       "id": "CR3",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -258,11 +343,34 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "text": "Luo SJ Sympatric Asian felid phylogeography reveals a major Indochinese–Sundaic divergence Mol. Ecol. 2014 23 2072 2092 24629132  Luo, S. J. et al. Sympatric Asian felid phylogeography reveals a major Indochinese–Sundaic divergence. Mol. Ecol. 23 , 2072–2092 (2014). 24629132"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sympatric Asian felid phylogeography reveals a major Indochinese–Sundaic divergence"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mol. Ecol."
+            }
+          }
+        ],
+        "volumeNumber": 23
+      },
+      "pageStart": 2072,
+      "pageEnd": 2092
     },
     {
       "type": "Reference",
       "id": "CR4",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -279,7 +387,46 @@ expression: article
         "type": "Date",
         "value": "2017"
       },
-      "text": "Patel RP Genetic structure and phylogeography of the leopard cat ( Prionailurus bengalensis ) inferred from mitochondrial genomes J. Hered 2017 108 349 360 28498987  Patel, R. P. et al. Genetic structure and phylogeography of the leopard cat ( Prionailurus bengalensis ) inferred from mitochondrial genomes. J. Hered . 108 , 349–360 (2017). 28498987"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Genetic structure and phylogeography of the leopard cat ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Prionailurus bengalensis"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") inferred from mitochondrial genomes"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Hered"
+            }
+          }
+        ],
+        "volumeNumber": 108
+      },
+      "pageStart": 349,
+      "pageEnd": 360
     },
     {
       "type": "Reference",
@@ -323,11 +470,30 @@ expression: article
     {
       "type": "Reference",
       "id": "CR6",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
             "Koch"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Algar"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schwenk"
           ],
           "givenNames": [
             "K"
@@ -338,11 +504,34 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "text": "Koch K Algar D Schwenk K Feral cat globetrotters: genetic traces of historical human-mediated dispersal Ecol. Evol. 2016 6 5321 5332 27551385  Koch, K., Algar, D. & Schwenk, K. Feral cat globetrotters: genetic traces of historical human-mediated dispersal. Ecol. Evol. 6 , 5321–5332 (2016). 27551385"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Feral cat globetrotters: genetic traces of historical human-mediated dispersal"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecol. Evol."
+            }
+          }
+        ],
+        "volumeNumber": 6
+      },
+      "pageStart": 5321,
+      "pageEnd": 5332
     },
     {
       "type": "Reference",
       "id": "CR7",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -352,13 +541,44 @@ expression: article
           "givenNames": [
             "A"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mohd-Azlan"
+          ],
+          "givenNames": [
+            "J"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2018"
       },
-      "text": "Hong A Mohd-Azlan J The urban avifauna of kuching, borneo, and the possible impact of cats on its structure Kukila 2018 21 1 12 Hong, A. & Mohd-Azlan, J. The urban avifauna of kuching, borneo, and the possible impact of cats on its structure. Kukila 21 , 1–12 (2018)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The urban avifauna of kuching, borneo, and the possible impact of cats on its structure"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Kukila"
+            }
+          }
+        ],
+        "volumeNumber": 21
+      },
+      "pageStart": 1,
+      "pageEnd": 12
     },
     {
       "type": "Reference",
@@ -392,6 +612,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR9",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -402,17 +623,59 @@ expression: article
             "M",
             "J"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mohd-Azlan"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brodie"
+          ],
+          "givenNames": [
+            "J",
+            "F"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2021"
       },
-      "text": "Maiwald MJ Mohd-Azlan J Brodie JF Resilience of terrestrial mammals to logging in an active concession in Sarawak Borneo Mammalia 2021 85 115 122 Maiwald, M. J., Mohd-Azlan, J. & Brodie, J. F. Resilience of terrestrial mammals to logging in an active concession in Sarawak. Borneo Mammalia . 85 , 115–122 (2021)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Resilience of terrestrial mammals to logging in an active concession in Sarawak"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Borneo Mammalia"
+            }
+          }
+        ],
+        "volumeNumber": 85
+      },
+      "pageStart": 115,
+      "pageEnd": 122
     },
     {
       "type": "Reference",
       "id": "CR10",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -428,7 +691,29 @@ expression: article
         "type": "Date",
         "value": "2023"
       },
-      "text": "Mohd-Azlan J Ecology, occurrence and distribution of wild felids in sarawak, Malaysian Borneo Oryx 2023 57 252 261 Mohd-Azlan, J. et al. Ecology, occurrence and distribution of wild felids in sarawak, Malaysian Borneo. Oryx 57 , 252–261 (2023)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Ecology, occurrence and distribution of wild felids in sarawak, Malaysian Borneo"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Oryx"
+            }
+          }
+        ],
+        "volumeNumber": 57
+      },
+      "pageStart": 252,
+      "pageEnd": 261
     },
     {
       "type": "Reference",
@@ -537,6 +822,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR16",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -553,11 +839,34 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "text": "Lynam AJ Terrestrial activity patterns of wild cats from camera-trapping Raffles Bull. Zool. 2013 61 407 415 Lynam, A. J. et al. Terrestrial activity patterns of wild cats from camera-trapping. Raffles Bull. Zool. 61 , 407–415 (2013)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Terrestrial activity patterns of wild cats from camera-trapping"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Raffles Bull. Zool."
+            }
+          }
+        ],
+        "volumeNumber": 61
+      },
+      "pageStart": 407,
+      "pageEnd": 415
     },
     {
       "type": "Reference",
       "id": "CR17",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -567,17 +876,69 @@ expression: article
           "givenNames": [
             "S"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kelly"
+          ],
+          "givenNames": [
+            "M",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Parakkasi"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hutajulu"
+          ],
+          "givenNames": [
+            "M",
+            "B"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2015"
       },
-      "text": "Sunarto S Kelly MJ Parakkasi K Hutajulu MB Cat coexistence in central sumatra: ecological characteristics, spatial and temporal overlap, and implications for management J. Zool. 2015 296 104 115 Sunarto, S., Kelly, M. J., Parakkasi, K. & Hutajulu, M. B. Cat coexistence in central sumatra: ecological characteristics, spatial and temporal overlap, and implications for management. J. Zool. 296 , 104–115 (2015)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cat coexistence in central sumatra: ecological characteristics, spatial and temporal overlap, and implications for management"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Zool."
+            }
+          }
+        ],
+        "volumeNumber": 296
+      },
+      "pageStart": 104,
+      "pageEnd": 115
     },
     {
       "type": "Reference",
       "id": "CR18",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -594,11 +955,33 @@ expression: article
         "type": "Date",
         "value": "2018"
       },
-      "text": "Hearn AJ Spatio-temporal ecology of sympatric felids on borneo. Evidence for resource partitioning? PLoS One 2018 13 e0200828 30028844  Hearn, A. J. et al. Spatio-temporal ecology of sympatric felids on borneo. Evidence for resource partitioning? PLoS One . 13 , e0200828 (2018). 30028844"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Spatio-temporal ecology of sympatric felids on borneo. Evidence for resource partitioning?"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS One"
+            }
+          }
+        ],
+        "volumeNumber": 13
+      },
+      "pageStart": "e0200828"
     },
     {
       "type": "Reference",
       "id": "CR19",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -615,11 +998,33 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "text": "Kyaw PP Investigating carnivore guild structure: Spatial and temporal relationships amongst threatened felids in Myanmar ISPRS Int. J. Geo-Inf 2021 10 808 Kyaw, P. P. et al. Investigating carnivore guild structure: Spatial and temporal relationships amongst threatened felids in Myanmar. ISPRS Int. J. Geo-Inf . 10 , 808 (2021)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Investigating carnivore guild structure: Spatial and temporal relationships amongst threatened felids in Myanmar"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ISPRS Int. J. Geo-Inf"
+            }
+          }
+        ],
+        "volumeNumber": 10
+      },
+      "pageStart": 808
     },
     {
       "type": "Reference",
       "id": "CR20",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -636,11 +1041,34 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "text": "Kamler JF Diet, prey selection, and activity of Asian golden cats and leopard cats in Northern Laos J. Mammal 2020 101 1267 1278 Kamler, J. F. et al. Diet, prey selection, and activity of Asian golden cats and leopard cats in Northern Laos. J. Mammal . 101 , 1267–1278 (2020)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Diet, prey selection, and activity of Asian golden cats and leopard cats in Northern Laos"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Mammal"
+            }
+          }
+        ],
+        "volumeNumber": 101
+      },
+      "pageStart": 1267,
+      "pageEnd": 1278
     },
     {
       "type": "Reference",
       "id": "CR21",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -656,12 +1084,34 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "text": "Rostro-García S Small cats in big trouble? Diet, activity, and habitat use of jungle cats and leopard cats in threatened dry deciduous forests, Cambodia Ecol. Evol. 2021 11 4205 4217 33976804  Rostro-García, S. et al. Small cats in big trouble? Diet, activity, and habitat use of jungle cats and leopard cats in threatened dry deciduous forests, Cambodia. Ecol. Evol. 11 , 4205–4217 (2021). 33976804"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Small cats in big trouble? Diet, activity, and habitat use of jungle cats and leopard cats in threatened dry deciduous forests, Cambodia"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecol. Evol."
+            }
+          }
+        ],
+        "volumeNumber": 11
+      },
+      "pageStart": 4205,
+      "pageEnd": 4217
     },
     {
       "type": "Reference",
       "id": "CR22",
-      "doi": "10.13057/biodiv/d250650",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -677,11 +1127,34 @@ expression: article
         "type": "Date",
         "value": "2024"
       },
-      "text": "Wongson T Dietary habits of fishing cats in a human-dominated wetland in coastal Thailand Biodiversitas 2024 25 2788 2797 Wongson, T. et al. Dietary habits of fishing cats in a human-dominated wetland in coastal Thailand. Biodiversitas 25 , 2788–2797. 10.13057/biodiv/d250650 (2024)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dietary habits of fishing cats in a human-dominated wetland in coastal Thailand"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biodiversitas"
+            }
+          }
+        ],
+        "volumeNumber": 25
+      },
+      "pageStart": 2788,
+      "pageEnd": 2797
     },
     {
       "type": "Reference",
       "id": "CR23",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -692,17 +1165,50 @@ expression: article
             "W",
             "L"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wilson"
+          ],
+          "givenNames": [
+            "E",
+            "O"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1956"
       },
-      "text": "Brown WL Wilson EO Character displacement Syst. Zool. 1956 5 49 64 Brown, W. L. & Wilson, E. O. Character displacement. Syst. Zool. 5 , 49–64 (1956)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Character displacement"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Syst. Zool."
+            }
+          }
+        ],
+        "volumeNumber": 5
+      },
+      "pageStart": 49,
+      "pageEnd": 64
     },
     {
       "type": "Reference",
       "id": "CR24",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -712,17 +1218,67 @@ expression: article
           "givenNames": [
             "T"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Simberloff"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tchernov"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yom-Tov"
+          ],
+          "givenNames": [
+            "Y"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1990"
       },
-      "text": "Dayan T Simberloff D Tchernov E Yom-Tov Y Feline canines: community-wide character displacement among the small cats of Israel Am. Nat. 1990 136 39 60 Dayan, T., Simberloff, D., Tchernov, E. & Yom-Tov, Y. Feline canines: community-wide character displacement among the small cats of Israel. Am. Nat. 136 , 39–60 (1990)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Feline canines: community-wide character displacement among the small cats of Israel"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Am. Nat."
+            }
+          }
+        ],
+        "volumeNumber": 136
+      },
+      "pageStart": 39,
+      "pageEnd": 60
     },
     {
       "type": "Reference",
       "id": "CR25",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -732,17 +1288,77 @@ expression: article
           "givenNames": [
             "M"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Veron"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peignè"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Blin"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fabre"
+          ],
+          "givenNames": [
+            "A",
+            "C"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2018"
       },
-      "text": "Michaud M Veron G Peignè S Blin A Fabre AC Are phenotypic disparity and rate of morphological evolution correlated with ecological diversity in carnivora?? Biol. J. Linn. Soc. 2018 124 294 307 Michaud, M., Veron, G., Peignè, S., Blin, A. & Fabre, A. C. Are phenotypic disparity and rate of morphological evolution correlated with ecological diversity in carnivora?? Biol. J. Linn. Soc. 124 , 294–307 (2018)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Are phenotypic disparity and rate of morphological evolution correlated with ecological diversity in carnivora??"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biol. J. Linn. Soc."
+            }
+          }
+        ],
+        "volumeNumber": 124
+      },
+      "pageStart": 294,
+      "pageEnd": 307
     },
     {
       "type": "Reference",
       "id": "CR26",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -752,18 +1368,49 @@ expression: article
           "givenNames": [
             "J"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Van Valkenburgh"
+          ],
+          "givenNames": [
+            "B"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2009"
       },
-      "text": "Meachen-Samuels J Van Valkenburgh B Forelimb indicators of prey‐size preference in the felidae J. Morphol. 2009 270 729 744 19123240  Meachen-Samuels, J. & Van Valkenburgh, B. Forelimb indicators of prey‐size preference in the felidae. J. Morphol. 270 , 729–744 (2009). 19123240"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Forelimb indicators of prey‐size preference in the felidae"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Morphol."
+            }
+          }
+        ],
+        "volumeNumber": 270
+      },
+      "pageStart": 729,
+      "pageEnd": 744
     },
     {
       "type": "Reference",
       "id": "CR27",
-      "doi": "10.1111/j.1096-3642.2010.00636.x",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -774,17 +1421,51 @@ expression: article
             "F",
             "L"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Oliveira"
+          ],
+          "givenNames": [
+            "L",
+            "F",
+            "B"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2011"
       },
-      "text": "Sicuro FL Oliveira LFB Skull morphology and functionality of extant felidae (Mammalia: Carnivora): A phylogenetic and evolutionary perspective Zool. J. Linn. Soc. 2011 161 414 462 Sicuro, F. L. & Oliveira, L. F. B. Skull morphology and functionality of extant felidae (Mammalia: Carnivora): A phylogenetic and evolutionary perspective. Zool. J. Linn. Soc. 161 , 414–462. 10.1111/j.1096-3642.2010.00636.x (2011)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Skull morphology and functionality of extant felidae (Mammalia: Carnivora): A phylogenetic and evolutionary perspective"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Zool. J. Linn. Soc."
+            }
+          }
+        ],
+        "volumeNumber": 161
+      },
+      "pageStart": 414,
+      "pageEnd": 462
     },
     {
       "type": "Reference",
       "id": "CR28",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -795,17 +1476,59 @@ expression: article
             "A",
             "V"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Puzachenko"
+          ],
+          "givenNames": [
+            "A",
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tumanov"
+          ],
+          "givenNames": [
+            "I",
+            "L"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2016"
       },
-      "text": "Abramov AV Puzachenko AY Tumanov IL Morphological differentiation of the skull in two closely-related Mustelid species (Carnivora: Mustelidae) Zool. Stud. 2016 55 e1 31966146  Abramov, A. V., Puzachenko, A. Y. & Tumanov, I. L. Morphological differentiation of the skull in two closely-related Mustelid species (Carnivora: Mustelidae). Zool. Stud. 55 , e1 (2016). 31966146"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Morphological differentiation of the skull in two closely-related Mustelid species (Carnivora: Mustelidae)"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Zool. Stud."
+            }
+          }
+        ],
+        "volumeNumber": 55
+      },
+      "pageStart": "e1"
     },
     {
       "type": "Reference",
       "id": "CR29",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -816,17 +1539,69 @@ expression: article
             "T",
             "J"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Meiri"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Barraclough"
+          ],
+          "givenNames": [
+            "T",
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gittleman"
+          ],
+          "givenNames": [
+            "J",
+            "L"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2007"
       },
-      "text": "Davies TJ Meiri S Barraclough TG Gittleman JL Species co-existence and character divergence across carnivores Ecol. Lett. 2007 10 146 152 17257102  Davies, T. J., Meiri, S., Barraclough, T. G. & Gittleman, J. L. Species co-existence and character divergence across carnivores. Ecol. Lett. 10 , 146–152 (2007). 17257102"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Species co-existence and character divergence across carnivores"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecol. Lett."
+            }
+          }
+        ],
+        "volumeNumber": 10
+      },
+      "pageStart": 146,
+      "pageEnd": 152
     },
     {
       "type": "Reference",
       "id": "CR30",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -836,17 +1611,66 @@ expression: article
           "givenNames": [
             "S"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Groves"
+          ],
+          "givenNames": [
+            "C"
+          ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "1777"
+        "value": "2007"
       },
-      "text": "Mukherjee S Groves C Geographic variation in jungle cat ( Felis chaus Schreber, 1777) (Mammalia, Carnivora, Felidae) body size: is competition responsible? Biol. J. Linn. Soc. 2007 92 163 172 Mukherjee, S. & Groves, C. Geographic variation in jungle Cat ( Felis chaus schreber, 1777) (Mammalia, carnivora, Felidae) body size: is competition responsible? Biol. J. Linn. Soc. 92 , 163–172 (2007)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Geographic variation in jungle cat ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Felis chaus"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Schreber, 1777) (Mammalia, Carnivora, Felidae) body size: is competition responsible?"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biol. J. Linn. Soc."
+            }
+          }
+        ],
+        "volumeNumber": 92
+      },
+      "pageStart": 163,
+      "pageEnd": 172
     },
     {
       "type": "Reference",
       "id": "CR31",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -863,11 +1687,51 @@ expression: article
         "type": "Date",
         "value": "1997"
       },
-      "text": "Groves CP Leopard-cats: Prionailurus bengalensis (Carnivora: Felidae) from Indonesia and the Philippines, with the description of two new subspecies Z. Säugetierkd 1997 62 330 338 Groves, C. P. Leopard-cats: Prionailurus bengalensis (Carnivora: Felidae) from Indonesia and the Philippines, with the description of two new subspecies. Z. Säugetierkd . 62 , 330–338 (1997)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Leopard-cats: "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Prionailurus bengalensis"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " (Carnivora: Felidae) from Indonesia and the Philippines, with the description of two new subspecies"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Z. Säugetierkd"
+            }
+          }
+        ],
+        "volumeNumber": 62
+      },
+      "pageStart": 330,
+      "pageEnd": 338
     },
     {
       "type": "Reference",
       "id": "CR32",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -878,13 +1742,62 @@ expression: article
             "F",
             "L"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Oliveira"
+          ],
+          "givenNames": [
+            "L",
+            "F",
+            "B"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2015"
       },
-      "text": "Sicuro FL Oliveira LFB Variations in leopard cat ( Prionailurus bengalensis ) skull morphology and body size: sexual and geographic influences PeerJ 2015 3 e1309 26500818  Sicuro, F. L. & Oliveira, L. F. B. Variations in leopard cat ( Prionailurus bengalensis ) skull morphology and body size: sexual and geographic influences. PeerJ 3 , e1309 (2015). 26500818"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Variations in leopard cat ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Prionailurus bengalensis"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") skull morphology and body size: sexual and geographic influences"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PeerJ"
+            }
+          }
+        ],
+        "volumeNumber": 3
+      },
+      "pageStart": "e1309"
     },
     {
       "type": "Reference",
@@ -990,6 +1903,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR36",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1006,7 +1920,45 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "text": "Patel RP Two species of Southeast Asian cats in the genus Catopuma with diverging histories: an Island endemic forest specialist and a widespread habitat generalist R Soc. Open. Sci. 2016 3 160350 27853549  Patel, R. P. et al. Two species of Southeast Asian cats in the genus Catopuma with diverging histories: an Island endemic forest specialist and a widespread habitat generalist. R Soc. Open. Sci. 3 , 160350 (2016). 27853549"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Two species of Southeast Asian cats in the genus "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Catopuma"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " with diverging histories: an Island endemic forest specialist and a widespread habitat generalist"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "R Soc. Open. Sci."
+            }
+          }
+        ],
+        "volumeNumber": 3
+      },
+      "pageStart": 160350
     },
     {
       "type": "Reference",
@@ -1068,6 +2020,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR38",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1078,17 +2031,59 @@ expression: article
             "S",
             "L"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cecchetti"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "McDonald"
+          ],
+          "givenNames": [
+            "R",
+            "A"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2020"
       },
-      "text": "Crowley SL Cecchetti M McDonald RA Our wild companions: domestic cats in the anthropocene Trends Ecol. Evol. 2020 35 477 483 32396814  Crowley, S. L., Cecchetti, M. & McDonald, R. A. Our wild companions: domestic cats in the anthropocene. Trends Ecol. Evol. 35 , 477–483 (2020). 32396814"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Our wild companions: domestic cats in the anthropocene"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends Ecol. Evol."
+            }
+          }
+        ],
+        "volumeNumber": 35
+      },
+      "pageStart": 477,
+      "pageEnd": 483
     },
     {
       "type": "Reference",
       "id": "CR39",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1105,11 +2100,34 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "text": "Loss SR Review and synthesis of the global literature on domestic cat impacts on wildlife J. Anim. Ecol. 2022 91 1361 1372 35593055  Loss, S. R. et al. Review and synthesis of the global literature on domestic cat impacts on wildlife. J. Anim. Ecol. 91 , 1361–1372 (2022). 35593055"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Review and synthesis of the global literature on domestic cat impacts on wildlife"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Anim. Ecol."
+            }
+          }
+        ],
+        "volumeNumber": 91
+      },
+      "pageStart": 1361,
+      "pageEnd": 1372
     },
     {
       "type": "Reference",
       "id": "CR40",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1119,13 +2137,87 @@ expression: article
           "givenNames": [
             "S"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nakanishi"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Izawa"
+          ],
+          "givenNames": [
+            "M"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2003"
       },
-      "text": "Watanabe S Nakanishi N Izawa M Habitat and prey resource overlap between the Iriomote cat Prionailurus iriomotensis and introduced feral cat Felis catus based on assessment of scat content and distribution Mamm. Study 2003 28 47 56 Watanabe, S., Nakanishi, N. & Izawa, M. Habitat and prey resource overlap between the Iriomote cat Prionailurus iriomotensis and introduced feral Cat Felis catus based on assessment of scat content and distribution. Mamm. Study . 28 , 47–56 (2003)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Habitat and prey resource overlap between the Iriomote cat "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Prionailurus iriomotensis"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and introduced feral cat "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Felis catus"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " based on assessment of scat content and distribution"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mamm. Study"
+            }
+          }
+        ],
+        "volumeNumber": 28
+      },
+      "pageStart": 47,
+      "pageEnd": 56
     },
     {
       "type": "Reference",
@@ -1152,6 +2244,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR42",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1162,17 +2255,60 @@ expression: article
             "T",
             "S"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bengsen"
+          ],
+          "givenNames": [
+            "A",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Davis"
+          ],
+          "givenNames": [
+            "R",
+            "A"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2015"
       },
-      "text": "Doherty TS Bengsen AJ Davis RA A critical review of habitat use by feral cats and key directions for future research and management Wildl. Res. 2015 41 435 446 Doherty, T. S., Bengsen, A. J. & Davis, R. A. A critical review of habitat use by feral cats and key directions for future research and management. Wildl. Res. 41 , 435–446 (2015)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A critical review of habitat use by feral cats and key directions for future research and management"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Wildl. Res."
+            }
+          }
+        ],
+        "volumeNumber": 41
+      },
+      "pageStart": 435,
+      "pageEnd": 446
     },
     {
       "type": "Reference",
       "id": "CR43",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1189,11 +2325,34 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "text": "Driscoll CA The near Eastern origin of cat domestication Science 2007 317 519 523 17600185  Driscoll, C. A. et al. The near Eastern origin of cat domestication. Science 317 , 519–523 (2007). 17600185"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The near Eastern origin of cat domestication"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
+        "volumeNumber": 317
+      },
+      "pageStart": 519,
+      "pageEnd": 523
     },
     {
       "type": "Reference",
       "id": "CR44",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1204,17 +2363,59 @@ expression: article
             "C",
             "R"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Legge"
+          ],
+          "givenNames": [
+            "S",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Woinarski"
+          ],
+          "givenNames": [
+            "J",
+            "C"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2019"
       },
-      "text": "Dickman CR Legge SM Woinarski JC Assessing risks to wildlife from free-roaming hybrid cats: the proposed introduction of pet Savannah cats to Australia as a case study Animals 2019 9 795 31615026  Dickman, C. R., Legge, S. M. & Woinarski, J. C. Assessing risks to wildlife from free-roaming hybrid cats: the proposed introduction of pet Savannah cats to Australia as a case study. Animals 9 , 795 (2019). 31615026"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Assessing risks to wildlife from free-roaming hybrid cats: the proposed introduction of pet Savannah cats to Australia as a case study"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Animals"
+            }
+          }
+        ],
+        "volumeNumber": 9
+      },
+      "pageStart": 795
     },
     {
       "type": "Reference",
       "id": "CR45",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1230,11 +2431,50 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "text": "Yu H Genomic evidence for the Chinese mountain cat as a wildcat conspecific ( Felis silvestris bieti ) and its introgression to domestic cats Sci. Adv. 2021 7 eabg0221 34162544  Yu, H. et al. Genomic evidence for the Chinese mountain cat as a wildcat conspecific ( Felis silvestris bieti ) and its introgression to domestic cats. Sci. Adv. 7 , eabg0221 (2021). 34162544"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Genomic evidence for the Chinese mountain cat as a wildcat conspecific ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Felis silvestris bieti"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") and its introgression to domestic cats"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sci. Adv."
+            }
+          }
+        ],
+        "volumeNumber": 7
+      },
+      "pageStart": "eabg0221"
     },
     {
       "type": "Reference",
       "id": "CR46",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1244,17 +2484,131 @@ expression: article
           "givenNames": [
             "N"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Driscoll"
+          ],
+          "givenNames": [
+            "C",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kitchener"
+          ],
+          "givenNames": [
+            "A",
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ward"
+          ],
+          "givenNames": [
+            "J",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Macdonald"
+          ],
+          "givenNames": [
+            "D",
+            "W"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2004"
       },
-      "text": "Yamaguchi N Driscoll CA Kitchener AC Ward JM Macdonald DW Craniological differentiation between European wildcats ( Felis S.lvestris S.lvestris ), African wildcats ( F. S. lybica ) and Asian wildcats ( F. S. ornata ): implications for their evolution and conservation Biol. J. Linn. Soc. 2004 83 47 63 Yamaguchi, N., Driscoll, C. A., Kitchener, A. C., Ward, J. M. & Macdonald, D. W. Craniological differentiation between European wildcats ( Felis S.lvestris S.lvestris ), African wildcats ( F. S. lybica ) and Asian wildcats ( F. S. ornata ): implications for their evolution and conservation. Biol. J. Linn. Soc. 83 , 47–63 (2004)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Craniological differentiation between European wildcats ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Felis S.lvestris S.lvestris"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "), African wildcats ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "F. S. lybica"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") and Asian wildcats ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "F. S. ornata"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "): implications for their evolution and conservation"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biol. J. Linn. Soc."
+            }
+          }
+        ],
+        "volumeNumber": 83
+      },
+      "pageStart": 47,
+      "pageEnd": 63
     },
     {
       "type": "Reference",
       "id": "CR47",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1265,17 +2619,49 @@ expression: article
             "J",
             "L"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Van Valkenburgh"
+          ],
+          "givenNames": [
+            "B"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1997"
       },
-      "text": "Gittleman JL Van Valkenburgh B Sexual dimorphism in the canines and skulls of carnivores: effects of size, phylogeny, and behavioural ecology J. Zool. 1997 242 97 117 Gittleman, J. L. & Van Valkenburgh, B. Sexual dimorphism in the canines and skulls of carnivores: effects of size, phylogeny, and behavioural ecology. J. Zool. 242 , 97–117 (1997)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sexual dimorphism in the canines and skulls of carnivores: effects of size, phylogeny, and behavioural ecology"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Zool."
+            }
+          }
+        ],
+        "volumeNumber": 242
+      },
+      "pageStart": 97,
+      "pageEnd": 117
     },
     {
       "type": "Reference",
       "id": "CR48",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1285,17 +2671,103 @@ expression: article
           "givenNames": [
             "N"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kitchener"
+          ],
+          "givenNames": [
+            "A",
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gilissen"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Macdonald"
+          ],
+          "givenNames": [
+            "D",
+            "W"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2009"
       },
-      "text": "Yamaguchi N Kitchener AC Gilissen E Macdonald DW Brain size of the lion ( Panthera leo ) and the tiger ( P. tigris ): implications for intrageneric phylogeny, intraspecific differences and the effects of captivity Biol. J. Linn. Soc. 2009 98 85 93 Yamaguchi, N., Kitchener, A. C., Gilissen, E. & Macdonald, D. W. Brain size of the lion ( Panthera leo ) and the tiger ( P. tigris ): implications for intrageneric phylogeny, intraspecific differences and the effects of captivity. Biol. J. Linn. Soc. 98 , 85–93 (2009)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Brain size of the lion ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Panthera leo"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") and the tiger ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "P. tigris"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "): implications for intrageneric phylogeny, intraspecific differences and the effects of captivity"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biol. J. Linn. Soc."
+            }
+          }
+        ],
+        "volumeNumber": 98
+      },
+      "pageStart": 85,
+      "pageEnd": 93
     },
     {
       "type": "Reference",
       "id": "CR49",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1311,11 +2783,50 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "text": "Saragusty J Comparative skull analysis suggests species-specific captivity-related malformation in lions ( Panthera leo ) PLoS One 2014 9 e94527 24718586  Saragusty, J. et al. Comparative skull analysis suggests species-specific captivity-related malformation in lions ( Panthera leo ). PLoS One . 9 , e94527 (2014). 24718586"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Comparative skull analysis suggests species-specific captivity-related malformation in lions ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Panthera leo"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ")"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS One"
+            }
+          }
+        ],
+        "volumeNumber": 9
+      },
+      "pageStart": "e94527"
     },
     {
       "type": "Reference",
       "id": "CR50",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1332,11 +2843,33 @@ expression: article
         "type": "Date",
         "value": "2023"
       },
-      "text": "Cooper DM Getting to the meat of it: the effects of a captive diet upon the skull morphology of the lion and tiger Animals 2023 13 3616 38066967  Cooper, D. M. et al. Getting to the meat of it: the effects of a captive diet upon the skull morphology of the lion and tiger. Animals 13 , 3616 (2023). 38066967"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Getting to the meat of it: the effects of a captive diet upon the skull morphology of the lion and tiger"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Animals"
+            }
+          }
+        ],
+        "volumeNumber": 13
+      },
+      "pageStart": 3616
     },
     {
       "type": "Reference",
       "id": "CR51",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1350,9 +2883,47 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "1842"
+        "value": "2024"
       },
-      "text": "Nanova O Skull morphology analysis suggests the extinct cape lion, Panthera leo melanochaita (Smith, 1842), is not distinctive Sci. Rep. 2024 14 24251 39414828  Nanova, O. et al. Skull morphology analysis suggests the extinct cape lion, Panthera leo melanochaita (Smith, 1842), is not distinctive. Sci. Rep. 14 , 24251 (2024). 39414828"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Skull morphology analysis suggests the extinct cape lion, "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Panthera leo melanochaita"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " (Smith, 1842), is not distinctive"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sci. Rep."
+            }
+          }
+        ],
+        "volumeNumber": 14
+      },
+      "pageStart": 24251
     },
     {
       "type": "Reference",
@@ -1388,6 +2959,7 @@ expression: article
     {
       "type": "Reference",
       "id": "CR53",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1397,17 +2969,48 @@ expression: article
           "givenNames": [
             "R"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hao"
+          ],
+          "givenNames": [
+            "N"
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2022"
       },
-      "text": "Wu R Hao N Quadratic discriminant analysis by projection J. Multivar. Anal. 2022 190 104987 Wu, R. & Hao, N. Quadratic discriminant analysis by projection. J. Multivar. Anal. 190 , 104987 (2022)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Quadratic discriminant analysis by projection"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Multivar. Anal."
+            }
+          }
+        ],
+        "volumeNumber": 190
+      },
+      "pageStart": 104987
     },
     {
       "type": "Reference",
       "id": "CR54",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1424,11 +3027,34 @@ expression: article
         "type": "Date",
         "value": "1987"
       },
-      "text": "Konecny MJ Home range and activity patterns of feral house cats in the Galapagos Islands Oikos 1987 50 17 23 Konecny, M. J. Home range and activity patterns of feral house cats in the Galapagos Islands. Oikos 50 , 17–23 (1987)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Home range and activity patterns of feral house cats in the Galapagos Islands"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Oikos"
+            }
+          }
+        ],
+        "volumeNumber": 50
+      },
+      "pageStart": 17,
+      "pageEnd": 23
     },
     {
       "type": "Reference",
       "id": "CR55",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1445,11 +3071,34 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "text": "Doherty TS A continental-scale analysis of feral cat diet in Australia J. Biogeogr. 2015 42 964 975 Doherty, T. S. et al. A continental-scale analysis of feral cat diet in Australia. J. Biogeogr. 42 , 964–975 (2015)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A continental-scale analysis of feral cat diet in Australia"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Biogeogr."
+            }
+          }
+        ],
+        "volumeNumber": 42
+      },
+      "pageStart": 964,
+      "pageEnd": 975
     },
     {
       "type": "Reference",
       "id": "CR56",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1465,7 +3114,46 @@ expression: article
         "type": "Date",
         "value": "1983"
       },
-      "text": "Izawa M Daily activities of the feral cat Felis catus Linn J. Mammal Soc. Jpn 1983 9 219 228 Izawa, M. Daily activities of the feral cat Felis catus Linn. J. Mammal Soc. Jpn . 9 , 219–228 (1983)."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Daily activities of the feral cat "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Felis catus"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Linn"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Mammal Soc. Jpn"
+            }
+          }
+        ],
+        "volumeNumber": 9
+      },
+      "pageStart": 219,
+      "pageEnd": 228
     },
     {
       "type": "Reference",
