@@ -1,3 +1,5 @@
+// Imports custom components for all node types
+
 import './admonition'
 import './array'
 import './article'

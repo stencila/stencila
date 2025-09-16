@@ -14,7 +14,7 @@ import { UIBlockOnDemand } from '../ui/nodes/cards/block-on-demand'
 
 import 'katex/dist/katex.min.css'
 // import '../themes/nodes.css'
-import '../nodes'
+import '../nodes/all'
 import '../shoelace'
 import '../ui/document/menu'
 

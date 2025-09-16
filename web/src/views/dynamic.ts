@@ -6,7 +6,7 @@ import type { DocumentId, DocumentAccess } from '../types'
 
 import { DocumentView } from './document'
 
-import '../nodes'
+import '../nodes/all'
 import '../shoelace'
 import '../ui/document/menu'
 

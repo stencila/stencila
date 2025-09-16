@@ -4,7 +4,7 @@ import { VSCodeClient } from '../clients/vscode'
 
 import { DocumentView } from './document'
 
-import '../nodes'
+import '../nodes/all'
 import '../shoelace'
 import '../ui/document/menu'
 
