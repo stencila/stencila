@@ -3424,7 +3424,150 @@ expression: article
               "caption": [
                 {
                   "type": "Paragraph",
-                  "content": []
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Classification table of eight small cats in the Southeast Asia by quadratic discriminant analysis. Species are "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Prionailurus viverrinus"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pv), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "P. planiceps"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pp), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "P. bengalensis"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pb), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "P. javanensis"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pj), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Catopuma temminckii"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Ct), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Pardofelis marmorata"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pm), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Felis Chaus"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Fc), and "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "F. catus"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Fca). 81.4% of the original groups were correctly classified, and cross-validation classified 81.1% correctly."
+                      }
+                    }
+                  ]
                 }
               ],
               "rows": [
@@ -6693,7 +6836,150 @@ expression: article
               "caption": [
                 {
                   "type": "Paragraph",
-                  "content": []
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Classification table of 16 morphospecies of eight small cats in the Southeast Asia by quadratic discriminant analysis. Species are "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Prionailurus viverrinus"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pv), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "P. planiceps"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pp), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "P. bengalensis"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pb), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "P. javanensis"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pj), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Catopuma temminckii"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Ct), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Pardofelis marmorata"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Pm), "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Felis Chaus"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Fc), and "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "F. catus"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (Fca). Females are indicated by “F” and males by “M”. 68.0% of the original groups were correctly classified, and cross-validation classified 62.2% correctly."
+                      }
+                    }
+                  ]
                 }
               ],
               "rows": [

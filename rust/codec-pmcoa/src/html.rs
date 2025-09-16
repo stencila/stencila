@@ -582,7 +582,7 @@ fn concatenate_text_nodes(inlines: Vec<Inline>) -> Vec<Inline> {
 /// Decode a table section (section with class "tw xbox")
 fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
     let id = get_attr(section, "id");
-    let mut caption = None;
+    let mut caption = Vec::new();
     let mut label = None;
     let mut rows = Vec::new();
     let mut notes = Vec::new();
@@ -600,14 +600,14 @@ fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
             match tag_name.as_ref() {
                 "h4" if tag_class.contains("obj_head") => {
                     let mut caption_inlines = decode_inlines(parser, tag)?;
-
                     label = extract_and_clean_table_label(&mut caption_inlines);
-
-                    let paragraph = Paragraph {
-                        content: caption_inlines,
-                        ..Default::default()
-                    };
-                    caption = Some(vec![Block::Paragraph(paragraph)]);
+                    if !caption_inlines.is_empty() {
+                        caption.push(p(caption_inlines));
+                    }
+                }
+                "div" if tag_class.contains("caption") => {
+                    let blocks = decode_blocks(parser, tag)?;
+                    caption.extend(blocks);
                 }
                 "div" if tag_class.contains("tbl-box") => {
                     if let Some(table_tag) = tag
@@ -642,6 +642,7 @@ fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
     }
 
     let label_automatically = label.is_some().then_some(false);
+    let caption = (!caption.is_empty()).then_some(caption);
     let notes = (!notes.is_empty()).then_some(notes);
 
     Ok(Some(Table {
