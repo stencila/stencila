@@ -653,6 +653,10 @@ expression: jats
         </caption>
       </supplementary-material>
     </sec>
+    <sec sec-type="DataAvailability">
+      <title level="1">Data Availability</title>
+      <p>All relevant data are within the manuscript and its<ext-link xlink:href="#sec020">Supporting Information</ext-link>files. In the data for<ext-link xlink:href="#pone.0332245.g004">Fig 4</ext-link>included in<ext-link xlink:href="#sec020">Supporting Information</ext-link>, mosquito sample IDs were anonymized. GPS data representing individual households cannot be made publicly available in accordance with the participants’ consent process, in which participants have not given approval to share their households’ GPS location data.</p>
+    </sec>
     <sec sec-type="Acknowledgements">
       <p>We thank all the members of the Kanuka laboratory for their assistance and advice. In particular, Chisako Sakuma for mosquito rearing.</p>
     </sec>

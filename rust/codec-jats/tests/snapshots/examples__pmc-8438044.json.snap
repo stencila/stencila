@@ -21098,35 +21098,6 @@ expression: article
     },
     {
       "type": "Section",
-      "sectionType": "SupplementaryMaterials",
-      "content": [
-        {
-          "type": "Heading",
-          "level": 1,
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "Supplementary Information"
-              }
-            }
-          ]
-        },
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "The online version contains supplementary material available at 10.1038/s41598-021-97128-3."
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [
         {
@@ -21148,6 +21119,93 @@ expression: article
               "type": "Text",
               "value": {
                 "string": "The expedition to the Javari River was funded by São Paulo State Research Foundation grant to GTV (FAPESP #2016/07910-0) and Global Genome Initiative grant to CDS, CBD, and LRP (GGI-Peer-2017-149). A Global Genome Initiative grant to CDS to survey African rivers and build DNA barcoding and metabarcoding archives for freshwater fishes (GGI-Peer-2020-258). CDS wish to acknowledge funding and technical support from the Smithsonian Institution Barcode Network (2018, 2019, 2020 Award Cycle) and the use of facilities at the Laboratories of Analytical Biology, National Museum of Natural History, Smithsonian Institution. JZ received a productivity grant from Brazil’s CNPq (#313183/2014-7). AD, CDS, and NAM are funded by FAPESP (#2016/19075-9). MM and TS were supported by Environment Research and Technology Development Fund (4-1602) of the Ministry of the Environment, Japan."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "AuthorContributions",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Author contributions"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The study was conceived by C.D.S. and designed by C.D.S. and MM. Environmental samples were collected by C.D.S., D.A.B., J.Z., G.T.V. M.M. and T.S. performed laboratory analyses. Bioinformatic and statistical analyses were performed by C.D.S. and M.M. The manuscript was written by C.D.S. with input from all the authors. C.D.S. coordinated the study."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "DataAvailability",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Data availability"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Raw data will be made public on the DRYAD repository upon acceptance."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing interests"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors declare no competing interests."
               }
             }
           ]

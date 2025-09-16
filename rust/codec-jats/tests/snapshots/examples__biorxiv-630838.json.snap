@@ -15154,6 +15154,35 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing Interest Statement"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors have declared no competing interest."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "content": [
         {
           "type": "Heading",

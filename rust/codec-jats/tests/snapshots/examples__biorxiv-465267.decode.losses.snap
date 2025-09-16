@@ -147,4 +147,8 @@ expression: info.losses
 //article/front/article-meta/self-uri: 9
 //article/front/journal-meta/abbrev-journal-title: 1
 //article/front/journal-meta/journal-id: 2
-//article/front/notes: 1
+//article/front/notes/@id: 1
+//article/front/notes/fn-group: 1
+//article/front/notes/notes/@id: 1
+//article/front/notes/notes/p/@id: 1
+//article/front/notes/notes/title/@id: 1

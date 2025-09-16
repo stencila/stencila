@@ -3,7 +3,7 @@ use roxmltree::{Document, ParsingOptions};
 use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses,
     eyre::{OptionExt, Result},
-    stencila_schema::{Article, Node},
+    stencila_schema::{Article, Block, Node, Section},
 };
 
 mod back;
@@ -12,7 +12,7 @@ mod front;
 mod utilities;
 
 use back::decode_back;
-use body::decode_body;
+use body::decode_blocks;
 use front::decode_front;
 
 use self::utilities::{extend_path, record_node_lost};
@@ -47,16 +47,48 @@ pub fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, Deco
     };
 
     let path = "//article";
+    let mut content = Vec::new();
+    let mut notes = Vec::new();
     for child in root.children() {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
         match tag {
-            "front" => decode_front(&child_path, &child, &mut article, &mut losses),
-            "body" => decode_body(&child_path, &child, &mut article, &mut losses),
-            "back" => decode_back(&child_path, &child, &mut article, &mut losses),
+            "front" => {
+                decode_front(&child_path, &child, &mut article, &mut losses);
+                // Take any content added by the front matter so it can be appended after main content
+                notes.append(&mut article.content);
+            }
+            "body" => {
+                content = decode_blocks(&child_path, child.children(), &mut losses, 0);
+            }
+            "back" => {
+                decode_back(&child_path, &child, &mut article, &mut losses);
+                // Take any content added by the back matter to notes
+                notes.append(&mut article.content);
+            }
             _ => record_node_lost(path, &child, &mut losses),
         }
     }
+
+    // Append any front or back matter content (e.g. <notes>) but not if the same section
+    // already exists (e.g. sometime conflict of interest section is in frontmatter notes and body)
+    for block in notes {
+        if let Block::Section(Section {
+            section_type: Some(section_type),
+            ..
+        }) = block
+        {
+            if !content.iter().any(|block| match block {
+                Block::Section(section) => section.section_type == Some(section_type),
+                _ => false,
+            }) {
+                content.push(block);
+            }
+        } else {
+            content.push(block);
+        }
+    }
+    article.content = content;
 
     let node = Node::Article(article);
 

@@ -183,5 +183,9 @@ expression: jats
         <label>1</label>
       </supplementary-material>
     </sec>
+    <sec sec-type="CompetingInterests">
+      <title level="1">Competing Interest Statement</title>
+      <p>The authors have declared no competing interest.</p>
+    </sec>
   </body>
 </article>

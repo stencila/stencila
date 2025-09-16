@@ -10,7 +10,10 @@ use stencila_codec::{
 };
 use stencila_codec_biblio::decode::text_to_reference;
 
-use crate::decode::body::{decode_blocks, decode_sec};
+use crate::decode::{
+    body::{decode_blocks, decode_sec},
+    front::decode_notes,
+};
 
 use super::{
     body::decode_inlines,
@@ -28,6 +31,7 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
                 article.content.push(section);
             }
             "ref-list" => decode_ref_list(&child_path, &child, article, losses),
+            "notes" => decode_notes(&child_path, &child, article, losses),
             "sec" => {
                 let mut blocks = decode_sec(&child_path, &child, losses, 1);
                 article.content.append(&mut blocks);

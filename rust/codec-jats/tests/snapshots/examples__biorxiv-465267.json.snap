@@ -18531,7 +18531,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "CONFLICT OF INTERESTS"
+                "string": "Competing Interest Statement"
               }
             }
           ]
@@ -18542,7 +18542,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "The authors declare that there are no conflicts of interest regarding the publication of this paper."
+                "string": "The authors have declared no competing interest."
               }
             }
           ]

@@ -3,7 +3,8 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 //article/back/fn-group: 1
-//article/back/notes: 3
+//article/back/notes/@id: 1
+//article/back/notes/p/@id: 1
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/@name-style: 348
 //article/back/ref-list/ref/italic/@toggle: 8

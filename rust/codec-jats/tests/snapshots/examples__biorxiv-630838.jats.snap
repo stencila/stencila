@@ -476,6 +476,10 @@ expression: jats
         <label>Modelling supplemental text</label>
       </supplementary-material>
     </sec>
+    <sec sec-type="CompetingInterests">
+      <title level="1">Competing Interest Statement</title>
+      <p>The authors have declared no competing interest.</p>
+    </sec>
     <sec>
       <title level="1">Scientific illustrations</title>
       <p>Illustrations and cartoons were made using Adobe illustrator and BioRender.</p>

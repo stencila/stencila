@@ -21454,6 +21454,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "SupplementaryMaterials",
       "content": [
         {
           "type": "Heading",

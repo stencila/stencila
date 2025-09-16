@@ -7,9 +7,9 @@ use stencila_codec::{
     Losses,
     stencila_format::Format,
     stencila_schema::{
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationOptions,
-        Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, CreativeWorkType,
-        Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
+        Admonition, AudioObject, AudioObjectOptions, Block, Citation, CitationOptions, Claim,
+        ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, CreativeWorkType, Date,
+        DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
         Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions, MathInline,
         MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
         SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions, TableOptions,
@@ -25,16 +25,6 @@ use crate::encode::serialize_node;
 use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
 
 const XLINK: &str = "http://www.w3.org/1999/xlink";
-
-/// Decode the `<body>` of an `<article>`
-///
-/// Iterates over all child elements and either decodes them (by delegating to
-/// the corresponding `decode_*` function for the element name), or adds them to
-/// losses.
-pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    let mut content = decode_blocks(path, node.children(), losses, 0);
-    article.content.append(&mut content)
-}
 
 /// Decode block content nodes
 ///

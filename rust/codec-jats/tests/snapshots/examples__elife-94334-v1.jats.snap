@@ -1326,7 +1326,7 @@ expression: jats
     <sec>
       <title level="1">Additional information</title>
     </sec>
-    <sec>
+    <sec sec-type="SupplementaryMaterials">
       <title level="1">Additional files</title>
       <supplementary-material id="supp1" href="elife-94334-supp1-v1.docx">
         <label>file 1.</label>

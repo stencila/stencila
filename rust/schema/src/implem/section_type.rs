@@ -1,10 +1,14 @@
+use inflector::Inflector;
+
 use crate::{SectionType, prelude::*};
 
 impl SectionType {
     pub fn from_text(text: &str) -> Result<Self> {
         use SectionType::*;
 
-        let lower = text.to_lowercase().split_whitespace().join(" ");
+        // Use to_sentence_case here to be able to handle a variety of formats
+        // including kebab and camel casing
+        let lower = text.to_sentence_case().to_lowercase();
         let trimmed = lower.trim();
 
         if trimmed.starts_with("appendix") {
@@ -23,6 +27,15 @@ impl SectionType {
                 || trimmed.ends_with(" files"))
         {
             return Ok(SupplementaryMaterials);
+        }
+
+        if trimmed.starts_with("competing interest")
+            || trimmed.starts_with("conflicts of interest")
+            || trimmed.starts_with("conflict of interest")
+            || trimmed.starts_with("declarations of interest")
+            || trimmed.starts_with("declaration of interest")
+        {
+            return Ok(CompetingInterests);
         }
 
         Ok(match trimmed {

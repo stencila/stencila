@@ -7,7 +7,7 @@ use stencila_codec::{
         Article, Author, Block, CreativeWorkVariant, Date, Heading, IntegerOrString, Organization,
         OrganizationOptions, Periodical, Person, PersonOptions, PersonOrOrganization,
         PostalAddressOrString, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
-        PublicationVolume, StringOrNumber, ThingVariant,
+        PublicationVolume, Section, SectionType, StringOrNumber, ThingVariant,
     },
 };
 
@@ -30,6 +30,7 @@ pub(super) fn decode_front(path: &str, node: &Node, article: &mut Article, losse
         match tag {
             "journal-meta" => decode_journal_meta(&child_path, &child, article, losses),
             "article-meta" => decode_article_meta(&child_path, &child, article, losses),
+            "notes" => decode_notes(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -484,7 +485,8 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
                 PersonOrOrganization::Organization(org) => Author::Organization(org),
             };
             authors.push(author);
-        } else if contrib_type.contains("editor") { // Allows for variants such as "senior_editor"
+        } else if contrib_type.contains("editor") {
+            // Allows for variants such as "senior_editor"
             if let PersonOrOrganization::Person(person) = contributor {
                 editors.push(person);
             }
@@ -653,4 +655,42 @@ fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
     }
 
     keyword
+}
+
+/// Decode a `<notes>` element to a [`Block::Section`] that will be appended to
+/// th content of the article
+///
+/// Some JATS has `<notes>` elements that are merely wrappers around other
+/// <notes> and have no `notes-type` or `<title>` child. For these, we
+/// recursively check for nested notes.
+pub fn decode_notes(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    let section_type = node
+        .attribute("notes-type")
+        .and_then(|value| SectionType::from_text(value).ok())
+        .or_else(|| {
+            node.children()
+                .find(|child| child.tag_name().name() == "title")
+                .and_then(|node| node.text())
+                .and_then(|value| SectionType::from_text(value).ok())
+        });
+
+    record_attrs_lost(path, node, ["notes-type"], losses);
+
+    if section_type.is_none() {
+        for child in node.children() {
+            let tag = child.tag_name().name();
+            let child_path = extend_path(path, tag);
+            match tag {
+                "notes" => decode_notes(&child_path, &child, article, losses),
+                _ => record_node_lost(path, &child, losses),
+            };
+        }
+    } else {
+        let content = decode_blocks(path, node.children(), losses, 1);
+        article.content.push(Block::Section(Section {
+            section_type,
+            content,
+            ..Default::default()
+        }));
+    }
 }
