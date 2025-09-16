@@ -35,10 +35,10 @@ use std::{
 };
 
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
-use eyre::{Result, eyre};
+use eyre::{Result, bail, eyre};
 use headless_chrome::{
     Browser, LaunchOptionsBuilder, Tab,
-    protocol::cdp::{Page, types::Event},
+    protocol::cdp::{Page, Runtime, types::Event},
 };
 use itertools::Itertools;
 
@@ -47,40 +47,36 @@ use stencila_web_dist::Web;
 
 /// Converts HTML to PNG and returns as data URI
 ///
-/// This function uses a persistent browser instance for optimal performance.
-/// Optionally, call `warmup()` during application startup for optimal first-call performance.
-///
 /// # Arguments
 /// * `html`: HTML content to render
 ///
 /// # Returns
 /// * `Result<String>`: Base64 encoded PNG as a data URI
 pub fn html_to_png_data_uri(html: &str) -> Result<String> {
-    html_to_png_data_uri_with_padding(html, 16)
+    html_to_png_data_uri_with(html, 16, ConsoleErrorHandling::FailOnErrors)
 }
 
-/// Converts HTML to PNG and returns as data URI with configurable padding
-///
-/// This function uses a persistent browser instance for optimal performance and
-/// crops the screenshot to the content bounds with the specified padding.
+/// Converts HTML to PNG and returns as data URI with configurable padding and error handling
 ///
 /// # Arguments
 /// * `html`: HTML content to render
 /// * `padding`: Padding in pixels around the content (0 for tight cropping)
+/// * `console_error_handling`: How to handle JavaScript console errors
 ///
 /// # Returns
 /// * `Result<String>`: Base64 encoded PNG as a data URI
-pub fn html_to_png_data_uri_with_padding(html: &str, padding: u32) -> Result<String> {
-    let base64_png = capture_screenshot_with_padding(&wrap_html(html), padding)?;
+pub fn html_to_png_data_uri_with(
+    html: &str,
+    padding: u32,
+    console_error_handling: ConsoleErrorHandling,
+) -> Result<String> {
+    let base64_png = capture_png(&wrap_html(html), padding, console_error_handling)?;
 
     // Return as data URI (base64 string already from Chrome)
     Ok(format!("data:image/png;base64,{base64_png}"))
 }
 
 /// Converts HTML to PNG and saves to file
-///
-/// This function uses a persistent browser instance for optimal performance.
-/// Optionally, call `warmup()` during application startup for optimal first-call performance.
 ///
 /// # Arguments
 /// * `html`: HTML content to render
@@ -89,10 +85,10 @@ pub fn html_to_png_data_uri_with_padding(html: &str, padding: u32) -> Result<Str
 /// # Returns
 /// * `Result<()>`: Success or error
 pub fn html_to_png_file(html: &str, path: &Path) -> Result<()> {
-    html_to_png_file_with_padding(html, path, 16)
+    html_to_png_file_with(html, path, 16, ConsoleErrorHandling::FailOnErrors)
 }
 
-/// Converts HTML to PNG and saves to file with configurable padding
+/// Converts HTML to PNG and saves to file with configurable padding and error handling
 ///
 /// This function uses a persistent browser instance for optimal performance and
 /// crops the screenshot to the content bounds with the specified padding.
@@ -101,11 +97,17 @@ pub fn html_to_png_file(html: &str, path: &Path) -> Result<()> {
 /// * `html`: HTML content to render
 /// * `path`: File path where the PNG will be saved
 /// * `padding`: Padding in pixels around the content (0 for tight cropping)
+/// * `console_error_handling`: How to handle JavaScript console errors
 ///
 /// # Returns
 /// * `Result<()>`: Success or error
-pub fn html_to_png_file_with_padding(html: &str, path: &Path, padding: u32) -> Result<()> {
-    let base64_png = capture_screenshot_with_padding(&wrap_html(html), padding)?;
+pub fn html_to_png_file_with(
+    html: &str,
+    path: &Path,
+    padding: u32,
+    console_error_handling: ConsoleErrorHandling,
+) -> Result<()> {
+    let base64_png = capture_png(&wrap_html(html), padding, console_error_handling)?;
 
     // Decode base64 to bytes for file writing
     let png_bytes = BASE64
@@ -121,9 +123,6 @@ pub fn html_to_png_file_with_padding(html: &str, path: &Path, padding: u32) -> R
 
 /// Converts HTML to PDF and saves to file
 ///
-/// This function uses a persistent browser instance for optimal performance.
-/// Optionally, call `warmup()` during application startup for optimal first-call performance.
-///
 /// # Arguments
 /// * `html`: HTML content to render
 /// * `path`: File path where the PDF will be saved
@@ -131,7 +130,24 @@ pub fn html_to_png_file_with_padding(html: &str, path: &Path, padding: u32) -> R
 /// # Returns
 /// * `Result<()>`: Success or error
 pub fn html_to_pdf(html: &str, path: &Path) -> Result<()> {
-    let pdf_bytes = capture_pdf(html)?;
+    html_to_pdf_with(html, path, ConsoleErrorHandling::FailOnErrors)
+}
+
+/// Converts HTML to PDF and saves to file with configurable error handling
+///
+/// # Arguments
+/// * `html`: HTML content to render
+/// * `path`: File path where the PDF will be saved
+/// * `console_error_handling`: How to handle JavaScript console errors
+///
+/// # Returns
+/// * `Result<()>`: Success or error
+pub fn html_to_pdf_with(
+    html: &str,
+    path: &Path,
+    console_error_handling: ConsoleErrorHandling,
+) -> Result<()> {
+    let pdf_bytes = capture_pdf(html, console_error_handling)?;
 
     // Write to file
     std::fs::write(path, &pdf_bytes)
@@ -217,6 +233,31 @@ impl Drop for BrowserManager {
 /// Static browser manager instance that is reused across function calls
 static BROWSER_MANAGER: LazyLock<Mutex<BrowserManager>> =
     LazyLock::new(|| Mutex::new(BrowserManager::new()));
+
+/// Console error collector for capturing JavaScript errors and console messages
+#[derive(Debug, Clone)]
+pub struct ConsoleError {
+    pub level: String,
+    pub message: String,
+    pub timestamp: Option<f64>,
+}
+
+/// Shared console error collector
+type ConsoleErrorCollector = Arc<Mutex<Vec<ConsoleError>>>;
+
+/// Configuration for handling JavaScript console errors
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ConsoleErrorHandling {
+    /// Log console errors as warnings but don't fail the operation (default)
+    #[default]
+    LogWarnings,
+
+    /// Fail the operation if any console errors are detected
+    FailOnErrors,
+
+    /// Ignore console errors completely
+    Ignore,
+}
 
 /// Creates a new browser instance with optimized launch options
 fn create_browser() -> Result<Browser> {
@@ -1007,8 +1048,12 @@ fn wrap_html(html: &str) -> String {
     )
 }
 
-/// Captures HTML content as PNG using persistent browser instance with content cropping
-fn capture_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
+/// Captures HTML content as PNG using persistent browser instance with console error handling
+fn capture_png(
+    html: &str,
+    padding: u32,
+    console_error_handling: ConsoleErrorHandling,
+) -> Result<String> {
     // Testing indicated that for Plotly is is best to use a fresh browser tab
     if html.contains("application/vnd.plotly.v1+json") {
         shutdown().ok();
@@ -1017,7 +1062,7 @@ fn capture_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
     // Ensure we have a working browser, recreating if necessary
     ensure_browser_available()?;
 
-    let result = try_screenshot_with_padding(html, padding);
+    let result = try_png(html, padding, console_error_handling);
     if result.is_err() {
         // Force recreation by clearing both browser and tab
         if let Ok(mut manager) = BROWSER_MANAGER.lock() {
@@ -1028,54 +1073,31 @@ fn capture_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
         ensure_browser_available()?;
 
         // Retry the screenshot
-        try_screenshot_with_padding(html, padding)
+        try_png(html, padding, console_error_handling)
     } else {
         result
     }
 }
 
-/// Attempts to take a screenshot with the current tab instance, cropped to content
-fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
-    let mut manager = BROWSER_MANAGER
-        .lock()
-        .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;
+/// Attempts to take a screenshot with console error handling
+fn try_png(
+    html: &str,
+    padding: u32,
+    console_error_handling: ConsoleErrorHandling,
+) -> Result<String> {
+    // Set up the browser tab with the HTML content
+    let (mut manager, tab) = setup_tab_for_capture(html)?;
 
-    let tab = manager
-        .tab()
-        .ok_or_else(|| eyre!("No tab instance available"))?;
-
-    // Use Page.setDocumentContent for fastest content injection
-    let frame_tree = tab
-        .call_method(Page::GetFrameTree(None))
-        .map_err(|error| eyre!("Failed to get frame tree: {error}"))?;
-
-    tab.call_method(Page::SetDocumentContent {
-        frame_id: frame_tree.frame_tree.frame.id,
-        html: html.to_string(),
-    })
-    .map_err(|error| eyre!("Failed to set document content: {error}"))?;
-
-    // Set global variable to enable static mode for interactive visualizations
-    tab.evaluate("window.STENCILA_STATIC_MODE = true;", false)
-        .map_err(|error| eyre!("Failed to set static mode: {error}"))?;
-
-    tab.enable_log()
-        .map_err(|error| eyre!("Failed to enable log: {error}"))?;
-    tab.add_event_listener(Arc::new(move |event: &Event| {
-        if let Event::LogEntryAdded(entry) = event {
-            tracing::debug!("{:?} {}", entry.params.entry.level, entry.params.entry.text)
-        }
-    }))
-    .map_err(|error| eyre!("Failed to add log event listener: {error}"))?;
+    // Set up console error handling
+    let console_errors = setup_console_error_handling(&tab, console_error_handling)?;
 
     // Wait for interactive visualizations to complete rendering
-    // This detects media types and waits only when necessary
-    if let Err(error) = detect_rendering_completion(tab, html) {
-        tracing::warn!("Rendering completion detection failed: {error}. Taking screenshot anyway.",);
+    if let Err(error) = detect_rendering_completion(&tab, html) {
+        tracing::warn!("Rendering completion detection failed: {error}. Taking screenshot anyway.");
     }
 
     // Calculate content bounds for cropping with exponential backoff
-    let clip = wait_for_content_bounds_with_backoff(tab, html, padding)?;
+    let clip = wait_for_content_bounds_with_backoff(&tab, html, padding)?;
 
     // Capture screenshot with content cropping or full page fallback
     let has_clip = clip.is_some();
@@ -1098,19 +1120,21 @@ fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
         tracing::debug!("Screenshot captured without cropping (fallback to full page)");
     }
 
-    // Dropping of the browser does not work reliably, causing zombie chrome processes
-    // so shutdown explicitly.
+    // Handle console errors based on configuration
+    handle_console_errors(console_errors, console_error_handling, "rendering")?;
+
+    // Cleanup
     manager.cleanup();
 
     Ok(result.data)
 }
 
-/// Converts HTML to PDF using the current browser instance
-fn capture_pdf(html: &str) -> Result<Vec<u8>> {
+/// Converts HTML to PDF using the current browser instance with console error handling
+fn capture_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<Vec<u8>> {
     // Ensure we have a working browser, recreating if necessary
     ensure_browser_available()?;
 
-    let result = try_capture_pdf(html);
+    let result = try_pdf(html, console_error_handling);
     if result.is_err() {
         // Force recreation by clearing both browser and tab
         if let Ok(mut manager) = BROWSER_MANAGER.lock() {
@@ -1121,21 +1145,54 @@ fn capture_pdf(html: &str) -> Result<Vec<u8>> {
         ensure_browser_available()?;
 
         // Retry the PDF capture
-        try_capture_pdf(html)
+        try_pdf(html, console_error_handling)
     } else {
         result
     }
 }
 
-/// Attempts to generate a PDF with the current tab instance
-fn try_capture_pdf(html: &str) -> Result<Vec<u8>> {
-    let mut manager = BROWSER_MANAGER
+/// Attempts to generate a PDF with console error handling
+fn try_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<Vec<u8>> {
+    // Set up the browser tab with the HTML content
+    let (mut manager, tab) = setup_tab_for_capture(html)?;
+
+    // Set up console error handling
+    let console_errors = setup_console_error_handling(&tab, console_error_handling)?;
+
+    // Wait for interactive visualizations to complete rendering
+    if let Err(error) = detect_rendering_completion(&tab, html) {
+        tracing::warn!("Rendering completion detection failed: {error}. Generating PDF anyway.");
+    }
+
+    // Generate PDF with default options
+    let pdf_bytes = tab
+        .print_to_pdf(None)
+        .map_err(|error| eyre!("Failed to generate PDF: {error}"))?;
+
+    tracing::debug!("PDF generated successfully");
+
+    // Handle console errors based on configuration
+    handle_console_errors(console_errors, console_error_handling, "PDF generation")?;
+
+    // Cleanup
+    manager.cleanup();
+
+    Ok(pdf_bytes)
+}
+
+/// Sets up a browser tab with the given HTML content and static mode
+/// Returns the browser manager and tab for further operations
+fn setup_tab_for_capture(
+    html: &str,
+) -> Result<(std::sync::MutexGuard<'static, BrowserManager>, Arc<Tab>)> {
+    let manager = BROWSER_MANAGER
         .lock()
         .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;
 
     let tab = manager
         .tab()
-        .ok_or_else(|| eyre!("No tab instance available"))?;
+        .ok_or_else(|| eyre!("No tab instance available"))?
+        .clone();
 
     // Use Page.setDocumentContent for fastest content injection
     let frame_tree = tab
@@ -1152,24 +1209,119 @@ fn try_capture_pdf(html: &str) -> Result<Vec<u8>> {
     tab.evaluate("window.STENCILA_STATIC_MODE = true;", false)
         .map_err(|error| eyre!("Failed to set static mode: {error}"))?;
 
-    // Wait for interactive visualizations to complete rendering
-    // This detects media types and waits only when necessary
-    if let Err(error) = detect_rendering_completion(tab, html) {
-        tracing::warn!("Rendering completion detection failed: {error}. Generating PDF anyway.",);
+    Ok((manager, tab))
+}
+
+/// Sets up console error handling for a browser tab
+/// Returns an optional console error collector based on the handling mode
+fn setup_console_error_handling(
+    tab: &Arc<Tab>,
+    console_error_handling: ConsoleErrorHandling,
+) -> Result<Option<ConsoleErrorCollector>> {
+    if console_error_handling == ConsoleErrorHandling::Ignore {
+        return Ok(None);
     }
 
-    // Generate PDF with default options
-    let pdf_bytes = tab
-        .print_to_pdf(None)
-        .map_err(|error| eyre!("Failed to generate PDF: {error}"))?;
+    tab.enable_log()
+        .map_err(|error| eyre!("Failed to enable log: {error}"))?;
 
-    tracing::debug!("PDF generated successfully");
+    // Enable Runtime domain to receive console API calls and exceptions
+    tab.call_method(Runtime::Enable(Default::default()))
+        .map_err(|error| eyre!("Failed to enable runtime: {error}"))?;
 
-    // Dropping of the browser does not work reliably, causing zombie chrome processes
-    // so shutdown explicitly.
-    manager.cleanup();
+    // Create console error collector for this session
+    let console_errors: ConsoleErrorCollector = Arc::new(Mutex::new(Vec::new()));
+    let console_errors_clone = Arc::clone(&console_errors);
 
-    Ok(pdf_bytes)
+    tab.add_event_listener(Arc::new(move |event: &Event| {
+        match event {
+            Event::LogEntryAdded(entry) => {
+                tracing::debug!("{:?} {}", entry.params.entry.level, entry.params.entry.text)
+            }
+            Event::RuntimeConsoleAPICalled(console_event) => {
+                let level = format!("{:?}", console_event.params.Type).to_lowercase();
+                let mut message = String::new();
+
+                // Combine all arguments into a single message
+                for arg in &console_event.params.args {
+                    if let Some(value) = &arg.value {
+                        message.push_str(&format!("{} ", value));
+                    }
+                }
+
+                // Only capture error and assert level messages
+                if level.contains("error") || level.contains("assert") {
+                    if let Ok(mut errors) = console_errors_clone.lock() {
+                        errors.push(ConsoleError {
+                            level: level.clone(),
+                            message: message.trim().to_string(),
+                            timestamp: Some(console_event.params.timestamp),
+                        });
+                    }
+                }
+
+                tracing::debug!("Console {}: {}", level, message);
+            }
+            Event::RuntimeExceptionThrown(exception_event) => {
+                let exception_details = &exception_event.params.exception_details;
+                let message = exception_details.text.clone();
+
+                if let Ok(mut errors) = console_errors_clone.lock() {
+                    errors.push(ConsoleError {
+                        level: "exception".to_string(),
+                        message: message.clone(),
+                        timestamp: None,
+                    });
+                }
+
+                tracing::debug!("JavaScript exception: {}", message);
+            }
+            _ => {}
+        }
+    }))
+    .map_err(|error| eyre!("Failed to add event listener: {error}"))?;
+
+    Ok(Some(console_errors))
+}
+
+/// Handles console errors based on configuration
+/// Returns an error if FailOnErrors mode is set and errors were found
+fn handle_console_errors(
+    console_errors: Option<ConsoleErrorCollector>,
+    console_error_handling: ConsoleErrorHandling,
+    context: &str,
+) -> Result<()> {
+    if let Some(console_errors) = console_errors {
+        if let Ok(errors) = console_errors.lock() {
+            if !errors.is_empty() {
+                let error_messages: Vec<String> = errors
+                    .iter()
+                    .map(|e| format!("[{}] {}", e.level, e.message))
+                    .collect();
+
+                match console_error_handling {
+                    ConsoleErrorHandling::LogWarnings => {
+                        tracing::warn!(
+                            "JavaScript console errors detected during {}: {}",
+                            context,
+                            error_messages.join("; ")
+                        );
+                    }
+                    ConsoleErrorHandling::FailOnErrors => {
+                        bail!(
+                            "JavaScript console errors detected during {}: {}",
+                            context,
+                            error_messages.join("; ")
+                        );
+                    }
+                    ConsoleErrorHandling::Ignore => {
+                        // Should never reach here due to early return in setup
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -1259,7 +1411,7 @@ mod tests {
     }
 
     /// To run this test with logs printed:
-    /// RUST_LOG=trace cargo test -p convert html_to_png::tests::test_rendering -- --nocapture
+    /// RUST_LOG=trace cargo test -p stencila-convert html_to_png::tests::test_rendering -- --nocapture
     #[ignore = "primarily for development"]
     #[test_log::test]
     fn test_rendering() -> Result<()> {
@@ -1397,6 +1549,85 @@ mod tests {
         // Clean up
         remove_file(&test_path).ok();
 
+        Ok(())
+    }
+
+    /// To run this test with logs printed:
+    /// RUST_LOG=info cargo test -p stencila-convert html_to_png::tests::test_console_errors -- --nocapture
+    #[ignore = "primarily for development"]
+    #[test_log::test]
+    fn test_console_errors() -> eyre::Result<()> {
+        tracing::info!("Testing console error capture...");
+
+        // HTML with intentional JavaScript errors
+        let html_with_errors = r#"
+    <html>
+    <head>
+        <script>
+            console.log("This should work fine");
+            console.error("This is an intentional error");
+            console.warn("This is a warning");
+
+            // This will cause an exception
+            try {
+                nonExistentFunction();
+            } catch (e) {
+                console.error("Caught exception:", e.message);
+            }
+
+            // This will cause an uncaught exception
+            setTimeout(() => {
+                throw new Error("Uncaught error for testing");
+            }, 100);
+        </script>
+    </head>
+    <body>
+        <h1>Test Console Errors</h1>
+        <p>This page contains intentional JavaScript errors for testing.</p>
+    </body>
+    </html>
+    "#;
+
+        tracing::info!("\n1. Testing with LogWarnings (should succeed but log warnings):");
+        match html_to_png_data_uri_with(html_with_errors, 16, ConsoleErrorHandling::LogWarnings) {
+            Ok(_) => tracing::info!("LogWarnings mode: Operation succeeded (as expected)"),
+            Err(e) => bail!("LogWarnings mode: Unexpected error: {e}"),
+        }
+
+        tracing::info!("\n2. Testing with FailOnErrors (should fail due to console errors):");
+        match html_to_png_data_uri_with(html_with_errors, 16, ConsoleErrorHandling::FailOnErrors) {
+            Ok(_) => bail!("FailOnErrors mode: Unexpected success"),
+            Err(e) => tracing::info!("FailOnErrors mode: Failed as expected: {e}"),
+        }
+
+        tracing::info!("\n3. Testing with Ignore (should succeed and ignore errors):");
+        match html_to_png_data_uri_with(html_with_errors, 16, ConsoleErrorHandling::Ignore) {
+            Ok(_) => tracing::info!("Ignore mode: Operation succeeded (as expected)"),
+            Err(e) => bail!("Ignore mode: Unexpected error: {e}"),
+        }
+
+        // Test with clean HTML (no errors)
+        let clean_html = r#"
+    <html>
+    <head>
+        <script>
+            console.log("This is a normal log message");
+        </script>
+    </head>
+    <body>
+        <h1>Clean Test</h1>
+        <p>This page has no JavaScript errors.</p>
+    </body>
+    </html>
+    "#;
+
+        tracing::info!("\n4. Testing clean HTML with FailOnErrors (should succeed):");
+        match html_to_png_data_uri_with(clean_html, 16, ConsoleErrorHandling::FailOnErrors) {
+            Ok(_) => tracing::info!("Clean HTML: Operation succeeded (as expected)"),
+            Err(e) => bail!("Clean HTML: Unexpected error: {e}"),
+        }
+
+        tracing::info!("\nConsole error capture test completed!");
         Ok(())
     }
 }
