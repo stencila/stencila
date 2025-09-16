@@ -1264,17 +1264,85 @@ fn setup_console_error_handling(
             }
             Event::RuntimeExceptionThrown(exception_event) => {
                 let exception_details = &exception_event.params.exception_details;
-                let message = exception_details.text.clone();
+
+                // Build a comprehensive error message with all available details
+                let mut message_parts = Vec::new();
+
+                // Basic exception text
+                message_parts.push(exception_details.text.clone());
+
+                // Add line and column information if available
+                if exception_details.line_number > 0 {
+                    if exception_details.column_number > 0 {
+                        message_parts.push(format!(
+                            "at line {}, column {}",
+                            exception_details.line_number, exception_details.column_number
+                        ));
+                    } else {
+                        message_parts.push(format!("at line {}", exception_details.line_number));
+                    }
+                }
+
+                // Add script/URL information if available
+                if let Some(url) = &exception_details.url {
+                    message_parts.push(format!("in {}", url));
+                } else if let Some(script_id) = &exception_details.script_id {
+                    message_parts.push(format!("in script {}", script_id));
+                }
+
+                // Add stack trace if available
+                if let Some(stack_trace) = &exception_details.stack_trace {
+                    if !stack_trace.call_frames.is_empty() {
+                        let mut stack_info = Vec::new();
+                        for (i, frame) in stack_trace.call_frames.iter().take(3).enumerate() {
+                            let function_name = if frame.function_name.is_empty() {
+                                "<anonymous>"
+                            } else {
+                                &frame.function_name
+                            };
+                            let url = if frame.url.is_empty() {
+                                "<unknown>"
+                            } else {
+                                &frame.url
+                            };
+
+                            let frame_info = format!(
+                                "  {}. {} ({}:{}:{})",
+                                i + 1,
+                                function_name,
+                                url,
+                                frame.line_number,
+                                frame.column_number
+                            );
+                            stack_info.push(frame_info);
+                        }
+                        if stack_trace.call_frames.len() > 3 {
+                            stack_info.push("  ... (truncated)".to_string());
+                        }
+                        message_parts.push(format!("Stack trace:\n{}", stack_info.join("\n")));
+                    }
+                }
+
+                // Add exception object details if available
+                if let Some(exception) = &exception_details.exception {
+                    if let Some(description) = &exception.description {
+                        if !description.is_empty() && description != &exception_details.text {
+                            message_parts.push(format!("Exception details: {}", description));
+                        }
+                    }
+                }
+
+                let comprehensive_message = message_parts.join(" | ");
 
                 if let Ok(mut errors) = console_errors_clone.lock() {
                     errors.push(ConsoleError {
                         level: "exception".to_string(),
-                        message: message.clone(),
+                        message: comprehensive_message.clone(),
                         timestamp: None,
                     });
                 }
 
-                tracing::debug!("JavaScript exception: {}", message);
+                tracing::debug!("JavaScript exception: {}", comprehensive_message);
             }
             _ => {}
         }
