@@ -16,10 +16,10 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_schema::{
         Article, Author, Block, Citation, CreativeWorkVariant, Date, Figure, Heading, ImageObject,
-        Inline, IntegerOrString, Node, Organization, Paragraph, Periodical, Person, Primitive,
-        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
-        Section, SectionType, Supplement, Table, TableCell, TableCellOptions, TableRow,
-        TableRowType,
+        Inline, IntegerOrString, List, ListItem, ListOrder, Node, Organization, Paragraph,
+        Periodical, Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
+        PublicationVolume, Reference, Section, SectionType, Supplement, Table, TableCell,
+        TableCellOptions, TableRow, TableRowType,
         shortcuts::{em, h1, h2, lnk, p, stg, sub, sup, t, u},
     },
 };
@@ -465,6 +465,16 @@ fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
                     content.push(Block::Figure(figure));
                 }
             }
+            "ul" | "ol" => {
+                if let Some(list) = decode_list(parser, tag)? {
+                    content.push(Block::List(list));
+                }
+            }
+            "dl" => {
+                if let Some(list) = decode_dl(parser, tag)? {
+                    content.push(Block::List(list));
+                }
+            }
             _ => {}
         }
     }
@@ -486,13 +496,151 @@ fn decode_blocks(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Block>> {
         };
         let tag_name = child_tag.name().as_utf8_str();
 
-        if tag_name.as_ref() == "p" {
-            let paragraph = decode_paragraph(parser, child_tag)?;
-            blocks.push(paragraph);
+        match tag_name.as_ref() {
+            "p" => {
+                let paragraph = decode_paragraph(parser, child_tag)?;
+                blocks.push(paragraph);
+            }
+            "ul" | "ol" => {
+                if let Some(list) = decode_list(parser, child_tag)? {
+                    blocks.push(Block::List(list));
+                }
+            }
+            "dl" => {
+                if let Some(list) = decode_dl(parser, child_tag)? {
+                    blocks.push(Block::List(list));
+                }
+            }
+            _ => {}
         }
     }
 
     Ok(blocks)
+}
+
+/// Decode an unordered or ordered list into a Stencila list
+fn decode_list(parser: &Parser, list_tag: &HTMLTag) -> Result<Option<List>> {
+    let id = get_attr(list_tag, "id");
+    let tag_name = list_tag.name().as_utf8_str();
+
+    // Determine if this is an ordered or unordered list
+    let order = match tag_name.as_ref() {
+        "ol" => ListOrder::Ascending,
+        "ul" => ListOrder::Unordered,
+        _ => return Ok(None), // Not a list we can handle
+    };
+
+    let mut items = Vec::new();
+
+    for child in list_tag
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(tag) = child.as_tag() {
+            let child_tag_name = tag.name().as_utf8_str();
+
+            if child_tag_name.as_ref() == "li" {
+                // Decode the list item content
+                let item_blocks = decode_blocks(parser, tag)?;
+                let content = if item_blocks.is_empty() {
+                    // If no blocks, try to get inline content and wrap in paragraph
+                    let item_inlines = decode_inlines(parser, tag)?;
+                    if item_inlines.is_empty() {
+                        Vec::new()
+                    } else {
+                        vec![p(item_inlines)]
+                    }
+                } else {
+                    item_blocks
+                };
+
+                if !content.is_empty() {
+                    let list_item = ListItem {
+                        content,
+                        ..Default::default()
+                    };
+                    items.push(list_item);
+                }
+            }
+        }
+    }
+
+    if items.is_empty() {
+        return Ok(None);
+    }
+
+    Ok(Some(List {
+        id,
+        order,
+        items,
+        ..Default::default()
+    }))
+}
+
+/// Decode a definition list into a Stencila unordered list
+fn decode_dl(parser: &Parser, dl_tag: &HTMLTag) -> Result<Option<List>> {
+    let id = get_attr(dl_tag, "id");
+    let mut items = Vec::new();
+    let mut current_dt = None;
+
+    for child in dl_tag
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(tag) = child.as_tag() {
+            let tag_name = tag.name().as_utf8_str();
+
+            match tag_name.as_ref() {
+                "dt" => {
+                    // Store the definition term
+                    let dt_inlines = decode_inlines(parser, tag)?;
+                    current_dt = Some(dt_inlines);
+                }
+                "dd" => {
+                    // Process the definition description
+                    if let Some(dt_content) = current_dt.take() {
+                        let mut item_content = Vec::new();
+
+                        // First paragraph: the term as strong text
+                        item_content.push(p([stg(dt_content)]));
+
+                        // Second paragraph(s): the definition
+                        let dd_blocks = decode_blocks(parser, tag)?;
+                        if dd_blocks.is_empty() {
+                            // If no blocks, try to get inline content
+                            let dd_inlines = decode_inlines(parser, tag)?;
+                            if !dd_inlines.is_empty() {
+                                item_content.push(p(dd_inlines));
+                            }
+                        } else {
+                            item_content.extend(dd_blocks);
+                        }
+
+                        let list_item = ListItem {
+                            content: item_content,
+                            ..Default::default()
+                        };
+                        items.push(list_item);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if items.is_empty() {
+        return Ok(None);
+    }
+
+    Ok(Some(List {
+        id,
+        items,
+        ..Default::default()
+    }))
 }
 
 /// Decode a paragraph
