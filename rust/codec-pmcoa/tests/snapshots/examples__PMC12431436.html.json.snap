@@ -4396,15 +4396,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Fig 3"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             },
@@ -5358,15 +5350,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Fig 4"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             },
@@ -6816,15 +6800,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Fig 1"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             },
@@ -7801,15 +7777,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Fig 2"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             },
@@ -9180,8 +9148,7 @@ expression: article
               }
             },
             {
-              "type": "Citation",
-              "target": "sec020",
+              "type": "Link",
               "content": [
                 {
                   "type": "Text",
@@ -9189,7 +9156,8 @@ expression: article
                     "string": "Supporting Information"
                   }
                 }
-              ]
+              ],
+              "target": "#sec020"
             },
             {
               "type": "Text",
@@ -9216,8 +9184,7 @@ expression: article
               }
             },
             {
-              "type": "Citation",
-              "target": "sec020",
+              "type": "Link",
               "content": [
                 {
                   "type": "Text",
@@ -9225,7 +9192,8 @@ expression: article
                     "string": "Supporting Information"
                   }
                 }
-              ]
+              ],
+              "target": "#sec020"
             },
             {
               "type": "Text",

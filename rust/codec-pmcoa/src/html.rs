@@ -485,9 +485,13 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
                             let target = href_val.trim_start_matches('#');
 
                             // Check if this is a figure or table reference
-                            if target.contains(".g")
-                                || target.contains(".t")
-                                || target.contains(".s")
+                            let target_lower = target.to_lowercase();
+                            if target_lower.starts_with("fig")
+                                || target_lower.contains(".g")
+                                || target_lower.starts_with("tab")
+                                || target_lower.contains(".t")
+                                || target_lower.starts_with("sec")
+                                || target_lower.contains(".s")
                             {
                                 // This is a figure, table, or supplement reference
                                 lnk(content, ["#", target].concat())
@@ -832,12 +836,10 @@ fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
                         .and_then(|node| node.as_tag())
                     {
                         let src = get_attr(img_tag, "src");
-                        let alt = get_attr(img_tag, "alt");
 
-                        if let Some(src_val) = src {
+                        if let Some(content_url) = src {
                             let image = ImageObject {
-                                content_url: src_val,
-                                caption: alt.map(|text| vec![t(text)]),
+                                content_url,
                                 ..Default::default()
                             };
                             content.push(Block::ImageObject(image));
