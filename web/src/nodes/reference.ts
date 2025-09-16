@@ -64,7 +64,7 @@ export class Reference extends Entity {
   identifiers?: PropertyValueOrString[]
 
   @property()
-  url?: string  
+  url?: string
 
   override render() {
     const cite = this.closestGlobally('stencila-citation') as Citation | null
@@ -232,10 +232,10 @@ export class Reference extends Entity {
 
     const authors = formatAPAAuthors(this.authors)
     const year = this.date ? ` (${dateYear(this.date)}). ` : '. '
-    const title = this.workType === 'Article' 
+    const title = this.workType === 'Article'
       ? html`<slot name="title"></slot>. `
       : html`<em><slot name="title"></slot></em>. `
-    
+
     const journal = this.isPartOf ? html`<em>${formatJournalAPA(this.isPartOf)}</em>` : ''
     const volume = this.isPartOf?.volumeNumber ? html`, <em>${this.isPartOf.volumeNumber}</em>` : ''
     const issue = this.isPartOf?.issueNumber ? html`(${this.isPartOf.issueNumber})` : ''
@@ -258,10 +258,10 @@ export class Reference extends Entity {
     }
 
     const authors = formatMLAAuthors(this.authors)
-    const title = this.workType === 'Article' 
+    const title = this.workType === 'Article'
       ? html`"<slot name="title"></slot>." `
       : html`<em><slot name="title"></slot></em>. `
-    
+
     const journal = this.isPartOf ? html`<em>${getTitle(this.isPartOf)}</em>` : ''
     const volume = this.isPartOf?.volumeNumber ? html`, vol. ${this.isPartOf.volumeNumber}` : ''
     const issue = this.isPartOf?.issueNumber ? html`, no. ${this.isPartOf.issueNumber}` : ''
@@ -285,10 +285,10 @@ export class Reference extends Entity {
     }
 
     const authors = formatChicagoAuthors(this.authors)
-    const title = this.workType === 'Article' 
+    const title = this.workType === 'Article'
       ? html`"<slot name="title"></slot>." `
       : html`<em><slot name="title"></slot></em>. `
-    
+
     const journal = this.isPartOf ? html`<em>${getTitle(this.isPartOf)}</em> ` : ''
     const volume = this.isPartOf?.volumeNumber ? html`${this.isPartOf.volumeNumber}` : ''
     const issue = this.isPartOf?.issueNumber ? html`, no. ${this.isPartOf.issueNumber}` : ''
@@ -338,10 +338,10 @@ export class Reference extends Entity {
 
     const index = this.appearanceIndex ?? 1
     const authors = formatIEEEAuthors(this.authors)
-    const title = this.workType === 'Article' 
+    const title = this.workType === 'Article'
       ? html`"<slot name="title"></slot>," `
       : html`<em><slot name="title"></slot></em>, `
-    
+
     const journal = this.isPartOf ? html`<em>${getTitle(this.isPartOf)}</em>` : ''
     const volume = this.isPartOf?.volumeNumber ? html`, vol. ${this.isPartOf.volumeNumber}` : ''
     const issue = this.isPartOf?.issueNumber ? html`, no. ${this.isPartOf.issueNumber}` : ''
@@ -366,10 +366,10 @@ export class Reference extends Entity {
 
     const authors = formatHarvardAuthors(this.authors)
     const year = this.date ? ` ${dateYear(this.date)}. ` : '. '
-    const title = this.workType === 'Article' 
+    const title = this.workType === 'Article'
       ? html`'<slot name="title"></slot>'. `
       : html`<em><slot name="title"></slot></em>. `
-    
+
     const journal = this.isPartOf ? html`<em>${getTitle(this.isPartOf)}</em>` : ''
     const volume = this.isPartOf?.volumeNumber ? html`, ${this.isPartOf.volumeNumber}` : ''
     const issue = this.isPartOf?.issueNumber ? html`(${this.isPartOf.issueNumber})` : ''
@@ -459,7 +459,7 @@ function dateYear(date?: string): string {
 function partOf(ref: ReferenceType): string {
   // Build the title with volume/issue info
   let result = ''
-  
+
   // Get the title from the reference
   if (ref.title) {
     function inlineToString(inline: Inline) {
@@ -477,17 +477,17 @@ function partOf(ref: ReferenceType): string {
     }
     result = ref.title.map(inlineToString).join('')
   }
-  
+
   // Add volume number if present
   if (ref.volumeNumber) {
     result += ` ${ref.volumeNumber}`
   }
-  
+
   // Add issue number in parentheses if present
   if (ref.issueNumber) {
     result += ` (${ref.issueNumber})`
   }
-  
+
   return result
 }
 
@@ -518,7 +518,7 @@ function pagesEndashed(
  */
 function getLink(reference: Reference) {
   let url
-  
+
   if (reference.doi && !reference.doi.startsWith('10.0000')) {
     url = `https://doi.org/${reference.doi}`
   }
@@ -568,13 +568,13 @@ function getTitle(ref: ReferenceType): string {
  */
 function formatAPAAuthors(authors?: Author[]): string {
   if (!authors || authors.length === 0) return 'Anon'
-  
-  const formatted = authors.map(author => {
+
+  const formatted = authors.map((author) => {
     switch (author.type) {
       case 'Person':
         if (author.familyNames?.length && author.givenNames?.length > 0) {
-          return author.familyNames.join(' ') + ', ' + 
-                 author.givenNames.map(name => `${name[0]}.`).join(' ')
+          return author.familyNames.join(' ') + ', ' +
+                 author.givenNames.map((name) => `${name[0]}.`).join(' ')
         }
         return author.name || 'Anon'
       case 'Organization':
@@ -591,7 +591,7 @@ function formatAPAAuthors(authors?: Author[]): string {
         }
     }
   })
-  
+
   if (formatted.length === 1) return formatted[0]
   if (formatted.length === 2) return `${formatted[0]}, & ${formatted[1]}`
   return formatted.slice(0, -1).join(', ') + ', & ' + formatted[formatted.length - 1]
@@ -621,10 +621,10 @@ function formatPagesAPA(pageStart?: string, pageEnd?: string, pagination?: strin
  */
 function formatMLAAuthors(authors?: Author[]): string {
   if (!authors || authors.length === 0) return 'Anon'
-  
+
   const first = authors[0]
   let result = ''
-  
+
   switch (first.type) {
     case 'Person':
       if (first.familyNames?.length && first.givenNames?.length > 0) {
@@ -651,7 +651,7 @@ function formatMLAAuthors(authors?: Author[]): string {
       }
       break
   }
-  
+
   if (authors.length === 2) {
     const second = authors[1]
     let secondName = 'Anon'
@@ -675,7 +675,7 @@ function formatMLAAuthors(authors?: Author[]): string {
   } else if (authors.length > 2) {
     result += ' et al.'
   }
-  
+
   return result + '. '
 }
 
@@ -695,10 +695,10 @@ function formatPagesMLA(pageStart?: string, pageEnd?: string, pagination?: strin
  */
 function formatChicagoAuthors(authors?: Author[]): string {
   if (!authors || authors.length === 0) return 'Anon'
-  
+
   const first = authors[0]
   let result = ''
-  
+
   switch (first.type) {
     case 'Person':
       if (first.familyNames?.length && first.givenNames?.length > 0) {
@@ -725,7 +725,7 @@ function formatChicagoAuthors(authors?: Author[]): string {
       }
       break
   }
-  
+
   if (authors.length === 2) {
     const second = authors[1]
     let secondName = 'Anon'
@@ -749,7 +749,7 @@ function formatChicagoAuthors(authors?: Author[]): string {
   } else if (authors.length > 2) {
     result += ' et al.'
   }
-  
+
   return result + '. '
 }
 
@@ -769,13 +769,13 @@ function formatPagesChicago(pageStart?: string, pageEnd?: string, pagination?: s
  */
 function formatVancouverAuthors(authors?: Author[]): string {
   if (!authors || authors.length === 0) return 'Anon'
-  
-  const formatted = authors.map(author => {
+
+  const formatted = authors.map((author) => {
     switch (author.type) {
       case 'Person':
         if (author.familyNames?.length && author.givenNames?.length > 0) {
-          return author.familyNames.join(' ') + ' ' + 
-                 author.givenNames.map(name => name[0]).join('')
+          return author.familyNames.join(' ') + ' ' +
+                 author.givenNames.map((name) => name[0]).join('')
         }
         return author.name || 'Anon'
       case 'Organization':
@@ -792,7 +792,7 @@ function formatVancouverAuthors(authors?: Author[]): string {
         }
     }
   })
-  
+
   if (formatted.length <= 6) {
     return formatted.join(', ') + '. '
   } else {
@@ -816,12 +816,12 @@ function formatPagesVancouver(pageStart?: string, pageEnd?: string, pagination?:
  */
 function formatIEEEAuthors(authors?: Author[]): string {
   if (!authors || authors.length === 0) return 'Anon'
-  
-  const formatted = authors.map(author => {
+
+  const formatted = authors.map((author) => {
     switch (author.type) {
       case 'Person':
         if (author.givenNames?.length && author.familyNames?.length) {
-          return author.givenNames.map(name => `${name[0]}.`).join(' ') + ' ' + 
+          return author.givenNames.map((name) => `${name[0]}.`).join(' ') + ' ' +
                  author.familyNames.join(' ')
         }
         return author.name || 'Anon'
@@ -839,7 +839,7 @@ function formatIEEEAuthors(authors?: Author[]): string {
         }
     }
   })
-  
+
   if (formatted.length === 1) return formatted[0] + ', '
   if (formatted.length === 2) return `${formatted[0]} and ${formatted[1]}, `
   return formatted.slice(0, -1).join(', ') + ', and ' + formatted[formatted.length - 1] + ', '
@@ -861,13 +861,13 @@ function formatPagesIEEE(pageStart?: string, pageEnd?: string, pagination?: stri
  */
 function formatHarvardAuthors(authors?: Author[]): string {
   if (!authors || authors.length === 0) return 'Anon'
-  
-  const formatted = authors.map(author => {
+
+  const formatted = authors.map((author) => {
     switch (author.type) {
       case 'Person':
         if (author.familyNames?.length && author.givenNames?.length > 0) {
-          return author.familyNames.join(' ') + ', ' + 
-                 author.givenNames.map(name => `${name[0]}.`).join('')
+          return author.familyNames.join(' ') + ', ' +
+                 author.givenNames.map((name) => `${name[0]}.`).join('')
         }
         return author.name || 'Anon'
       case 'Organization':
@@ -884,7 +884,7 @@ function formatHarvardAuthors(authors?: Author[]): string {
         }
     }
   })
-  
+
   if (formatted.length === 1) return formatted[0]
   if (formatted.length === 2) return `${formatted[0]} & ${formatted[1]}`
   return formatted.slice(0, -1).join(', ') + ' & ' + formatted[formatted.length - 1]

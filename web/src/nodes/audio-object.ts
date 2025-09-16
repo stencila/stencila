@@ -40,7 +40,7 @@ export class AudioObject extends MediaObject {
     `
     return html`
       <div slot="content" class="text-center">
-        ${this.mediaSrc ? 
+        ${this.mediaSrc ?
           html`<audio class=${audioStyles} src=${this.mediaSrc} controls></audio>` :
           html`<slot></slot>`}
         <div>

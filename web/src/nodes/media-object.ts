@@ -19,7 +19,7 @@ export abstract class MediaObject extends Entity {
   /**
    * The URL of the source of the media object
    *
-   * For HTTP and file URLs, equivalent to the `src` attribute in HTML. 
+   * For HTTP and file URLs, equivalent to the `src` attribute in HTML.
    * This will be rewritten if necessary, depending upon the context (e.g. VSCode).
    */
   @property({ attribute: 'content-url' })
@@ -81,7 +81,7 @@ export abstract class MediaObject extends Entity {
         this.error = undefined
         return
       }
-      
+
       const text = await response.text()
       message = text || response.statusText
     } catch (fetchError) {
@@ -92,7 +92,7 @@ export abstract class MediaObject extends Entity {
     if (src.length > 40) {
       src = src.slice(0, 40) + '\u2026'
     }
-    
+
     this.error = `Error fetching '${src}': ${message}`
   }
 

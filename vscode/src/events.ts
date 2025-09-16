@@ -1,7 +1,6 @@
 import { posthog } from 'posthog-js'
 import * as vscode from 'vscode'
 
-
 // Eventing is disabled by default and can be turned on/off
 // while extension is running
 let isEnabled = false

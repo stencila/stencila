@@ -25,7 +25,7 @@ export class AuthorRole extends Entity {
   @property({ attribute: 'last-modified', type: Number })
   lastModified: number
 
-  @property({ attribute: 'type'})
+  @property({ attribute: 'type' })
   authorType: 'Person' | 'Organization' | 'SoftwareApplication'
 
   @property()

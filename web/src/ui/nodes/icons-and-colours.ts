@@ -29,7 +29,7 @@ const nodeColours = (name: string) => ({
   textColour: colours[name][900],
 })
 
-// prettier-ignore
+/* eslint-disable */
 const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   // Article level
   Article:          { icon: 'files',         ...nodeColours('blue')},
@@ -92,6 +92,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   PromptBlock:        { icon: 'cardText',      ...nodeColours('purple'),  title: 'Prompt Preview'},
   Excerpt:            { icon: 'quote',         ...nodeColours('fuchsia')},
 }
+/* eslint-enable */
 
 /**
  * Get the UI specifications for a node type
@@ -161,7 +162,7 @@ const admonitionColours = (name: string) => ({
   textColour: colours[name][800],
 })
 
-// prettier-ignore
+/* eslint-disable */
 const admonitionUiMap: Record<AdmonitionType, AdmonitionTypeUI> = {
   Note:      { ...admonitionColours('blue'),     icon: 'infoCircle' },
   Info:      { ...admonitionColours('blue'),     icon: 'infoCircle' },
@@ -173,6 +174,7 @@ const admonitionUiMap: Record<AdmonitionType, AdmonitionTypeUI> = {
   Danger:    { ...admonitionColours('red'),      icon: 'exclamationCircle' },
   Error:     { ...admonitionColours('red'),      icon: 'xCircle' },
 }
+/* eslint-enable */
 
 export const admonitionUi = (type: AdmonitionType) => {
   return admonitionUiMap[type]
@@ -182,7 +184,7 @@ export const admonitionUi = (type: AdmonitionType) => {
 
 // Execution Messages --------------------------------------
 
-// prettier-ignore
+/* eslint-disable */
 const executionMessagesUiMap: Record<MessageLevel, AdmonitionTypeUI> = {
   'Exception': { ...admonitionColours('red'),      icon: 'xCircle' },
   'Error':     { ...admonitionColours('red'),      icon: 'xCircle' },
@@ -191,6 +193,7 @@ const executionMessagesUiMap: Record<MessageLevel, AdmonitionTypeUI> = {
   'Debug':     { ...admonitionColours('blue'),     icon: 'questionCircle' },
   'Trace':     { ...admonitionColours('purple'),   icon: 'slashCircle' }
 }
+/* eslint-enable */
 
 /**
  * Returns admonition colours and an icon for each execution message level.

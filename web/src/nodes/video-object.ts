@@ -15,7 +15,7 @@ import { MediaObject } from './media-object'
 @withTwind()
 export class VideoObject extends MediaObject {
   override renderMediaElem() {
-    return this.mediaSrc ? 
+    return this.mediaSrc ?
       html`<video src=${this.mediaSrc} controls></video>`  :
       html`<slot></slot>`
   }
@@ -30,7 +30,7 @@ export class VideoObject extends MediaObject {
         border-radius: 3px;
       }
     `
-    
+
     return html`
       <div slot="content">
         ${this.mediaSrc ?

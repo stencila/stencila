@@ -144,10 +144,10 @@ export class StencilaAuthorship extends LitElement {
 
     /*
       Do not change the formatting of this template,
-      line breaks between tags will introduce 
+      line breaks between tags will introduce
       whitespace into the text in the document preview.
     */
-    // prettier-ignore
+
     const htmlTemplate = html`<span
           ${ref(this.authorshipRef)}
           class="group relative text-[${computedColour}]/[${textOpacity}]"

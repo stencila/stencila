@@ -27,7 +27,6 @@ export class ImageObject extends MediaObject {
     htmlMap: 'text/html',
   } as const
 
-
   /**
    * The rendered SVG of the content, if applicable
    */
@@ -46,7 +45,7 @@ export class ImageObject extends MediaObject {
    * Rather than import cytoscape.Core just stub out what we need. This avoids
    * accidental bloat of the bundle if cytoscape is statically imported.
    */
-  private cytoscape?: { resize: () => void } 
+  private cytoscape?: { resize: () => void }
 
   private clearCodeChunkMessages(codeChunk: HTMLElement) {
     // Clear any existing messages
@@ -304,7 +303,7 @@ export class ImageObject extends MediaObject {
         }
       })
     }
-    
+
     vegaEmbed(container, spec, embedOptions).catch((error) => {
       if (codeChunk) {
         let messages = codeChunk.querySelector('div[slot=messages]')
@@ -341,7 +340,7 @@ export class ImageObject extends MediaObject {
     try {
       // Check if the HTML content contains Leaflet indicators
       const htmlContent = this.contentUrl
-      const isLeafletMap = htmlContent.includes('leaflet') || 
+      const isLeafletMap = htmlContent.includes('leaflet') ||
                           htmlContent.includes('L.map') ||
                           htmlContent.includes('leaflet.js')
 
@@ -416,7 +415,7 @@ export class ImageObject extends MediaObject {
      *
      * Only reset properties that commonly cause issues with SVGs when inherited
      * from the document, while preserving essential SVG styling.
-     * 
+     *
      * Previously we used `all: initial;` to do this but that was too aggressive
      * and was breaking mermaid rending on Chrome
      */

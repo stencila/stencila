@@ -1,6 +1,6 @@
 /**
  * Shared type definitions for encode/decode options.
- * 
+ *
  * This file exists to avoid duplication between the auto-generated bindings.d.ts
  * and the TypeScript source files that need to import these types. Both
  * convert.ts and bindings.ts import from here.

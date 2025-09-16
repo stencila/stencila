@@ -77,7 +77,7 @@ export class WalkthroughStep extends Entity {
         if (next && next.isCollapsed) {
           next.isNext = true
         }
-        
+
         // Also check if any previous collapsed step should no longer be isNext
         let prev = this.previousElementSibling as WalkthroughStep
         while (prev) {

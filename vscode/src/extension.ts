@@ -133,7 +133,7 @@ async function startServer(context: vscode.ExtensionContext) {
       break
     }
   }
-  
+
   // Collect secrets to pass as env vars to LSP server
   const secrets = await collectSecrets(context)
 

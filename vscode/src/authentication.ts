@@ -275,7 +275,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
 
     // Note: LSP will pick up the new token on next restart or when collectSecrets is called
     // We don't automatically restart here to avoid restart loops during activation
-    
+
     return session
   }
 

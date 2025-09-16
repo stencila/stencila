@@ -271,7 +271,7 @@ export class CodeMirrorClient extends FormatClient {
     }
 
     /*
-      If not in `writeOnly` mode Dispatch the transaction, 
+      If not in `writeOnly` mode Dispatch the transaction,
       ignoring any updates while doing so.
     */
     if (!this.isWriteOnly) {

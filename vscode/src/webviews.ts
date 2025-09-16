@@ -309,7 +309,6 @@ export async function initializeWebViewPanel(
   // Convert workspace folder filesystem path to a URI
   const workspaceUri = panel.webview.asWebviewUri(workspaceFolder)
 
-
   // Generate Content Security Policy. This CSP is designed to allow dynamic
   // scripts such as Mermaid, Plotly, Vega & Leaflet to be loaded while
   // maintaining security. Changes should be tested to ensure they don't break
@@ -317,7 +316,7 @@ export async function initializeWebViewPanel(
   const cspSource = panel.webview.cspSource
   const allowedCdns = [
     'https://cdn.jsdelivr.net',
-    'https://cdnjs.cloudflare.com', 
+    'https://cdnjs.cloudflare.com',
     'https://netdna.bootstrapcdn.com',
     'https://unpkg.com',
   ]
@@ -546,5 +545,3 @@ export function closeDocumentViewPanels() {
 
   documentViewPanels.clear()
 }
-
-

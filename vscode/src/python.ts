@@ -11,14 +11,14 @@ export async function registerPythonExtensionListener(
   context: vscode.ExtensionContext
 ) {
   const pythonApi: PythonExtension = await PythonExtension.api()
-  
+
   // Store initial path
   currentPythonPath = pythonApi.environments.getActiveEnvironmentPath()?.path
 
   const listener = pythonApi.environments.onDidChangeActiveEnvironmentPath(
     (uri) => {
       const newPath = uri?.path
-      
+
       // Only restart if the path actually changed
       if (newPath !== currentPythonPath) {
         console.log(`Stencila: Python environment changed from "${currentPythonPath}" to "${newPath}", restarting LSP`)

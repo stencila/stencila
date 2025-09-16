@@ -27,13 +27,8 @@ export default [
       },
     },
     rules: {
-      semi: ['error', 'never'],
-      quotes: [
-        'error',
-        'single',
-        { avoidEscape: true, allowTemplateLiterals: true },
-      ],
       '@typescript-eslint/ban-types': 'off',
+      
       // Emulate the TypeScript style of exempting names starting with _
       // https://typescript-eslint.io/rules/no-unused-vars/#benefits-over-typescript
       '@typescript-eslint/no-unused-vars': [
@@ -48,6 +43,7 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
+
       'import/order': [
         'error',
         {
@@ -63,6 +59,66 @@ export default [
           'newlines-between': 'always',
         },
       ],
+
+      // Formatting rules
+
+      semi: ['error', 'never'],
+      quotes: [
+        'error',
+        'single',
+        { avoidEscape: true, allowTemplateLiterals: true },
+      ],
+
+      // Spacing & Indentation
+      'no-trailing-spaces': 'error',
+      'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }],
+      'space-before-blocks': 'error',
+      'keyword-spacing': ['error', { before: true, after: true }],
+      'space-infix-ops': 'error',
+      'object-curly-spacing': ['error', 'always'],
+      'array-bracket-spacing': ['error', 'never'],
+      'computed-property-spacing': ['error', 'never'],
+      'space-in-parens': ['error', 'never'],
+      'space-before-function-paren': ['error', {
+        anonymous: 'always',
+        named: 'never',
+        asyncArrow: 'always'
+      }],
+
+      // Line Length & Wrapping
+      'max-len': ['error', {
+        code: 120,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreRegExpLiterals: true
+      }],
+      'array-bracket-newline': ['error', 'consistent'],
+      'object-curly-newline': ['error', {
+        ObjectExpression: { consistent: true },
+        ObjectPattern: { consistent: true },
+        ImportDeclaration: { consistent: true },
+        ExportDeclaration: { consistent: true }
+      }],
+
+      // Punctuation & Syntax
+      'comma-spacing': ['error', { before: false, after: true }],
+      'comma-style': ['error', 'last'],
+      'arrow-parens': ['error', 'always'],
+      'arrow-spacing': ['error', { before: true, after: true }],
+      'brace-style': ['error', '1tbs', { allowSingleLine: true }],
+      'dot-location': ['error', 'property'],
+
+      // Other Formatting
+      'jsx-quotes': ['error', 'prefer-double'],
+      'template-curly-spacing': ['error', 'never'],
+      'no-mixed-spaces-and-tabs': 'error',
+      'eol-last': ['error', 'always'],
+      'no-whitespace-before-property': 'error',
+      'padded-blocks': ['error', 'never'],
+      'block-spacing': ['error', 'always'],
+      'key-spacing': ['error', { beforeColon: false, afterColon: true }],
+      'switch-colon-spacing': ['error', { after: true, before: false }],
     },
   },
   // Ignore patterns

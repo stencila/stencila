@@ -38,7 +38,7 @@ export class ArticleReferences extends LitElement {
       },
       callback: () => {
         const references = Array.from(referencesElem.querySelectorAll('stencila-reference')) as Reference[]
-        
+
         if (references.length > 0) {
           // Add heading if not already present
           if (referencesElem.querySelectorAll('h1').length == 0) {
@@ -48,7 +48,7 @@ export class ArticleReferences extends LitElement {
             heading.innerHTML = '<h1 slot="content">References</h1>'
             referencesElem.prepend(heading)
           }
-          
+
           // Sort references based on current sort mode
           this.sortReferences(referencesElem, references)
         }
@@ -66,21 +66,21 @@ export class ArticleReferences extends LitElement {
    */
   private sortReferences(container: Element, references: Reference[]): void {
     if (references.length <= 1) return // No need to sort single or no references
-    
+
     // Sort references based on current mode to get the desired order
-    const sortedReferences = this.sortMode === 'numeric' 
+    const sortedReferences = this.sortMode === 'numeric'
       ? this.sortNumerically([...references])
       : this.sortAlphabetically([...references])
-    
+
     // Apply CSS order property to achieve the desired visual order
     sortedReferences.forEach((ref, index) => {
       (ref as HTMLElement).style.order = index.toString()
     });
-    
+
     // Ensure the container uses flexbox to respect the order property
     (container as HTMLElement).style.display = 'flex';
     (container as HTMLElement).style.flexDirection = 'column'
-    
+
     // Ensure heading has order -1 to stay at top
     const heading = container.querySelector('stencila-heading') as HTMLElement
     if (heading) {
@@ -94,11 +94,11 @@ export class ArticleReferences extends LitElement {
    */
   private getFirstAuthorSurname(reference: Reference): string {
     const authors = reference.authors as Author[] | undefined
-    
+
     if (!authors || authors.length === 0) {
       return 'Anon'
     }
-    
+
     const firstAuthor = authors[0]
     switch (firstAuthor.type) {
       case 'Person':
@@ -120,7 +120,7 @@ export class ArticleReferences extends LitElement {
         return 'Anon'
     }
   }
-  
+
   /*
    * Extract year from reference element for secondary sorting.
    * Returns empty string for missing dates to sort them last.
@@ -129,7 +129,7 @@ export class ArticleReferences extends LitElement {
     const date = reference.date as string | undefined
     return date?.slice(0, 4) ?? ''
   }
-  
+
   /*
    * Extract title text from reference element for tertiary sorting.
    * Gets the text content from the title slot.
@@ -138,7 +138,7 @@ export class ArticleReferences extends LitElement {
     const titleSlot = reference.querySelector('[slot="title"]')
     return titleSlot?.textContent?.trim() ?? ''
   }
-  
+
   /*
    * Extract appearance index for numeric sorting.
    * Returns very high number for missing indices to sort them last.
@@ -146,7 +146,7 @@ export class ArticleReferences extends LitElement {
   private getAppearanceIndex(reference: Reference): number {
     return reference.appearanceIndex ?? 999999
   }
-  
+
   /*
    * Sort references alphabetically by author surname, then year, then title.
    * Follows standard academic bibliography conventions for multi-level sorting.
@@ -159,7 +159,7 @@ export class ArticleReferences extends LitElement {
       if (surnameA !== surnameB) {
         return surnameA.localeCompare(surnameB)
       }
-      
+
       // Secondary sort: Year (oldest first, empty years last)
       const yearA = this.getYear(a)
       const yearB = this.getYear(b)
@@ -169,14 +169,14 @@ export class ArticleReferences extends LitElement {
         if (!yearB) return -1
         return yearA.localeCompare(yearB)
       }
-      
+
       // Tertiary sort: Title
       const titleA = this.getTitle(a).toLowerCase()
       const titleB = this.getTitle(b).toLowerCase()
       return titleA.localeCompare(titleB)
     })
   }
-  
+
   /*
    * Sort references numerically by appearance index.
    * Used for citation styles that reference by order of appearance.
