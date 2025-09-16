@@ -8233,6 +8233,89 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "DataAvailability",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Data Availability"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "All relevant data are within the manuscript and its "
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Supporting Information"
+                  }
+                }
+              ],
+              "target": "#sec020"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " files. In the data for "
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Fig 4"
+                  }
+                }
+              ],
+              "target": "#pone.0332245.g004"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " included in "
+              }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Supporting Information"
+                  }
+                }
+              ],
+              "target": "#sec020"
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", mosquito sample IDs were anonymized. GPS data representing individual households cannot be made publicly available in accordance with the participants’ consent process, in which participants have not given approval to share their households’ GPS location data."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [
         {
