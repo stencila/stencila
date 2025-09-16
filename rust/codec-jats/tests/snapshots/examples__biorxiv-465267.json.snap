@@ -59,7 +59,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Internet Interdisciplinary Institute (IN3), Universitat Oberta de Catalunya"
+          "name": "Internet Interdisciplinary Institute (IN3), Universitat Oberta de Catalunya",
+          "address": "Barcelona, Catalonia, Spain"
         }
       ],
       "familyNames": [
@@ -76,7 +77,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Universitat Rovira i Virgili"
+          "name": "Universitat Rovira i Virgili",
+          "address": "Tarragona, Catalonia, Spain"
         }
       ],
       "familyNames": [
@@ -92,11 +94,13 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Internet Interdisciplinary Institute (IN3), Universitat Oberta de Catalunya"
+          "name": "Internet Interdisciplinary Institute (IN3), Universitat Oberta de Catalunya",
+          "address": "Barcelona, Catalonia, Spain"
         },
         {
           "type": "Organization",
-          "name": "URPP Social Networks, University of Zurich"
+          "name": "URPP Social Networks, University of Zurich",
+          "address": "Zurich, Switzerland"
         }
       ],
       "familyNames": [
@@ -112,7 +116,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Internet Interdisciplinary Institute (IN3), Universitat Oberta de Catalunya"
+          "name": "Internet Interdisciplinary Institute (IN3), Universitat Oberta de Catalunya",
+          "address": "Barcelona, Catalonia, Spain"
         }
       ],
       "familyNames": [

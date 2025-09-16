@@ -259,6 +259,13 @@ expression: article
   "authors": [
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Borissiak Paleontological Institute, Russian Academy of Sciences",
+          "address": "Moscow, Russia"
+        }
+      ],
       "familyNames": [
         "KUZNETSOV"
       ],

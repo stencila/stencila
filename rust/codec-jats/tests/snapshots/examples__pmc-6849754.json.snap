@@ -181,6 +181,18 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0001-7048-4387",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Biological Sciences, Texas Tech University",
+          "address": "Lubbock, USA"
+        },
+        {
+          "type": "Organization",
+          "name": "Climate and Ecosystem Sciences Division, Lawrence Berkeley National Laboratory",
+          "address": "Berkeley, USA"
+        }
+      ],
       "familyNames": [
         "Smith"
       ],
@@ -191,6 +203,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Climate and Ecosystem Sciences Division, Lawrence Berkeley National Laboratory",
+          "address": "Berkeley, USA"
+        },
+        {
+          "type": "Organization",
+          "name": "Department of Environmental Science, Policy and\n          Management, UC Berkeley",
+          "address": "Berkeley, USA"
+        }
+      ],
       "familyNames": [
         "Keenan"
       ],
@@ -201,6 +225,28 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "AXA Chair of Biosphere and Climate Impacts, Department of Life Sciences, Imperial College London",
+          "address": "London, UK"
+        },
+        {
+          "type": "Organization",
+          "name": "College of Forestry, Northwest A&F University",
+          "address": "Yangling, China"
+        },
+        {
+          "type": "Organization",
+          "name": "Department of Biological Sciences, Macquarie University",
+          "address": "Australia"
+        },
+        {
+          "type": "Organization",
+          "name": "Department of Earth System Science, Tsinghua University",
+          "address": "Beijing"
+        }
+      ],
       "familyNames": [
         "Colin Prentice"
       ],
@@ -210,6 +256,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Earth System Science, Tsinghua University",
+          "address": "Beijing"
+        }
+      ],
       "familyNames": [
         "Wang"
       ],
@@ -219,6 +272,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Biological Sciences, Macquarie University",
+          "address": "Australia"
+        }
+      ],
       "familyNames": [
         "Wright"
       ],
@@ -229,6 +289,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Plant Physiology, Institute of Agricultural and Environmental Sciences, Estonian University of Life Sciences",
+          "address": "Tartu, Estonia"
+        }
+      ],
       "familyNames": [
         "Niinemets"
       ],
@@ -238,6 +305,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Hawkesbury Institute for the Environment, Western Sydney University",
+          "address": "Penrith, Australia"
+        }
+      ],
       "familyNames": [
         "Crous"
       ],
@@ -248,6 +322,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Departamento de Biologia, Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto ‐ University of São\n          Paulo",
+          "address": "São Paulo, Brazil"
+        }
+      ],
       "familyNames": [
         "Domingues"
       ],
@@ -258,6 +339,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Center for Ecological Research and Forestry\n          Applications, Universidad Autonoma de Barcelona",
+          "address": "Cerdanyola, Spain"
+        },
+        {
+          "type": "Organization",
+          "name": "School of Geosciences, University of Edinburgh",
+          "address": "Edinburgh, UK"
+        }
+      ],
       "familyNames": [
         "Guerrieri"
       ],
@@ -267,6 +360,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Centre for Tropical Environmental and Sustainability\n          Science, College of Science and Engineering, James Cook University",
+          "address": "Cairns, Australia"
+        }
+      ],
       "familyNames": [
         "Yoko Ishida"
       ],
@@ -276,6 +376,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Max Planck Institute for Biogeochemistry",
+          "address": "Jena, Germany"
+        },
+        {
+          "type": "Organization",
+          "name": "German Center for Integrative Biodiversity Research\n          Halle‐Jena‐Leipzig",
+          "address": "Leipzig, Germany"
+        }
+      ],
       "familyNames": [
         "Kattge"
       ],
@@ -286,6 +398,13 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0003-2463-9231",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Forest and Wildlife Ecology, University of Wisconsin – Madison",
+          "address": "Madison, USA"
+        }
+      ],
       "familyNames": [
         "Kruger"
       ],
@@ -296,6 +415,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Département des sciences de l'environnement, Université du Québec à Trois",
+          "address": "Rivières, Canada"
+        }
+      ],
       "familyNames": [
         "Maire"
       ],
@@ -306,6 +432,13 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0001-9262-7430",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Environmental and Climate Sciences Department, Brookhaven National Laboratory",
+          "address": "Upton, USA"
+        }
+      ],
       "familyNames": [
         "Rogers"
       ],
@@ -316,6 +449,13 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0003-4136-8971",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Environmental and Climate Sciences Department, Brookhaven National Laboratory",
+          "address": "Upton, USA"
+        }
+      ],
       "familyNames": [
         "Serbin"
       ],
@@ -326,6 +466,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Biological and Environmental Sciences, University of Gothenburg",
+          "address": "Gothenburg, Sweden"
+        }
+      ],
       "familyNames": [
         "Tarvainen"
       ],
@@ -335,6 +482,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Biological Sciences, Macquarie University",
+          "address": "Australia"
+        }
+      ],
       "familyNames": [
         "Togashi"
       ],
@@ -345,6 +499,13 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Forest and Wildlife Ecology, University of Wisconsin – Madison",
+          "address": "Madison, USA"
+        }
+      ],
       "familyNames": [
         "Townsend"
       ],
@@ -356,6 +517,18 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0001-5291-5622",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "College of Forestry, Northwest A&F University",
+          "address": "Yangling, China"
+        },
+        {
+          "type": "Organization",
+          "name": "State Environmental Protection Key Laboratory of Wetland Ecology and Vegetation\n          Restoration, Northeast Normal University",
+          "address": "Changchun, China"
+        }
+      ],
       "familyNames": [
         "Wang"
       ],
@@ -365,6 +538,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Research School of Biology, The Australian National University",
+          "address": "Canberra, Australia"
+        },
+        {
+          "type": "Organization",
+          "name": "Faculty of Agriculture, University of Peradeniya",
+          "address": "Peradeniya, Sri Lanka"
+        }
+      ],
       "familyNames": [
         "Weerasinghe"
       ],
@@ -375,6 +560,18 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Biological Sciences, Macquarie University",
+          "address": "Australia"
+        },
+        {
+          "type": "Organization",
+          "name": "The New Zealand Institute for Plant and Food Research Ltd",
+          "address": "Hawke's, Bay, New Zealand"
+        }
+      ],
       "familyNames": [
         "Zhou"
       ],

@@ -478,7 +478,7 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
         .children()
         .filter(|child| child.tag_name().name() == "contrib")
     {
-        let (contrib_type, contributor) = decode_contrib(path, &child, node, losses);
+        let (contrib_type, contributor) = decode_contrib(path, &child, losses);
         if contrib_type.contains("author") {
             let author = match contributor {
                 PersonOrOrganization::Person(person) => Author::Person(person),
@@ -509,12 +509,7 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
 }
 
 /// Decode a `<contrib>` element
-fn decode_contrib(
-    path: &str,
-    node: &Node,
-    parent: &Node,
-    losses: &mut Losses,
-) -> (String, PersonOrOrganization) {
+fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> (String, PersonOrOrganization) {
     let contrib_type = node
         .attribute("contrib-type")
         .map_or_else(|| "author".to_string(), |ct| ct.to_lowercase().to_string());
@@ -564,13 +559,22 @@ fn decode_contrib(
             if let Some(value) = child.text() {
                 emails.push(value.into());
             }
-        } else if tag == "xref" && matches!(child.attribute("ref-type"), Some("aff")) {
-            if let Some(id) = child.attribute("rid")
-                && let Some(aff) = parent
-                    .descendants()
+        } else if tag == "xref"
+            && matches!(child.attribute("ref-type"), Some("aff"))
+            && let Some(id) = child.attribute("rid")
+        {
+            // Search up the tree for the <aff>
+            let mut ancestor = Some(*node);
+            while let Some(ancestor_node) = ancestor {
+                if let Some(aff) = ancestor_node
+                    .children()
                     .find(|n| n.has_tag_name("aff") && n.attribute("id").unwrap_or_default() == id)
-            {
-                affiliations.push(decode_aff(&aff));
+                {
+                    affiliations.push(decode_aff(&aff));
+                    break;
+                }
+
+                ancestor = ancestor_node.parent();
             }
         } else {
             record_node_lost(path, &child, losses);
@@ -599,24 +603,100 @@ fn decode_contrib(
 
 /// Decode an `<aff>` element
 fn decode_aff(node: &Node) -> Organization {
-    let name = node
-        .descendants()
-        .find(|n| n.tag_name().name() == "institution")
-        .and_then(|n| n.text())
-        .map(String::from);
+    const TRIM_CHARS: &[char] = &[',', '.', ' ', '\n'];
 
-    let ror = node
-        .descendants()
-        .find(|n| {
-            n.tag_name().name() == "institution-id"
-                && matches!(n.attribute("institution-id-type"), Some("ror"))
-        })
-        .and_then(|n| n.text())
-        .map(|ror| ror.trim_start_matches("https://ror.org/").to_string());
+    let mut ror = None;
+    let mut name = Vec::new();
+    let mut address = Vec::new();
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        match tag {
+            "institution-id" if matches!(child.attribute("institution-id-type"), Some("ror")) => {
+                ror = child.text().map(String::from);
+            }
+
+            "named-content"
+                if matches!(
+                    child.attribute("content-type"),
+                    Some("organisation-division")
+                ) =>
+            {
+                if let Some(text) = child.text() {
+                    name.push(text.trim_matches(TRIM_CHARS))
+                }
+            }
+            "institution" => {
+                if let Some(text) = child.text() {
+                    name.push(text.trim_matches(TRIM_CHARS))
+                }
+            }
+            "institution-wrap" => {
+                for grandchild in child.children() {
+                    let tag_name = grandchild.tag_name().name();
+                    if tag_name == "institution-id"
+                        && matches!(grandchild.attribute("institution-id-type"), Some("ror"))
+                    {
+                        ror = grandchild.text().map(String::from);
+                    } else if tag_name == "institution"
+                        && let Some(text) = grandchild.text()
+                    {
+                        name.push(text.trim_matches(TRIM_CHARS))
+                    }
+                }
+            }
+
+            "addr-line" | "city" | "state" | "country" => {
+                if let Some(text) = child.text() {
+                    address.push(text.trim_matches(TRIM_CHARS))
+                }
+            }
+            "named-content"
+                if matches!(
+                    child.attribute("content-type"),
+                    Some("street" | "city" | "county-part" | "country")
+                ) =>
+            {
+                if let Some(text) = child.text() {
+                    address.push(text.trim_matches(TRIM_CHARS))
+                }
+            }
+
+            _ => {
+                if child.is_text()
+                    && let Some(text) = child.text()
+                {
+                    address.push(text.trim_matches(TRIM_CHARS))
+                }
+            }
+        };
+    }
+    name.retain(|name| !name.is_empty());
+    address.retain(|name| !name.is_empty());
+
+    let ror = ror.map(|ror| ror.trim_start_matches("https://ror.org/").to_string());
+
+    let name = if name.is_empty() {
+        if address.is_empty() {
+            None
+        } else {
+            // Use address as name
+            let name = address.join(", ");
+            address.clear();
+            Some(name)
+        }
+    } else {
+        Some(name.join(", "))
+    };
+
+    let address = (!address.is_empty()).then(|| PostalAddressOrString::String(address.join(", ")));
 
     Organization {
         name,
         ror,
+        options: Box::new(OrganizationOptions {
+            address,
+            ..Default::default()
+        }),
         ..Default::default()
     }
 }

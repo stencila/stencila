@@ -24,7 +24,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, "
+          "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution",
+          "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
       "familyNames": [
@@ -40,7 +41,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, "
+          "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution",
+          "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
       "familyNames": [
@@ -56,7 +58,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Cornell University Museum of Vertebrates, Department of Ecology and Evolutionary Biology, "
+          "name": "Cornell University Museum of Vertebrates, Department of Ecology and Evolutionary Biology, Cornell University",
+          "address": "Ithaca, NY 14850 USA"
         }
       ],
       "familyNames": [
@@ -72,7 +75,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Global Genome Initiative, National Museum of Natural History, "
+          "name": "Global Genome Initiative, National Museum of Natural History, Smithsonian Institution",
+          "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
       "familyNames": [
@@ -88,7 +92,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Programa de Pós‐Graduação em Ciências Biológicas (BADPI), "
+          "name": "Programa de Pós‐Graduação em Ciências Biológicas (BADPI), Instituto Nacional de Pesquisas da Amazônia",
+          "address": "Manaus, Brazil"
         }
       ],
       "familyNames": [
@@ -104,7 +109,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, "
+          "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution",
+          "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
       "familyNames": [
@@ -120,7 +126,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Coordenação de Biodiversidade, "
+          "name": "Coordenação de Biodiversidade, Instituto Nacional de Pesquisas da Amazônia",
+          "address": "Manaus, Amazonas Brazil"
         }
       ],
       "familyNames": [
@@ -135,7 +142,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Instituto do Mar, "
+          "name": "Instituto do Mar, Universidade Federal de São Paulo",
+          "address": "Campus Baixada Santista, Santos, São Paulo Brazil"
         }
       ],
       "familyNames": [
@@ -149,7 +157,8 @@ expression: article
       "type": "Person",
       "affiliations": [
         {
-          "type": "Organization"
+          "type": "Organization",
+          "name": "Museum of Natural History, Department of Herpetology and Ichthyology, route de Malagnou 1, PO Box 6434, 1211 Geneva 6, Switzerland"
         }
       ],
       "familyNames": [
@@ -164,7 +173,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Museu de Zoologia da Universidade de São Paulo (MZUSP), "
+          "name": "Museu de Zoologia da Universidade de São Paulo (MZUSP)",
+          "address": "Av. Nazaré, 481, São Paulo, SP 04263-000 Brazil"
         }
       ],
       "familyNames": [
@@ -180,7 +190,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Museu de Zoologia da Universidade de São Paulo (MZUSP), "
+          "name": "Museu de Zoologia da Universidade de São Paulo (MZUSP)",
+          "address": "Av. Nazaré, 481, São Paulo, SP 04263-000 Brazil"
         }
       ],
       "familyNames": [
@@ -195,7 +206,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Natural History Museum and Institute, "
+          "name": "Natural History Museum and Institute",
+          "address": "Chuo-ku, Chiba, 260-8682 Japan"
         }
       ],
       "familyNames": [
@@ -210,7 +222,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Natural History Museum and Institute, "
+          "name": "Natural History Museum and Institute",
+          "address": "Chuo-ku, Chiba, 260-8682 Japan"
         }
       ],
       "familyNames": [

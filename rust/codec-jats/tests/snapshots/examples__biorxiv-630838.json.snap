@@ -25,7 +25,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health"
+          "name": "Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health",
+          "address": "Bethesda, United States"
         }
       ],
       "familyNames": [
@@ -40,7 +41,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Department of Chemical & Biomolecular Engineering, North Carolina State University"
+          "name": "Department of Chemical & Biomolecular Engineering, North Carolina State University",
+          "address": "Raleigh, United States"
         }
       ],
       "familyNames": [
@@ -56,7 +58,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Department of Chemical and Biological Engineering, Princeton University"
+          "name": "Department of Chemical and Biological Engineering, Princeton University",
+          "address": "Princeton, United States"
         }
       ],
       "familyNames": [
@@ -72,11 +75,13 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Department of Molecular Biology, Princeton University"
+          "name": "Department of Molecular Biology, Princeton University",
+          "address": "Princeton, United States"
         },
         {
           "type": "Organization",
-          "name": "Omenn-Darling Bioengineering Institute, Princeton University"
+          "name": "Omenn-Darling Bioengineering Institute, Princeton University",
+          "address": "Princeton, United States"
         }
       ],
       "familyNames": [
@@ -92,7 +97,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Department of Chemical & Biomolecular Engineering, North Carolina State University"
+          "name": "Department of Chemical & Biomolecular Engineering, North Carolina State University",
+          "address": "Raleigh, United States"
         }
       ],
       "familyNames": [
@@ -109,7 +115,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health"
+          "name": "Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health",
+          "address": "Bethesda, United States"
         }
       ],
       "familyNames": [
