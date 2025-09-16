@@ -6,7 +6,7 @@ use stencila_codec::{
     eyre::{OptionExt, Result},
 };
 
-use stencila_codec_pmcoa::PmcOaCodec;
+use stencila_codec_pmc::PmcCodec;
 
 /// Decode each example of a PMC OA Package (tar.gz) and HTML and create JSON snapshots
 ///
@@ -33,7 +33,7 @@ async fn examples() -> Result<()> {
     // Test tar.gz files
     let tar_pattern = base_dir.to_string_lossy().to_string() + "/**/*.tar.gz";
     for path in glob::glob(&tar_pattern)?.flatten() {
-        let (article, .., info) = PmcOaCodec.from_path(&path, options.clone()).await?;
+        let (article, .., info) = PmcCodec.from_path(&path, options.clone()).await?;
 
         let pmcid = path
             .file_name()
@@ -53,7 +53,7 @@ async fn examples() -> Result<()> {
     // with the one proved from the tar
     let html_pattern = base_dir.to_string_lossy().to_string() + "/**/*.html";
     for path in glob::glob(&html_pattern)?.flatten() {
-        let (article, ..) = PmcOaCodec.from_path(&path, options.clone()).await?;
+        let (article, ..) = PmcCodec.from_path(&path, options.clone()).await?;
 
         let pmcid = path
             .file_name()

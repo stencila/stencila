@@ -9614,7 +9614,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-codec-pmcoa"
+name = "stencila-codec-pmc"
 version = "0.0.0"
 dependencies = [
  "flate2",
@@ -9817,7 +9817,7 @@ dependencies = [
  "stencila-codec-openrxiv",
  "stencila-codec-pandoc",
  "stencila-codec-pdf",
- "stencila-codec-pmcoa",
+ "stencila-codec-pmc",
  "stencila-codec-png",
  "stencila-codec-polars",
  "stencila-codec-rnw",

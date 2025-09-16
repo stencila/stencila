@@ -6,7 +6,10 @@
 
 use std::{fs::read_to_string, path::Path};
 
+use futures::StreamExt;
+use reqwest::{Client, header::USER_AGENT};
 use tl::{HTMLTag, Parser, ParserOptions, parse};
+use tokio::{fs::File, io::AsyncWriteExt};
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
@@ -21,10 +24,37 @@ use stencila_codec::{
     },
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
+use stencila_version::STENCILA_USER_AGENT;
+
+/// Download HTML for a PMCID from PMC website
+pub(super) async fn download_html(pmcid: &str, to_path: &Path) -> Result<()> {
+    // Extract numeric part from PMCID if it includes "PMC" prefix
+    let pmcid_number = pmcid.trim_start_matches("PMC");
+
+    let url = format!("https://pmc.ncbi.nlm.nih.gov/articles/PMC{pmcid_number}/");
+
+    tracing::debug!("Downloading HTML from {url}");
+    let response = Client::new()
+        .get(&url)
+        .header(USER_AGENT, STENCILA_USER_AGENT)
+        .send()
+        .await?
+        .error_for_status()?;
+
+    let mut file = File::create(&to_path).await?;
+    let mut stream = response.bytes_stream();
+    while let Some(chunk_result) = stream.next().await {
+        let chunk = chunk_result?;
+        file.write_all(&chunk).await?;
+    }
+    file.flush().await?;
+
+    Ok(())
+}
 
 /// Decode a PMC HTML file to a Stencila [`Node`]
 #[tracing::instrument]
-pub(super) fn decode_html_path(
+pub(super) fn decode_html(
     path: &Path,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, Option<Node>, DecodeInfo)> {

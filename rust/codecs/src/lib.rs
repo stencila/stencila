@@ -57,7 +57,7 @@ use stencila_codec_odt::OdtCodec;
 use stencila_codec_openrxiv::OpenRxivCodec;
 use stencila_codec_pandoc::PandocCodec;
 use stencila_codec_pdf::PdfCodec;
-use stencila_codec_pmcoa::PmcOaCodec;
+use stencila_codec_pmc::PmcCodec;
 use stencila_codec_png::PngCodec;
 use stencila_codec_rnw::RnwCodec;
 use stencila_codec_swb::SwbCodec;
@@ -100,7 +100,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(RnwCodec),
         Box::new(OdtCodec),
         Box::new(PandocCodec),
-        Box::new(PmcOaCodec),
+        Box::new(PmcCodec),
         Box::new(PdfCodec),
         Box::new(PngCodec),
         Box::<SwbCodec>::default(),
@@ -234,8 +234,8 @@ pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
         Some(Box::new(ArxivCodec))
     } else if OpenRxivCodec::supports_identifier(identifier) {
         Some(Box::new(OpenRxivCodec))
-    } else if PmcOaCodec::supports_identifier(identifier) {
-        Some(Box::new(PmcOaCodec))
+    } else if PmcCodec::supports_identifier(identifier) {
+        Some(Box::new(PmcCodec))
     } else if DoiCodec::supports_identifier(identifier) {
         Some(Box::new(DoiCodec))
     } else if GithubCodec::supports_identifier(identifier) {
@@ -254,8 +254,8 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
         Ok(ArxivCodec::from_identifier(identifier, options).await?.0)
     } else if OpenRxivCodec::supports_identifier(identifier) {
         Ok(OpenRxivCodec::from_identifier(identifier, options).await?.0)
-    } else if PmcOaCodec::supports_identifier(identifier) {
-        Ok(PmcOaCodec::from_identifier(identifier, options).await?.0)
+    } else if PmcCodec::supports_identifier(identifier) {
+        Ok(PmcCodec::from_identifier(identifier, options).await?.0)
     } else if DoiCodec::supports_identifier(identifier) {
         Ok(DoiCodec::from_identifier(identifier, options).await?.0)
     } else if GithubCodec::supports_identifier(identifier) {

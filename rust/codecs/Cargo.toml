@@ -46,7 +46,7 @@ stencila-codec-openrxiv = { path = "../codec-openrxiv" }
 stencila-codec-pandoc = { path = "../codec-pandoc" }
 stencila-codec-polars = { path = "../codec-polars", optional = true }
 stencila-codec-pdf = { path = "../codec-pdf" }
-stencila-codec-pmcoa = { path = "../codec-pmcoa" }
+stencila-codec-pmc = { path = "../codec-pmc" }
 stencila-codec-png = { path = "../codec-png" }
 stencila-codec-rnw = { path = "../codec-rnw" }
 stencila-codec-swb = { path = "../codec-swb" }

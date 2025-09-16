@@ -11,16 +11,16 @@ mod decode;
 mod html;
 mod tar;
 
-/// A codec for decoding PubMed Central Open Access Package
+/// A codec for decoding PubMed Central Open Access Packages and HTML pages
 ///
 /// See https://pmc.ncbi.nlm.nih.gov/tools/oa-service/ and
 /// https://pmc.ncbi.nlm.nih.gov/tools/openftlist/
-pub struct PmcOaCodec;
+pub struct PmcCodec;
 
 #[async_trait]
-impl Codec for PmcOaCodec {
+impl Codec for PmcCodec {
     fn name(&self) -> &str {
-        "pmcoa"
+        "pmc"
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
@@ -51,7 +51,7 @@ impl Codec for PmcOaCodec {
     }
 }
 
-impl PmcOaCodec {
+impl PmcCodec {
     pub fn supports_identifier(identifier: &str) -> bool {
         decode::extract_pmcid(identifier).is_some()
     }
@@ -65,5 +65,13 @@ impl PmcOaCodec {
         };
 
         decode::decode_pmcid(&pmcid, options).await
+    }
+
+    /// Download HTML for a PMCID from PMC website
+    ///
+    /// Downloads the HTML page for the given PMCID to the specified path.
+    /// The `pmcid` can include the "PMC" prefix or just the numeric part.
+    pub async fn download_html(pmcid: &str, to_path: &Path) -> Result<()> {
+        html::download_html(pmcid, to_path).await
     }
 }

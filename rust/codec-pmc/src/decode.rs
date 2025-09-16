@@ -11,8 +11,9 @@ use stencila_codec::{
 };
 
 use crate::tar::download_tar;
+use crate::html::download_html;
 
-use super::html::decode_html_path;
+use super::html::decode_html;
 use super::tar::decode_tar;
 
 /// Extract and PMCID from an identifier
@@ -106,7 +107,7 @@ pub(super) async fn decode_path(
     options: Option<DecodeOptions>,
 ) -> Result<(Node, Option<Node>, DecodeInfo)> {
     match path.extension().and_then(|ext| ext.to_str()) {
-        Some("html") => decode_html_path(path, options),
+        Some("html") => decode_html(path, options),
         Some("gz") => decode_tar(path, options).await,
         _ => bail!("Unhandled file extension"),
     }
