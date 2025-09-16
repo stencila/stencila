@@ -142,7 +142,8 @@ fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut 
 
     record_attrs_lost(path, node, [], losses);
 
-    let content = decode_blocks(path, node.children(), losses, 0)
+    // Use depth = 1 so that headings within abstract are at least level 2
+    let content = decode_blocks(path, node.children(), losses, 1)
         .into_iter()
         .filter(|block| match block {
             Block::Heading(Heading { content, .. }) => {
