@@ -4,6 +4,6 @@ Jerrentrup, Andreas, et al. “Teaching Medicine with the Help of "Dr. House".�
 
 Nielsen, Michael A., and Chuang, Isaac L. “Quantum Computing: Progress and Prospects.” _Nature Physics_, vol. 18, no. 3, Mar. 2022, p. 234–245, https://doi.org/[10.1038/s41567-022-01234-5](https://doi.org/10.1038/s41567-022-01234-5).
 
-Pedbost, Marven F., et al. _Defining the Really Habitable Zone_. 2020. _arXiv_, https://arxiv.org/abs/2003.13722.
+Pedbost, Marven F., et al. “Defining the Really Habitable Zone.” 2020. _arXiv_, https://arxiv.org/abs/2003.13722.
 
-Prekas, George, et al. “Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks.” _Proceedings of the 26th Symposium on Operating Systems Principles_, Association for Computing Machinery, 2017, p. 325–341, https://doi.org/[10.1145/3132747.3132780](https://doi.org/10.1145/3132747.3132780).
+Prekas, George, et al. “Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks.” _Proceedings of the 26th Symposium on Operating Systems Principles_, special issue of _Proceedings of the 26th Symposium on Operating Systems Principles_, 2017, p. 325–341, https://doi.org/[10.1145/3132747.3132780](https://doi.org/10.1145/3132747.3132780).

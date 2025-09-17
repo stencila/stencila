@@ -642,12 +642,12 @@ checksum = "3a8241f3ebb85c056b509d4327ad0358fbbba6ffb340bf388f26350aeda225b1"
 [[package]]
 name = "biblatex"
 version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a35a7317fcbdbef94b60d0dd0a658711a936accfce4a631fea4bf8e527eff3c2"
+source = "git+https://github.com/typst/biblatex.git#8c9800eb79fb6c7e3df2fe7e05882086ae9f26d0"
 dependencies = [
  "numerals",
  "paste",
- "strum 0.26.3",
+ "strum 0.27.2",
+ "unic-langid",
  "unicode-normalization",
  "unscanny",
 ]
@@ -1373,10 +1373,9 @@ dependencies = [
 [[package]]
 name = "citationberg"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4595e03beafb40235070080b5286d3662525efc622cca599585ff1d63f844fa"
+source = "git+https://github.com/typst/citationberg.git?rev=35cc83fb325d22c9b5bd5c7fc1d8e79897308076#35cc83fb325d22c9b5bd5c7fc1d8e79897308076"
 dependencies = [
- "quick-xml 0.36.2",
+ "quick-xml 0.38.2",
  "serde",
 ]
 
@@ -3808,8 +3807,7 @@ dependencies = [
 [[package]]
 name = "hayagriva"
 version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "954907554bb7fcba29a4f917c2d43e289ec21b69d872ccf97db160eca6caeed8"
+source = "git+https://github.com/typst/hayagriva?rev=77bbdcc431ccfcc133af87865d4aa9335f5052a7#77bbdcc431ccfcc133af87865d4aa9335f5052a7"
 dependencies = [
  "biblatex",
  "ciborium",
@@ -6956,6 +6954,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "proc-macro-hack"
+version = "0.5.20+deprecated"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc375e1527247fe1a97d8b7156678dfe7c1af2fc075c9a4db3690ecd2a148068"
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7243,16 +7247,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d3a6e5838b60e0e8fa7a43f22ade549a37d61f8bdbe636d0d7816191de969c2"
 dependencies = [
  "memchr",
-]
-
-[[package]]
-name = "quick-xml"
-version = "0.36.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7649a7b4df05aed9ea7ec6f628c67c9953a43869b8bc50929569b2999d443fe"
-dependencies = [
- "memchr",
- "serde",
 ]
 
 [[package]]
@@ -12147,6 +12141,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a28ba52c9b05311f4f6e62d5d9d46f094bd6e84cb8df7b3ef952748d752a7d05"
 dependencies = [
  "unic-langid-impl",
+ "unic-langid-macros",
 ]
 
 [[package]]
@@ -12157,6 +12152,30 @@ checksum = "dce1bf08044d4b7a94028c93786f8566047edc11110595914de93362559bc658"
 dependencies = [
  "serde",
  "tinystr 0.8.1",
+]
+
+[[package]]
+name = "unic-langid-macros"
+version = "0.9.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5957eb82e346d7add14182a3315a7e298f04e1ba4baac36f7f0dbfedba5fc25"
+dependencies = [
+ "proc-macro-hack",
+ "tinystr 0.8.1",
+ "unic-langid-impl",
+ "unic-langid-macros-impl",
+]
+
+[[package]]
+name = "unic-langid-macros-impl"
+version = "0.9.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1249a628de3ad34b821ecb1001355bca3940bcb2f88558f1a8bd82e977f75b5"
+dependencies = [
+ "proc-macro-hack",
+ "quote",
+ "syn 2.0.106",
+ "unic-langid-impl",
 ]
 
 [[package]]

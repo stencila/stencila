@@ -134,18 +134,6 @@
       {
         "type": "Text",
         "value": {
-          "string": ", vol. "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "6"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
           "string": ", "
         }
       },
@@ -216,7 +204,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", vol. "
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {

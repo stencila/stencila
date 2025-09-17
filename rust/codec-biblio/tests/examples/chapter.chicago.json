@@ -29,13 +29,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Down the Rabbit-Hole”"
+          "string": "“Down the Rabbit-Hole.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". In "
+          "string": " In "
         }
       },
       {
@@ -58,13 +58,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "by "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Carroll, Lewis"
+          "string": "1"
         }
       },
       {
@@ -76,7 +70,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "1–8"
+          "string": "by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Carroll, Lewis"
         }
       },
       {
@@ -129,13 +129,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Hidden Markov Models in Computational Biology”"
+          "string": "“Hidden Markov Models in Computational Biology.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". In "
+          "string": " In "
         }
       },
       {
@@ -148,6 +148,30 @@
             }
           }
         ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "4"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2"
+        }
       },
       {
         "type": "Text",
@@ -177,24 +201,6 @@
         "type": "Text",
         "value": {
           "string": "Brunak, Søren"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", 2"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "83–106"
         }
       },
       {
@@ -247,13 +253,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Call Me Ishmael”"
+          "string": "“Call Me Ishmael.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". In "
+          "string": " In "
         }
       },
       {
@@ -276,13 +282,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "by "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Melville, Herman"
+          "string": "1"
         }
       },
       {
@@ -294,7 +294,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "1–7"
+          "string": "by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Melville, Herman"
         }
       },
       {
@@ -347,13 +353,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“In Which We Are Introduced to Winnie-the-Pooh and Some Bees, And the Stories Begin”"
+          "string": "“In Which We Are Introduced to Winnie-the-Pooh and Some Bees, And the Stories Begin.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". In "
+          "string": " In "
         }
       },
       {
@@ -376,13 +382,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "by "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Milne, A. A."
+          "string": "1"
         }
       },
       {
@@ -394,7 +394,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "3–17"
+          "string": "by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Milne, A. A"
         }
       },
       {
@@ -441,13 +447,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Bash”"
+          "string": "“Bash.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". In "
+          "string": " In "
         }
       },
       {
@@ -460,6 +466,18 @@
             }
           }
         ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2"
+        }
       },
       {
         "type": "Text",
@@ -489,18 +507,6 @@
         "type": "Text",
         "value": {
           "string": "Wilson, Greg"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "29–47"
         }
       },
       {

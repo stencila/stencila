@@ -29,19 +29,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Allen Brain Atlas - Interactive Brain Explorer”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2024"
+          "string": "“Allen Brain Atlas - Interactive Brain Explorer.”"
         }
       },
       {
@@ -100,19 +88,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Methods in Ecology and Evolution Blog”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2024"
+          "string": "“Methods in Ecology and Evolution Blog.”"
         }
       },
       {
@@ -183,13 +159,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“The Computational Biology Lab”"
+          "string": "“The Computational Biology Lab.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -201,19 +177,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2024"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": ",. "
         }
       },
       {
@@ -264,18 +228,6 @@
         }
       },
       {
-        "type": "Text",
-        "value": {
-          "string": "2023"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
         "type": "Link",
         "content": [
           {
@@ -308,18 +260,6 @@
         "type": "Text",
         "value": {
           "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2023"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
         }
       },
       {

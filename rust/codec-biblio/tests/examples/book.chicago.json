@@ -76,7 +76,13 @@
       {
         "type": "Text",
         "value": {
-          "string": ". 3"
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "3"
         }
       },
       {
@@ -170,7 +176,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". Vol. "
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -240,13 +258,31 @@
       {
         "type": "Text",
         "value": {
-          "string": ". 1"
+          "string": ". "
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". Vol. "
+          "string": "1"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {

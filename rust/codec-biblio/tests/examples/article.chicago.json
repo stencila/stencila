@@ -53,13 +53,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate”"
+          "string": "“Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -76,7 +76,13 @@
       {
         "type": "Text",
         "value": {
-          "string": " 102"
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "102"
         }
       },
       {
@@ -94,13 +100,13 @@
       {
         "type": "Text",
         "value": {
-          "string": ")"
+          "string": "): "
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ": 165126–165139"
+          "string": "165126–165139"
         }
       },
       {
@@ -171,49 +177,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Herder, Meike"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Henrichs, Nadine"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Neubauer, Andreas"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Schaefer, Juergen R"
+          "string": ", et al"
         }
       },
       {
@@ -237,13 +201,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Teaching Medicine with the Help of \"Dr. House\"”"
+          "string": "“Teaching Medicine with the Help of \"Dr. House\".”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -260,7 +224,13 @@
       {
         "type": "Text",
         "value": {
-          "string": " 13"
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "13"
         }
       },
       {
@@ -349,13 +319,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Quantum Computing: Progress and Prospects”"
+          "string": "“Quantum Computing: Progress and Prospects.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -372,7 +342,13 @@
       {
         "type": "Text",
         "value": {
-          "string": " 18"
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "18"
         }
       },
       {
@@ -390,13 +366,13 @@
       {
         "type": "Text",
         "value": {
-          "string": ")"
+          "string": "): "
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ": 234–245"
+          "string": "234–245"
         }
       },
       {
@@ -509,13 +485,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Defining the Really Habitable Zone”"
+          "string": "“Defining the Really Habitable Zone.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " Preprint,. "
         }
       },
       {
@@ -592,13 +568,25 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks”"
+          "string": "“Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". In "
+          "string": " In "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "“Proceedings of the 26th Symposium on Operating Systems Principles.”"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " Special issue, "
         }
       },
       {
@@ -622,18 +610,6 @@
         "type": "Text",
         "value": {
           "string": "325–341"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Association for Computing Machinery"
         }
       },
       {

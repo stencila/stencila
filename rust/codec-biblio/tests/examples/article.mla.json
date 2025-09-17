@@ -46,7 +46,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", vol. "
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -58,7 +70,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", no. "
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "no."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -182,7 +206,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", vol. "
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -194,7 +230,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", no. "
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "no."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -300,7 +348,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", vol. "
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -312,7 +372,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", no. "
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "no."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -411,20 +483,15 @@
         }
       },
       {
-        "type": "Emphasis",
-        "content": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Defining the Really Habitable Zone"
-            }
-          }
-        ]
+        "type": "Text",
+        "value": {
+          "string": "“Defining the Really Habitable Zone.”"
+        }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -523,14 +590,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", special issue of "
         }
       },
       {
-        "type": "Text",
-        "value": {
-          "string": "Association for Computing Machinery"
-        }
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proceedings of the 26th Symposium on Operating Systems Principles"
+            }
+          }
+        ]
       },
       {
         "type": "Text",

@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
-hayagriva = { version = "0.8.1", features = ["archive"] }
+hayagriva = { git = "https://github.com/typst/hayagriva", rev = "77bbdcc431ccfcc133af87865d4aa9335f5052a7", features = ["archive"] }
 itertools = { workspace = true }
 reqwest = { workspace = true }
 serde_json = { workspace = true }
