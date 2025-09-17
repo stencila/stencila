@@ -17,6 +17,8 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 smart-default = { workspace = true }
 stencila-cloud = { path = "../cloud" }
+stencila-codec-dom = { path = "../codec-dom" }
+stencila-codec-text = { path = "../codec-text" }
 stencila-codecs = { path = "../codecs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }

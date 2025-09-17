@@ -22,6 +22,8 @@ use futures::{
 };
 use itertools::Itertools;
 use serde::{Serialize, de::DeserializeOwned};
+use stencila_codec_dom::standalone_html;
+use stencila_codec_text::to_text;
 use tokio::{
     self,
     fs::read,
@@ -33,7 +35,7 @@ use tokio::{
 use uuid::Uuid;
 
 use stencila_codecs::{DecodeOptions, EncodeOptions};
-use stencila_document::{Document, SyncDirection};
+use stencila_document::{Document, SyncDirection, stencila_schema::Node};
 use stencila_format::Format;
 
 use crate::{
@@ -191,6 +193,7 @@ pub async fn serve_path(
         .by_path(&path, sync)
         .await
         .map_err(InternalError::new)?;
+    let doc_id = uuid.to_string();
     let config = doc.config().await.map_err(InternalError::new)?;
 
     // Early-returned response for raw
@@ -209,23 +212,33 @@ pub async fn serve_path(
             .map_err(InternalError::new);
     }
 
-    let view = query
-        .get("~view")
-        .map_or("dynamic", |value: &String| value.as_ref());
-
-    let theme = query
-        .get("~theme")
-        .map(|value: &String| value.as_str())
-        .or(config.theme.as_deref())
-        .unwrap_or("default");
-
     // Generate the body of the HTML
     // Note that for dynamic views, when WebSocket connection is made, a "reset patch" will be sent with the same
     // root HTML. This is somewhat redundant, but is necessary, given that we need to have a known version of the
     // HTML as the basis for patching. We could skip including the HTML here (we used to) but then that is unsafe
     // if there are Websocket issues (the page would be blank).
-    let root_type = doc.inspect(|root| root.node_type()).await;
-    let root_html = doc
+    let (node_type, node_title, node_description) = doc
+        .inspect(|node| {
+            let node_type = node.node_type();
+
+            let node_title = match node {
+                Node::Article(article) => article.title.as_ref().map(to_text),
+                _ => None,
+            };
+
+            let node_description = match node {
+                Node::Article(article) => article
+                    .options
+                    .description
+                    .as_ref()
+                    .map(|cord| cord.to_string()),
+                _ => None,
+            };
+
+            (node_type, node_title, node_description)
+        })
+        .await;
+    let node_html = doc
         .dump(Format::Dom, None)
         .await
         .map_err(InternalError::new)?;
@@ -237,26 +250,28 @@ pub async fn serve_path(
         ["/~static/", STENCILA_VERSION].concat()
     };
 
-    let html = format!(
-        r#"<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8"/>
-        <title>Stencila</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" href="{web}/images/favicon.png">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="{web}/themes/{theme}.css">
-        <link rel="stylesheet" type="text/css" href="{web}/views/{view}.css">
-        <script type="module" src="{web}/views/{view}.js"></script>
-    </head>
-    <body>
-        <stencila-{view}-view view={view} doc={uuid} type={root_type}>
-            {root_html}
-        </stencila-{view}-view>
-    </body>
-</html>"#
+    // Get options for generating standalone HTML
+    let view = query
+        .get("~view")
+        .map_or("dynamic", |value: &String| value.as_ref());
+
+    let theme = query
+        .get("~theme")
+        .map(|value: &String| value.as_str())
+        .or(config.theme.as_deref())
+        .unwrap_or("default");
+
+    // Generate the HTML
+    let html = standalone_html(
+        doc_id,
+        node_type,
+        node_title,
+        node_description,
+        None,
+        node_html,
+        web,
+        theme,
+        view,
     );
 
     // Build the response
