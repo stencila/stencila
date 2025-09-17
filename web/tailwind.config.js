@@ -8,7 +8,6 @@
 export default {
   content: ['./src/**/*.ts'],
   plugins: [
-    require('@tailwindcss/typography'),
     require('@tailwindcss/container-queries'),
   ],
 }

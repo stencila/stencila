@@ -3,7 +3,6 @@ import presetAutoprefix from '@twind/preset-autoprefix'
 import presetContainerQueries from '@twind/preset-container-queries'
 import presetTailwind from '@twind/preset-tailwind/base'
 import theme from '@twind/preset-tailwind/defaultTheme'
-import presetTypography from '@twind/preset-typography/'
 import install from '@twind/with-web-components'
 
 /**
@@ -19,7 +18,6 @@ export const config = defineConfig({
   presets: [
     presetAutoprefix(),
     presetTailwind(),
-    presetTypography(),
     presetContainerQueries(),
   ],
   theme: {
