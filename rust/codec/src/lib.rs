@@ -563,6 +563,18 @@ pub struct EncodeOptions {
     /// (as opposed to a string).
     pub standalone: Option<bool>,
 
+    /// The CSS theme to use when encoding to HTML and HTML-derived formats
+    ///
+    /// Use this option to specify the theme for HTML and HTML-derived (e.g.
+    /// PDF) formats.
+    pub theme: Option<String>,
+
+    /// The document view to use when encoding to HTML and HTML-derived formats
+    ///
+    /// Stencila provides alternatives views of documents providing alternative
+    /// ways of interacting with a document (e.g. "dynamic", "static", "paged").
+    pub view: Option<String>,
+
     /// Whether to embed media files as data URIs
     ///
     /// When enabled, external media files (images, audio, video) referenced in the document
@@ -613,11 +625,6 @@ pub struct EncodeOptions {
     /// or "pretty-printed" (e.g. indented) forms. If not specified, the default
     /// for the format will be used.
     pub compact: Option<bool>,
-
-    /// The theme to use when encoding
-    ///
-    /// Use this option to specify the theme form HTML and HTML-based formats (e.g. PDF).
-    pub theme: Option<String>,
 
     /// The path of the document being encoded from
     ///

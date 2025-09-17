@@ -189,20 +189,27 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
             .map(|(typ, path)| format!(r#"<link rel="alternate" type="{typ}" href="{path}" />"#))
             .join("\n    ");
 
-        let static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
+        // The URL prefix for Stencila's web distribution
+        let web = format!("https://stencila.io/web/v{STENCILA_VERSION}");
 
         // During development (e.g. when generating PDFs via HTML) it can be useful to
         // use a local development version of the web assets. To do so, uncomment the
         // next line and run `cargo run --bin stencila serve --cors permissive`
         //#[cfg(debug_assertions)]
-        //let static_prefix = format!("http://localhost:9000/~static/dev");
+        //let web = format!("http://localhost:9000/~static/dev");
 
         let theme = options
             .as_ref()
             .and_then(|options| options.theme.as_deref())
             .unwrap_or("default");
+
+        let view = options
+            .as_ref()
+            .and_then(|options| options.view.as_deref())
+            .unwrap_or("static");
+
         format!(
-            r#"<!DOCTYPE html>
+            r#"<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
@@ -214,17 +221,17 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
     {og_image}
     {alternates}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="{static_prefix}/images/favicon.png" />
+    <link rel="icon" type="image/png" href="{web}/images/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="{static_prefix}/themes/{theme}.css" />
-    <link rel="stylesheet" type="text/css" href="{static_prefix}/views/dynamic.css" />
-    <script type="module" src="{static_prefix}/views/dynamic.js"></script>
+    <link rel="stylesheet" type="text/css" href="{web}/themes/{theme}.css" />
+    <link rel="stylesheet" type="text/css" href="{web}/views/{view}.css" />
+    <script type="module" src="{web}/views/{view}.js"></script>
   </head>
   <body>
-    <stencila-dynamic-view view="dynamic">
+    <stencila-{view}-view view="{view}">
       {dom}
-    </stencila-dynamic-view>
+    </stencila-{view}-view>
   </body>
 </html>"#
         )
