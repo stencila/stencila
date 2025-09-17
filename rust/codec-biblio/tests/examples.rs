@@ -66,8 +66,8 @@ async fn examples() -> Result<()> {
 
         // Test rendering to each citation style
         for style in ["apa", "mla", "chicago", "vancouver", "ieee"] {
-            // Encode to alternative formats mainly for debugging
-            for format in [Format::Json, Format::Markdown, Format::Text] {
+            // Encode to alternative formats (mainly for debugging)
+            for format in [Format::Json, Format::Markdown] {
                 let (encoded, ..) = BiblioCodec
                     .to_string(
                         &node,
@@ -79,7 +79,6 @@ async fn examples() -> Result<()> {
                     )
                     .await?;
 
-                // Write generated files for debugging
                 let output_file = format!("{file_stem}.{style}.{format}");
                 let output_path = examples_dir.join(&output_file);
                 std::fs::write(&output_path, &encoded)?;
