@@ -109,6 +109,11 @@ export class Reference extends Entity {
    */
   text?: string;
 
+  /**
+   * A rendering of the reference using the citation style of the document.
+   */
+  content?: Inline[];
+
   constructor(options?: Partial<Reference>) {
     super();
     this.type = "Reference";

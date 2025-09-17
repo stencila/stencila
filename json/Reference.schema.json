@@ -139,9 +139,6 @@
         "headline"
       ],
       "walk": true,
-      "dom": {
-        "elem": "span"
-      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"
@@ -274,6 +271,18 @@
       "description": "Plain text representation of the referenced work.",
       "$comment": "Used when the properties of a reference can not be extract from plain text.\nIn those circumstances, we fallback to using this `text` property.\n",
       "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "A rendering of the reference using the citation style of the document.",
+      "walk": false,
+      "dom": {
+        "elem": "p"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
     }
   }
 }

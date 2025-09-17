@@ -118,7 +118,7 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "Optional structured content/text of this citation.",
+      "rdfs:comment": "A rendering of the citation using the citation style of the document.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -143,6 +143,9 @@
         },
         {
           "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:CitationGroup"
         },
         {
           "@id": "stencila:Excerpt"
@@ -203,6 +206,9 @@
         },
         {
           "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
         },
         {
           "@id": "stencila:Section"

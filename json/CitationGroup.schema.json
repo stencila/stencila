@@ -21,7 +21,8 @@
     "items"
   ],
   "core": [
-    "id"
+    "id",
+    "content"
   ],
   "properties": {
     "type": {
@@ -63,6 +64,19 @@
       "type": "array",
       "items": {
         "$ref": "Citation.schema.json"
+      }
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "A rendering of the citation group using the citation style of the document.",
+      "$comment": "Generated from the citation items during compilation and includes range characters\nand parentheses e.g. [1-4,7]\n",
+      "walk": false,
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
       }
     }
   }

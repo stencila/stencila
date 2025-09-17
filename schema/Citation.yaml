@@ -33,8 +33,6 @@ properties:
     "@id": stencila:cites
     description: The `Reference` being cited, resolved from the `target`.
     $ref: Reference
-    dom:
-      elem: span
   citationMode:
     "@id": stencila:citationMode
     description: Determines how the citation is shown within the surrounding text.
@@ -49,10 +47,11 @@ properties:
       $ref: CitationIntent
   content:
     "@id": stencila:content
-    description: Optional structured content/text of this citation.
+    description: A rendering of the citation using the citation style of the document.
     type: array
     items:
       $ref: Inline
+    walk: false
     dom:
       elem: span
   pageStart:

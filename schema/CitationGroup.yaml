@@ -21,6 +21,8 @@ markdown:
   derive: false
 required:
   - items
+core:
+  - content
 properties:
   items:
     "@id": schema:itemListElement
@@ -33,3 +35,15 @@ properties:
       elem: span
     patch:
       formats: [all]
+  content:
+    "@id": stencila:content
+    description: A rendering of the citation group using the citation style of the document.
+    $comment: |
+      Generated from the citation items during compilation and includes range characters
+      and parentheses e.g. [1-4,7]
+    type: array
+    items:
+      $ref: Inline
+    walk: false
+    dom:
+      elem: span

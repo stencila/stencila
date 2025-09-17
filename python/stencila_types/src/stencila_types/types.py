@@ -1425,7 +1425,7 @@ class Citation(Entity):
     """The type/s of the citation, both factually and rhetorically."""
 
     content: list[Inline] | None = None
-    """Optional structured content/text of this citation."""
+    """A rendering of the citation using the citation style of the document."""
 
     page_start: int | str | None = None
     """The page on which the work starts; for example "135" or "xiii"."""
@@ -1453,6 +1453,9 @@ class CitationGroup(Entity):
 
     items: list[Citation]
     """One or more `Citation`s to be referenced in the same surrounding text."""
+
+    content: list[Inline] | None = None
+    """A rendering of the citation group using the citation style of the document."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2863,6 +2866,9 @@ class Reference(Entity):
 
     text: str | None = None
     """Plain text representation of the referenced work."""
+
+    content: list[Inline] | None = None
+    """A rendering of the reference using the citation style of the document."""
 
 
 @dataclass(kw_only=True, repr=False)

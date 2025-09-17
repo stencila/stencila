@@ -77,8 +77,6 @@ properties:
     items:
       $ref: Inline
     walk: true
-    dom:
-      elem: span
   isPartOf:
     "@id": schema:isPartOf
     description: Another `Reference` that this reference is a part of.
@@ -153,3 +151,12 @@ properties:
       Used when the properties of a reference can not be extract from plain text.
       In those circumstances, we fallback to using this `text` property.
     type: string
+  content:
+    "@id": stencila:content
+    description: A rendering of the reference using the citation style of the document.
+    type: array
+    items:
+      $ref: Inline
+    walk: false
+    dom:
+      elem: p

@@ -2,6 +2,7 @@
 
 import { Citation } from "./Citation.js";
 import { Entity } from "./Entity.js";
+import { Inline } from "./Inline.js";
 
 /**
  * A group of `Citation` nodes.
@@ -14,6 +15,11 @@ export class CitationGroup extends Entity {
    * One or more `Citation`s to be referenced in the same surrounding text.
    */
   items: Citation[];
+
+  /**
+   * A rendering of the citation group using the citation style of the document.
+   */
+  content?: Inline[];
 
   constructor(items: Citation[], options?: Partial<CitationGroup>) {
     super();

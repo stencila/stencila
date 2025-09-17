@@ -60,7 +60,6 @@ pub struct CitationOptions {
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `Reference` being cited, resolved from the `target`.
-    #[dom(elem = "span")]
     pub cites: Option<Reference>,
 
     /// The type/s of the citation, both factually and rhetorically.
@@ -68,9 +67,8 @@ pub struct CitationOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub citation_intent: Option<Vec<CitationIntent>>,
 
-    /// Optional structured content/text of this citation.
+    /// A rendering of the citation using the citation style of the document.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[walk]
     #[patch(format = "all")]
     #[dom(elem = "span")]
     pub content: Option<Vec<Inline>>,

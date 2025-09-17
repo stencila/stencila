@@ -57,7 +57,6 @@ pub struct Reference {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[dom(elem = "span")]
     pub title: Option<Vec<Inline>>,
 
     /// Another `Reference` that this reference is a part of.
@@ -125,6 +124,12 @@ pub struct ReferenceOptions {
 
     /// Plain text representation of the referenced work.
     pub text: Option<String>,
+
+    /// A rendering of the reference using the citation style of the document.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[patch(format = "all")]
+    #[dom(elem = "p")]
+    pub content: Option<Vec<Inline>>,
 }
 
 impl Reference {

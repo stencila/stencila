@@ -80,15 +80,16 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Datatable.notes",
                 // List exclusions
                 "ListItem.position",
-                // Citation exclusions
-                "Citation.citationPrefix",
-                "Citation.citationSuffix",
-                "Citation.content",
                 // ForBlock exclusions
                 "ForBlock.iterations",
                 "ForBlock.otherwise",
-                // Reference exclusions
+                // Citation and reference exclusions
+                "Citation.citationPrefix",
+                "Citation.citationSuffix",
+                "Citation.content",
+                "CitationGroup.content",
                 "Reference.title",
+                "Reference.content",
                 // Periodical exclusions
                 "Periodical.abstract",
                 "Periodical.authors",

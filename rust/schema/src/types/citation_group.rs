@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::citation::Citation;
+use super::inline::Inline;
 use super::string::String;
 
 /// A group of `Citation` nodes.
@@ -30,6 +31,12 @@ pub struct CitationGroup {
     #[patch(format = "all")]
     #[dom(elem = "span")]
     pub items: Vec<Citation>,
+
+    /// A rendering of the citation group using the citation style of the document.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[patch(format = "all")]
+    #[dom(elem = "span")]
+    pub content: Option<Vec<Inline>>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]

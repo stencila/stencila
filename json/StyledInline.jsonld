@@ -285,6 +285,9 @@
           "@id": "stencila:Citation"
         },
         {
+          "@id": "stencila:CitationGroup"
+        },
+        {
           "@id": "stencila:Excerpt"
         },
         {
@@ -343,6 +346,9 @@
         },
         {
           "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
         },
         {
           "@id": "stencila:Section"

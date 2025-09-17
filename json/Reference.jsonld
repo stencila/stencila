@@ -422,6 +422,131 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "A rendering of the reference using the citation style of the document.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:CitationGroup"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InlinesBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Sentence"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
     }
   ]
 }

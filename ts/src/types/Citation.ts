@@ -41,7 +41,7 @@ export class Citation extends Entity {
   citationIntent?: CitationIntent[];
 
   /**
-   * Optional structured content/text of this citation.
+   * A rendering of the citation using the citation style of the document.
    */
   content?: Inline[];
 
