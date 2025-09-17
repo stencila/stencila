@@ -193,13 +193,8 @@ pub async fn serve_path(
         .map_err(InternalError::new)?;
     let config = doc.config().await.map_err(InternalError::new)?;
 
-    // Get various query parameters
-    let mode = query
-        .get("mode")
-        .map_or("doc", |value: &String| value.as_ref());
-
-    // early-returned response for `raw`
-    if mode == "raw" {
+    // Early-returned response for raw
+    if query.contains_key("~raw") {
         // If raw is enabled early return a response with the content of the file
         if !raw {
             return Ok(StatusCode::FORBIDDEN.into_response());
@@ -215,21 +210,14 @@ pub async fn serve_path(
     }
 
     let view = query
-        .get("view")
+        .get("~view")
         .map_or("dynamic", |value: &String| value.as_ref());
 
-    // TODO: restrict the access to the highest based on the user's role
-    let access = query.get("access").map_or("write", |value| value.as_ref());
-
     let theme = query
-        .get("theme")
+        .get("~theme")
         .map(|value: &String| value.as_str())
         .or(config.theme.as_deref())
         .unwrap_or("default");
-
-    let format = query
-        .get("format")
-        .map_or("markdown", |value| value.as_ref());
 
     // Generate the body of the HTML
     // Note that for dynamic views, when WebSocket connection is made, a "reset patch" will be sent with the same
@@ -241,43 +229,12 @@ pub async fn serve_path(
         .dump(Format::Dom, None)
         .await
         .map_err(InternalError::new)?;
-    let body = format!(
-        "<stencila-{view}-view doc={uuid} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>"
-    );
 
-    // The version path segment for static assets (JS & CSS)
-    let version = if cfg!(debug_assertions) {
-        "dev"
+    // The URL prefix for Stencila's web distribution
+    let web = if cfg!(debug_assertions) {
+        "/~static/dev".to_string()
     } else {
-        STENCILA_VERSION
-    };
-
-    let icon_tag = format!(
-        r#"<link rel="icon" type="image/png" href="/~static/{version}/images/favicon.png">"#
-    );
-
-    // The stylesheet tag for the theme
-    let theme_tag = format!(
-        r#"<link title="theme:{theme}" rel="stylesheet" type="text/css" href="/~static/{version}/themes/{theme}.css">"#
-    );
-
-    // The script tag for the view or app
-    let extra_head = if view == "static" {
-        // No need for any JS in this mode for this view
-        String::new()
-    } else if view == "print" {
-        format!(
-            r#"<link rel="stylesheet" type="text/csss" href="/~static/{version}/views/print.css">
-                <script type="module" src="/~static/{version}/views/print.js"></script>"#
-        )
-    } else {
-        format!(
-            r#"<link rel="preconnect" href="https://fonts.googleapis.com">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-                <link rel="stylesheet" type="text/css" href="/~static/{version}/views/{view}.css">
-                <script type="module" src="/~static/{version}/views/{view}.js"></script>"#
-        )
+        ["/~static/", STENCILA_VERSION].concat()
     };
 
     let html = format!(
@@ -287,12 +244,17 @@ pub async fn serve_path(
         <meta charset="utf-8"/>
         <title>Stencila</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {icon_tag}
-        {theme_tag}
-        {extra_head}
+        <link rel="icon" type="image/png" href="{web}/images/favicon.png">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{web}/themes/{theme}.css">
+        <link rel="stylesheet" type="text/css" href="{web}/views/{view}.css">
+        <script type="module" src="{web}/views/{view}.js"></script>
     </head>
     <body>
-        {body}
+        <stencila-{view}-view view={view} doc={uuid} type={root_type}>
+            {root_html}
+        </stencila-{view}-view>
     </body>
 </html>"#
     );
