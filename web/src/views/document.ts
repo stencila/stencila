@@ -8,6 +8,8 @@ import {
   documentContext,
 } from '../ui/document/context'
 
+import '../ui/document/menu'
+
 /**
  * A base class for document views which provides a document menu
  */

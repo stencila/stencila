@@ -8,7 +8,6 @@ import { DocumentView } from './document'
 
 import '../nodes/all'
 import '../shoelace'
-import '../ui/document/menu'
 
 /**
  * Dynamic view of a document
