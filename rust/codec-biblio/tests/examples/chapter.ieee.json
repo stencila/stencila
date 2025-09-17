@@ -17,13 +17,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Down the Rabbit-Hole"
+          "string": "“Down the Rabbit-Hole,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " in "
         }
       },
       {
@@ -70,6 +70,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "1–8"
         }
       },
@@ -99,13 +111,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Hidden Markov Models in Computational Biology"
+          "string": "“Hidden Markov Models in Computational Biology,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " in "
         }
       },
       {
@@ -146,13 +158,19 @@
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {
         "type": "Text",
         "value": {
           "string": "Brunak, Søren"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", Eds."
         }
       },
       {
@@ -188,6 +206,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "83–106"
         }
       },
@@ -217,13 +247,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Call me Ishmael"
+          "string": "“Call me Ishmael,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " in "
         }
       },
       {
@@ -270,6 +300,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "1–7"
         }
       },
@@ -299,13 +341,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin"
+          "string": "“In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " in "
         }
       },
       {
@@ -352,6 +394,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "3–17"
         }
       },
@@ -381,13 +435,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Bash"
+          "string": "“Bash,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " in "
         }
       },
       {
@@ -416,13 +470,19 @@
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {
         "type": "Text",
         "value": {
           "string": "Wilson, Greg"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", Eds."
         }
       },
       {
@@ -458,13 +518,25 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "29–47"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". Available: "
+          "string": ". [Online].  Available: "
         }
       },
       {

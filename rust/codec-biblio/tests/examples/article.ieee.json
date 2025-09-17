@@ -23,7 +23,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -41,13 +41,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Kinetics and luminescence of the excitations of a nonequilibrium polariton condensate"
+          "string": "“Kinetics and luminescence of the excitations of a nonequilibrium polariton condensate,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " "
         }
       },
       {
@@ -64,7 +64,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -76,7 +76,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", no. "
         }
       },
       {
@@ -94,6 +94,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "165126–165139"
         }
       },
@@ -106,7 +118,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "10 2020"
+          "string": "Oct. 2020"
         }
       },
       {
@@ -147,8 +159,19 @@
       {
         "type": "Text",
         "value": {
-          "string": "Jerrentrup, Andreas"
+          "string": "Jerrentrup, Andreas "
         }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "et al."
+            }
+          }
+        ]
       },
       {
         "type": "Text",
@@ -159,13 +182,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Teaching medicine with the help of \"Dr. House\""
+          "string": "“Teaching medicine with the help of \"Dr. House\",”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " "
         }
       },
       {
@@ -182,7 +205,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -194,7 +217,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", no. "
         }
       },
       {
@@ -212,7 +235,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "3 2018"
+          "string": "Mar. 2018"
         }
       },
       {
@@ -259,7 +282,7 @@
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {
@@ -277,13 +300,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Quantum Computing: Progress and Prospects"
+          "string": "“Quantum Computing: Progress and Prospects,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " "
         }
       },
       {
@@ -300,7 +323,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -312,7 +335,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", no. "
         }
       },
       {
@@ -330,6 +353,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "234–245"
         }
       },
@@ -342,7 +377,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "3 2022"
+          "string": "Mar. 2022"
         }
       },
       {
@@ -425,7 +460,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -443,13 +478,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Defining the Really Habitable Zone"
+          "string": "“Defining the Really Habitable Zone,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " "
         }
       },
       {
@@ -461,7 +496,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". Available: "
+          "string": ". [Online].  Available: "
         }
       },
       {
@@ -502,7 +537,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -520,13 +555,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "ZygOS: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks"
+          "string": "“ZygOS: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks,”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": " in "
         }
       },
       {
@@ -568,6 +603,18 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {

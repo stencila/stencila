@@ -23,7 +23,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -53,7 +53,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate"
+          "string": "“Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate”"
         }
       },
       {
@@ -207,7 +207,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -237,7 +237,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Teaching Medicine with the Help of \"Dr. House\""
+          "string": "“Teaching Medicine with the Help of \"Dr. House\"”"
         }
       },
       {
@@ -319,7 +319,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -349,7 +349,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Quantum Computing: Progress and Prospects"
+          "string": "“Quantum Computing: Progress and Prospects”"
         }
       },
       {
@@ -479,7 +479,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -509,7 +509,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Defining the Really Habitable Zone"
+          "string": "“Defining the Really Habitable Zone”"
         }
       },
       {
@@ -562,7 +562,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -592,13 +592,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks"
+          "string": "“Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {

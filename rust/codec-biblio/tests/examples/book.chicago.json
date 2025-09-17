@@ -35,7 +35,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -146,13 +146,19 @@
       {
         "type": "Text",
         "value": {
+          "string": "Edited by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "Stringer, Gary A."
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {
@@ -164,7 +170,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". Vol. "
         }
       },
       {
@@ -240,7 +246,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". Vol. "
         }
       },
       {
@@ -305,7 +311,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {

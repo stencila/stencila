@@ -35,7 +35,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2020"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -206,7 +218,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2018"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -305,7 +329,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2022"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -452,7 +488,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2020"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -522,7 +570,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2017"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {

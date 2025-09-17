@@ -35,7 +35,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -134,7 +134,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -216,7 +216,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -293,7 +293,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {

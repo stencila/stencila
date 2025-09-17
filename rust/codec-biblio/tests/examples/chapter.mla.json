@@ -17,13 +17,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Down the Rabbit-Hole"
+          "string": "“Down the Rabbit-Hole.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -41,6 +41,12 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "by "
         }
       },
       {
@@ -82,6 +88,30 @@
       {
         "type": "Text",
         "value": {
+          "string": "1865"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "1–8"
         }
       },
@@ -111,13 +141,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Hidden Markov Models in Computational Biology"
+          "string": "“Hidden Markov Models in Computational Biology.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -140,13 +170,19 @@
       {
         "type": "Text",
         "value": {
+          "string": "edited by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "Baldi, Pierre"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {
@@ -200,6 +236,30 @@
       {
         "type": "Text",
         "value": {
+          "string": "2001"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "83–106"
         }
       },
@@ -229,13 +289,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Call Me Ishmael"
+          "string": "“Call Me Ishmael.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -253,6 +313,12 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "by "
         }
       },
       {
@@ -294,6 +360,30 @@
       {
         "type": "Text",
         "value": {
+          "string": "1851"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "1–7"
         }
       },
@@ -323,13 +413,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "In Which We Are Introduced to Winnie-the-Pooh and Some Bees, And the Stories Begin"
+          "string": "“In Which We Are Introduced to Winnie-the-Pooh and Some Bees, And the Stories Begin.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -347,6 +437,12 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "by "
         }
       },
       {
@@ -388,6 +484,30 @@
       {
         "type": "Text",
         "value": {
+          "string": "1926"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "3–17"
         }
       },
@@ -417,13 +537,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Bash"
+          "string": "“Bash.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -446,13 +566,19 @@
       {
         "type": "Text",
         "value": {
+          "string": "edited by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "Brown, Amy"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {
@@ -489,6 +615,30 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2011"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {

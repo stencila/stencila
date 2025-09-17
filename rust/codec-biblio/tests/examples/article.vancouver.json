@@ -65,7 +65,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "20201014"
+          "string": "2020Oct14"
         }
       },
       {
@@ -172,6 +172,12 @@
       {
         "type": "Text",
         "value": {
+          "string": ", et al"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": ". "
         }
       },
@@ -202,7 +208,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "2018313"
+          "string": "2018Mar13"
         }
       },
       {
@@ -285,7 +291,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "2022315"
+          "string": "2022Mar15"
         }
       },
       {
@@ -392,7 +398,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " [Internet]. "
         }
       },
       {
@@ -469,7 +475,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In: "
         }
       },
       {
@@ -506,6 +512,18 @@
         "type": "Text",
         "value": {
           "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {

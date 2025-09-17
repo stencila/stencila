@@ -1,9 +1,9 @@
-Allen Institute. 2024. Allen Brain Atlas - Interactive Brain Explorer. https://portal.brain-map.org/.
+Allen Institute. 2024. “Allen Brain Atlas - Interactive Brain Explorer”. 2024. https://portal.brain-map.org/.
 
-British Ecological Society. 2024. Methods in Ecology and Evolution Blog. https://methodsblog.com/.
+British Ecological Society. 2024. “Methods in Ecology and Evolution Blog”. 2024. https://methodsblog.com/.
 
-Jupyter Notebook Documentation. 2023. https://jupyter-notebook.readthedocs.io/.
+Martinez, Carlos, and Team Members. 2024. “The Computational Biology Lab”. Stanford School of Medicine. 2024. https://compbio.stanford.edu/.
 
-Martinez, Carlos, Team Members. 2024. The Computational Biology Lab. Stanford School of Medicine. https://compbio.stanford.edu/.
+“Jupyter Notebook Documentation.” 2023. 2023. https://jupyter-notebook.readthedocs.io/.
 
-NASA Climate Change and Global Warming. 2023. https://climate.nasa.gov/.
+“NASA Climate Change and Global Warming.” 2023. 2023. https://climate.nasa.gov/.

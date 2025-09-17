@@ -5,7 +5,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Doan, T. D"
+          "string": "Doan, T. D."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", et al"
         }
       },
       {
@@ -17,13 +23,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate"
+          "string": "“Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -40,7 +46,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -52,7 +58,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", no. "
         }
       },
       {
@@ -77,6 +83,18 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -129,19 +147,25 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Teaching Medicine with the Help of \"Dr. House\""
+          "string": ", et al"
         }
       },
       {
         "type": "Text",
         "value": {
           "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "“Teaching Medicine with the Help of \"Dr. House\".”"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -158,7 +182,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -170,7 +194,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", no. "
         }
       },
       {
@@ -235,7 +259,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -253,13 +277,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Quantum Computing: Progress and Prospects"
+          "string": "“Quantum Computing: Progress and Prospects.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {
@@ -276,7 +300,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", vol. "
         }
       },
       {
@@ -288,7 +312,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", no. "
         }
       },
       {
@@ -313,6 +337,18 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -359,7 +395,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Pedbost, Marven F"
+          "string": "Pedbost, Marven F."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", et al"
         }
       },
       {
@@ -446,19 +488,25 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks"
+          "string": ", et al"
         }
       },
       {
         "type": "Text",
         "value": {
           "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "“Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks.”"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -488,6 +536,30 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2017"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {

@@ -11,7 +11,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". (, "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2024"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
         }
       },
       {
@@ -63,7 +75,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". (, "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2024"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
         }
       },
       {
@@ -120,7 +144,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". (, "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2023"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
         }
       },
       {
@@ -167,7 +203,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". (, "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2024"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
         }
       },
       {
@@ -236,7 +284,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". (, "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2023"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
         }
       },
       {

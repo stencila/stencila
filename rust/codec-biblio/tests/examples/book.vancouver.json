@@ -107,6 +107,12 @@
       {
         "type": "Text",
         "value": {
+          "string": " p"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": ". "
         }
       }
@@ -160,7 +166,19 @@
       {
         "type": "Text",
         "value": {
-          "string": "."
+          "string": ", editors."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Vol."
         }
       },
       {
@@ -244,6 +262,18 @@
         "type": "Text",
         "value": {
           "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -375,6 +405,12 @@
         "type": "Text",
         "value": {
           "string": " 395"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " p"
         }
       },
       {

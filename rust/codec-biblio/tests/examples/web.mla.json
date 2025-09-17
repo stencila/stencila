@@ -191,7 +191,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
+          "string": ", and "
         }
       },
       {
@@ -209,13 +209,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "The Computational Biology Lab"
+          "string": "“The Computational Biology Lab.”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": " "
         }
       },
       {

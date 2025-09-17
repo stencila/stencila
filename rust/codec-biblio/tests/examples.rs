@@ -83,28 +83,6 @@ async fn examples() -> Result<()> {
                 let output_file = format!("{file_stem}.{style}.{format}");
                 let output_path = examples_dir.join(&output_file);
                 std::fs::write(&output_path, &encoded)?;
-
-                if format == Format::Text {
-                    /*
-                    TODO: round trip test of decoding plain text for citation style
-
-                    // Round-trip test text
-                    let (round_trip, ..) = BiblioCodec
-                        .from_str(
-                            &encoded,
-                            Some(DecodeOptions {
-                                format: Some(Format::Text),
-                                ..Default::default()
-                            }),
-                        )
-                        .await?;
-
-                    assert_eq!(
-                        round_trip, node
-                        "Round-trip test failed for {output_file}",
-                    );
-                    */
-                }
             }
         }
     }

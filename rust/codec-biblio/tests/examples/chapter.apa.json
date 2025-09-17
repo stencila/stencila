@@ -11,7 +11,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1865"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -23,7 +35,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -70,6 +82,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "1–8"
         }
       },
@@ -105,7 +129,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2001"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -117,7 +153,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -136,6 +172,12 @@
         "type": "Text",
         "value": {
           "string": "Brunak, Søren"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " (Eds.)"
         }
       },
       {
@@ -188,6 +230,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "83–106"
         }
       },
@@ -223,7 +277,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1851"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -235,7 +301,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -282,6 +348,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "1–7"
         }
       },
@@ -317,7 +395,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1926"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -329,7 +419,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -376,6 +466,18 @@
       {
         "type": "Text",
         "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "3–17"
         }
       },
@@ -405,7 +507,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2011"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -417,7 +531,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -436,6 +550,12 @@
         "type": "Text",
         "value": {
           "string": "Wilson, Greg"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " (Eds.)"
         }
       },
       {
@@ -471,6 +591,18 @@
         "type": "Text",
         "value": {
           "string": "; "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "p."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {

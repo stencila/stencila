@@ -5,7 +5,7 @@ use hayagriva::{
     BibliographyDriver, BibliographyItem, BibliographyRequest, CitationItem, CitationRequest,
     ElemChild, Entry, Formatted, Library, RenderedBibliography,
     archive::ArchivedStyle,
-    citationberg::{FontStyle, FontWeight, Style, TextDecoration, VerticalAlign},
+    citationberg::{FontStyle, FontWeight, LocaleFile, Style, TextDecoration, VerticalAlign},
     io::to_yaml_str,
 };
 use stencila_codec::{
@@ -89,18 +89,22 @@ fn references_to_bibliography(
         _ => bail!("Only independent citation styles are supported"),
     };
 
+    // Load the locale file
+    let en_locale = include_str!("locales-en-us.xml");
+    let locales = [LocaleFile::from_xml(&en_locale)?.into()];
+
     // Create bibliography driver
     let mut driver = BibliographyDriver::new();
     for entry in library.iter() {
         let items = vec![CitationItem::with_entry(entry)];
-        driver.citation(CitationRequest::from_items(items, &style, &[]));
+        driver.citation(CitationRequest::from_items(items, &style, &locales));
     }
 
     // Render bibliography
     let result = driver.finish(BibliographyRequest {
         style: &style,
         locale: None,
-        locale_files: &[],
+        locale_files: &locales,
     });
 
     result.bibliography.ok_or_eyre("No bibliography rendered")
@@ -163,7 +167,7 @@ fn formatted_to_inline(Formatted { text, formatting }: Formatted) -> Inline {
     match formatting.vertical_align {
         VerticalAlign::Sup => inline = sup([inline]),
         VerticalAlign::Sub => inline = sub([inline]),
-        _ => {}
+        VerticalAlign::Baseline | VerticalAlign::None => {}
     }
 
     inline

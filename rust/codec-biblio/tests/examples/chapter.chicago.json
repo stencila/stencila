@@ -29,13 +29,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Down the Rabbit-Hole"
+          "string": "“Down the Rabbit-Hole”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -129,13 +129,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Hidden Markov Models in Computational Biology"
+          "string": "“Hidden Markov Models in Computational Biology”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -158,13 +158,19 @@
       {
         "type": "Text",
         "value": {
+          "string": "edited by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "Baldi, Pierre"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {
@@ -241,13 +247,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Call Me Ishmael"
+          "string": "“Call Me Ishmael”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -341,13 +347,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "In Which We Are Introduced to Winnie-the-Pooh and Some Bees, And the Stories Begin"
+          "string": "“In Which We Are Introduced to Winnie-the-Pooh and Some Bees, And the Stories Begin”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -435,13 +441,13 @@
       {
         "type": "Text",
         "value": {
-          "string": "Bash"
+          "string": "“Bash”"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". In "
         }
       },
       {
@@ -464,13 +470,19 @@
       {
         "type": "Text",
         "value": {
+          "string": "edited by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "Brown, Amy"
         }
       },
       {
         "type": "Text",
         "value": {
-          "string": " "
+          "string": " and "
         }
       },
       {

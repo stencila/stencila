@@ -47,7 +47,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2009"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -105,7 +117,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1995"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -146,7 +170,25 @@
       {
         "type": "Text",
         "value": {
+          "string": ", Eds."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
           "string": "; "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -187,7 +229,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2018"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -217,6 +271,18 @@
         "type": "Text",
         "value": {
           "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Vol."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
         }
       },
       {
@@ -293,7 +359,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1994"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
@@ -339,7 +417,19 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
+          "string": ". ("
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2020"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
         }
       },
       {
