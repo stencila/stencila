@@ -203,6 +203,20 @@ pub struct EncodeOptions {
     #[arg(long, conflicts_with = "standalone", help_heading = "Encoding Options")]
     not_standalone: bool,
 
+    /// The CSS theme to use when encoding to HTML and HTML-derived formats
+    ///
+    /// Use this option to specify the theme for HTML and HTML-derived (e.g.
+    /// PDF) formats.
+    #[arg(long, help_heading = "Encoding Options")]
+    theme: Option<String>,
+
+    /// The document view to use when encoding to HTML and HTML-derived formats
+    ///
+    /// Stencila provides alternatives views with alternative ways of
+    /// interacting with a document (e.g. "dynamic", "static", "paged").
+    #[arg(long, help_heading = "Encoding Options")]
+    view: Option<String>,
+
     /// Embed media files as data URIs
     ///
     /// When enabled, external media files (images, audio, video) referenced in
@@ -373,6 +387,8 @@ impl EncodeOptions {
             reproducible,
             template,
             standalone,
+            theme: self.theme.clone(),
+            view: self.view.clone(),
             embed_media,
             extract_media,
             embed_supplements,
