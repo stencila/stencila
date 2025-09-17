@@ -93,7 +93,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "School of Biological Sciences, Illinois State University"
+          "name": "School of Biological Sciences, Illinois State University",
+          "address": "Normal, IL"
         }
       ],
       "familyNames": [
@@ -109,7 +110,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "School of Biological Sciences, Illinois State University"
+          "name": "School of Biological Sciences, Illinois State University",
+          "address": "Normal, IL"
         }
       ],
       "familyNames": [
@@ -2645,6 +2647,35 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing Interest Statement"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors have declared no competing interest."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [
         {
@@ -2735,35 +2766,6 @@ expression: article
               "type": "Text",
               "value": {
                 "string": "Andres Vidal-Gadea: Conceptualization, Project administration, Resources, Funding acquisition, Supervision, Writing (review & editing)."
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Section",
-      "sectionType": "CompetingInterests",
-      "content": [
-        {
-          "type": "Heading",
-          "level": 1,
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "Conflict of Interest"
-              }
-            }
-          ]
-        },
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "The authors declare no conflict of interest."
               }
             }
           ]

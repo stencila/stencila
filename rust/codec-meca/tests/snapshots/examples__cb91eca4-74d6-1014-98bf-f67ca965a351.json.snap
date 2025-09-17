@@ -195,11 +195,13 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "School of Biomolecular and Biomedical Science, University College Dublin"
+          "name": "School of Biomolecular and Biomedical Science, University College Dublin",
+          "address": "Dublin, Ireland"
         },
         {
           "type": "Organization",
-          "name": "UCD Conway Institute of Biomolecular and Biomedical Research"
+          "name": "UCD Conway Institute of Biomolecular and Biomedical Research",
+          "address": "Dublin, Ireland"
         }
       ],
       "familyNames": [
@@ -3978,6 +3980,35 @@ expression: article
                   }
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing Interest Statement"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors have declared no competing interest."
+              }
             }
           ]
         }

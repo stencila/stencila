@@ -25,11 +25,13 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Barcelona Supercomputing Center (BSC)"
+          "name": "Barcelona Supercomputing Center (BSC)",
+          "address": "C/ Jordi Girona 29, 08034, Barcelona, Spain"
         },
         {
           "type": "Organization",
-          "name": "Department of Medicine and Life Sciences, Universitat Pompeu Fabra"
+          "name": "Department of Medicine and Life Sciences, Universitat Pompeu Fabra",
+          "address": "C/Dr Aiguader 88, Barcelona 08003, Spain"
         }
       ],
       "familyNames": [
@@ -45,7 +47,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Barcelona Supercomputing Center (BSC)"
+          "name": "Barcelona Supercomputing Center (BSC)",
+          "address": "C/ Jordi Girona 29, 08034, Barcelona, Spain"
         }
       ],
       "familyNames": [
@@ -61,11 +64,13 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Barcelona Supercomputing Center (BSC)"
+          "name": "Barcelona Supercomputing Center (BSC)",
+          "address": "C/ Jordi Girona 29, 08034, Barcelona, Spain"
         },
         {
           "type": "Organization",
-          "name": "Institució Catalana de Recerca i Estudis Avançats (ICREA)"
+          "name": "Institució Catalana de Recerca i Estudis Avançats (ICREA)",
+          "address": "Pg. Lluís Companys 23, 08010, Barcelona, Spain"
         }
       ],
       "familyNames": [
@@ -5114,6 +5119,35 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing Interest Statement"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors have declared no competing interest."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "content": [
         {
           "type": "Heading",
@@ -5135,35 +5169,6 @@ expression: article
             {
               "type": "ImageObject",
               "contentUrl": "redacted"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Section",
-      "sectionType": "CompetingInterests",
-      "content": [
-        {
-          "type": "Heading",
-          "level": 1,
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "Competing Interest"
-              }
-            }
-          ]
-        },
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "None declared."
-              }
             }
           ]
         }
