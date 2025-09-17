@@ -213,7 +213,7 @@ fn extract_fragment_id(url: &str) -> String {
 }
 
 /// Create a citation group for multiple references
-/// 
+///
 /// Does not set citation mode on citation items because they are part of the
 /// group which is by definition, parenthetical.
 fn create_citation_group(

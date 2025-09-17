@@ -141,7 +141,7 @@ impl SecondWalk {
 
         if self.options.should_perform(NormalizeCitations) {
             // Normalize citation formatting and grouping
-            *inlines = normalize_citations(inlines.drain(..).collect());
+            *inlines = normalize_citations(std::mem::take(inlines));
         }
 
         if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextToLinks)
@@ -493,10 +493,10 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
             && (value.starts_with(")") || value.starts_with("]"))
         {
             // Remove closing parentheses/brackets after citation/s and mark previous citation as parenthetical
-            if let Some(Inline::Citation(citation)) = output.last_mut() {
-                if citation.citation_mode.is_none() {
-                    citation.citation_mode = Some(CitationMode::Parenthetical);
-                }
+            if let Some(Inline::Citation(citation)) = output.last_mut()
+                && citation.citation_mode.is_none()
+            {
+                citation.citation_mode = Some(CitationMode::Parenthetical);
             }
             output.push(Inline::Text(Text::new(value[1..].into())));
             continue;

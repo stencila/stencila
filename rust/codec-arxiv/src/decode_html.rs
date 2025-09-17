@@ -212,7 +212,8 @@ fn is_email_address(text: &str) -> bool {
 /// be parsed as individual author names.
 fn contains_structured_email_pattern(text: &str) -> bool {
     // Look for patterns like {name1, name2, name3}@domain
-    let structured_email_regex = Regex::new(r"\{[^}]+\}@[^\s]+").expect("valid email pattern regex");
+    let structured_email_regex =
+        Regex::new(r"\{[^}]+\}@[^\s]+").expect("valid email pattern regex");
     structured_email_regex.is_match(text)
 }
 
@@ -234,7 +235,8 @@ fn is_email_username_part(text: &str, full_text: &str) -> bool {
         // Look for this text followed by email-like patterns in the full text
         let pattern = format!(r"(?i)\b{}\b[^@]*@", regex::escape(&trimmed));
         if let Ok(re) = Regex::new(&pattern)
-            && re.is_match(full_text) {
+            && re.is_match(full_text)
+        {
             return true;
         }
 
@@ -277,7 +279,8 @@ fn is_organization_name(text: &str) -> bool {
         || trimmed == "corporation"
         || trimmed == "technology"  // Add this based on the test case
         || trimmed == "engineering" // Add this based on the test case
-        || trimmed == "management"  // Add this based on the test case
+        || trimmed == "management"
+    // Add this based on the test case
     {
         return true;
     }
@@ -296,18 +299,21 @@ fn is_organization_name(text: &str) -> bool {
     }
 
     // Check for organizational endings but be more specific
-    if trimmed.len() > 8 && ( // Only for longer strings
-        trimmed.ends_with(" university")
-        || trimmed.ends_with(" institute")
-        || trimmed.ends_with(" college")
-        || trimmed.ends_with(" laboratory")
-        || trimmed.ends_with(" foundation")
-        || trimmed.ends_with(" corporation")
-        || trimmed.ends_with(" inc.")
-        || trimmed.ends_with(" llc")
-        || trimmed.ends_with(" ltd.")
-        || trimmed.ends_with(" corp.")
-    ) {
+    if trimmed.len() > 8
+        && (
+            // Only for longer strings
+            trimmed.ends_with(" university")
+                || trimmed.ends_with(" institute")
+                || trimmed.ends_with(" college")
+                || trimmed.ends_with(" laboratory")
+                || trimmed.ends_with(" foundation")
+                || trimmed.ends_with(" corporation")
+                || trimmed.ends_with(" inc.")
+                || trimmed.ends_with(" llc")
+                || trimmed.ends_with(" ltd.")
+                || trimmed.ends_with(" corp.")
+        )
+    {
         return true;
     }
 
@@ -511,7 +517,8 @@ fn decode_personname_element(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
                 if !found_first_br && collecting_authors && !current_text_parts.is_empty() {
                     // First <br> likely separates authors from affiliations
                     let author_text = current_text_parts.join(" ");
-                    let mut parsed_authors = decode_authors_from_text_with_context(&author_text, &full_text);
+                    let mut parsed_authors =
+                        decode_authors_from_text_with_context(&author_text, &full_text);
                     authors.append(&mut parsed_authors);
                     current_text_parts.clear();
                     found_first_br = true;
@@ -565,7 +572,7 @@ fn decode_personname_element(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
 /// Clean author text by removing math symbols and formatting artifacts
 fn clean_author_text(text: &str) -> String {
     text.replace("\\\\", "") // Remove LaTeX line breaks
-        .replace("&", "and")   // Convert & to 'and' for names like "Texas A&M"
+        .replace("&", "and") // Convert & to 'and' for names like "Texas A&M"
         .trim()
         .to_string()
 }
@@ -577,11 +584,24 @@ fn clean_author_text(text: &str) -> String {
 fn extract_author_portion_from_mixed_content(text: &str) -> String {
     // Split by common affiliation indicators
     let affiliation_indicators = [
-        "Department of", "University of", "Institute of", "College of",
-        "School of", "Center", "Centre", "Laboratory", "Lab",
+        "Department of",
+        "University of",
+        "Institute of",
+        "College of",
+        "School of",
+        "Center",
+        "Centre",
+        "Laboratory",
+        "Lab",
         // Add numbered superscript patterns
-        "1Department", "2Department", "1University", "2University",
-        "1Institute", "2Institute", "1College", "2College",
+        "1Department",
+        "2Department",
+        "1University",
+        "2University",
+        "1Institute",
+        "2Institute",
+        "1College",
+        "2College",
     ];
 
     let mut author_portion = text;
@@ -590,7 +610,8 @@ fn extract_author_portion_from_mixed_content(text: &str) -> String {
     let mut earliest_pos = text.len();
     for indicator in &affiliation_indicators {
         if let Some(pos) = text.find(indicator)
-            && pos < earliest_pos {
+            && pos < earliest_pos
+        {
             earliest_pos = pos;
         }
     }
@@ -685,7 +706,8 @@ fn decode_authors_from_text_with_context(text: &str, full_context: &str) -> Vec<
         && !is_email_address(cleaned)
         && !is_organization_name(cleaned)
         && !is_email_username_part(cleaned, full_context)
-        && let Ok(person) = Person::from_str(cleaned) {
+        && let Ok(person) = Person::from_str(cleaned)
+    {
         return vec![Author::Person(person)];
     }
 

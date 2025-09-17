@@ -1,6 +1,7 @@
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, StructuringOptions,
-    async_trait, eyre::Result,
+    async_trait,
+    eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
 };

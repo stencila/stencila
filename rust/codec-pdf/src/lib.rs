@@ -111,7 +111,7 @@ impl Codec for PdfCodec {
                 }),
                 // Include PDF in message
                 messages: vec![InstructionMessage {
-                    parts: vec![MessagePart::File(File::read(&path)?)],
+                    parts: vec![MessagePart::File(File::read(path)?)],
                     ..Default::default()
                 }],
                 ..Default::default()

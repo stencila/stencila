@@ -1250,14 +1250,14 @@ fn setup_console_error_handling(
                 }
 
                 // Only capture error and assert level messages
-                if level.contains("error") || level.contains("assert") {
-                    if let Ok(mut errors) = console_errors_clone.lock() {
-                        errors.push(ConsoleError {
-                            level: level.clone(),
-                            message: message.trim().to_string(),
-                            timestamp: Some(console_event.params.timestamp),
-                        });
-                    }
+                if (level.contains("error") || level.contains("assert"))
+                    && let Ok(mut errors) = console_errors_clone.lock()
+                {
+                    errors.push(ConsoleError {
+                        level: level.clone(),
+                        message: message.trim().to_string(),
+                        timestamp: Some(console_event.params.timestamp),
+                    });
                 }
 
                 tracing::debug!("Console {}: {}", level, message);
@@ -1291,45 +1291,45 @@ fn setup_console_error_handling(
                 }
 
                 // Add stack trace if available
-                if let Some(stack_trace) = &exception_details.stack_trace {
-                    if !stack_trace.call_frames.is_empty() {
-                        let mut stack_info = Vec::new();
-                        for (i, frame) in stack_trace.call_frames.iter().take(3).enumerate() {
-                            let function_name = if frame.function_name.is_empty() {
-                                "<anonymous>"
-                            } else {
-                                &frame.function_name
-                            };
-                            let url = if frame.url.is_empty() {
-                                "<unknown>"
-                            } else {
-                                &frame.url
-                            };
+                if let Some(stack_trace) = &exception_details.stack_trace
+                    && !stack_trace.call_frames.is_empty()
+                {
+                    let mut stack_info = Vec::new();
+                    for (i, frame) in stack_trace.call_frames.iter().take(3).enumerate() {
+                        let function_name = if frame.function_name.is_empty() {
+                            "<anonymous>"
+                        } else {
+                            &frame.function_name
+                        };
+                        let url = if frame.url.is_empty() {
+                            "<unknown>"
+                        } else {
+                            &frame.url
+                        };
 
-                            let frame_info = format!(
-                                "  {}. {} ({}:{}:{})",
-                                i + 1,
-                                function_name,
-                                url,
-                                frame.line_number,
-                                frame.column_number
-                            );
-                            stack_info.push(frame_info);
-                        }
-                        if stack_trace.call_frames.len() > 3 {
-                            stack_info.push("  ... (truncated)".to_string());
-                        }
-                        message_parts.push(format!("Stack trace:\n{}", stack_info.join("\n")));
+                        let frame_info = format!(
+                            "  {}. {} ({}:{}:{})",
+                            i + 1,
+                            function_name,
+                            url,
+                            frame.line_number,
+                            frame.column_number
+                        );
+                        stack_info.push(frame_info);
                     }
+                    if stack_trace.call_frames.len() > 3 {
+                        stack_info.push("  ... (truncated)".to_string());
+                    }
+                    message_parts.push(format!("Stack trace:\n{}", stack_info.join("\n")));
                 }
 
                 // Add exception object details if available
-                if let Some(exception) = &exception_details.exception {
-                    if let Some(description) = &exception.description {
-                        if !description.is_empty() && description != &exception_details.text {
-                            message_parts.push(format!("Exception details: {}", description));
-                        }
-                    }
+                if let Some(exception) = &exception_details.exception
+                    && let Some(description) = &exception.description
+                    && !description.is_empty()
+                    && description != &exception_details.text
+                {
+                    message_parts.push(format!("Exception details: {}", description));
                 }
 
                 let comprehensive_message = message_parts.join(" | ");
@@ -1359,33 +1359,32 @@ fn handle_console_errors(
     console_error_handling: ConsoleErrorHandling,
     context: &str,
 ) -> Result<()> {
-    if let Some(console_errors) = console_errors {
-        if let Ok(errors) = console_errors.lock() {
-            if !errors.is_empty() {
-                let error_messages: Vec<String> = errors
-                    .iter()
-                    .map(|e| format!("[{}] {}", e.level, e.message))
-                    .collect();
+    if let Some(console_errors) = console_errors
+        && let Ok(errors) = console_errors.lock()
+        && !errors.is_empty()
+    {
+        let error_messages: Vec<String> = errors
+            .iter()
+            .map(|e| format!("[{}] {}", e.level, e.message))
+            .collect();
 
-                match console_error_handling {
-                    ConsoleErrorHandling::LogWarnings => {
-                        tracing::warn!(
-                            "JavaScript console errors detected during {}: {}",
-                            context,
-                            error_messages.join("; ")
-                        );
-                    }
-                    ConsoleErrorHandling::FailOnErrors => {
-                        bail!(
-                            "JavaScript console errors detected during {}: {}",
-                            context,
-                            error_messages.join("; ")
-                        );
-                    }
-                    ConsoleErrorHandling::Ignore => {
-                        // Should never reach here due to early return in setup
-                    }
-                }
+        match console_error_handling {
+            ConsoleErrorHandling::LogWarnings => {
+                tracing::warn!(
+                    "JavaScript console errors detected during {}: {}",
+                    context,
+                    error_messages.join("; ")
+                );
+            }
+            ConsoleErrorHandling::FailOnErrors => {
+                bail!(
+                    "JavaScript console errors detected during {}: {}",
+                    context,
+                    error_messages.join("; ")
+                );
+            }
+            ConsoleErrorHandling::Ignore => {
+                // Should never reach here due to early return in setup
             }
         }
     }

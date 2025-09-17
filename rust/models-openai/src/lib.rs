@@ -416,9 +416,11 @@ impl OpenAIModel {
         let image = response.data.remove(0);
 
         match image.as_ref() {
-            Image::Url { url, .. } => {
-                Ok(ModelOutput::from_url(self, &Some(Format::Png), url.to_string()))
-            }
+            Image::Url { url, .. } => Ok(ModelOutput::from_url(
+                self,
+                &Some(Format::Png),
+                url.to_string(),
+            )),
             _ => bail!("Unexpected image type"),
         }
     }
