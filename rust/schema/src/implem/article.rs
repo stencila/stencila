@@ -1,8 +1,10 @@
 use stencila_codec_markdown_trait::to_markdown;
 
 use crate::{
-    Article, Block, CreativeWorkType, Inline, RawBlock, Reference, prelude::*, replicate,
-    shortcuts::t,
+    Article, Block, CreativeWorkType, Heading, Inline, RawBlock, Reference, Text,
+    prelude::*,
+    replicate,
+    shortcuts::{h1, t},
 };
 
 impl Article {
@@ -154,7 +156,31 @@ impl DomCodec for Article {
         }
 
         if let Some(r#abstract) = &self.r#abstract {
-            context.push_slot_fn("section", "abstract", |context| r#abstract.to_dom(context));
+            // For consistency with sections in the `content` render as a
+            // <stencila-section> with a heading if necessary
+            context.push_slot_fn("section", "abstract", |context| {
+                context
+                    .enter_node(NodeType::Section, NodeId::new(&b"sec", b"abstract"))
+                    .push_slot_fn("section", "content", |context| {
+                        // Add an abstract heading if one does not yet exist
+                        if !r#abstract.iter().any(|block| match block {
+                            Block::Heading(Heading { content, .. }) => {
+                                content.iter().any(|inline| match inline {
+                                    Inline::Text(Text { value, .. }) => {
+                                        value.to_lowercase() == "abstract"
+                                    }
+                                    _ => false,
+                                })
+                            }
+                            _ => false,
+                        }) {
+                            h1([t("Abstract")]).to_dom(context);
+                        }
+
+                        r#abstract.to_dom(context)
+                    })
+                    .exit_node();
+            });
         }
 
         if context.is_root()
@@ -167,9 +193,19 @@ impl DomCodec for Article {
             context.push_slot_fn("section", "content", |context| self.content.to_dom(context));
         }
 
-        if let Some(references) = &self.references {
+        if let Some(references) = &self.references
+            && !references.is_empty()
+        {
+            // For consistency with sections in the `content` render as a
+            // <stencila-section> with a heading
             context.push_slot_fn("section", "references", |context| {
-                references.to_dom(context)
+                context
+                    .enter_node(NodeType::Section, NodeId::new(&b"sec", b"references"))
+                    .push_slot_fn("section", "content", |context| {
+                        h1([t("References")]).to_dom(context);
+                        references.to_dom(context)
+                    })
+                    .exit_node();
             });
         }
 

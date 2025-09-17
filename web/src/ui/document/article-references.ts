@@ -38,18 +38,7 @@ export class ArticleReferences extends LitElement {
       },
       callback: () => {
         const references = Array.from(referencesElem.querySelectorAll('stencila-reference')) as Reference[]
-
         if (references.length > 0) {
-          // Add heading if not already present
-          if (referencesElem.querySelectorAll('h1').length == 0) {
-            const heading = document.createElement('stencila-heading')
-            heading.setAttribute('depth', '1')
-            heading.setAttribute('level', '1')
-            heading.innerHTML = '<h1 slot="content">References</h1>'
-            referencesElem.prepend(heading)
-          }
-
-          // Sort references based on current sort mode
           this.sortReferences(referencesElem, references)
         }
       },
