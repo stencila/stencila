@@ -5,61 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Cormen, Thomas H."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Leiserson, Charles E."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Rivest, Ronald L."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Stein, Clifford"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2009"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": "Cormen, Thomas H., Leiserson, Charles E., Rivest, Ronald L., and Stein, Clifford. 2009. "
         }
       },
       {
@@ -76,31 +22,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "3"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "MIT Press"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ". 3. MIT Press."
         }
       }
     ]
@@ -111,25 +33,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Donne, John"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1995"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": "Donne, John. 1995. "
         }
       },
       {
@@ -146,73 +50,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Edited by "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Stringer, Gary A."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Pebworth, Ted-Larry"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Vol."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "6"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Indiana University Press"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ". Edited by Stringer, Gary A. and Pebworth, Ted-Larry. Vol. 6. Indiana University Press."
         }
       }
     ]
@@ -223,25 +61,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Duval, Fred"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2018"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": "Duval, Fred. 2018. "
         }
       },
       {
@@ -258,55 +78,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Vol."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Dargaud"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ". 1. Vol. 1. Dargaud."
         }
       }
     ]
@@ -317,61 +89,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Gamma, Erich"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Helm, Richard"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Johnson, Ralph"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Vlissides, John"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1994"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": "Gamma, Erich, Helm, Richard, Johnson, Ralph, and Vlissides, John. 1994. "
         }
       },
       {
@@ -388,19 +106,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Addison-Wesley Professional"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ". Addison-Wesley Professional."
         }
       }
     ]
@@ -411,25 +117,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Günther-Haug, Barbara"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2020"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": "Günther-Haug, Barbara. 2020. "
         }
       },
       {
@@ -446,19 +134,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "MVG"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ". MVG."
         }
       }
     ]

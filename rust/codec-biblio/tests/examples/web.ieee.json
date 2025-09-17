@@ -5,25 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Allen Institute"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Allen Brain Atlas - Interactive Brain Explorer.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " [Online]. Available: "
+          "string": "Allen Institute, “Allen Brain Atlas - Interactive Brain Explorer.” [Online]. Available: "
         }
       },
       {
@@ -46,25 +28,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "British Ecological Society"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Methods in Ecology and Evolution Blog.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " [Online]. Available: "
+          "string": "British Ecological Society, “Methods in Ecology and Evolution Blog.” [Online]. Available: "
         }
       },
       {
@@ -87,13 +51,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "“Jupyter Notebook Documentation.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " [Online]. Available: "
+          "string": "“Jupyter Notebook Documentation.” [Online]. Available: "
         }
       },
       {
@@ -116,49 +74,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Martinez, Carlos"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Team Members"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“The Computational Biology Lab,”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Stanford School of Medicine"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". [Online]. Available: "
+          "string": "Martinez, Carlos and Team Members, “The Computational Biology Lab,” Stanford School of Medicine. [Online]. Available: "
         }
       },
       {
@@ -181,13 +97,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "“NASA Climate Change and Global Warming.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " [Online]. Available: "
+          "string": "“NASA Climate Change and Global Warming.” [Online]. Available: "
         }
       },
       {

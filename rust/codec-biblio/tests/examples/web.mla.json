@@ -5,13 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Allen Institute"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": "Allen Institute. "
         }
       },
       {
@@ -28,19 +22,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2024"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
+          "string": ". 2024, "
         }
       },
       {
@@ -69,13 +51,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "British Ecological Society"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
+          "string": "British Ecological Society. "
         }
       },
       {
@@ -92,19 +68,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2024"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
+          "string": ". 2024, "
         }
       },
       {
@@ -144,19 +108,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2023"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
+          "string": ". 2023, "
         }
       },
       {
@@ -185,37 +137,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Martinez, Carlos"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Team Members"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“The Computational Biology Lab.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
+          "string": "Martinez, Carlos, and Team Members. “The Computational Biology Lab.” "
         }
       },
       {
@@ -232,19 +154,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2024"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
+          "string": ", 2024, "
         }
       },
       {
@@ -284,19 +194,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2023"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
+          "string": ". 2023, "
         }
       },
       {

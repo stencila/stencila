@@ -54,7 +54,7 @@ pub fn json(references: &[&Reference], style: Option<&str>) -> Result<String> {
 }
 
 /// Convert a set of Stencila [`Reference`] nodes to Stencila [`Block`] nodes
-fn references_to_blocks(references: &[&Reference], style: Option<&str>) -> Result<Vec<Block>> {
+pub fn references_to_blocks(references: &[&Reference], style: Option<&str>) -> Result<Vec<Block>> {
     Ok(bibliography_to_blocks(references_to_bibliography(
         references, style,
     )?))
@@ -125,7 +125,16 @@ fn bibliography_item_to_block(item: BibliographyItem) -> Block {
         .0
         .into_iter()
         .flat_map(elem_child_to_inlines)
-        .collect_vec();
+        .fold(Vec::new(), |mut inlines, inline| {
+            // Merge adjacent text nodes
+            match (inlines.last_mut(), &inline) {
+                (Some(Inline::Text(last)), Inline::Text(curr)) => {
+                    last.value.push_str(&curr.value);
+                }
+                _ => inlines.push(inline),
+            };
+            inlines
+        });
     p(inlines)
 }
 

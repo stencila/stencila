@@ -5,25 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Carroll, Lewis"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Down the Rabbit-Hole,”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " in "
+          "string": "Carroll, Lewis, “Down the Rabbit-Hole,” in "
         }
       },
       {
@@ -40,55 +22,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Macmillan"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1865"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "p."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1–8"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ", Macmillan, 1865, p. 1–8."
         }
       }
     ]
@@ -99,25 +33,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Eddy, Sean R."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Hidden Markov Models in Computational Biology,”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " in "
+          "string": "Eddy, Sean R., “Hidden Markov Models in Computational Biology,” in "
         }
       },
       {
@@ -134,97 +50,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Baldi, Pierre"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Brunak, Søren"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", Eds."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "MIT Press"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2001"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "p."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "83–106"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ", 2., Baldi, Pierre and Brunak, Søren, Eds., MIT Press, 2001, p. 83–106."
         }
       }
     ]
@@ -235,25 +61,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Melville, Herman"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Call me Ishmael,”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " in "
+          "string": "Melville, Herman, “Call me Ishmael,” in "
         }
       },
       {
@@ -270,55 +78,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Harper & Brothers"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1851"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "p."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1–7"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ", Harper & Brothers, 1851, p. 1–7."
         }
       }
     ]
@@ -329,25 +89,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Milne, A. A."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin,”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " in "
+          "string": "Milne, A. A., “In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin,” in "
         }
       },
       {
@@ -364,55 +106,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Methuen & Co."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "1926"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "p."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "3–17"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "."
+          "string": ", Methuen & Co., 1926, p. 3–17."
         }
       }
     ]
@@ -423,25 +117,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Ramey, Chet"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Bash,”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " in "
+          "string": "Ramey, Chet, “Bash,” in "
         }
       },
       {
@@ -458,85 +134,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Brown, Amy"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Wilson, Greg"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", Eds."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Lulu.com"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2011"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "p."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "29–47"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". [Online].  Available: "
+          "string": ", Brown, Amy and Wilson, Greg, Eds., Lulu.com, 2011, p. 29–47. [Online].  Available: "
         }
       },
       {

@@ -5,61 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Doan, T. D."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Tran Thoai, D. B."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Haug, Hartmut"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2020"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
+          "string": "Doan, T. D., Tran Thoai, D. B., and Haug, Hartmut. 2020. “Kinetics and Luminescence of the Excitations of a Nonequilibrium Polariton Condensate.” "
         }
       },
       {
@@ -76,49 +22,7 @@
       {
         "type": "Text",
         "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "102"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " ("
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "16"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "): "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "165126–165139"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "https://doi.org/"
+          "string": " 102 (16): 165126–165139. https://doi.org/"
         }
       },
       {
@@ -147,67 +51,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Jerrentrup, Andreas"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Mueller, Tobias"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Glowalla, Ulrich"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", et al"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2018"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Teaching Medicine with the Help of \"Dr. House\".”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
+          "string": "Jerrentrup, Andreas, Mueller, Tobias, Glowalla, Ulrich, et al. 2018. “Teaching Medicine with the Help of \"Dr. House\".” "
         }
       },
       {
@@ -224,37 +68,7 @@
       {
         "type": "Text",
         "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "13"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " ("
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "3"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "). "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "https://doi.org/"
+          "string": " 13 (3). https://doi.org/"
         }
       },
       {
@@ -283,49 +97,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Nielsen, Michael A."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Chuang, Isaac L"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2022"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Quantum Computing: Progress and Prospects.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " "
+          "string": "Nielsen, Michael A., and Chuang, Isaac L. 2022. “Quantum Computing: Progress and Prospects.” "
         }
       },
       {
@@ -342,49 +114,7 @@
       {
         "type": "Text",
         "value": {
-          "string": " "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "18"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " ("
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "3"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "): "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "234–245"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "https://doi.org/"
+          "string": " 18 (3): 234–245. https://doi.org/"
         }
       },
       {
@@ -413,85 +143,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Pedbost, Marven F."
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Pomalgu, Trillean"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Lintott, Chris"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Eisner, Nora"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Nicholson, Belinda"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2020"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Defining the Really Habitable Zone.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " Preprint,. "
+          "string": "Pedbost, Marven F., Pomalgu, Trillean, Lintott, Chris, Eisner, Nora, and Nicholson, Belinda. 2020. “Defining the Really Habitable Zone.” Preprint,. "
         }
       },
       {
@@ -520,73 +172,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Prekas, George"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Kogias, Marios"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ", and "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "Bugnion, Edouard"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "2017"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " In "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "“Proceedings of the 26th Symposium on Operating Systems Principles.”"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": " Special issue, "
+          "string": "Prekas, George, Kogias, Marios, and Bugnion, Edouard. 2017. “Zygos: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks.” In “Proceedings of the 26th Symposium on Operating Systems Principles.” Special issue, "
         }
       },
       {
@@ -603,25 +189,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "325–341"
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": ". "
-        }
-      },
-      {
-        "type": "Text",
-        "value": {
-          "string": "https://doi.org/"
+          "string": ", 325–341. https://doi.org/"
         }
       },
       {
