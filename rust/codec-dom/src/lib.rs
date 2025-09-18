@@ -277,11 +277,11 @@ pub fn standalone_html(
         ))
     }
 
-    // View CSS
+    // View CSS (the data-theme-link is needed for theme switching)
     if !matches!(view, "none" | "paged") && theme != "none" {
         html.push_str(&format!(
             r#"
-    <link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#
+    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#
         ))
     }
 

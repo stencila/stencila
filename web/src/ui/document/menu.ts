@@ -22,6 +22,11 @@ import '@shoelace-style/shoelace/dist/components/menu-label/menu-label.js'
 type ColorScheme = 'system' | 'light' | 'dark'
 
 /**
+ * Available CSS themes for the document
+ */
+type Theme = 'stencila' | 'tufte' | 'latex'
+
+/**
  * Utility functions for color scheme management
  */
 class ColorSchemeManager {
@@ -53,8 +58,39 @@ class ColorSchemeManager {
   }
 }
 
-// Apply saved color scheme immediately to avoid flash
+/**
+ * Utility functions for theme management
+ */
+class ThemeManager {
+  static loadThemePreference(): Theme {
+    try {
+      const saved = localStorage.getItem('stencila-theme-preference') as Theme
+      return saved && ['stencila', 'tufte', 'latex'].includes(saved) ? saved : 'stencila'
+    } catch (e) {
+      return 'stencila'
+    }
+  }
+
+  static applyTheme(theme: Theme) {
+    const themeLink = document.querySelector('link[data-theme-link]') as HTMLLinkElement
+    const currentHref = themeLink.href
+    const lastSlashIndex = currentHref.lastIndexOf('/')
+    const baseUrl = currentHref.substring(0, lastSlashIndex + 1)
+    themeLink.href = `${baseUrl}${theme}.css`
+  }
+
+  static persistTheme(theme: Theme) {
+    try {
+      localStorage.setItem('stencila-theme-preference', theme)
+    } catch (e) {
+      console.warn('Could not persist theme preference:', e)
+    }
+  }
+}
+
+// Apply saved color scheme and theme immediately to avoid flash
 ColorSchemeManager.applyColorScheme(ColorSchemeManager.loadColorSchemePreference())
+ThemeManager.applyTheme(ThemeManager.loadThemePreference())
 
 /**
  * A menu allowing the user to control the display of the document
@@ -86,6 +122,9 @@ export class DocumentMenu extends LitElement {
   protected colorScheme: ColorScheme = 'system'
 
   @state()
+  protected theme: Theme = 'stencila'
+
+  @state()
   protected open: boolean = false
 
   /**
@@ -100,14 +139,15 @@ export class DocumentMenu extends LitElement {
 
 
   /**
-   * Initialize color scheme on component connection
+   * Initialize color scheme and theme on component connection
    */
   override connectedCallback() {
     super.connectedCallback()
 
-    // Load saved color scheme preference for component state
-    // (Theme already applied at module load to prevent flash)
+    // Load saved preferences for component state
+    // (Theme and color scheme already applied at module load to prevent flash)
     this.colorScheme = ColorSchemeManager.loadColorSchemePreference()
+    this.theme = ThemeManager.loadThemePreference()
   }
 
   /**
@@ -124,6 +164,18 @@ export class DocumentMenu extends LitElement {
     // Apply to DOM and persist
     ColorSchemeManager.applyColorScheme(nextScheme)
     ColorSchemeManager.persistColorScheme(nextScheme)
+  }
+
+  /**
+   * Change the theme
+   */
+  private changeTheme(newTheme: Theme) {
+    // Update local state
+    this.theme = newTheme
+
+    // Apply to DOM and persist
+    ThemeManager.applyTheme(newTheme)
+    ThemeManager.persistTheme(newTheme)
   }
 
   /**
@@ -276,6 +328,36 @@ export class DocumentMenu extends LitElement {
         <sl-menu-item @click=${() => this.cycleColorScheme()}>
           <stencila-ui-icon name="${colorSchemeIcon}" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">${colorSchemeLabel}</span>
+        </sl-menu-item>
+        <sl-menu-label>
+          <div class="flex items-center gap-2 ml-4 text-xs text-gray-600">Theme</div>
+        </sl-menu-label>
+        <sl-menu-item
+          type="checkbox"
+          ?checked=${this.theme === 'stencila'}
+          @click=${() => this.changeTheme('stencila')}
+          class="ml-2"
+        >
+          <stencila-ui-icon name="stencilaColor" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Stencila</span>
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
+          ?checked=${this.theme === 'tufte'}
+          @click=${() => this.changeTheme('tufte')}
+          class="ml-2"
+        >
+          <stencila-ui-icon name="cardText" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Tufte</span>
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
+          ?checked=${this.theme === 'latex'}
+          @click=${() => this.changeTheme('latex')}
+          class="ml-2"
+        >
+          <stencila-ui-icon name="latex" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">LaTeX</span>
         </sl-menu-item>
         <sl-divider></sl-divider>
         <sl-menu-label>

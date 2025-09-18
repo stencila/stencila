@@ -259,7 +259,7 @@ pub async fn serve_path(
         .get("~theme")
         .map(|value: &String| value.as_str())
         .or(config.theme.as_deref())
-        .unwrap_or("default");
+        .unwrap_or("stencila");
 
     // Generate the HTML
     let html = standalone_html(
