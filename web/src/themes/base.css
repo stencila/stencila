@@ -1,25 +1,69 @@
 /* Base theme
 
-A base theme with comprehensive CSS variables that provide a consistent design
-system for Stencila documents.
+A comprehensive base theme that provides a consistent design system for Stencila documents.
+This theme serves as the foundation that can be extended by specific theme implementations.
 
-This theme defines a complete set of design tokens organized in layers:
+## Architecture
 
-1. Primitive tokens (colors, spacing, typography scales)
-2. Semantic tokens (surfaces, text colors, borders)
-3. Component tokens (headings, paragraphs, code, tables, etc.)
+This theme is organized into distinct layers following design token best practices:
 
-The root node of a document is differentiated from children within it by the
-presence of the `root` attribute.
+1. **Primitive tokens** (colors, spacing, typography scales)
+   - Base values that form the foundation of the design system
+   - Should not be used directly in components
 
-Noter: This theme applies to the Light DOM only. UI elements use Tailwind via Twind.
+2. **Semantic tokens** (surfaces, text colors, borders)
+   - Meaningful tokens that reference primitive values
+   - Define the visual language of the design system
+
+3. **Component tokens** (headings, paragraphs, code, tables, etc.)
+   - Specific styling configurations for document components
+   - Reference semantic and primitive tokens
+
+## Usage
+
+### Extending this theme
+
+To create a new theme, import this base theme and override specific variables:
+
+```css
+@import url('./base.css');
+
+:root {
+    --font-family-document: 'Your Font', serif;
+    --color-accent: #your-brand-color;
+}
+```
+
+### Document structure
+
+The root node of a document is identified by the `[root]` attribute and receives
+special styling to differentiate it from child elements.
+
+### Dark mode
+
+Dark mode is automatically applied based on system preferences or can be manually
+controlled via the `data-color-scheme="dark"` attribute on the root element.
+
+### Custom elements
+
+This theme provides styling for both standard HTML elements and Stencila custom
+elements (stencila-heading, stencila-paragraph, etc.).
+
+## Notes
+
+- This theme applies to the Light DOM only
+- UI elements use Tailwind via Twind
+- Responsive design uses fluid typography with clamp()
+- Print styles are included for PDF generation
+- Accessibility best practices are followed throughout
 */
 
 :root {
     /* =================================================================
      PRIMITIVE DESIGN TOKENS
-     Base values that form the foundation of the design system.
-     These should not be used directly in components.
+
+     Base values that form the foundation of the design system. These should not
+     be used directly in components.
      ================================================================= */
 
     /* Color Palette - Neutral grays for text, borders, backgrounds */
@@ -142,8 +186,9 @@ Noter: This theme applies to the Light DOM only. UI elements use Tailwind via Tw
 
     /* =================================================================
      SEMANTIC TOKENS
-     Meaningful tokens that reference primitive values.
-     These define the visual language of the design system.
+
+     Meaningful tokens that reference primitive values. These define the visual
+     language of the design system.
      ================================================================= */
 
     /* Font Families - Different font stacks for different content types */
@@ -203,6 +248,7 @@ Noter: This theme applies to the Light DOM only. UI elements use Tailwind via Tw
 
     /* =================================================================
      COMPONENT TOKENS
+
      Specific styling for document components.
      ================================================================= */
 
@@ -321,133 +367,262 @@ Noter: This theme applies to the Light DOM only. UI elements use Tailwind via Tw
     --breakpoint-lg: 1024px;
     --breakpoint-xl: 1280px;
     --breakpoint-2xl: 1536px;
+
+    /* =================================================================
+     DARK COLOR SCHEME
+     ================================================================= */
+
+    --dark-surface-background: #1a1a1a;
+    --dark-surface-foreground: #242424;
+    --dark-surface-overlay: rgba(255, 255, 255, 0.08);
+    --dark-surface-raised: #2d2d2d;
+    --dark-surface-sunken: #161616;
+
+    --dark-text-color-primary: #e8e8e8;
+    --dark-text-color-secondary: #b8b8b8;
+    --dark-text-color-muted: #888888;
+    --dark-text-color-inverse: #1a1a1a;
+
+    --dark-text-color-link: #66b3ff;
+    --dark-text-color-link-visited: #b19cd9;
+    --dark-text-color-link-hover: #80c7ff;
+
+    --dark-border-color-default: #404040;
+    --dark-border-color-muted: #2a2a2a;
+    --dark-border-color-emphasis: #606060;
+
+    --dark-code-background: #2a2a2a;
+    --dark-code-background-inline: #2a2a2a;
+
+    --dark-table-header-background: #2d2d2d;
+    --dark-table-row-hover: #303030;
+    --dark-table-row-striped: #222222;
+
+    --dark-quote-background: #222222;
+    --dark-quote-border-color: #505050;
+
+    --dark-color-accent: #4a9eff;
+    --dark-color-accent-muted: #1a3a5c;
+    --dark-color-info: #66b3ff;
+    --dark-color-info-muted: #1a2d3d;
+    --dark-color-success: #5cb85c;
+    --dark-color-success-muted: #1a3d1a;
+    --dark-color-warning: #f0ad4e;
+    --dark-color-warning-muted: #3d2a1a;
+    --dark-color-error: #d9534f;
+    --dark-color-error-muted: #3d1a1a;
+
+    --dark-focus-ring-color: #66b3ff;
 }
 
+/* =================================================================
+   CSS RESET & NORMALIZATION
+
+   Basic reset to ensure consistent rendering across browsers
+   ================================================================= */
+
+/* Modern CSS reset based on Josh Comeau's CSS reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+#root,
+#__next {
+    isolation: isolate;
+}
+
+/* Remove default list styling */
+ul,
+ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Re-enable list styling for content lists */
+[root] ul,
+[root] ol,
+stencila-list ul,
+stencila-list ol {
+    list-style: revert;
+    padding-left: var(--list-indent-md);
+    margin-top: var(--paragraph-spacing-md);
+}
+
+/* Ensure links have consistent styling */
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Remove button styling */
+button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Consistent table styling */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Remove default form element styling */
+input,
+textarea,
+select {
+    background: none;
+    border: none;
+    outline: none;
+}
 
 /* =================================================================
    DARK MODE SUPPORT
-   Automatic dark mode support using CSS custom properties
-   Supports both system preference and manual override via data-color-scheme
+
+   Automatic dark mode support using CSS custom properties. Supports both system
+   preference and manual override via `data-color-scheme` attribute.
    ================================================================= */
+
+/* Automatic dark mode based on system preference */
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
-        /* Dark mode color overrides - following document reading best practices */
+        --surface-background: var(--dark-surface-background);
+        --surface-foreground: var(--dark-surface-foreground);
+        --surface-overlay: var(--dark-surface-overlay);
+        --surface-raised: var(--dark-surface-raised);
+        --surface-sunken: var(--dark-surface-sunken);
 
-        /* Softer dark backgrounds - avoid pure black for better readability */
-        --surface-background: #1a1a1a;
-        --surface-foreground: #242424;
-        --surface-overlay: rgba(255, 255, 255, 0.08);
-        --surface-raised: #2d2d2d;
-        --surface-sunken: #161616;
+        --text-color-primary: var(--dark-text-color-primary);
+        --text-color-secondary: var(--dark-text-color-secondary);
+        --text-color-muted: var(--dark-text-color-muted);
+        --text-color-inverse: var(--dark-text-color-inverse);
 
-        /* Text colors with proper contrast ratios for accessibility */
-        --text-color-primary: #e8e8e8;
-        --text-color-secondary: #b8b8b8;
-        --text-color-muted: #888888;
-        --text-color-inverse: #1a1a1a;
+        --text-color-link: var(--dark-text-color-link);
+        --text-color-link-visited: var(--dark-text-color-link-visited);
+        --text-color-link-hover: var(--dark-text-color-link-hover);
 
-        /* Link colors optimized for dark backgrounds */
-        --text-color-link: #66b3ff;
-        --text-color-link-visited: #b19cd9;
-        --text-color-link-hover: #80c7ff;
+        --border-color-default: var(--dark-border-color-default);
+        --border-color-muted: var(--dark-border-color-muted);
+        --border-color-emphasis: var(--dark-border-color-emphasis);
 
-        /* Borders with subtle contrast */
-        --border-color-default: #404040;
-        --border-color-muted: #2a2a2a;
-        --border-color-emphasis: #606060;
+        --code-background: var(--dark-code-background);
+        --code-background-inline: var(--dark-code-background-inline);
 
-        /* Code backgrounds - slightly different from content */
-        --code-background: #2a2a2a;
-        --code-background-inline: #2a2a2a;
+        --table-header-background: var(--dark-table-header-background);
+        --table-row-hover: var(--dark-table-row-hover);
+        --table-row-striped: var(--dark-table-row-striped);
 
-        /* Table styling for dark mode */
-        --table-header-background: #2d2d2d;
-        --table-row-hover: #303030;
-        --table-row-striped: #222222;
+        --quote-background: var(--dark-quote-background);
+        --quote-border-color: var(--dark-quote-border-color);
 
-        /* Quote styling */
-        --quote-background: #222222;
-        --quote-border-color: #505050;
+        --color-accent: var(--dark-color-accent);
+        --color-accent-muted: var(--dark-color-accent-muted);
+        --color-info: var(--dark-color-info);
+        --color-info-muted: var(--dark-color-info-muted);
+        --color-success: var(--dark-color-success);
+        --color-success-muted: var(--dark-color-success-muted);
+        --color-warning: var(--dark-color-warning);
+        --color-warning-muted: var(--dark-color-warning-muted);
+        --color-error: var(--dark-color-error);
+        --color-error-muted: var(--dark-color-error-muted);
 
-        /* Semantic colors adjusted for dark mode */
-        --color-accent: #4a9eff;
-        --color-accent-muted: #1a3a5c;
-        --color-info: #66b3ff;
-        --color-info-muted: #1a2d3d;
-        --color-success: #5cb85c;
-        --color-success-muted: #1a3d1a;
-        --color-warning: #f0ad4e;
-        --color-warning-muted: #3d2a1a;
-        --color-error: #d9534f;
-        --color-error-muted: #3d1a1a;
-
-        /* Focus ring adjusted for dark mode */
-        --focus-ring-color: #66b3ff;
+        --focus-ring-color: var(--dark-focus-ring-color);
     }
 }
 
-/* Manual dark mode override */
+/* Manual dark mode override - references the same dark mode variables */
 :root[data-color-scheme="dark"] {
-    /* Dark mode color overrides - following document reading best practices */
+    --surface-background: var(--dark-surface-background);
+    --surface-foreground: var(--dark-surface-foreground);
+    --surface-overlay: var(--dark-surface-overlay);
+    --surface-raised: var(--dark-surface-raised);
+    --surface-sunken: var(--dark-surface-sunken);
 
-    /* Softer dark backgrounds - avoid pure black for better readability */
-    --surface-background: #1a1a1a;
-    --surface-foreground: #242424;
-    --surface-overlay: rgba(255, 255, 255, 0.08);
-    --surface-raised: #2d2d2d;
-    --surface-sunken: #161616;
+    --text-color-primary: var(--dark-text-color-primary);
+    --text-color-secondary: var(--dark-text-color-secondary);
+    --text-color-muted: var(--dark-text-color-muted);
+    --text-color-inverse: var(--dark-text-color-inverse);
 
-    /* Text colors with proper contrast ratios for accessibility */
-    --text-color-primary: #e8e8e8;
-    --text-color-secondary: #b8b8b8;
-    --text-color-muted: #888888;
-    --text-color-inverse: #1a1a1a;
+    --text-color-link: var(--dark-text-color-link);
+    --text-color-link-visited: var(--dark-text-color-link-visited);
+    --text-color-link-hover: var(--dark-text-color-link-hover);
 
-    /* Link colors optimized for dark backgrounds */
-    --text-color-link: #66b3ff;
-    --text-color-link-visited: #b19cd9;
-    --text-color-link-hover: #80c7ff;
+    --border-color-default: var(--dark-border-color-default);
+    --border-color-muted: var(--dark-border-color-muted);
+    --border-color-emphasis: var(--dark-border-color-emphasis);
 
-    /* Borders with subtle contrast */
-    --border-color-default: #404040;
-    --border-color-muted: #2a2a2a;
-    --border-color-emphasis: #606060;
+    --code-background: var(--dark-code-background);
+    --code-background-inline: var(--dark-code-background-inline);
 
-    /* Code backgrounds - slightly different from content */
-    --code-background: #2a2a2a;
-    --code-background-inline: #2a2a2a;
+    --table-header-background: var(--dark-table-header-background);
+    --table-row-hover: var(--dark-table-row-hover);
+    --table-row-striped: var(--dark-table-row-striped);
 
-    /* Table styling for dark mode */
-    --table-header-background: #2d2d2d;
-    --table-row-hover: #303030;
-    --table-row-striped: #222222;
+    --quote-background: var(--dark-quote-background);
+    --quote-border-color: var(--dark-quote-border-color);
 
-    /* Quote styling */
-    --quote-background: #222222;
-    --quote-border-color: #505050;
+    --color-accent: var(--dark-color-accent);
+    --color-accent-muted: var(--dark-color-accent-muted);
+    --color-info: var(--dark-color-info);
+    --color-info-muted: var(--dark-color-info-muted);
+    --color-success: var(--dark-color-success);
+    --color-success-muted: var(--dark-color-success-muted);
+    --color-warning: var(--dark-color-warning);
+    --color-warning-muted: var(--dark-color-warning-muted);
+    --color-error: var(--dark-color-error);
+    --color-error-muted: var(--dark-color-error-muted);
 
-    /* Semantic colors adjusted for dark mode */
-    --color-accent: #4a9eff;
-    --color-accent-muted: #1a3a5c;
-    --color-info: #66b3ff;
-    --color-info-muted: #1a2d3d;
-    --color-success: #5cb85c;
-    --color-success-muted: #1a3d1a;
-    --color-warning: #f0ad4e;
-    --color-warning-muted: #3d2a1a;
-    --color-error: #d9534f;
-    --color-error-muted: #3d1a1a;
-
-    /* Focus ring adjusted for dark mode */
-    --focus-ring-color: #66b3ff;
+    --focus-ring-color: var(--dark-focus-ring-color);
 }
 
 /* =================================================================
    DOCUMENT ROOT STYLES
+
    Base styles for the document root element
    ================================================================= */
 
-/* Ensure the html and body have the background color */
 html {
     background-color: var(--surface-background);
 }
@@ -524,8 +699,221 @@ a:focus {
     border-radius: var(--radius-xs);
 }
 
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-family-heading);
+    font-weight: var(--heading-font-weight);
+    line-height: var(--heading-line-height);
+    letter-spacing: var(--heading-letter-spacing);
+    color: var(--text-color-primary);
+    margin-bottom: var(--heading-margin-bottom-md);
+}
+
+h1 {
+    font-size: var(--font-size-4xl);
+    margin-top: var(--heading-margin-top-lg);
+}
+
+h2 {
+    font-size: var(--font-size-3xl);
+    margin-top: var(--heading-margin-top-md);
+}
+
+h3 {
+    font-size: var(--font-size-2xl);
+    margin-top: var(--heading-margin-top-sm);
+}
+
+h4 {
+    font-size: var(--font-size-xl);
+    margin-top: var(--heading-margin-top-sm);
+}
+
+h5 {
+    font-size: var(--font-size-lg);
+    margin-top: var(--heading-margin-top-xs);
+}
+
+h6 {
+    font-size: var(--font-size-md);
+    margin-top: var(--heading-margin-top-xs);
+}
+
+/* Paragraphs */
+p {
+    font-family: var(--font-family-document);
+    line-height: var(--paragraph-line-height);
+    color: var(--text-color-primary);
+    margin-top: var(--paragraph-spacing-md);
+    margin-bottom: 0;
+    max-width: var(--paragraph-max-width);
+}
+
+/* Lists */
+ul,
+ol {
+    margin-top: var(--paragraph-spacing-md);
+    margin-bottom: 0;
+    padding-left: var(--list-indent-md);
+}
+
+li {
+    margin-bottom: var(--list-item-spacing-sm);
+    line-height: var(--paragraph-line-height);
+}
+
+li::marker {
+    color: var(--list-marker-color);
+}
+
+/* Nested lists */
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+    margin-top: var(--list-item-spacing-sm);
+    margin-left: var(--list-nested-indent);
+}
+
+/* Code */
+code {
+    font-family: var(--font-family-code);
+    font-size: var(--code-font-size-sm);
+    background-color: var(--code-background-inline);
+    border: var(--code-border-width) solid var(--code-border-color);
+    border-radius: var(--code-border-radius);
+    padding: var(--code-padding-block-xs) var(--code-padding-inline);
+}
+
+pre {
+    font-family: var(--font-family-code);
+    font-size: var(--code-font-size-md);
+    line-height: var(--code-line-height);
+    background-color: var(--code-background);
+    border: var(--code-border-width) solid var(--code-border-color);
+    border-radius: var(--code-border-radius);
+    padding: var(--code-padding-block-md);
+    margin: var(--paragraph-spacing-lg) 0;
+    overflow-x: auto;
+}
+
+pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--table-margin-vertical) 0;
+    border: var(--table-border-width) solid var(--table-border-color);
+    border-radius: var(--border-radius-default);
+}
+
+thead {
+    background-color: var(--table-header-background);
+}
+
+th,
+td {
+    padding: var(--table-cell-padding-md);
+    text-align: left;
+    border-bottom: var(--table-border-width) solid var(--table-border-color);
+}
+
+th {
+    font-weight: var(--table-header-font-weight);
+    color: var(--text-color-primary);
+}
+
+tr:hover {
+    background-color: var(--table-row-hover);
+}
+
+tr:nth-child(even) {
+    background-color: var(--table-row-striped);
+}
+
+/* Blockquotes */
+blockquote {
+    border-left: var(--quote-border-width) solid var(--quote-border-color);
+    background-color: var(--quote-background);
+    padding: var(--quote-padding-md);
+    margin: var(--paragraph-spacing-lg) var(--quote-margin-horizontal);
+    font-style: var(--quote-font-style);
+    font-size: var(--quote-font-size);
+    border-radius: var(--border-radius-default);
+}
+
+blockquote p {
+    margin-top: 0;
+}
+
+/* Figures */
+figure {
+    margin: var(--figure-margin-vertical-md) 0;
+    border-radius: var(--figure-border-radius);
+    overflow: hidden;
+}
+
+figcaption {
+    font-size: var(--figure-caption-font-size);
+    color: var(--figure-caption-color);
+    margin-top: var(--figure-caption-margin-top);
+    text-align: center;
+    font-style: italic;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Horizontal Rules */
+hr {
+    border: none;
+    border-top: var(--border-width-default) solid var(--border-color-default);
+    margin: var(--paragraph-spacing-lg) 0;
+}
+
+/* =================================================================
+   STENCILA CUSTOM ELEMENTS
+
+   Specific styling tweaks for Stencila custom elements that are not covered by
+   the above rules in standard HTML elements
+   ================================================================= */
+
+/* Admonitions */
+stencila-admonition {
+    display: block;
+
+    p[slot='title'] {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    [slot='content'] {
+        stencila-paragraph:first-child {
+            p {
+                margin-top: 0;
+            }
+        }
+    }
+}
+
 /* =================================================================
    PRINT STYLES
+
    CSS Paged Media rules for printing and Paged.js
    ================================================================= */
 @media print {
