@@ -25,7 +25,7 @@
     "default": {
       "source": [
         "src/images/favicon.png",
-        "src/themes/default.css",
+        "src/themes/init.js",
         "src/themes/stencila.css",
         "src/views/dynamic.ts",
         "src/views/static.ts",
@@ -41,7 +41,6 @@
     },
     "vscode": {
       "source": [
-        "src/themes/default.css",
         "src/themes/stencila.css",
         "src/views/vscode.ts"
       ],

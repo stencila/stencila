@@ -115,6 +115,7 @@ import markdown from './markdown.svg'
 import mathBlock from './math-block.svg'
 import mermaid from './mermaid.svg'
 import mistral from './mistral.svg'
+import moon from './moon.svg'
 import nodejs from './nodejs.svg'
 import ollama from './ollama.svg'
 import openai from './openai.svg'
@@ -149,6 +150,7 @@ import starFill from './star-fill.svg'
 import stencilaColor from './stencila-color.svg'
 import stencila from './stencila.svg'
 import stopwatch from './stopwatch.svg'
+import sun from './sun.svg'
 import table from './table.svg'
 import terminal from './terminal.svg'
 import tex from './tex.svg'
@@ -257,6 +259,7 @@ const icons = {
   mathBlock,
   mermaid,
   mistral,
+  moon,
   nodejs,
   'node.js': nodejs,
   ollama,
@@ -293,6 +296,7 @@ const icons = {
   stencila,
   stencilaColor,
   stopwatch,
+  sun,
   table,
   terminal,
   tex,

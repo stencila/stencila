@@ -177,7 +177,7 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
         let theme = options
             .as_ref()
             .and_then(|options| options.theme.as_deref())
-            .unwrap_or("default");
+            .unwrap_or("stencila");
 
         let view = options
             .as_ref()
@@ -260,7 +260,7 @@ pub fn standalone_html(
     }
 
     // View fonts
-    if view != "none" && view != "paged" {
+    if !matches!(view, "none" | "paged") {
         html.push_str(&format!(
             r#"
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -269,8 +269,16 @@ pub fn standalone_html(
         ))
     }
 
+    // Color scheme initialization
+    if !matches!(view, "none" | "paged") {
+        html.push_str(&format!(
+            r#"
+    <script type="module" src="{web_base}/themes/init.js"></script>"#
+        ))
+    }
+
     // View CSS
-    if view != "none" && view != "paged" {
+    if !matches!(view, "none" | "paged") && theme != "none" {
         html.push_str(&format!(
             r#"
     <link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#

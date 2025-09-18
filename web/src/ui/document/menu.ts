@@ -17,6 +17,46 @@ import '@shoelace-style/shoelace/dist/components/divider/divider.js'
 import '@shoelace-style/shoelace/dist/components/menu-label/menu-label.js'
 
 /**
+ * Color scheme preferences for the document
+ */
+type ColorScheme = 'system' | 'light' | 'dark'
+
+/**
+ * Utility functions for color scheme management
+ */
+class ColorSchemeManager {
+  static loadColorSchemePreference(): ColorScheme {
+    try {
+      const saved = localStorage.getItem('stencila-color-scheme-preference') as ColorScheme
+      return saved && ['system', 'light', 'dark'].includes(saved) ? saved : 'system'
+    } catch (e) {
+      return 'system'
+    }
+  }
+
+  static applyColorScheme(colorScheme: ColorScheme) {
+    const root = document.documentElement
+
+    if (colorScheme === 'system') {
+      root.removeAttribute('data-color-scheme')
+    } else {
+      root.setAttribute('data-color-scheme', colorScheme)
+    }
+  }
+
+  static persistColorScheme(colorScheme: ColorScheme) {
+    try {
+      localStorage.setItem('stencila-color-scheme-preference', colorScheme)
+    } catch (e) {
+      console.warn('Could not persist color-scheme preference:', e)
+    }
+  }
+}
+
+// Apply saved color scheme immediately to avoid flash
+ColorSchemeManager.applyColorScheme(ColorSchemeManager.loadColorSchemePreference())
+
+/**
  * A menu allowing the user to control the display of the document
  * and perform actions on it.
  */
@@ -43,7 +83,48 @@ export class DocumentMenu extends LitElement {
   }
 
   @state()
+  protected colorScheme: ColorScheme = 'system'
+
+  @state()
   protected open: boolean = false
+
+  /**
+   * Get the current effective color scheme (resolving 'system' to actual preference)
+   */
+  private getEffectiveColorScheme(): 'light' | 'dark' {
+    if (this.colorScheme === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return this.colorScheme
+  }
+
+
+  /**
+   * Initialize color scheme on component connection
+   */
+  override connectedCallback() {
+    super.connectedCallback()
+
+    // Load saved color scheme preference for component state
+    // (Theme already applied at module load to prevent flash)
+    this.colorScheme = ColorSchemeManager.loadColorSchemePreference()
+  }
+
+  /**
+   * Cycle through color scheme options: system → light → dark → system
+   */
+  private cycleColorScheme() {
+    const schemes: ColorScheme[] = ['system', 'light', 'dark']
+    const currentIndex = schemes.indexOf(this.colorScheme)
+    const nextScheme = schemes[(currentIndex + 1) % schemes.length]
+
+    // Update local state
+    this.colorScheme = nextScheme
+
+    // Apply to DOM and persist
+    ColorSchemeManager.applyColorScheme(nextScheme)
+    ColorSchemeManager.persistColorScheme(nextScheme)
+  }
 
   /**
    * Find all instances of the stencila node Entities,
@@ -163,12 +244,40 @@ export class DocumentMenu extends LitElement {
   }
 
   renderMenu = () => {
+    const effectiveColorScheme = this.getEffectiveColorScheme()
+    const colorSchemeIcon = effectiveColorScheme === 'dark' ? 'moon' : 'sun'
+
+    // Calculate next scheme in cycle
+    const schemes: ColorScheme[] = ['system', 'light', 'dark']
+    const currentIndex = schemes.indexOf(this.colorScheme)
+    const nextScheme = schemes[(currentIndex + 1) % schemes.length]
+
+    // Format current scheme display
+    const currentDisplay = this.colorScheme === 'system'
+      ? `Auto (${effectiveColorScheme})`
+      : this.colorScheme.charAt(0).toUpperCase() + this.colorScheme.slice(1)
+
+    // Format next scheme display
+    const nextDisplay = nextScheme === 'system'
+      ? `Auto (${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'})`
+      : nextScheme.charAt(0).toUpperCase() + nextScheme.slice(1)
+
+    const colorSchemeLabel = `${currentDisplay} → ${nextDisplay}`
+
     return html`
       <sl-menu
         class="mt-1 bg-gray-50 border border-gray-200"
         id="preview-menu"
         @sl-select=${this.handleSelect}
       >
+        <sl-menu-label>
+          <div class="flex items-center gap-2">Appearance</div>
+        </sl-menu-label>
+        <sl-menu-item @click=${() => this.cycleColorScheme()}>
+          <stencila-ui-icon name="${colorSchemeIcon}" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">${colorSchemeLabel}</span>
+        </sl-menu-item>
+        <sl-divider></sl-divider>
         <sl-menu-label>
           <div class="flex items-center gap-2">Document</div>
         </sl-menu-label>
