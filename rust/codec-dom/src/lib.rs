@@ -277,11 +277,11 @@ pub fn standalone_html(
         ))
     }
 
-    // View CSS (the data-theme-link is needed for theme switching)
+    // View CSS
     if !matches!(view, "none" | "paged") && theme != "none" {
         html.push_str(&format!(
             r#"
-    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#
+    <link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#
         ))
     }
 
@@ -293,11 +293,11 @@ pub fn standalone_html(
         ))
     }
 
-    // Theme CSS
+    // Theme CSS (the data-theme-link is needed for theme switching)
     if theme != "none" {
         html.push_str(&format!(
             r#"
-    <link rel="stylesheet" type="text/css" href="{web_base}/themes/{theme}.css">"#
+    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/themes/{theme}.css">"#
         ));
     }
 

@@ -73,10 +73,29 @@ class ThemeManager {
 
   static applyTheme(theme: Theme) {
     const themeLink = document.querySelector('link[data-theme-link]') as HTMLLinkElement
+    if (!themeLink) {
+      console.warn('Theme link element not found')
+      return false
+    }
+
     const currentHref = themeLink.href
     const lastSlashIndex = currentHref.lastIndexOf('/')
     const baseUrl = currentHref.substring(0, lastSlashIndex + 1)
-    themeLink.href = `${baseUrl}${theme}.css`
+    const newHref = `${baseUrl}${theme}.css`
+
+    // Store current href as fallback
+    const fallbackHref = currentHref
+
+    // Listen for load error and fallback
+    const handleError = () => {
+      console.warn(`Theme '${theme}' failed to load, falling back to previous theme`)
+      themeLink.href = fallbackHref
+      themeLink.removeEventListener('error', handleError)
+    }
+
+    themeLink.addEventListener('error', handleError, { once: true })
+    themeLink.href = newHref
+    return true
   }
 
   static persistTheme(theme: Theme) {
