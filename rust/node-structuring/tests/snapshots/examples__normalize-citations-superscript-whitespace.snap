@@ -11,7 +11,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "This statement "
+            "string": "This statement"
           }
         },
         {

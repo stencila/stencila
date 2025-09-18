@@ -314,6 +314,7 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
         if let Inline::Citation(current) = &mut inline {
             let mut had_parentheses = false;
 
+            // Text followed by Citation
             if let Some(Inline::Text(Text { value, .. })) = output.last_mut() {
                 let trimmed = value.trim().to_string();
                 if value.ends_with("(") || value.ends_with("[") {
@@ -419,10 +420,11 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 });
             }
 
+            // Citation followed by Citation
             if matches!(output.last(), Some(Inline::Citation(..)))
                 && let Some(Inline::Citation(mut previous)) = output.pop()
             {
-                // Put adjacent citations into a group
+                // Merge adjacent citations into a CitationGroup
                 previous.citation_mode = None;
                 current.citation_mode = None;
                 output.push(Inline::CitationGroup(CitationGroup {
@@ -432,38 +434,37 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 continue;
             };
 
+            // CitationGroup followed by Citation
             if let Some(Inline::CitationGroup(CitationGroup { items, .. })) = output.last_mut() {
-                // Add citation to previous citation group
+                // Add citation to previous CitationGroup
                 current.citation_mode = None;
                 items.push(current.clone());
                 continue;
             }
         } else if let Inline::CitationGroup(current) = &mut inline {
-            if let Some(Inline::Text(Text { value, .. })) = output.last()
+            // Citation followed by Text containing a comma (optionally surrounded by whitespace) followed by a CitationGroup
+            if let Some(Inline::Citation(citation)) = output.iter().rev().nth(1)
+                && let Some(Inline::Text(Text { value, .. })) = output.last()
                 && value.trim() == ","
-                && let Some(Inline::Citation(citation)) = output.iter().rev().nth(1)
             {
-                // Comma between a citation and a citation group so pop off both and add
-                // the citation to the current group
+                // Pop off both the Citation add the Text and add the Citation to the current CitationGroup
                 let mut citation = citation.clone();
-                output.pop(); // Remove comma text
-                output.pop(); // Remove citation
+                output.pop(); // Remove comma Text
+                output.pop(); // Remove Citation
                 citation.citation_mode = None;
-                current.items.insert(0, citation); // Insert at beginning to maintain order
+                current.items.insert(0, citation); // Insert at beginning of CitationGroup to maintain order
             }
         } else if let Inline::Superscript(Superscript { content, .. }) = &inline {
+            // Citation or CitationGroup within Superscript
             if let (1, Some(Inline::Citation(..) | Inline::CitationGroup(..))) =
                 (content.len(), content.first())
             {
-                // Superscript with only a citation or citation group: replace with content
-                if let Some(Inline::Text(Text { value, .. })) = output.last_mut()
-                    && !value.ends_with(" ")
-                {
-                    value.push(' ');
-                }
+                // Replace Superscript with the Citation or CitationGroup
                 output.push(content[0].clone());
                 continue;
-            } else if let (
+            }
+            // Citation or CitationGroup within Superscript (with only surrounding whitespace)
+            else if let (
                 3,
                 Some(Inline::Text(Text { value: before, .. })),
                 Some(Inline::Citation(..) | Inline::CitationGroup(..)),
@@ -476,23 +477,20 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
             ) && before.trim().is_empty()
                 && after.trim().is_empty()
             {
-                // Superscript with only a citation or citation group surrounded by whitespace: replace with content
-                if let Some(Inline::Text(Text { value, .. })) = output.last_mut()
-                    && !value.ends_with(" ")
-                {
-                    value.push(' ');
-                }
+                // Replace Superscript with the Citation or CitationGroup
                 output.push(content[1].clone());
                 continue;
             }
-        } else if let Inline::Text(Text { value, .. }) = &inline
+        }
+        // Citation or CitationGroup followed by Text starting with closing parenthesis or bracket
+        else if let Inline::Text(Text { value, .. }) = &inline
             && matches!(
                 output.last(),
                 Some(Inline::Citation(..) | Inline::CitationGroup(..))
             )
             && (value.starts_with(")") || value.starts_with("]"))
         {
-            // Remove closing parentheses/brackets after citation/s and mark previous citation as parenthetical
+            // Remove closing parenthesis/bracket after citation/s and mark previous citation as parenthetical
             if let Some(Inline::Citation(citation)) = output.last_mut()
                 && citation.citation_mode.is_none()
             {

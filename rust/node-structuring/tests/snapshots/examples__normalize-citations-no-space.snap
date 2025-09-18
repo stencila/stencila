@@ -11,7 +11,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "Statement "
+            "string": "Statement"
           }
         },
         {
@@ -29,7 +29,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "continues here."
+            "string": " continues here."
           }
         }
       ]
