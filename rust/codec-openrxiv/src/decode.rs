@@ -235,7 +235,8 @@ pub(super) async fn decode_preprint(
         _ => bail!("Unhandled format `{format}`"),
     };
 
-    /// Specify structuring options suitable for the format used
+    /// Specify structuring options based on the format
+    /// Note: because we do structuring here, this codec does not override Codec::structuring_options.
     use StructuringOperation::*;
     let structuring_options = match format {
         Format::Meca => StructuringOptions::new([None_], []),
