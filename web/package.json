@@ -26,7 +26,9 @@
       "source": [
         "src/images/favicon.png",
         "src/themes/init.js",
+        "src/themes/latex.css",
         "src/themes/stencila.css",
+        "src/themes/tufte.css",
         "src/views/dynamic.ts",
         "src/views/static.ts",
         "src/views/paged.ts"
