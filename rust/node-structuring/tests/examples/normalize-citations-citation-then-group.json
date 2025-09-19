@@ -1,0 +1,136 @@
+{
+  "type": "Article",
+  "structuring": ["normalize-citations"],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A single citation followed by a comma and then a citation group"
+        },
+        {
+          "type": "Citation",
+          "target": "ref-1",
+          "content": [
+            {
+              "type": "Text",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ","
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-2",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "2"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-3",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", a single citation followed by a dash and then a citation group"
+        },
+        {
+          "type": "Citation",
+          "target": "ref-5",
+          "content": [
+            {
+              "type": "Text",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "-"
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-7",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "7"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-8",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "8"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", and a single citation followed directly by a citation group with no separator"
+        },
+        {
+          "type": "Citation",
+          "target": "ref-10",
+          "content": [
+            {
+              "type": "Text",
+              "value": "10"
+            }
+          ]
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-11",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "11"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-12",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "12"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

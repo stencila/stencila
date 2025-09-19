@@ -502,6 +502,15 @@ fn append_citation_group_range(citation_group: &mut CitationGroup, mut end: Cita
     }
 }
 
+/// Merge adjacent citation groups
+///
+/// Does not attempt to extend numeric ranges of citations, simply concatenated
+/// the two sets of citations. Because of how this function is used it mutates
+/// the second group.
+fn merge_citation_groups(first: CitationGroup, second: &mut CitationGroup) {
+    second.items.splice(0..0, first.items);
+}
+
 /// Normalize citation formatting and grouping
 ///
 /// - removes parentheses and square brackets around citations,
@@ -648,9 +657,40 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 } else {
                     prepend_citation_group_range(citation_group, citation);
                 }
-                // Do NOT `continue` here because the current Citation Group
-                // needs to be pushed onto the output still
             }
+            // CitationGroup followed by Text containing a separator followed by another CitationGroup
+            else if let Some(Inline::CitationGroup(first_group)) = output.iter().rev().nth(1)
+                && let Some(Inline::Text(Text { value, .. })) = output.last()
+                && matches!(value.trim(), "," | ";" | "-" | "–")
+            {
+                let first_group = first_group.clone();
+
+                // Pop off both the CitationGroup and the Text, then merge the groups
+                output.pop(); // Remove separator Text
+                output.pop(); // Remove first CitationGroup
+
+                merge_citation_groups(first_group, citation_group);
+            }
+            // Citation followed by CitationGroup (no separator)
+            else if let Some(Inline::Citation(citation)) = output.last() {
+                let citation = citation.clone();
+
+                // Pop off the Citation and prepend it to the current CitationGroup
+                output.pop(); // Remove Citation
+
+                prepend_citation_group_item(citation_group, citation);
+            }
+            // CitationGroup followed by another CitationGroup (no separator)
+            else if let Some(Inline::CitationGroup(first_group)) = output.last() {
+                let first_group = first_group.clone();
+
+                // Pop off the first CitationGroup and merge with the current one
+                output.pop(); // Remove first CitationGroup
+
+                merge_citation_groups(first_group, citation_group);
+            }
+            // Do NOT `continue` here because the current Citation Group
+            // needs to be pushed onto the output still
         } else if let Inline::Superscript(Superscript { content, .. }) = &inline {
             // Citation or CitationGroup within Superscript
             if let (1, Some(Inline::Citation(..) | Inline::CitationGroup(..))) =

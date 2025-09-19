@@ -1,0 +1,181 @@
+{
+  "type": "Article",
+  "structuring": ["normalize-citations"],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A citation group followed by a comma and then another citation group"
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-1",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "1"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-2",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ","
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-4",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "4"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-5",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "5"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", a citation group followed by a dash and then another citation group"
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-7",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "7"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-8",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "8"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "-"
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-10",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "10"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-11",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "11"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", and a citation group followed directly by another citation group with no separator"
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-13",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "13"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-14",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "14"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-15",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "15"
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-16",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "16"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
