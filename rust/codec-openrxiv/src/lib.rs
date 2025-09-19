@@ -1,5 +1,5 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -16,12 +16,21 @@ impl Codec for OpenRxivCodec {
         "openrxiv"
     }
 
-    fn supports_from_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
+        match format {
+            Format::Meca => CodecSupport::LowLoss,
+            Format::Pdf => CodecSupport::HighLoss,
+            _ => CodecSupport::None,
+        }
     }
 
-    fn supports_to_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
+    fn structuring_options(&self, format: &Format) -> StructuringOptions {
+        // TODO: determine appropriate structuring options for each format
+        match format {
+            Format::Meca => StructuringOptions::none(),
+            Format::Pdf => StructuringOptions::none(),
+            _ => StructuringOptions::default(),
+        }
     }
 }
 
@@ -33,11 +42,15 @@ impl OpenRxivCodec {
     pub async fn from_identifier(
         identifier: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
         let Some((openrxiv_id, server)) = decode::extract_openrxiv_id(identifier) else {
             bail!("Not a recognized arXiv id")
         };
 
-        decode::decode_openrxiv_id(&openrxiv_id, server.as_deref(), options).await
+        let (node, info, format) =
+            decode::decode_openrxiv_id(&openrxiv_id, server.as_deref(), options).await?;
+        let structuring_options = Self.structuring_options(&format);
+
+        Ok((node, info, structuring_options))
     }
 }

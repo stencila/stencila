@@ -1,5 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions,
+    async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -23,21 +24,20 @@ impl Codec for ArxivCodec {
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Html => CodecSupport::HighLoss,
+            Format::Html => CodecSupport::LowLoss,
+            Format::Latex => CodecSupport::LowLoss,
+            Format::Pdf => CodecSupport::HighLoss,
             _ => CodecSupport::None,
         }
     }
 
-    fn supports_to_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
-    }
-
-    async fn from_str(
-        &self,
-        str: &str,
-        options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
-        decode_html::decode_arxiv_html("", str, options).await
+    fn structuring_options(&self, format: &Format) -> StructuringOptions {
+        match format {
+            Format::Html => StructuringOptions::new([StructuringOperation::NormalizeCitations], []),
+            Format::Latex => StructuringOptions::none(),
+            Format::Pdf => StructuringOptions::all(),
+            _ => StructuringOptions::default(),
+        }
     }
 }
 
@@ -49,11 +49,14 @@ impl ArxivCodec {
     pub async fn from_identifier(
         identifier: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
         let Some(arxiv_id) = decode::extract_arxiv_id(identifier) else {
             bail!("Not a recognized arXiv id")
         };
 
-        decode::decode_arxiv_id(&arxiv_id, options).await
+        let (node, info, format) = decode::decode_arxiv_id(&arxiv_id, options).await?;
+        let structuring_options = Self.structuring_options(&format);
+
+        Ok((node, info, structuring_options))
     }
 }

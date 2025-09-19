@@ -115,7 +115,7 @@ pub(super) async fn decode_openrxiv_id(
     openrxiv_id: &str,
     server: Option<&str>,
     options: Option<DecodeOptions>,
-) -> Result<(Node, DecodeInfo)> {
+) -> Result<(Node, DecodeInfo, Format)> {
     tracing::debug!("Attempting to decode openRxiv preprint `{openrxiv_id}`");
 
     let (first, second) = if let Some(MEDRXIV) = server {
@@ -126,15 +126,15 @@ pub(super) async fn decode_openrxiv_id(
 
     for (format, url) in [
         (
-            "meca",
+            Format::Meca,
             format!("https://api.stencila.cloud/v1/remotes/openrxiv/{openrxiv_id}"),
         ),
         (
-            "pdf",
+            Format::Pdf,
             format!("https://www.{first}/content/{DOI_PREFIX}/{openrxiv_id}.full.pdf"),
         ),
         (
-            "pdf",
+            Format::Pdf,
             format!("https://www.{second}/content/{DOI_PREFIX}/{openrxiv_id}.full.pdf"),
         ),
     ] {
@@ -150,7 +150,7 @@ pub(super) async fn decode_openrxiv_id(
             Ok(response) if response.status().is_success() => {
                 tracing::debug!("Successfully fetched `{format}` for `{openrxiv_id}`",);
                 match decode_preprint(openrxiv_id, server, response, options.clone()).await {
-                    Ok(result) => return Ok(result),
+                    Ok((node, info)) => return Ok((node, info, format)),
                     Err(error) => {
                         tracing::warn!("Failed to decode `{format}`: {error}");
                     }

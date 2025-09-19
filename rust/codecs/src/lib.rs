@@ -249,18 +249,40 @@ pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
 #[tracing::instrument]
 pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -> Result<Node> {
     if identifier == "-" {
-        from_stdin(options).await
-    } else if ArxivCodec::supports_identifier(identifier) {
-        Ok(ArxivCodec::from_identifier(identifier, options).await?.0)
-    } else if OpenRxivCodec::supports_identifier(identifier) {
-        Ok(OpenRxivCodec::from_identifier(identifier, options).await?.0)
-    } else if PmcCodec::supports_identifier(identifier) {
-        Ok(PmcCodec::from_identifier(identifier, options).await?.0)
-    } else if DoiCodec::supports_identifier(identifier) {
-        Ok(DoiCodec::from_identifier(identifier, options).await?.0)
-    } else if GithubCodec::supports_identifier(identifier) {
-        Ok(GithubCodec::from_identifier(identifier, options).await?.0)
-    } else if identifier.starts_with("https://")
+        return from_stdin(options).await;
+    }
+
+    if let Some((mut node, .., codec_structuring_options)) =
+        if ArxivCodec::supports_identifier(identifier) {
+            Some(ArxivCodec::from_identifier(identifier, options.clone()).await?)
+        } else if OpenRxivCodec::supports_identifier(identifier) {
+            Some(OpenRxivCodec::from_identifier(identifier, options.clone()).await?)
+        } else if PmcCodec::supports_identifier(identifier) {
+            Some(PmcCodec::from_identifier(identifier, options.clone()).await?)
+        } else if DoiCodec::supports_identifier(identifier) {
+            Some(DoiCodec::from_identifier(identifier, options.clone()).await?)
+        } else if GithubCodec::supports_identifier(identifier) {
+            Some(GithubCodec::from_identifier(identifier, options.clone()).await?)
+        } else {
+            None
+        }
+    {
+        // Merge any user supplied structuring options with the codec's defaults
+        // for the format resolved from the identifier
+        let mut structuring_options = options
+            .map(|opts| opts.structuring_options)
+            .unwrap_or_default();
+        structuring_options.merge(codec_structuring_options);
+
+        // Perform any structuring
+        if structuring_options.should_perform_any() {
+            structuring(&mut node, structuring_options);
+        }
+
+        return Ok(node);
+    }
+
+    if identifier.starts_with("https://")
         || identifier.starts_with("http://")
         || identifier.starts_with("file://")
     {
@@ -395,10 +417,14 @@ pub async fn from_path_with_info(
         )
         .await?;
 
+    // Merge any user supplied structuring options with the codec's default for
+    // the format
     let mut structuring_options = options
         .map(|opts| opts.structuring_options)
         .unwrap_or_default();
     structuring_options.merge(codec.structuring_options(&format));
+
+    // Perform any structuring
     if structuring_options.should_perform_any() {
         structuring(&mut node, structuring_options);
     }

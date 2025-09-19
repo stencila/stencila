@@ -1,5 +1,5 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -25,12 +25,15 @@ impl Codec for DoiCodec {
         "doi"
     }
 
-    fn supports_from_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
+        match format {
+            Format::Csl => CodecSupport::LowLoss,
+            _ => CodecSupport::None,
+        }
     }
 
-    fn supports_to_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
+    fn structuring_options(&self, _format: &Format) -> StructuringOptions {
+        StructuringOptions::none()
     }
 }
 
@@ -42,11 +45,14 @@ impl DoiCodec {
     pub async fn from_identifier(
         identifier: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
         let Some(doi) = decode::extract_doi(identifier) else {
             bail!("Not a recognized DOI")
         };
 
-        decode::decode_doi(&doi, options).await
+        let (node, info) = decode::decode_doi(&doi, options).await?;
+        let structuring_options = Self.structuring_options(&Format::Csl);
+
+        Ok((node, info, structuring_options))
     }
 }

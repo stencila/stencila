@@ -4,7 +4,7 @@ use serde::de::DeserializeOwned;
 use tokio::fs::write;
 
 use stencila_codec::{
-    Codec, DecodeInfo, DecodeOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, StructuringOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{
@@ -44,6 +44,20 @@ impl Codec for GithubCodec {
         "github"
     }
 
+    fn structuring_options(&self, format: &Format) -> StructuringOptions {
+        // Delegate to the relevant codec for each format
+        match format {
+            Format::Csv | Format::Tsv => CsvCodec.structuring_options(format),
+            Format::Ipynb => IpynbCodec.structuring_options(format),
+            Format::Latex => LatexCodec.structuring_options(format),
+            Format::Markdown | Format::Myst | Format::Qmd | Format::Smd => {
+                MarkdownCodec.structuring_options(format)
+            }
+            Format::Xlsx | Format::Xls | Format::Ods => XlsxCodec.structuring_options(format),
+            _ => StructuringOptions::default(),
+        }
+    }
+
     async fn from_str(
         &self,
         json: &str,
@@ -63,7 +77,7 @@ impl GithubCodec {
     pub async fn from_identifier(
         identifier: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
         let Some(file_info) = decode::extract_github_identifier(identifier) else {
             bail!("Not a recognized GitHub URL")
         };
@@ -100,9 +114,7 @@ impl GithubCodec {
                     Format::Markdown | Format::Myst | Format::Qmd | Format::Smd => {
                         MarkdownCodec.from_str(&content, options).await?
                     }
-                    Format::Csv | Format::Tsv | Format::Parquet | Format::Arrow => {
-                        CsvCodec.from_str(&content, options).await?
-                    }
+                    Format::Csv | Format::Tsv => CsvCodec.from_str(&content, options).await?,
                     _ => {
                         // For other formats, return as SoftwareSourceCode
                         let node = Node::SoftwareSourceCode(SoftwareSourceCode {
@@ -146,7 +158,9 @@ impl GithubCodec {
             }
         }
 
-        Ok((node, info))
+        let structuring_options = Self.structuring_options(&format);
+
+        Ok((node, info, structuring_options))
     }
 }
 

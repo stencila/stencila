@@ -6,6 +6,7 @@ use url::Url;
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
+    stencila_format::Format,
     stencila_schema::Node,
 };
 
@@ -118,14 +119,20 @@ pub fn arxiv_id_to_doi(arxiv_id: &str) -> String {
 pub(super) async fn decode_arxiv_id(
     arxiv_id: &str,
     options: Option<DecodeOptions>,
-) -> Result<(Node, DecodeInfo)> {
+) -> Result<(Node, DecodeInfo, Format)> {
     tracing::debug!("Attempting to decode arXiv preprint `{arxiv_id}`");
 
     for (format, url) in [
-        ("html", format!("https://export.arxiv.org/html/{arxiv_id}")),
-        ("src", format!("https://export.arxiv.org/src/{arxiv_id}")),
         (
-            "pdf",
+            Format::Html,
+            format!("https://export.arxiv.org/html/{arxiv_id}"),
+        ),
+        (
+            Format::Latex,
+            format!("https://export.arxiv.org/src/{arxiv_id}"),
+        ),
+        (
+            Format::Pdf,
             format!("https://export.arxiv.org/pdf/{arxiv_id}.pdf"),
         ),
     ] {
@@ -136,16 +143,16 @@ pub(super) async fn decode_arxiv_id(
                 tracing::debug!("Successfully fetched `{format}` for `{arxiv_id}`",);
 
                 let result = match format {
-                    "html" => {
+                    Format::Html => {
                         decode_arxiv_html(arxiv_id, &response.text().await?, options.clone()).await
                     }
-                    "src" => decode_arxiv_src(arxiv_id, response, options.clone()).await,
-                    "pdf" => decode_arxiv_pdf(arxiv_id, response, options.clone()).await,
+                    Format::Latex => decode_arxiv_src(arxiv_id, response, options.clone()).await,
+                    Format::Pdf => decode_arxiv_pdf(arxiv_id, response, options.clone()).await,
                     _ => unreachable!(),
                 };
 
                 match result {
-                    Ok(result) => return Ok(result),
+                    Ok((node, info)) => return Ok((node, info, format)),
                     Err(error) => {
                         tracing::warn!("Failed to decode `{format}`: {error}");
                     }

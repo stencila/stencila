@@ -7,6 +7,7 @@ use url::Url;
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
+    stencila_format::Format,
     stencila_schema::Node,
 };
 
@@ -57,7 +58,7 @@ pub(super) fn extract_pmcid(identifier: &str) -> Option<String> {
 pub(super) async fn decode_pmcid(
     pmcid: &str,
     options: Option<DecodeOptions>,
-) -> Result<(Node, DecodeInfo)> {
+) -> Result<(Node, DecodeInfo, Format)> {
     let pmcid = pmcid.trim();
     if !pmcid.starts_with("PMC") {
         bail!("Unrecognized article id, should be a PMC id, starting with `PMC`")
@@ -99,12 +100,12 @@ pub(super) async fn decode_pmcid(
     let should_download_tar = !tar_path.exists() || ignore_artifacts;
     let should_download_html = !html_path.exists() || ignore_artifacts;
 
-    let file_path = if should_download_tar {
+    let (format, file_path) = if should_download_tar {
         // Try to download tar package first
         match download_tar(pmcid, &tar_path).await {
             Ok(()) => {
                 tracing::debug!("Successfully downloaded tar package for {pmcid}");
-                tar_path
+                (Format::PmcOa, tar_path)
             }
             Err(tar_error) => {
                 tracing::debug!("Failed to download tar package for {pmcid}: {tar_error}");
@@ -113,26 +114,32 @@ pub(super) async fn decode_pmcid(
                     tracing::debug!("Falling back to HTML download for {pmcid}");
                     download_html(pmcid, &html_path).await?;
                 }
-                html_path
+                (Format::Html, html_path)
             }
         }
     } else if tar_path.exists() {
         // Use existing tar package
-        tar_path
+        (Format::PmcOa, tar_path)
     } else if should_download_html {
         // No tar package exists, download HTML
         tracing::debug!("No tar package found, downloading HTML for {pmcid}");
         download_html(pmcid, &html_path).await?;
-        html_path
+        (Format::Html, html_path)
     } else {
         // Use existing HTML file
-        html_path
+        (Format::Html, html_path)
     };
 
     // Decode the downloaded file
-    let (node, .., info) = decode_path(&file_path, options).await?;
+    let (mut node, .., info) = decode_path(&file_path, options).await?;
 
-    Ok((node, info))
+    // Set metadata
+    if let Node::Article(article) = &mut node {
+        article.options.repository = Some("https://pmc.ncbi.nlm.nih.gov".into());
+        article.options.path = Some(format!("articles/{pmcid}/"))
+    }
+
+    Ok((node, info, format))
 }
 
 /// Decode a PMC OA Package or HTML file to a Stencila [`Node`]

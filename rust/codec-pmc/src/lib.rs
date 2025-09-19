@@ -1,7 +1,8 @@
 use std::path::Path;
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions,
+    async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -26,20 +27,19 @@ impl Codec for PmcCodec {
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::PmcOa => CodecSupport::LowLoss,
+            Format::Html => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }
 
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
-    }
-
-    async fn from_str(
-        &self,
-        pmcid: &str,
-        options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
-        decode::decode_pmcid(pmcid, options).await
+    fn structuring_options(&self, format: &Format) -> StructuringOptions {
+        match format {
+            Format::PmcOa => {
+                StructuringOptions::new([StructuringOperation::NormalizeCitations], [])
+            }
+            Format::Html => StructuringOptions::new([StructuringOperation::NormalizeCitations], []),
+            _ => StructuringOptions::default(),
+        }
     }
 
     async fn from_path(
@@ -59,19 +59,14 @@ impl PmcCodec {
     pub async fn from_identifier(
         identifier: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
         let Some(pmcid) = decode::extract_pmcid(identifier) else {
             bail!("Not a recognized PubMed Central id")
         };
 
-        decode::decode_pmcid(&pmcid, options).await
-    }
+        let (node, info, format) = decode::decode_pmcid(&pmcid, options).await?;
+        let structuring_options = Self.structuring_options(&format);
 
-    /// Download HTML for a PMCID from PMC website
-    ///
-    /// Downloads the HTML page for the given PMCID to the specified path.
-    /// The `pmcid` can include the "PMC" prefix or just the numeric part.
-    pub async fn download_html(pmcid: &str, to_path: &Path) -> Result<()> {
-        html::download_html(pmcid, to_path).await
+        Ok((node, info, structuring_options))
     }
 }
