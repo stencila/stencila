@@ -631,17 +631,23 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 continue;
             }
         } else if let Inline::CitationGroup(citation_group) = &mut inline {
-            // Citation followed by Text containing a comma (optionally surrounded by whitespace) followed by a CitationGroup
+            // Citation followed by Text containing a separator (comma, semicolon, or dash) followed by a CitationGroup
             if let Some(Inline::Citation(citation)) = output.iter().rev().nth(1)
                 && let Some(Inline::Text(Text { value, .. })) = output.last()
-                && value.trim() == ","
+                && matches!(value.trim(), "," | ";" | "-" | "–")
             {
                 let citation = citation.clone();
+                let trimmed = value.trim().to_string(); // Convert to owned String to avoid borrowing issues
 
                 // Pop off both the Citation and the Text and add the Citation to the current CitationGroup
-                output.pop(); // Remove comma Text
+                output.pop(); // Remove separator Text
                 output.pop(); // Remove Citation
-                prepend_citation_group_item(citation_group, citation);
+
+                if matches!(trimmed.as_str(), "," | ";") {
+                    prepend_citation_group_item(citation_group, citation);
+                } else {
+                    prepend_citation_group_range(citation_group, citation);
+                }
                 // Do NOT `continue` here because the current Citation Group
                 // needs to be pushed onto the output still
             }
