@@ -160,7 +160,7 @@ impl DomCodec for Article {
             // <stencila-section> with a heading if necessary
             context.push_slot_fn("section", "abstract", |context| {
                 context
-                    .enter_node(NodeType::Section, NodeId::new(&b"sec", b"abstract"))
+                    .enter_node(NodeType::Section, NodeId::new(b"sec", b"abstract"))
                     .push_slot_fn("section", "content", |context| {
                         // Add an abstract heading if one does not yet exist
                         if !r#abstract.iter().any(|block| match block {
@@ -200,7 +200,7 @@ impl DomCodec for Article {
             // <stencila-section> with a heading
             context.push_slot_fn("section", "references", |context| {
                 context
-                    .enter_node(NodeType::Section, NodeId::new(&b"sec", b"references"))
+                    .enter_node(NodeType::Section, NodeId::new(b"sec", b"references"))
                     .push_slot_fn("section", "content", |context| {
                         h1([t("References")]).to_dom(context);
                         references.to_dom(context)

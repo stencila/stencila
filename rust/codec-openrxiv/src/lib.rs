@@ -1,5 +1,9 @@
 use stencila_codec::{
-    async_trait, eyre::{bail, Result}, stencila_format::Format, stencila_schema::Node, Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions,
+    async_trait,
+    eyre::{Result, bail},
+    stencila_format::Format,
+    stencila_schema::Node,
 };
 
 mod decode;

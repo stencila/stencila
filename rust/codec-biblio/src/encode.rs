@@ -91,7 +91,7 @@ fn references_to_bibliography(
 
     // Load the locale file
     let en_locale = include_str!("locales-en-us.xml");
-    let locales = [LocaleFile::from_xml(&en_locale)?.into()];
+    let locales = [LocaleFile::from_xml(en_locale)?.into()];
 
     // Create bibliography driver
     let mut driver = BibliographyDriver::new();
