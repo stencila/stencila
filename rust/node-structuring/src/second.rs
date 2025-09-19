@@ -140,8 +140,10 @@ impl SecondWalk {
         }
 
         if self.options.should_perform(NormalizeCitations) {
-            // Normalize citation formatting and grouping
-            *inlines = normalize_citations(std::mem::take(inlines));
+            // Normalize citation formatting and grouping. Two passes are made over the inlines so that in
+            // the first pass any citations in superscripts can be "extracted" and then in the second pass
+            // adjacent citations (that were originally superscripted) can be merged is necessary.
+            *inlines = normalize_citations(normalize_citations(std::mem::take(inlines)));
         }
 
         if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextToLinks)
@@ -300,6 +302,113 @@ fn has_links(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
         .then_some(inlines)
 }
 
+/// Generate a range of citations from start to end with the given target prefix
+///
+/// Creates citations for each number in the range [start, end] inclusive,
+/// combining the target_prefix with the number to form the target.
+fn generate_citation_range(target_prefix: String, start: u32, end: u32) -> Vec<Citation> {
+    (start..=end)
+        .map(|target| Citation {
+            target: [target_prefix.clone(), target.to_string()].concat(),
+            options: Box::new(CitationOptions {
+                content: Some(vec![Inline::Text(Text::new(target.to_string().into()))]),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .collect_vec()
+}
+
+/// Create a [`CitationGroup`] from a pair of [`Citation`]s
+fn citation_group_from_pair(start: Citation, end: Citation) -> Inline {
+    Inline::CitationGroup(CitationGroup {
+        items: vec![start, end],
+        ..Default::default()
+    })
+}
+
+/// Create a [`CitationGroup`] by expanding the range defined by start and end [`Citation`]s
+fn citation_group_from_range(start: Citation, end: Citation) -> Inline {
+    // Extract the numeric parts from the citations
+    let start_num = to_text(&start.options.content).parse::<u32>().unwrap_or(0);
+    let end_num = to_text(&end.options.content).parse::<u32>().unwrap_or(0);
+
+    // Extract the target prefix from the start citation
+    let mut target_prefix = start.target.chars().collect_vec();
+    while target_prefix
+        .last()
+        .map(|c| c.is_ascii_digit())
+        .unwrap_or_default()
+    {
+        target_prefix.pop();
+    }
+    let target_prefix: String = target_prefix.into_iter().collect();
+
+    // Generate the range if valid
+    let items = if end_num > start_num {
+        generate_citation_range(target_prefix, start_num, end_num)
+    } else {
+        // If not a valid range, just return both citations as-is
+        vec![start, end]
+    };
+
+    Inline::CitationGroup(CitationGroup {
+        items,
+        ..Default::default()
+    })
+}
+
+/// Add a single [`Citation`] to a [`CitationGroup`]
+fn add_to_citation_group(citation_group: &mut CitationGroup, citation: Citation) {
+    citation_group.items.push(citation);
+}
+
+/// Extend the items in a [`CitationGroup`] from the last in the current range to the new end
+fn extend_citation_group(citation_group: &mut CitationGroup, end: Citation) {
+    // Get the last citation in the group to use as the start of the range
+    if let Some(last) = citation_group.items.last() {
+        // Extract numeric parts from the last citation and the end citation
+        let start_num = to_text(&last.options.content).parse::<u32>().unwrap_or(0);
+        let end_num = to_text(&end.options.content).parse::<u32>().unwrap_or(0);
+
+        // Only extend if this is a valid range
+        if end_num > start_num {
+            // Extract the target prefix from the last citation
+            let mut target_prefix = last.target.chars().collect_vec();
+            while target_prefix
+                .last()
+                .map(|c| c.is_ascii_digit())
+                .unwrap_or_default()
+            {
+                target_prefix.pop();
+            }
+            let target_prefix: String = target_prefix.into_iter().collect();
+
+            // Generate the range starting from the next number after the last citation
+            // (we don't want to duplicate the last citation)
+            let mut new_items = generate_citation_range(target_prefix, start_num + 1, end_num);
+
+            // Set citation mode to None for all new items
+            for citation in &mut new_items {
+                citation.citation_mode = None;
+            }
+
+            // Append the new items to the group
+            citation_group.items.append(&mut new_items);
+        } else {
+            // If not a valid range, just add the end citation as-is
+            let mut end = end;
+            end.citation_mode = None;
+            citation_group.items.push(end);
+        }
+    } else {
+        // If the group is somehow empty, just add the end citation
+        let mut end = end;
+        end.citation_mode = None;
+        citation_group.items.push(end);
+    }
+}
+
 /// Normalize citation formatting and grouping
 ///
 /// - removes parentheses and square brackets around citations,
@@ -367,18 +476,7 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                             output.pop();
 
                             // Generate citations over numeric range
-                            let mut items = (start..=end)
-                                .map(|target| Citation {
-                                    target: [target_prefix.clone(), target.to_string()].concat(),
-                                    options: Box::new(CitationOptions {
-                                        content: Some(vec![Inline::Text(Text::new(
-                                            target.to_string().into(),
-                                        ))]),
-                                        ..Default::default()
-                                    }),
-                                    ..Default::default()
-                                })
-                                .collect_vec();
+                            let mut items = generate_citation_range(target_prefix, start, end);
 
                             if !previous_is_group {
                                 // Dash separated pair of citations so pop off the
@@ -420,6 +518,46 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 });
             }
 
+            // Superscript followed by Citation
+            if let Some(Inline::Superscript(Superscript { content, .. })) = output.last_mut() {
+                let text = to_text(content);
+                let trimmed = text.trim();
+                if matches!(trimmed, "," | "-" | "–") {
+                    // Citation followed by a Superscript (with comma or dash) followed by a Citation
+                    if let Some(Inline::Citation(citation)) = output.iter().rev().nth(1) {
+                        // Pop off the Superscript and previous citation combine
+                        // the previous and current citations into a citation group
+                        let mut previous = citation.clone();
+                        previous.citation_mode = None;
+                        output.pop(); // Remove Superscript
+                        output.pop(); // Remove previous Citation
+
+                        if trimmed == "," {
+                            output.push(citation_group_from_pair(previous, current.clone()));
+                        } else {
+                            output.push(citation_group_from_range(previous, current.clone()));
+                        }
+                        continue;
+                    }
+
+                    // CitationGroup followed by a Superscript (with comma or dash) followed by a Citation
+                    if matches!(output.iter().rev().nth(1), Some(Inline::CitationGroup(..))) {
+                        // Pop off the Superscript first
+                        output.pop(); // Remove Superscript
+
+                        // Now we can safely get a mutable reference to the CitationGroup
+                        if let Some(Inline::CitationGroup(citation_group)) = output.last_mut() {
+                            if trimmed == "," {
+                                add_to_citation_group(citation_group, current.clone());
+                            } else {
+                                extend_citation_group(citation_group, current.clone());
+                            }
+                            continue;
+                        }
+                    }
+                }
+            }
+
             // Citation followed by Citation
             if matches!(output.last(), Some(Inline::Citation(..)))
                 && let Some(Inline::Citation(mut previous)) = output.pop()
@@ -447,7 +585,7 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 && let Some(Inline::Text(Text { value, .. })) = output.last()
                 && value.trim() == ","
             {
-                // Pop off both the Citation add the Text and add the Citation to the current CitationGroup
+                // Pop off both the Citation and the Text and add the Citation to the current CitationGroup
                 let mut citation = citation.clone();
                 output.pop(); // Remove comma Text
                 output.pop(); // Remove Citation
@@ -460,7 +598,12 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 (content.len(), content.first())
             {
                 // Replace Superscript with the Citation or CitationGroup
-                output.push(content[0].clone());
+                let mut inline = content[0].clone();
+                if let Inline::Citation(Citation { citation_mode, .. }) = &mut inline {
+                    // Ensure that is citation it is made parenthetical
+                    *citation_mode = Some(CitationMode::Parenthetical);
+                };
+                output.push(inline);
                 continue;
             }
             // Citation or CitationGroup within Superscript (with only surrounding whitespace)
@@ -478,7 +621,12 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 && after.trim().is_empty()
             {
                 // Replace Superscript with the Citation or CitationGroup
-                output.push(content[1].clone());
+                let mut inline = content[1].clone();
+                if let Inline::Citation(Citation { citation_mode, .. }) = &mut inline {
+                    // Ensure that is citation it is made parenthetical
+                    *citation_mode = Some(CitationMode::Parenthetical);
+                };
+                output.push(inline);
                 continue;
             }
         }

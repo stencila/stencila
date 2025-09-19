@@ -30,7 +30,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "] for details."
+            "string": " for details."
           }
         }
       ]

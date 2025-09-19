@@ -1,15 +1,13 @@
 {
   "type": "Article",
-  "structuring": [
-    "normalize-citations"
-  ],
+  "structuring": ["normalize-citations"],
   "content": [
     {
       "type": "Paragraph",
       "content": [
         {
           "type": "Text",
-          "value": "This statement"
+          "value": "A single citation in a superscript"
         },
         {
           "type": "Superscript",
@@ -28,7 +26,89 @@
         },
         {
           "type": "Text",
-          "value": " is supported."
+          "value": ", a pair of citations within superscripts, separated by a comma that is also superscripted"
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Citation",
+              "target": "ref-2",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Text",
+              "value": ","
+            }
+          ]
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Citation",
+              "target": "ref-3",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", a range of citations, separated by a dash that is also superscripted"
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Citation",
+              "target": "ref-4",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Text",
+              "value": "-"
+            }
+          ]
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Citation",
+              "target": "ref-6",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "6"
+                }
+              ]
+            }
+          ]
         }
       ]
     }
