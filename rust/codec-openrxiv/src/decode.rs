@@ -10,13 +10,11 @@ use tempfile::tempdir;
 use tokio::{fs::File, io::AsyncWriteExt};
 
 use stencila_codec::{
-    Codec, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions,
-    stencila_format::Format, stencila_schema::Node,
+    Codec, DecodeInfo, DecodeOptions, stencila_format::Format, stencila_schema::Node,
 };
 use stencila_codec_meca::MecaCodec;
 use stencila_codec_pdf::PdfCodec;
 use stencila_dirs::closest_artifacts_for;
-use stencila_node_structuring::structuring;
 use stencila_version::STENCILA_USER_AGENT;
 
 const BIORXIV: &str = "biorxiv.org";
@@ -234,16 +232,6 @@ pub(super) async fn decode_preprint(
         Format::Pdf => PdfCodec.from_path(&file_path, options).await?,
         _ => bail!("Unhandled format `{format}`"),
     };
-
-    /// Specify structuring options based on the format
-    /// Note: because we do structuring here, this codec does not override Codec::structuring_options.
-    use StructuringOperation::*;
-    let structuring_options = match format {
-        Format::Meca => StructuringOptions::new([None_], []),
-        Format::Pdf => StructuringOptions::new([All, RemovePrePrimary], [ParagraphsToSentences]),
-        _ => bail!("Unhandled format `{format}`"),
-    };
-    structuring(&mut node, structuring_options);
 
     // Set DOI, and other metadata
     if let Node::Article(article) = &mut node {

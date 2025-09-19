@@ -1,8 +1,5 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOptions, async_trait,
-    eyre::{Result, bail},
-    stencila_format::Format,
-    stencila_schema::Node,
+    async_trait, eyre::{bail, Result}, stencila_format::Format, stencila_schema::Node, Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions
 };
 
 mod decode;
@@ -25,10 +22,9 @@ impl Codec for OpenRxivCodec {
     }
 
     fn structuring_options(&self, format: &Format) -> StructuringOptions {
-        // TODO: determine appropriate structuring options for each format
         match format {
-            Format::Meca => StructuringOptions::none(),
-            Format::Pdf => StructuringOptions::none(),
+            Format::Meca => StructuringOptions::new([StructuringOperation::NormalizeCitations], []),
+            Format::Pdf => StructuringOptions::all(),
             _ => StructuringOptions::default(),
         }
     }
