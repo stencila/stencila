@@ -15,34 +15,31 @@ expression: node
           }
         },
         {
-          "type": "Citation",
-          "target": "smith2020",
-          "citationMode": "Parenthetical",
-          "content": [
+          "type": "CitationGroup",
+          "items": [
             {
-              "type": "Text",
-              "value": {
-                "string": "Smith 2020"
-              }
-            }
-          ]
-        },
-        {
-          "type": "Text",
-          "value": {
-            "string": "–"
-          }
-        },
-        {
-          "type": "Citation",
-          "target": "jones2021",
-          "citationMode": "Narrative",
-          "content": [
+              "type": "Citation",
+              "target": "smith2020",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Smith 2020"
+                  }
+                }
+              ]
+            },
             {
-              "type": "Text",
-              "value": {
-                "string": "Jones 2021"
-              }
+              "type": "Citation",
+              "target": "jones2021",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Jones 2021"
+                  }
+                }
+              ]
             }
           ]
         },
