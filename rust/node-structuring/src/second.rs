@@ -302,25 +302,11 @@ fn has_links(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
         .then_some(inlines)
 }
 
-/// Generate a range of citations from start to end with the given target prefix
-///
-/// Creates citations for each number in the range [start, end] inclusive,
-/// combining the target_prefix with the number to form the target.
-fn generate_citation_range(target_prefix: String, start: u32, end: u32) -> Vec<Citation> {
-    (start..=end)
-        .map(|target| Citation {
-            target: [target_prefix.clone(), target.to_string()].concat(),
-            options: Box::new(CitationOptions {
-                content: Some(vec![Inline::Text(Text::new(target.to_string().into()))]),
-                ..Default::default()
-            }),
-            ..Default::default()
-        })
-        .collect_vec()
-}
-
 /// Create a [`CitationGroup`] from a pair of [`Citation`]s
-fn citation_group_from_pair(start: Citation, end: Citation) -> Inline {
+fn citation_group_from_pair(mut start: Citation, mut end: Citation) -> Inline {
+    start.citation_mode = None;
+    end.citation_mode = None;
+
     Inline::CitationGroup(CitationGroup {
         items: vec![start, end],
         ..Default::default()
@@ -328,12 +314,12 @@ fn citation_group_from_pair(start: Citation, end: Citation) -> Inline {
 }
 
 /// Create a [`CitationGroup`] by expanding the range defined by start and end [`Citation`]s
-fn citation_group_from_range(start: Citation, end: Citation) -> Inline {
-    // Extract the numeric parts from the citations
-    let start_num = to_text(&start.options.content).parse::<u32>().unwrap_or(0);
-    let end_num = to_text(&end.options.content).parse::<u32>().unwrap_or(0);
+fn citation_group_from_range(mut start: Citation, mut end: Citation) -> Inline {
+    start.citation_mode = None;
+    end.citation_mode = None;
 
-    // Extract the target prefix from the start citation
+    // Extract the target prefix from the start citation first, then parse numeric suffixes
+    // This is more consistent than parsing from content and then determining prefix
     let mut target_prefix = start.target.chars().collect_vec();
     while target_prefix
         .last()
@@ -344,9 +330,34 @@ fn citation_group_from_range(start: Citation, end: Citation) -> Inline {
     }
     let target_prefix: String = target_prefix.into_iter().collect();
 
+    // Parse the numeric suffixes from the targets
+    let start_num = start.target[target_prefix.len()..]
+        .parse::<u32>()
+        .unwrap_or(0);
+    let end_num = end.target[target_prefix.len()..]
+        .parse::<u32>()
+        .unwrap_or(0);
+
     // Generate the range if valid
     let items = if end_num > start_num {
-        generate_citation_range(target_prefix, start_num, end_num)
+        // Create a vector with the start citation, then the range between, then the end citation
+        let mut items = vec![start];
+
+        // Generate citations for the numbers between start and end (exclusive)
+        for target in (start_num + 1)..end_num {
+            items.push(Citation {
+                target: [target_prefix.clone(), target.to_string()].concat(),
+                options: Box::new(CitationOptions {
+                    content: Some(vec![Inline::Text(Text::new(target.to_string().into()))]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            });
+        }
+
+        // Add the end citation
+        items.push(end);
+        items
     } else {
         // If not a valid range, just return both citations as-is
         vec![start, end]
@@ -358,53 +369,75 @@ fn citation_group_from_range(start: Citation, end: Citation) -> Inline {
     })
 }
 
-/// Add a single [`Citation`] to a [`CitationGroup`]
-fn add_to_citation_group(citation_group: &mut CitationGroup, citation: Citation) {
+/// Prepend a single [`Citation`] to a [`CitationGroup`]
+fn prepend_citation_group(citation_group: &mut CitationGroup, mut citation: Citation) {
+    citation.citation_mode = None;
+
+    citation_group.items.insert(0, citation);
+}
+
+/// Append a single [`Citation`] to a [`CitationGroup`]
+fn append_citation_group(citation_group: &mut CitationGroup, mut citation: Citation) {
+    citation.citation_mode = None;
+
     citation_group.items.push(citation);
 }
 
 /// Extend the items in a [`CitationGroup`] from the last in the current range to the new end
-fn extend_citation_group(citation_group: &mut CitationGroup, end: Citation) {
+fn extend_citation_group(citation_group: &mut CitationGroup, mut end: Citation) {
+    end.citation_mode = None;
+
     // Get the last citation in the group to use as the start of the range
     if let Some(last) = citation_group.items.last() {
-        // Extract numeric parts from the last citation and the end citation
-        let start_num = to_text(&last.options.content).parse::<u32>().unwrap_or(0);
-        let end_num = to_text(&end.options.content).parse::<u32>().unwrap_or(0);
+        // Extract the target prefix from the last citation first, then parse numeric suffixes
+        // This is more consistent than parsing from content and then determining prefix
+        let mut target_prefix = last.target.chars().collect_vec();
+        while target_prefix
+            .last()
+            .map(|c| c.is_ascii_digit())
+            .unwrap_or_default()
+        {
+            target_prefix.pop();
+        }
+        let target_prefix: String = target_prefix.into_iter().collect();
+
+        // Parse the numeric suffixes from the targets
+        let start_num = last.target[target_prefix.len()..]
+            .parse::<u32>()
+            .unwrap_or(0);
+        let end_num = end.target[target_prefix.len()..]
+            .parse::<u32>()
+            .unwrap_or(0);
 
         // Only extend if this is a valid range
         if end_num > start_num {
-            // Extract the target prefix from the last citation
-            let mut target_prefix = last.target.chars().collect_vec();
-            while target_prefix
-                .last()
-                .map(|c| c.is_ascii_digit())
-                .unwrap_or_default()
-            {
-                target_prefix.pop();
-            }
-            let target_prefix: String = target_prefix.into_iter().collect();
-
             // Generate the range starting from the next number after the last citation
             // (we don't want to duplicate the last citation)
-            let mut new_items = generate_citation_range(target_prefix, start_num + 1, end_num);
+            let mut new_items = Vec::new();
 
-            // Set citation mode to None for all new items
-            for citation in &mut new_items {
-                citation.citation_mode = None;
+            // Generate citations for the numbers between start and end (exclusive of end)
+            for target in (start_num + 1)..end_num {
+                new_items.push(Citation {
+                    target: [target_prefix.clone(), target.to_string()].concat(),
+                    options: Box::new(CitationOptions {
+                        content: Some(vec![Inline::Text(Text::new(target.to_string().into()))]),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                });
             }
+
+            // Add the end citation (which we already have and has citation_mode = None)
+            new_items.push(end.clone());
 
             // Append the new items to the group
             citation_group.items.append(&mut new_items);
         } else {
             // If not a valid range, just add the end citation as-is
-            let mut end = end;
-            end.citation_mode = None;
             citation_group.items.push(end);
         }
     } else {
         // If the group is somehow empty, just add the end citation
-        let mut end = end;
-        end.citation_mode = None;
         citation_group.items.push(end);
     }
 }
@@ -476,7 +509,18 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                             output.pop();
 
                             // Generate citations over numeric range
-                            let mut items = generate_citation_range(target_prefix, start, end);
+                            let mut items = (start..=end)
+                                .map(|target| Citation {
+                                    target: [target_prefix.clone(), target.to_string()].concat(),
+                                    options: Box::new(CitationOptions {
+                                        content: Some(vec![Inline::Text(Text::new(
+                                            target.to_string().into(),
+                                        ))]),
+                                        ..Default::default()
+                                    }),
+                                    ..Default::default()
+                                })
+                                .collect_vec();
 
                             if !previous_is_group {
                                 // Dash separated pair of citations so pop off the
@@ -525,10 +569,10 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 if matches!(trimmed, "," | "-" | "–") {
                     // Citation followed by a Superscript (with comma or dash) followed by a Citation
                     if let Some(Inline::Citation(citation)) = output.iter().rev().nth(1) {
+                        let previous = citation.clone();
+
                         // Pop off the Superscript and previous citation combine
                         // the previous and current citations into a citation group
-                        let mut previous = citation.clone();
-                        previous.citation_mode = None;
                         output.pop(); // Remove Superscript
                         output.pop(); // Remove previous Citation
 
@@ -548,7 +592,7 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                         // Now we can safely get a mutable reference to the CitationGroup
                         if let Some(Inline::CitationGroup(citation_group)) = output.last_mut() {
                             if trimmed == "," {
-                                add_to_citation_group(citation_group, current.clone());
+                                append_citation_group(citation_group, current.clone());
                             } else {
                                 extend_citation_group(citation_group, current.clone());
                             }
@@ -560,37 +604,33 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
 
             // Citation followed by Citation
             if matches!(output.last(), Some(Inline::Citation(..)))
-                && let Some(Inline::Citation(mut previous)) = output.pop()
+                && let Some(Inline::Citation(previous)) = output.pop()
             {
-                // Merge adjacent citations into a CitationGroup
-                previous.citation_mode = None;
-                current.citation_mode = None;
-                output.push(Inline::CitationGroup(CitationGroup {
-                    items: vec![previous, current.clone()],
-                    ..Default::default()
-                }));
+                // Combine adjacent citations into a CitationGroup
+                output.push(citation_group_from_pair(previous, current.clone()));
                 continue;
             };
 
             // CitationGroup followed by Citation
-            if let Some(Inline::CitationGroup(CitationGroup { items, .. })) = output.last_mut() {
-                // Add citation to previous CitationGroup
-                current.citation_mode = None;
-                items.push(current.clone());
+            if let Some(Inline::CitationGroup(citation_group)) = output.last_mut() {
+                // Add the Citation to the CitationGroup
+                append_citation_group(citation_group, current.clone());
                 continue;
             }
-        } else if let Inline::CitationGroup(current) = &mut inline {
+        } else if let Inline::CitationGroup(citation_group) = &mut inline {
             // Citation followed by Text containing a comma (optionally surrounded by whitespace) followed by a CitationGroup
             if let Some(Inline::Citation(citation)) = output.iter().rev().nth(1)
                 && let Some(Inline::Text(Text { value, .. })) = output.last()
                 && value.trim() == ","
             {
+                let citation = citation.clone();
+
                 // Pop off both the Citation and the Text and add the Citation to the current CitationGroup
-                let mut citation = citation.clone();
                 output.pop(); // Remove comma Text
                 output.pop(); // Remove Citation
-                citation.citation_mode = None;
-                current.items.insert(0, citation); // Insert at beginning of CitationGroup to maintain order
+                prepend_citation_group(citation_group, citation);
+                // Do NOT `continue` here because the current Citation Group
+                // needs to be pushed onto the output still
             }
         } else if let Inline::Superscript(Superscript { content, .. }) = &inline {
             // Citation or CitationGroup within Superscript

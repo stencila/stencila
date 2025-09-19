@@ -51,7 +51,6 @@ expression: node
             {
               "type": "Citation",
               "target": "ref-3",
-              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
