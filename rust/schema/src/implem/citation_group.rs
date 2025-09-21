@@ -24,8 +24,29 @@ impl MarkdownCodec for CitationGroup {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id))
-            .push_str("[");
+            .merge_losses(lost_options!(self, id));
+
+        if context.render {
+            if let Some(content) = &self.content {
+                // Normally the citation group will have content rendered in the citation
+                // style so use that.
+                content.to_markdown(context);
+            } else {
+                // Fallback to using the citations' target
+                context.push_str("(");
+                for (index, citation) in self.items.iter().enumerate() {
+                    if index > 0 {
+                        context.push_str("; ");
+                    }
+                    context.push_str(&citation.target);
+                }
+                context.push_str(")");
+            }
+            context.exit_node();
+            return;
+        }
+
+        context.push_str("[");
 
         for (index, item) in self.items.iter().enumerate() {
             if index > 0 {

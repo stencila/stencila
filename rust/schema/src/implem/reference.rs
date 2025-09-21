@@ -91,6 +91,18 @@ impl MarkdownCodec for Reference {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
+        if let Some(content) = &self.options.content {
+            context
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                })
+                .newline()
+                .exit_node()
+                .newline();
+            
+            return;
+        }
+
         let mut content = false;
 
         if let Some(authors) = &self.authors {

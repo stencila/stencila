@@ -350,6 +350,16 @@ impl MarkdownCodec for Article {
             self.content.to_markdown(context)
         });
 
+        if context.render
+            && let Some(references) = &self.references
+            && !references.is_empty()
+        {
+            context.push_prop_fn(NodeProperty::References, |context| {
+                context.push_str("# References\n\n");
+                references.to_markdown(context);
+            });
+        }
+
         context.append_footnotes();
 
         context.exit_node_final();

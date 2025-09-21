@@ -37,11 +37,29 @@ impl Citation {
 
 impl MarkdownCodec for Citation {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        let brackets = matches!(self.citation_mode, Some(CitationMode::Parenthetical));
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
+
+        let brackets = matches!(self.citation_mode, None | Some(CitationMode::Parenthetical));
+
+        if context.render {
+            if let Some(content) = &self.options.content {
+                // Normally the citation will have content rendered in the citation
+                // style so use that.
+                content.to_markdown(context);
+            } else {
+                // Fallback to using the citation's target (within parentheses if appropriate)
+                if brackets {
+                    context.push_str("(").push_str(&self.target).push_str(")");
+                } else {
+                    context.push_str(&self.target);
+                }
+            }
+
+            context.exit_node();
+            return;
+        }
 
         if brackets {
             context.push_str("[");
