@@ -642,7 +642,7 @@ checksum = "3a8241f3ebb85c056b509d4327ad0358fbbba6ffb340bf388f26350aeda225b1"
 [[package]]
 name = "biblatex"
 version = "0.10.0"
-source = "git+https://github.com/typst/biblatex.git#8c9800eb79fb6c7e3df2fe7e05882086ae9f26d0"
+source = "git+https://github.com/typst/biblatex.git?rev=abb77bd#abb77bde5e19035f3d1fe165f321efceabf76137"
 dependencies = [
  "numerals",
  "paste",
@@ -1373,7 +1373,7 @@ dependencies = [
 [[package]]
 name = "citationberg"
 version = "0.5.0"
-source = "git+https://github.com/typst/citationberg.git?rev=35cc83fb325d22c9b5bd5c7fc1d8e79897308076#35cc83fb325d22c9b5bd5c7fc1d8e79897308076"
+source = "git+https://github.com/typst/citationberg.git?rev=80f4bc8#80f4bc8a64217476e8277c65e99264506b03e876"
 dependencies = [
  "quick-xml 0.38.2",
  "serde",
@@ -3807,7 +3807,7 @@ dependencies = [
 [[package]]
 name = "hayagriva"
 version = "0.8.1"
-source = "git+https://github.com/typst/hayagriva?rev=77bbdcc431ccfcc133af87865d4aa9335f5052a7#77bbdcc431ccfcc133af87865d4aa9335f5052a7"
+source = "git+https://github.com/typst/hayagriva?rev=a48cc775a90b5098cc9930c3f8447cc3116265fc#a48cc775a90b5098cc9930c3f8447cc3116265fc"
 dependencies = [
  "biblatex",
  "ciborium",
@@ -9048,6 +9048,7 @@ name = "stencila-codec-biblio"
 version = "0.0.0"
 dependencies = [
  "Inflector",
+ "cached",
  "glob",
  "hayagriva",
  "insta",
@@ -9058,6 +9059,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-markdown-trait",
  "stencila-codec-text-trait",
+ "stencila-dirs",
  "tokio",
  "tracing",
  "winnow",
@@ -9562,7 +9564,6 @@ dependencies = [
  "stencila-codec-meca",
  "stencila-codec-pdf",
  "stencila-dirs",
- "stencila-node-structuring",
  "stencila-version",
  "tempfile",
  "tokio",
@@ -10574,6 +10575,7 @@ dependencies = [
  "seahash",
  "serde",
  "serde_json",
+ "stencila-codec-biblio",
  "stencila-codec-cbor",
  "stencila-codec-markdown",
  "stencila-codecs",
@@ -11070,6 +11072,8 @@ dependencies = [
  "serde_json",
  "smart-default",
  "stencila-cloud",
+ "stencila-codec-dom",
+ "stencila-codec-text",
  "stencila-codecs",
  "stencila-document",
  "stencila-format",

@@ -14,9 +14,14 @@ use super::string::String;
 #[derive(derive_more::Display)]
 #[display("Config")]
 pub struct Config {
-    /// The styling theme to use for the document
+    /// The styling theme for the document
     #[patch(format = "all")]
     pub theme: Option<String>,
+
+    /// The citation style for the document (e.g. "APA", "Vancouver")
+    #[serde(alias = "citation-style", alias = "citation_style")]
+    #[patch(format = "all")]
+    pub citation_style: Option<String>,
 
     /// The parameters used for selecting and running generative AI models
     #[patch(format = "all")]

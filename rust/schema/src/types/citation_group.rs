@@ -29,7 +29,6 @@ pub struct CitationGroup {
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[patch(format = "all")]
-    #[dom(elem = "span")]
     pub items: Vec<Citation>,
 
     /// A rendering of the citation group using the citation style of the document.

@@ -58,9 +58,6 @@
         ]
       },
       "walk": true,
-      "dom": {
-        "elem": "span"
-      },
       "type": "array",
       "items": {
         "$ref": "Citation.schema.json"

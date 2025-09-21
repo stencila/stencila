@@ -1,4 +1,4 @@
-use stencila_schema::{Citation, CompilationMessage, NodeId, NodeType, replicate};
+use stencila_schema::{Citation, CitationGroup, CompilationMessage, NodeId, replicate};
 
 use crate::prelude::*;
 
@@ -7,56 +7,30 @@ impl Executable for Citation {
         let node_id: NodeId = self.node_id();
         tracing::trace!("Compiling Citation {node_id}");
 
-        if let Some(reference) = &self.options.cites {
-            // The citations reference may not be in the bibliography so add it there
-            // Note that we allow for each reference to be targeted using either
-            // custom id or DOI as in the Article::compile method
-            if let Some(id) = &reference.id
-                && !executor.bibliography.contains_key(id)
-            {
-                executor.bibliography.insert(id.into(), reference.clone());
-            }
-            if let Some(doi) = &reference.doi
-                && !executor.bibliography.contains_key(doi)
-            {
-                executor.bibliography.insert(doi.into(), reference.clone());
-            }
-        }
-
-        WalkControl::Continue
-    }
-
-    async fn link(&mut self, executor: &mut Executor) -> WalkControl {
-        let node_id = self.node_id();
-        tracing::trace!("Linking Citation {node_id}");
-
         if let Some(reference) = executor.bibliography.get(self.target.trim()) {
-            // If the reference is matched in targets and current reference is
-            // none or not equal, then replicate the reference (do NOT clone to
-            // avoid duplicated id) and set its appearance index
+            // If the citation's target is in the bibliography and the currently
+            // cited reference is None or not equal, then replicate the
+            // reference (do NOT clone to avoid duplicated id)
             if (self.options.cites.is_none() || Some(reference) != self.options.cites.as_ref())
                 && let Ok(mut reference) = replicate(reference)
             {
-                if let Some(id) = reference.doi.as_ref().or(reference.id.as_ref()) {
-                    reference.appearance_index = Some(
-                        executor
-                            .references
-                            .get_index_of(id)
-                            .unwrap_or_else(|| executor.references.len())
-                            .saturating_add(1) as u64,
-                    );
-                }
+                // Remove the rendered content of the cited reference to avoid
+                // unnecessary memory usage
+                reference.options.content = None;
 
                 self.options.cites = Some(reference.clone());
                 executor.patch(&node_id, [set(NodeProperty::Cites, reference)]);
             }
 
+            // If the citation has any compilation messages, remove them since
+            // they are now outdated (because the citation has been successfully linked).
             if self.options.compilation_messages.is_some() {
                 self.options.compilation_messages = None;
                 executor.patch(&node_id, [none(NodeProperty::CompilationMessages)]);
             }
         } else if self.options.cites.is_none() {
-            // Only create a compilation message if has no reference
+            // The citation's target could not be found in the executor's bibliography and it does not
+            // have its own cited reference, so create a compilation message
             let messages = vec![CompilationMessage {
                 level: MessageLevel::Error,
                 error_type: Some("Target Unresolved".into()),
@@ -67,22 +41,35 @@ impl Executable for Citation {
             executor.patch(&node_id, [set(NodeProperty::CompilationMessages, messages)]);
         }
 
-        if let Some(reference) = &self.options.cites
-            && let Some(id) = reference.doi.as_ref().or(reference.id.as_ref())
-        {
-            // Record the reference as cited if not already and if not in a chat
-            if !executor.references.contains(id)
-                && !executor.walk_ancestors.iter().any(|node_type| {
-                    matches!(
-                        node_type,
-                        NodeType::Chat | NodeType::PromptBlock | NodeType::Excerpt
-                    )
-                })
-            {
-                executor.references.insert(id.clone());
-            }
+        // If the citation has a cited reference (either target was found in bibliography, or it
+        // has an existing `cites`) then record it in the executor's citations so that content
+        // can be rendered for the citation and all the cited references
+        if self.options.cites.is_some() {
+            let citation_group = CitationGroup::new(vec![self.clone()]);
+            executor.citations.insert(node_id, (citation_group, None));
         }
 
-        WalkControl::Continue
+        // Break walk because no need to walk over `content` (or other properties)
+        WalkControl::Break
+    }
+
+    async fn link(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::trace!("Linking Citation {node_id}");
+
+        // (Re)populate the citation's content
+        // Note: this is only called for standalone citations, not those that are part
+        // of a citation group (the latter is not necessary)
+        if let Some(content) = executor
+            .citations
+            .get_mut(&node_id)
+            .and_then(|(.., content)| content.take())
+        {
+            self.options.content = Some(content.clone());
+            executor.patch(&node_id, [set(NodeProperty::Content, content)]);
+        }
+
+        // Break walk because no need to walk over `content` (or other properties)
+        WalkControl::Break
     }
 }

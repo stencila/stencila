@@ -5,7 +5,7 @@ use std::{collections::HashMap, fmt::Debug, path::PathBuf, str::FromStr, sync::A
 use clap::Args;
 use eyre::{Result, bail, eyre};
 use futures::future::join_all;
-use indexmap::IndexSet;
+use indexmap::IndexMap;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tokio::sync::{RwLock, RwLockWriteGuard, mpsc, oneshot};
@@ -14,7 +14,7 @@ use stencila_codecs::{DecodeOptions, Format};
 use stencila_kernels::Kernels;
 use stencila_linters::LintingOptions;
 use stencila_schema::{
-    AuthorRole, AuthorRoleName, Block, Citation, CompilationMessage, Config, ExecutionBounds,
+    AuthorRole, AuthorRoleName, Block, CitationGroup, CompilationMessage, Config, ExecutionBounds,
     ExecutionMode, ExecutionRequired, ExecutionStatus, IfBlockClause, Inline, LabelType, Link,
     List, ListItem, ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch,
     PatchNode, PatchOp, PatchValue, Reference, SuggestionBlock, Timestamp, VisitorAsync,
@@ -30,6 +30,7 @@ mod article;
 mod call_block;
 mod chat;
 mod citation;
+mod citation_group;
 mod code_chunk;
 mod code_expression;
 mod code_utils;
@@ -228,14 +229,10 @@ pub struct Executor {
     /// be included in this list
     bibliography: HashMap<String, Reference>,
 
-    /// References that are cited within the main content of the document
-    ///
-    /// After the document is compiled, this should be a list of references that
-    /// are the target of `Citation` nodes within the main body of the document.
-    ///
-    /// This is an [`IndexSet`] so that, if desired, references can be listed in
-    /// order of appearance in the document.
-    references: IndexSet<String>,
+    /// Citations and citation groups collected while walking over the the root node
+    /// 
+    /// Used to render content for both the citations and a reference list.
+    citations: IndexMap<NodeId, (CitationGroup, Option<Vec<Inline>>)>,
 
     /// The last programming language used
     programming_language: Option<String>,
@@ -449,7 +446,7 @@ impl Executor {
             supplement_count: 0,
             labels: Default::default(),
             bibliography: Default::default(),
-            references: Default::default(),
+            citations: Default::default(),
             programming_language: None,
             linting_context: Vec::new(),
             force_all: false,
@@ -475,7 +472,7 @@ impl Executor {
             supplement_count: 0,
             labels: Default::default(),
             bibliography: Default::default(),
-            references: Default::default(),
+            citations: Default::default(),
             ..self.clone()
         }
     }
@@ -553,7 +550,6 @@ impl Executor {
         self.figure_count = 0;
         self.equation_count = 0;
         self.supplement_count = 0;
-        self.bibliography.clear();
         self.linting_context.clear();
         self.walk_position = 0;
         self.walk_ancestors.clear();
@@ -574,7 +570,6 @@ impl Executor {
     /// Run [`Phase::Link`]
     async fn link<N: WalkNode + PatchNode + Debug>(&mut self, root: &mut N) -> Result<()> {
         self.phase = Phase::Link;
-        self.references.clear();
         self.walk_position = 0;
         self.walk_ancestors.clear();
         root.walk_async(self).await?;
@@ -1292,6 +1287,7 @@ impl VisitorAsync for Executor {
         use Inline::*;
         Ok(match inline {
             Citation(node) => self.visit_executable(node).await,
+            CitationGroup(node) => self.visit_executable(node).await,
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
@@ -1301,10 +1297,6 @@ impl VisitorAsync for Executor {
             Text(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
-    }
-
-    async fn visit_citation(&mut self, citation: &mut Citation) -> Result<WalkControl> {
-        Ok(self.visit_executable(citation).await)
     }
 
     fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {

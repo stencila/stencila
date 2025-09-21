@@ -4,11 +4,21 @@ category: config
 description: Stencila document configuration options.
 core:
   - theme
+  - citationStyle
   - models
   - publish
 properties:
   theme:
-    description: The styling theme to use for the document
+    description: The styling theme for the document
+    type: string
+    patch:
+      formats: [all]
+  citationStyle:
+    description: The citation style for the document (e.g. "APA", "Vancouver")
+    $comment: |
+      All styles listed at https://github.com/citation-style-language/styles are supported.
+      Case insensitive (e.g. "APA" will match to "apa") with some aliases recognized
+      (e.g. "ama" will all match to "american-medical-association").
     type: string
     patch:
       formats: [all]

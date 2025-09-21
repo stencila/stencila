@@ -31,8 +31,6 @@ properties:
     items:
       $ref: Citation
     walk: true
-    dom:
-      elem: span
     patch:
       formats: [all]
   content:

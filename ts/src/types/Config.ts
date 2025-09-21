@@ -8,9 +8,14 @@ import { ConfigPublish } from "./ConfigPublish.js";
  */
 export class Config {
   /**
-   * The styling theme to use for the document
+   * The styling theme for the document
    */
   theme?: string;
+
+  /**
+   * The citation style for the document (e.g. "APA", "Vancouver")
+   */
+  citationStyle?: string;
 
   /**
    * The parameters used for selecting and running generative AI models
