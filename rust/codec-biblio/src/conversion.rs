@@ -273,9 +273,16 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
     })
 }
 
+/// Get the key for a reference
+///
+/// Use the reference's id, if available, falling back to it's DOI.
+pub fn reference_key(reference: &Reference) -> Option<&str> {
+    reference.id.as_deref().or_else(|| reference.doi.as_deref())
+}
+
 /// Convert a Stencila Reference to a Hayagriva Entry
 pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
-    let key = reference.id.clone().unwrap_or_else(|| "ref".to_string());
+    let key = reference_key(reference).unwrap_or("ref");
 
     // Determine entry type based on kind field first, then is_part_of
     let entry_type = if let Some(work_type) = &reference.work_type {
@@ -290,7 +297,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
         EntryType::Misc
     };
 
-    let mut entry = Entry::new(&key, entry_type);
+    let mut entry = Entry::new(key, entry_type);
 
     // Set title
     if let Some(title) = &reference.title {

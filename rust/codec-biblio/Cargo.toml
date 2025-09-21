@@ -5,14 +5,17 @@ edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
-hayagriva = { git = "https://github.com/typst/hayagriva", rev = "77bbdcc431ccfcc133af87865d4aa9335f5052a7", features = ["archive"] }
+cached = { workspace = true }
+hayagriva = { git = "https://github.com/typst/hayagriva", rev = "a48cc775a90b5098cc9930c3f8447cc3116265fc", features = ["archive"] }
 itertools = { workspace = true }
 reqwest = { workspace = true }
 serde_json = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-markdown-trait = { path = "../codec-markdown-trait" }
 stencila-codec-text-trait = { path = "../codec-text-trait" }
+stencila-dirs = { path = "../dirs" }
 tracing = { workspace = true }
+tokio = { workspace = true }
 winnow = { workspace = true }
 
 [dev-dependencies]

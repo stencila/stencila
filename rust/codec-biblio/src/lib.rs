@@ -99,9 +99,9 @@ impl Codec for BiblioCodec {
 
         let output = match format {
             Format::Yaml => encode::yaml(&references)?,
-            Format::Json => encode::json(&references, style)?,
-            Format::Markdown => encode::markdown(&references, style)?,
-            Format::Text => encode::text(&references, style)?,
+            Format::Json => encode::json(&references, style).await?,
+            Format::Markdown => encode::markdown(&references, style).await?,
+            Format::Text => encode::text(&references, style).await?,
             _ => bail!("Unsupported format: {format}"),
         };
 
