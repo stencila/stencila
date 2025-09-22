@@ -257,7 +257,8 @@ fn decode_article(parser: &Parser, body_section: &HTMLTag) -> Result<Article> {
                     // Front matter is outside main-article-body, skip if found here
                     // (we already extracted metadata from meta tags)
                 }
-                "section" if class.contains("abstract") => {
+                "section" if class.contains("abstract") && r#abstract.is_none() => {
+                    // As in the JATS codec only decode the first abstract
                     r#abstract = Some(decode_abstract(parser, tag)?);
                 }
                 "section" if class.contains("ref-list") => {
