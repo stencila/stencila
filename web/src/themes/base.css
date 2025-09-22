@@ -970,6 +970,13 @@ stencila-admonition {
         }
     }
 
+    /* Ensure user interface elements are hidden. Normally, a document will only
+     be printed when there is no "view" and hence non of these elements present
+     but this ensure that this is the case */
+    stencila-document-menu {
+        display: none;
+    }
+
     /* Avoid breaks within these node types. For tables, figures, and code
      chunks this keeps captions with tables and images. */
     stencila-table,
