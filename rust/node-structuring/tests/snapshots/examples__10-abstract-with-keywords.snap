@@ -36,7 +36,7 @@ expression: node
       }
     }
   ],
-  "frontmatter": "structuring:\n  - headings-to-title\n  - sections-to-abstract\n  - paragraphs-to-keywords",
+  "frontmatter": "structuring:\n  - headings-to-title\n  - headings-primary-level1\n  - sections-to-abstract\n  - paragraphs-to-keywords",
   "content": [
     {
       "type": "Heading",
@@ -70,6 +70,7 @@ expression: node
   ],
   "structuring": [
     "headings-to-title",
+    "headings-primary-level1",
     "sections-to-abstract",
     "paragraphs-to-keywords"
   ]

@@ -108,6 +108,41 @@ expression: node
               ]
             }
           ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", a single citation group in a superscript"
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "ref-7",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "7"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "ref-8",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "8"
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }

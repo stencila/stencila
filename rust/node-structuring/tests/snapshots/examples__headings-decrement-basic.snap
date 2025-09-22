@@ -12,7 +12,7 @@ expression: node
       }
     }
   ],
-  "frontmatter": "structuring:\n  - heading1-to-title\n  - headings-decrement",
+  "frontmatter": "structuring:\n  - heading1-to-title\n  - headings-decrement\n  - headings-primary-level1",
   "content": [
     {
       "type": "Paragraph",
@@ -120,6 +120,7 @@ expression: node
   ],
   "structuring": [
     "heading1-to-title",
-    "headings-decrement"
+    "headings-decrement",
+    "headings-primary-level1"
   ]
 }

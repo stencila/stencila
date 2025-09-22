@@ -4,6 +4,7 @@ expression: node
 ---
 {
   "type": "Article",
+  "frontmatter": "structuring:\n    - headings-primary-level1\n    - headings-to-sections",
   "content": [
     {
       "type": "Section",
@@ -120,5 +121,9 @@ expression: node
         }
       ]
     }
+  ],
+  "structuring": [
+    "headings-primary-level1",
+    "headings-to-sections"
   ]
 }

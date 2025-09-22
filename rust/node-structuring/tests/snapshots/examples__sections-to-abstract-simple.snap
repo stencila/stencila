@@ -20,7 +20,7 @@ expression: node
   "content": [
     {
       "type": "Heading",
-      "level": 1,
+      "level": 2,
       "content": [
         {
           "type": "Text",

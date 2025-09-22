@@ -1,6 +1,7 @@
 ---
 structuring:
   - headings-to-title
+  - headings-primary-level1
   - sections-to-abstract
   - paragraphs-to-keywords
 ---

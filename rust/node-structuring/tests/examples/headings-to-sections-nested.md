@@ -1,3 +1,9 @@
+---
+structuring:
+    - headings-primary-level1
+    - headings-to-sections
+---
+
 # Introduction
 
 This content should be wrapped in a section with the Introduction heading.

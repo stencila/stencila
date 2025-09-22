@@ -2,6 +2,7 @@
 structuring:
   - heading1-to-title
   - headings-decrement
+  - headings-primary-level1
 ---
 
 # Document Title

@@ -76,7 +76,7 @@ pub(super) struct FirstWalk {
     /// Whether currently in the References (or Bibliography) section
     in_references: bool,
 
-    /// References extracted from walking node
+    /// References extracted from an article or walking over its content
     pub references: Option<Vec<Reference>>,
 
     /// Whether references were found in an ordered (numbered) list
@@ -92,9 +92,22 @@ pub(super) struct FirstWalk {
 
 impl VisitorMut for FirstWalk {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
-        if let Node::Article(Article { title, content, .. }) = node {
+        if let Node::Article(Article {
+            title,
+            content,
+            references,
+            ..
+        }) = node
+        {
             self.has_title = title.is_some();
             self.in_frontmatter = true;
+
+            if let Some(references) = references {
+                // Copy references so that they can be used for LinksToCitations
+                // operation if turned on
+                self.references = Some(references.clone());
+            }
+
             self.visit_blocks(content);
         }
 
@@ -497,9 +510,13 @@ impl FirstWalk {
             .unwrap_or_default();
 
         // Determine effective level based on priority: known section types > numbering > fallback
-        let level = if is_primary_section {
+        let level = if is_primary_section & !self.in_abstract {
             // Known primary section types always get level 1
-            1
+            if self.options.should_perform(HeadingsPrimaryLevel1) {
+                1
+            } else {
+                heading.level
+            }
         } else if numbering_depth > 0 {
             let numbered_level = numbering_depth as i64;
             // Track the last numbered heading level

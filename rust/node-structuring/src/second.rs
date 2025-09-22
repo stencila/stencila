@@ -4,8 +4,8 @@ use stencila_codec_links::decode_inlines as text_with_links;
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
     Article, Block, Citation, CitationGroup, CitationMode, CitationOptions, Emphasis, Heading,
-    Inline, InlinesBlock, Node, Paragraph, Sentence, Strikeout, Strong, StyledInline, Subscript,
-    Superscript, Text, Underline, VisitorMut, WalkControl,
+    Inline, InlinesBlock, Link, Node, Paragraph, Sentence, Strikeout, Strong, StyledInline,
+    Subscript, Superscript, Text, Underline, VisitorMut, WalkControl,
 };
 
 use crate::{FirstWalk, should_remove_inline};
@@ -61,6 +61,10 @@ impl VisitorMut for SecondWalk {
             self.visit_inlines(content);
         }
 
+        if let Inline::Superscript(..) = inline {
+            self.visit_superscript(inline);
+        }
+
         WalkControl::Continue
     }
 }
@@ -97,7 +101,7 @@ impl SecondWalk {
         }
 
         // Apply any references collected in the first walk
-        if let Some(references) = self.first_walk.references.take() {
+        if let Some(references) = self.first_walk.references.clone() {
             article.references = Some(references);
         }
     }
@@ -137,6 +141,14 @@ impl SecondWalk {
             }
 
             *inlines = inlines_new;
+        }
+
+        if self.options.should_perform(LinksToCitations) {
+            for inline in inlines.iter_mut() {
+                if matches!(inline, Inline::Link(..)) {
+                    self.visit_link(inline);
+                }
+            }
         }
 
         if self.options.should_perform(NormalizeCitations) {
@@ -200,6 +212,59 @@ impl SecondWalk {
             }
 
             paragraph.content.append(&mut sentences)
+        }
+    }
+
+    /// Convert links to citations
+    ///
+    /// Converts anchor links that point to reference IDs (e.g., href="#ref-1")
+    /// to proper Citation nodes. Only converts links whose targets match
+    /// existing reference IDs, preserving the link content as citation content.
+    fn visit_link(&self, link: &mut Inline) {
+        if let Inline::Link(Link {
+            target, content, ..
+        }) = &link
+        {
+            // Check if target starts with # and matches a reference ID
+            if let Some(reference_id) = target.strip_prefix('#') {
+                // Check if this reference ID exists in the collected references
+                if let Some(references) = &self.first_walk.references {
+                    let has_matching_reference = references
+                        .iter()
+                        .any(|reference| reference.id.as_deref() == Some(reference_id));
+
+                    if has_matching_reference {
+                        // Convert the link to a citation
+                        *link = Inline::Citation(Citation {
+                            target: reference_id.to_string(),
+                            options: Box::new(CitationOptions {
+                                content: Some(content.clone()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    /// Extract single citations and citation groups from superscripts.
+    ///
+    /// This is also done in `normalize_citations`. See note their about why it is done in both places.
+    fn visit_superscript(&self, superscript: &mut Inline) {
+        if self.options.should_perform(NormalizeCitations)
+            && let Inline::Superscript(Superscript { content, .. }) = superscript
+        {
+            if content.len() == 1 {
+                if let Some(Inline::Citation(citation)) = content.first() {
+                    let mut citation = citation.clone();
+                    citation.citation_mode = Some(CitationMode::Parenthetical);
+                    *superscript = Inline::Citation(citation);
+                } else if let Some(Inline::CitationGroup(..)) = content.first() {
+                    *superscript = content[0].clone();
+                }
+            }
         }
     }
 }
@@ -692,14 +757,17 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
             // Do NOT `continue` here because the current Citation Group
             // needs to be pushed onto the output still
         } else if let Inline::Superscript(Superscript { content, .. }) = &inline {
-            // Citation or CitationGroup within Superscript
+            // Single Citation or CitationGroup within Superscript. This needs
+            // to be done in `visit_superscript` as well (I don't understand why
+            // that is the case after lots of debugging and testing I cam eot
+            // the conclusion that it needs to be done in both places.)
             if let (1, Some(Inline::Citation(..) | Inline::CitationGroup(..))) =
                 (content.len(), content.first())
             {
                 // Replace Superscript with the Citation or CitationGroup
                 let mut inline = content[0].clone();
                 if let Inline::Citation(Citation { citation_mode, .. }) = &mut inline {
-                    // Ensure that is citation it is made parenthetical
+                    // Ensure that citation it is made parenthetical
                     *citation_mode = Some(CitationMode::Parenthetical);
                 };
                 output.push(inline);
@@ -722,21 +790,20 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 // Replace Superscript with the Citation or CitationGroup
                 let mut inline = content[1].clone();
                 if let Inline::Citation(Citation { citation_mode, .. }) = &mut inline {
-                    // Ensure that is citation it is made parenthetical
+                    // Ensure that citation it is made parenthetical
                     *citation_mode = Some(CitationMode::Parenthetical);
                 };
                 output.push(inline);
                 continue;
             }
-        }
-        // Citation or CitationGroup followed by Text starting with closing parenthesis or bracket
-        else if let Inline::Text(Text { value, .. }) = &inline
+        } else if let Inline::Text(Text { value, .. }) = &inline
             && matches!(
                 output.last(),
                 Some(Inline::Citation(..) | Inline::CitationGroup(..))
             )
             && (value.starts_with(")") || value.starts_with("]"))
         {
+            // Citation or citation group followed by Text starting with closing parenthesis or bracket
             // Remove closing parenthesis/bracket after citation/s and mark previous citation as parenthetical
             if let Some(Inline::Citation(citation)) = output.last_mut()
                 && citation.citation_mode.is_none()

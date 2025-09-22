@@ -1,0 +1,157 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "ref-1",
+      "text": "First ref"
+    },
+    {
+      "type": "Reference",
+      "id": "ref-2",
+      "text": "Second ref"
+    }
+  ],
+  "frontmatter": "structuring:\n  - sections-to-references\n  - links-to-citations",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A link to a reference "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "ref-1",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "."
+          }
+        }
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "another link to a reference "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "ref-2",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "an internal link not to a reference "
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Table 2"
+                      }
+                    }
+                  ],
+                  "target": "#tab-2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "an external "
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "link"
+                      }
+                    }
+                  ],
+                  "target": "https://example.org"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Unordered"
+    }
+  ],
+  "structuring": [
+    "sections-to-references",
+    "links-to-citations"
+  ]
+}

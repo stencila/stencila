@@ -896,6 +896,9 @@ pub enum StructuringOperation {
     /// originally used H1 for title and H2+ for main sections.
     HeadingsDecrement,
 
+    /// Ensure that all "primary" headings (e.g. "Introduction", "Methods") have level 1
+    HeadingsPrimaryLevel1,
+
     /// Create a section for each heading
     ///
     /// Wraps each heading and its following content in structured section elements,
@@ -988,6 +991,13 @@ pub enum StructuringOperation {
     /// converted to proper citation references for consistent document
     /// structure and linking.
     MathToCitations,
+
+    /// Convert links to citations
+    ///
+    /// Converts anchor links that point to reference IDs (e.g., href="#ref-1")
+    /// to proper Citation nodes. Only converts links whose targets match
+    /// existing reference IDs, preserving the link content as citation content.
+    LinksToCitations,
 
     /// Normalize citation formatting and grouping
     ///
