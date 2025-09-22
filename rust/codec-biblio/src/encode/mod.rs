@@ -7,7 +7,10 @@ use hayagriva::{
     BibliographyDriver, BibliographyRequest, CitationItem, CitationRequest, CitePurpose, ElemChild,
     ElemChildren, Entry, Formatted, Library,
     archive::locales,
-    citationberg::{FontStyle, FontWeight, TextDecoration, VerticalAlign},
+    citationberg::{
+        FontStyle, FontWeight, SortKey, TextDecoration, VerticalAlign,
+        taxonomy::{NumberVariable, Variable},
+    },
     io::to_yaml_str,
 };
 use stencila_codec::{
@@ -102,11 +105,14 @@ async fn render_references(references: &[&Reference], style: Option<&str>) -> Re
 }
 
 /// Render a set of citations and their references
+#[tracing::instrument(skip(citations))]
 pub async fn render_citations(
     citations: Vec<&CitationGroup>,
     style: Option<&str>,
 ) -> Result<(Vec<Vec<Inline>>, Vec<Reference>)> {
     let style_name = style.unwrap_or("ama");
+
+    tracing::trace!("Rendering citations");
 
     // Load the style and locales
     let style = get_style(style_name).await?;
@@ -185,16 +191,51 @@ pub async fn render_citations(
         .map(|citation| elem_children_to_inlines(citation.citation))
         .collect();
 
+    // Determine if citations are ordered by appearance
+    let appearance_order = style
+        .bibliography
+        .map(|bibliography| match bibliography.sort {
+            Some(sort) => {
+                sort.keys.len() == 1
+                    && matches!(
+                        sort.keys.first(),
+                        Some(SortKey::Variable {
+                            variable: Variable::Number(NumberVariable::CitationNumber),
+                            ..
+                        })
+                    )
+            }
+            None => true,
+        })
+        .unwrap_or(true);
+
     // Add rendered inlines to the content of the references. References will be
     // ordered according to the citation style (appearance order or alphabetic)
     let mut ordered_references = Vec::new();
     if let Some(bibliography) = result.bibliography {
-        for item in bibliography.items {
+        for (index, item) in bibliography.items.into_iter().enumerate() {
             let Some(mut reference) = references.remove(item.key.as_str()) else {
                 continue;
             };
 
-            reference.options.content = Some(elem_children_to_inlines(item.content));
+            let mut content = Vec::with_capacity(1);
+
+            // If references are in appearance order then add a numeric prefix (Hayagriva does not do that)
+            if appearance_order {
+                content.push(t(format!("{}. ", index + 1)));
+            }
+
+            if let Some(text) = &reference.options.text {
+                // If the reference has `text` (and therefore probably lacking
+                // title and other details then use the text)
+                content.push(t(text));
+            } else {
+                // Otherwise use Hayagriva's rendered content
+                content.extend(elem_children_to_inlines(item.content));
+            };
+
+            reference.options.content = Some(content);
+
             ordered_references.push(reference);
         }
     } else {
