@@ -1,14 +1,20 @@
-use std::sync::LazyLock;
+use std::{env::current_dir, path::Path, sync::LazyLock};
 
+use futures::StreamExt;
 use regex::Regex;
+use reqwest::{Client, header::USER_AGENT};
+use tempfile::tempdir;
+use tokio::{fs::File, io::AsyncWriteExt};
 use url::Url;
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
-    eyre::{Result, bail, eyre},
+    eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
 };
+use stencila_dirs::closest_artifacts_for;
+use stencila_version::STENCILA_USER_AGENT;
 
 use super::decode_html::decode_arxiv_html;
 use super::decode_pdf::decode_arxiv_pdf;
@@ -101,6 +107,63 @@ pub fn arxiv_id_to_doi(arxiv_id: &str) -> String {
     ["10.48550/arxiv.", id_without_version].concat()
 }
 
+/// Download a file for an arXiv ID from export.arxiv.org
+async fn download_arxiv_file(arxiv_id: &str, format: &Format, to_path: &Path) -> Result<()> {
+    let url = match format {
+        Format::Html => format!("https://export.arxiv.org/html/{arxiv_id}"),
+        Format::Latex => format!("https://export.arxiv.org/src/{arxiv_id}"),
+        Format::Pdf => format!("https://export.arxiv.org/pdf/{arxiv_id}.pdf"),
+        _ => bail!("Unsupported format: {format}"),
+    };
+
+    tracing::debug!("Downloading {format} for {arxiv_id} from {url}");
+
+    let response = Client::new()
+        .get(&url)
+        .header(USER_AGENT, STENCILA_USER_AGENT)
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        bail!(
+            "Failed to download {format} for {arxiv_id}: HTTP {}",
+            response.status()
+        );
+    }
+
+    if let Some(parent) = to_path.parent() {
+        tokio::fs::create_dir_all(parent).await?;
+    }
+
+    let mut file = File::create(to_path).await?;
+    let mut stream = response.bytes_stream();
+    while let Some(chunk_result) = stream.next().await {
+        let chunk = chunk_result?;
+        file.write_all(&chunk).await?;
+    }
+    file.sync_all().await?;
+
+    tracing::debug!(
+        "Successfully downloaded {format} for {arxiv_id} to {}",
+        to_path.display()
+    );
+    Ok(())
+}
+
+/// Decode an arXiv file from a path to a Stencila [`Node`]
+async fn decode_arxiv_path(
+    arxiv_id: &str,
+    path: &Path,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, DecodeInfo)> {
+    match path.extension().and_then(|ext| ext.to_str()) {
+        Some("html") => decode_arxiv_html(arxiv_id, path, options).await,
+        Some("gz") => decode_arxiv_src(arxiv_id, path, options).await,
+        Some("pdf") => decode_arxiv_pdf(arxiv_id, path, options).await,
+        _ => bail!("Unhandled file extension for {}", path.display()),
+    }
+}
+
 /// Decode an arXiv id to a Stencila [`Node`]
 ///
 /// Tries to fetch content from arXiv in the following order:
@@ -115,78 +178,100 @@ pub fn arxiv_id_to_doi(arxiv_id: &str) -> String {
 /// and (b) it is generated using https://math.nist.gov/~BMiller/LaTeXML/ which
 /// has advanced handling of LaTeX packages and produces "semantically tagged
 /// HTML", (c) does not have a dependency on Pandoc.
+///
+/// The function respects caching options:
+/// - `no_artifacts`: disables caching entirely, uses temporary directory
+/// - `ignore_artifacts`: ignores existing cached files, forces re-download
+/// - Otherwise: caches files in artifacts directory for reuse
 #[tracing::instrument(skip(options))]
 pub(super) async fn decode_arxiv_id(
     arxiv_id: &str,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo, Format)> {
+    let arxiv_id = arxiv_id.trim();
     tracing::debug!("Attempting to decode arXiv preprint `{arxiv_id}`");
 
-    for (format, url) in [
-        (
-            Format::Html,
-            format!("https://export.arxiv.org/html/{arxiv_id}"),
-        ),
-        (
-            Format::Latex,
-            format!("https://export.arxiv.org/src/{arxiv_id}"),
-        ),
-        (
-            Format::Pdf,
-            format!("https://export.arxiv.org/pdf/{arxiv_id}.pdf"),
-        ),
-    ] {
-        tracing::debug!("Trying `{format}` format: {url}");
+    let ignore_artifacts = options
+        .as_ref()
+        .and_then(|opts| opts.ignore_artifacts)
+        .unwrap_or_default();
+    let no_artifacts = options
+        .as_ref()
+        .and_then(|opts| opts.no_artifacts)
+        .unwrap_or_default();
 
-        if let Some((node, decode_info)) =
-            decode_arxiv_url(arxiv_id, &format, &url, options.clone()).await
-        {
-            return Ok((node, decode_info, format));
+    let html_filename = format!("{arxiv_id}.html");
+    let src_filename = format!("{arxiv_id}.tar.gz");
+    let pdf_filename = format!("{arxiv_id}.pdf");
+
+    // Create temporary directory (must be kept alive for entire function)
+    let temp_dir = tempdir()?;
+
+    // Determine where to store/look for the downloaded files
+    let (html_path, src_path, pdf_path) = if no_artifacts {
+        // Don't cache, use temporary directory
+        (
+            temp_dir.path().join(&html_filename),
+            temp_dir.path().join(&src_filename),
+            temp_dir.path().join(&pdf_filename),
+        )
+    } else {
+        let artifacts_key = format!("arxiv-{arxiv_id}");
+        let artifacts_dir = closest_artifacts_for(&current_dir()?, &artifacts_key).await?;
+        (
+            artifacts_dir.join(&html_filename),
+            artifacts_dir.join(&src_filename),
+            artifacts_dir.join(&pdf_filename),
+        )
+    };
+
+    // Try each format in order of preference
+    for (format, path) in [
+        (Format::Html, &html_path),
+        (Format::Latex, &src_path),
+        (Format::Pdf, &pdf_path),
+    ] {
+        let should_download = !path.exists() || ignore_artifacts;
+
+        if should_download {
+            tracing::debug!("Downloading `{format}` format for {arxiv_id}");
+            let download_result = download_arxiv_file(arxiv_id, &format, path).await;
+
+            match download_result {
+                Ok(()) => {
+                    tracing::debug!("Successfully downloaded `{format}` for {arxiv_id}");
+                }
+                Err(download_error) => {
+                    tracing::debug!(
+                        "Failed to download `{format}` for {arxiv_id}: {download_error}"
+                    );
+                    continue;
+                }
+            }
+        } else {
+            tracing::debug!("Using cached `{format}` file for {arxiv_id}");
+        }
+
+        // Try to decode the file
+        match decode_arxiv_path(arxiv_id, path, options.clone()).await {
+            Ok((mut node, info)) => {
+                // Set metadata
+                if let Node::Article(article) = &mut node {
+                    article.options.repository = Some("https://arxiv.org".into());
+                    article.options.path = Some(format!("abs/{arxiv_id}"));
+                }
+
+                tracing::debug!("Successfully decoded `{format}` for {arxiv_id}");
+                return Ok((node, info, format));
+            }
+            Err(decode_error) => {
+                tracing::warn!("Failed to decode `{format}` for {arxiv_id}: {decode_error}");
+                continue;
+            }
         }
     }
 
-    bail!("Failed to decode arXiv `{arxiv_id}`, no format was available or successfully decoded",)
-}
-
-#[tracing::instrument(skip(options))]
-pub(super) async fn decode_arxiv_url(
-    arxiv_id: &str,
-    format: &Format,
-    url: &str,
-    options: Option<DecodeOptions>,
-) -> Option<(Node, DecodeInfo)> {
-    tracing::debug!("Trying `{format}` format: {url}");
-
-    match reqwest::get(url).await {
-        Ok(response) if response.status().is_success() => {
-            tracing::debug!("Successfully fetched `{format}` for `{arxiv_id}`",);
-
-            let result = match format {
-                Format::Html => match response.text().await {
-                    Ok(html) => decode_arxiv_html(arxiv_id, &html, options).await,
-                    Err(error) => Err(eyre!("Failed to fetch `{format}`: {error}")),
-                },
-                Format::Latex => decode_arxiv_src(arxiv_id, response, options).await,
-                Format::Pdf => decode_arxiv_pdf(arxiv_id, response, options).await,
-                _ => unreachable!(),
-            };
-
-            match result {
-                Ok((node, info)) => return Some((node, info)),
-                Err(error) => {
-                    tracing::warn!("Failed to decode `{format}`: {error}");
-                }
-            }
-        }
-        Ok(response) => {
-            tracing::trace!("`{format}` not available: HTTP {}", response.status());
-        }
-        Err(error) => {
-            tracing::debug!("Failed to fetch `{format}`: {error}");
-        }
-    };
-
-    None
+    bail!("Failed to decode arXiv `{arxiv_id}`, no format was available or successfully decoded")
 }
 
 #[cfg(test)]

@@ -1,33 +1,18 @@
-use futures::StreamExt;
-use reqwest::Response;
-use tempfile::tempdir;
-use tokio::{fs::File, io::AsyncWriteExt};
+use std::path::Path;
 
 use stencila_codec::{Codec, DecodeInfo, DecodeOptions, eyre::Result, stencila_schema::Node};
 use stencila_codec_pdf::PdfCodec;
 
 use super::decode::arxiv_id_to_doi;
 
-/// Decode the response from an arXiv `pdf` URL to a Stencila [`Node`]
-#[tracing::instrument(skip(options, response))]
+/// Decode an arXiv PDF file to a Stencila [`Node`]
+#[tracing::instrument(skip(options))]
 pub(super) async fn decode_arxiv_pdf(
     arxiv_id: &str,
-    response: Response,
+    path: &Path,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
-    let temp_dir = tempdir()?;
-    let temp_file = temp_dir.path().join(format!("{arxiv_id}.pdf"));
-
-    let mut file = File::create(&temp_file).await?;
-    let mut stream = response.bytes_stream();
-    while let Some(chunk_result) = stream.next().await {
-        let chunk = chunk_result?;
-        file.write_all(&chunk).await?;
-    }
-    file.flush().await?;
-    drop(file);
-
-    let (mut node, .., info) = PdfCodec.from_path(&temp_file, options).await?;
+    let (mut node, .., info) = PdfCodec.from_path(path, options).await?;
 
     // Set doi, and other metadata
     if let Node::Article(article) = &mut node {

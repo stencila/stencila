@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use glob::glob;
 use insta::{assert_json_snapshot, assert_yaml_snapshot};
-use tokio::fs::read_to_string;
 
 use stencila_codec::eyre::{OptionExt, Result};
 use stencila_codec_arxiv::decode_html::decode_arxiv_html;
@@ -18,15 +17,13 @@ async fn examples() -> Result<()> {
         + "/**/*.html";
 
     for path in glob(&pattern)?.flatten() {
-        let html = read_to_string(&path).await?;
-
         let id = path
             .file_name()
             .map(|name| name.to_string_lossy())
             .and_then(|name| name.strip_suffix(".html").map(String::from))
             .ok_or_eyre("should have .html suffix")?;
 
-        let (article, .., info) = decode_arxiv_html(&id, &html, None).await?;
+        let (article, .., info) = decode_arxiv_html(&id, &path, None).await?;
 
         // Redact inlined image dataURIs and mathml which can be very large
         assert_json_snapshot!(format!("{id}.json"), article, {

@@ -4,10 +4,11 @@
 //! into Stencila document structures. LaTeXML produces semantic HTML with specific
 //! CSS classes (prefixed with "ltx_") that indicate the original LaTeX structure.
 
-use std::{str::FromStr, sync::LazyLock};
+use std::{path::Path, str::FromStr, sync::LazyLock};
 
 use regex::Regex;
 use tl::{HTMLTag, Parser, ParserOptions, parse};
+use tokio::fs::read_to_string;
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses,
@@ -28,7 +29,7 @@ use super::decode_html_inlines::*;
 ///
 /// # Arguments
 /// * `arxiv_id` - The arXiv identifier (e.g., "2301.00001")
-/// * `html` - The HTML content from arXiv's export service
+/// * `path` - Path to the HTML file from arXiv's export service
 /// * `_options` - Decode options (currently unused)
 ///
 /// # Returns
@@ -37,15 +38,17 @@ use super::decode_html_inlines::*;
 #[tracing::instrument(skip(_options))]
 pub async fn decode_arxiv_html(
     arxiv_id: &str,
-    html: &str,
+    path: &Path,
     _options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
+    let html = read_to_string(path).await?;
+
     if html.trim().is_empty() {
         bail!("Retrieved HTML content is empty");
     }
 
     // Parse the HTML
-    let dom = parse(html, ParserOptions::default())?;
+    let dom = parse(&html, ParserOptions::default())?;
     let parser = dom.parser();
 
     // Extract the <article> element (ignore <nav> and <footer> content)
@@ -70,7 +73,7 @@ pub async fn decode_arxiv_html(
     let mut context = ArxivDecodeContext::new(base_href);
     let mut article = decode_article(parser, article, &mut context);
 
-    // Set doi, and other metadata
+    // Set DOI, and other metadata
     if !arxiv_id.is_empty() {
         article.doi = Some(arxiv_id_to_doi(arxiv_id));
         article.options.repository = Some("https://arxiv.org".into());

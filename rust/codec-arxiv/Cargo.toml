@@ -13,6 +13,8 @@ stencila-codec = { path = "../codec" }
 stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-latex = { path = "../codec-latex" }
 stencila-codec-pdf = { path = "../codec-pdf" }
+stencila-dirs = { path = "../dirs" }
+stencila-version = { path = "../version" }
 tar = { workspace = true }
 tempfile = { workspace = true }
 tl = { workspace = true }

@@ -1,7 +1,7 @@
-use std::io::Read;
+use std::{io::Read, path::Path};
 
 use flate2::read::GzDecoder;
-use reqwest::Response;
+use tokio::fs::read;
 
 use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions,
@@ -12,16 +12,16 @@ use stencila_codec_latex::LatexCodec;
 
 use super::decode::arxiv_id_to_doi;
 
-/// Decode the response from an arXiv `src` URL to a Stencila [`Node`]
-#[tracing::instrument(skip(options, response))]
+/// Decode an arXiv source file to a Stencila [`Node`]
+#[tracing::instrument(skip(options))]
 pub(super) async fn decode_arxiv_src(
     arxiv_id: &str,
-    response: Response,
+    path: &Path,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
-    let bytes = response.bytes().await?;
+    let bytes = read(path).await?;
 
-    let mut decoder = GzDecoder::new(bytes.as_ref());
+    let mut decoder = GzDecoder::new(bytes.as_slice());
     let mut decompressed = Vec::new();
 
     // arXiv serves either gzipped single files or gzipped tar files
