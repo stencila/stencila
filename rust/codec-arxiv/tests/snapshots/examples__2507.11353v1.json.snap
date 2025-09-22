@@ -21257,27 +21257,11 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 },
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             }
@@ -21305,15 +21289,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             }
@@ -21683,15 +21659,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             }
@@ -21719,15 +21687,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             }
@@ -21755,15 +21715,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             }
@@ -21791,39 +21743,15 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 },
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 },
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted",
-                  "caption": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Refer to caption"
-                      }
-                    }
-                  ]
+                  "contentUrl": "redacted"
                 }
               ]
             }

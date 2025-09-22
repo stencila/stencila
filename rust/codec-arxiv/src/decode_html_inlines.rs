@@ -469,12 +469,10 @@ fn collect_citation_nodes<'a>(
 pub fn decode_img(_parser: &Parser, tag: &HTMLTag, context: &mut ArxivDecodeContext) -> Inline {
     let raw_url = get_attr(tag, "src").unwrap_or_default();
     let content_url = context.resolve_url(&raw_url);
-    let caption = get_attr(tag, "alt").map(|alt| vec![t(alt)]);
     let title = get_attr(tag, "title").map(|title_text| vec![t(title_text)]);
 
     Inline::ImageObject(ImageObject {
         content_url,
-        caption,
         title,
         ..Default::default()
     })
