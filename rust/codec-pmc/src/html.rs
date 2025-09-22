@@ -424,17 +424,16 @@ fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
         let tag_name = tag.name().as_utf8_str();
         match tag_name.as_ref() {
             "h2" | "h3" => {
-                let heading_text = get_text(parser, tag);
-                let level = if tag_name == "h2" { 1 } else { 2 };
+                let heading_content = decode_inlines(parser, tag)?;
+                let heading_level = if tag_name == "h2" { 1 } else { 2 };
 
-                // Determine section type from heading text
                 if section_type.is_none() {
-                    section_type = SectionType::from_text(&heading_text).ok();
+                    section_type = SectionType::from_text(&get_text(parser, tag)).ok();
                 }
 
                 let heading = Heading {
-                    level: level as i64,
-                    content: vec![t(heading_text)],
+                    level: heading_level as i64,
+                    content: heading_content,
                     ..Default::default()
                 };
                 content.push(Block::Heading(heading));
