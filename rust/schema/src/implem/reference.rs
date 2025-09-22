@@ -99,7 +99,7 @@ impl MarkdownCodec for Reference {
                 .newline()
                 .exit_node()
                 .newline();
-            
+
             return;
         }
 

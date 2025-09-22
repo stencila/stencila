@@ -213,6 +213,7 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
 ///
 /// This is exposed as a public function for user by the `stencila-server` crate
 /// so that there is a single, optimized implementation.
+#[allow(clippy::too_many_arguments)]
 pub fn standalone_html(
     doc_id: String,
     node_type: NodeType,

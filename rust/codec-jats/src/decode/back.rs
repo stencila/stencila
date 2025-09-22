@@ -196,7 +196,7 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
                 if !node.is_text() {
                     return None;
                 }
-                let Some(text) = node.text() else { return None };
+                let text = node.text()?;
                 Some(text.split_whitespace().join(" "))
             })
             .join(" ");

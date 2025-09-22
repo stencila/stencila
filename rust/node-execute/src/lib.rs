@@ -230,7 +230,7 @@ pub struct Executor {
     bibliography: HashMap<String, Reference>,
 
     /// Citations and citation groups collected while walking over the the root node
-    /// 
+    ///
     /// Used to render content for both the citations and a reference list.
     citations: IndexMap<NodeId, (CitationGroup, Option<Vec<Inline>>)>,
 

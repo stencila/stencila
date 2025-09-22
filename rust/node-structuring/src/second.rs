@@ -255,15 +255,14 @@ impl SecondWalk {
     fn visit_superscript(&self, superscript: &mut Inline) {
         if self.options.should_perform(NormalizeCitations)
             && let Inline::Superscript(Superscript { content, .. }) = superscript
+            && content.len() == 1
         {
-            if content.len() == 1 {
-                if let Some(Inline::Citation(citation)) = content.first() {
-                    let mut citation = citation.clone();
-                    citation.citation_mode = Some(CitationMode::Parenthetical);
-                    *superscript = Inline::Citation(citation);
-                } else if let Some(Inline::CitationGroup(..)) = content.first() {
-                    *superscript = content[0].clone();
-                }
+            if let Some(Inline::Citation(citation)) = content.first() {
+                let mut citation = citation.clone();
+                citation.citation_mode = Some(CitationMode::Parenthetical);
+                *superscript = Inline::Citation(citation);
+            } else if let Some(Inline::CitationGroup(..)) = content.first() {
+                *superscript = content[0].clone();
             }
         }
     }

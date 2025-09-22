@@ -277,7 +277,7 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
 ///
 /// Use the reference's id, if available, falling back to it's DOI.
 pub fn reference_key(reference: &Reference) -> Option<&str> {
-    reference.id.as_deref().or_else(|| reference.doi.as_deref())
+    reference.id.as_deref().or(reference.doi.as_deref())
 }
 
 /// Convert a Stencila Reference to a Hayagriva Entry

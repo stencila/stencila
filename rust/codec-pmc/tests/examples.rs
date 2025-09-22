@@ -20,7 +20,7 @@ use stencila_node_structuring::structuring;
 /// cd rust/codec-pmcoa/tests/snapshots/
 /// diff examples__PMC11518443.html.json.snap examples__PMC11518443.tar.json.snap
 /// ```
-/// 
+///
 /// The standard structuring options for each format are applied to be able to
 /// more test those and more easily compare article decoded from PMC OA packages
 /// (tar) with those decoded from HTML.

@@ -123,20 +123,16 @@ pub async fn render_citations(
     for citation_group in &citations {
         for citation in &citation_group.items {
             if let Some(reference) = &citation.options.cites
-                && let Some(key) = reference_key(&reference)
+                && let Some(key) = reference_key(reference)
+                && !references.contains_key(key)
             {
-                if !references.contains_key(key) {
-                    references.insert(key, reference.clone());
-                }
+                references.insert(key, reference.clone());
             }
         }
     }
 
     // Convert references to Hayagriva entries
-    let entries: Vec<Entry> = references
-        .values()
-        .map(|reference| reference_to_entry(reference))
-        .try_collect()?;
+    let entries: Vec<Entry> = references.values().map(reference_to_entry).try_collect()?;
 
     // Create a library from entries
     let library = Library::from_iter(entries);
@@ -150,12 +146,8 @@ pub async fn render_citations(
             .items
             .iter()
             .filter_map(|citation| {
-                let Some(key) = citation.options.cites.as_ref().and_then(reference_key) else {
-                    return None;
-                };
-                let Some(entry) = library.get(&key) else {
-                    return None;
-                };
+                let key = citation.options.cites.as_ref().and_then(reference_key)?;
+                let entry = library.get(key)?;
 
                 let mut citation_item = CitationItem::with_entry(entry);
                 match citation.citation_mode {
