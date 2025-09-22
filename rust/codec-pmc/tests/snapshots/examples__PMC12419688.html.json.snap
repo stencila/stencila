@@ -1,0 +1,1829 @@
+---
+source: rust/codec-pmc/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "doi": "10.1093/plcell/koaf197",
+  "authors": [
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Assistant Features Editor, The Plant Cell, American Society of Plant Biologists"
+        },
+        {
+          "type": "Organization",
+          "name": "Department of Biology, Indiana University, Bloomington, IN 47405, USA"
+        }
+      ],
+      "familyNames": [
+        "Gómez-Felipe"
+      ],
+      "givenNames": [
+        "Andrea"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2025 Aug 9"
+  },
+  "references": [
+    {
+      "type": "Reference",
+      "id": "koaf197-B1",
+      "doi": "10.1111/j.1365-3040.1996.tb00386.x",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bates"
+          ],
+          "givenNames": [
+            "T",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lynch"
+          ],
+          "givenNames": [
+            "J",
+            "P"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1996"
+      },
+      "text": "Bates  TR, Lynch  JP. Stimulation of root hair elongation in Arabidopsis thaliana by low phosphorus availability. Plant Cell Environ.  1996:19(5):529–538. 10.1111/j.1365-3040.1996.tb00386.x"
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B2",
+      "doi": "10.1111/j.1469-8137.2006.01935.x",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bucher"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2006"
+      },
+      "text": "Bucher  M. Functional biology of plant phosphate uptake at root and mycorrhiza interfaces. New Phytol. 2006. 10.1111/j.1469-8137.2006.01935.x"
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B3",
+      "workType": "Article",
+      "doi": "10.1093/pcp/pcy148",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chien"
+          ],
+          "givenNames": [
+            "P",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chiang"
+          ],
+          "givenNames": [
+            "C",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leong"
+          ],
+          "givenNames": [
+            "S",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chiou"
+          ],
+          "givenNames": [
+            "T",
+            "J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sensing and signaling of phosphate starvation: from local to long distance"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Cell Physiol"
+            }
+          }
+        ],
+        "volumeNumber": 59,
+        "issueNumber": 9
+      },
+      "pageStart": 1714,
+      "pageEnd": 1722
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B4",
+      "workType": "Article",
+      "doi": "10.1104/pp.15.00736",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Guo"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ruan"
+          ],
+          "givenNames": [
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zeng"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yu"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ding"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wu"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wu"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Integrative comparison of the role of the PHOSPHATE RESPONSE1 subfamily in phosphate signaling and homeostasis in rice"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Physiol"
+            }
+          }
+        ],
+        "volumeNumber": 168,
+        "issueNumber": 4
+      },
+      "pageStart": 1762,
+      "pageEnd": 1776
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B5",
+      "workType": "Article",
+      "doi": "10.1071/S96047",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Holford"
+          ],
+          "givenNames": [
+            "I",
+            "C",
+            "R"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1997"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Soil phosphorus: its measurement, and its uptake by plants"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Soil Res"
+            }
+          }
+        ],
+        "volumeNumber": 35,
+        "issueNumber": 2
+      },
+      "pageStart": 227,
+      "pageEnd": 240
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B6",
+      "workType": "Article",
+      "doi": "10.1093/plcell/koac212",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liao"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sun"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liang"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bian"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dong"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Niu"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yang"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xu"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "SlSPX1-SlPHR complexes mediate the suppression of arbuscular mycorrhizal symbiosis by phosphate repletion in tomato"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Cell"
+            }
+          }
+        ],
+        "volumeNumber": 34,
+        "issueNumber": 10
+      },
+      "pageStart": 4045,
+      "pageEnd": 4065
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B7",
+      "workType": "Article",
+      "doi": "10.1093/plcell/koaf171",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lin"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tian"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhu"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lin"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mo"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A PHR transcription factor-directed gene network reveals key regulators of phosphate metabolism and starvation responses in tomato"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Cell"
+            }
+          }
+        ],
+        "volumeNumber": 37,
+        "issueNumber": 7
+      },
+      "pageStart": "koaf171"
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B8",
+      "workType": "Article",
+      "doi": "10.1016/j.molp.2021.12.005",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Paz-Ares"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Isabel",
+            "Puga"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rojas-Triana"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Martinez-Hevia"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Diaz"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Poza-Carrión"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Miñambres"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leyva"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Plant adaptation to low phosphorus availability: core signaling, crosstalks, and applied implications"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mol Plant"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 1
+      },
+      "pageStart": 104,
+      "pageEnd": 124
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B9",
+      "workType": "Article",
+      "doi": "10.1007/s11033-022-07354-9",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Prathap"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kumar"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Maheshwari"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tyagi"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Phosphorus homeostasis: acquisition, sensing, and long-distance signaling in plants"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mol Biol Rep"
+            }
+          }
+        ],
+        "volumeNumber": 49,
+        "issueNumber": 8
+      },
+      "pageStart": 8071,
+      "pageEnd": 8086
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B10",
+      "doi": "10.1016/j.cub.2022.03.073",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Poirier"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jaskolowski"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Clúa"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "text": "Poirier  Y, Jaskolowski  A, Clúa  J. Phosphate acquisition and metabolism in plants. Curr Biol.  2022:32(12):R623–R629. 10.1016/j.cub.2022.03.073"
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B11",
+      "workType": "Article",
+      "doi": "10.1104/pp.15.01336",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sun"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Song"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zheng"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Arabidopsis PHL2 and PHR1 act redundantly as the key components of the central regulatory system controlling transcriptional responses to phosphate starvation"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Physiol"
+            }
+          }
+        ],
+        "volumeNumber": 170,
+        "issueNumber": 1
+      },
+      "pageStart": 499,
+      "pageEnd": 514
+    },
+    {
+      "type": "Reference",
+      "id": "koaf197-B12",
+      "doi": "10.1093/plcell/koad326",
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "text": "Yang  S-Y, Lin  W-Y, Hsiao  Y-M, Chiou  T-J. Milestones in understanding transport, sensing, and signaling of the plant nutrient phosphorus. Plant Cell. 2024:36(5):1504–1523. 10.1093/plcell/koad326"
+    }
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Deciphering the tomato phosphate starvation response: Functional and transcriptional roles of SlPHR3 and SlPHR4"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Phosphorus (P) is an essential nutrient for plants, primarily taken up from the soil in the form of inorganic phosphate (Pi) "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "koaf197-B8",
+          "citationMode": "Parenthetical",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Paz-Ares et al. 2022"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". However, the fraction of soluble Pi available to roots represents only a small portion of the total phosphorus in the soil "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "koaf197-B5",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Holford 1997"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "koaf197-B9",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Prathap et al. 2022"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". Pi is relatively immobile due to its strong adsorption to soil particles and its tendency to form insoluble complexes with calcium, iron, and aluminum oxides or hydroxides, processes that are highly influenced by soil composition and pH "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "koaf197-B10",
+          "citationMode": "Parenthetical",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Poirier et al. 2022"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". The low mobility of Pi in soil poses a significant challenge for plant productivity "
+          }
+        },
+        {
+          "type": "Citation",
+          "target": "koaf197-B2",
+          "citationMode": "Parenthetical",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Bucher 2006"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "To cope with Pi deficiency, plants activate a set of adaptive mechanisms collectively known as phosphate starvation responses (PSRs) "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "koaf197-B1",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Bates and Lynch 1996"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "koaf197-B3",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Chien et al. 2018"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". These responses are coordinated by key transcriptional regulators, such as PHOSPHATE STARVATION RESPONSE 1 (PHR1) in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Arabidopsis"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and its orthologs in other species such as rice "
+          }
+        },
+        {
+          "type": "CitationGroup",
+          "items": [
+            {
+              "type": "Citation",
+              "target": "koaf197-B4",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Guo et al. 2015"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Citation",
+              "target": "koaf197-B11",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Sun et al. 2016"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". Despite the advances made in model systems, there is still a lot to learn about the regulation of PSRs in other crops such as tomato ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Lycopersicon esculentum"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "). Tomato is an important crop with low P use efficiency, and its growth and yield are affected by Pi deficiency. Although genes associated with PSRs have been identified in tomato, the mechanisms governing Pi metabolism and PSRs in this crop remain elusive."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Addressing this knowledge gap, "
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Dongbo Lin and coauthors "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "koaf197-B7",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Lin et al. 2025"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " identified and characterized 2 PHR1-like transcription factors, SlPHR3 and SlPHR4, as central regulators of Pi homeostasis and PSRs. Using a combination of genetic, physiological, and transcriptomic approaches, the authors uncovered a phosphate-responsive regulatory network involving multiple downstream transcription factors and metabolic pathways, including anthocyanin biosynthesis."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "To explore the physiological responses of tomato to Pi availability, the researchers grew 10-day-old seedlings hydroponically under Pi-sufficient (FPi) and Pi-deprived (NPi) conditions for 7 days. Half of the NPi-treated seedlings then received Pi resupply for 24 h. Under Pi deprivation, shoot biomass significantly declined after 5 days, while root biomass increased by day 7, resulting in a higher root-to-shoot ratio. Anthocyanin content rose from day 3 in NPi-treated plants. Both roots and shoots showed a gradual decrease in Pi concentrations during Pi starvation, with Pi resupply noticeably restoring Pi levels."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Analysis of Pi-sufficient and NPi-treated tomato seedlings revealed a cluster of Pi deficiency-induced genes in “PSR modules.” Notably, genes in these modules are enriched in the PHOSPHATE STARVATION RESPONSE1 binding site (P1BS) cis-regulatory motif, suggesting that PHR factors may govern the transcriptional network of PSRs in tomato. Among the tomato PHR genes, SlPHR3 and SlPHR4 (homologs of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Arabidopsis"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " PHR1/PHL1) had not been functionally characterized. To clarify their roles in PSR modulation, overexpression and CRISPR-Cas9 double knockout experiments were conducted. Overexpression lines ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlPHR3-OE"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlPHR4-OE"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") accumulated more Pi, exhibited increased biomass, and showed elevated anthocyanin levels under Pi starvation. In contrast, "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "slphr3 slphr4"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " double mutants displayed reduced Pi accumulation, biomass, and anthocyanin content. These results showed that both transcription factors act as positive, likely redundant, regulators of Pi homeostasis and PSRs in tomato."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "To further elucidate the downstream regulatory network of SlPHR3 and SlPHR4, the authors investigated their potential direct targets, genes known to be involved in Pi metabolism. Using electrophoretic mobility shift assays, dual-luciferase reporter assays, and chromatin immunoprecipitation analyses, they showed that SlPHR3 and SlPHR4 directly bind to the promoters of target genes and activate their transcription, particularly under Pi-deprived conditions."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "These findings provided a foundation for exploring additional target genes by focusing on transcription factors in the “PSR modules” as potential new targets of SlPHR3 and SlPHR4. Lin et al. identified 3 transcription factors as direct downstream targets of SlPHR3 and SlPHR4: "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlGRAS47"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlBHLH48"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", and "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlMYB28"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". These genes are key regulators of physiological and developmental processes. However, their roles in Pi metabolism had not been studied previously."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Using CRISPR-Cas9 gene editing, the authors generated mutants for each of these transcription factors and found that the 3 genes strongly affected plant growth, as the mutants showed lower shoot and root biomass, decreased response to Pi limitation, and lower anthocyanin accumulation. Electrophoretic mobility shift assays and chromatin immunoprecipitation assays showed that SlPHR3 and SlPHR4 bind to the promoters of these 3 genes in vitro and in vivo. These results highlight the essential roles of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlGRAS47"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlBHLH48"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", and "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlMYB28"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " in mediating the transcriptional response to phosphate limitation in tomato."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "However, analysis of Pi and total P contents in roots and shoots revealed distinct differences among the mutants. Loss of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlMYB28"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", in particular, resulted in reduced Pi and total P content in both roots and shoots across all Pi conditions, suggesting that it plays a broad role in regulating phosphate homeostasis systemically throughout the plant ("
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Fig"
+              }
+            }
+          ],
+          "target": "#koaf197-F1"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ".). Furthermore, "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlMYB28"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " was confirmed as a key gene in the SlPHR3 and SlPHR4 regulatory cascade. Suppression of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlMYB28"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlPHR3"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlPHR4"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "-overexpressing plants reduced Pi and total P accumulation, biomass, and anthocyanin production across various Pi regimes. Moreover, expression analysis showed that "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SlMYB28"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " regulates a suite of genes involved in Pi transport, hormone signaling, and anthocyanin biosynthesis, underscoring its integrative role in translating upstream PHR signals into physiological outcomes."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "id": "koaf197-F1",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Transcriptional regulation of PSRs by SlPHR3 and SlPHR4 in tomato. Under phosphate deficiency (−Pi), tomato plants activate PSRs mediated by the transcription factors SlPHR3 and SlPHR4. These factors directly bind to the P1BS motif in the promoters of downstream transcription factor genes including "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "SlGRAS47"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "SlBHLH48"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", and "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "SlMYB28"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", activating their expression. These secondary transcription factors regulate processes such as root development, Pi metabolism, and anthocyanin accumulation. The resulting transcriptional cascade enhances overall PSRs and stress responses, leading to improved plant growth and nutrient use efficiency under low-Pi conditions."
+              }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "redacted"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "In conclusion, this study reveals a transcriptional network underlying PSRs in tomato. SlPHR3 and SlPHR4 act as central regulators of Pi homeostasis, controlling root and shoot responses through direct and indirect gene regulation. The identification of downstream transcription factors such as SlGRAS47, SlBHLH48, and SlMYB28 provides a hierarchical view of the regulatory landscape governing PSRs. These findings provide new insights into the molecular mechanisms of Pi signaling in tomato and lay the groundwork for improving phosphorus-use efficiency in crop breeding."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Recent related articles in "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The Plant Cell"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "List",
+          "items": [
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Citation",
+                      "target": "koaf197-B12",
+                      "citationMode": "Narrative",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Yang et al. (2024)"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " reviewed molecular mechanisms that regulate P starvation responses, emphasizing P transport, sensing, and signaling."
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Citation",
+                      "target": "koaf197-B6",
+                      "citationMode": "Narrative",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Liao et al. (2022)"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " uncovered a Pi-sensing module that coordinates the AM symbiosis under different Pi availability conditions."
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "order": "Unordered"
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Dive Curated Terms"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The following phenotypic, genotypic, and functional terms are of significance to the work described in this paper:"
+              }
+            }
+          ]
+        },
+        {
+          "type": "List",
+          "items": [
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "anthocyanin content Planteome: TO:0000071"
+                          }
+                        }
+                      ],
+                      "target": "http://browser.planteome.org/amigo/search/ontology?q=TO:0000071"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "order": "Unordered"
+        },
+        {
+          "type": "List",
+          "items": [
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "PHR1 Gramene: AT4G28610"
+                          }
+                        }
+                      ],
+                      "target": "http://tools.gramene.org/search?query=AT4G28610"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "PHR1 Araport: AT4G28610"
+                          }
+                        }
+                      ],
+                      "target": "http://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=AT4G28610&amp;searchSubmit=GO"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "order": "Unordered"
+        }
+      ]
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "pmc",
+      "value": "12419688"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "pmid",
+      "value": "40795775"
+    }
+  ],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "The Plant Cell"
+      },
+      "volumeNumber": 37
+    },
+    "issueNumber": 9
+  },
+  "pageStart": "koaf197"
+}
