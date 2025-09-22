@@ -89,8 +89,6 @@ There are several views in the [`src/views`](src/views) folder which make use of
 | `<stencila-split-view>`   | A split pane view with a source code editor and a dynamic view                                                                     | `<stencila-split-view>` and `<stencila-dynamic-view>` |
 | `<stencila-visual-view>`  | A visual (WYSIWYG) editor for a document including Web Components for nodes                                                        | `ProseMirrorClient` and `DomClient`                   |
 
-In addition there is a `print.ts` file, powered by [Paged.js](https://pagedjs.org/), which provides a preview of how the document will look when saved as PDF.
-
 ## 💅 Twind usage
 
 We use [twind](https://twind.style/) so that we can apply [tailwind](https://tailwindcss.com/) to our components. In order to do so, there are a few simple patterns we follow:

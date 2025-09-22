@@ -903,7 +903,7 @@ stencila-admonition {
 /* =================================================================
    PRINT STYLES
 
-   CSS Paged Media rules for printing and Paged.js
+   CSS Paged Media rules for printing
    ================================================================= */
 @media print {
     :root {
@@ -917,13 +917,66 @@ stencila-admonition {
         --code-background: #f5f5f5;
     }
 
-    /* Avoid page breaks within these node types. For tables, figures, and code
+    /* Print margins: avoid browser generated headers and footers by setting empty content.
+       See https://developer.chrome.com/blog/print-margins */
+    @page {
+        @top-left-corner {
+            content: '';
+        }
+        @top-left {
+            content: '';
+        }
+        @top-center {
+            content: '';
+        }
+        @top-right {
+            content: '';
+        }
+        @top-right-corner {
+            content: '';
+        }
+        @left-top {
+            content: '';
+        }
+        @left-middle {
+            content: '';
+        }
+        @left-bottom {
+            content: '';
+        }
+        @right-top {
+            content: '';
+        }
+        @right-middle {
+            content: '';
+        }
+        @right-bottom {
+            content: '';
+        }
+        @bottom-left-corner {
+            content: '';
+        }
+        @bottom-left {
+            content: '';
+        }
+        @bottom-center {
+            content: '';
+        }
+        @bottom-right {
+            content: '';
+        }
+        @bottom-right-corner {
+            content: '';
+        }
+    }
+
+    /* Avoid breaks within these node types. For tables, figures, and code
      chunks this keeps captions with tables and images. */
     stencila-table,
     stencila-figure,
     stencila-code-chunk,
     stencila-reference {
-        page-break-inside: avoid;
+        break-inside: avoid;
     }
 
     /* Float tables, figures, and code chunks to the bottom of the page. */

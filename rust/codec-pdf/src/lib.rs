@@ -181,8 +181,8 @@ impl Codec for PdfCodec {
                     Some(EncodeOptions {
                         // Standalone so that necessary JS and CSS is loaded
                         standalone: Some(true),
-                        // Paged view for CSS Paged Media support
-                        view: Some("paged".to_string()),
+                        // Ensure no view is loaded
+                        view: Some("none".into()),
                         // Embed any media files. This is necessary because the
                         // browser will not fetch local resources when generating
                         // the PDF

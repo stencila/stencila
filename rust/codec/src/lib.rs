@@ -572,7 +572,7 @@ pub struct EncodeOptions {
     /// The document view to use when encoding to HTML and HTML-derived formats
     ///
     /// Stencila provides alternatives views of documents providing alternative
-    /// ways of interacting with a document (e.g. "dynamic", "static", "paged").
+    /// ways of interacting with a document (e.g. "dynamic", "static", "none").
     pub view: Option<String>,
 
     /// Whether to embed media files as data URIs

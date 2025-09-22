@@ -261,7 +261,7 @@ pub fn standalone_html(
     }
 
     // View fonts
-    if !matches!(view, "none" | "paged") {
+    if view != "none" {
         html.push_str(r#"
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -269,7 +269,7 @@ pub fn standalone_html(
     }
 
     // Color scheme initialization
-    if !matches!(view, "none" | "paged") {
+    if view != "none" {
         html.push_str(&format!(
             r#"
     <script type="module" src="{web_base}/themes/init.js"></script>"#
@@ -277,7 +277,7 @@ pub fn standalone_html(
     }
 
     // View CSS
-    if !matches!(view, "none" | "paged") && theme != "none" {
+    if view != "none" && theme != "none" {
         html.push_str(&format!(
             r#"
     <link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#
