@@ -7,7 +7,7 @@ use stencila_codec::{
 };
 
 mod decode;
-mod decode_html;
+pub mod decode_html;
 mod decode_html_blocks;
 mod decode_html_inlines;
 mod decode_pdf;

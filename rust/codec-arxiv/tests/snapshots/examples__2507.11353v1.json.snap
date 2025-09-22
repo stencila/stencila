@@ -4,6 +4,7 @@ expression: article
 ---
 {
   "type": "Article",
+  "doi": "10.48550/arxiv.2507.11353",
   "abstract": [
     {
       "type": "Heading",
@@ -25772,7 +25773,6 @@ expression: article
       ]
     }
   ],
-  "repository": "https://github.com/stencila/stencila",
-  "path": "rust/codec-arxiv/tests/examples/2507.11353v1.html",
-  "commit": "redacted"
+  "repository": "https://arxiv.org",
+  "path": "html/2507.11353v1"
 }

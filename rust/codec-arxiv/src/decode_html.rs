@@ -35,7 +35,7 @@ use super::decode_html_inlines::*;
 /// A tuple of (Node, DecodeInfo) where Node contains the structured document
 /// and DecodeInfo tracks any parsing losses or issues.
 #[tracing::instrument(skip(_options))]
-pub(super) async fn decode_arxiv_html(
+pub async fn decode_arxiv_html(
     arxiv_id: &str,
     html: &str,
     _options: Option<DecodeOptions>,
