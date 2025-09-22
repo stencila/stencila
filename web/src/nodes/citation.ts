@@ -30,26 +30,6 @@ export class Citation extends Entity {
   compilationMessages?: CompilationMessage[]
 
   override render() {
-    const inner = this.compilationMessages ?
-      html`<sl-tooltip placement="top" content="${this.compilationMessages.map((msg) => msg.message).join('; ')}"><span class="text-gray-700"><slot name="content"></slot></span></sl-tooltip>` :
-      html`${this.citationPrefix ? `${this.citationPrefix} ` : ''}<slot name="cites"></slot>${this.citationSuffix ? ` ${this.citationSuffix}` : ''}`
-
-    const items = this.closestGlobally('stencila-citation-group [slot=items]')
-    if (items) {
-      // Citation item within a citation group
-      if (this != items.lastElementChild) {
-        // Not last item in citation group, so add separator
-        return html`${inner}; `
-      } else {
-        // Last item in citation group
-        return html`${inner}`
-      }
-    } else if (this.citationMode == undefined || this.citationMode == 'Parenthetical') {
-      // Parenthetical citation
-      return html`(${inner})`
-    } else {
-      // Narrative citation (do not distinguish between Narrative and NarrativeAuthor but rather in Reference)
-      return inner
-    }
+    return html`<slot name="content"></slot>`
   }
 }

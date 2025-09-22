@@ -14,6 +14,6 @@ import { Entity } from './entity'
 @withTwind()
 export class CitationGroup extends Entity {
   override render() {
-    return html`(<slot name="items"></slot>)`
+    return html`<slot name="content"></slot>`
   }
 }
