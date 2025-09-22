@@ -394,6 +394,11 @@ mod tests {
             None
         );
 
+        let reference = vancouver(
+            &mut "Nobreakspace\u{A0}J, Twospaces  A, Tab\tK. Any whitespace between author family name and initials. J of Edge Cases. 2025:404(42):1-30. 10.1234/501",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
+
         Ok(())
     }
 

@@ -10,7 +10,10 @@ use winnow::{
 
 use stencila_codec::stencila_schema::{Author, Organization, Person};
 
-use crate::decode::parts::chars::{is_hyphen, one_apostrophe, one_hyphen};
+use crate::decode::parts::{
+    chars::{is_hyphen, one_apostrophe, one_hyphen},
+    whitespace::{whitespace0, whitespace1},
+};
 
 /// Match a separator between authors
 pub fn separator(input: &mut &str) -> Result<()> {
@@ -80,7 +83,7 @@ pub fn person(input: &mut &str) -> Result<Person> {
 pub fn person_family_initials(input: &mut &str) -> Result<Author> {
     (
         // Family names
-        terminated(separated(1.., name, multispace1), multispace1),
+        terminated(separated(1.., name, whitespace1), whitespace1),
         // Initials (not separated by anything)
         repeat(1.., initial_letter.map(String::from)),
     )
@@ -104,10 +107,10 @@ pub fn person_family_initials(input: &mut &str) -> Result<Author> {
 pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
     (
         // Family names
-        terminated(separated(1.., name, multispace1), opt(",")),
+        terminated(separated(1.., name, whitespace1), opt(",")),
         // Initials with period
         preceded(
-            multispace0,
+            whitespace0,
             (
                 // Parse first initial
                 terminated(initial_letter, ".").map(String::from),
@@ -115,7 +118,7 @@ pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
                 repeat(
                     0..,
                     preceded(
-                        multispace0,
+                        whitespace0,
                         terminated((opt(one_hyphen), initial_letter).take(), ".").map(String::from),
                     ),
                 ),
@@ -151,11 +154,11 @@ pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
 pub fn person_family_given(input: &mut &str) -> Result<Author> {
     (
         // Family names
-        terminated(separated(1.., name, multispace1), ","),
+        terminated(separated(1.., name, whitespace1), ","),
         // Given names or initials
         preceded(
-            multispace0,
-            separated(1.., alt((initial, name)), multispace1),
+            whitespace0,
+            separated(1.., alt((initial, name)), whitespace1),
         ),
     )
         .map(|(family_names, given_names): (Vec<String>, Vec<String>)| {
@@ -184,14 +187,14 @@ pub fn person_family_given(input: &mut &str) -> Result<Author> {
 pub fn person_given_family(input: &mut &str) -> Result<Author> {
     (
         // First given name or initial
-        terminated(alt((initial, name)), multispace1),
+        terminated(alt((initial, name)), whitespace1),
         // Other initials
         opt(terminated(
-            separated(1.., initial, multispace1),
-            multispace1,
+            separated(1.., initial, whitespace1),
+            whitespace1,
         )),
         // Family names
-        separated(1.., name, multispace1),
+        separated(1.., name, whitespace1),
     )
         .verify(
             |(first, _initials, family_names): &(String, Option<Vec<String>>, Vec<String>)| {
@@ -229,7 +232,7 @@ pub fn organization(input: &mut &str) -> Result<Author> {
         take_while(2.., |c: char| {
             c.is_alphabetic() || c.is_numeric() || is_hyphen(c)
         }),
-        multispace1,
+        whitespace1,
     )
     .verify(|names: &Vec<&str>| match names.first() {
         Some(name) => !matches!(*name, "et" | "al") && !name.chars().all(|c| c.is_numeric()),
@@ -246,7 +249,7 @@ pub fn organization(input: &mut &str) -> Result<Author> {
 
 /// Parse "et al" (an variations as an author)
 pub fn etal(input: &mut &str) -> Result<()> {
-    ("et", opt("."), multispace0, "al", opt("."))
+    ("et", opt("."), whitespace0, "al", opt("."))
         .map(|_| ())
         .parse_next(input)
 }

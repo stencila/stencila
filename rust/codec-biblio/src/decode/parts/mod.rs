@@ -12,3 +12,4 @@ pub mod terminator;
 pub mod title;
 pub mod url;
 pub mod volume;
+pub mod whitespace;
