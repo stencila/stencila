@@ -5,7 +5,7 @@ use url::Url;
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
-    eyre::{Result, bail},
+    eyre::{Result, bail, eyre},
     stencila_format::Format,
     stencila_schema::Node,
 };
@@ -138,36 +138,55 @@ pub(super) async fn decode_arxiv_id(
     ] {
         tracing::debug!("Trying `{format}` format: {url}");
 
-        match reqwest::get(&url).await {
-            Ok(response) if response.status().is_success() => {
-                tracing::debug!("Successfully fetched `{format}` for `{arxiv_id}`",);
-
-                let result = match format {
-                    Format::Html => {
-                        decode_arxiv_html(arxiv_id, &response.text().await?, options.clone()).await
-                    }
-                    Format::Latex => decode_arxiv_src(arxiv_id, response, options.clone()).await,
-                    Format::Pdf => decode_arxiv_pdf(arxiv_id, response, options.clone()).await,
-                    _ => unreachable!(),
-                };
-
-                match result {
-                    Ok((node, info)) => return Ok((node, info, format)),
-                    Err(error) => {
-                        tracing::warn!("Failed to decode `{format}`: {error}");
-                    }
-                }
-            }
-            Ok(response) => {
-                tracing::trace!("`{format}` not available: HTTP {}", response.status());
-            }
-            Err(error) => {
-                tracing::debug!("Failed to fetch `{format}`: {error}");
-            }
+        if let Some((node, decode_info)) =
+            decode_arxiv_url(arxiv_id, &format, &url, options.clone()).await
+        {
+            return Ok((node, decode_info, format));
         }
     }
 
     bail!("Failed to decode arXiv `{arxiv_id}`, no format was available or successfully decoded",)
+}
+
+#[tracing::instrument(skip(options))]
+pub(super) async fn decode_arxiv_url(
+    arxiv_id: &str,
+    format: &Format,
+    url: &str,
+    options: Option<DecodeOptions>,
+) -> Option<(Node, DecodeInfo)> {
+    tracing::debug!("Trying `{format}` format: {url}");
+
+    match reqwest::get(url).await {
+        Ok(response) if response.status().is_success() => {
+            tracing::debug!("Successfully fetched `{format}` for `{arxiv_id}`",);
+
+            let result = match format {
+                Format::Html => match response.text().await {
+                    Ok(html) => decode_arxiv_html(arxiv_id, &html, options).await,
+                    Err(error) => Err(eyre!("Failed to fetch `{format}`: {error}")),
+                },
+                Format::Latex => decode_arxiv_src(arxiv_id, response, options).await,
+                Format::Pdf => decode_arxiv_pdf(arxiv_id, response, options).await,
+                _ => unreachable!(),
+            };
+
+            match result {
+                Ok((node, info)) => return Some((node, info)),
+                Err(error) => {
+                    tracing::warn!("Failed to decode `{format}`: {error}");
+                }
+            }
+        }
+        Ok(response) => {
+            tracing::trace!("`{format}` not available: HTTP {}", response.status());
+        }
+        Err(error) => {
+            tracing::debug!("Failed to fetch `{format}`: {error}");
+        }
+    };
+
+    None
 }
 
 #[cfg(test)]
