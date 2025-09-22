@@ -15,12 +15,12 @@ use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
     stencila_schema::{
-        Article, Author, Block, CreativeWorkVariant, Date, Figure, Heading, ImageObject, Inline,
+        Article, Author, Block, CreativeWorkVariant, Date, Figure, ImageObject, Inline,
         IntegerOrString, List, ListItem, ListOrder, Node, Organization, Paragraph, Periodical,
         Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
         PublicationVolume, Reference, Section, SectionType, Supplement, Table, TableCell,
         TableCellOptions, TableRow, TableRowType,
-        shortcuts::{em, h1, h2, lnk, p, stg, sub, sup, t, u},
+        shortcuts::{em, h, h1, h2, lnk, p, stg, sub, sup, t, u},
     },
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
@@ -258,7 +258,7 @@ fn decode_article(parser: &Parser, body_section: &HTMLTag) -> Result<Article> {
                     // (we already extracted metadata from meta tags)
                 }
                 "section" if class.contains("abstract") && r#abstract.is_none() => {
-                    // As in the JATS codec only decode the first abstract
+                    // As in the JATS codec, only decode the first abstract
                     r#abstract = Some(decode_abstract(parser, tag)?);
                 }
                 "section" if class.contains("ref-list") => {
@@ -267,15 +267,11 @@ fn decode_article(parser: &Parser, body_section: &HTMLTag) -> Result<Article> {
                 "section" if class.contains("associated-data") => {
                     // Skip as repeats supplementary materials section
                 }
-                "section" => {
-                    // Regular content section
-                    let section = decode_section(parser, tag)?;
-                    // Only add non-empty sections
-                    if !section.content.is_empty() {
-                        content.push(Block::Section(section));
+                _ => {
+                    if let Some(block) = decode_block(parser, tag)? {
+                        content.push(block);
                     }
                 }
-                _ => {}
             }
         }
     }
@@ -408,7 +404,7 @@ fn decode_abstract(parser: &Parser, abstract_section: &HTMLTag) -> Result<Vec<Bl
 }
 
 /// Decode a section
-fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
+fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Option<Block>> {
     let mut section_type = None;
     let mut content = Vec::new();
 
@@ -422,68 +418,24 @@ fn decode_section(parser: &Parser, section: &HTMLTag) -> Result<Section> {
             continue;
         };
 
-        let tag_name = tag.name().as_utf8_str();
-        match tag_name.as_ref() {
-            "h2" | "h3" => {
-                let heading_content = decode_inlines(parser, tag)?;
-                let heading_level = if tag_name == "h2" { 1 } else { 2 };
+        if let Some(block) = decode_block(parser, tag)? {
+            if section_type.is_none() && matches!(block, Block::Heading(..)) {
+                section_type = SectionType::from_text(&get_text(parser, tag)).ok();
+            }
 
-                if section_type.is_none() {
-                    section_type = SectionType::from_text(&get_text(parser, tag)).ok();
-                }
-
-                let heading = Heading {
-                    level: heading_level as i64,
-                    content: heading_content,
-                    ..Default::default()
-                };
-                content.push(Block::Heading(heading));
-            }
-            "p" => {
-                let paragraph = decode_paragraph(parser, tag)?;
-                content.push(paragraph);
-            }
-            "section" => {
-                let class = get_class(tag);
-                if class.contains("tw") {
-                    if let Some(table) = decode_table(parser, tag)? {
-                        content.push(Block::Table(table));
-                    }
-                } else if class.contains("sm") {
-                    if let Some(supplement) = decode_supplement(parser, tag)? {
-                        content.push(Block::Supplement(supplement));
-                    }
-                } else {
-                    let subsection = decode_section(parser, tag)?;
-                    if !subsection.content.is_empty() {
-                        content.push(Block::Section(subsection));
-                    }
-                }
-            }
-            "figure" => {
-                if let Some(figure) = decode_figure(parser, tag)? {
-                    content.push(Block::Figure(figure));
-                }
-            }
-            "ul" | "ol" => {
-                if let Some(list) = decode_list(parser, tag)? {
-                    content.push(Block::List(list));
-                }
-            }
-            "dl" => {
-                if let Some(list) = decode_dl(parser, tag)? {
-                    content.push(Block::List(list));
-                }
-            }
-            _ => {}
+            content.push(block);
         }
     }
 
-    Ok(Section {
-        section_type,
-        content,
-        ..Default::default()
-    })
+    if !content.is_empty() {
+        Ok(Some(Block::Section(Section {
+            section_type,
+            content,
+            ..Default::default()
+        })))
+    } else {
+        Ok(None)
+    }
 }
 
 /// Decode block elements
@@ -494,159 +446,34 @@ fn decode_blocks(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Block>> {
         let Some(child_tag) = child.as_tag() else {
             continue;
         };
-        let tag_name = child_tag.name().as_utf8_str();
-
-        match tag_name.as_ref() {
-            "p" => {
-                let paragraph = decode_paragraph(parser, child_tag)?;
-                blocks.push(paragraph);
-            }
-            "ul" | "ol" => {
-                if let Some(list) = decode_list(parser, child_tag)? {
-                    blocks.push(Block::List(list));
-                }
-            }
-            "dl" => {
-                if let Some(list) = decode_dl(parser, child_tag)? {
-                    blocks.push(Block::List(list));
-                }
-            }
-            _ => {}
+        if let Some(block) = decode_block(parser, child_tag)? {
+            blocks.push(block);
         }
     }
 
     Ok(blocks)
 }
 
-/// Decode an unordered or ordered list into a Stencila list
-fn decode_list(parser: &Parser, list_tag: &HTMLTag) -> Result<Option<List>> {
-    let id = get_attr(list_tag, "id");
-    let tag_name = list_tag.name().as_utf8_str();
-
-    // Determine if this is an ordered or unordered list
-    let order = match tag_name.as_ref() {
-        "ol" => ListOrder::Ascending,
-        "ul" => ListOrder::Unordered,
-        _ => return Ok(None), // Not a list we can handle
-    };
-
-    let mut items = Vec::new();
-
-    for child in list_tag
-        .children()
-        .top()
-        .iter()
-        .flat_map(|handle| handle.get(parser))
-    {
-        if let Some(tag) = child.as_tag() {
-            let child_tag_name = tag.name().as_utf8_str();
-
-            if child_tag_name.as_ref() == "li" {
-                // Decode the list item content
-                let item_blocks = decode_blocks(parser, tag)?;
-                let content = if item_blocks.is_empty() {
-                    // If no blocks, try to get inline content and wrap in paragraph
-                    let item_inlines = decode_inlines(parser, tag)?;
-                    if item_inlines.is_empty() {
-                        Vec::new()
-                    } else {
-                        vec![p(item_inlines)]
-                    }
-                } else {
-                    item_blocks
-                };
-
-                if !content.is_empty() {
-                    let list_item = ListItem {
-                        content,
-                        ..Default::default()
-                    };
-                    items.push(list_item);
-                }
+/// Decode block elements
+fn decode_block(parser: &Parser, tag: &HTMLTag) -> Result<Option<Block>> {
+    match tag.name().as_utf8_str().as_ref() {
+        "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => decode_heading(parser, tag).map(Some),
+        "p" => decode_paragraph(parser, tag).map(Some),
+        "ul" | "ol" => decode_list(parser, tag).map(Some),
+        "dl" => decode_dl(parser, tag).map(Some),
+        "figure" => decode_figure(parser, tag).map(Some),
+        "section" => {
+            let class = get_class(tag);
+            if class.contains("tw") {
+                decode_table(parser, tag).map(Some)
+            } else if class.contains("sm") {
+                decode_supplement(parser, tag).map(Some)
+            } else {
+                decode_section(parser, tag)
             }
         }
+        _ => Ok(None),
     }
-
-    if items.is_empty() {
-        return Ok(None);
-    }
-
-    Ok(Some(List {
-        id,
-        order,
-        items,
-        ..Default::default()
-    }))
-}
-
-/// Decode a definition list into a Stencila unordered list
-fn decode_dl(parser: &Parser, dl_tag: &HTMLTag) -> Result<Option<List>> {
-    let id = get_attr(dl_tag, "id");
-    let mut items = Vec::new();
-    let mut current_dt = None;
-
-    for child in dl_tag
-        .children()
-        .top()
-        .iter()
-        .flat_map(|handle| handle.get(parser))
-    {
-        if let Some(tag) = child.as_tag() {
-            let tag_name = tag.name().as_utf8_str();
-
-            match tag_name.as_ref() {
-                "dt" => {
-                    // Store the definition term
-                    let dt_inlines = decode_inlines(parser, tag)?;
-                    current_dt = Some(dt_inlines);
-                }
-                "dd" => {
-                    // Process the definition description
-                    if let Some(dt_content) = current_dt.take() {
-                        let mut item_content = Vec::new();
-
-                        // First paragraph: the term as strong text
-                        item_content.push(p([stg(dt_content)]));
-
-                        // Second paragraph(s): the definition
-                        let dd_blocks = decode_blocks(parser, tag)?;
-                        if dd_blocks.is_empty() {
-                            // If no blocks, try to get inline content
-                            let dd_inlines = decode_inlines(parser, tag)?;
-                            if !dd_inlines.is_empty() {
-                                item_content.push(p(dd_inlines));
-                            }
-                        } else {
-                            item_content.extend(dd_blocks);
-                        }
-
-                        let list_item = ListItem {
-                            content: item_content,
-                            ..Default::default()
-                        };
-                        items.push(list_item);
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    if items.is_empty() {
-        return Ok(None);
-    }
-
-    Ok(Some(List {
-        id,
-        items,
-        ..Default::default()
-    }))
-}
-
-/// Decode a paragraph
-fn decode_paragraph(parser: &Parser, paragraph: &HTMLTag) -> Result<Block> {
-    let content = decode_inlines(parser, paragraph)?;
-    Ok(p(content))
 }
 
 /// Decode inline elements
@@ -736,8 +563,144 @@ fn concatenate_text_nodes(inlines: Vec<Inline>) -> Vec<Inline> {
     result
 }
 
+fn decode_heading(parser: &Parser, heading_tag: &HTMLTag) -> Result<Block> {
+    let level = match heading_tag.name().as_utf8_str().as_ref() {
+        "h1" => 1,
+        "h2" => 1,
+        "h3" => 2,
+        "h4" => 3,
+        "h5" => 4,
+        _ => 5,
+    } as i64;
+
+    let content = decode_inlines(parser, heading_tag)?;
+
+    Ok(h(level, content))
+}
+
+/// Decode a paragraph
+fn decode_paragraph(parser: &Parser, paragraph: &HTMLTag) -> Result<Block> {
+    let content = decode_inlines(parser, paragraph)?;
+
+    Ok(p(content))
+}
+
+/// Decode an unordered or ordered list into a Stencila list
+fn decode_list(parser: &Parser, list_tag: &HTMLTag) -> Result<Block> {
+    let id = get_attr(list_tag, "id");
+
+    // Determine if this is an ordered or unordered list
+    let order = match list_tag.name().as_utf8_str().as_ref() {
+        "ol" => ListOrder::Ascending,
+        _ => ListOrder::Unordered,
+    };
+
+    let mut items = Vec::new();
+    for child in list_tag
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(tag) = child.as_tag() {
+            let child_tag_name = tag.name().as_utf8_str();
+
+            if child_tag_name.as_ref() == "li" {
+                // Decode the list item content
+                let item_blocks = decode_blocks(parser, tag)?;
+                let content = if item_blocks.is_empty() {
+                    // If no blocks, try to get inline content and wrap in paragraph
+                    let item_inlines = decode_inlines(parser, tag)?;
+                    if item_inlines.is_empty() {
+                        Vec::new()
+                    } else {
+                        vec![p(item_inlines)]
+                    }
+                } else {
+                    item_blocks
+                };
+
+                if !content.is_empty() {
+                    let list_item = ListItem {
+                        content,
+                        ..Default::default()
+                    };
+                    items.push(list_item);
+                }
+            }
+        }
+    }
+
+    Ok(Block::List(List {
+        id,
+        order,
+        items,
+        ..Default::default()
+    }))
+}
+
+/// Decode a definition list into a Stencila unordered list
+fn decode_dl(parser: &Parser, dl_tag: &HTMLTag) -> Result<Block> {
+    let id = get_attr(dl_tag, "id");
+    let mut items = Vec::new();
+    let mut current_dt = None;
+
+    for child in dl_tag
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(tag) = child.as_tag() {
+            let tag_name = tag.name().as_utf8_str();
+
+            match tag_name.as_ref() {
+                "dt" => {
+                    // Store the definition term
+                    let dt_inlines = decode_inlines(parser, tag)?;
+                    current_dt = Some(dt_inlines);
+                }
+                "dd" => {
+                    // Process the definition description
+                    if let Some(dt_content) = current_dt.take() {
+                        let mut item_content = Vec::new();
+
+                        // First paragraph: the term as strong text
+                        item_content.push(p([stg(dt_content)]));
+
+                        // Second paragraph(s): the definition
+                        let dd_blocks = decode_blocks(parser, tag)?;
+                        if dd_blocks.is_empty() {
+                            // If no blocks, try to get inline content
+                            let dd_inlines = decode_inlines(parser, tag)?;
+                            if !dd_inlines.is_empty() {
+                                item_content.push(p(dd_inlines));
+                            }
+                        } else {
+                            item_content.extend(dd_blocks);
+                        }
+
+                        let list_item = ListItem {
+                            content: item_content,
+                            ..Default::default()
+                        };
+                        items.push(list_item);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    Ok(Block::List(List {
+        id,
+        items,
+        ..Default::default()
+    }))
+}
+
 /// Decode a table section (section with class "tw xbox")
-fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
+fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Block> {
     let id = get_attr(section, "id");
     let mut caption = Vec::new();
     let mut label = None;
@@ -794,15 +757,11 @@ fn decode_table(parser: &Parser, section: &HTMLTag) -> Result<Option<Table>> {
         }
     }
 
-    if rows.is_empty() {
-        return Ok(None);
-    }
-
     let label_automatically = label.is_some().then_some(false);
     let caption = (!caption.is_empty()).then_some(caption);
     let notes = (!notes.is_empty()).then_some(notes);
 
-    Ok(Some(Table {
+    Ok(Block::Table(Table {
         id,
         label,
         label_automatically,
@@ -930,7 +889,7 @@ fn decode_table_row(
 }
 
 /// Decode a figure element
-fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
+fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Block> {
     let id = get_attr(figure, "id");
     let mut caption = Vec::new();
     let mut label = None;
@@ -990,14 +949,10 @@ fn decode_figure(parser: &Parser, figure: &HTMLTag) -> Result<Option<Figure>> {
         }
     }
 
-    if content.is_empty() && caption.is_empty() {
-        return Ok(None);
-    }
-
     let label_automatically = label.is_some().then_some(false);
     let caption = (!caption.is_empty()).then_some(caption);
 
-    Ok(Some(Figure {
+    Ok(Block::Figure(Figure {
         id,
         label,
         label_automatically,
@@ -1102,7 +1057,7 @@ fn extract_and_clean_figure_label(inlines: &mut Vec<Inline>) -> Option<String> {
 }
 
 /// Decode a supplement material element (section with class "sm")
-fn decode_supplement(parser: &Parser, supplement_section: &HTMLTag) -> Result<Option<Supplement>> {
+fn decode_supplement(parser: &Parser, supplement_section: &HTMLTag) -> Result<Block> {
     let id = get_attr(supplement_section, "id");
     let mut label = None;
     let mut caption = None;
@@ -1184,19 +1139,14 @@ fn decode_supplement(parser: &Parser, supplement_section: &HTMLTag) -> Result<Op
         }
     }
 
-    // Only create supplement if we have essential content
-    if label.is_some() || caption.is_some() || target.is_some() {
-        Ok(Some(Supplement {
-            id,
-            label,
-            label_automatically: Some(false),
-            caption,
-            target,
-            ..Default::default()
-        }))
-    } else {
-        Ok(None)
-    }
+    Ok(Block::Supplement(Supplement {
+        id,
+        label,
+        label_automatically: Some(false),
+        caption,
+        target,
+        ..Default::default()
+    }))
 }
 
 /// Decode references section
