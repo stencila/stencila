@@ -590,7 +590,6 @@ CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Reference` (
-  `appearanceIndex` UINT64,
   `workType` STRING,
   `doi` STRING,
   `date` DATE,

@@ -16,7 +16,6 @@
   ],
   "core": [
     "id",
-    "appearanceIndex",
     "workType",
     "doi",
     "authors",
@@ -46,15 +45,6 @@
         "attr": "id"
       },
       "type": "string"
-    },
-    "appearanceIndex": {
-      "@id": "stencila:appearanceIndex",
-      "description": "The index (1-based) of appearance order of the reference in the work.",
-      "aliases": [
-        "appearance-index",
-        "appearance_index"
-      ],
-      "$ref": "UnsignedInteger.schema.json"
     },
     "workType": {
       "@id": "stencila:workType",

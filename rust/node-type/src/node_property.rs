@@ -20,7 +20,6 @@ pub enum NodeProperty {
     AlternateNames,
     Amounts,
     Annotation,
-    AppearanceIndex,
     Archive,
     Arguments,
     Author,

@@ -10,7 +10,6 @@ import { Person } from "./Person.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
 import { PropertyValueOrString } from "./PropertyValueOrString.js";
 import { StringOrNumber } from "./StringOrNumber.js";
-import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
  * A reference to a creative work, including books, movies, photographs, software programs, etc.
@@ -18,11 +17,6 @@ import { UnsignedInteger } from "./UnsignedInteger.js";
 export class Reference extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "Reference";
-
-  /**
-   * The index (1-based) of appearance order of the reference in the work.
-   */
-  appearanceIndex?: UnsignedInteger;
 
   /**
    * The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).

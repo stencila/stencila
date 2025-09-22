@@ -18,18 +18,6 @@
       }
     },
     {
-      "@id": "stencila:appearanceIndex",
-      "@type": "rdfs:Property",
-      "rdfs:label": "appearanceIndex",
-      "rdfs:comment": "The index (1-based) of appearance order of the reference in the work.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Reference"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:UnsignedInteger"
-      }
-    },
-    {
       "@id": "stencila:workType",
       "@type": "rdfs:Property",
       "rdfs:label": "workType",

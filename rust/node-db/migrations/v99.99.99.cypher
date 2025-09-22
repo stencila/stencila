@@ -40,4 +40,6 @@ ALTER TABLE `File` ADD `url` STRING DEFAULT NULL;
 
 ALTER TABLE `MathBlock` DROP `labelAutomatically`;
 
+ALTER TABLE `Reference` DROP `appearanceIndex`;
+
 ALTER TABLE `Table` DROP `labelAutomatically`;

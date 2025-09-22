@@ -1963,12 +1963,6 @@
       "name": "Reference",
       "columns": [
         {
-          "name": "appearanceIndex",
-          "dataType": "UInt64",
-          "nullable": true,
-          "onOptions": false
-        },
-        {
           "name": "workType",
           "dataType": "String",
           "nullable": true,
