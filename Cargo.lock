@@ -9623,6 +9623,7 @@ dependencies = [
  "stencila-codec-jats",
  "stencila-dirs",
  "stencila-node-media",
+ "stencila-node-structuring",
  "stencila-node-supplements",
  "stencila-version",
  "tar",

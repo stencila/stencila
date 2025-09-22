@@ -2267,8 +2267,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR1",
@@ -2280,12 +2280,6 @@ expression: article
                       }
                     }
                   ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
                 },
                 {
                   "type": "Citation",
@@ -2325,8 +2319,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR2",
@@ -2340,10 +2334,16 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR3",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2401,8 +2401,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR5",
@@ -2416,10 +2416,16 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR6",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "6"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2442,8 +2448,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR2",
@@ -2455,12 +2461,6 @@ expression: article
                       }
                     }
                   ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
                 },
                 {
                   "type": "Citation",
@@ -2483,8 +2483,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR1",
@@ -2496,12 +2496,6 @@ expression: article
                       }
                     }
                   ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
                 },
                 {
                   "type": "Citation",
@@ -2516,10 +2510,16 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR9",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "9"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2542,8 +2542,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR11",
@@ -2557,10 +2557,28 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR12",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "12"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR13",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "13"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2651,8 +2669,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR2",
@@ -2666,12 +2684,6 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "CR8",
                   "content": [
@@ -2682,12 +2694,6 @@ expression: article
                       }
                     }
                   ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
                 },
                 {
                   "type": "Citation",
@@ -2721,8 +2727,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR1",
@@ -2734,12 +2740,6 @@ expression: article
                       }
                     }
                   ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
                 },
                 {
                   "type": "Citation",
@@ -2754,10 +2754,28 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR17",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "17"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR18",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "18"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2780,8 +2798,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR20",
@@ -2795,10 +2813,16 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR21",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "21"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2832,8 +2856,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR23",
@@ -2847,10 +2871,16 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR24",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "24"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2873,8 +2903,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR25",
@@ -2888,10 +2918,28 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "CR26",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "26"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "CR27",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "27"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
@@ -2914,8 +2962,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR24",
@@ -2929,12 +2977,6 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "CR29",
                   "content": [
@@ -2945,12 +2987,6 @@ expression: article
                       }
                     }
                   ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
                 },
                 {
                   "type": "Citation",
@@ -2973,8 +3009,8 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "CR27",
@@ -2988,12 +3024,6 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "CR31",
                   "content": [
@@ -3004,12 +3034,6 @@ expression: article
                       }
                     }
                   ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
                 },
                 {
                   "type": "Citation",
@@ -15257,8 +15281,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR3",
@@ -15270,12 +15294,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15380,19 +15398,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR27",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR27",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "27"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "27"
+                      }
                     }
                   ]
                 },
@@ -15403,8 +15417,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR11",
@@ -15416,12 +15430,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15444,8 +15452,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR33",
@@ -15457,12 +15465,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15513,8 +15515,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR14",
@@ -15526,12 +15528,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15554,8 +15550,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR36",
@@ -15567,12 +15563,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15595,19 +15585,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR30",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR30",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "30"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "30"
+                      }
                     }
                   ]
                 },
@@ -15618,19 +15604,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR30",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR30",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "30"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "30"
+                      }
                     }
                   ]
                 },
@@ -15669,8 +15651,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR38",
@@ -15682,12 +15664,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15710,8 +15686,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR33",
@@ -15723,12 +15699,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15751,8 +15721,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR33",
@@ -15764,12 +15734,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15792,19 +15756,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR40",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR40",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "40"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "40"
+                      }
                     }
                   ]
                 },
@@ -15815,19 +15775,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR5",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR5",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "5"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "5"
+                      }
                     }
                   ]
                 },
@@ -15838,19 +15794,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR41",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR41",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "41"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "41"
+                      }
                     }
                   ]
                 },
@@ -15861,19 +15813,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR42",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR42",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "42"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "42"
+                      }
                     }
                   ]
                 },
@@ -15884,19 +15832,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR42",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR42",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "42"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "42"
+                      }
                     }
                   ]
                 },
@@ -15907,19 +15851,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR39",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR39",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "39"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "39"
+                      }
                     }
                   ]
                 },
@@ -15930,8 +15870,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR39",
@@ -15943,12 +15883,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -15963,10 +15897,16 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "–"
-                      }
+                      "type": "Citation",
+                      "target": "CR44",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "44"
+                          }
+                        }
+                      ]
                     },
                     {
                       "type": "Citation",
@@ -16188,19 +16128,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR46",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR46",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "46"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "46"
+                      }
                     }
                   ]
                 },
@@ -16211,19 +16147,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR47",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR47",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "47"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "47"
+                      }
                     }
                   ]
                 },
@@ -16263,8 +16195,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR24",
@@ -16278,12 +16210,6 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "CR29",
                       "content": [
@@ -16294,12 +16220,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -16339,8 +16259,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR48",
@@ -16354,10 +16274,16 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "–"
-                      }
+                      "type": "Citation",
+                      "target": "CR49",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "49"
+                          }
+                        }
+                      ]
                     },
                     {
                       "type": "Citation",
@@ -16380,8 +16306,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "CR3",
@@ -16393,12 +16319,6 @@ expression: article
                           }
                         }
                       ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
                     },
                     {
                       "type": "Citation",
@@ -16421,19 +16341,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR51",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR51",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "51"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "51"
+                      }
                     }
                   ]
                 },
@@ -16461,19 +16377,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR52",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR52",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "52"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "52"
+                      }
                     }
                   ]
                 },
@@ -16484,19 +16396,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "CR53",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
-                      "type": "Citation",
-                      "target": "CR53",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "53"
-                          }
-                        }
-                      ]
+                      "type": "Text",
+                      "value": {
+                        "string": "53"
+                      }
                     }
                   ]
                 },

@@ -37,7 +37,13 @@ impl Codec for PmcCodec {
             Format::PmcOa => {
                 StructuringOptions::new([StructuringOperation::NormalizeCitations], [])
             }
-            Format::Html => StructuringOptions::new([StructuringOperation::NormalizeCitations], []),
+            Format::Html => StructuringOptions::new(
+                [
+                    StructuringOperation::LinksToCitations,
+                    StructuringOperation::NormalizeCitations,
+                ],
+                [],
+            ),
             _ => StructuringOptions::default(),
         }
     }

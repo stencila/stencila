@@ -88,7 +88,7 @@ pub(super) async fn decode_pmcid(
         )
     } else {
         // Use artifacts directory for caching
-        let artifacts_key = format!("pmcoa-{}", pmcid.trim_start_matches("PMC"));
+        let artifacts_key = format!("pmc-{}", pmcid.trim_start_matches("PMC"));
         let artifacts_dir = closest_artifacts_for(&current_dir()?, &artifacts_key).await?;
         (
             artifacts_dir.join(&tar_filename),

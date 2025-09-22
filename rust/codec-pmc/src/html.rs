@@ -15,9 +15,9 @@ use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
     stencila_schema::{
-        Article, Author, Block, Citation, CreativeWorkVariant, Date, Figure, Heading, ImageObject,
-        Inline, IntegerOrString, List, ListItem, ListOrder, Node, Organization, Paragraph,
-        Periodical, Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
+        Article, Author, Block, CreativeWorkVariant, Date, Figure, Heading, ImageObject, Inline,
+        IntegerOrString, List, ListItem, ListOrder, Node, Organization, Paragraph, Periodical,
+        Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
         PublicationVolume, Reference, Section, SectionType, Supplement, Table, TableCell,
         TableCellOptions, TableRow, TableRowType,
         shortcuts::{em, h1, h2, lnk, p, stg, sub, sup, t, u},
@@ -672,34 +672,17 @@ fn decode_inlines(parser: &Parser, tag: &HTMLTag) -> Result<Vec<Inline>> {
                 "a" => {
                     let href = get_attr(child_tag, "href");
                     if let Some(href_val) = href {
-                        if href_val.starts_with('#') {
-                            let target = href_val.trim_start_matches('#');
-
-                            // Get the inner text of the link to determine if it's a citation
-                            let link_text = get_text(parser, child_tag);
-                            let target_lower = target.to_lowercase();
-
-                            // If the link text parses to an integer AND the target doesn't contain
-                            // figure/table/supplement identifiers, treat it as a citation
-                            if link_text.parse::<u16>().is_ok()
-                                && !target_lower.contains("fig")
-                                && !target_lower.contains("tab")
-                                && !target_lower.contains("sup")
-                            {
-                                // This is a citation reference (e.g., [1], [23])
-                                let mut citation = Citation::new(target.to_string());
-                                citation.options.content = Some(content);
-                                Inline::Citation(citation)
-                            } else {
-                                // This is a figure, table, or other reference
-                                lnk(content, ["#", target].concat())
-                            }
+                        if href_val.starts_with('#') && get_text(parser, child_tag) == "[OPEN]" {
+                            // Skip the "[OPEN]" link to the footnote " [OPEN] Articles can be viewed online without a subscription."
+                            // which can be in the title
+                            continue;
                         } else {
-                            // This is an external link
                             lnk(content, href_val)
                         }
                     } else {
-                        lnk(content, "#")
+                        // A link with no target (unlikely): just add content
+                        inlines.extend(content);
+                        continue;
                     }
                 }
                 _ => {
@@ -1220,7 +1203,6 @@ fn decode_supplement(parser: &Parser, supplement_section: &HTMLTag) -> Result<Op
 fn decode_references(parser: &Parser, ref_section: &HTMLTag) -> Result<Vec<Reference>> {
     let mut references = Vec::new();
 
-    // Look for ul.ref-list
     for child in ref_section
         .children()
         .top()
@@ -1231,7 +1213,7 @@ fn decode_references(parser: &Parser, ref_section: &HTMLTag) -> Result<Vec<Refer
             let tag_name = tag.name().as_utf8_str();
             let class = get_class(tag);
 
-            if tag_name.as_ref() == "ul" && class.contains("ref-list") {
+            if matches!(tag_name.as_ref(), "ul" | "ol") && class.contains("ref-list") {
                 // Process each li as a reference
                 for li_child in tag
                     .children()

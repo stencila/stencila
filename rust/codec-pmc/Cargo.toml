@@ -26,6 +26,7 @@ url = { workspace = true }
 [dev-dependencies]
 glob = { workspace = true }
 insta = { workspace = true }
+stencila-node-structuring = { path = "../node-structuring" }
 
 [lints]
 workspace = true
