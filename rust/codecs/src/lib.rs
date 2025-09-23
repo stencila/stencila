@@ -276,7 +276,7 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
 
         // Perform any structuring
         if structuring_options.should_perform_any() {
-            structuring(&mut node, structuring_options);
+            structuring(&mut node, structuring_options).await?;
         }
 
         return Ok(node);
@@ -426,7 +426,7 @@ pub async fn from_path_with_info(
 
     // Perform any structuring
     if structuring_options.should_perform_any() {
-        structuring(&mut node, structuring_options);
+        structuring(&mut node, structuring_options).await?;
     }
 
     Ok((node, other, info))

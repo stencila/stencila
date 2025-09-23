@@ -75,7 +75,7 @@ async fn examples() -> Result<()> {
             }
         };
 
-        structuring(&mut node, StructuringOptions::new(operations, []));
+        structuring(&mut node, StructuringOptions::new(operations, [])).await?;
 
         assert_json_snapshot!(id, node);
     }

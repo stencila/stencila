@@ -8,11 +8,14 @@ Inflector = { workspace = true }
 eyre = { workspace = true }
 itertools = { workspace = true }
 regex = { workspace = true }
+serde_json = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-links = { path = "../codec-links" }
 stencila-codec-text-trait = { path = "../codec-text-trait" }
+stencila-models = { path = "../models" }
 stencila-schema = { path = "../schema" }
+stencila-schema-json = { path = "../schema-json" }
 tracing = { workspace = true }
 
 [dev-dependencies]

@@ -1,5 +1,7 @@
 use stencila_codec::StructuringOptions;
-use stencila_schema::{Block, CodeInline, Inline, RawBlock, VisitorMut, WalkControl, WalkNode};
+use stencila_schema::{
+    Block, CodeInline, Inline, RawBlock, VisitorAsync, VisitorMut, WalkControl, WalkNode,
+};
 
 use crate::{first::FirstWalk, second::SecondWalk, third::ThirdWalk};
 
@@ -9,11 +11,14 @@ mod third;
 
 /// Add structure to a document
 #[tracing::instrument(skip(node))]
-pub fn structuring<T: WalkNode>(node: &mut T, options: StructuringOptions) {
+pub async fn structuring<T: WalkNode>(
+    node: &mut T,
+    options: StructuringOptions,
+) -> eyre::Result<()> {
     tracing::trace!("Structuring node");
 
     let mut first = FirstWalk::new(options.clone());
-    first.walk(node);
+    first.walk(node).await?;
     first.determine_citation_style(options.citation_style);
 
     let mut second = SecondWalk::new(options.clone(), first);
@@ -21,6 +26,8 @@ pub fn structuring<T: WalkNode>(node: &mut T, options: StructuringOptions) {
 
     let mut third = ThirdWalk::new(options);
     third.walk(node);
+
+    Ok(())
 }
 
 const REMOVE_MARKER: &str = "<remove>";

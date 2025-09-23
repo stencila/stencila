@@ -896,7 +896,11 @@ pub enum StructuringOperation {
     /// originally used H1 for title and H2+ for main sections.
     HeadingsDecrement,
 
-    /// Ensure that all "primary" headings (e.g. "Introduction", "Methods") have level 1
+    /// Ensure that all "primary" headings have level 1
+    ///
+    /// Normalizes document structure by forcing primary section headings
+    /// (Introduction, Methods, Results, Discussion, Conclusions, etc.) to level
+    /// 1, regardless of their original heading levels.
     HeadingsPrimaryLevel1,
 
     /// Create a section for each heading
@@ -958,6 +962,14 @@ pub enum StructuringOperation {
     /// captions like "Table 1. Summary of results".
     TablesWithCaptions,
 
+    /// Convert table images to table rows using OCR
+    ///
+    /// Uses AI models to perform OCR on images within table blocks that have
+    /// no rows but contain images. The extracted table data is parsed and
+    /// converted to structured TableRow elements, enabling proper table
+    /// processing and display of image-based tabular content.
+    TableImagesToRows,
+
     /// Transform tables into datatables if possible
     ///
     /// Converts tables to typed datatables when they meet strict uniformity
@@ -991,6 +1003,14 @@ pub enum StructuringOperation {
     /// converted to proper citation references for consistent document
     /// structure and linking.
     MathToCitations,
+
+    /// Convert math images to TeX code using OCR
+    ///
+    /// Uses AI models to perform OCR on images within math blocks and inline
+    /// math that have empty code but contain images. The extracted mathematical
+    /// expressions are converted to TeX notation, enabling proper rendering
+    /// and processing of image-based mathematical content.
+    MathImagesToTex,
 
     /// Convert links to citations
     ///

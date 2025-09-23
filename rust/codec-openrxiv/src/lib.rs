@@ -26,8 +26,12 @@ impl Codec for OpenRxivCodec {
     }
 
     fn structuring_options(&self, format: &Format) -> StructuringOptions {
+        use StructuringOperation::*;
         match format {
-            Format::Meca => StructuringOptions::new([StructuringOperation::NormalizeCitations], []),
+            Format::Meca => StructuringOptions::new(
+                [NormalizeCitations, TableImagesToRows, MathImagesToTex],
+                [],
+            ),
             Format::Pdf => StructuringOptions::all(),
             _ => StructuringOptions::default(),
         }

@@ -42,7 +42,7 @@ async fn examples() -> Result<()> {
     for path in glob::glob(&tar_pattern)?.flatten() {
         let (mut article, .., info) = PmcCodec.from_path(&path, options.clone()).await?;
 
-        structuring(&mut article, PmcCodec.structuring_options(&Format::PmcOa));
+        structuring(&mut article, PmcCodec.structuring_options(&Format::PmcOa)).await?;
 
         let pmcid = path
             .file_name()
@@ -64,7 +64,7 @@ async fn examples() -> Result<()> {
     for path in glob::glob(&html_pattern)?.flatten() {
         let (mut article, ..) = PmcCodec.from_path(&path, options.clone()).await?;
 
-        structuring(&mut article, PmcCodec.structuring_options(&Format::Html));
+        structuring(&mut article, PmcCodec.structuring_options(&Format::Html)).await?;
 
         let pmcid = path
             .file_name()

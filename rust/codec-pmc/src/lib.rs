@@ -33,14 +33,20 @@ impl Codec for PmcCodec {
     }
 
     fn structuring_options(&self, format: &Format) -> StructuringOptions {
+        use StructuringOperation::*;
         match format {
-            Format::PmcOa => {
-                StructuringOptions::new([StructuringOperation::NormalizeCitations], [])
-            }
+            Format::PmcOa => StructuringOptions::new(
+                [
+                    NormalizeCitations,
+                    TableImagesToRows,
+                    MathImagesToTex,
+                ],
+                [],
+            ),
             Format::Html => StructuringOptions::new(
                 [
-                    StructuringOperation::LinksToCitations,
-                    StructuringOperation::NormalizeCitations,
+                    LinksToCitations,
+                    NormalizeCitations,
                 ],
                 [],
             ),

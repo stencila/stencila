@@ -1,9 +1,11 @@
 use std::{collections::HashMap, sync::LazyLock};
 
+use eyre::Result;
 use inflector::Inflector;
 use itertools::Itertools;
 use regex::Regex;
 
+use stencila_codec::stencila_format::Format;
 use stencila_codec::{CitationStyle, StructuringOperation::*, StructuringOptions};
 use stencila_codec_biblio::decode::{
     bracketed_numeric_citation, parenthetic_numeric_citation, superscripted_numeric_citation,
@@ -11,12 +13,16 @@ use stencila_codec_biblio::decode::{
     text_with_parenthetic_numeric_citations,
 };
 use stencila_codec_text_trait::to_text;
+use stencila_models::{ModelTask, perform_task};
 use stencila_schema::{
-    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IfBlockClause, IncludeBlock,
-    Inline, ListItem, ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section,
-    SectionType, StyledBlock, TableCell, Text, VisitorMut, WalkControl,
+    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IfBlockClause, ImageObject,
+    IncludeBlock, Inline, InstructionMessage, ListItem, ListOrder, MathInline, MessagePart,
+    ModelParameters, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock,
+    TableCell, TableRow, Text, VisitorAsync, WalkControl,
     shortcuts::{p, t},
 };
+use stencila_schema::{Cord, MathBlock, Table, WalkthroughStep};
+use stencila_schema_json::{JsonSchemaVariant, json_schema};
 
 use crate::{block_to_remove, inline_to_remove};
 
@@ -90,8 +96,8 @@ pub(super) struct FirstWalk {
     last_genuine_heading_level: Option<i64>,
 }
 
-impl VisitorMut for FirstWalk {
-    fn visit_node(&mut self, node: &mut Node) -> WalkControl {
+impl VisitorAsync for FirstWalk {
+    async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
         if let Node::Article(Article {
             title,
             content,
@@ -111,10 +117,10 @@ impl VisitorMut for FirstWalk {
             self.visit_blocks(content);
         }
 
-        WalkControl::Continue
+        Ok(WalkControl::Continue)
     }
 
-    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
+    async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         // Exit references mode if we encounter non-reference-like blocks
         if self.in_references {
             match block {
@@ -134,8 +140,9 @@ impl VisitorMut for FirstWalk {
             Block::Heading(..) => self.visit_heading(block),
             Block::Paragraph(..) => self.visit_paragraph(block),
             Block::List(..) => self.visit_list(block),
-            Block::Table(..) => self.visit_table(block),
+            Block::Table(..) => self.visit_table(block).await,
             Block::Datatable(..) => self.visit_datatable(block),
+            Block::MathBlock(..) => self.visit_math_block(block).await,
 
             // Visit nested vectors of blocks
             Block::Admonition(Admonition { content, .. })
@@ -162,7 +169,7 @@ impl VisitorMut for FirstWalk {
 
         // Mark the block for removal if in frontmatter
         if self.options.should_perform(RemovePrePrimary) && self.in_frontmatter {
-            return block_to_remove(block);
+            return Ok(block_to_remove(block));
         }
 
         // Mark that we've processed the first content block (for Heading1ToTitle)
@@ -170,46 +177,43 @@ impl VisitorMut for FirstWalk {
             self.is_first_content_block = false;
         }
 
-        walk_control
+        Ok(walk_control)
     }
 
-    fn visit_list_item(&mut self, list_item: &mut ListItem) -> WalkControl {
+    async fn visit_list_item(&mut self, list_item: &mut ListItem) -> Result<WalkControl> {
         self.visit_blocks(&mut list_item.content);
-        WalkControl::Continue
+        Ok(WalkControl::Continue)
     }
 
-    fn visit_table_cell(&mut self, table_cell: &mut TableCell) -> WalkControl {
+    async fn visit_table_cell(&mut self, table_cell: &mut TableCell) -> Result<WalkControl> {
         self.visit_blocks(&mut table_cell.content);
-        WalkControl::Continue
+        Ok(WalkControl::Continue)
     }
 
-    fn visit_if_block_clause(&mut self, clause: &mut IfBlockClause) -> WalkControl {
+    async fn visit_if_block_clause(&mut self, clause: &mut IfBlockClause) -> Result<WalkControl> {
         self.visit_blocks(&mut clause.content);
-        WalkControl::Continue
+        Ok(WalkControl::Continue)
     }
 
-    fn visit_walkthrough_step(
-        &mut self,
-        step: &mut stencila_schema::WalkthroughStep,
-    ) -> WalkControl {
+    async fn visit_walkthrough_step(&mut self, step: &mut WalkthroughStep) -> Result<WalkControl> {
         self.visit_blocks(&mut step.content);
-        WalkControl::Continue
+        Ok(WalkControl::Continue)
     }
 
-    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
+    async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
         if self.in_references {
             // Do not do the following if in references section since things like
             // number in brackets are normal parts of the formatting of references,
             // not citations!
-            return WalkControl::Continue;
+            return Ok(WalkControl::Continue);
         }
 
         match inline {
-            Inline::MathInline(math) => self.visit_math_inline(math),
+            Inline::MathInline(math) => self.visit_math_inline(math).await,
             Inline::Text(text) => {
                 // Remove empty text nodes
                 if self.options.should_perform(RemoveEmptyText) && is_empty_text(text) {
-                    return inline_to_remove(inline);
+                    return Ok(inline_to_remove(inline));
                 }
 
                 self.visit_text(text);
@@ -217,7 +221,7 @@ impl VisitorMut for FirstWalk {
             _ => {}
         }
 
-        WalkControl::Continue
+        Ok(WalkControl::Continue)
     }
 }
 
@@ -708,10 +712,29 @@ impl FirstWalk {
     }
 
     /// Visit a [`Table`] node
-    fn visit_table(&mut self, block: &mut Block) -> WalkControl {
+    async fn visit_table(&mut self, block: &mut Block) -> WalkControl {
         let Block::Table(table) = block else {
             return WalkControl::Continue;
         };
+
+        // Handle TablesImagesToRows operation
+        if self.options.should_perform(TableImagesToRows)
+            && table.rows.is_empty()
+            && table.options.images.is_some()
+        {
+            if let Some(images) = &table.options.images {
+                if let Some(first_image) = images.first() {
+                    match table_image_to_rows(first_image).await {
+                        Ok(rows) => {
+                            table.rows = rows;
+                        }
+                        Err(error) => {
+                            tracing::warn!("Failed to convert table image to rows: {error}");
+                        }
+                    }
+                }
+            }
+        }
 
         // Remove empty tables
         if self.options.should_perform(RemoveEmptyTables)
@@ -750,28 +773,73 @@ impl FirstWalk {
         WalkControl::Continue
     }
 
+    /// Async visit for math blocks with MathImagesToTex operation
+    async fn visit_math_block(&mut self, block: &mut Block) -> WalkControl {
+        let Block::MathBlock(math_block) = block else {
+            return WalkControl::Continue;
+        };
+
+        if self.options.should_perform(MathImagesToTex)
+            && math_block.code.is_empty()
+            && math_block.options.images.is_some()
+        {
+            if let Some(images) = &math_block.options.images {
+                if let Some(first_image) = images.first() {
+                    match math_image_to_tex(first_image, true).await {
+                        Ok(tex) => {
+                            math_block.code = tex;
+                        }
+                        Err(error) => {
+                            tracing::warn!("Failed to convert math image to TeX: {error}");
+                        }
+                    }
+                }
+            }
+        }
+
+        WalkControl::Continue
+    }
+
     /// Visit a [`MathInline`] node
-    fn visit_math_inline(&mut self, math: &MathInline) {
+    async fn visit_math_inline(&mut self, math_inline: &mut MathInline) {
         if self.options.should_perform(MathToCitations) {
-            if let Some(inline) = bracketed_numeric_citation(&math.code) {
+            if let Some(inline) = bracketed_numeric_citation(&math_inline.code) {
                 self.citations.insert(
-                    math.node_id(),
+                    math_inline.node_id(),
                     (CitationStyle::BracketedNumeric, vec![inline]),
                 );
             }
 
-            if let Some(inline) = parenthetic_numeric_citation(&math.code) {
+            if let Some(inline) = parenthetic_numeric_citation(&math_inline.code) {
                 self.citations.insert(
-                    math.node_id(),
+                    math_inline.node_id(),
                     (CitationStyle::ParentheticNumeric, vec![inline]),
                 );
             }
 
-            if let Some(inline) = superscripted_numeric_citation(&math.code) {
+            if let Some(inline) = superscripted_numeric_citation(&math_inline.code) {
                 self.citations.insert(
-                    math.node_id(),
+                    math_inline.node_id(),
                     (CitationStyle::SuperscriptedNumeric, vec![inline]),
                 );
+            }
+        }
+
+        if self.options.should_perform(MathImagesToTex)
+            && math_inline.code.is_empty()
+            && math_inline.options.images.is_some()
+        {
+            if let Some(images) = &math_inline.options.images {
+                if let Some(first_image) = images.first() {
+                    match math_image_to_tex(first_image, false).await {
+                        Ok(tex) => {
+                            math_inline.code = tex;
+                        }
+                        Err(error) => {
+                            tracing::warn!("Failed to convert math image to TeX: {error}");
+                        }
+                    }
+                }
             }
         }
     }
@@ -1226,6 +1294,60 @@ fn should_convert_paragraph_to_heading(paragraph: &Paragraph) -> bool {
     }
 
     false
+}
+
+/// OCR a table image using AI model
+async fn table_image_to_rows(image: &ImageObject) -> Result<Vec<TableRow>> {
+    let output = perform_task(ModelTask {
+        format: Some(Format::Json),
+        schema: Some(json_schema(JsonSchemaVariant::TableSimple)),
+        model_parameters: Some(ModelParameters {
+            model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
+            ..Default::default()
+        }),
+        messages: vec![InstructionMessage {
+            parts: vec![MessagePart::ImageObject(image.clone())],
+            ..Default::default()
+        }],
+        ..Default::default()
+    })
+    .await?;
+
+    let Table { rows, .. } = serde_json::from_str(&output.content)?;
+
+    Ok(rows)
+}
+
+/// OCR a math image using AI model
+async fn math_image_to_tex(image: &ImageObject, is_block: bool) -> Result<Cord> {
+    let schema = if is_block {
+        JsonSchemaVariant::MathBlockTex
+    } else {
+        JsonSchemaVariant::MathInlineTex
+    };
+
+    let output = perform_task(ModelTask {
+        format: Some(Format::Json),
+        schema: Some(json_schema(schema)),
+        model_parameters: Some(ModelParameters {
+            model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
+            ..Default::default()
+        }),
+        messages: vec![InstructionMessage {
+            parts: vec![MessagePart::ImageObject(image.clone())],
+            ..Default::default()
+        }],
+        ..Default::default()
+    })
+    .await?;
+
+    let tex = if is_block {
+        serde_json::from_str::<MathBlock>(&output.content)?.code
+    } else {
+        serde_json::from_str::<MathInline>(&output.content)?.code
+    };
+
+    Ok(tex)
 }
 
 #[cfg(test)]
