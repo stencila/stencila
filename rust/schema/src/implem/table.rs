@@ -137,7 +137,9 @@ impl DomCodec for Table {
 
         context.push_slot_fn("table", "rows", |context| self.rows.to_dom(context));
 
-        if let Some(images) = &self.options.images {
+        if self.rows.is_empty()
+            && let Some(images) = &self.options.images
+        {
             context.push_slot_fn("div", "images", |context| images.to_dom(context));
         }
 
