@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-polars = { version = "0.50", features = ["csv", "json", "parquet", "ipc", "lazy", "dtype-date", "dtype-datetime"] }
+polars = { version = "0.51.0", features = ["csv", "json", "parquet", "ipc", "lazy", "dtype-date", "dtype-datetime"] }
 stencila-codec = { path = "../codec" }
 
 [dev-dependencies]

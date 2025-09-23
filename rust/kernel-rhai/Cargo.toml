@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 itertools = { workspace = true }
-rhai = { version = "1.22.2", features = ["sync", "serde"] }
+rhai = { version = "1.23.4", features = ["sync", "serde"] }
 serde_json = { workspace = true }
 stencila-kernel = { path = "../kernel" }
 tokio = { workspace = true }
