@@ -721,17 +721,15 @@ impl FirstWalk {
         if self.options.should_perform(TableImagesToRows)
             && table.rows.is_empty()
             && table.options.images.is_some()
+            && let Some(images) = &table.options.images
+            && let Some(first_image) = images.first()
         {
-            if let Some(images) = &table.options.images {
-                if let Some(first_image) = images.first() {
-                    match table_image_to_rows(first_image).await {
-                        Ok(rows) => {
-                            table.rows = rows;
-                        }
-                        Err(error) => {
-                            tracing::warn!("Failed to convert table image to rows: {error}");
-                        }
-                    }
+            match table_image_to_rows(first_image).await {
+                Ok(rows) => {
+                    table.rows = rows;
+                }
+                Err(error) => {
+                    tracing::warn!("Failed to convert table image to rows: {error}");
                 }
             }
         }
@@ -782,17 +780,15 @@ impl FirstWalk {
         if self.options.should_perform(MathImagesToTex)
             && math_block.code.is_empty()
             && math_block.options.images.is_some()
+            && let Some(images) = &math_block.options.images
+            && let Some(first_image) = images.first()
         {
-            if let Some(images) = &math_block.options.images {
-                if let Some(first_image) = images.first() {
-                    match math_image_to_tex(first_image, true).await {
-                        Ok(tex) => {
-                            math_block.code = tex;
-                        }
-                        Err(error) => {
-                            tracing::warn!("Failed to convert math image to TeX: {error}");
-                        }
-                    }
+            match math_image_to_tex(first_image, true).await {
+                Ok(tex) => {
+                    math_block.code = tex;
+                }
+                Err(error) => {
+                    tracing::warn!("Failed to convert math image to TeX: {error}");
                 }
             }
         }
@@ -828,17 +824,15 @@ impl FirstWalk {
         if self.options.should_perform(MathImagesToTex)
             && math_inline.code.is_empty()
             && math_inline.options.images.is_some()
+            && let Some(images) = &math_inline.options.images
+            && let Some(first_image) = images.first()
         {
-            if let Some(images) = &math_inline.options.images {
-                if let Some(first_image) = images.first() {
-                    match math_image_to_tex(first_image, false).await {
-                        Ok(tex) => {
-                            math_inline.code = tex;
-                        }
-                        Err(error) => {
-                            tracing::warn!("Failed to convert math image to TeX: {error}");
-                        }
-                    }
+            match math_image_to_tex(first_image, false).await {
+                Ok(tex) => {
+                    math_inline.code = tex;
+                }
+                Err(error) => {
+                    tracing::warn!("Failed to convert math image to TeX: {error}");
                 }
             }
         }
