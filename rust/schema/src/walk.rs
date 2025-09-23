@@ -238,6 +238,14 @@ pub trait VisitorMut: Sized {
 /// Like [`VisitorMut`] but with async and fallible `visit_*` methods.
 #[allow(unused_variables, async_fn_in_trait)]
 pub trait VisitorAsync: Send + Sync {
+    /// Walk over, and potentially mutate, a node
+    async fn walk<T: WalkNode>(&mut self, node: &mut T) -> Result<()>
+    where
+        Self: Sized,
+    {
+        node.walk_async(self).await
+    }
+
     /// Visit, and potentially mutate, a `Node` node type
     fn visit_node(&mut self, node: &mut Node) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
@@ -326,7 +334,7 @@ pub trait VisitorAsync: Send + Sync {
     /// Visit, and potentially mutate, a `WalkthroughStep` node
     fn visit_walkthrough_step(
         &mut self,
-        step: &WalkthroughStep,
+        step: &mut WalkthroughStep,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }
