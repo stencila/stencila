@@ -31,7 +31,7 @@ pub(super) fn inlines_from_pandoc(
 ) -> Vec<Inline> {
     let mut inlines: Vec<Inline> = inlines
         .into_iter()
-        .map(|inline| inline_from_pandoc(inline, context))
+        .filter_map(|inline| inline_from_pandoc(inline, context))
         .collect();
 
     // Pandoc splits strings up by whitespace. This combines adjacent strings.
@@ -115,8 +115,8 @@ pub(super) fn inline_to_pandoc(
 }
 
 #[rustfmt::skip]
-fn inline_from_pandoc(inline: pandoc::Inline, context: &mut PandocDecodeContext) -> Inline {
-    match inline {
+fn inline_from_pandoc(inline: pandoc::Inline, context: &mut PandocDecodeContext) -> Option<Inline> {
+    Some(match inline {
         // Strings
         pandoc::Inline::Str(value) => Inline::Text(Text::new(value.into())),
         pandoc::Inline::Space => Inline::Text(Text::new(" ".into())),
@@ -146,10 +146,15 @@ fn inline_from_pandoc(inline: pandoc::Inline, context: &mut PandocDecodeContext)
 
         // Other
         pandoc::Inline::Note(blocks) => note_from_pandoc(blocks, context),
-        pandoc::Inline::Span(attrs, inlines ) => styled_inline_from_pandoc(attrs, inlines, context),
+        pandoc::Inline::Span(attrs, inlines ) => {
+            if inlines.is_empty() {
+                return None
+            }
+            styled_inline_from_pandoc(attrs, inlines, context)
+        },
         // Note: Stencila does not have raw inline yet, so use code
         pandoc::Inline::RawInline(format, content) => inline_from_pandoc_raw_inline(format, content, context),
-    }
+    })
 }
 
 fn audio_to_pandoc(audio: &AudioObject, context: &mut PandocEncodeContext) -> pandoc::Inline {
