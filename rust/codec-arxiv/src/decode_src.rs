@@ -14,6 +14,7 @@ use stencila_codec::{
     stencila_format::Format,
     stencila_schema::Node,
 };
+use stencila_codec_biblio::decode::bibtex;
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
 
 use super::decode::arxiv_id_to_doi;
@@ -93,6 +94,26 @@ pub(super) async fn decode_arxiv_src(
     if extract_dir.exists() {
         // Embed media
         embed_media(&mut node, Some(&extract_dir))?;
+
+        // Find and decode any bibliography file and assign to references
+        if let Ok(Some(bib_filename)) = find_bib_filename(&extract_dir).await {
+            let bib_path = extract_dir.join(&bib_filename);
+            if let Ok(bib_content) = fs::read_to_string(&bib_path).await {
+                match bibtex(&bib_content) {
+                    Ok(references) => {
+                        if let Node::Article(article) = &mut node {
+                            article.references = Some(references);
+                            tracing::debug!("Added references from {bib_filename}",);
+                        }
+                    }
+                    Err(error) => {
+                        tracing::warn!(
+                            "Failed to decode bibliography file {bib_filename}: {error}"
+                        );
+                    }
+                }
+            }
+        }
     }
 
     // Set doi, and other metadata
@@ -167,5 +188,65 @@ async fn find_main_tex_filename(dir: &Path) -> Result<String> {
             Ok(filename)
         }
         None => bail!("No suitable main LaTeX file found"),
+    }
+}
+
+/// Find a bibliography file in a directory containing extracted arXiv sources
+async fn find_bib_filename(dir: &Path) -> Result<Option<String>> {
+    let mut candidates = Vec::new();
+
+    // Read all .bib files
+    let mut entries = fs::read_dir(dir).await?;
+    while let Some(entry) = entries.next_entry().await? {
+        let path = entry.path();
+        if path.extension().is_some_and(|ext| ext == "bib")
+            && let Some(filename) = path.file_name().and_then(|filename| filename.to_str())
+        {
+            candidates.push(filename.to_string());
+        }
+    }
+
+    if candidates.is_empty() {
+        return Ok(None);
+    }
+
+    // Score each candidate file
+    let mut best_candidate = None;
+    let mut best_score = -1i32;
+
+    for filename in candidates {
+        let mut score = 0;
+
+        // Prefer common bibliography file names
+        let lower_name = filename.to_lowercase();
+        score += match lower_name.as_str() {
+            "references.bib" => 10,
+            "refs.bib" => 9,
+            "bibliography.bib" => 8,
+            "library.bib" => 7,
+            "main.bib" => 6,
+            "bibl.bib" => 5,
+            "bib.bib" => 4,
+            _ => 0,
+        };
+
+        // Try to read the file and check if it looks like a valid bibliography
+        if let Ok(content) = fs::read_to_string(&dir.join(&filename)).await {
+            // +1 point for each @article, @book, @inproceedings etc.
+            score += content.matches('@').count() as i32;
+        }
+
+        if score > best_score {
+            best_score = score;
+            best_candidate = Some(filename);
+        }
+    }
+
+    match best_candidate {
+        Some(filename) => {
+            tracing::debug!("Selected bibliography file: {filename} (score: {best_score})");
+            Ok(Some(filename))
+        }
+        None => Ok(None),
     }
 }
