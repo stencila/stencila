@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<title>Epidemic amplification by correlated superspreading</title>
+<!--Generated on Thu Sep 18 18:28:03 2025 by LaTeXML (version 0.8.8) http://dlmf.nist.gov/LaTeXML/.-->
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link href="/static/browse/0.3.4/css/arxiv-html-papers-20250916.css" rel="stylesheet" type="text/css"/>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js"></script>
+<script src="/static/browse/0.3.4/js/addons_new.js"></script>
+<script src="/static/browse/0.3.4/js/feedbackOverlay.js"></script>
+<base href="/html/2509.15338v1/"/></head>
+<body>
+<nav class="ltx_page_navbar">
+</nav>
+<div class="ltx_page_main">
+<div class="ltx_page_content">
+<article class="ltx_document ltx_authors_1line">
+<h1 class="ltx_title ltx_title_document">Epidemic amplification by correlated superspreading</h1>
+<div class="ltx_authors">
+<span class="ltx_creator ltx_role_author">
+<span class="ltx_personname">Noah Silva de Leonardi
+</span><span class="ltx_author_notes">Institute for Health Metrics and Evaluation, Hans Rosling Center for Population Health, University of Washington.</span></span>
+<span class="ltx_author_before">  </span><span class="ltx_creator ltx_role_author">
+<span class="ltx_personname">Benjamin D. Dalziel
+</span><span class="ltx_author_notes">Departments of Integrative Biology and Mathematics, Oregon State University.
+<br class="ltx_break"/>Email: <span class="ltx_text ltx_font_typewriter">benjamin.dalziel@oregonstate.edu</span></span></span>
+</div>
+<div class="ltx_abstract">
+<h6 class="ltx_title ltx_title_abstract">Abstract</h6>
+<p class="ltx_p">Infectious pathogens often propagate by superspreading, which focusses onward transmission on disproportionately few infected individuals<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib1" title="">1</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib3" title="">3</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib4" title="">4</a>]</cite>.
+At the same time, infector-infectee pairs tend to have more similar transmission potentials than expected by chance, as risk factors assort among individuals who frequently interact<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib5" title="">5</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib6" title="">6</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib7" title="">7</a>]</cite>.
+A key problem for infectious disease epidemiology, and in the dynamics of complex systems, is to understand how structured variation in individual transmission will scale to impact epidemic dynamics<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib8" title="">8</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib9" title="">9</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib10" title="">10</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib11" title="">11</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib12" title="">12</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib13" title="">13</a>]</cite>.
+Here we introduce a framework that reveals how population structure shapes epidemic thresholds, through autocorrelation of individual reproductive numbers along chains of transmission.
+We show that chains of superspreading can sustain epidemics even when the average transmission rate in the host population is below one, and derive a mathematical threshold beyond which correlated superspreading allows epidemics in otherwise subcritical systems.
+Empirical analysis of <math alttext="47" class="ltx_Math" display="inline" id="m1" intent=":literal"><semantics><mn>47</mn><annotation encoding="application/x-tex">47</annotation></semantics></math> transmission trees for <math alttext="13" class="ltx_Math" display="inline" id="m2" intent=":literal"><semantics><mn>13</mn><annotation encoding="application/x-tex">13</annotation></semantics></math> human pathogens indicate self-organizing bursts of superspreading are common and that many trees are near the critical boundary.
+Vaccination campaigns that proceed up assortative hierarchies of transmission are predicted to sustain the force of infection until herd immunity is reached, providing a mechanistic basis for threshold dynamics observed in real-world settings<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib14" title="">14</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib15" title="">15</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib16" title="">16</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib17" title="">17</a>]</cite>.
+Conversely, modulating correlations in transmission, rather than mean or variance, could enable cities and other complex systems to develop immune-like capacities that suppress contagion while preserving core functions.</p>
+</div>
+<div class="ltx_pagination ltx_role_newpage"></div>
+<section class="ltx_section" id="Sx1">
+<h2 class="ltx_title ltx_title_section"></h2>
+<div class="ltx_para" id="Sx1.p1">
+<p class="ltx_p">Contagion processes play a central role in population biology and in the dynamics of complex systems.
+This is evident in epidemics of infectious disease<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib18" title="">18</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib19" title="">19</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib20" title="">20</a>]</cite>, but also in the spread of advantageous alleles<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib21" title="">21</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib22" title="">22</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib23" title="">23</a>]</cite>, and in the propagation of influence in social systems<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib24" title="">24</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib25" title="">25</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib26" title="">26</a>]</cite>.
+Outbreaks spread unevenly in complex populations<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib27" title="">27</a>]</cite>, as individual transmission rates vary due to physiological differences influencing pathogen load and shedding<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib28" title="">28</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib29" title="">29</a>]</cite>, social contact patterns that shape who acquires infection from whom<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib30" title="">30</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib31" title="">31</a>]</cite>, and physical conditions that modulate pathogen persistence and dispersal range in the environment<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib32" title="">32</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib33" title="">33</a>]</cite>.
+Transmission heterogeneity in turn causes superspreading, where a majority of new infections are acquired from individuals whose transmission rate is far above the population average<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib1" title="">1</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="Sx1.p2">
+<p class="ltx_p">The impact of transmission heterogeneity depends on how it is organized.
+If individual transmission rates are statistically independent, then superspreading does not affect the risk or trajectory of large epidemics, as individual variation in transmission potential averages out at the population level<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>]</cite>.
+By contrast, non-independent transmission rates can change the conditions under which a local outbreak evolves into a major epidemic<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib5" title="">5</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib34" title="">34</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib35" title="">35</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib36" title="">36</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib37" title="">37</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib38" title="">38</a>]</cite>.
+This is illustrated by compartmental models that subdivide a host population into classes (e.g., by age, or spatial location), where the epidemic threshold corresponds to the spectral radius of the next-generation matrix, which is constructed from the inter-class transmission rates<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib19" title="">19</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib39" title="">39</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib40" title="">40</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib41" title="">41</a>]</cite>.
+In network epidemic models, where individual transmission potentials are explicitly wired together, the epidemic threshold is lower in networks with higher degree variance and assortativity<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib42" title="">42</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib5" title="">5</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib35" title="">35</a>]</cite>.
+Decades of work link host population structure to epidemic dynamics<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib19" title="">19</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib43" title="">43</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib42" title="">42</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib37" title="">37</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib44" title="">44</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib45" title="">45</a>]</cite>, and epidemic thresholds can be calculated for any host population and pathogen, subject to data availability and model constraints, using generalized methods such as next-generation matrices<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib19" title="">19</a>]</cite> or generating-function approaches<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib42" title="">42</a>]</cite>.
+Crucially, however, these methods do not provide a predictive understanding of how individual variability is amplified or attenuated by population structure.
+An open question that unites modeling approaches is how organizing heterogeneity propagates to determine epidemic thresholds<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib35" title="">35</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib46" title="">46</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib47" title="">47</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib41" title="">41</a>]</cite>.
+This question underlies important cross-scale challenges including predicting the impact of layered control measures<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib47" title="">47</a>]</cite>, forecasting how demography and climate will combine to impact epidemic risk<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib48" title="">48</a>]</cite>, and incorporating human behavior into epidemiological models<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib49" title="">49</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="Sx1.p3">
+<p class="ltx_p">Here we quantify how organizing heterogeneity alters epidemic thresholds by modeling autocorrelation of individual reproductive numbers along chains of transmission, in both simulated and real outbreaks.
+At base, epidemics of infectious disease are possible if and only if at least one additional host is expected to acquire the infection from an individual who is currently infected<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib18" title="">18</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib20" title="">20</a>]</cite>.
+Crucially, this expectation is a “pathwise” property, operating along chains of transmission<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib50" title="">50</a>]</cite>, rather than a simple expectation for a randomly-selected individual<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib9" title="">9</a>]</cite>.
+This suggests that organized chains of superspreading could scale up outbreaks and sustain epidemics, while the mean transmission potential averaged over the population is prohibitively low<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib51" title="">51</a>]</cite>, as could be the case where landscapes of susceptibility significantly modulate spread, or in populations near critical vaccination coverage<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib52" title="">52</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib53" title="">53</a>]</cite>.
+However the role of organized superspreading in sustaining transmission remains poorly understood, and its contribution to real-world epidemic dynamics is largely unknown.</p>
+</div>
+<div class="ltx_para" id="Sx1.p4">
+<p class="ltx_p">Let <math alttext="z_{i}" class="ltx_Math" display="inline" id="Sx1.p4.m1" intent=":literal"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_{i}</annotation></semantics></math> represent the number of onward transmission events that occur if an individual <math alttext="i" class="ltx_Math" display="inline" id="Sx1.p4.m2" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> becomes infected.
+Following standard theory<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>]</cite>, we assume <math alttext="z_{i}" class="ltx_Math" display="inline" id="Sx1.p4.m3" intent=":literal"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_{i}</annotation></semantics></math> arises from a Poisson process conditioned on <math alttext="i" class="ltx_Math" display="inline" id="Sx1.p4.m4" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>’s individual reproductive number <math alttext="\nu_{i}" class="ltx_Math" display="inline" id="Sx1.p4.m5" intent=":literal"><semantics><msub><mi>ν</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\nu_{i}</annotation></semantics></math> which represents their average transmission potential over many realizations of an outbreak in which they become infected.
+The individual reproductive number is itself a random variable, reflecting systematic variation among individuals in transmission potential, and is gamma distributed,</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="Sx2.EGx1">
+<tbody id="Sx1.E1"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle z_{i}\mid\nu_{i}" class="ltx_Math" display="inline" id="Sx1.E1.m1" intent=":literal"><semantics><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>∣</mo><msub><mi>ν</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\displaystyle z_{i}\mid\nu_{i}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle\sim\mathrm{Poisson}\left(\nu_{i}\right)" class="ltx_Math" display="inline" id="Sx1.E1.m2" intent=":literal"><semantics><mrow><mi></mi><mo>∼</mo><mrow><mi>Poisson</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo>(</mo><msub><mi>ν</mi><mi>i</mi></msub><mo>)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle\sim\mathrm{Poisson}\left(\nu_{i}\right)</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(1)</span></td>
+</tr></tbody>
+<tbody id="Sx1.E2"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle\nu_{i}" class="ltx_Math" display="inline" id="Sx1.E2.m1" intent=":literal"><semantics><msub><mi>ν</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\displaystyle\nu_{i}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle\sim\mathrm{gamma}(\bar{\nu}_{i},k)" class="ltx_Math" display="inline" id="Sx1.E2.m2" intent=":literal"><semantics><mrow><mi></mi><mo>∼</mo><mrow><mi>gamma</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><mo>,</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle\sim\mathrm{gamma}(\bar{\nu}_{i},k)</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(2)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with mean <math alttext="\bar{\nu}_{i}" class="ltx_Math" display="inline" id="Sx1.p4.m6" intent=":literal"><semantics><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\bar{\nu}_{i}</annotation></semantics></math> and dispersion <math alttext="k" class="ltx_Math" display="inline" id="Sx1.p4.m7" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.
+As a gamma mixture of Poissons, the overall distribution of <math alttext="z_{i}" class="ltx_Math" display="inline" id="Sx1.p4.m8" intent=":literal"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_{i}</annotation></semantics></math> (the “ofspring distribution” in the language of branching process models) is negative binomial, with mean <math alttext="\bar{\nu}_{i}" class="ltx_Math" display="inline" id="Sx1.p4.m9" intent=":literal"><semantics><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\bar{\nu}_{i}</annotation></semantics></math> and variance <math alttext="\bar{\nu}_{i}+\bar{\nu}_{i}^{2}/k" class="ltx_Math" display="inline" id="Sx1.p4.m10" intent=":literal"><semantics><mrow><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><mo>+</mo><mrow><msubsup><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi><mn>2</mn></msubsup><mo>/</mo><mi>k</mi></mrow></mrow><annotation encoding="application/x-tex">\bar{\nu}_{i}+\bar{\nu}_{i}^{2}/k</annotation></semantics></math>.
+The expected number of secondary infections acquired from the first infected individual is given by the basic reproductive number in the population, <math alttext="\bar{\nu}_{0}=\bar{\nu}=R_{0}" class="ltx_Math" display="inline" id="Sx1.p4.m11" intent=":literal"><semantics><mrow><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mn>0</mn></msub><mo>=</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>=</mo><msub><mi>R</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\bar{\nu}_{0}=\bar{\nu}=R_{0}</annotation></semantics></math>.
+The standard model for superspreading<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>]</cite> further assumes that individual reproductive numbers are independent and identically distributed, thus <math alttext="\bar{\nu}_{i}=\bar{\nu}" class="ltx_Math" display="inline" id="Sx1.p4.m12" intent=":literal"><semantics><mrow><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><mo>=</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><annotation encoding="application/x-tex">\bar{\nu}_{i}=\bar{\nu}</annotation></semantics></math> for all <math alttext="i" class="ltx_Math" display="inline" id="Sx1.p4.m13" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
+</div>
+<div class="ltx_para" id="Sx1.p5">
+<p class="ltx_p">We extend the standard model by allowing <math alttext="\bar{\nu}_{i}" class="ltx_Math" display="inline" id="Sx1.p5.m1" intent=":literal"><semantics><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\bar{\nu}_{i}</annotation></semantics></math> to change along chains of transmission as</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx1.E3">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\bar{\nu}_{i}=\bar{\nu}+\delta\left(\nu_{p(i)}-\bar{\nu}\right)" class="ltx_Math" display="block" id="Sx1.E3.m1" intent=":literal"><semantics><mrow><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><mo>=</mo><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>+</mo><mrow><mi>δ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo>(</mo><mrow><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo>)</mo></mrow></mrow></mrow></mrow><annotation encoding="application/x-tex">\bar{\nu}_{i}=\bar{\nu}+\delta\left(\nu_{p(i)}-\bar{\nu}\right)</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(3)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="p(i)" class="ltx_Math" display="inline" id="Sx1.p5.m2" intent=":literal"><semantics><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(i)</annotation></semantics></math> returns the index of the infection prior to <math alttext="i" class="ltx_Math" display="inline" id="Sx1.p5.m3" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> in a transmission chain.
+The autocorrelation parameter <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p5.m4" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> represents the propensity for infector-infectee pairs to have more similar reproductive numbers than would be expected if they were independently distributed, due to shared conditions that influence transmission rates.
+Setting <math alttext="\delta=0" class="ltx_Math" display="inline" id="Sx1.p5.m5" intent=":literal"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta=0</annotation></semantics></math> recovers the standard model as a special case, while <math alttext="\delta&gt;0" class="ltx_Math" display="inline" id="Sx1.p5.m6" intent=":literal"><semantics><mrow><mi>δ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta&gt;0</annotation></semantics></math> introduces correlated superspreading, without changing the population-wide mean and dispersion in individual reproductive numbers, given by <math alttext="\bar{\nu}" class="ltx_Math" display="inline" id="Sx1.p5.m7" intent=":literal"><semantics><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><annotation encoding="application/x-tex">\bar{\nu}</annotation></semantics></math> and <math alttext="k" class="ltx_Math" display="inline" id="Sx1.p5.m8" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> respectively.
+While this approach is flexible with respect to the sources of transmission heterogeneity, it is precise in its mechanism of action—addressing population structure as experienced by the pathogen as it spreads.</p>
+</div>
+<div class="ltx_para" id="Sx1.p6">
+<p class="ltx_p">Our results show that even weak path-level organization of transmission potential (<math alttext="0&lt;\delta&lt;0.1" class="ltx_Math" display="inline" id="Sx1.p6.m1" intent=":literal"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mi>δ</mi><mo>&lt;</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">0&lt;\delta&lt;0.1</annotation></semantics></math>) can generate outbreaks that are orders of magnitude larger than if superspreading occurred at random (Figure 1).
+For instance, when weak correlation (<math alttext="\delta=0.08" class="ltx_Math" display="inline" id="Sx1.p6.m2" intent=":literal"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0.08</mn></mrow><annotation encoding="application/x-tex">\delta=0.08</annotation></semantics></math>) is introduced to a population with subcritical mean transmission rate (<math alttext="\bar{\nu}=0" class="ltx_Math" display="inline" id="Sx1.p6.m3" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\bar{\nu}=0</annotation></semantics></math>) and marginal levels of superspreading (<math alttext="k=1" class="ltx_Math" display="inline" id="Sx1.p6.m4" intent=":literal"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k=1</annotation></semantics></math>), the final size of a 1-in-100 outbreak (99th percentile) increases by approximately 10 fold, from about <math alttext="100" class="ltx_Math" display="inline" id="Sx1.p6.m5" intent=":literal"><semantics><mn>100</mn><annotation encoding="application/x-tex">100</annotation></semantics></math> to <math alttext="1000" class="ltx_Math" display="inline" id="Sx1.p6.m6" intent=":literal"><semantics><mn>1000</mn><annotation encoding="application/x-tex">1000</annotation></semantics></math> cases.
+These effects intensify as dispersion increases, within empirically observed ranges<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib54" title="">54</a>]</cite>.
+As correlation in superspreading increases, the tail distribution of outbreak sizes places more mass in extreme events and decays more slowly, indicating potential for very large outbreaks.
+The emergence of very large outbreaks in subcritical regimes shows that path organization substantially alters the risk posed by superspreading.
+In particular, superspreading in social-like systems is far more dangerous than the standard model indicates<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib3" title="">3</a>]</cite>.</p>
+</div>
+<figure class="ltx_figure" id="Sx1.F1">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><img alt="Refer to caption" class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_landscape" height="220" id="Sx1.F1.g1" src="x1.png" width="660"/></div>
+</div>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 1: </span><span class="ltx_text ltx_font_bold" style="font-size:90%;">Correlated superspreading increases the final size and tail risk of outbreaks<span class="ltx_text ltx_font_medium">. Each curve shows the tail distribution of <math alttext="10^{4}" class="ltx_Math" display="inline" id="Sx1.F1.m6" intent=":literal"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^{4}</annotation></semantics></math> simulated outbreaks, each initiated with a single infected individual with reproductive number drawn from <math alttext="\mathrm{gamma}(\bar{\nu}=0.9,k)" class="ltx_Math" display="inline" id="Sx1.F1.m7" intent=":literal"><semantics><mrow><mi>gamma</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>=</mo><mrow><mn>0.9</mn><mo>,</mo><mi>k</mi></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{gamma}(\bar{\nu}=0.9,k)</annotation></semantics></math>. Colors correspond to different values of the autocorrelation parameter <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.F1.m8" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>. Panels </span>a-c<span class="ltx_text ltx_font_medium"> correspond to different values of the dispersion parameter <math alttext="k" class="ltx_Math" display="inline" id="Sx1.F1.m9" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, with lower values corresponding to higher levels of dispersion. Simulations were right censored at <math alttext="10^{4}" class="ltx_Math" display="inline" id="Sx1.F1.m10" intent=":literal"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^{4}</annotation></semantics></math> cases.</span></span></figcaption><div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><span class="ltx_rule ltx_figure_panel ltx_align_center" style="width:345.0pt;height:0.4pt;--ltx-bg-color:black;display:inline-block;"> </span></div>
+</div>
+</figure>
+<div class="ltx_para" id="Sx1.p7">
+<p class="ltx_p">We identify a critical threshold beyond which correlated superspreading sustains epidemics in otherwise subcritical regimes (i.e., when <math alttext="\bar{\nu}&lt;1" class="ltx_Math" display="inline" id="Sx1.p7.m1" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\bar{\nu}&lt;1</annotation></semantics></math>), given by</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx1.E4">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\delta^{*}=\frac{1-\bar{\nu}}{1-\bar{\nu}+\frac{1}{k}}" class="ltx_Math" display="block" id="Sx1.E4.m1" intent=":literal"><semantics><mrow><msup><mi>δ</mi><mo>∗</mo></msup><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mrow><mrow><mn>1</mn><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo>+</mo><mfrac><mn>1</mn><mi>k</mi></mfrac></mrow></mfrac></mrow><annotation encoding="application/x-tex">\delta^{*}=\frac{1-\bar{\nu}}{1-\bar{\nu}+\frac{1}{k}}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(4)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="\delta^{*}" class="ltx_Math" display="inline" id="Sx1.p7.m2" intent=":literal"><semantics><msup><mi>δ</mi><mo>∗</mo></msup><annotation encoding="application/x-tex">\delta^{*}</annotation></semantics></math> is level of autocorrelation above which local outbreaks have <math alttext="P[\text{fadeout}]&lt;1" class="ltx_Math" display="inline" id="Sx1.p7.m3" intent=":literal"><semantics><mrow><mrow><mi>P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mtext>fadeout</mtext><mo stretchy="false">]</mo></mrow></mrow><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">P[\text{fadeout}]&lt;1</annotation></semantics></math>.
+The threshold is derived mathematically (Methods), and confirmed by simulation (Figure 2).
+As <math alttext="\bar{\nu}\to 1" class="ltx_Math" display="inline" id="Sx1.p7.m4" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo stretchy="false">→</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\bar{\nu}\to 1</annotation></semantics></math> from below, even minimal correlation allows epidemics.
+As <math alttext="\bar{\nu}\to 0" class="ltx_Math" display="inline" id="Sx1.p7.m5" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo stretchy="false">→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\bar{\nu}\to 0</annotation></semantics></math>, epidemics remain possible under extreme, highly organized variation.
+When <math alttext="\bar{\nu}&gt;1" class="ltx_Math" display="inline" id="Sx1.p7.m6" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\bar{\nu}&gt;1</annotation></semantics></math> and <math alttext="\delta&gt;0" class="ltx_Math" display="inline" id="Sx1.p7.m7" intent=":literal"><semantics><mrow><mi>δ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta&gt;0</annotation></semantics></math>, high dispersion can produce faster-than-exponential growth with limited predictability and many fadeouts.
+Autocorrelation thus shapes the impact of individual variation on outbreak size, epidemic risk, and the limits of population-wide predictability, addressing the longstanding debate on when individual heterogeneity matters<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib9" title="">9</a>]</cite>.</p>
+</div>
+<figure class="ltx_figure" id="Sx1.F2">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><img alt="Refer to caption" class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_landscape" height="472" id="Sx1.F2.g1" src="x2.png" width="660"/></div>
+</div>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 2: </span><span class="ltx_text ltx_font_bold" style="font-size:90%;">There is a critical threshold beyond which correlated superspreading can sustain epidemics in otherwise subcritical systems.<span class="ltx_text ltx_font_medium"> </span>a-c,<span class="ltx_text ltx_font_medium"> The proportion of simulated outbreaks reaching <math alttext="10^{3}" class="ltx_Math" display="inline" id="Sx1.F2.m6" intent=":literal"><semantics><msup><mn>10</mn><mn>3</mn></msup><annotation encoding="application/x-tex">10^{3}</annotation></semantics></math> cases as a function of mean transmission rate (<math alttext="\bar{\nu}" class="ltx_Math" display="inline" id="Sx1.F2.m7" intent=":literal"><semantics><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><annotation encoding="application/x-tex">\bar{\nu}</annotation></semantics></math>) and path-correlation in transmission potential (<math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.F2.m8" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>).
+Dispersion lowers the critical level of organization required for superspreading to drive epidemics, but increases the risk that local outbreaks will fade out<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>]</cite>. Epidemic risk in biological, social and technological systems may therefore be maximized at intermediate levels of dispersion, where there is sufficient variance to scale superspreading through organized transmission (</span>b<span class="ltx_text ltx_font_medium">), but not so much variance that fadeouts dominate (</span>c<span class="ltx_text ltx_font_medium">). </span>d-f,<span class="ltx_text ltx_font_medium"> The average size of outbreaks that did not reach <math alttext="10^{3}" class="ltx_Math" display="inline" id="Sx1.F2.m9" intent=":literal"><semantics><msup><mn>10</mn><mn>3</mn></msup><annotation encoding="application/x-tex">10^{3}</annotation></semantics></math> cases, with larger outbreaks marking the critical boundary. The white line shows the analytical threshold <math alttext="\delta^{*}=(1-\bar{\nu})/(1-\bar{\nu}+k^{-1})" class="ltx_Math" display="inline" id="Sx1.F2.m10" intent=":literal"><semantics><mrow><msup><mi>δ</mi><mo>∗</mo></msup><mo>=</mo><mrow><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo stretchy="false">)</mo></mrow><mo>/</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><mn>1</mn><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo>+</mo><msup><mi>k</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\delta^{*}=(1-\bar{\nu})/(1-\bar{\nu}+k^{-1})</annotation></semantics></math>. Each pixel shows the result of 100 replicate simulations.</span></span></figcaption><div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><span class="ltx_rule ltx_figure_panel ltx_align_center" style="width:345.0pt;height:0.4pt;--ltx-bg-color:black;display:inline-block;"> </span></div>
+</div>
+</figure>
+<div class="ltx_para" id="Sx1.p8">
+<p class="ltx_p">Turning to empirical data, we confront the null-hypothesis that <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p8.m1" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> is effectively <math alttext="0" class="ltx_Math" display="inline" id="Sx1.p8.m2" intent=":literal"><mn>0</mn></math> in real-world systems.
+This is plausible: while successive superspreading events have been observed<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib54" title="">54</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib55" title="">55</a>]</cite>, transmission chains often traverse biological, social, and environmental contexts<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib56" title="">56</a>]</cite>, which may erode similarities in transmission rates among infector-infectee pairsx.
+Given successive values of <math alttext="z" class="ltx_Math" display="inline" id="Sx1.p8.m3" intent=":literal"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math> observed along transmission chains, our model specifies a likelihood function that allows parameter estimation by Markov chain Monte Carlo, yielding posterior distributions for <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p8.m4" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>, and other model parameters (Methods).
+We fitted our model to a database of empirical transmission trees for human pathogens assembled by Taube et al.<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib54" title="">54</a>]</cite>, using all trees that had <math alttext="\geq 3" class="ltx_Math" display="inline" id="Sx1.p8.m5" intent=":literal"><semantics><mrow><mi></mi><mo>≥</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\geq 3</annotation></semantics></math> generations and finite estimates of the dispersion parameter <math alttext="k" class="ltx_Math" display="inline" id="Sx1.p8.m6" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, which yielded <math alttext="47" class="ltx_Math" display="inline" id="Sx1.p8.m7" intent=":literal"><semantics><mn>47</mn><annotation encoding="application/x-tex">47</annotation></semantics></math> trees spanning <math alttext="13" class="ltx_Math" display="inline" id="Sx1.p8.m8" intent=":literal"><semantics><mn>13</mn><annotation encoding="application/x-tex">13</annotation></semantics></math> human pathogens (Methods).
+This sample should not be considered representative, but can reject our null-hypothesis by counterexample.</p>
+</div>
+<div class="ltx_para" id="Sx1.p9">
+<p class="ltx_p">Over two thirds of trees had posterior mean values for <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p9.m1" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> that exceeded <math alttext="0.1" class="ltx_Math" display="inline" id="Sx1.p9.m2" intent=":literal"><semantics><mn>0.1</mn><annotation encoding="application/x-tex">0.1</annotation></semantics></math>, which is sufficient to substantially alter epidemic thresholds under realistic values for <math alttext="k" class="ltx_Math" display="inline" id="Sx1.p9.m3" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> and <math alttext="\bar{n}u" class="ltx_Math" display="inline" id="Sx1.p9.m4" intent=":literal"><semantics><mrow><mover accent="true"><mi>n</mi><mo>¯</mo></mover><mo lspace="0em" rspace="0em">​</mo><mi>u</mi></mrow><annotation encoding="application/x-tex">\bar{n}u</annotation></semantics></math> (Fig. 1, 2).
+The median of per-tree posterior means was 0.126, (range <math alttext="0.0040" class="ltx_Math" display="inline" id="Sx1.p9.m5" intent=":literal"><semantics><mn>0.0040</mn><annotation encoding="application/x-tex">0.0040</annotation></semantics></math> to <math alttext="0.3373" class="ltx_Math" display="inline" id="Sx1.p9.m6" intent=":literal"><semantics><mn>0.3373</mn><annotation encoding="application/x-tex">0.3373</annotation></semantics></math>) and the median of the first quartiles of the posterior distributions for each tree was <math alttext="0.0393" class="ltx_Math" display="inline" id="Sx1.p9.m7" intent=":literal"><semantics><mn>0.0393</mn><annotation encoding="application/x-tex">0.0393</annotation></semantics></math> (range <math alttext="0.00171" class="ltx_Math" display="inline" id="Sx1.p9.m8" intent=":literal"><semantics><mn>0.00171</mn><annotation encoding="application/x-tex">0.00171</annotation></semantics></math> to <math alttext="0.08640" class="ltx_Math" display="inline" id="Sx1.p9.m9" intent=":literal"><semantics><mn>0.08640</mn><annotation encoding="application/x-tex">0.08640</annotation></semantics></math>).
+Thus, across the empirical trees in the database, posterior distributions concentrate substantially away from zero, and the null hypothesis that <math alttext="\delta=0" class="ltx_Math" display="inline" id="Sx1.p9.m10" intent=":literal"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta=0</annotation></semantics></math> is not supported.</p>
+</div>
+<div class="ltx_para" id="Sx1.p10">
+<p class="ltx_p">Estimates for <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p10.m1" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> straddle the critical region where subcritical systems can be tipped into epidemic spread by correlated superspreading (Fig. 3d).
+Interestingly, transmission trees for SARS-CoV-2 appeared to occupy the central region of <math alttext="\delta-k" class="ltx_Math" display="inline" id="Sx1.p10.m2" intent=":literal"><semantics><mrow><mi>δ</mi><mo>−</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\delta-k</annotation></semantics></math> parameter space where superspreading can scale outbreaks without fadeouts dominating, as described above (Fig. 2, 3d,e).
+Since estimates of <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p10.m3" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> are substantial in empirical trees, can be readily estimated from contact tracing data, and determine the risk associated with a given level of dispersion <math alttext="k" class="ltx_Math" display="inline" id="Sx1.p10.m4" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, it follows that <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p10.m5" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> should, where possible, be estimated and reported alongside other key epidemiological parameters in outbreak investigations and studies of emerging infectious disease threats.</p>
+</div>
+<figure class="ltx_figure" id="Sx1.F3">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><img alt="Refer to caption" class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_landscape" height="510" id="Sx1.F3.g1" src="x3.png" width="660"/></div>
+</div>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 3: </span><span class="ltx_text ltx_font_bold" style="font-size:90%;">Empirical transmission trees show a range of autocorrelation in individual transmission rates.<span class="ltx_text ltx_font_medium">
+</span>a-c,<span class="ltx_text ltx_font_medium"> Empirical trees assembled by <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib54" title="">54</a>]</cite>: Middle East Respiratory Syndrome Coronavirus (MERS) in Korea in 2015<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib57" title="">57</a>]</cite>, Severe acute respiratory syndrome (SARS) in Singapore in 2003<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib58" title="">58</a>]</cite>, and H1N1 influinza in the United States in 2009<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib31" title="">31</a>]</cite>.
+Circles show the first case.
+Successively smaller squares label the first 5 generations.
+The thickness and color of the edges is proportional to the product of the number of cases associated with their vertex pair, so edges connected successive superspreading events are wider.
+</span>d<span class="ltx_text ltx_font_medium"> Postior mean estimates of <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.F3.m5" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> and <math alttext="k" class="ltx_Math" display="inline" id="Sx1.F3.m6" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> for each tree.
+Vertical lines enclose the interquartile range of the posterior distribution.
+Curves show the critical thresholds for the respective values of <math alttext="\bar{\nu}" class="ltx_Math" display="inline" id="Sx1.F3.m7" intent=":literal"><semantics><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><annotation encoding="application/x-tex">\bar{\nu}</annotation></semantics></math> in the grey boxes.
+Marker size is proportion to the number of cases in the tree range from <math alttext="8" class="ltx_Math" display="inline" id="Sx1.F3.m8" intent=":literal"><semantics><mn>8</mn><annotation encoding="application/x-tex">8</annotation></semantics></math> to 286 (median, mean, s.d.: 32, 43.3617, 50.8798). The points are color-coded by pathogen. </span>e<span class="ltx_text ltx_font_medium">, distrubutions across pathogens.
+</span></span></figcaption><div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><span class="ltx_rule ltx_figure_panel ltx_align_center" style="width:345.0pt;height:0.4pt;--ltx-bg-color:black;display:inline-block;"> </span></div>
+</div>
+</figure>
+<div class="ltx_para" id="Sx1.p11">
+<p class="ltx_p">We examined the implications of correlated superspreading for the design of control systems.
+This required linking our framework to susceptible dynamics.
+To do so, we used a compartmental model structured by individual reproductive number, such that <math alttext="n" class="ltx_Math" display="inline" id="Sx1.p11.m1" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> secondary infections are expected to be acquired from an individual in the <math alttext="n" class="ltx_Math" display="inline" id="Sx1.p11.m2" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>th class (Methods).
+The next-generation matrix for this model has entries <math alttext="\mathrm{K}_{nm}=mP[n|m]" class="ltx_Math" display="inline" id="Sx1.p11.m3" intent=":literal"><semantics><mrow><msub><mi mathvariant="normal">K</mi><mrow><mi>n</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi></mrow></msub><mo>=</mo><mrow><mi>m</mi><mo lspace="0em" rspace="0em">​</mo><mi>P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo fence="false">|</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\mathrm{K}_{nm}=mP[n|m]</annotation></semantics></math>, where <math alttext="P[n|m]" class="ltx_Math" display="inline" id="Sx1.p11.m4" intent=":literal"><semantics><mrow><mi>P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo fence="false">|</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">P[n|m]</annotation></semantics></math> is the probability that a host of type <math alttext="n" class="ltx_Math" display="inline" id="Sx1.p11.m5" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> acquires infection from a host of type <math alttext="m" class="ltx_Math" display="inline" id="Sx1.p11.m6" intent=":literal"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.
+The conditional probability <math alttext="P[n|m]" class="ltx_Math" display="inline" id="Sx1.p11.m7" intent=":literal"><semantics><mrow><mi>P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo fence="false">|</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">P[n|m]</annotation></semantics></math> is parameterized as negative binomial distribution with mean <math alttext="\bar{\nu}+\delta(m-\bar{\nu})" class="ltx_Math" display="inline" id="Sx1.p11.m8" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>+</mo><mrow><mi>δ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mrow><mi>m</mi><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\bar{\nu}+\delta(m-\bar{\nu})</annotation></semantics></math> and dispersion <math alttext="k" class="ltx_Math" display="inline" id="Sx1.p11.m9" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, consistent with our framework.
+It is worth noting that a compartment model structured by individual reproductive number illustrates why autocorrelation determines the impact of individual variation on epidemic dynamics.
+When <math alttext="\delta=0" class="ltx_Math" display="inline" id="Sx1.p11.m10" intent=":literal"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta=0</annotation></semantics></math> then the columns of <math alttext="\mathrm{K}" class="ltx_Math" display="inline" id="Sx1.p11.m11" intent=":literal"><semantics><mi mathvariant="normal">K</mi><annotation encoding="application/x-tex">\mathrm{K}</annotation></semantics></math> differ only by a scalar multiple <math alttext="m" class="ltx_Math" display="inline" id="Sx1.p11.m12" intent=":literal"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>, and its spectral radius is the mean transmission potential in the population <math alttext="\bar{\nu}" class="ltx_Math" display="inline" id="Sx1.p11.m13" intent=":literal"><semantics><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><annotation encoding="application/x-tex">\bar{\nu}</annotation></semantics></math>, regardless of individual variation (<math alttext="k" class="ltx_Math" display="inline" id="Sx1.p11.m14" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>).
+Conversely <math alttext="\delta&gt;0" class="ltx_Math" display="inline" id="Sx1.p11.m15" intent=":literal"><semantics><mrow><mi>δ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta&gt;0</annotation></semantics></math> implies that the spectral radius emerges from the full structure of the matrix, allowing <math alttext="k" class="ltx_Math" display="inline" id="Sx1.p11.m16" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> to influence epidemic thresholds (Methods).</p>
+</div>
+<div class="ltx_para" id="Sx1.p12">
+<p class="ltx_p">We used the compartment version of our model to consider the impact of correlated superspreading on vaccination campaigns.
+In practice, vaccination rollouts often reach lower-transmission groups first, as individuals with high transmission potential tend to face barriers to access to healthcare, and vaccination programs may prioritize severe disease risk over transmission risk.
+We therefore simulated vaccination as sequentially targeting classes in ascending order of <math alttext="n" class="ltx_Math" display="inline" id="Sx1.p12.m1" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>, each to critical coverage <math alttext="1-1/R_{0}" class="ltx_Math" display="inline" id="Sx1.p12.m2" intent=":literal"><semantics><mrow><mn>1</mn><mo>−</mo><mrow><mn>1</mn><mo>/</mo><msub><mi>R</mi><mn>0</mn></msub></mrow></mrow><annotation encoding="application/x-tex">1-1/R_{0}</annotation></semantics></math>, with <math alttext="R_{0}" class="ltx_Math" display="inline" id="Sx1.p12.m3" intent=":literal"><semantics><msub><mi>R</mi><mn>0</mn></msub><annotation encoding="application/x-tex">R_{0}</annotation></semantics></math> given by the spectral radius of <math alttext="K" class="ltx_Math" display="inline" id="Sx1.p12.m4" intent=":literal"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>.
+Classical theory assumes vaccination is done at random and predicts the population reproductive number after control is applied <math alttext="R_{c}" class="ltx_Math" display="inline" id="Sx1.p12.m5" intent=":literal"><semantics><msub><mi>R</mi><mi>c</mi></msub><annotation encoding="application/x-tex">R_{c}</annotation></semantics></math> will decline linearly with coverage, <math alttext="R_{c}=(1-c)R_{0}" class="ltx_Math" display="inline" id="Sx1.p12.m6" intent=":literal"><semantics><mrow><msub><mi>R</mi><mi>c</mi></msub><mo>=</mo><mrow><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><mi>c</mi></mrow><mo stretchy="false">)</mo></mrow><mo lspace="0em" rspace="0em">​</mo><msub><mi>R</mi><mn>0</mn></msub></mrow></mrow><annotation encoding="application/x-tex">R_{c}=(1-c)R_{0}</annotation></semantics></math>, where <math alttext="c" class="ltx_Math" display="inline" id="Sx1.p12.m7" intent=":literal"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> is the proportion vaccinated.
+Under these conditions correlated superspreading did not change the dynamics.
+Sequential rollout instead produces a nonlinear response, where <math alttext="R_{c}" class="ltx_Math" display="inline" id="Sx1.p12.m8" intent=":literal"><semantics><msub><mi>R</mi><mi>c</mi></msub><annotation encoding="application/x-tex">R_{c}</annotation></semantics></math> initially declines more slowly until higher-<math alttext="n" class="ltx_Math" display="inline" id="Sx1.p12.m9" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> classes are reached, then drops more rapidly.
+This nonlinear effect intensifies as <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p12.m10" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> increases, producing threshold-like dynamics where <math alttext="R_{c}\approx R_{0}" class="ltx_Math" display="inline" id="Sx1.p12.m11" intent=":literal"><semantics><mrow><msub><mi>R</mi><mi>c</mi></msub><mo>≈</mo><msub><mi>R</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">R_{c}\approx R_{0}</annotation></semantics></math> for much of the rollout before collapsing abruptly (Fig. 4).
+These results provide a quantitative basis for predicting threshold behavior observed in real-world vaccination campaigns<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib14" title="">14</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib15" title="">15</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib16" title="">16</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib17" title="">17</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="Sx1.p13">
+<p class="ltx_p">We also explored a proof-of-concept for a new class of intervention in which <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p13.m1" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> is used as a control variable.
+For example, this could correspond to an “intelligent city” that adaptively adjusts mobility patterns through incentives so that transmission chains are less likely to connect among high-transmission groups<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib59" title="">59</a>]</cite>.
+To test this idea quantitatively, we coupled our compartment model to a proportional–integral–derivative (PID) controller that dynamically reduced <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p13.m2" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> in response to incidence.
+Short-term reductions in <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p13.m3" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> in response to rising incidence substantially blunted epidemic peaks, achieving performance comparable to that of a seasonal influenza vaccination program in the United States during a typical year (Fig. 4b).
+In practice, the efficacy of <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.p13.m4" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>-based control will likely depend on many factors, and these types of feedback loops can produce complex system behaviors which are not yet fully understood<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib60" title="">60</a>]</cite>.</p>
+</div>
+<figure class="ltx_figure" id="Sx1.F4">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><img alt="Refer to caption" class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_landscape" height="510" id="Sx1.F4.g1" src="x4.png" width="660"/></div>
+</div>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 4: </span><span class="ltx_text ltx_font_bold" style="font-size:90%;">Implications of correlated superspreading for the design of control systems.<span class="ltx_text ltx_font_medium">
+</span>a<span class="ltx_text ltx_font_medium">, The response of the controlled reproductive number, <math alttext="R_{\mathrm{c}}" class="ltx_Math" display="inline" id="Sx1.F4.m19" intent=":literal"><semantics><msub><mi>R</mi><mi mathvariant="normal">c</mi></msub><annotation encoding="application/x-tex">R_{\mathrm{c}}</annotation></semantics></math>, to vaccination depends on the correlation among individual reproductive numbers along transmission chains, <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.F4.m20" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>. When vaccination rollouts ascend transmission hiearchies, increasing <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.F4.m21" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> creates threshold dynamics, with <math alttext="R_{\mathrm{c}}\approx R_{0}" class="ltx_Math" display="inline" id="Sx1.F4.m22" intent=":literal"><semantics><mrow><msub><mi>R</mi><mi mathvariant="normal">c</mi></msub><mo>≈</mo><msub><mi>R</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">R_{\mathrm{c}}\approx R_{0}</annotation></semantics></math> until herd immunity is reached. Dispersion is fixed at <math alttext="k=1" class="ltx_Math" display="inline" id="Sx1.F4.m23" intent=":literal"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k=1</annotation></semantics></math>, and mean transmission is scaled so that <math alttext="R_{0}=4" class="ltx_Math" display="inline" id="Sx1.F4.m24" intent=":literal"><semantics><mrow><msub><mi>R</mi><mn>0</mn></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">R_{0}=4</annotation></semantics></math> across <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.F4.m25" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> values. The population is structured by individual reproductive number and classes are vaccinated to the critical threshold (<math alttext="1-1/R_{0}" class="ltx_Math" display="inline" id="Sx1.F4.m26" intent=":literal"><semantics><mrow><mn>1</mn><mo>−</mo><mrow><mn>1</mn><mo>/</mo><msub><mi>R</mi><mn>0</mn></msub></mrow></mrow><annotation encoding="application/x-tex">1-1/R_{0}</annotation></semantics></math>) in ascending order.
+</span>b<span class="ltx_text ltx_font_medium">, Epidemic dynamics under <math alttext="\delta" class="ltx_Math" display="inline" id="Sx1.F4.m27" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>-based feedback control. Top: proportion of the population infected over time; bottom: <math alttext="\delta(t)" class="ltx_Math" display="inline" id="Sx1.F4.m28" intent=":literal"><semantics><mrow><mi>δ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></mrow><annotation encoding="application/x-tex">\delta(t)</annotation></semantics></math> adjusted by a PID controller driven by incidence. Stronger control intensities can efficiently reduce epidemic peaks, by providing a rapid, self-limiting response. As a counterfactual the dashed line simulates a vaccination program comparable to seasonal influenza vaccination in the United States with coverage <math alttext="v=0.45" class="ltx_Math" display="inline" id="Sx1.F4.m29" intent=":literal"><semantics><mrow><mi>v</mi><mo>=</mo><mn>0.45</mn></mrow><annotation encoding="application/x-tex">v=0.45</annotation></semantics></math> <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib61" title="">61</a>]</cite> and efficacy <math alttext="e=0.20" class="ltx_Math" display="inline" id="Sx1.F4.m30" intent=":literal"><semantics><mrow><mi>e</mi><mo>=</mo><mn>0.20</mn></mrow><annotation encoding="application/x-tex">e=0.20</annotation></semantics></math> <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib62" title="">62</a>]</cite>, giving <math alttext="R_{c}=(1-ve)R_{0}" class="ltx_Math" display="inline" id="Sx1.F4.m31" intent=":literal"><semantics><mrow><msub><mi>R</mi><mi>c</mi></msub><mo>=</mo><mrow><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><mrow><mi>v</mi><mo lspace="0em" rspace="0em">​</mo><mi>e</mi></mrow></mrow><mo stretchy="false">)</mo></mrow><mo lspace="0em" rspace="0em">​</mo><msub><mi>R</mi><mn>0</mn></msub></mrow></mrow><annotation encoding="application/x-tex">R_{c}=(1-ve)R_{0}</annotation></semantics></math>. Controller parameters are <math alttext="K_{P}=10^{-4}" class="ltx_Math" display="inline" id="Sx1.F4.m32" intent=":literal"><semantics><mrow><msub><mi>K</mi><mi>P</mi></msub><mo>=</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">K_{P}=10^{-4}</annotation></semantics></math>, <math alttext="K_{I}=0" class="ltx_Math" display="inline" id="Sx1.F4.m33" intent=":literal"><semantics><mrow><msub><mi>K</mi><mi>I</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">K_{I}=0</annotation></semantics></math>, <math alttext="K_{D}=0" class="ltx_Math" display="inline" id="Sx1.F4.m34" intent=":literal"><semantics><mrow><msub><mi>K</mi><mi>D</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">K_{D}=0</annotation></semantics></math>. Other parameters approximate seasonal influenza: <math alttext="\bar{\nu}=1.2" class="ltx_Math" display="inline" id="Sx1.F4.m35" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>=</mo><mn>1.2</mn></mrow><annotation encoding="application/x-tex">\bar{\nu}=1.2</annotation></semantics></math>, <math alttext="k=1" class="ltx_Math" display="inline" id="Sx1.F4.m36" intent=":literal"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k=1</annotation></semantics></math>.</span></span></figcaption><div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1"><span class="ltx_rule ltx_figure_panel ltx_align_center" style="width:345.0pt;height:0.4pt;--ltx-bg-color:black;display:inline-block;"> </span></div>
+</div>
+</figure>
+<div class="ltx_para" id="Sx1.p14">
+<p class="ltx_p">Highly variable transmission rates have been observed during emergence, prolonged tails, and surge phases of epidemics<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib63" title="">63</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib64" title="">64</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib65" title="">65</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib53" title="">53</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib66" title="">66</a>]</cite>.
+Our results challenge the conventional view that this stochastic variation in individual transmission does not influence epidemic trajectories<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib18" title="">18</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib20" title="">20</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib2" title="">2</a>]</cite>, by showing that correlated bursts of transmission, which are present in empirical transmission trees (Fig. 3), can “bend” epidemic thresholds (Fig. 2).
+This extends the principle that stochastic fluctuations may influence the dynamical structure of complex adaptive systems<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib67" title="">67</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib68" title="">68</a>]</cite>.
+Parallel work in evolutionary theory shows the evolution of pathogen transmissibility during subcritical outbreaks can accelerate emergence<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib69" title="">69</a>]</cite>.
+Similarly, experiments with clonal populations of <em class="ltx_emph ltx_font_italic">Escherichia coli</em> demonstrate that random variation in reproductive rates among lineages accelerates population growth<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib70" title="">70</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="Sx1.p15">
+<p class="ltx_p">Epidemics will be most likely to emerge, and hardest to control, when transmission is both highly variable and highly organized.
+These conditions are becoming more common as climate change interacts with demographic shifts such as urbanization<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib45" title="">45</a>, <a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib48" title="">48</a>]</cite>.
+Adaptively reducing correlations in transmission—for example, by incentivizing small changes that desynchronize peak contact—–offers a new strategy for limiting transmission that is distinct from targeting mean or variance in transmission rates, and suggests how social-technological networks could modulate contagion at scale while preserving core functions.</p>
+</div>
+<div class="ltx_pagination ltx_role_newpage"></div>
+</section>
+<section class="ltx_section" id="Sx2">
+<h2 class="ltx_title ltx_title_section">Methods</h2>
+<section class="ltx_subsection" id="Sx2.SSx1">
+<h3 class="ltx_title ltx_title_subsection">Critical threshold</h3>
+<div class="ltx_para" id="Sx2.SSx1.p1">
+<p class="ltx_p">The model in equation 3 specifies a stochastic branching process where reproduction rates may be correlated along lineages.
+This differs from the classical Galton–Watson process where reproductive rates are independent and identically distributed.
+The threshold for persistence in a Galton–Watson process is</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.E5">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\Pr[\text{extinction}]&lt;1\;\;\Longleftrightarrow\;\;\mathrm{E}[z]&gt;1," class="ltx_Math" display="block" id="Sx2.E5.m1" intent=":literal"><semantics><mrow><mrow><mrow><mrow><mi>Pr</mi><mo>⁡</mo><mrow><mo stretchy="false">[</mo><mtext>extinction</mtext><mo stretchy="false">]</mo></mrow></mrow><mo>&lt;</mo><mn>1</mn></mrow><mo lspace="0.838em" rspace="0.838em" stretchy="false">⟺</mo><mrow><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mi>z</mi><mo stretchy="false">]</mo></mrow></mrow><mo>&gt;</mo><mn>1</mn></mrow></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr[\text{extinction}]&lt;1\;\;\Longleftrightarrow\;\;\mathrm{E}[z]&gt;1,</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(5)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="\mathrm{E}[z]" class="ltx_Math" display="inline" id="Sx2.SSx1.p1.m1" intent=":literal"><semantics><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mi>z</mi><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{E}[z]</annotation></semantics></math> is the expected number of new individuals that arise from a randomly selected individual.
+The event “extinction” occurs if the process eventually terminates, so that the total number of individuals ever produced is finite.
+The complementary event, “persistence” means that the population grows without bound.
+In the context of infectious disease epidemics, <math alttext="z" class="ltx_Math" display="inline" id="Sx2.SSx1.p1.m2" intent=":literal"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math> represents the number of secondary infections acquired from a randomly selected infected individual, and persistence corresponds to the occurrence of a large epidemic.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx1.p2">
+<p class="ltx_p">As described in the main text we define the expected number of infections acquired from a particular infected individual <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx1.p2.m1" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> by their reproductive number <math alttext="\nu_{i}" class="ltx_Math" display="inline" id="Sx2.SSx1.p2.m2" intent=":literal"><semantics><msub><mi>ν</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\nu_{i}</annotation></semantics></math></p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex1">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\mathrm{E}[z_{i}]\;=\;\nu_{i}." class="ltx_Math" display="block" id="Sx2.Ex1.m1" intent=":literal"><semantics><mrow><mrow><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>z</mi><mi>i</mi></msub><mo rspace="0.280em" stretchy="false">]</mo></mrow></mrow><mo rspace="0.558em">=</mo><msub><mi>ν</mi><mi>i</mi></msub></mrow><mo lspace="0em">.</mo></mrow><annotation encoding="application/x-tex">\mathrm{E}[z_{i}]\;=\;\nu_{i}.</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">Equation 3 provides the expectation for <math alttext="\nu_{i}" class="ltx_Math" display="inline" id="Sx2.SSx1.p2.m3" intent=":literal"><semantics><msub><mi>ν</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\nu_{i}</annotation></semantics></math> conditioned on the individual reproductive number of the previous infection in the transmission chain, <math alttext="\nu_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx1.p2.m4" intent=":literal"><semantics><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">\nu_{p(i)}</annotation></semantics></math></p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex2">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="E[\nu_{i}\mid\nu_{p(i)}]=\bar{\nu}+\delta(\nu_{p(i)}-\bar{\nu})=\bar{\nu}_{i}" class="ltx_Math" display="block" id="Sx2.Ex2.m1" intent=":literal"><semantics><mrow><mrow><mi>E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><msub><mi>ν</mi><mi>i</mi></msub><mo>∣</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub></mrow><mo stretchy="false">]</mo></mrow></mrow><mo>=</mo><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>+</mo><mrow><mi>δ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><mo>=</mo><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">E[\nu_{i}\mid\nu_{p(i)}]=\bar{\nu}+\delta(\nu_{p(i)}-\bar{\nu})=\bar{\nu}_{i}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">By the law of total expectation,</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="Sx2.EGx2">
+<tbody id="Sx2.Ex3"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle\mathrm{E}[z]" class="ltx_Math" display="inline" id="Sx2.Ex3.m1" intent=":literal"><semantics><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mi>z</mi><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">\displaystyle\mathrm{E}[z]</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\mathrm{E}\!\left[\mathrm{E}[z_{i}]\right]" class="ltx_Math" display="inline" id="Sx2.Ex3.m2" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><mrow><mo>[</mo><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>z</mi><mi>i</mi></msub><mo stretchy="false">]</mo></mrow></mrow><mo>]</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=\mathrm{E}\!\left[\mathrm{E}[z_{i}]\right]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex4"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\mathrm{E}[\nu_{i}]" class="ltx_Math" display="inline" id="Sx2.Ex4.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>i</mi></msub><mo stretchy="false">]</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=\mathrm{E}[\nu_{i}]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex5"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\mathrm{E}\!\left[\,\mathrm{E}[\nu_{i}\mid\nu_{p(i)}]\,\right]" class="ltx_Math" display="inline" id="Sx2.Ex5.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><mrow><mo rspace="0.170em">[</mo><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><msub><mi>ν</mi><mi>i</mi></msub><mo>∣</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub></mrow><mo rspace="0.170em" stretchy="false">]</mo></mrow></mrow><mo>]</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=\mathrm{E}\!\left[\,\mathrm{E}[\nu_{i}\mid\nu_{p(i)}]\,\right]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex6"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\mathrm{E}[\bar{\nu}_{i}]" class="ltx_Math" display="inline" id="Sx2.Ex6.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mi>i</mi></msub><mo stretchy="false">]</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=\mathrm{E}[\bar{\nu}_{i}]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.E6"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=(1-\delta)\,\bar{\nu}\;+\;\delta\,\mathrm{E}[\nu_{p(i)}]" class="ltx_Math" display="inline" id="Sx2.E6.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mrow><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><mi>δ</mi></mrow><mo stretchy="false">)</mo></mrow><mo lspace="0.170em" rspace="0em">​</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo rspace="0.502em">+</mo><mrow><mi>δ</mi><mo lspace="0.170em" rspace="0em">​</mo><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo stretchy="false">]</mo></mrow></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=(1-\delta)\,\bar{\nu}\;+\;\delta\,\mathrm{E}[\nu_{p(i)}]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(6)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="\bar{\nu}" class="ltx_Math" display="inline" id="Sx2.SSx1.p2.m5" intent=":literal"><semantics><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><annotation encoding="application/x-tex">\bar{\nu}</annotation></semantics></math> is the mean transmission potential averaged over the entire host population, which governs the asymptotic distribution of chain averages, though individual chains may fluctuate around it.
+Indeed, where <math alttext="\bar{\nu}&lt;1" class="ltx_Math" display="inline" id="Sx2.SSx1.p2.m6" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\bar{\nu}&lt;1</annotation></semantics></math> but <math alttext="\delta&gt;0" class="ltx_Math" display="inline" id="Sx2.SSx1.p2.m7" intent=":literal"><semantics><mrow><mi>δ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta&gt;0</annotation></semantics></math>, local bursts of transmission may sustain global persistence, with the asymptotic growth rate of the epidemic driven by stochastic fluctuations, a phenomenon evocative of fluctuation-driven organization in systems far from thermodynamic equilibrium, with cities, and other living systems, as classic examples<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib67" title="">67</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx1.p3">
+<p class="ltx_p">Setting the lefthand side of eqn (6) equal to 1 reveals that the critical boundary occurs along a curve in the <math alttext="\delta-\bar{\nu}" class="ltx_Math" display="inline" id="Sx2.SSx1.p3.m1" intent=":literal"><semantics><mrow><mi>δ</mi><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><annotation encoding="application/x-tex">\delta-\bar{\nu}</annotation></semantics></math> plane:</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.E7">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\delta^{*}=\dfrac{1-\bar{\nu}}{\mathrm{E}{\left[\nu_{p(i)}\right]}^{*}-\bar{\nu}}" class="ltx_Math" display="block" id="Sx2.E7.m1" intent=":literal"><semantics><mrow><msup><mi>δ</mi><mo>∗</mo></msup><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mrow><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><msup><mrow><mo>[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>]</mo></mrow><mo>∗</mo></msup></mrow><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow></mfrac></mrow><annotation encoding="application/x-tex">\delta^{*}=\dfrac{1-\bar{\nu}}{\mathrm{E}{\left[\nu_{p(i)}\right]}^{*}-\bar{\nu}}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(7)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="E{\left[\nu_{p(i)}\right]}^{*}" class="ltx_Math" display="inline" id="Sx2.SSx1.p3.m2" intent=":literal"><semantics><mrow><mi>E</mi><mo lspace="0em" rspace="0em">​</mo><msup><mrow><mo>[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>]</mo></mrow><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">E{\left[\nu_{p(i)}\right]}^{*}</annotation></semantics></math> denotes the expected value at the critical boundary.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx1.p4">
+<p class="ltx_p">Deriving an expression for <math alttext="{\mathrm{E}[\nu_{p(i)}]}^{*}" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m1" intent=":literal"><semantics><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><msup><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo stretchy="false">]</mo></mrow><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">{\mathrm{E}[\nu_{p(i)}]}^{*}</annotation></semantics></math> is the next step.
+Let <math alttext="\nu_{j}" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m2" intent=":literal"><semantics><msub><mi>ν</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\nu_{j}</annotation></semantics></math> denote the reproductive number of an individual <math alttext="j" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m3" intent=":literal"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> who was infected in the generation prior to <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m4" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>, so that it is possible that <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m5" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> acquired the infection from <math alttext="j" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m6" intent=":literal"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.
+Importantly, the distribution of <math alttext="\nu_{j}" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m7" intent=":literal"><semantics><msub><mi>ν</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\nu_{j}</annotation></semantics></math> is not generally the same as the distribution of <math alttext="\nu_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m8" intent=":literal"><semantics><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">\nu_{p(i)}</annotation></semantics></math>, because the probability that <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m9" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> acquired the infection from <math alttext="j" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m10" intent=":literal"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> is proportional to the total number of secondary cases acquired from <math alttext="j" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m11" intent=":literal"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>, <math alttext="z_{j}" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m12" intent=":literal"><semantics><msub><mi>z</mi><mi>j</mi></msub><annotation encoding="application/x-tex">z_{j}</annotation></semantics></math>, which biases <math alttext="\nu_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m13" intent=":literal"><semantics><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">\nu_{p(i)}</annotation></semantics></math> toward higher-transmission individuals.
+Recalling that case counts satisfy <math alttext="z_{j}\sim\mathrm{Poisson}(\nu_{j})" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m14" intent=":literal"><semantics><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>∼</mo><mrow><mi>Poisson</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">z_{j}\sim\mathrm{Poisson}(\nu_{j})</annotation></semantics></math> and are independent conditional on <math alttext="\nu_{j}" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m15" intent=":literal"><semantics><msub><mi>ν</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\nu_{j}</annotation></semantics></math>, and using the fact that independent Poisson counts are distributed multinomially proportional to their rates, the probability that <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m16" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> acquired the infection from <math alttext="j" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m17" intent=":literal"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> is</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex7">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\mathrm{P}\!\left[p(i)=j\,\middle|\,\nu_{1},\dots,\nu_{m}\right]=\frac{\nu_{j}}{\sum_{\ell=1}^{m}\nu_{\ell}}." class="ltx_math_unparsed" display="block" id="Sx2.Ex7.m1" intent=":literal"><semantics><mrow><mpadded style="width:0.611em;" width="0.611em"><mi mathvariant="normal">P</mi></mpadded><mrow><mo>[</mo><mi>p</mi><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow><mo>=</mo><mi>j</mi><mo lspace="0.170em" rspace="0.170em" stretchy="true">|</mo><msub><mi>ν</mi><mn>1</mn></msub><mo>,</mo><mi mathvariant="normal">…</mi><mo>,</mo><msub><mi>ν</mi><mi>m</mi></msub><mo>]</mo></mrow><mo>=</mo><mfrac><msub><mi>ν</mi><mi>j</mi></msub><mrow><msubsup><mo>∑</mo><mrow><mi mathvariant="normal">ℓ</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msub><mi>ν</mi><mi mathvariant="normal">ℓ</mi></msub></mrow></mfrac><mo lspace="0em">.</mo></mrow><annotation encoding="application/x-tex">\mathrm{P}\!\left[p(i)=j\,\middle|\,\nu_{1},\dots,\nu_{m}\right]=\frac{\nu_{j}}{\sum_{\ell=1}^{m}\nu_{\ell}}.</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="m" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m18" intent=":literal"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> is the number of individuals in the generation previous to <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx1.p4.m19" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx1.p5">
+<p class="ltx_p">Then,</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="Sx2.EGx3">
+<tbody id="Sx2.Ex8"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle\mathrm{E}\!\left[\nu_{p(i)}\,\middle|\,\nu_{1},\dots,\nu_{m}\right]" class="ltx_math_unparsed" display="inline" id="Sx2.Ex8.m1" intent=":literal"><semantics><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mrow><mo>[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo lspace="0em" rspace="0.170em" stretchy="true">|</mo><msub><mi>ν</mi><mn>1</mn></msub><mo>,</mo><mi mathvariant="normal">…</mi><mo>,</mo><msub><mi>ν</mi><mi>m</mi></msub><mo>]</mo></mrow></mrow><annotation encoding="application/x-tex">\displaystyle\mathrm{E}\!\left[\nu_{p(i)}\,\middle|\,\nu_{1},\dots,\nu_{m}\right]</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\sum_{j=1}^{m}\nu_{j}\,\mathrm{P}\!\left[p(i)=j\,\middle|\,\nu_{1},\dots,\nu_{m}\right]" class="ltx_math_unparsed" display="inline" id="Sx2.Ex8.m2" intent=":literal"><semantics><mrow><mo>=</mo><mstyle displaystyle="true"><munderover><mo movablelimits="false">∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover></mstyle><msub><mi>ν</mi><mi>j</mi></msub><mpadded style="width:0.611em;" width="0.611em"><mi mathvariant="normal">P</mi></mpadded><mrow><mo>[</mo><mi>p</mi><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow><mo>=</mo><mi>j</mi><mo lspace="0.170em" rspace="0.170em" stretchy="true">|</mo><msub><mi>ν</mi><mn>1</mn></msub><mo>,</mo><mi mathvariant="normal">…</mi><mo>,</mo><msub><mi>ν</mi><mi>m</mi></msub><mo>]</mo></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=\sum_{j=1}^{m}\nu_{j}\,\mathrm{P}\!\left[p(i)=j\,\middle|\,\nu_{1},\dots,\nu_{m}\right]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex9"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\sum_{j=1}^{m}\nu_{j}\,\frac{\nu_{j}}{\sum_{\ell=1}^{m}\nu_{\ell}}" class="ltx_Math" display="inline" id="Sx2.Ex9.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mstyle displaystyle="true"><munderover><mo movablelimits="false">∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover></mstyle><mrow><msub><mi>ν</mi><mi>j</mi></msub><mo lspace="0em" rspace="0em">​</mo><mstyle displaystyle="true"><mfrac><msub><mi>ν</mi><mi>j</mi></msub><mrow><msubsup><mo>∑</mo><mrow><mi mathvariant="normal">ℓ</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msub><mi>ν</mi><mi mathvariant="normal">ℓ</mi></msub></mrow></mfrac></mstyle></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=\sum_{j=1}^{m}\nu_{j}\,\frac{\nu_{j}}{\sum_{\ell=1}^{m}\nu_{\ell}}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex10"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\frac{\sum_{j=1}^{m}\nu_{j}^{2}}{\sum_{j=1}^{m}\nu_{j}}" class="ltx_Math" display="inline" id="Sx2.Ex10.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mstyle displaystyle="true"><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msubsup><mi>ν</mi><mi>j</mi><mn>2</mn></msubsup></mrow><mrow><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msub><mi>ν</mi><mi>j</mi></msub></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle=\frac{\sum_{j=1}^{m}\nu_{j}^{2}}{\sum_{j=1}^{m}\nu_{j}}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex11"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\frac{\tfrac{1}{m}\sum_{j=1}^{m}\nu_{j}^{2}}{\tfrac{1}{m}\sum_{j=1}^{m}\nu_{j}}" class="ltx_Math" display="inline" id="Sx2.Ex11.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mstyle displaystyle="true"><mfrac><mrow><mfrac><mn>1</mn><mi>m</mi></mfrac><mo lspace="0em" rspace="0em">​</mo><mrow><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msubsup><mi>ν</mi><mi>j</mi><mn>2</mn></msubsup></mrow></mrow><mrow><mfrac><mn>1</mn><mi>m</mi></mfrac><mo lspace="0em" rspace="0em">​</mo><mrow><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msub><mi>ν</mi><mi>j</mi></msub></mrow></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle=\frac{\tfrac{1}{m}\sum_{j=1}^{m}\nu_{j}^{2}}{\tfrac{1}{m}\sum_{j=1}^{m}\nu_{j}}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex12"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=\frac{\mu^{2}+\sigma^{2}}{\mu}" class="ltx_Math" display="inline" id="Sx2.Ex12.m1" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mstyle displaystyle="true"><mfrac><mrow><msup><mi>μ</mi><mn>2</mn></msup><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup></mrow><mi>μ</mi></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle=\frac{\mu^{2}+\sigma^{2}}{\mu}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="\mu=\tfrac{1}{m}\sum_{j=1}^{m}\nu_{j}" class="ltx_Math" display="inline" id="Sx2.SSx1.p5.m1" intent=":literal"><semantics><mrow><mi>μ</mi><mo>=</mo><mrow><mfrac><mn>1</mn><mi>m</mi></mfrac><mo lspace="0em" rspace="0em">​</mo><mrow><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msub><mi>ν</mi><mi>j</mi></msub></mrow></mrow></mrow><annotation encoding="application/x-tex">\mu=\tfrac{1}{m}\sum_{j=1}^{m}\nu_{j}</annotation></semantics></math> is the empirical mean and <math alttext="\sigma^{2}=\tfrac{1}{m}\sum_{j=1}^{m}{\left(\nu_{j}-\mu\right)}^{2}" class="ltx_Math" display="inline" id="Sx2.SSx1.p5.m2" intent=":literal"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mrow><mfrac><mn>1</mn><mi>m</mi></mfrac><mo lspace="0em" rspace="0em">​</mo><mrow><msubsup><mo rspace="0em">∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msup><mrow><mo>(</mo><mrow><msub><mi>ν</mi><mi>j</mi></msub><mo>−</mo><mi>μ</mi></mrow><mo>)</mo></mrow><mn>2</mn></msup></mrow></mrow></mrow><annotation encoding="application/x-tex">\sigma^{2}=\tfrac{1}{m}\sum_{j=1}^{m}{\left(\nu_{j}-\mu\right)}^{2}</annotation></semantics></math> is the empirical variance of individual reproductive numbers in the generation prior to <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx1.p5.m3" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx1.p6">
+<p class="ltx_p">In the large-population limit, the empirical mean <math alttext="\mu" class="ltx_Math" display="inline" id="Sx2.SSx1.p6.m1" intent=":literal"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math> converges in probability to <math alttext="\mathrm{E}[\nu_{j}]" class="ltx_Math" display="inline" id="Sx2.SSx1.p6.m2" intent=":literal"><semantics><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{E}[\nu_{j}]</annotation></semantics></math> and the empirical variance <math alttext="\sigma^{2}" class="ltx_Math" display="inline" id="Sx2.SSx1.p6.m3" intent=":literal"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^{2}</annotation></semantics></math> converges in probability to <math alttext="\mathrm{Var}[\nu_{j}]" class="ltx_Math" display="inline" id="Sx2.SSx1.p6.m4" intent=":literal"><semantics><mrow><mi>Var</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Var}[\nu_{j}]</annotation></semantics></math>.
+Further, because <math alttext="\nu_{j}" class="ltx_Math" display="inline" id="Sx2.SSx1.p6.m5" intent=":literal"><semantics><msub><mi>ν</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\nu_{j}</annotation></semantics></math> are gamma distributed with common dispersion <math alttext="k" class="ltx_Math" display="inline" id="Sx2.SSx1.p6.m6" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, <math alttext="\mathrm{Var}[\nu_{j}]=\mathrm{E}{[\nu_{j}]}^{2}/k" class="ltx_Math" display="inline" id="Sx2.SSx1.p6.m7" intent=":literal"><semantics><mrow><mrow><mi>Var</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow></mrow><mo>=</mo><mrow><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><msup><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow><mn>2</mn></msup></mrow><mo>/</mo><mi>k</mi></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Var}[\nu_{j}]=\mathrm{E}{[\nu_{j}]}^{2}/k</annotation></semantics></math>.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx1.p7">
+<p class="ltx_p">Using the law of total expectation and the continuous mapping theorem,</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="Sx2.EGx4">
+<tbody id="Sx2.Ex13"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle\mathrm{E}\!\left[\nu_{p(i)}\right]=" class="ltx_Math" display="inline" id="Sx2.Ex13.m1" intent=":literal"><semantics><mrow><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><mrow><mo>[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>]</mo></mrow></mrow><mo>=</mo><mi></mi></mrow><annotation encoding="application/x-tex">\displaystyle\mathrm{E}\!\left[\nu_{p(i)}\right]=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle~\mathrm{E}\!\left[\mathrm{E}\!\left[\nu_{p(i)}\,\middle|\,\nu_{1},\dots,\nu_{m}\right]\right]" class="ltx_math_unparsed" display="inline" id="Sx2.Ex13.m2" intent=":literal"><semantics><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mrow><mo>[</mo><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mrow><mo>[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo lspace="0em" rspace="0.170em" stretchy="true">|</mo><msub><mi>ν</mi><mn>1</mn></msub><mo>,</mo><mi mathvariant="normal">…</mi><mo>,</mo><msub><mi>ν</mi><mi>m</mi></msub><mo>]</mo></mrow><mo>]</mo></mrow></mrow><annotation encoding="application/x-tex">\displaystyle~\mathrm{E}\!\left[\mathrm{E}\!\left[\nu_{p(i)}\,\middle|\,\nu_{1},\dots,\nu_{m}\right]\right]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex14"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle=" class="ltx_Math" display="inline" id="Sx2.Ex14.m1" intent=":literal"><semantics><mo>=</mo><annotation encoding="application/x-tex">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle~\mathrm{E}\!\left[\frac{\mu^{2}+\sigma^{2}}{\mu}\right]" class="ltx_Math" display="inline" id="Sx2.Ex14.m2" intent=":literal"><semantics><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><mrow><mo>[</mo><mstyle displaystyle="true"><mfrac><mrow><msup><mi>μ</mi><mn>2</mn></msup><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup></mrow><mi>μ</mi></mfrac></mstyle><mo>]</mo></mrow></mrow><annotation encoding="application/x-tex">\displaystyle~\mathrm{E}\!\left[\frac{\mu^{2}+\sigma^{2}}{\mu}\right]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex15"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle=" class="ltx_Math" display="inline" id="Sx2.Ex15.m1" intent=":literal"><semantics><mo>=</mo><annotation encoding="application/x-tex">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle~\mathrm{E}[\mu]+\mathrm{E}\!\left[\frac{\sigma^{2}}{\mu}\right]" class="ltx_Math" display="inline" id="Sx2.Ex15.m2" intent=":literal"><semantics><mrow><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mi>μ</mi><mo stretchy="false">]</mo></mrow></mrow><mo>+</mo><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><mrow><mo>[</mo><mstyle displaystyle="true"><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>μ</mi></mfrac></mstyle><mo>]</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle~\mathrm{E}[\mu]+\mathrm{E}\!\left[\frac{\sigma^{2}}{\mu}\right]</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex16"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle\xrightarrow[m~\to~\infty]{}" class="ltx_Math" display="inline" id="Sx2.Ex16.m1" intent=":literal"><semantics><munderover accent="true" accentunder="true"><mo stretchy="false">→</mo><mrow><mi mathsize="1.420em">m</mi><mo lspace="0.608em" mathsize="1.420em" rspace="0.608em" stretchy="false">→</mo><mi mathsize="1.420em" mathvariant="normal">∞</mi></mrow><mi></mi></munderover><annotation encoding="application/x-tex">\displaystyle\xrightarrow[m~\to~\infty]{}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle~\mathrm{E}[\nu_{j}]+\frac{\mathrm{E}[\nu_{j}]}{k}" class="ltx_Math" display="inline" id="Sx2.Ex16.m2" intent=":literal"><semantics><mrow><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow></mrow><mo>+</mo><mstyle displaystyle="true"><mfrac><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow></mrow><mi>k</mi></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle~\mathrm{E}[\nu_{j}]+\frac{\mathrm{E}[\nu_{j}]}{k}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex17"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle=" class="ltx_Math" display="inline" id="Sx2.Ex17.m1" intent=":literal"><semantics><mo>=</mo><annotation encoding="application/x-tex">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle~\mathrm{E}[\nu_{j}]\left(1+\frac{1}{k}\right)" class="ltx_Math" display="inline" id="Sx2.Ex17.m2" intent=":literal"><semantics><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow><mo lspace="0em" rspace="0em">​</mo><mrow><mo>(</mo><mrow><mn>1</mn><mo>+</mo><mstyle displaystyle="true"><mfrac><mn>1</mn><mi>k</mi></mfrac></mstyle></mrow><mo>)</mo></mrow></mrow><annotation encoding="application/x-tex">\displaystyle~\mathrm{E}[\nu_{j}]\left(1+\frac{1}{k}\right)</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">Finally, we assume that at the critical boundary <math alttext="\mathrm{E}[\nu_{j}]=1" class="ltx_Math" display="inline" id="Sx2.SSx1.p7.m1" intent=":literal"><semantics><mrow><mrow><mi mathvariant="normal">E</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><msub><mi>ν</mi><mi>j</mi></msub><mo stretchy="false">]</mo></mrow></mrow><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\mathrm{E}[\nu_{j}]=1</annotation></semantics></math>. Thus</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex18">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\mathrm{E}\!{\left[\nu_{p(i)}\right]}^{*}=1+\frac{1}{k}" class="ltx_Math" display="block" id="Sx2.Ex18.m1" intent=":literal"><semantics><mrow><mrow><mpadded style="width:0.626em;" width="0.626em"><mi mathvariant="normal">E</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><msup><mrow><mo>[</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>]</mo></mrow><mo>∗</mo></msup></mrow><mo>=</mo><mrow><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><mi>k</mi></mfrac></mrow></mrow><annotation encoding="application/x-tex">\mathrm{E}\!{\left[\nu_{p(i)}\right]}^{*}=1+\frac{1}{k}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="Sx2.SSx1.p8">
+<p class="ltx_p">Substituting into equation (7) yields the critical threshold</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex19">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\delta^{*}=\dfrac{1-\bar{\nu}}{1-\bar{\nu}+\frac{1}{k}}" class="ltx_Math" display="block" id="Sx2.Ex19.m1" intent=":literal"><semantics><mrow><msup><mi>δ</mi><mo>∗</mo></msup><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mrow><mrow><mn>1</mn><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo>+</mo><mfrac><mn>1</mn><mi>k</mi></mfrac></mrow></mfrac></mrow><annotation encoding="application/x-tex">\delta^{*}=\dfrac{1-\bar{\nu}}{1-\bar{\nu}+\frac{1}{k}}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">which is corroborated by direct simulation of the branching process (Fig. 2).</p>
+</div>
+</section>
+<section class="ltx_subsection" id="Sx2.SSx2">
+<h3 class="ltx_title ltx_title_subsection">Empirical inference</h3>
+<div class="ltx_para" id="Sx2.SSx2.p1">
+<p class="ltx_p">For each tree we analyzed from <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib54" title="">54</a>]</cite> the data consist of the observed offspring count <math alttext="z_{i}" class="ltx_Math" display="inline" id="Sx2.SSx2.p1.m1" intent=":literal"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_{i}</annotation></semantics></math> and the offspring count <math alttext="z_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx2.p1.m2" intent=":literal"><semantics><msub><mi>z</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">z_{p(i)}</annotation></semantics></math> of the previous infection in the transmission chain, for each non-root infection in the tree.
+We fit our model to each empirical transmission tree using Hamiltonian Monte Carlo implemented in Stan<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib71" title="">71</a>]</cite>, via the rstan package in R<cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib72" title="">72</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx2.p2">
+<p class="ltx_p">The distribution of <math alttext="z_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx2.p2.m1" intent=":literal"><semantics><msub><mi>z</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">z_{p(i)}</annotation></semantics></math> conditioned on its individual reproductive number is</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex20">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="z_{p(i)}\mid\nu_{p(i)}\sim\mathrm{Poisson}(\nu_{p(i)})" class="ltx_Math" display="block" id="Sx2.Ex20.m1" intent=":literal"><semantics><mrow><mrow><msub><mi>z</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>∣</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub></mrow><mo>∼</mo><mrow><mi>Poisson</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo stretchy="false">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">z_{p(i)}\mid\nu_{p(i)}\sim\mathrm{Poisson}(\nu_{p(i)})</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with <math alttext="\nu_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx2.p2.m2" intent=":literal"><semantics><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">\nu_{p(i)}</annotation></semantics></math> treated as a latent parameter to be estimated.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx2.p3">
+<p class="ltx_p">The distribution of <math alttext="z_{i}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m1" intent=":literal"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_{i}</annotation></semantics></math>, conditional on the full set of parameters <math alttext="\nu_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m2" intent=":literal"><semantics><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">\nu_{p(i)}</annotation></semantics></math>, <math alttext="\delta" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m3" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>, <math alttext="\bar{\nu}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m4" intent=":literal"><semantics><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><annotation encoding="application/x-tex">\bar{\nu}</annotation></semantics></math>, <math alttext="k" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m5" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, is negative binomial with mean <math alttext="\mu_{i}\;=\;(1-\delta)\,\bar{\nu}\;+\;\delta\,\nu_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m6" intent=":literal"><semantics><mrow><msub><mi>μ</mi><mi>i</mi></msub><mo lspace="0.558em" rspace="0.558em">=</mo><mrow><mrow><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><mi>δ</mi></mrow><mo stretchy="false">)</mo></mrow><mo lspace="0.170em" rspace="0em">​</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo rspace="0.502em">+</mo><mrow><mi>δ</mi><mo lspace="0.170em" rspace="0em">​</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub></mrow></mrow></mrow><annotation encoding="application/x-tex">\mu_{i}\;=\;(1-\delta)\,\bar{\nu}\;+\;\delta\,\nu_{p(i)}</annotation></semantics></math>
+and dispersion <math alttext="k" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m7" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex21">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="z_{i}\mid\nu_{p(i)},\delta,\bar{\nu},k\;\sim\;\mathrm{NegBin}(\mu_{i},k)." class="ltx_Math" display="block" id="Sx2.Ex21.m1" intent=":literal"><semantics><mrow><mrow><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>∣</mo><mrow><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>,</mo><mi>δ</mi><mo>,</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>,</mo><mi>k</mi></mrow></mrow><mo lspace="0.558em" rspace="0.558em">∼</mo><mrow><mi>NegBin</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><msub><mi>μ</mi><mi>i</mi></msub><mo>,</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow><annotation encoding="application/x-tex">z_{i}\mid\nu_{p(i)},\delta,\bar{\nu},k\;\sim\;\mathrm{NegBin}(\mu_{i},k).</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">The joint likelihood is therefore the product of the Poisson factors for the parent counts and the negative binomial factors for the observed child counts.
+In Stan this is implemented using the <span class="ltx_text ltx_font_typewriter">neg_binomial<math alttext="(k,lambda)" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m8" intent=":literal"><semantics><mrow><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mrow><mi>l</mi><mo lspace="0em" rspace="0em">​</mo><mi>a</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi><mo lspace="0em" rspace="0em">​</mo><mi>b</mi><mo lspace="0em" rspace="0em">​</mo><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><mi>a</mi></mrow><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(k,lambda)</annotation></semantics></math></span> parameterization, where <math alttext="\lambda=k/\mu_{i}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m9" intent=":literal"><semantics><mrow><mi>λ</mi><mo>=</mo><mrow><mi>k</mi><mo>/</mo><msub><mi>μ</mi><mi>i</mi></msub></mrow></mrow><annotation encoding="application/x-tex">\lambda=k/\mu_{i}</annotation></semantics></math> ensures the expected value is <math alttext="\mu_{i}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m10" intent=":literal"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_{i}</annotation></semantics></math>:</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex22">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\mathcal{L}(\delta,\bar{\nu},k,\{\nu_{p(i)}\}\mid z,z_{p})=\prod_{i=1}^{n}f\!\left(z_{p(i)}\mid\nu_{p(i)}\right)\;\times\;\prod_{i=1}^{n}g\!\left(z_{i}\mid\nu_{p(i)},\delta,\bar{\nu},k\right)." class="ltx_Math" display="block" id="Sx2.Ex22.m1" intent=":literal"><semantics><mrow><mrow><mrow><mi class="ltx_font_mathcaligraphic">ℒ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>δ</mi><mo>,</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>,</mo><mi>k</mi><mo>,</mo><mrow><mrow><mo stretchy="false">{</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo stretchy="false">}</mo></mrow><mo>∣</mo><mrow><mi>z</mi><mo>,</mo><msub><mi>z</mi><mi>p</mi></msub></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow><mo rspace="0.111em">=</mo><mrow><munderover><mo movablelimits="false">∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mrow><mpadded style="width:0.427em;" width="0.427em"><mi>f</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><mrow><mo>(</mo><mrow><msub><mi>z</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>∣</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub></mrow><mo rspace="0.335em">)</mo></mrow></mrow><mo rspace="0.335em">×</mo><mrow><munderover><mo movablelimits="false">∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mpadded style="width:0.343em;" width="0.343em"><mi>g</mi></mpadded><mo lspace="0em" rspace="0em">​</mo><mrow><mo>(</mo><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>∣</mo><mrow><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>,</mo><mi>δ</mi><mo>,</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>,</mo><mi>k</mi></mrow></mrow><mo>)</mo></mrow></mrow></mrow></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow><annotation encoding="application/x-tex">\mathcal{L}(\delta,\bar{\nu},k,\{\nu_{p(i)}\}\mid z,z_{p})=\prod_{i=1}^{n}f\!\left(z_{p(i)}\mid\nu_{p(i)}\right)\;\times\;\prod_{i=1}^{n}g\!\left(z_{i}\mid\nu_{p(i)},\delta,\bar{\nu},k\right).</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="f(z_{p(i)}\mid\nu_{p(i)})" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m11" intent=":literal"><semantics><mrow><mi>f</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>z</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>∣</mo><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub></mrow><mo stretchy="false">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(z_{p(i)}\mid\nu_{p(i)})</annotation></semantics></math> is the probability mass function (PMF) of Poisson random variable with mean <math alttext="\nu_{p(i)}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m12" intent=":literal"><semantics><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">\nu_{p(i)}</annotation></semantics></math>, and
+<math alttext="g(z_{i}\mid\nu_{p(i)},\delta,\bar{\nu},k)" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m13" intent=":literal"><semantics><mrow><mi>g</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>∣</mo><mrow><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>,</mo><mi>δ</mi><mo>,</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>,</mo><mi>k</mi></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(z_{i}\mid\nu_{p(i)},\delta,\bar{\nu},k)</annotation></semantics></math> is a negative binomial PMF with mean <math alttext="\mu_{i}" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m14" intent=":literal"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_{i}</annotation></semantics></math> and dispersion <math alttext="k" class="ltx_Math" display="inline" id="Sx2.SSx2.p3.m15" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx2.p4">
+<p class="ltx_p">We placed weakly informative priors on all model parameters. The autocorrelation parameter was given a uniform prior,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex23">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\delta\sim\mathrm{Beta}(1,1),\qquad 0\leq\delta\leq 1." class="ltx_Math" display="block" id="Sx2.Ex23.m1" intent=":literal"><semantics><mrow><mrow><mrow><mi>δ</mi><mo>∼</mo><mrow><mi>Beta</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mrow></mrow><mo rspace="2.167em">,</mo><mrow><mn>0</mn><mo>≤</mo><mi>δ</mi><mo>≤</mo><mn>1</mn></mrow></mrow><mo lspace="0em">.</mo></mrow><annotation encoding="application/x-tex">\delta\sim\mathrm{Beta}(1,1),\qquad 0\leq\delta\leq 1.</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">The population mean reproductive number had a gamma prior,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex24">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\bar{\nu}\sim\mathrm{Gamma}(10,10)," class="ltx_Math" display="block" id="Sx2.Ex24.m1" intent=":literal"><semantics><mrow><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>∼</mo><mrow><mi>Gamma</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mn>10</mn><mo>,</mo><mn>10</mn><mo stretchy="false">)</mo></mrow></mrow></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\bar{\nu}\sim\mathrm{Gamma}(10,10),</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">corresponding to a prior mean of 1 and variance of 0.1. The dispersion parameter was assigned a half-normal prior,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex25">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="k\sim\mathrm{Normal}^{+}(0,10)," class="ltx_Math" display="block" id="Sx2.Ex25.m1" intent=":literal"><semantics><mrow><mrow><mi>k</mi><mo>∼</mo><mrow><msup><mi>Normal</mi><mo>+</mo></msup><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mn>10</mn><mo stretchy="false">)</mo></mrow></mrow></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">k\sim\mathrm{Normal}^{+}(0,10),</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">implemented as a normal distribution with mean 0 and standard deviation 10, truncated below at 0. Each latent parent reproductive number was also assigned a half-normal prior,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex26">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\nu_{p(i)}\sim\mathrm{Normal}^{+}(0,100)." class="ltx_Math" display="block" id="Sx2.Ex26.m1" intent=":literal"><semantics><mrow><mrow><msub><mi>ν</mi><mrow><mi>p</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></mrow></msub><mo>∼</mo><mrow><msup><mi>Normal</mi><mo>+</mo></msup><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mn>100</mn><mo stretchy="false">)</mo></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow><annotation encoding="application/x-tex">\nu_{p(i)}\sim\mathrm{Normal}^{+}(0,100).</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="Sx2.SSx2.p5">
+<p class="ltx_p">We fit each tree separately using 4 chains × 10,000 iterations per chain with a 50% warmup.
+To verify convergence we confirmed that there were no divergences or max treedepth saturations,
+that rank-normalized <math alttext="\hat{R}\leq 1.01" class="ltx_Math" display="inline" id="Sx2.SSx2.p5.m1" intent=":literal"><semantics><mrow><mover accent="true"><mi>R</mi><mo>^</mo></mover><mo>≤</mo><mn>1.01</mn></mrow><annotation encoding="application/x-tex">\hat{R}\leq 1.01</annotation></semantics></math> for all estimated parameters, and that visual inspection of traceplots showed rapid mixing across chains.</p>
+</div>
+</section>
+<section class="ltx_subsection" id="Sx2.SSx3">
+<h3 class="ltx_title ltx_title_subsection">Vaccination</h3>
+<div class="ltx_para" id="Sx2.SSx3.p1">
+<p class="ltx_p">To analyze the dynamics of susceptibility with correlated superspreading we use a compartmental epidemic model for a host population structured by individual reproductive number, such that individual <math alttext="i" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m1" intent=":literal"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> in the <math alttext="n" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m2" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>th class has <math alttext="\nu_{i}=n" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m3" intent=":literal"><semantics><mrow><msub><mi>ν</mi><mi>i</mi></msub><mo>=</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">\nu_{i}=n</annotation></semantics></math>.
+Let <math alttext="S_{n}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m4" intent=":literal"><semantics><msub><mi>S</mi><mi>n</mi></msub><annotation encoding="application/x-tex">S_{n}</annotation></semantics></math> and <math alttext="I_{n}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m5" intent=":literal"><semantics><msub><mi>I</mi><mi>n</mi></msub><annotation encoding="application/x-tex">I_{n}</annotation></semantics></math> denote the number of susceptible and infectious individuals in each class, and <math alttext="N_{n}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m6" intent=":literal"><semantics><msub><mi>N</mi><mi>n</mi></msub><annotation encoding="application/x-tex">N_{n}</annotation></semantics></math> the total population size of class <math alttext="n" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m7" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
+We consider a pathogen that confers immunity following infection for a duration longer than the time scale of an epidemic.
+The number of individuals removed from the susceptible and infectious pools by prior infection is <math alttext="N_{n}-S_{n}-I_{n}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m8" intent=":literal"><semantics><mrow><msub><mi>N</mi><mi>n</mi></msub><mo>−</mo><msub><mi>S</mi><mi>n</mi></msub><mo>−</mo><msub><mi>I</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">N_{n}-S_{n}-I_{n}</annotation></semantics></math>, and the total population size is <math alttext="N=\sum_{n}N_{n}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m9" intent=":literal"><semantics><mrow><mi>N</mi><mo rspace="0.111em">=</mo><mrow><msub><mo>∑</mo><mi>n</mi></msub><msub><mi>N</mi><mi>n</mi></msub></mrow></mrow><annotation encoding="application/x-tex">N=\sum_{n}N_{n}</annotation></semantics></math>.
+Epidemic dynamics are given by the standard compartmental epidemic model for structured populations</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="Sx2.EGx5">
+<tbody id="Sx2.Ex27"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle\frac{dS_{n}}{dt}" class="ltx_Math" display="inline" id="Sx2.Ex27.m1" intent=":literal"><semantics><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><msub><mi>S</mi><mi>n</mi></msub></mrow><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><mi>t</mi></mrow></mfrac></mstyle><annotation encoding="application/x-tex">\displaystyle\frac{dS_{n}}{dt}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=-S_{n}\sum_{m}\lambda_{nm}" class="ltx_Math" display="inline" id="Sx2.Ex27.m2" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mo>−</mo><mrow><msub><mi>S</mi><mi>n</mi></msub><mo lspace="0em" rspace="0em">​</mo><mrow><mstyle displaystyle="true"><munder><mo movablelimits="false">∑</mo><mi>m</mi></munder></mstyle><msub><mi>λ</mi><mrow><mi>n</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi></mrow></msub></mrow></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=-S_{n}\sum_{m}\lambda_{nm}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="Sx2.Ex28"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math alttext="\displaystyle\frac{dI_{n}}{dt}" class="ltx_Math" display="inline" id="Sx2.Ex28.m1" intent=":literal"><semantics><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><msub><mi>I</mi><mi>n</mi></msub></mrow><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><mi>t</mi></mrow></mfrac></mstyle><annotation encoding="application/x-tex">\displaystyle\frac{dI_{n}}{dt}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math alttext="\displaystyle=S_{n}\sum_{m}\lambda_{nm}-\gamma I_{n}" class="ltx_Math" display="inline" id="Sx2.Ex28.m2" intent=":literal"><semantics><mrow><mi></mi><mo>=</mo><mrow><mrow><msub><mi>S</mi><mi>n</mi></msub><mo lspace="0em" rspace="0em">​</mo><mrow><mstyle displaystyle="true"><munder><mo movablelimits="false">∑</mo><mi>m</mi></munder></mstyle><msub><mi>λ</mi><mrow><mi>n</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi></mrow></msub></mrow></mrow><mo>−</mo><mrow><mi>γ</mi><mo lspace="0em" rspace="0em">​</mo><msub><mi>I</mi><mi>n</mi></msub></mrow></mrow></mrow><annotation encoding="application/x-tex">\displaystyle=S_{n}\sum_{m}\lambda_{nm}-\gamma I_{n}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="\gamma" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m10" intent=":literal"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math> is the rate of removal from the infectious class, and the force of infection is</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex29">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\lambda_{nm}=\beta_{nm}\frac{I_{m}}{N_{m}}," class="ltx_Math" display="block" id="Sx2.Ex29.m1" intent=":literal"><semantics><mrow><mrow><msub><mi>λ</mi><mrow><mi>n</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi></mrow></msub><mo>=</mo><mrow><msub><mi>β</mi><mrow><mi>n</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi></mrow></msub><mo lspace="0em" rspace="0em">​</mo><mfrac><msub><mi>I</mi><mi>m</mi></msub><msub><mi>N</mi><mi>m</mi></msub></mfrac></mrow></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\lambda_{nm}=\beta_{nm}\frac{I_{m}}{N_{m}},</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">which is the instantaneous hazard experienced by a susceptible in class <math alttext="n" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m11" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> from infectious individuals in class <math alttext="m" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m12" intent=":literal"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.
+The who-acquires-infection-from-whom (WAIFW) matrix <math alttext="\beta" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m13" intent=":literal"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math> has entries <math alttext="\beta_{nm}=m\mathrm{P}[n|m]" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m14" intent=":literal"><semantics><mrow><msub><mi>β</mi><mrow><mi>n</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi></mrow></msub><mo>=</mo><mrow><mi>m</mi><mo lspace="0em" rspace="0em">​</mo><mi mathvariant="normal">P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo fence="false">|</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\beta_{nm}=m\mathrm{P}[n|m]</annotation></semantics></math>
+with <math alttext="\mathrm{P}[n|m]" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m15" intent=":literal"><semantics><mrow><mi mathvariant="normal">P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo fence="false">|</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{P}[n|m]</annotation></semantics></math> the probability that a new infection of class <math alttext="n" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m16" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> is acquired from a class <math alttext="m" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m17" intent=":literal"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> individual.
+Consistent with our model, this is specified by the probability mass function of a negative binomial with mean <math alttext="\bar{\nu}+\delta(m-\bar{\nu})" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m18" intent=":literal"><semantics><mrow><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><mo>+</mo><mrow><mi>δ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mrow><mi>m</mi><mo>−</mo><mover accent="true"><mi>ν</mi><mo>¯</mo></mover></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">\bar{\nu}+\delta(m-\bar{\nu})</annotation></semantics></math> and dispersion <math alttext="k" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m19" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, normalized to account for truncation at a finite number of classes.
+We use 128 classes to approximate the distribution and set the total population size to <math alttext="N=10^{6}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m20" intent=":literal"><semantics><mrow><mi>N</mi><mo>=</mo><msup><mn>10</mn><mn>6</mn></msup></mrow><annotation encoding="application/x-tex">N=10^{6}</annotation></semantics></math>.
+We set <math alttext="\gamma=1" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m21" intent=":literal"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma=1</annotation></semantics></math> without loss of generality, so time is measured in units equal to the mean generation time of the pathogen, so that the next-generation matrix is <math alttext="\mathrm{K}=\beta~" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m22" intent=":literal"><semantics><mrow><mi mathvariant="normal">K</mi><mo>=</mo><mi>β</mi></mrow><annotation encoding="application/x-tex">\mathrm{K}=\beta~</annotation></semantics></math><cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="https://arxiv.org/html/2509.15338v1#bib.bib40" title="">40</a>]</cite>.
+Thus <math alttext="R_{0}=\rho(\beta)" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m23" intent=":literal"><semantics><mrow><msub><mi>R</mi><mn>0</mn></msub><mo>=</mo><mrow><mi>ρ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>β</mi><mo stretchy="false">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">R_{0}=\rho(\beta)</annotation></semantics></math>, where <math alttext="\rho" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m24" intent=":literal"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math> denotes the spectral radius, which is in turn determined by <math alttext="\delta" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m25" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>, <math alttext="k" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m26" intent=":literal"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>, and <math alttext="\bar{\nu}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m27" intent=":literal"><semantics><mover accent="true"><mi>ν</mi><mo>¯</mo></mover><annotation encoding="application/x-tex">\bar{\nu}</annotation></semantics></math>, via the distribution <math alttext="\mathrm{P}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m28" intent=":literal"><semantics><mi mathvariant="normal">P</mi><annotation encoding="application/x-tex">\mathrm{P}</annotation></semantics></math>.
+We explore model dynamics by numerical integration, starting with 100 infectious individuals in class <math alttext="2" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m29" intent=":literal"><semantics><mn>2</mn><annotation encoding="application/x-tex">2</annotation></semantics></math>.
+The initial distribution of susceptible individuals is set proportional to the dominant eigenvector of <math alttext="\mathrm{K}" class="ltx_Math" display="inline" id="Sx2.SSx3.p1.m30" intent=":literal"><semantics><mi mathvariant="normal">K</mi><annotation encoding="application/x-tex">\mathrm{K}</annotation></semantics></math>, approximating the stable class distribution near the disease-free equilibrium.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx3.p2">
+<p class="ltx_p">To model the impact of vaccination we assumed an idealized vaccine that provides complete protection against infection, and explicitly represent the structural impact of vaccination on transmission pathways through the next-generation matrix.
+This facilitates spectral analysis of epidemic thresholds under vaccine-induced heterogeneity in populations structured by individual reproductive number.
+In this framework, changes in the initial distribution of susceptibles due to vaccination arise through changes in the dominant eigenvector of <math alttext="\mathrm{K}" class="ltx_Math" display="inline" id="Sx2.SSx3.p2.m1" intent=":literal"><semantics><mi mathvariant="normal">K</mi><annotation encoding="application/x-tex">\mathrm{K}</annotation></semantics></math>.
+Specifically, vaccination of class <math alttext="n" class="ltx_Math" display="inline" id="Sx2.SSx3.p2.m2" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> individuals reduces the probability that new infections are assigned to that class by a factor <math alttext="(1-v_{n})" class="ltx_Math" display="inline" id="Sx2.SSx3.p2.m3" intent=":literal"><semantics><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><msub><mi>v</mi><mi>n</mi></msub></mrow><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(1-v_{n})</annotation></semantics></math>, where <math alttext="v_{n}" class="ltx_Math" display="inline" id="Sx2.SSx3.p2.m4" intent=":literal"><semantics><msub><mi>v</mi><mi>n</mi></msub><annotation encoding="application/x-tex">v_{n}</annotation></semantics></math> is the proportion of individuals in class <math alttext="n" class="ltx_Math" display="inline" id="Sx2.SSx3.p2.m5" intent=":literal"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> who are vaccinated.
+The removed probability mass is reallocated to the <math alttext="n=0" class="ltx_Math" display="inline" id="Sx2.SSx3.p2.m6" intent=":literal"><semantics><mrow><mi>n</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n=0</annotation></semantics></math> class, consistent with individuals who as a result of vaccination do not become infectious following exposure.
+Denoting this modified distribution by <math alttext="P^{\prime}[n\mid m]" class="ltx_Math" display="inline" id="Sx2.SSx3.p2.m7" intent=":literal"><semantics><mrow><msup><mi>P</mi><mo>′</mo></msup><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo>∣</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow><annotation encoding="application/x-tex">P^{\prime}[n\mid m]</annotation></semantics></math>,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex30">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="P^{\prime}[n\mid m]\;=\;\begin{cases}P[0\mid m]+\displaystyle\sum_{r}v_{r}\,P[r\mid m],&amp;n=0,\\[11.99998pt]
+(1-v_{n})\,P[n\mid m],&amp;n&gt;0,\end{cases}" class="ltx_Math" display="block" id="Sx2.Ex30.m1" intent=":literal"><semantics><mrow><mrow><msup><mi>P</mi><mo>′</mo></msup><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo>∣</mo><mi>m</mi></mrow><mo rspace="0.280em" stretchy="false">]</mo></mrow></mrow><mo rspace="0.558em">=</mo><mrow><mo>{</mo><mtable columnspacing="5pt" displaystyle="true" rowspacing="0pt"><mtr><mtd class="ltx_align_left" columnalign="left"><mrow><mrow><mrow><mi>P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mn>0</mn><mo>∣</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow><mo rspace="0.055em">+</mo><mrow><munder><mo movablelimits="false">∑</mo><mi>r</mi></munder><mrow><msub><mi>v</mi><mi>r</mi></msub><mo lspace="0em" rspace="0em">​</mo><mi>P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>r</mi><mo>∣</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow></mrow></mrow><mo>,</mo></mrow></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mrow><mi>n</mi><mo>=</mo><mn>0</mn></mrow><mo>,</mo></mrow></mtd></mtr><mtr><mtd class="ltx_align_left" columnalign="left"><mrow><mrow><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><msub><mi>v</mi><mi>n</mi></msub></mrow><mo stretchy="false">)</mo></mrow><mo lspace="0.170em" rspace="0em">​</mo><mi>P</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo>∣</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow><mo>,</mo></mrow></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mrow><mi>n</mi><mo>&gt;</mo><mn>0</mn></mrow><mo>,</mo></mrow></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">P^{\prime}[n\mid m]\;=\;\begin{cases}P[0\mid m]+\displaystyle\sum_{r}v_{r}\,P[r\mid m],&amp;n=0,\\[11.99998pt]
+(1-v_{n})\,P[n\mid m],&amp;n&gt;0,\end{cases}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">The next-generation matrix under vaccination is then</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex31">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="K^{\prime}_{nm}=m\,P^{\prime}[n\mid m]." class="ltx_Math" display="block" id="Sx2.Ex31.m1" intent=":literal"><semantics><mrow><mrow><msubsup><mi>K</mi><mrow><mi>n</mi><mo lspace="0em" rspace="0em">​</mo><mi>m</mi></mrow><mo>′</mo></msubsup><mo>=</mo><mrow><mi>m</mi><mo lspace="0.170em" rspace="0em">​</mo><msup><mi>P</mi><mo>′</mo></msup><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">[</mo><mrow><mi>n</mi><mo>∣</mo><mi>m</mi></mrow><mo stretchy="false">]</mo></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow><annotation encoding="application/x-tex">K^{\prime}_{nm}=m\,P^{\prime}[n\mid m].</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+</section>
+<section class="ltx_subsection" id="Sx2.SSx4">
+<h3 class="ltx_title ltx_title_subsection">Adaptive control</h3>
+<div class="ltx_para" id="Sx2.SSx4.p1">
+<p class="ltx_p">The PID controller drives a nonlinear update of <math alttext="\delta" class="ltx_Math" display="inline" id="Sx2.SSx4.p1.m1" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math> in response to incidence.
+Incidence is measured as the total number of infectious individuals <math alttext="I=\sum_{n}I_{n}" class="ltx_Math" display="inline" id="Sx2.SSx4.p1.m2" intent=":literal"><semantics><mrow><mi>I</mi><mo rspace="0.111em">=</mo><mrow><msub><mo>∑</mo><mi>n</mi></msub><msub><mi>I</mi><mi>n</mi></msub></mrow></mrow><annotation encoding="application/x-tex">I=\sum_{n}I_{n}</annotation></semantics></math>.
+The controller state <math alttext="x(t)" class="ltx_Math" display="inline" id="Sx2.SSx4.p1.m3" intent=":literal"><semantics><mrow><mi>x</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></mrow><annotation encoding="application/x-tex">x(t)</annotation></semantics></math> evolves according to a proportional (P) update rule,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex32">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\frac{dx}{dt}=-k_{P}\sum_{n}\frac{dI_{n}}{dt}," class="ltx_Math" display="block" id="Sx2.Ex32.m1" intent=":literal"><semantics><mrow><mrow><mfrac><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><mi>x</mi></mrow><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><mi>t</mi></mrow></mfrac><mo>=</mo><mrow><mo>−</mo><mrow><msub><mi>k</mi><mi>P</mi></msub><mo lspace="0em" rspace="0em">​</mo><mrow><munder><mo movablelimits="false">∑</mo><mi>n</mi></munder><mfrac><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><msub><mi>I</mi><mi>n</mi></msub></mrow><mrow><mi>d</mi><mo lspace="0em" rspace="0em">​</mo><mi>t</mi></mrow></mfrac></mrow></mrow></mrow></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\frac{dx}{dt}=-k_{P}\sum_{n}\frac{dI_{n}}{dt},</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="k_{P}&gt;0" class="ltx_Math" display="inline" id="Sx2.SSx4.p1.m4" intent=":literal"><semantics><mrow><msub><mi>k</mi><mi>P</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">k_{P}&gt;0</annotation></semantics></math> is the control parameter. Thus incidence velocity drives controller velocity, such that increases in incidence cause negative increments in <math alttext="x(t)" class="ltx_Math" display="inline" id="Sx2.SSx4.p1.m5" intent=":literal"><semantics><mrow><mi>x</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></mrow><annotation encoding="application/x-tex">x(t)</annotation></semantics></math>.</p>
+</div>
+<div class="ltx_para" id="Sx2.SSx4.p2">
+<p class="ltx_p">The controller state is linked to epidemic dynamics through a bounded sigmoid function,</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex33">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="u(x)\;=\;(1-a)\;+\;\frac{a}{1+e^{-b(x+c)}}," class="ltx_Math" display="block" id="Sx2.Ex33.m1" intent=":literal"><semantics><mrow><mrow><mrow><mi>u</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>x</mi><mo rspace="0.280em" stretchy="false">)</mo></mrow></mrow><mo rspace="0.558em">=</mo><mrow><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo>−</mo><mi>a</mi></mrow><mo rspace="0.280em" stretchy="false">)</mo></mrow><mo rspace="0.502em">+</mo><mfrac><mi>a</mi><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mo>−</mo><mrow><mi>b</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mrow><mi>x</mi><mo>+</mo><mi>c</mi></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></msup></mrow></mfrac></mrow></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">u(x)\;=\;(1-a)\;+\;\frac{a}{1+e^{-b(x+c)}},</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <math alttext="a&gt;0" class="ltx_Math" display="inline" id="Sx2.SSx4.p2.m1" intent=":literal"><semantics><mrow><mi>a</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a&gt;0</annotation></semantics></math> sets the range of the control response, <math alttext="b&gt;0" class="ltx_Math" display="inline" id="Sx2.SSx4.p2.m2" intent=":literal"><semantics><mrow><mi>b</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b&gt;0</annotation></semantics></math> determines the slope, and <math alttext="c" class="ltx_Math" display="inline" id="Sx2.SSx4.p2.m3" intent=":literal"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> shifts the activation threshold.
+Results in the Fig. 4 used a = (0, 0.2, 0.5, 1) for the respective curves, and b = 1, c = 6.
+The output from the sigmoid function is then used to rescale the baseline correlation parameter.
+By construction</p>
+<table class="ltx_equation ltx_eqn_table" id="Sx2.Ex34">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math alttext="\delta(x)=u(x)\,\delta_{0}" class="ltx_Math" display="block" id="Sx2.Ex34.m1" intent=":literal"><semantics><mrow><mrow><mi>δ</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></mrow><mo>=</mo><mrow><mi>u</mi><mo lspace="0em" rspace="0em">​</mo><mrow><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><mo lspace="0.170em" rspace="0em">​</mo><msub><mi>δ</mi><mn>0</mn></msub></mrow></mrow><annotation encoding="application/x-tex">\delta(x)=u(x)\,\delta_{0}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">which completes the <math alttext="\delta" class="ltx_Math" display="inline" id="Sx2.SSx4.p2.m4" intent=":literal"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>-based feedback loop between the controller and epidemic dynamics.</p>
+</div>
+<div class="ltx_pagination ltx_role_newpage"></div>
+</section>
+</section>
+<section class="ltx_bibliography" id="bib">
+<h2 class="ltx_title ltx_title_bibliography">References</h2>
+<ul class="ltx_biblist">
+<li class="ltx_bibitem" id="bib.bib1">
+<span class="ltx_tag ltx_tag_bibitem">[1]</span>
+<span class="ltx_bibblock">
+Woolhouse, M. E. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Heterogeneities in the transmission of infectious
+agents: implications for the design of control programs.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">94</span>, 338–342
+(1997).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib2">
+<span class="ltx_tag ltx_tag_bibitem">[2]</span>
+<span class="ltx_bibblock">
+Lloyd-Smith, J. O., Schreiber, S. J.,
+Kopp, P. E. &amp; Getz, W. M.
+
+</span>
+<span class="ltx_bibblock">Superspreading and the effect of individual variation
+on disease emergence.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature</em> <span class="ltx_text ltx_font_bold">438</span>,
+355–359 (2005).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib3">
+<span class="ltx_tag ltx_tag_bibitem">[3]</span>
+<span class="ltx_bibblock">
+Althouse, B. M. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Superspreading events in the transmission dynamics of
+sars-cov-2: Opportunities for interventions and control.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PLoS biology</em> <span class="ltx_text ltx_font_bold">18</span>,
+e3000897 (2020).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib4">
+<span class="ltx_tag ltx_tag_bibitem">[4]</span>
+<span class="ltx_bibblock">
+Lau, M. S. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Characterizing superspreading events and age-specific
+infectiousness of sars-cov-2 transmission in georgia, usa.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">117</span>, 22430–22435
+(2020).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib5">
+<span class="ltx_tag ltx_tag_bibitem">[5]</span>
+<span class="ltx_bibblock">
+Newman, M. E.
+
+</span>
+<span class="ltx_bibblock">Assortative mixing in networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Physical review letters</em>
+<span class="ltx_text ltx_font_bold">89</span>, 208701
+(2002).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib6">
+<span class="ltx_tag ltx_tag_bibitem">[6]</span>
+<span class="ltx_bibblock">
+Salje, H. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">How social structures, space, and behaviors shape the
+spread of infectious diseases using chikungunya as a case study.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">113</span>, 13420–13425
+(2016).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib7">
+<span class="ltx_tag ltx_tag_bibitem">[7]</span>
+<span class="ltx_bibblock">
+Cevik, M. &amp; Baral, S. D.
+
+</span>
+<span class="ltx_bibblock">Networks of sars-cov-2 transmission.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science</em> <span class="ltx_text ltx_font_bold">373</span>,
+162–163 (2021).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib8">
+<span class="ltx_tag ltx_tag_bibitem">[8]</span>
+<span class="ltx_bibblock">
+Ferrari, M. J., Bansal, S.,
+Meyers, L. A. &amp; Bjørnstad, O. N.
+
+</span>
+<span class="ltx_bibblock">Network frailty and the geometry of herd immunity.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the Royal Society B:
+Biological Sciences</em> <span class="ltx_text ltx_font_bold">273</span>,
+2743–2748 (2006).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib9">
+<span class="ltx_tag ltx_tag_bibitem">[9]</span>
+<span class="ltx_bibblock">
+Bansal, S., Grenfell, B. T. &amp;
+Meyers, L. A.
+
+</span>
+<span class="ltx_bibblock">When individual behaviour matters: homogeneous and
+network models in epidemiology.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of the Royal Society Interface</em>
+<span class="ltx_text ltx_font_bold">4</span>, 879–891
+(2007).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib10">
+<span class="ltx_tag ltx_tag_bibitem">[10]</span>
+<span class="ltx_bibblock">
+Vespignani, A.
+
+</span>
+<span class="ltx_bibblock">Predicting the behavior of techno-social systems.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science</em> <span class="ltx_text ltx_font_bold">325</span>,
+425–428 (2009).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib11">
+<span class="ltx_tag ltx_tag_bibitem">[11]</span>
+<span class="ltx_bibblock">
+Balcan, D. &amp; Vespignani, A.
+
+</span>
+<span class="ltx_bibblock">Phase transitions in contagion processes mediated by
+recurrent mobility patterns.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature physics</em>
+<span class="ltx_text ltx_font_bold">7</span>, 581–586
+(2011).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib12">
+<span class="ltx_tag ltx_tag_bibitem">[12]</span>
+<span class="ltx_bibblock">
+Metcalf, C. J. E. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Seven challenges in modeling vaccine preventable
+diseases.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Epidemics</em> <span class="ltx_text ltx_font_bold">10</span>,
+11–15 (2015).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib13">
+<span class="ltx_tag ltx_tag_bibitem">[13]</span>
+<span class="ltx_bibblock">
+Pellis, L. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Eight challenges for network epidemic models.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Epidemics</em> <span class="ltx_text ltx_font_bold">10</span>,
+58–62 (2015).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib14">
+<span class="ltx_tag ltx_tag_bibitem">[14]</span>
+<span class="ltx_bibblock">
+Herzog, S., Paul, M. &amp;
+Held, L.
+
+</span>
+<span class="ltx_bibblock">Heterogeneity in vaccination coverage explains the
+size and occurrence of measles epidemics in german surveillance data.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Epidemiology &amp; Infection</em>
+<span class="ltx_text ltx_font_bold">139</span>, 505–515
+(2011).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib15">
+<span class="ltx_tag ltx_tag_bibitem">[15]</span>
+<span class="ltx_bibblock">
+Barclay, V. C. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Positive network assortativity of influenza
+vaccination at a high school: implications for outbreak risk and herd
+immunity.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PloS one</em> <span class="ltx_text ltx_font_bold">9</span>,
+e87042 (2014).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib16">
+<span class="ltx_tag ltx_tag_bibitem">[16]</span>
+<span class="ltx_bibblock">
+Glasser, J. W., Feng, Z.,
+Omer, S. B., Smith, P. J. &amp;
+Rodewald, L. E.
+
+</span>
+<span class="ltx_bibblock">The effect of heterogeneity in uptake of the measles,
+mumps, and rubella vaccine on the potential for outbreaks of measles: a
+modelling study.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">The Lancet Infectious Diseases</em>
+<span class="ltx_text ltx_font_bold">16</span>, 599–605
+(2016).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib17">
+<span class="ltx_tag ltx_tag_bibitem">[17]</span>
+<span class="ltx_bibblock">
+Robert, A., Kucharski, A. J. &amp;
+Funk, S.
+
+</span>
+<span class="ltx_bibblock">The impact of local vaccine coverage and recent
+incidence on measles transmission in france between 2009 and 2018.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">BMC medicine</em> <span class="ltx_text ltx_font_bold">20</span>,
+77 (2022).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib18">
+<span class="ltx_tag ltx_tag_bibitem">[18]</span>
+<span class="ltx_bibblock">
+Kermack, W. O. &amp; McKendrick, A. G.
+
+</span>
+<span class="ltx_bibblock">A contribution to the mathematical theory of
+epidemics.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the royal society of london.
+Series A, Containing papers of a mathematical and physical character</em>
+<span class="ltx_text ltx_font_bold">115</span>, 700–721
+(1927).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib19">
+<span class="ltx_tag ltx_tag_bibitem">[19]</span>
+<span class="ltx_bibblock">
+Diekmann, O., Heesterbeek, J. A. P. &amp;
+Metz, J. A.
+
+</span>
+<span class="ltx_bibblock">On the definition and the computation of the basic
+reproduction ratio r 0 in models for infectious diseases in heterogeneous
+populations.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of mathematical biology</em>
+<span class="ltx_text ltx_font_bold">28</span>, 365–382
+(1990).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib20">
+<span class="ltx_tag ltx_tag_bibitem">[20]</span>
+<span class="ltx_bibblock">
+Anderson, R. M. &amp; May, R. M.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Infectious diseases of humans: dynamics and
+control</em> (Oxford university press,
+1992).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib21">
+<span class="ltx_tag ltx_tag_bibitem">[21]</span>
+<span class="ltx_bibblock">
+Fisher, R. A.
+
+</span>
+<span class="ltx_bibblock">The wave of advance of advantageous genes.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Annals of eugenics</em>
+<span class="ltx_text ltx_font_bold">7</span>, 355–369
+(1937).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib22">
+<span class="ltx_tag ltx_tag_bibitem">[22]</span>
+<span class="ltx_bibblock">
+Lieberman, E., Hauert, C. &amp;
+Nowak, M. A.
+
+</span>
+<span class="ltx_bibblock">Evolutionary dynamics on graphs.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature</em> <span class="ltx_text ltx_font_bold">433</span>,
+312–316 (2005).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib23">
+<span class="ltx_tag ltx_tag_bibitem">[23]</span>
+<span class="ltx_bibblock">
+Markov, P. V. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">The evolution of sars-cov-2.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature Reviews Microbiology</em>
+<span class="ltx_text ltx_font_bold">21</span>, 361–379
+(2023).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib24">
+<span class="ltx_tag ltx_tag_bibitem">[24]</span>
+<span class="ltx_bibblock">
+Kempe, D., Kleinberg, J. &amp;
+Tardos, É.
+
+</span>
+<span class="ltx_bibblock">Maximizing the spread of influence through a social
+network.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the ninth ACM SIGKDD
+international conference on Knowledge discovery and data mining</em>,
+137–146 (2003).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib25">
+<span class="ltx_tag ltx_tag_bibitem">[25]</span>
+<span class="ltx_bibblock">
+Saberi, M. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">A simple contagion process describes spreading of
+traffic jams in urban networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature communications</em>
+<span class="ltx_text ltx_font_bold">11</span>, 1616 (2020).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib26">
+<span class="ltx_tag ltx_tag_bibitem">[26]</span>
+<span class="ltx_bibblock">
+Kawakatsu, M., Chodrow, P. S.,
+Eikmeier, N. &amp; Larremore, D. B.
+
+</span>
+<span class="ltx_bibblock">Emergence of hierarchy in networked endorsement
+dynamics.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">118</span>, e2015188118
+(2021).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib27">
+<span class="ltx_tag ltx_tag_bibitem">[27]</span>
+<span class="ltx_bibblock">
+Han, S. M. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Transmission dynamics of seasonal influenza in a
+remote island population.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Scientific reports</em>
+<span class="ltx_text ltx_font_bold">13</span>, 5393 (2023).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib28">
+<span class="ltx_tag ltx_tag_bibitem">[28]</span>
+<span class="ltx_bibblock">
+DeVincenzo, J. P. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Viral load drives disease in humans experimentally
+infected with respiratory syncytial virus.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">American journal of respiratory and critical
+care medicine</em> <span class="ltx_text ltx_font_bold">182</span>, 1305–1314
+(2010).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib29">
+<span class="ltx_tag ltx_tag_bibitem">[29]</span>
+<span class="ltx_bibblock">
+Cheng, P. K. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Viral shedding patterns of coronavirus in patients
+with probable severe acute respiratory syndrome.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">The Lancet</em> <span class="ltx_text ltx_font_bold">363</span>,
+1699–1700 (2004).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib30">
+<span class="ltx_tag ltx_tag_bibitem">[30]</span>
+<span class="ltx_bibblock">
+Adam, D. C. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Clustering and superspreading potential of sars-cov-2
+infections in hong kong.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature Medicine</em>
+<span class="ltx_text ltx_font_bold">26</span>, 1714–1719
+(2020).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib31">
+<span class="ltx_tag ltx_tag_bibitem">[31]</span>
+<span class="ltx_bibblock">
+Cauchemez, S. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Role of social networks in shaping disease
+transmission during a community outbreak of 2009 h1n1 pandemic influenza.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">108</span>, 2825–2830
+(2011).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib32">
+<span class="ltx_tag ltx_tag_bibitem">[32]</span>
+<span class="ltx_bibblock">
+Shaman, J., Pitzer, V. E.,
+Viboud, C., Grenfell, B. T. &amp;
+Lipsitch, M.
+
+</span>
+<span class="ltx_bibblock">Absolute humidity and the seasonal onset of influenza
+in the continental united states.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PLoS biology</em> <span class="ltx_text ltx_font_bold">8</span>,
+e1000316 (2010).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib33">
+<span class="ltx_tag ltx_tag_bibitem">[33]</span>
+<span class="ltx_bibblock">
+Baker, R. E., Yang, W.,
+Vecchi, G. A. &amp; Takahashi, S.
+
+</span>
+<span class="ltx_bibblock">Increasing intensity of enterovirus outbreaks
+projected with climate change.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature communications</em>
+<span class="ltx_text ltx_font_bold">15</span>, 6466 (2024).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib34">
+<span class="ltx_tag ltx_tag_bibitem">[34]</span>
+<span class="ltx_bibblock">
+Feld, S. L.
+
+</span>
+<span class="ltx_bibblock">Why your friends have more friends than you do.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">American journal of sociology</em>
+<span class="ltx_text ltx_font_bold">96</span>, 1464–1477
+(1991).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib35">
+<span class="ltx_tag ltx_tag_bibitem">[35]</span>
+<span class="ltx_bibblock">
+Pastor-Satorras, R. &amp; Vespignani, A.
+
+</span>
+<span class="ltx_bibblock">Epidemic spreading in scale-free networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Physical review letters</em>
+<span class="ltx_text ltx_font_bold">86</span>, 3200 (2001).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib36">
+<span class="ltx_tag ltx_tag_bibitem">[36]</span>
+<span class="ltx_bibblock">
+Volz, E. M., Miller, J. C.,
+Galvani, A. &amp; Ancel Meyers, L.
+
+</span>
+<span class="ltx_bibblock">Effects of heterogeneous and clustered contact
+patterns on infectious disease dynamics.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PLoS computational biology</em>
+<span class="ltx_text ltx_font_bold">7</span>, e1002042
+(2011).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib37">
+<span class="ltx_tag ltx_tag_bibitem">[37]</span>
+<span class="ltx_bibblock">
+Colizza, V. &amp; Vespignani, A.
+
+</span>
+<span class="ltx_bibblock">Invasion threshold in heterogeneous metapopulation
+networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Physical review letters</em>
+<span class="ltx_text ltx_font_bold">99</span>, 148701
+(2007).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib38">
+<span class="ltx_tag ltx_tag_bibitem">[38]</span>
+<span class="ltx_bibblock">
+Leventhal, G. E., Hill, A. L.,
+Nowak, M. A. &amp; Bonhoeffer, S.
+
+</span>
+<span class="ltx_bibblock">Evolution and emergence of infectious diseases in
+theoretical and real-world networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature communications</em>
+<span class="ltx_text ltx_font_bold">6</span>, 6101 (2015).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib39">
+<span class="ltx_tag ltx_tag_bibitem">[39]</span>
+<span class="ltx_bibblock">
+Colizza, V. &amp; Vespignani, A.
+
+</span>
+<span class="ltx_bibblock">Epidemic modeling in metapopulation systems with
+heterogeneous coupling pattern: Theory and simulations.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of theoretical biology</em>
+<span class="ltx_text ltx_font_bold">251</span>, 450–467
+(2008).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib40">
+<span class="ltx_tag ltx_tag_bibitem">[40]</span>
+<span class="ltx_bibblock">
+Diekmann, O., Heesterbeek, J. &amp;
+Roberts, M. G.
+
+</span>
+<span class="ltx_bibblock">The construction of next-generation matrices for
+compartmental epidemic models.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of the royal society interface</em>
+<span class="ltx_text ltx_font_bold">7</span>, 873–885
+(2010).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib41">
+<span class="ltx_tag ltx_tag_bibitem">[41]</span>
+<span class="ltx_bibblock">
+Manna, A., Dall’Amico, L.,
+Tizzoni, M., Karsai, M. &amp;
+Perra, N.
+
+</span>
+<span class="ltx_bibblock">Generalized contact matrices allow integrating
+socioeconomic variables into epidemic models.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science Advances</em>
+<span class="ltx_text ltx_font_bold">10</span>, eadk4606
+(2024).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib42">
+<span class="ltx_tag ltx_tag_bibitem">[42]</span>
+<span class="ltx_bibblock">
+Newman, M. E.
+
+</span>
+<span class="ltx_bibblock">Spread of epidemic disease on networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Physical review E</em>
+<span class="ltx_text ltx_font_bold">66</span>, 016128
+(2002).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib43">
+<span class="ltx_tag ltx_tag_bibitem">[43]</span>
+<span class="ltx_bibblock">
+Grenfell, B. T., Bjørnstad, O. N. &amp;
+Kappey, J.
+
+</span>
+<span class="ltx_bibblock">Travelling waves and spatial hierarchies in measles
+epidemics.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature</em> <span class="ltx_text ltx_font_bold">414</span>,
+716–723 (2001).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib44">
+<span class="ltx_tag ltx_tag_bibitem">[44]</span>
+<span class="ltx_bibblock">
+Dalziel, B. D. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Contact heterogeneity, rather than transmission
+efficiency, limits the emergence and spread of canine influenza virus.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PLoS pathogens</em>
+<span class="ltx_text ltx_font_bold">10</span> (2014).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib45">
+<span class="ltx_tag ltx_tag_bibitem">[45]</span>
+<span class="ltx_bibblock">
+Dalziel, B. D. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Urbanization and humidity shape the intensity of
+influenza epidemics in us cities.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science</em> <span class="ltx_text ltx_font_bold">362</span>,
+75–79 (2018).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib46">
+<span class="ltx_tag ltx_tag_bibitem">[46]</span>
+<span class="ltx_bibblock">
+Kiss, I. Z., Miller, J. S. &amp;
+Simon, P.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Mathematics of Epidemics on Networks: From
+Exact to Approximate Models</em> (Springer International
+Publishing, 2017).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib47">
+<span class="ltx_tag ltx_tag_bibitem">[47]</span>
+<span class="ltx_bibblock">
+Sun, K. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Transmission heterogeneities, kinetics, and
+controllability of sars-cov-2.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science</em> <span class="ltx_text ltx_font_bold">371</span>,
+eabe2424 (2021).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib48">
+<span class="ltx_tag ltx_tag_bibitem">[48]</span>
+<span class="ltx_bibblock">
+Baker, R. E. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Infectious disease in an era of global change.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature reviews microbiology</em>
+<span class="ltx_text ltx_font_bold">20</span>, 193–205
+(2022).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib49">
+<span class="ltx_tag ltx_tag_bibitem">[49]</span>
+<span class="ltx_bibblock">
+Funk, S. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Nine challenges in incorporating the dynamics of
+behaviour in infectious diseases models.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Epidemics</em> <span class="ltx_text ltx_font_bold">10</span>,
+21–25 (2015).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib50">
+<span class="ltx_tag ltx_tag_bibitem">[50]</span>
+<span class="ltx_bibblock">
+Brockmann, D. &amp; Helbing, D.
+
+</span>
+<span class="ltx_bibblock">The hidden geometry of complex, network-driven
+contagion phenomena.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">science</em> <span class="ltx_text ltx_font_bold">342</span>,
+1337–1342 (2013).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib51">
+<span class="ltx_tag ltx_tag_bibitem">[51]</span>
+<span class="ltx_bibblock">
+Kim, H. K. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Superspreading potential of sars-cov-2 across
+multiple infection generations.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of Infection and Public Health</em>
+102808 (2025).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib52">
+<span class="ltx_tag ltx_tag_bibitem">[52]</span>
+<span class="ltx_bibblock">
+Biggerstaff, M., Cauchemez, S.,
+Reed, C., Gambhir, M. &amp;
+Finelli, L.
+
+</span>
+<span class="ltx_bibblock">Estimates of the reproduction number for seasonal,
+pandemic, and zoonotic influenza: a systematic review of the literature.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">BMC infectious diseases</em>
+<span class="ltx_text ltx_font_bold">14</span>, 1–20 (2014).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib53">
+<span class="ltx_tag ltx_tag_bibitem">[53]</span>
+<span class="ltx_bibblock">
+Graham, M. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Measles and the canonical path to elimination.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science</em> <span class="ltx_text ltx_font_bold">364</span>,
+584–587 (2019).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib54">
+<span class="ltx_tag ltx_tag_bibitem">[54]</span>
+<span class="ltx_bibblock">
+Taube, J. C., Miller, P. B. &amp;
+Drake, J. M.
+
+</span>
+<span class="ltx_bibblock">An open-access database of infectious disease
+transmission trees to explore superspreader epidemiology.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PLoS Biology</em> <span class="ltx_text ltx_font_bold">20</span>,
+e3001685 (2022).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib55">
+<span class="ltx_tag ltx_tag_bibitem">[55]</span>
+<span class="ltx_bibblock">
+Jang, S., Han, S. H. &amp;
+Rhee, J.-Y.
+
+</span>
+<span class="ltx_bibblock">Cluster of coronavirus disease associated with
+fitness dance classes, south korea.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Emerging infectious diseases</em>
+<span class="ltx_text ltx_font_bold">26</span>, 1917 (2020).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib56">
+<span class="ltx_tag ltx_tag_bibitem">[56]</span>
+<span class="ltx_bibblock">
+Faye, O. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Chains of transmission and control of ebola virus
+disease in conakry, guinea, in 2014: an observational study.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">The Lancet Infectious Diseases</em>
+<span class="ltx_text ltx_font_bold">15</span>, 320–326
+(2015).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib57">
+<span class="ltx_tag ltx_tag_bibitem">[57]</span>
+<span class="ltx_bibblock">
+Zhang, X.-S. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Estimating and modelling the transmissibility of
+middle east respiratory syndrome coronavirus during the 2015 outbreak in the
+republic of korea.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Influenza and other respiratory viruses</em>
+<span class="ltx_text ltx_font_bold">11</span>, 434–444
+(2017).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib58">
+<span class="ltx_tag ltx_tag_bibitem">[58]</span>
+<span class="ltx_bibblock">
+Leo, Y., Chen, M., Heng,
+B. &amp; Lee, C.
+
+</span>
+<span class="ltx_bibblock">Severe acute respiratory syndrome-singapore, 2003.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">MMWR: Morbidity &amp; Mortality Weekly Report</em>
+<span class="ltx_text ltx_font_bold">52</span>, 405–405
+(2003).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib59">
+<span class="ltx_tag ltx_tag_bibitem">[59]</span>
+<span class="ltx_bibblock">
+Eubank, S. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Modelling disease outbreaks in realistic urban social
+networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature</em> <span class="ltx_text ltx_font_bold">429</span>,
+180–184 (2004).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib60">
+<span class="ltx_tag ltx_tag_bibitem">[60]</span>
+<span class="ltx_bibblock">
+Weitz, J. S., Park, S. W.,
+Eksin, C. &amp; Dushoff, J.
+
+</span>
+<span class="ltx_bibblock">Awareness-driven behavior changes can shift the shape
+of epidemics away from peaks and toward plateaus, shoulders, and
+oscillations.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">117</span>, 32764–32771
+(2020).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib61">
+<span class="ltx_tag ltx_tag_bibitem">[61]</span>
+<span class="ltx_bibblock">
+CDC.
+
+</span>
+<span class="ltx_bibblock">Flu vaccination coverage, united states, 2023–24
+influenza season (2024).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib62">
+<span class="ltx_tag ltx_tag_bibitem">[62]</span>
+<span class="ltx_bibblock">
+Grijalva, C. G. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Estimated effectiveness of influenza vaccines in
+preventing secondary infections in households.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">JAMA Network Open</em>
+<span class="ltx_text ltx_font_bold">7</span>, e2446814–e2446814
+(2024).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib63">
+<span class="ltx_tag ltx_tag_bibitem">[63]</span>
+<span class="ltx_bibblock">
+Riley, S. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Transmission dynamics of the etiological agent of
+sars in hong kong: impact of public health interventions.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science</em> <span class="ltx_text ltx_font_bold">300</span>,
+1961–1966 (2003).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib64">
+<span class="ltx_tag ltx_tag_bibitem">[64]</span>
+<span class="ltx_bibblock">
+Blumberg, S. &amp; Lloyd-Smith, J. O.
+
+</span>
+<span class="ltx_bibblock">Inference of r 0 and transmission heterogeneity from
+the size distribution of stuttering chains.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PLoS computational biology</em>
+<span class="ltx_text ltx_font_bold">9</span>, e1002993
+(2013).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib65">
+<span class="ltx_tag ltx_tag_bibitem">[65]</span>
+<span class="ltx_bibblock">
+Lau, M. S. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Spatial and temporal dynamics of superspreading
+events in the 2014–2015 west africa ebola epidemic.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">114</span>, 2337–2342
+(2017).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib66">
+<span class="ltx_tag ltx_tag_bibitem">[66]</span>
+<span class="ltx_bibblock">
+Aber, R., Di, Y. &amp;
+Dalziel, B. D.
+
+</span>
+<span class="ltx_bibblock">Time-series modeling of epidemics in complex
+populations: Detecting changes in incidence volatility over time.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">PLOS Computational Biology</em>
+<span class="ltx_text ltx_font_bold">21</span>, e1012882
+(2025).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib67">
+<span class="ltx_tag ltx_tag_bibitem">[67]</span>
+<span class="ltx_bibblock">
+Prigogine, I.
+
+</span>
+<span class="ltx_bibblock">Time, structure, and fluctuations.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Science</em> <span class="ltx_text ltx_font_bold">201</span>,
+777–785 (1978).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib68">
+<span class="ltx_tag ltx_tag_bibitem">[68]</span>
+<span class="ltx_bibblock">
+Grenfell, B. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Noise and determinism in synchronized sheep
+dynamics.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature</em> <span class="ltx_text ltx_font_bold">394</span>,
+674–677 (1998).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib69">
+<span class="ltx_tag ltx_tag_bibitem">[69]</span>
+<span class="ltx_bibblock">
+Antia, R., Regoes, R. R.,
+Koella, J. C. &amp; Bergstrom, C. T.
+
+</span>
+<span class="ltx_bibblock">The role of evolution in the emergence of infectious
+diseases.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Nature</em> <span class="ltx_text ltx_font_bold">426</span>,
+658–661 (2003).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib70">
+<span class="ltx_tag ltx_tag_bibitem">[70]</span>
+<span class="ltx_bibblock">
+Hashimoto, M. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Noise-driven growth rate gain in clonal cellular
+populations.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Proceedings of the National Academy of
+Sciences</em> <span class="ltx_text ltx_font_bold">113</span>, 3251–3256
+(2016).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib71">
+<span class="ltx_tag ltx_tag_bibitem">[71]</span>
+<span class="ltx_bibblock">
+Carpenter, B. <em class="ltx_emph ltx_font_italic">et al.</em>
+</span>
+<span class="ltx_bibblock">Stan: A probabilistic programming language.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of statistical software</em>
+<span class="ltx_text ltx_font_bold">76</span> (2017).
+
+</span>
+</li>
+<li class="ltx_bibitem" id="bib.bib72">
+<span class="ltx_tag ltx_tag_bibitem">[72]</span>
+<span class="ltx_bibblock">
+Stan Development Team.
+
+</span>
+<span class="ltx_bibblock">RStan: the R interface to Stan
+(2018).
+
+</span>
+<span class="ltx_bibblock">URL <span class="ltx_text ltx_font_typewriter">http://mc-stan.org/</span>.
+
+</span>
+<span class="ltx_bibblock">R package version 2.17.3.
+
+</span>
+</li>
+</ul>
+</section>
+</article>
+</div>
+<footer class="ltx_page_footer">
+<div class="ltx_page_logo">Generated  on Thu Sep 18 18:28:03 2025 by <a class="ltx_LaTeXML_logo" href="http://dlmf.nist.gov/LaTeXML/"><span style="letter-spacing:-0.2em; margin-right:0.1em;">L<span class="ltx_font_smallcaps" style="position:relative; bottom:2.2pt;">a</span>T<span class="ltx_font_smallcaps" style="font-size:120%;position:relative; bottom:-0.2ex;">e</span></span><span style="font-size:90%; position:relative; bottom:-0.2ex;">XML</span><img alt="Mascot Sammy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg=="/></a>
+</div></footer>
+</div>
+</body>
+</html>

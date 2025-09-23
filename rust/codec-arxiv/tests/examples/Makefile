@@ -4,7 +4,7 @@
 # haphazardly from arXiv for a variety of content types (e.g. figures, tables,
 # maths, appendices, conversion errors) and subject areas.
 
-EXAMPLES := 2507.09057v1 2507.11127v1 2507.11353v1 2507.11538v1 2507.13317v1
+EXAMPLES := 2507.09057v1 2507.11127v1 2507.11353v1 2507.11538v1 2507.13317v1 2509.15338v1
 HTML_FILES := $(addsuffix .html, $(EXAMPLES))
 
 all: $(HTML_FILES)

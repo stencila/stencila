@@ -153,16 +153,6 @@ pub fn decode_citation(
     tag_class: &str,
     _context: &mut ArxivDecodeContext,
 ) -> Inline {
-    // Map LaTeXML citation classes to Stencila citation modes
-    let mode = if tag_class.contains("ltx_citemacro_citep") {
-        CitationMode::Parenthetical
-    } else if tag_class.contains("ltx_citemacro_citet") || tag_class.contains("ltx_citemacro_cite")
-    {
-        CitationMode::Narrative
-    } else {
-        CitationMode::Parenthetical // Safe default
-    };
-
     // Extract all reference links within this citation
     let mut ref_links = Vec::new();
     for child in tag
@@ -196,6 +186,25 @@ pub fn decode_citation(
     if ref_links.len() > 1 {
         create_citation_group(parser, tag, ref_links)
     } else {
+        // Map LaTeXML citation classes to Stencila citation modes
+        let mode = if tag_class.contains("ltx_citemacro_citep") {
+            CitationMode::Parenthetical
+        } else if tag_class.contains("ltx_citemacro_citet") {
+            CitationMode::Narrative
+        } else {
+            // Determine if narrative or parenthetical based on if it
+            // starts and ends with either parens or brackets
+            let text_content = get_text_content(parser, tag);
+            let trimmed = text_content.trim();
+
+            // Check if content starts and ends with brackets
+            if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                CitationMode::Parenthetical
+            } else {
+                CitationMode::Narrative
+            }
+        };
+
         create_single_citation(parser, tag, ref_links, mode)
     }
 }
