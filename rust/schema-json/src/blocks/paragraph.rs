@@ -4,7 +4,7 @@ use crate::schema::{JsonSchema, refer};
 pub fn simple() -> JsonSchema {
     JsonSchema::object()
         .title("Paragraph")
-        .description("A paragraph")
+        .description("Simple paragraph")
         .required(["type", "content"])
         .property("type", JsonSchema::string_const("Paragraph"))
         .property(

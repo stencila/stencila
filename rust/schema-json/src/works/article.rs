@@ -69,7 +69,7 @@ pub fn metadata() -> JsonSchema {
 pub fn simple() -> JsonSchema {
     JsonSchema::object()
         .title("Article")
-        .description("A simple article")
+        .description("Simple article containing simple block content")
         .required(["type", "content"])
         .property("type", JsonSchema::string_const("Article"))
         .property(

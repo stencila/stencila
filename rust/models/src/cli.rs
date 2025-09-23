@@ -19,7 +19,7 @@ use stencila_model::{
     stencila_schema::{
         File, ImageObject, InstructionMessage, MessagePart, MessageRole, ModelParameters, Text,
     },
-    stencila_schema_json::json_schema,
+    stencila_schema_json::{JsonSchemaVariant, json_schema},
 };
 
 use crate::select;
@@ -191,9 +191,9 @@ struct Run {
     #[arg(long, short)]
     format: Option<String>,
 
-    /// JSON schema name for structured output validation (e.g., "math-block:tex")
+    /// JSON schema name for structured output validation (e.g., "math-block-tex")
     #[arg(long, short)]
-    schema: Option<String>,
+    schema: Option<JsonSchemaVariant>,
 
     /// System message to set context or behavior for the model
     #[arg(long)]
@@ -272,7 +272,7 @@ impl Run {
             ..Default::default()
         });
 
-        let schema = match &self.schema {
+        let schema = match self.schema {
             Some(schema) => Some(json_schema(schema)?),
             None => None,
         };

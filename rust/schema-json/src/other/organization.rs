@@ -3,7 +3,7 @@ use crate::schema::JsonSchema;
 pub fn simple() -> JsonSchema {
     JsonSchema::object()
         .title("Organization")
-        .description("An organization such as a university, company, or institution")
+        .description("A simple representation of an organization including identifiers and address")
         .required(["type", "name"])
         .property("type", JsonSchema::string_const("Organization"))
         .property(

@@ -6,6 +6,6 @@ use crate::schema::{JsonSchema, refer};
 pub fn simple() -> JsonSchema {
     JsonSchema::new()
         .title("Inline")
-        .description("Union type for valid inline content")
+        .description("Simple inline content")
         .any_of(vec![refer(text::plain()), refer(math::tex())])
 }

@@ -6,7 +6,7 @@ use crate::{
 pub fn simple() -> JsonSchema {
     JsonSchema::object()
         .title("Person")
-        .description("A person with basic information and affiliations")
+        .description("A simple representation of a person including identifiers and affiliations")
         .required(["type"])
         .property("type", JsonSchema::string_const("Person"))
         .property(
