@@ -32,6 +32,7 @@ impl Tool for Apt {
         self.path()?;
 
         let pkg = match tool.name() {
+            "convert" => "imagemagick",
             "xelatex" => "texlive",
             "node" => "nodejs",
             "python" => "python3",
@@ -99,6 +100,7 @@ impl Tool for Devbox {
             "node" => "nodejs",
             "r" => "R",
             "xelatex" => "texlivePackages.xelatex-dev",
+            "convert" => "imagemagick",
             name => name,
         };
 

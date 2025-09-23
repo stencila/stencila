@@ -14,7 +14,7 @@ use stencila_schema::{
     AudioObject, Block, CreativeWorkVariant, ImageObject, Inline, Node, VideoObject, VisitorMut,
     WalkControl, WalkNode,
 };
-use stencila_tools::{Ffmpeg, Tool};
+use stencila_tools::{Convert, Ffmpeg, Tool};
 
 /// Embed media files within [`ImageObject`], [`VideoObject`], and
 /// [`AudioObject`] as dataURIs
@@ -143,7 +143,8 @@ impl Embedder {
             return;
         }
 
-        const IMAGE_EXTENSIONS: &[&str] = &["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"];
+        const IMAGE_EXTENSIONS: &[&str] =
+            &["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff", ".pdf"];
 
         for ext in IMAGE_EXTENSIONS {
             let path = self.resolve_path(&image.content_url, ext);
@@ -158,6 +159,14 @@ impl Embedder {
 
     /// Process an image file by optimizing and converting to data URI
     fn process_image(&self, path: &Path, image: &mut ImageObject) {
+        // Check if this is a PDF file and handle it separately
+        if let Some(extension) = path.extension()
+            && extension.to_string_lossy().to_lowercase() == "pdf"
+        {
+            self.process_pdf_image(path, image);
+            return;
+        }
+
         const MAX_WIDTH: u32 = 1200; // Default max width for web viewing
 
         // Determine input format
@@ -261,6 +270,57 @@ impl Embedder {
         };
 
         image.content_url = data_uri;
+    }
+
+    /// Process a PDF file by converting to JPEG and encoding as data URI
+    fn process_pdf_image(&self, path: &Path, image: &mut ImageObject) {
+        // Create a temporary file for the JPEG output
+        let temp_file = match NamedTempFile::with_suffix(".jpg") {
+            Ok(file) => file,
+            Err(error) => {
+                tracing::error!("Failed to create temporary file: {error}");
+                return;
+            }
+        };
+        let temp_output = temp_file.path();
+
+        // Use ImageMagick convert to convert PDF to JPEG
+        let mut command = Convert.command();
+        command
+            .args(["-density", "150"]) // 150 DPI for good quality, similar to 1200px max width
+            .arg(format!("{}[0]", path.display())) // [0] means first page only
+            .args(["-quality", "85"]) // 85% quality for good web compression
+            .args(["-colorspace", "RGB"]) // Ensure consistent color space
+            .arg(temp_output);
+
+        match command.output() {
+            Ok(output) => {
+                if output.status.success() {
+                    // Read the converted JPEG file and convert to base64
+                    match std::fs::read(temp_output) {
+                        Ok(jpeg_bytes) => {
+                            let encoded = STANDARD.encode(&jpeg_bytes);
+                            let data_uri = format!("data:image/jpeg;base64,{encoded}");
+                            image.content_url = data_uri;
+                        }
+                        Err(error) => {
+                            tracing::error!("Failed to read converted JPEG file: {error}");
+                        }
+                    }
+                } else {
+                    let stdout = String::from_utf8_lossy(&output.stdout);
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    tracing::error!(
+                        "ImageMagick convert failed to process PDF. stdout: {stdout}, stderr: {stderr}"
+                    );
+                }
+
+                // Temporary file will be cleaned up automatically when temp_file is dropped
+            }
+            Err(error) => {
+                tracing::error!("Failed to execute ImageMagick convert: {error}");
+            }
+        }
     }
 
     /// Embed an audio file by converting to MP3 and encoding as data URI

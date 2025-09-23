@@ -28,6 +28,30 @@ impl Tool for Agg {
     }
 }
 
+pub struct Convert;
+
+impl Tool for Convert {
+    fn name(&self) -> &'static str {
+        "convert"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://imagemagick.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Convert digital images"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Conversion
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Devbox), Box::new(Apt)]
+    }
+}
+
 pub struct Ffmpeg;
 
 impl Tool for Ffmpeg {

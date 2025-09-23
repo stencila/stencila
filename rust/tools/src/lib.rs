@@ -58,6 +58,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         Box::new(LintR),
         // Conversion
         Box::new(Agg),
+        Box::new(Convert),
         Box::new(Ffmpeg),
         Box::new(Pandoc),
         Box::new(Xelatex),
