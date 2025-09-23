@@ -53,15 +53,7 @@ expression: article
     },
     {
       "type": "Paragraph",
-      "content": [
-        {
-          "type": "StyledInline",
-          "code": {
-            "string": ""
-          },
-          "content": []
-        }
-      ]
+      "content": []
     },
     {
       "type": "Heading",
@@ -111,15 +103,7 @@ expression: article
     },
     {
       "type": "Paragraph",
-      "content": [
-        {
-          "type": "StyledInline",
-          "code": {
-            "string": ""
-          },
-          "content": []
-        }
-      ]
+      "content": []
     },
     {
       "type": "Heading",
