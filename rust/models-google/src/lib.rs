@@ -142,10 +142,12 @@ impl Model for GoogleModel {
             contents.push(Content { role, parts });
         }
 
-        let response_mime_type = match task.format {
-            Some(Format::Json) => Some("application/json".to_string()),
-            _ => None, // defaults to text/plain
-        };
+        let response_mime_type =
+            if matches!(task.format, Some(Format::Json)) || task.schema.is_some() {
+                Some("application/json".to_string())
+            } else {
+                None // defaults to text/plain
+            };
 
         let response_json_schema = task
             .schema

@@ -140,13 +140,15 @@ impl MistralModel {
             messages.push(ChatMessage { role, content })
         }
 
+        let response_format = task
+            .schema
+            .is_some()
+            .then(|| ResponseFormat::from_task(task));
+
         let request = ChatCompletionRequest {
             model: self.model.clone(),
             messages,
-            response_format: task
-                .schema
-                .is_some()
-                .then(|| ResponseFormat::from_task(task)),
+            response_format,
             temperature: task.temperature,
             top_p: task.top_p,
             max_tokens: task.max_tokens,
@@ -249,14 +251,25 @@ impl MistralModel {
         let response: OcrResponse = response.json().await?;
 
         let mut markdown = if let Some(json) = response.document_annotation {
-            // If any metadata were extract then add as YAML frontmatter
-            let metadata: serde_json::Value = serde_json::from_str(&json).wrap_err_with(|| {
-                eyre!(
-                    "Unable to parse JSON metadata:\n{}",
-                    &json[..json.len().max(200)]
-                )
-            })?;
-            let yaml = serde_yaml::to_string(&metadata)?;
+            // If the model task requested JSON then just return the annotation only
+            if matches!(task.format, Some(Format::Json)) {
+                return Ok(ModelOutput::from_text_with(
+                    self,
+                    &Some(Format::Json),
+                    json,
+                    Vec::new(),
+                ));
+            }
+
+            // If Markdown requested then turn it into YAML frontmatter
+            let annotation: serde_json::Value =
+                serde_json::from_str(&json).wrap_err_with(|| {
+                    eyre!(
+                        "Unable to parse JSON metadata:\n{}",
+                        &json[..json.len().max(200)]
+                    )
+                })?;
+            let yaml = serde_yaml::to_string(&annotation)?;
             format!("---\n{yaml}\n---\n")
         } else {
             String::new()
@@ -368,7 +381,13 @@ impl ResponseFormat {
                         ResponseFormatType::JsonObject
                     }
                 }
-                _ => ResponseFormatType::Text,
+                _ => {
+                    if task.schema.is_some() {
+                        ResponseFormatType::JsonSchema
+                    } else {
+                        ResponseFormatType::Text
+                    }
+                }
             },
             json_schema: task.schema.clone().map(|schema| ResponseJsonSchema {
                 name: "response_schema".to_string(),

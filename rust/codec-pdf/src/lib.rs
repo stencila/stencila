@@ -101,8 +101,8 @@ impl Codec for PdfCodec {
         let should_generate = !md_path.exists() || ignore_artifacts;
         if should_generate {
             let output = perform_task(ModelTask {
+                format: Some(Format::Markdown),
                 // Specify schema for metadata extraction
-                format: Some(Format::Json),
                 schema: Some(json_schema(JsonSchemaVariant::ArticleMetadata)?),
                 // Specify model
                 model_parameters: Some(ModelParameters {
