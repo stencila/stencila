@@ -36,20 +36,10 @@ impl Codec for PmcCodec {
         use StructuringOperation::*;
         match format {
             Format::PmcOa => StructuringOptions::new(
-                [
-                    NormalizeCitations,
-                    TableImagesToRows,
-                    MathImagesToTex,
-                ],
+                [NormalizeCitations, TableImagesToRows, MathImagesToTex],
                 [],
             ),
-            Format::Html => StructuringOptions::new(
-                [
-                    LinksToCitations,
-                    NormalizeCitations,
-                ],
-                [],
-            ),
+            Format::Html => StructuringOptions::new([LinksToCitations, NormalizeCitations], []),
             _ => StructuringOptions::default(),
         }
     }
