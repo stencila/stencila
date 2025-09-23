@@ -1,5 +1,3 @@
-use reqwest::Url;
-
 use hayagriva::{
     Entry,
     types::{
@@ -7,6 +5,8 @@ use hayagriva::{
         Person as HPerson, QualifiedUrl, SerialNumber,
     },
 };
+use reqwest::Url;
+
 use stencila_codec::{
     eyre::Result,
     stencila_schema::{
@@ -15,6 +15,7 @@ use stencila_codec::{
         PropertyValueOrString, Reference, ReferenceOptions, StringOrNumber, Text,
     },
 };
+use stencila_codec_text_trait::to_text;
 
 // Constants for repeated string literals
 const DOI_KEY: &str = "doi";
@@ -301,11 +302,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
 
     // Set title
     if let Some(title) = &reference.title {
-        let title_str = title
-            .iter()
-            .map(inline_to_string)
-            .collect::<Vec<_>>()
-            .join("");
+        let title_str = title.iter().map(to_text).collect::<Vec<_>>().join("");
         entry.set_title(FormatString::from(title_str));
     }
 
@@ -740,14 +737,6 @@ fn maybe_typed_to_string<T: ToString>(value: &MaybeTyped<T>) -> String {
     }
 }
 
-/// Convert inline content to string representation
-fn inline_to_string(inline: &Inline) -> String {
-    match inline {
-        Inline::Text(Text { value, .. }) => value.to_string(),
-        _ => format!("{inline:?}"),
-    }
-}
-
 /// Parse ISO date string into Hayagriva Date
 fn parse_iso_date(date_str: &str) -> Option<HDate> {
     // Try to parse the string as a year first
@@ -793,7 +782,7 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
     if let Some(container_title) = &container.title {
         let title_str = container_title
             .iter()
-            .map(inline_to_string)
+            .map(to_text)
             .collect::<Vec<_>>()
             .join("");
 
