@@ -272,10 +272,7 @@ impl Run {
             ..Default::default()
         });
 
-        let schema = match self.schema {
-            Some(schema) => Some(json_schema(schema)?),
-            None => None,
-        };
+        let schema = self.schema.map(json_schema);
 
         let format = Some(match self.format {
             Some(format) => {

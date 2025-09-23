@@ -18,7 +18,7 @@ use stencila_convert::{clean_md, html_to_pdf, latex_to_pdf};
 use stencila_dirs::closest_artifacts_for;
 use stencila_models::{ModelTask, perform_task};
 use stencila_node_media::embed_media;
-use stencila_schema_json::{json_schema, JsonSchemaVariant};
+use stencila_schema_json::{JsonSchemaVariant, json_schema};
 
 /// A codec for PDF
 pub struct PdfCodec;
@@ -103,7 +103,7 @@ impl Codec for PdfCodec {
             let output = perform_task(ModelTask {
                 format: Some(Format::Markdown),
                 // Specify schema for metadata extraction
-                schema: Some(json_schema(JsonSchemaVariant::ArticleMetadata)?),
+                schema: Some(json_schema(JsonSchemaVariant::ArticleMetadata)),
                 // Specify model
                 model_parameters: Some(ModelParameters {
                     model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),

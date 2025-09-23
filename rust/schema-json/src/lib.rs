@@ -1,4 +1,3 @@
-use eyre::Result;
 use strum::EnumString;
 
 mod schema;
@@ -52,37 +51,32 @@ pub enum JsonSchemaVariant {
 }
 
 /// Get a JSON Schema by variant
-pub fn json_schema(variant: JsonSchemaVariant) -> Result<JsonSchema> {
+pub fn json_schema(variant: JsonSchemaVariant) -> JsonSchema {
+    use JsonSchemaVariant::*;
     match variant {
-        JsonSchemaVariant::ArticleMetadata => {
-            Ok(JsonSchema::standalone(works::article::metadata()))
-        }
-        JsonSchemaVariant::ArticleSimple => Ok(JsonSchema::standalone(works::article::simple())),
+        ArticleMetadata => JsonSchema::standalone(works::article::metadata()),
+        ArticleSimple => JsonSchema::standalone(works::article::simple()),
 
-        JsonSchemaVariant::ReferenceAny => {
-            Ok(JsonSchema::standalone(works::reference::reference()))
-        }
+        ReferenceAny => JsonSchema::standalone(works::reference::reference()),
 
-        JsonSchemaVariant::PersonSimple => Ok(JsonSchema::standalone(other::person::simple())),
-        JsonSchemaVariant::OrganizationSimple => {
-            Ok(JsonSchema::standalone(other::organization::simple()))
-        }
+        PersonSimple => JsonSchema::standalone(other::person::simple()),
+        OrganizationSimple => JsonSchema::standalone(other::organization::simple()),
 
-        JsonSchemaVariant::InlineSimple => Ok(JsonSchema::standalone(inlines::simple())),
-        JsonSchemaVariant::TextSimple => Ok(JsonSchema::standalone(inlines::text::plain())),
-        JsonSchemaVariant::MathInlineTex => Ok(JsonSchema::standalone(inlines::math::tex())),
+        InlineSimple => JsonSchema::standalone(inlines::simple()),
+        TextSimple => JsonSchema::standalone(inlines::text::plain()),
+        MathInlineTex => JsonSchema::standalone(inlines::math::tex()),
 
-        JsonSchemaVariant::BlockSimple => Ok(JsonSchema::standalone(blocks::simple())),
-        JsonSchemaVariant::ParagraphSimple => {
-            Ok(JsonSchema::standalone(blocks::paragraph::simple()))
-        }
-        JsonSchemaVariant::TableSimple => Ok(JsonSchema::standalone(blocks::table::simple())),
-        JsonSchemaVariant::MathBlockTex => Ok(JsonSchema::standalone(blocks::math::tex())),
+        BlockSimple => JsonSchema::standalone(blocks::simple()),
+        ParagraphSimple => JsonSchema::standalone(blocks::paragraph::simple()),
+        TableSimple => JsonSchema::standalone(blocks::table::simple()),
+        MathBlockTex => JsonSchema::standalone(blocks::math::tex()),
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use eyre::Result;
+
     use super::*;
     use std::str::FromStr;
 
@@ -110,7 +104,7 @@ mod tests {
 
     #[test]
     fn test_json_schema_generation() -> Result<()> {
-        let schema = json_schema(JsonSchemaVariant::ArticleSimple)?;
+        let schema = json_schema(JsonSchemaVariant::ArticleSimple);
         // Just check that we can generate a schema without errors
         assert!(serde_json::to_string(&schema).is_ok());
 
