@@ -185,7 +185,7 @@ pub async fn request_ids(url: &str) -> Result<Vec<String>> {
 pub async fn work_by_doi(doi: &str) -> Result<Option<Work>> {
     tracing::trace!("Fetching work by DOI: {doi}");
 
-    match request(&format!("works/{doi}"), &[]).await {
+    match request(&format!("works/https://doi.org/{doi}"), &[]).await {
         Ok(response) => Ok(response.json().await?),
         Err(error) => {
             if error.to_string().to_lowercase().contains("404 not found") {
