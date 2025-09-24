@@ -3,7 +3,7 @@ use serde::Deserialize;
 use indexmap::IndexMap;
 use stencila_codec::stencila_schema::{ImageObject, Node, Organization, OrganizationOptions};
 
-use crate::{strip_ror_prefix, utils::convert_ids_to_identifiers};
+use crate::utils::{convert_ids_to_identifiers, strip_ror_prefix};
 
 /// An OpenAlex `Funder` object
 ///

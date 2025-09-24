@@ -3,7 +3,7 @@ use serde::Deserialize;
 use indexmap::IndexMap;
 use stencila_codec::stencila_schema::{ImageObject, Node, Organization, OrganizationOptions};
 
-use crate::utils::convert_ids_to_identifiers;
+use crate::utils::{convert_ids_to_identifiers, strip_ror_prefix};
 
 /// An OpenAlex `Institution` object
 ///
@@ -120,7 +120,7 @@ pub struct Concept {
 impl From<Institution> for Organization {
     fn from(institution: Institution) -> Self {
         // Get ROR
-        let ror = crate::strip_ror_prefix(
+        let ror = strip_ror_prefix(
             institution
                 .ror
                 .clone()

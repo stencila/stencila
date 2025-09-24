@@ -13,7 +13,10 @@ use stencila_codec::{
     },
 };
 
-use crate::{license::normalize_license, utils::convert_ids_to_identifiers};
+use crate::{
+    license::normalize_license,
+    utils::{convert_ids_to_identifiers, strip_doi_prefix, strip_orcid_prefix, strip_ror_prefix},
+};
 
 /// An OpenAlex `Work` object
 ///
@@ -243,7 +246,7 @@ impl From<Work> for Article {
                                     .iter()
                                     .map(|inst| Organization {
                                         name: inst.display_name.clone(),
-                                        ror: crate::strip_ror_prefix(inst.ror.clone()),
+                                        ror: strip_ror_prefix(inst.ror.clone()),
                                         options: Box::new(OrganizationOptions::default()),
                                         ..Default::default()
                                     })
@@ -252,7 +255,7 @@ impl From<Work> for Article {
                             .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
 
                         let person = Person {
-                            orcid: crate::strip_orcid_prefix(dehydrated_author.orcid.clone()),
+                            orcid: strip_orcid_prefix(dehydrated_author.orcid.clone()),
                             affiliations,
                             options: Box::new(PersonOptions {
                                 name: dehydrated_author.display_name.clone(),
@@ -303,7 +306,7 @@ impl From<Work> for Article {
 
         Article {
             id: Some(work.id.clone()),
-            doi: crate::strip_doi_prefix(doi),
+            doi: strip_doi_prefix(doi),
             title,
             r#abstract,
             date_published,
@@ -354,7 +357,7 @@ impl From<Work> for CreativeWork {
                                     .into_iter()
                                     .map(|inst| Organization {
                                         name: inst.display_name,
-                                        ror: crate::strip_ror_prefix(inst.ror),
+                                        ror: strip_ror_prefix(inst.ror),
                                         options: Box::new(OrganizationOptions::default()),
                                         ..Default::default()
                                     })
@@ -363,7 +366,7 @@ impl From<Work> for CreativeWork {
                             .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
 
                         let person = Person {
-                            orcid: crate::strip_orcid_prefix(dehydrated_author.orcid),
+                            orcid: strip_orcid_prefix(dehydrated_author.orcid),
                             affiliations,
                             options: Box::new(PersonOptions {
                                 name: dehydrated_author.display_name,
@@ -397,7 +400,7 @@ impl From<Work> for CreativeWork {
 
         CreativeWork {
             id: Some(work.id),
-            doi: crate::strip_doi_prefix(work.doi),
+            doi: strip_doi_prefix(work.doi),
             options: Box::new(CreativeWorkOptions {
                 title,
                 r#abstract,

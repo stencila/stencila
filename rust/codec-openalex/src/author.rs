@@ -7,6 +7,8 @@ use stencila_codec::{
     stencila_schema::{Node, Organization, OrganizationOptions, Person, PersonOptions},
 };
 
+use crate::utils::{strip_orcid_prefix, strip_ror_prefix};
+
 /// An OpenAlex `Author` object
 ///
 /// See https://docs.openalex.org/api-entities/authors/author-object
@@ -127,7 +129,7 @@ impl From<Author> for Person {
                     affiliation.institution.map(|inst| Organization {
                         id: inst.id,
                         name: inst.display_name,
-                        ror: crate::strip_ror_prefix(inst.ror),
+                        ror: strip_ror_prefix(inst.ror),
                         options: Box::new(OrganizationOptions::default()),
                         ..Default::default()
                     })
@@ -141,7 +143,7 @@ impl From<Author> for Person {
                 .map(|inst| Organization {
                     id: inst.id,
                     name: inst.display_name,
-                    ror: crate::strip_ror_prefix(inst.ror),
+                    ror: strip_ror_prefix(inst.ror),
                     options: Box::new(OrganizationOptions::default()),
                     ..Default::default()
                 })
@@ -154,7 +156,7 @@ impl From<Author> for Person {
 
         Person {
             id: Some(author.id),
-            orcid: crate::strip_orcid_prefix(author.orcid),
+            orcid: strip_orcid_prefix(author.orcid),
             affiliations,
             options: Box::new(PersonOptions {
                 name: author.display_name,

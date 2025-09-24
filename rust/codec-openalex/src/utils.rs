@@ -4,6 +4,40 @@ use stencila_codec::{
     stencila_schema::{Primitive, PropertyValue, PropertyValueOrString},
 };
 
+/// Strip DOI URL prefix to get just the identifier
+pub fn strip_doi_prefix(doi: Option<String>) -> Option<String> {
+    doi.and_then(|id| {
+        id.strip_prefix("https://doi.org/")
+            .or_else(|| id.strip_prefix("http://doi.org/"))
+            .or_else(|| id.strip_prefix("doi:"))
+            .map(|stripped| stripped.to_string())
+            .or(Some(id)) // Return original if no prefix found
+    })
+}
+
+/// Strip ORCID URL prefix to get just the identifier
+pub fn strip_orcid_prefix(orcid: Option<String>) -> Option<String> {
+    orcid.and_then(|id| {
+        id.strip_prefix("https://orcid.org/")
+            .or_else(|| id.strip_prefix("http://orcid.org/"))
+            .map(|stripped| stripped.to_string())
+            .or(Some(id)) // Return original if no prefix found
+    })
+}
+
+/// Get ORCID from an optional field, or generate a pseudo-ORCID from OpenAlex ID
+pub fn get_or_generate_orcid(
+    orcid: &Option<String>,
+    openalex_id: &str,
+    prefix: char,
+) -> Result<String> {
+    if let Some(orcid) = orcid {
+        Ok(orcid.trim_start_matches("https://orcid.org/").into())
+    } else {
+        generate_pseudo_orcid(openalex_id, prefix)
+    }
+}
+
 /// Generate a pseudo-ORCID from an OpenAlex ID
 pub fn generate_pseudo_orcid(openalex_id: &str, prefix: char) -> Result<String> {
     let int: u64 = openalex_id
@@ -20,25 +54,14 @@ pub fn generate_pseudo_orcid(openalex_id: &str, prefix: char) -> Result<String> 
     ))
 }
 
-/// Generate a pseudo-ROR from an OpenAlex ID  
-pub fn generate_pseudo_ror(openalex_id: &str, prefix: char) -> String {
-    let digits = openalex_id
-        .trim_start_matches("https://openalex.org/")
-        .trim_start_matches('I');
-    format!("{prefix}{digits}")
-}
-
-/// Get ORCID from an optional field, or generate a pseudo-ORCID from OpenAlex ID
-pub fn get_or_generate_orcid(
-    orcid: &Option<String>,
-    openalex_id: &str,
-    prefix: char,
-) -> Result<String> {
-    if let Some(orcid) = orcid {
-        Ok(orcid.trim_start_matches("https://orcid.org/").into())
-    } else {
-        generate_pseudo_orcid(openalex_id, prefix)
-    }
+/// Strip ROR URL prefix to get just the identifier
+pub fn strip_ror_prefix(ror: Option<String>) -> Option<String> {
+    ror.and_then(|id| {
+        id.strip_prefix("https://ror.org/")
+            .or_else(|| id.strip_prefix("http://ror.org/"))
+            .map(|stripped| stripped.to_string())
+            .or(Some(id)) // Return original if no prefix found
+    })
 }
 
 /// Get ROR from an optional field, or generate a pseudo-ROR from OpenAlex ID
@@ -48,6 +71,13 @@ pub fn get_or_generate_ror(ror: &Option<String>, openalex_id: &str, prefix: char
     } else {
         generate_pseudo_ror(openalex_id, prefix)
     }
+}
+/// Generate a pseudo-ROR from an OpenAlex ID  
+pub fn generate_pseudo_ror(openalex_id: &str, prefix: char) -> String {
+    let digits = openalex_id
+        .trim_start_matches("https://openalex.org/")
+        .trim_start_matches('I');
+    format!("{prefix}{digits}")
 }
 
 /// Convert OpenAlex ids to Stencila identifiers

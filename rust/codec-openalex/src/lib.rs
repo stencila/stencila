@@ -151,34 +151,3 @@ fn detect_entity_type(id: &str) -> Option<&str> {
         None
     }
 }
-
-/// Strip ORCID URL prefix to get just the identifier
-pub fn strip_orcid_prefix(orcid: Option<String>) -> Option<String> {
-    orcid.and_then(|id| {
-        id.strip_prefix("https://orcid.org/")
-            .or_else(|| id.strip_prefix("http://orcid.org/"))
-            .map(|stripped| stripped.to_string())
-            .or(Some(id)) // Return original if no prefix found
-    })
-}
-
-/// Strip DOI URL prefix to get just the identifier
-pub fn strip_doi_prefix(doi: Option<String>) -> Option<String> {
-    doi.and_then(|id| {
-        id.strip_prefix("https://doi.org/")
-            .or_else(|| id.strip_prefix("http://doi.org/"))
-            .or_else(|| id.strip_prefix("doi:"))
-            .map(|stripped| stripped.to_string())
-            .or(Some(id)) // Return original if no prefix found
-    })
-}
-
-/// Strip ROR URL prefix to get just the identifier
-pub fn strip_ror_prefix(ror: Option<String>) -> Option<String> {
-    ror.and_then(|id| {
-        id.strip_prefix("https://ror.org/")
-            .or_else(|| id.strip_prefix("http://ror.org/"))
-            .map(|stripped| stripped.to_string())
-            .or(Some(id)) // Return original if no prefix found
-    })
-}
