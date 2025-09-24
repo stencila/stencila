@@ -17,6 +17,7 @@ use crate::{
     author::Author,
     institution::Institution,
     responses::{AuthorsResponse, IdResponse, InstitutionsResponse, WorksResponse},
+    utils::strip_openalex_prefix,
     work::Work,
 };
 
@@ -184,7 +185,7 @@ pub async fn request_ids(url: &str) -> Result<Vec<String>> {
 pub async fn work_by_doi(doi: &str) -> Result<Option<Work>> {
     tracing::trace!("Fetching work by DOI: {doi}");
 
-    match request(&format!("works/https://doi.org/{doi}"), &[]).await {
+    match request(&format!("works/{doi}"), &[]).await {
         Ok(response) => Ok(response.json().await?),
         Err(error) => {
             if error.to_string().to_lowercase().contains("404 not found") {
@@ -194,6 +195,21 @@ pub async fn work_by_doi(doi: &str) -> Result<Option<Work>> {
             }
         }
     }
+}
+
+/// Fetch the references of an OpenAlex work
+#[tracing::instrument(skip(work))]
+pub async fn fetch_work_references(work: &mut Work) -> Result<()> {
+    tracing::trace!("Fetching references of work");
+
+    let id = strip_openalex_prefix(&work.id);
+
+    let response = request("works", &[("filter", format!("cited_by:{id}"))]).await?;
+    let response: WorksResponse = response.json().await?;
+
+    work.referenced_works_fetched = response.results;
+
+    Ok(())
 }
 
 /// Search for works by title and optional year

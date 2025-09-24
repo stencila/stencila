@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Article",
-  "id": "https://openalex.org/W4225981453",
   "doi": "10.1101/2021.11.24.469827",
   "authors": [
     {

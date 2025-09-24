@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 use serde::Deserialize;
 
 use stencila_codec::{
@@ -56,6 +57,10 @@ pub struct Work {
     pub counts_by_year: Option<Vec<CountsByYear>>,
     pub updated_date: Option<String>,
     pub created_date: Option<String>,
+
+    /// The fetched `referenced_works`
+    #[serde(skip)]
+    pub referenced_works_fetched: Vec<Work>,
 }
 
 impl Work {
@@ -196,7 +201,6 @@ pub struct CountsByYear {
 
 impl From<Work> for Article {
     fn from(work: Work) -> Self {
-        let id = Some(work.id.clone());
         let title = extract_title(&work);
         let doi = extract_doi(&work);
         let r#abstract = extract_abstract(&work);
@@ -207,13 +211,20 @@ impl From<Work> for Article {
         let is_part_of = extract_publication_info(&work).map(|info| *info);
         let licenses = extract_licenses(&work);
 
+        let references = work
+            .referenced_works_fetched
+            .into_iter()
+            .map(Into::into)
+            .collect_vec();
+        let references = (!references.is_empty()).then_some(references);
+
         Article {
-            id,
             doi,
             title,
             r#abstract,
             date_published,
             authors,
+            references,
             options: Box::new(ArticleOptions {
                 identifiers,
                 page_start,
@@ -229,7 +240,6 @@ impl From<Work> for Article {
 
 impl From<Work> for Reference {
     fn from(work: Work) -> Self {
-        let id = Some(work.id.clone());
         let work_type = map_work_type(work.r#type.as_ref());
         let title = extract_title(&work);
         let doi = extract_doi(&work);
@@ -241,7 +251,6 @@ impl From<Work> for Reference {
         let (volume_number, issue_number) = extract_volume_issue(&work);
 
         Reference {
-            id,
             work_type,
             doi,
             authors,
@@ -266,7 +275,6 @@ impl From<Work> for Reference {
 
 impl From<Work> for CreativeWork {
     fn from(work: Work) -> Self {
-        let id = Some(work.id.clone());
         let title = extract_title(&work);
         let doi = extract_doi(&work);
         let r#abstract = extract_abstract(&work);
@@ -277,7 +285,6 @@ impl From<Work> for CreativeWork {
         let licenses = extract_licenses(&work);
 
         CreativeWork {
-            id,
             doi,
             options: Box::new(CreativeWorkOptions {
                 title,

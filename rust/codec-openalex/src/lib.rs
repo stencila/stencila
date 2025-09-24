@@ -42,6 +42,8 @@ pub use responses::{
 pub use source::Source as OpenAlexSource;
 pub use work::Work as OpenAlexWork;
 
+use client::fetch_work_references;
+
 /// A codec for decoding OpenAlex API response JSON to Stencila Schema nodes
 ///
 /// Not exposed as a standalone codec but used by sibling creates that
@@ -96,9 +98,11 @@ impl OpenAlexCodec {
         if works.is_empty() {
             bail!("No works matched reference");
         };
-        let node = works.swap_remove(0).into();
 
-        Ok(node)
+        let mut work = works.swap_remove(0);
+        fetch_work_references(&mut work).await?;
+
+        Ok(work.into())
     }
 
     /// Decode a Stencila [`Node`] from an OpenAlex response JSON of known type

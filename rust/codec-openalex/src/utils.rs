@@ -4,6 +4,11 @@ use stencila_codec::{
     stencila_schema::{Primitive, PropertyValue, PropertyValueOrString},
 };
 
+/// Strip the OpenAlex ID prefix
+pub fn strip_openalex_prefix(id: &str) -> String {
+    id.trim_start_matches("https://openalex.org/").into()
+}
+
 /// Strip DOI URL prefix to get just the identifier
 pub fn strip_doi_prefix(doi: Option<String>) -> Option<String> {
     doi.and_then(|id| {
