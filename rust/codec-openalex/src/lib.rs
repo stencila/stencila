@@ -75,9 +75,9 @@ impl OpenAlexCodec {
             tracing::debug!("Getting work by DOI");
 
             // Get work by DOI, returning early if successful
-            if let Some(work) = work_by_doi(doi).await? {
-                let node = work.into();
-                return Ok(node);
+            if let Some(mut work) = work_by_doi(doi).await? {
+                fetch_work_references(&mut work).await?;
+                return Ok(work.into());
             };
         }
 
