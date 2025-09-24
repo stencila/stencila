@@ -66,5 +66,8 @@ expression: node
   "isPartOf": {
     "type": "Periodical",
     "name": "bioRxiv (Cold Spring Harbor Laboratory)"
-  }
+  },
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-openalex/tests/examples/work-5.json",
+  "commit": "redacted"
 }

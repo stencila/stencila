@@ -1,8 +1,8 @@
-use std::{fs::read_to_string, path::PathBuf};
+use std::path::PathBuf;
 
 use glob::glob;
-
 use insta::assert_json_snapshot;
+
 use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
@@ -26,10 +26,11 @@ async fn examples() -> Result<()> {
             .and_then(|name| name.strip_suffix(".json").map(String::from))
             .ok_or_eyre("should have .json suffix")?;
 
-        let json = read_to_string(&path)?;
-        let (node, ..) = OpenAlexCodec.from_str(&json, None).await?;
+        let (node, ..) = OpenAlexCodec.from_path(&path, None).await?;
 
-        assert_json_snapshot!(id, node);
+        assert_json_snapshot!(id, node, {
+            ".commit" => "redacted"
+        });
     }
 
     Ok(())

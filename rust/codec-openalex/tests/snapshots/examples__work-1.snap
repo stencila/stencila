@@ -44,6 +44,9 @@ expression: node
     },
     "issueNumber": "11"
   },
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-openalex/tests/examples/work-1.json",
+  "commit": "redacted",
   "pageStart": "1697",
   "pageEnd": "1708"
 }

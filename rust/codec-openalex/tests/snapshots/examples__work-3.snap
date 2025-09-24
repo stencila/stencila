@@ -69,5 +69,8 @@ expression: node
   },
   "licenses": [
     "https://creativecommons.org/licenses/by/4.0/"
-  ]
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-openalex/tests/examples/work-3.json",
+  "commit": "redacted"
 }
