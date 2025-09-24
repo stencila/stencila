@@ -63,7 +63,7 @@ impl CrossrefCodec {
                 query.push(("query.biblio", year.to_string()));
             }
             if let Some(authors) = &reference.authors {
-                let authors = authors.into_iter().map(|author| author.name()).join(" ");
+                let authors = authors.iter().map(|author| author.name()).join(" ");
                 query.push(("query.author", authors));
             }
         } else if let Some(text) = &reference.options.text {

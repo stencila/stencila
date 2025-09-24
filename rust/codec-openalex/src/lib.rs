@@ -106,6 +106,7 @@ impl OpenAlexCodec {
     }
 
     /// Decode a Stencila [`Node`] from an OpenAlex response JSON of known type
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str<T>(json: &str) -> Result<T>
     where
         T: DeserializeOwned,

@@ -35,11 +35,11 @@ enum Part {
 }
 
 /// Fallback parser for unstructured bibliographic text
-/// 
+///
 /// Rather than expecting parts of the reference to be in a particular order,
 /// this only expects authors to be first and attempts to extract a DOI or URL
 /// from the rest of the text.
-/// 
+///
 /// The aim is just to extract enough information to be able to extract an
 /// identifier such as `smith-jones-2004b` that can be linked to in-text
 /// citations, and a DOI with which to fetch structured metadata.
