@@ -9,7 +9,7 @@ use stencila_codec::{
     stencila_schema::{
         self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkType,
         CreativeWorkVariant, CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node,
-        Organization, OrganizationOptions, Paragraph, Periodical, Person, PersonOptions,
+        Organization, OrganizationOptions, Paragraph, Periodical, Person, PropertyValueOrString,
         PublicationIssue, PublicationVolume, Reference, ReferenceOptions,
     },
 };
@@ -340,7 +340,7 @@ fn extract_doi(work: &Work) -> Option<String> {
 }
 
 /// Extract identifiers from a Work
-fn extract_identifiers(work: &Work) -> Option<Vec<stencila_schema::PropertyValueOrString>> {
+fn extract_identifiers(work: &Work) -> Option<Vec<PropertyValueOrString>> {
     work.ids.as_ref().and_then(convert_ids_to_identifiers)
 }
 
@@ -372,15 +372,12 @@ fn extract_authors(work: &Work) -> Option<Vec<stencila_schema::Author>> {
                         })
                         .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
 
-                    let person = Person {
-                        orcid: strip_orcid_prefix(dehydrated_author.orcid.clone()),
-                        affiliations,
-                        options: Box::new(PersonOptions {
-                            name: dehydrated_author.display_name.clone(),
-                            ..Default::default()
-                        }),
-                        ..Default::default()
+                    let mut person = match &dehydrated_author.display_name {
+                        Some(name) => Person::from(name),
+                        None => Person::default(),
                     };
+                    person.orcid = strip_orcid_prefix(dehydrated_author.orcid.clone());
+                    person.affiliations = affiliations;
 
                     stencila_schema::Author::Person(person)
                 })
@@ -411,14 +408,8 @@ fn extract_page_info(work: &Work) -> (Option<IntegerOrString>, Option<IntegerOrS
         .as_ref()
         .map(|biblio| {
             (
-                biblio
-                    .first_page
-                    .as_ref()
-                    .map(|page| IntegerOrString::String(page.clone())),
-                biblio
-                    .last_page
-                    .as_ref()
-                    .map(|page| IntegerOrString::String(page.clone())),
+                biblio.first_page.as_ref().map(IntegerOrString::from),
+                biblio.last_page.as_ref().map(IntegerOrString::from),
             )
         })
         .unwrap_or((None, None))
@@ -430,14 +421,8 @@ fn extract_volume_issue(work: &Work) -> (Option<IntegerOrString>, Option<Integer
         .as_ref()
         .map(|biblio| {
             (
-                biblio
-                    .volume
-                    .as_ref()
-                    .map(|vol| IntegerOrString::String(vol.clone())),
-                biblio
-                    .issue
-                    .as_ref()
-                    .map(|issue| IntegerOrString::String(issue.clone())),
+                biblio.volume.as_ref().map(IntegerOrString::from),
+                biblio.issue.as_ref().map(IntegerOrString::from),
             )
         })
         .unwrap_or((None, None))
@@ -510,19 +495,19 @@ fn create_publication_info(
     };
 
     if let Some(bib) = biblio {
-        if let Some(volume_str) = &bib.volume {
+        if let Some(volume) = &bib.volume {
             let publication_volume = PublicationVolume {
                 is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
-                volume_number: Some(IntegerOrString::String(volume_str.clone())),
+                volume_number: Some(IntegerOrString::from(volume)),
                 ..Default::default()
             };
 
-            if let Some(issue_str) = &bib.issue {
+            if let Some(issue) = &bib.issue {
                 let publication_issue = PublicationIssue {
                     is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
                         publication_volume,
                     ))),
-                    issue_number: Some(IntegerOrString::String(issue_str.clone())),
+                    issue_number: Some(IntegerOrString::from(issue)),
                     ..Default::default()
                 };
 
