@@ -6,10 +6,10 @@ use serde::Deserialize;
 use stencila_codec::{
     eyre::{Result, bail},
     stencila_schema::{
-        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions,
+        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkType,
         CreativeWorkVariant, CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node,
         Organization, OrganizationOptions, Paragraph, Periodical, Person, PersonOptions,
-        PublicationIssue, PublicationVolume,
+        PublicationIssue, PublicationVolume, Reference, ReferenceOptions,
     },
 };
 
@@ -196,117 +196,20 @@ pub struct CountsByYear {
 
 impl From<Work> for Article {
     fn from(work: Work) -> Self {
-        // Sometimes DOI is null but will be available in one of the work's URLs
-        let mut doi = work.doi.clone();
-        if doi.is_none() {
-            doi = work
-                .primary_location
-                .as_ref()
-                .and_then(|location| location.landing_page_url.as_ref())
-                .and_then(|url| url.strip_prefix("https://doi.org/").map(String::from));
-        }
-        if doi.is_none() {
-            doi = work
-                .open_access
-                .as_ref()
-                .and_then(|location| location.oa_url.as_ref())
-                .and_then(|url| url.strip_prefix("https://doi.org/").map(String::from));
-        }
-
-        // Extract title
-        let title = work
-            .display_name
-            .clone()
-            .or(work.title.clone())
-            .map(|title| vec![Inline::Text(title.into())]);
-
-        // De-invert abstract if present
-        let r#abstract = work
-            .abstract_inverted_index
-            .as_ref()
-            .and_then(de_invert_abstract);
-
-        // Map ids to identifiers
-        let identifiers = work.ids.as_ref().and_then(convert_ids_to_identifiers);
-
-        // Extract publication date
-        let date_published = work.publication_date.clone().map(Date::new);
-
-        // Map authorships to authors
-        let authors = work.authorships.as_ref().and_then(|authorships| {
-            let authors: Vec<stencila_schema::Author> = authorships
-                .iter()
-                .filter_map(|authorship| {
-                    authorship.author.as_ref().map(|dehydrated_author| {
-                        let affiliations = authorship
-                            .institutions
-                            .as_ref()
-                            .map(|institutions| {
-                                institutions
-                                    .iter()
-                                    .map(|inst| Organization {
-                                        name: inst.display_name.clone(),
-                                        ror: strip_ror_prefix(inst.ror.clone()),
-                                        options: Box::new(OrganizationOptions::default()),
-                                        ..Default::default()
-                                    })
-                                    .collect()
-                            })
-                            .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
-
-                        let person = Person {
-                            orcid: strip_orcid_prefix(dehydrated_author.orcid.clone()),
-                            affiliations,
-                            options: Box::new(PersonOptions {
-                                name: dehydrated_author.display_name.clone(),
-                                ..Default::default()
-                            }),
-                            ..Default::default()
-                        };
-
-                        stencila_schema::Author::Person(person)
-                    })
-                })
-                .collect();
-
-            (!authors.is_empty()).then_some(authors)
-        });
-
-        // Extract page information from biblio
-        let (page_start, page_end) = work
-            .biblio
-            .as_ref()
-            .map(|biblio| {
-                (
-                    biblio
-                        .first_page
-                        .as_ref()
-                        .map(|page| IntegerOrString::String(page.clone())),
-                    biblio
-                        .last_page
-                        .as_ref()
-                        .map(|page| IntegerOrString::String(page.clone())),
-                )
-            })
-            .unwrap_or((None, None));
-
-        // Create publication info from primary_location source and biblio
-        let is_part_of = work.primary_location.as_ref().and_then(|primary_location| {
-            create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
-                .map(|info| *info)
-        });
-
-        // Apply normalized license from primary location
-        let licenses = work.primary_location.as_ref().and_then(|primary_location| {
-            primary_location.license.as_ref().map(|license_str| {
-                let normalized_license = normalize_license(license_str);
-                vec![CreativeWorkVariantOrString::String(normalized_license)]
-            })
-        });
+        let id = Some(work.id.clone());
+        let title = extract_title(&work);
+        let doi = extract_doi(&work);
+        let r#abstract = extract_abstract(&work);
+        let identifiers = extract_identifiers(&work);
+        let date_published = extract_publication_date(&work);
+        let authors = extract_authors(&work);
+        let (page_start, page_end) = extract_page_info(&work);
+        let is_part_of = extract_publication_info(&work).map(|info| *info);
+        let licenses = extract_licenses(&work);
 
         Article {
-            id: Some(work.id.clone()),
-            doi: strip_doi_prefix(doi),
+            id,
+            doi,
             title,
             r#abstract,
             date_published,
@@ -324,83 +227,58 @@ impl From<Work> for Article {
     }
 }
 
+impl From<Work> for Reference {
+    fn from(work: Work) -> Self {
+        let id = Some(work.id.clone());
+        let work_type = map_work_type(work.r#type.as_ref());
+        let title = extract_title(&work);
+        let doi = extract_doi(&work);
+        let identifiers = extract_identifiers(&work);
+        let date = extract_publication_date(&work);
+        let authors = extract_authors(&work);
+        let is_part_of = create_reference_part_of(&work);
+        let (page_start, page_end) = extract_page_info(&work);
+        let (volume_number, issue_number) = extract_volume_issue(&work);
+
+        Reference {
+            id,
+            work_type,
+            doi,
+            authors,
+            title,
+            date,
+            is_part_of,
+            options: Box::new(ReferenceOptions {
+                editors: None,
+                publisher: None,
+                volume_number,
+                issue_number,
+                page_start,
+                page_end,
+                pagination: None,
+                identifiers,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+}
+
 impl From<Work> for CreativeWork {
     fn from(work: Work) -> Self {
-        // Extract title
-        let title = work
-            .display_name
-            .or(work.title)
-            .map(|title| vec![Inline::Text(title.into())]);
-
-        // De-invert abstract if present
-        let r#abstract = work
-            .abstract_inverted_index
-            .as_ref()
-            .and_then(de_invert_abstract);
-
-        // Map ids to identifiers
-        let identifiers = work.ids.as_ref().and_then(convert_ids_to_identifiers);
-
-        // Extract publication date
-        let date_published = work.publication_date.map(Date::new);
-
-        // Map authorships to authors
-        let authors = work.authorships.and_then(|authorships| {
-            let authors: Vec<stencila_schema::Author> = authorships
-                .into_iter()
-                .filter_map(|authorship| {
-                    authorship.author.map(|dehydrated_author| {
-                        let affiliations = authorship
-                            .institutions
-                            .map(|institutions| {
-                                institutions
-                                    .into_iter()
-                                    .map(|inst| Organization {
-                                        name: inst.display_name,
-                                        ror: strip_ror_prefix(inst.ror),
-                                        options: Box::new(OrganizationOptions::default()),
-                                        ..Default::default()
-                                    })
-                                    .collect()
-                            })
-                            .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
-
-                        let person = Person {
-                            orcid: strip_orcid_prefix(dehydrated_author.orcid),
-                            affiliations,
-                            options: Box::new(PersonOptions {
-                                name: dehydrated_author.display_name,
-                                ..Default::default()
-                            }),
-                            ..Default::default()
-                        };
-
-                        stencila_schema::Author::Person(person)
-                    })
-                })
-                .collect();
-
-            (!authors.is_empty()).then_some(authors)
-        });
-
-        // Create publication info from primary_location source and biblio
-        // Include page fields in publication hierarchy for non-article creative works
-        let is_part_of = work.primary_location.as_ref().and_then(|primary_location| {
-            create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
-                .map(|info| *info)
-        });
-
-        // Apply normalized license from primary location
-        let licenses = work.primary_location.as_ref().and_then(|primary_location| {
-            primary_location.license.as_ref().map(|license_str| {
-                let normalized_license = normalize_license(license_str);
-                vec![CreativeWorkVariantOrString::String(normalized_license)]
-            })
-        });
+        let id = Some(work.id.clone());
+        let title = extract_title(&work);
+        let doi = extract_doi(&work);
+        let r#abstract = extract_abstract(&work);
+        let identifiers = extract_identifiers(&work);
+        let date_published = extract_publication_date(&work);
+        let authors = extract_authors(&work);
+        let is_part_of = extract_publication_info(&work).map(|info| *info);
+        let licenses = extract_licenses(&work);
 
         CreativeWork {
-            id: Some(work.id),
-            doi: strip_doi_prefix(work.doi),
+            id,
+            doi,
             options: Box::new(CreativeWorkOptions {
                 title,
                 r#abstract,
@@ -424,6 +302,188 @@ impl From<Work> for Node {
             Node::CreativeWork(work.into())
         }
     }
+}
+
+/// Extract title from a Work
+fn extract_title(work: &Work) -> Option<Vec<Inline>> {
+    work.display_name
+        .clone()
+        .or(work.title.clone())
+        .map(|title| vec![Inline::Text(title.into())])
+}
+
+/// Extract DOI from a Work, including fallback to URLs
+fn extract_doi(work: &Work) -> Option<String> {
+    let mut doi = work.doi.clone();
+    if doi.is_none() {
+        doi = work
+            .primary_location
+            .as_ref()
+            .and_then(|location| location.landing_page_url.as_ref())
+            .and_then(|url| url.strip_prefix("https://doi.org/").map(String::from));
+    }
+    if doi.is_none() {
+        doi = work
+            .open_access
+            .as_ref()
+            .and_then(|location| location.oa_url.as_ref())
+            .and_then(|url| url.strip_prefix("https://doi.org/").map(String::from));
+    }
+    strip_doi_prefix(doi)
+}
+
+/// Extract identifiers from a Work
+fn extract_identifiers(work: &Work) -> Option<Vec<stencila_schema::PropertyValueOrString>> {
+    work.ids.as_ref().and_then(convert_ids_to_identifiers)
+}
+
+/// Extract publication date from a Work
+fn extract_publication_date(work: &Work) -> Option<Date> {
+    work.publication_date.clone().map(Date::new)
+}
+
+/// Extract authors from a Work
+fn extract_authors(work: &Work) -> Option<Vec<stencila_schema::Author>> {
+    work.authorships.as_ref().and_then(|authorships| {
+        let authors: Vec<stencila_schema::Author> = authorships
+            .iter()
+            .filter_map(|authorship| {
+                authorship.author.as_ref().map(|dehydrated_author| {
+                    let affiliations = authorship
+                        .institutions
+                        .as_ref()
+                        .map(|institutions| {
+                            institutions
+                                .iter()
+                                .map(|inst| Organization {
+                                    name: inst.display_name.clone(),
+                                    ror: strip_ror_prefix(inst.ror.clone()),
+                                    options: Box::new(OrganizationOptions::default()),
+                                    ..Default::default()
+                                })
+                                .collect()
+                        })
+                        .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
+
+                    let person = Person {
+                        orcid: strip_orcid_prefix(dehydrated_author.orcid.clone()),
+                        affiliations,
+                        options: Box::new(PersonOptions {
+                            name: dehydrated_author.display_name.clone(),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    };
+
+                    stencila_schema::Author::Person(person)
+                })
+            })
+            .collect();
+
+        (!authors.is_empty()).then_some(authors)
+    })
+}
+
+/// Extract abstract from a Work
+fn extract_abstract(work: &Work) -> Option<Vec<Block>> {
+    work.abstract_inverted_index
+        .as_ref()
+        .and_then(de_invert_abstract)
+}
+
+/// Extract publication info from a Work
+fn extract_publication_info(work: &Work) -> Option<Box<CreativeWorkVariant>> {
+    work.primary_location.as_ref().and_then(|primary_location| {
+        create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
+    })
+}
+
+/// Extract page information from a Work
+fn extract_page_info(work: &Work) -> (Option<IntegerOrString>, Option<IntegerOrString>) {
+    work.biblio
+        .as_ref()
+        .map(|biblio| {
+            (
+                biblio
+                    .first_page
+                    .as_ref()
+                    .map(|page| IntegerOrString::String(page.clone())),
+                biblio
+                    .last_page
+                    .as_ref()
+                    .map(|page| IntegerOrString::String(page.clone())),
+            )
+        })
+        .unwrap_or((None, None))
+}
+
+/// Extract volume and issue numbers from a Work
+fn extract_volume_issue(work: &Work) -> (Option<IntegerOrString>, Option<IntegerOrString>) {
+    work.biblio
+        .as_ref()
+        .map(|biblio| {
+            (
+                biblio
+                    .volume
+                    .as_ref()
+                    .map(|vol| IntegerOrString::String(vol.clone())),
+                biblio
+                    .issue
+                    .as_ref()
+                    .map(|issue| IntegerOrString::String(issue.clone())),
+            )
+        })
+        .unwrap_or((None, None))
+}
+
+/// Extract licenses from a Work
+fn extract_licenses(work: &Work) -> Option<Vec<CreativeWorkVariantOrString>> {
+    work.primary_location.as_ref().and_then(|primary_location| {
+        primary_location.license.as_ref().map(|license_str| {
+            let normalized_license = normalize_license(license_str);
+            vec![CreativeWorkVariantOrString::String(normalized_license)]
+        })
+    })
+}
+
+/// Map OpenAlex work type string to CreativeWorkType enum
+fn map_work_type(work_type: Option<&String>) -> Option<CreativeWorkType> {
+    work_type.and_then(|wt| match wt.as_str() {
+        "article" => Some(CreativeWorkType::Article),
+        "book" => Some(CreativeWorkType::Book),
+        "book-chapter" => Some(CreativeWorkType::Chapter),
+        "dataset" => Some(CreativeWorkType::Dataset),
+        "dissertation" => Some(CreativeWorkType::Thesis),
+        "report" => Some(CreativeWorkType::Report),
+        "webpage" => Some(CreativeWorkType::WebPage),
+        "presentation" => Some(CreativeWorkType::Presentation),
+        "poster" => Some(CreativeWorkType::Poster),
+        "preprint" => Some(CreativeWorkType::Article),
+        "review" => Some(CreativeWorkType::Review),
+        "editorial" => Some(CreativeWorkType::Article),
+        "letter" => Some(CreativeWorkType::Article),
+        "erratum" => Some(CreativeWorkType::Article),
+        "other" => None,
+        _ => None,
+    })
+}
+
+/// Create a simple Reference for is_part_of field
+fn create_reference_part_of(work: &Work) -> Option<Box<Reference>> {
+    work.primary_location.as_ref().and_then(|location| {
+        location.source.as_ref().map(|source| {
+            let title = source
+                .display_name
+                .as_ref()
+                .map(|name| vec![Inline::Text(name.clone().into())]);
+
+            Box::new(Reference {
+                work_type: Some(CreativeWorkType::Periodical),
+                title,
+                ..Default::default()
+            })
+        })
+    })
 }
 
 /// Create publication hierarchy from OpenAlex biblio information
