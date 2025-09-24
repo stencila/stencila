@@ -34,7 +34,7 @@ class ColorSchemeManager {
     try {
       const saved = localStorage.getItem('stencila-color-scheme-preference') as ColorScheme
       return saved && ['system', 'light', 'dark'].includes(saved) ? saved : 'system'
-    } catch (e) {
+    } catch {
       return 'system'
     }
   }
@@ -66,7 +66,7 @@ class ThemeManager {
     try {
       const saved = localStorage.getItem('stencila-theme-preference') as Theme
       return saved && ['stencila', 'tufte', 'latex'].includes(saved) ? saved : 'stencila'
-    } catch (e) {
+    } catch {
       return 'stencila'
     }
   }
@@ -155,7 +155,6 @@ export class DocumentMenu extends LitElement {
     }
     return this.colorScheme
   }
-
 
   /**
    * Initialize color scheme and theme on component connection
