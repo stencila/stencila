@@ -9854,6 +9854,7 @@ dependencies = [
  "stencila-codec-utils",
  "stencila-codec-xlsx",
  "stencila-codec-yaml",
+ "stencila-codec-zenodo",
  "stencila-node-strip",
  "stencila-node-structuring",
  "strum 0.27.2",

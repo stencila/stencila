@@ -4,7 +4,7 @@ use serde::de::DeserializeOwned;
 use tokio::fs::write;
 
 use stencila_codec::{
-    Codec, DecodeInfo, DecodeOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, StructuringOptions, async_trait,
     eyre::{Result, bail, eyre},
     stencila_format::Format,
     stencila_schema::{
@@ -19,14 +19,12 @@ use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_xlsx::XlsxCodec;
 
 pub mod client;
+pub mod conversion;
 pub mod decode;
 pub mod responses;
-pub mod search_records;
 
 pub use client::{request, search_url};
-pub use decode::{
-    ZenodoRecordInfo, extract_zenodo_identifier, fetch_zenodo_file, fetch_zenodo_record,
-};
+use decode::{extract_record_info, fetch_file, fetch_record};
 pub use responses::{Record, SearchRecordsResponse};
 
 /// A codec for decoding Zenodo REST API responses to Stencila Schema nodes
@@ -43,6 +41,20 @@ impl Codec for ZenodoCodec {
         "zenodo"
     }
 
+    fn structuring_options(&self, format: &Format) -> StructuringOptions {
+        // Delegate to the relevant codec for each format
+        match format {
+            Format::Csv | Format::Tsv => CsvCodec.structuring_options(format),
+            Format::Ipynb => IpynbCodec.structuring_options(format),
+            Format::Latex => LatexCodec.structuring_options(format),
+            Format::Markdown | Format::Myst | Format::Qmd | Format::Smd => {
+                MarkdownCodec.structuring_options(format)
+            }
+            Format::Xlsx | Format::Xls | Format::Ods => XlsxCodec.structuring_options(format),
+            _ => StructuringOptions::default(),
+        }
+    }
+
     async fn from_str(
         &self,
         json: &str,
@@ -55,25 +67,29 @@ impl Codec for ZenodoCodec {
 impl ZenodoCodec {
     /// Check if an identifier is a supported Zenodo URL or DOI
     pub fn supports_identifier(identifier: &str) -> bool {
-        extract_zenodo_identifier(identifier).is_some()
+        extract_record_info(identifier).is_some()
     }
 
     /// Decode a Stencila [`Node`] from a Zenodo identifier (URL or DOI)
+    ///
+    /// If the identifier includes a specific file path (e.g., "/files/data.csv"),
+    /// that specific file will be fetched and decoded. Otherwise, the primary
+    /// file will be selected based on format priority.
     pub async fn from_identifier(
         identifier: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
-        let Some(record_info) = extract_zenodo_identifier(identifier) else {
+    ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
+        let Some(record_info) = extract_record_info(identifier) else {
             bail!("Not a recognized Zenodo URL or DOI")
         };
 
         // Fetch the record metadata
-        let record = fetch_zenodo_record(&record_info).await?;
+        let record = fetch_record(&record_info).await?;
 
         // If there are no files, convert the record metadata directly
         if record.files.is_empty() {
             let node: Node = record.into();
-            return Ok((node, DecodeInfo::none()));
+            return Ok((node, DecodeInfo::none(), StructuringOptions::none()));
         }
 
         // Store metadata we'll need later
@@ -86,17 +102,30 @@ impl ZenodoCodec {
         let version = record.metadata.version.clone();
 
         // Find the most appropriate file to decode
-        let selected_file = select_primary_file(&record)?;
+        let selected_file = if let Some(file_path) = &record_info.file {
+            // If a specific file path was requested, find that file
+            record
+                .files
+                .iter()
+                .find(|f| f.key == *file_path)
+                .ok_or_else(|| eyre!("Requested file '{}' not found in Zenodo record", file_path))?
+        } else {
+            // Otherwise, return the first file
+            record
+                .files
+                .first()
+                .ok_or_else(|| eyre!("No files available in Zenodo record"))?
+        };
 
         // Fetch the file content
-        let content_bytes = fetch_zenodo_file(&selected_file.links.self_).await?;
+        let content_bytes = fetch_file(&selected_file.links.self_).await?;
 
         // Determine the format from the file path
         let path = PathBuf::from(&selected_file.key);
         let format = Format::from_path(&path);
 
         // Delegate to the appropriate codec based on format
-        let (mut node, info) = match format {
+        let (mut node, decode_info) = match format {
             Format::Xlsx | Format::Xls | Format::Ods => {
                 // Spreadsheet formats require binary file access
                 let temp_file = tempfile::Builder::new()
@@ -143,7 +172,6 @@ impl ZenodoCodec {
         };
 
         // Set Zenodo-specific metadata on the work
-
         match &mut node {
             Node::Article(Article { options, .. }) => {
                 options.repository = repository;
@@ -169,7 +197,9 @@ impl ZenodoCodec {
             }
         }
 
-        Ok((node, info))
+        let structuring_options = Self.structuring_options(&format);
+
+        Ok((node, decode_info, structuring_options))
     }
 
     /// Search Zenodo records
@@ -203,37 +233,6 @@ impl ZenodoCodec {
     }
 }
 
-/// Select the primary file from a Zenodo record
-///
-/// Prioritizes files based on format and size
-fn select_primary_file(record: &Record) -> Result<&responses::FileInfo> {
-    // Priority order for file formats
-    let priority_formats = [
-        Format::Ipynb,
-        Format::Markdown,
-        Format::Csv,
-        Format::Xlsx,
-        Format::Latex,
-        Format::Pdf,
-    ];
-
-    // Try to find a file matching priority formats
-    for format in &priority_formats {
-        if let Some(file) = record.files.iter().find(|f| {
-            let path = PathBuf::from(&f.key);
-            Format::from_path(&path) == *format
-        }) {
-            return Ok(file);
-        }
-    }
-
-    // If no priority format found, return the first file
-    record
-        .files
-        .first()
-        .ok_or_else(|| eyre!("No files available in Zenodo record"))
-}
-
 /// Decode a Stencila [`Node`] from a Zenodo response JSON of known type
 pub fn from_str<T>(json: &str) -> Result<T>
 where
@@ -261,31 +260,5 @@ pub fn from_str_any(json: &str) -> Result<Node> {
         Ok(record.into())
     } else {
         bail!("Unsupported Zenodo API response format")
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_codec_supports_identifier() {
-        // Test that codec supports various Zenodo identifiers
-        assert!(ZenodoCodec::supports_identifier(
-            "https://zenodo.org/records/12345678"
-        ));
-        assert!(ZenodoCodec::supports_identifier(
-            "https://zenodo.org/record/12345678"
-        ));
-        assert!(ZenodoCodec::supports_identifier("10.5281/zenodo.12345678"));
-        assert!(ZenodoCodec::supports_identifier(
-            "https://doi.org/10.5281/zenodo.12345678"
-        ));
-
-        // Test that codec doesn't support non-Zenodo identifiers
-        assert!(!ZenodoCodec::supports_identifier(
-            "https://github.com/user/repo"
-        ));
-        assert!(!ZenodoCodec::supports_identifier("https://example.com"));
     }
 }

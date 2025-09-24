@@ -1,3 +1,5 @@
+//! Conversion for Zenodo record metadata to Stencila node types
+
 use std::{path::PathBuf, str::FromStr};
 
 use stencila_codec::{
@@ -13,158 +15,6 @@ use stencila_codec_biblio::decode::text_to_reference;
 use stencila_codec_text::to_text;
 
 use crate::responses::Record;
-
-/// Parse HTML content into Stencila blocks, or fallback to plain text paragraph
-fn parse_html_or_text(content: &str) -> Vec<Block> {
-    // Check if content contains HTML tags
-    if content.contains('<') && content.contains('>') {
-        // Try to parse as HTML
-        match stencila_codec_html::decode(content, None) {
-            Ok((Node::Article(article), _)) => {
-                if !article.content.is_empty() {
-                    return article.content;
-                }
-            }
-            _ => {
-                // HTML parsing failed, fallback to text
-            }
-        }
-    }
-
-    // Fallback: treat as plain text
-    vec![Block::Paragraph(Paragraph {
-        content: vec![Inline::Text(Text::from(content.to_string()))],
-        ..Default::default()
-    })]
-}
-
-/// Strip HTML tags from text and return plain text
-fn strip_html_tags(content: &str) -> String {
-    // Check if content contains HTML tags
-    if content.contains('<') && content.contains('>') {
-        // Try to parse as HTML and extract text content
-        match stencila_codec_html::decode(content, None) {
-            Ok((Node::Article(article), _)) => {
-                // Extract all text from the blocks
-                to_text(&article)
-            }
-            _ => {
-                // HTML parsing failed, return original content
-                content.to_string()
-            }
-        }
-    } else {
-        // No HTML tags, return as-is
-        content.to_string()
-    }
-}
-
-/// Convert Zenodo related identifiers to Stencila references
-fn related_identifiers_to_references(record: &Record) -> Vec<Reference> {
-    record
-        .metadata
-        .related_identifiers
-        .iter()
-        .map(|related| {
-            // Use the identifier as the title (could be a URL or DOI)
-            let title = Some(vec![Inline::Text(Text::from(related.identifier.clone()))]);
-
-            // If it's a DOI, extract it
-            let doi = if related.scheme.as_deref() == Some("doi") {
-                Some(related.identifier.clone())
-            } else {
-                None
-            };
-
-            Reference {
-                title,
-                doi,
-                ..Default::default()
-            }
-        })
-        .collect()
-}
-
-/// Convert Zenodo bibliographic references to Stencila references
-fn bibliographic_references_to_references(record: &Record) -> Vec<Reference> {
-    record
-        .metadata
-        .references
-        .iter()
-        .map(|item| text_to_reference(item))
-        .collect()
-}
-
-/// Combine all types of references (related identifiers + bibliographic references)
-fn all_references(record: &Record) -> Option<Vec<Reference>> {
-    let mut all_refs = Vec::new();
-
-    // Add related identifiers
-    all_refs.extend(related_identifiers_to_references(record));
-
-    // Add bibliographic references
-    all_refs.extend(bibliographic_references_to_references(record));
-
-    if all_refs.is_empty() {
-        None
-    } else {
-        Some(all_refs)
-    }
-}
-
-/// Convert Zenodo contributor to Stencila Author (reuses same logic as creators)
-fn contributor_to_author(contributor: &crate::responses::Contributor) -> Author {
-    // Use Person::from_str to parse the name, then merge with other props
-    let (parsed, name) = (
-        Person::from_str(&contributor.name).ok(),
-        Some(contributor.name.clone()),
-    );
-
-    // Create affiliations if present
-    let affiliations = contributor.affiliation.as_ref().map(|affiliation| {
-        vec![Organization {
-            name: Some(affiliation.clone()),
-            ..Default::default()
-        }]
-    });
-
-    Author::Person(Person {
-        orcid: contributor.orcid.clone(),
-        affiliations,
-        options: Box::new(PersonOptions {
-            name,
-            ..Default::default()
-        }),
-        // Parsed names may include given names, family name, honorifics etc
-        ..parsed.unwrap_or_default()
-    })
-}
-
-/// Convert Zenodo grant to Stencila GrantOrMonetaryGrant
-fn grant_to_grant_or_monetary_grant(grant: &crate::responses::Grant) -> GrantOrMonetaryGrant {
-    GrantOrMonetaryGrant::Grant(Grant {
-        options: Box::new(GrantOptions {
-            name: grant.title.clone().or_else(|| {
-                // Use funder name + code as fallback name
-                grant.funder.as_ref().and_then(|funder| {
-                    let funder_name = funder.name.as_ref()?;
-                    if let Some(code) = &grant.code {
-                        Some(format!("{funder_name} ({code})"))
-                    } else {
-                        Some(funder_name.clone())
-                    }
-                })
-            }),
-            description: grant.title.clone(), // Use title as description too
-            identifiers: grant
-                .code
-                .as_ref()
-                .map(|code| vec![PropertyValueOrString::String(code.clone())]),
-            ..Default::default()
-        }),
-        ..Default::default()
-    })
-}
 
 impl From<Record> for Node {
     fn from(record: Record) -> Self {
@@ -446,4 +296,156 @@ impl From<Record> for SoftwareSourceCode {
             ..Default::default()
         }
     }
+}
+
+/// Parse HTML content into Stencila blocks, or fallback to plain text paragraph
+fn parse_html_or_text(content: &str) -> Vec<Block> {
+    // Check if content contains HTML tags
+    if content.contains('<') && content.contains('>') {
+        // Try to parse as HTML
+        match stencila_codec_html::decode(content, None) {
+            Ok((Node::Article(article), _)) => {
+                if !article.content.is_empty() {
+                    return article.content;
+                }
+            }
+            _ => {
+                // HTML parsing failed, fallback to text
+            }
+        }
+    }
+
+    // Fallback: treat as plain text
+    vec![Block::Paragraph(Paragraph {
+        content: vec![Inline::Text(Text::from(content.to_string()))],
+        ..Default::default()
+    })]
+}
+
+/// Strip HTML tags from text and return plain text
+fn strip_html_tags(content: &str) -> String {
+    // Check if content contains HTML tags
+    if content.contains('<') && content.contains('>') {
+        // Try to parse as HTML and extract text content
+        match stencila_codec_html::decode(content, None) {
+            Ok((Node::Article(article), _)) => {
+                // Extract all text from the blocks
+                to_text(&article)
+            }
+            _ => {
+                // HTML parsing failed, return original content
+                content.to_string()
+            }
+        }
+    } else {
+        // No HTML tags, return as-is
+        content.to_string()
+    }
+}
+
+/// Convert Zenodo related identifiers to Stencila references
+fn related_identifiers_to_references(record: &Record) -> Vec<Reference> {
+    record
+        .metadata
+        .related_identifiers
+        .iter()
+        .map(|related| {
+            // Use the identifier as the title (could be a URL or DOI)
+            let title = Some(vec![Inline::Text(Text::from(related.identifier.clone()))]);
+
+            // If it's a DOI, extract it
+            let doi = if related.scheme.as_deref() == Some("doi") {
+                Some(related.identifier.clone())
+            } else {
+                None
+            };
+
+            Reference {
+                title,
+                doi,
+                ..Default::default()
+            }
+        })
+        .collect()
+}
+
+/// Convert Zenodo bibliographic references to Stencila references
+fn bibliographic_references_to_references(record: &Record) -> Vec<Reference> {
+    record
+        .metadata
+        .references
+        .iter()
+        .map(|item| text_to_reference(item))
+        .collect()
+}
+
+/// Combine all types of references (related identifiers + bibliographic references)
+fn all_references(record: &Record) -> Option<Vec<Reference>> {
+    let mut all_refs = Vec::new();
+
+    // Add related identifiers
+    all_refs.extend(related_identifiers_to_references(record));
+
+    // Add bibliographic references
+    all_refs.extend(bibliographic_references_to_references(record));
+
+    if all_refs.is_empty() {
+        None
+    } else {
+        Some(all_refs)
+    }
+}
+
+/// Convert Zenodo contributor to Stencila Author (reuses same logic as creators)
+fn contributor_to_author(contributor: &crate::responses::Contributor) -> Author {
+    // Use Person::from_str to parse the name, then merge with other props
+    let (parsed, name) = (
+        Person::from_str(&contributor.name).ok(),
+        Some(contributor.name.clone()),
+    );
+
+    // Create affiliations if present
+    let affiliations = contributor.affiliation.as_ref().map(|affiliation| {
+        vec![Organization {
+            name: Some(affiliation.clone()),
+            ..Default::default()
+        }]
+    });
+
+    Author::Person(Person {
+        orcid: contributor.orcid.clone(),
+        affiliations,
+        options: Box::new(PersonOptions {
+            name,
+            ..Default::default()
+        }),
+        // Parsed names may include given names, family name, honorifics etc
+        ..parsed.unwrap_or_default()
+    })
+}
+
+/// Convert Zenodo grant to Stencila GrantOrMonetaryGrant
+fn grant_to_grant_or_monetary_grant(grant: &crate::responses::Grant) -> GrantOrMonetaryGrant {
+    GrantOrMonetaryGrant::Grant(Grant {
+        options: Box::new(GrantOptions {
+            name: grant.title.clone().or_else(|| {
+                // Use funder name + code as fallback name
+                grant.funder.as_ref().and_then(|funder| {
+                    let funder_name = funder.name.as_ref()?;
+                    if let Some(code) = &grant.code {
+                        Some(format!("{funder_name} ({code})"))
+                    } else {
+                        Some(funder_name.clone())
+                    }
+                })
+            }),
+            description: grant.title.clone(), // Use title as description too
+            identifiers: grant
+                .code
+                .as_ref()
+                .map(|code| vec![PropertyValueOrString::String(code.clone())]),
+            ..Default::default()
+        }),
+        ..Default::default()
+    })
 }

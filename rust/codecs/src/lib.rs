@@ -67,6 +67,7 @@ use stencila_codec_swb::SwbCodec;
 use stencila_codec_text::TextCodec;
 use stencila_codec_xlsx::XlsxCodec;
 use stencila_codec_yaml::YamlCodec;
+use stencila_codec_zenodo::ZenodoCodec;
 
 #[cfg(feature = "stencila-codec-polars")]
 use stencila_codec_polars::PolarsCodec;
@@ -270,6 +271,8 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
             Some(PmcCodec::from_identifier(identifier, options.clone()).await?)
         } else if GithubCodec::supports_identifier(identifier) {
             Some(GithubCodec::from_identifier(identifier, options.clone()).await?)
+        } else if ZenodoCodec::supports_identifier(identifier) {
+            Some(ZenodoCodec::from_identifier(identifier, options.clone()).await?)
         } else {
             None
         }
