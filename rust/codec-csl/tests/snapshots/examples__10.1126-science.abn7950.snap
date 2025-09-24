@@ -397,9 +397,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "579"
+        "volumeNumber": 579
       },
-      "pageStart": "233",
+      "pageStart": 233,
       "text": "A. Shepherd, E. Ivins, E. Rignot, B. Smith, M. van den Broeke, I. Velicogna, P. Whitehouse, K. Briggs, I. Joughin, G. Krinner, S. Nowicki, T. Payne, T. Scambos, N. Schlegel, G. A, C. Agosta, A. Ahlstrøm, G. Babonis, V. R. Barletta, A. A. Bjørk, A. Blazquez, J. Bonin, W. Colgan, B. Csatho, R. Cullather, M. E. Engdahl, D. Felikson, X. Fettweis, R. Forsberg, A. E. Hogg, H. Gallee, A. Gardner, L. Gilbert, N. Gourmelen, A. Groh, B. Gunter, E. Hanna, C. Harig, V. Helm, A. Horvath, M. Horwath, S. Khan, K. K. Kjeldsen, H. Konrad, P. L. Langen, B. Lecavalier, B. Loomis, S. Luthcke, M. McMillan, D. Melini, S. Mernild, Y. Mohajerani, P. Moore, R. Mottram, J. Mouginot, G. Moyano, A. Muir, T. Nagler, G. Nield, J. Nilsson, B. Noël, I. Otosaka, M. E. Pattle, W. R. Peltier, N. Pie, R. Rietbroek, H. Rott, L. Sandberg Sørensen, I. Sasgen, H. Save, B. Scheuchl, E. Schrama, L. Schröder, K. W. Seo, S. B. Simonsen, T. Slater, G. Spada, T. Sutterley, M. Talpe, L. Tarasov, W. J. van de Berg, W. van der Wal, M. van Wessem, B. D. Vishwakarma, D. Wiese, D. Wilton, T. Wagner, B. Wouters, J. Wuite, Mass balance of the Greenland Ice Sheet from 1992 to 2018. Nature 579, 233–239 (2020)."
     },
     {
@@ -988,9 +988,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "12"
+        "volumeNumber": 12
       },
-      "pageStart": "9371",
+      "pageStart": 9371,
       "text": "K. Isaksen, Ø. Nordli, B. Ivanov, M. A. Ø. Køltzow, S. Aaboe, H. M. Gjelten, A. Mezghani, S. Eastwood, E. Førland, R. E. Benestad, I. Hanssen-Bauer, R. Brækkan, P. Sviashchennikov, V. Demin, A. Revina, T. Karandasheva, Exceptional warming over the Barents area. Sci. Rep. 12, 9371 (2022). 35705593"
     },
     {
@@ -1566,9 +1566,9 @@ expression: node
           "1095-9203"
         ]
       },
-      "volumeNumber": "377"
+      "volumeNumber": 377
     },
-    "issueNumber": "6611"
+    "issueNumber": 6611
   },
   "publisher": {
     "type": "Organization",

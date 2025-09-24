@@ -198,9 +198,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "50"
+        "volumeNumber": 50
       },
-      "pageStart": "339"
+      "pageStart": 339
     },
     {
       "type": "Reference",
@@ -235,9 +235,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "122"
+        "volumeNumber": 122
       },
-      "pageStart": "27"
+      "pageStart": 27
     },
     {
       "type": "Reference",
@@ -272,9 +272,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "340"
+        "volumeNumber": 340
       },
-      "pageStart": "1788"
+      "pageStart": 1788
     },
     {
       "type": "Reference",
@@ -309,9 +309,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "19"
+        "volumeNumber": 19
       },
-      "pageStart": "2865"
+      "pageStart": 2865
     },
     {
       "type": "Reference",
@@ -346,9 +346,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "169"
+        "volumeNumber": 169
       },
-      "pageStart": "172"
+      "pageStart": 172
     },
     {
       "type": "Reference",
@@ -383,9 +383,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "79"
+        "volumeNumber": 79
       },
-      "pageStart": "767"
+      "pageStart": 767
     },
     {
       "type": "Reference",
@@ -420,9 +420,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "127"
+        "volumeNumber": 127
       },
-      "pageStart": "1831"
+      "pageStart": 1831
     },
     {
       "type": "Reference",
@@ -457,7 +457,7 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "5"
+        "volumeNumber": 5
       }
     },
     {
@@ -493,9 +493,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "20"
+        "volumeNumber": 20
       },
-      "pageStart": "256"
+      "pageStart": 256
     },
     {
       "type": "Reference",
@@ -530,9 +530,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "13"
+        "volumeNumber": 13
       },
-      "pageStart": "724"
+      "pageStart": 724
     },
     {
       "type": "Reference",
@@ -567,9 +567,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "22"
+        "volumeNumber": 22
       },
-      "pageStart": "585"
+      "pageStart": 585
     },
     {
       "type": "Reference",
@@ -604,9 +604,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "373"
+        "volumeNumber": 373
       },
-      "pageStart": "882"
+      "pageStart": 882
     },
     {
       "type": "Reference",
@@ -641,9 +641,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "30"
+        "volumeNumber": 30
       },
-      "pageStart": "1015"
+      "pageStart": 1015
     },
     {
       "type": "Reference",
@@ -678,9 +678,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "13"
+        "volumeNumber": 13
       },
-      "pageStart": "1518"
+      "pageStart": 1518
     },
     {
       "type": "Reference",
@@ -715,9 +715,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "172"
+        "volumeNumber": 172
       },
-      "pageStart": "262"
+      "pageStart": 262
     },
     {
       "type": "Reference",
@@ -752,9 +752,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "172"
+        "volumeNumber": 172
       },
-      "pageStart": "275"
+      "pageStart": 275
     },
     {
       "type": "Reference",
@@ -789,9 +789,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "23"
+        "volumeNumber": 23
       },
-      "pageStart": "172"
+      "pageStart": 172
     },
     {
       "type": "Reference",
@@ -826,9 +826,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "14"
+        "volumeNumber": 14
       },
-      "pageStart": "279"
+      "pageStart": 279
     },
     {
       "type": "Reference",
@@ -863,9 +863,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "41"
+        "volumeNumber": 41
       },
-      "pageStart": "3190"
+      "pageStart": 3190
     },
     {
       "type": "Reference",
@@ -900,7 +900,7 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "6"
+        "volumeNumber": 6
       },
       "pageStart": "eaay6354"
     },
@@ -937,7 +937,7 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "14"
+        "volumeNumber": 14
       }
     },
     {
@@ -973,9 +973,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "2"
+        "volumeNumber": 2
       },
-      "pageStart": "100360"
+      "pageStart": 100360
     },
     {
       "type": "Reference",
@@ -1010,9 +1010,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "90"
+        "volumeNumber": 90
       },
-      "pageStart": "309"
+      "pageStart": 309
     },
     {
       "type": "Reference",
@@ -1047,9 +1047,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "73"
+        "volumeNumber": 73
       },
-      "pageStart": "232"
+      "pageStart": 232
     },
     {
       "type": "Reference",
@@ -1084,9 +1084,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "44"
+        "volumeNumber": 44
       },
-      "pageStart": "248"
+      "pageStart": 248
     },
     {
       "type": "Reference",
@@ -1115,9 +1115,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "45"
+        "volumeNumber": 45
       },
-      "pageStart": "580"
+      "pageStart": 580
     },
     {
       "type": "Reference",
@@ -1152,9 +1152,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "573"
+        "volumeNumber": 573
       },
-      "pageStart": "61"
+      "pageStart": 61
     },
     {
       "type": "Reference",
@@ -1189,9 +1189,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "347"
+        "volumeNumber": 347
       },
-      "pageStart": "1138"
+      "pageStart": 1138
     },
     {
       "type": "Reference",
@@ -1226,9 +1226,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "35"
+        "volumeNumber": 35
       },
-      "pageStart": "711"
+      "pageStart": 711
     },
     {
       "type": "Reference",
@@ -1263,9 +1263,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "30"
+        "volumeNumber": 30
       },
-      "pageStart": "776"
+      "pageStart": 776
     },
     {
       "type": "Reference",
@@ -1300,9 +1300,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "116"
+        "volumeNumber": 116
       },
-      "pageStart": "10048"
+      "pageStart": 10048
     },
     {
       "type": "Reference",
@@ -1337,9 +1337,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "33"
+        "volumeNumber": 33
       },
-      "pageStart": "108296"
+      "pageStart": 108296
     },
     {
       "type": "Reference",
@@ -1374,9 +1374,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "2019"
+        "volumeNumber": 2019
       },
-      "pageStart": "8298524"
+      "pageStart": 8298524
     },
     {
       "type": "Reference",
@@ -1411,9 +1411,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "10"
+        "volumeNumber": 10
       },
-      "pageStart": "29"
+      "pageStart": 29
     },
     {
       "type": "Reference",
@@ -1448,9 +1448,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "10"
+        "volumeNumber": 10
       },
-      "pageStart": "787"
+      "pageStart": 787
     },
     {
       "type": "Reference",
@@ -1485,9 +1485,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "11"
+        "volumeNumber": 11
       },
-      "pageStart": "54"
+      "pageStart": 54
     },
     {
       "type": "Reference",
@@ -1522,9 +1522,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "262"
+        "volumeNumber": 262
       },
-      "pageStart": "1448"
+      "pageStart": 1448
     },
     {
       "type": "Reference",
@@ -1559,9 +1559,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "32"
+        "volumeNumber": 32
       },
-      "pageStart": "3305"
+      "pageStart": 3305
     },
     {
       "type": "Reference",
@@ -1596,9 +1596,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "4"
+        "volumeNumber": 4
       },
-      "pageStart": "734"
+      "pageStart": 734
     },
     {
       "type": "Reference",
@@ -1633,9 +1633,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "9"
+        "volumeNumber": 9
       },
-      "pageStart": "15"
+      "pageStart": 15
     },
     {
       "type": "Reference",
@@ -1670,9 +1670,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "106"
+        "volumeNumber": 106
       },
-      "pageStart": "255"
+      "pageStart": 255
     },
     {
       "type": "Reference",
@@ -1707,9 +1707,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "106"
+        "volumeNumber": 106
       },
-      "pageStart": "263"
+      "pageStart": 263
     },
     {
       "type": "Reference",
@@ -1744,9 +1744,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "39"
+        "volumeNumber": 39
       },
-      "pageStart": "759"
+      "pageStart": 759
     },
     {
       "type": "Reference",
@@ -1781,7 +1781,7 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "27"
+        "volumeNumber": 27
       },
       "pageStart": "e221"
     },
@@ -1818,9 +1818,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "34"
+        "volumeNumber": 34
       },
-      "pageStart": "8462"
+      "pageStart": 8462
     },
     {
       "type": "Reference",
@@ -1855,9 +1855,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "354"
+        "volumeNumber": 354
       },
-      "pageStart": "1434"
+      "pageStart": 1434
     },
     {
       "type": "Reference",
@@ -1905,9 +1905,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "35"
+        "volumeNumber": 35
       },
-      "pageStart": "106"
+      "pageStart": 106
     },
     {
       "type": "Reference",
@@ -1942,9 +1942,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "3"
+        "volumeNumber": 3
       },
-      "pageStart": "122"
+      "pageStart": 122
     },
     {
       "type": "Reference",
@@ -1966,7 +1966,7 @@ expression: node
           }
         }
       ],
-      "pageStart": "237"
+      "pageStart": 237
     },
     {
       "type": "Reference",
@@ -2001,9 +2001,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "472"
+        "volumeNumber": 472
       },
-      "pageStart": "361"
+      "pageStart": 361
     },
     {
       "type": "Reference",
@@ -2038,9 +2038,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "4"
+        "volumeNumber": 4
       },
-      "pageStart": "82"
+      "pageStart": 82
     },
     {
       "type": "Reference",
@@ -2075,9 +2075,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "10"
+        "volumeNumber": 10
       },
-      "pageStart": "32"
+      "pageStart": 32
     },
     {
       "type": "Reference",
@@ -2112,9 +2112,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "22"
+        "volumeNumber": 22
       },
-      "pageStart": "147"
+      "pageStart": 147
     },
     {
       "type": "Reference",
@@ -2149,9 +2149,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "11"
+        "volumeNumber": 11
       },
-      "pageStart": "160"
+      "pageStart": 160
     },
     {
       "type": "Reference",
@@ -2186,9 +2186,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "30"
+        "volumeNumber": 30
       },
-      "pageStart": "5866"
+      "pageStart": 5866
     },
     {
       "type": "Reference",
@@ -2223,9 +2223,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "75"
+        "volumeNumber": 75
       },
-      "pageStart": "1135"
+      "pageStart": 1135
     },
     {
       "type": "Reference",
@@ -2260,9 +2260,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "12"
+        "volumeNumber": 12
       },
-      "pageStart": "744653"
+      "pageStart": 744653
     },
     {
       "type": "Reference",
@@ -2297,9 +2297,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "9"
+        "volumeNumber": 9
       },
-      "pageStart": "493"
+      "pageStart": 493
     },
     {
       "type": "Reference",
@@ -2334,9 +2334,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "9"
+        "volumeNumber": 9
       },
-      "pageStart": "676"
+      "pageStart": 676
     },
     {
       "type": "Reference",
@@ -2371,9 +2371,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "596"
+        "volumeNumber": 596
       },
-      "pageStart": "583"
+      "pageStart": 583
     },
     {
       "type": "Reference",
@@ -2408,9 +2408,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "478"
+        "volumeNumber": 478
       },
-      "pageStart": "4169"
+      "pageStart": 4169
     },
     {
       "type": "Reference",
@@ -2445,9 +2445,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "192"
+        "volumeNumber": 192
       },
-      "pageStart": "216"
+      "pageStart": 216
     },
     {
       "type": "Reference",
@@ -2482,9 +2482,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "25"
+        "volumeNumber": 25
       },
-      "pageStart": "1605"
+      "pageStart": 1605
     },
     {
       "type": "Reference",
@@ -2519,9 +2519,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "60"
+        "volumeNumber": 60
       },
-      "pageStart": "2126"
+      "pageStart": 2126
     },
     {
       "type": "Reference",
@@ -2556,9 +2556,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "75"
+        "volumeNumber": 75
       },
-      "pageStart": "861"
+      "pageStart": 861
     },
     {
       "type": "Reference",
@@ -2593,9 +2593,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "74"
+        "volumeNumber": 74
       },
-      "pageStart": "519"
+      "pageStart": 519
     },
     {
       "type": "Reference",
@@ -2630,9 +2630,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "52"
+        "volumeNumber": 52
       },
-      "pageStart": "475"
+      "pageStart": 475
     },
     {
       "type": "Reference",
@@ -2667,9 +2667,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "11"
+        "volumeNumber": 11
       },
-      "pageStart": "5208"
+      "pageStart": 5208
     },
     {
       "type": "Reference",
@@ -2704,9 +2704,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "11"
+        "volumeNumber": 11
       },
-      "pageStart": "63"
+      "pageStart": 63
     }
   ],
   "title": [
@@ -2730,10 +2730,10 @@ expression: node
           "0092-8674"
         ]
       },
-      "volumeNumber": "187"
+      "volumeNumber": 187
     },
-    "issueNumber": "4",
-    "pageStart": "831",
+    "issueNumber": 4,
+    "pageStart": 831,
     "pageEnd": "845.e19"
   },
   "publisher": {

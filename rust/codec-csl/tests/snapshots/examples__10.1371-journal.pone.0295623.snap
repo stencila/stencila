@@ -114,10 +114,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "33",
-        "issueNumber": "13"
+        "volumeNumber": 33,
+        "issueNumber": 13
       },
-      "pageStart": "973"
+      "pageStart": 973
     },
     {
       "type": "Reference",
@@ -154,9 +154,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "48"
+        "volumeNumber": 48
       },
-      "pageStart": "97"
+      "pageStart": 97
     },
     {
       "type": "Reference",
@@ -193,9 +193,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "11"
+        "volumeNumber": 11
       },
-      "pageStart": "664"
+      "pageStart": 664
     },
     {
       "type": "Reference",
@@ -232,7 +232,7 @@ expression: node
           }
         ]
       },
-      "pageStart": "1"
+      "pageStart": 1
     },
     {
       "type": "Reference",
@@ -269,8 +269,8 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "15",
-        "issueNumber": "6"
+        "volumeNumber": 15,
+        "issueNumber": 6
       },
       "pageStart": "e0233796"
     },
@@ -309,10 +309,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "6",
-        "issueNumber": "1"
+        "volumeNumber": 6,
+        "issueNumber": 1
       },
-      "pageStart": "1"
+      "pageStart": 1
     },
     {
       "type": "Reference",
@@ -349,8 +349,8 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "13",
-        "issueNumber": "9"
+        "volumeNumber": 13,
+        "issueNumber": 9
       },
       "pageStart": "e0202811"
     },
@@ -389,10 +389,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "29",
-        "issueNumber": "8"
+        "volumeNumber": 29,
+        "issueNumber": 8
       },
-      "pageStart": "2086"
+      "pageStart": 2086
     },
     {
       "type": "Reference",
@@ -429,10 +429,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "40",
-        "issueNumber": "1"
+        "volumeNumber": 40,
+        "issueNumber": 1
       },
-      "pageStart": "149"
+      "pageStart": 149
     },
     {
       "type": "Reference",
@@ -469,10 +469,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "30",
-        "issueNumber": "5"
+        "volumeNumber": 30,
+        "issueNumber": 5
       },
-      "pageStart": "1348"
+      "pageStart": 1348
     },
     {
       "type": "Reference",
@@ -509,10 +509,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "29",
-        "issueNumber": "4"
+        "volumeNumber": 29,
+        "issueNumber": 4
       },
-      "pageStart": "980"
+      "pageStart": 980
     },
     {
       "type": "Reference",
@@ -549,10 +549,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "36",
-        "issueNumber": "6"
+        "volumeNumber": 36,
+        "issueNumber": 6
       },
-      "pageStart": "645"
+      "pageStart": 645
     },
     {
       "type": "Reference",
@@ -589,10 +589,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "36",
-        "issueNumber": "21"
+        "volumeNumber": 36,
+        "issueNumber": 21
       },
-      "pageStart": "2399"
+      "pageStart": 2399
     },
     {
       "type": "Reference",
@@ -629,10 +629,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "28",
-        "issueNumber": "10"
+        "volumeNumber": 28,
+        "issueNumber": 10
       },
-      "pageStart": "2724"
+      "pageStart": 2724
     },
     {
       "type": "Reference",
@@ -669,10 +669,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "14",
-        "issueNumber": "9"
+        "volumeNumber": 14,
+        "issueNumber": 9
       },
-      "pageStart": "1205"
+      "pageStart": 1205
     },
     {
       "type": "Reference",
@@ -709,10 +709,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "18",
-        "issueNumber": "3"
+        "volumeNumber": 18,
+        "issueNumber": 3
       },
-      "pageStart": "277"
+      "pageStart": 277
     },
     {
       "type": "Reference",
@@ -749,10 +749,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "5",
-        "issueNumber": "4"
+        "volumeNumber": 5,
+        "issueNumber": 4
       },
-      "pageStart": "546"
+      "pageStart": 546
     },
     {
       "type": "Reference",
@@ -789,10 +789,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "25",
-        "issueNumber": "2"
+        "volumeNumber": 25,
+        "issueNumber": 2
       },
-      "pageStart": "556"
+      "pageStart": 556
     },
     {
       "type": "Reference",
@@ -829,10 +829,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "46",
-        "issueNumber": "5"
+        "volumeNumber": 46,
+        "issueNumber": 5
       },
-      "pageStart": "641"
+      "pageStart": 641
     },
     {
       "type": "Reference",
@@ -869,7 +869,7 @@ expression: node
           }
         ]
       },
-      "pageStart": "4035"
+      "pageStart": 4035
     },
     {
       "type": "Reference",
@@ -905,9 +905,9 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "5"
+        "volumeNumber": 5
       },
-      "pageStart": "77"
+      "pageStart": 77
     },
     {
       "type": "Reference",
@@ -931,7 +931,7 @@ expression: node
           }
         }
       ],
-      "pageStart": "2"
+      "pageStart": 2
     },
     {
       "type": "Reference",
@@ -992,10 +992,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "25",
-        "issueNumber": "12"
+        "volumeNumber": 25,
+        "issueNumber": 12
       },
-      "pageStart": "3342"
+      "pageStart": 3342
     },
     {
       "type": "Reference",
@@ -1033,10 +1033,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "13",
-        "issueNumber": "1"
+        "volumeNumber": 13,
+        "issueNumber": 1
       },
-      "pageStart": "90"
+      "pageStart": 90
     },
     {
       "type": "Reference",
@@ -1073,10 +1073,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "30",
-        "issueNumber": "15"
+        "volumeNumber": 30,
+        "issueNumber": 15
       },
-      "pageStart": "1683"
+      "pageStart": 1683
     },
     {
       "type": "Reference",
@@ -1113,10 +1113,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "26",
-        "issueNumber": "10"
+        "volumeNumber": 26,
+        "issueNumber": 10
       },
-      "pageStart": "2698"
+      "pageStart": 2698
     },
     {
       "type": "Reference",
@@ -1153,10 +1153,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "25",
-        "issueNumber": "8"
+        "volumeNumber": 25,
+        "issueNumber": 8
       },
-      "pageStart": "895"
+      "pageStart": 895
     },
     {
       "type": "Reference",
@@ -1193,10 +1193,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "32",
-        "issueNumber": "5"
+        "volumeNumber": 32,
+        "issueNumber": 5
       },
-      "pageStart": "1316"
+      "pageStart": 1316
     },
     {
       "type": "Reference",
@@ -1233,10 +1233,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "11",
-        "issueNumber": "3"
+        "volumeNumber": 11,
+        "issueNumber": 3
       },
-      "pageStart": "400"
+      "pageStart": 400
     },
     {
       "type": "Reference",
@@ -1273,10 +1273,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "20",
-        "issueNumber": "4"
+        "volumeNumber": 20,
+        "issueNumber": 4
       },
-      "pageStart": "409"
+      "pageStart": 409
     },
     {
       "type": "Reference",
@@ -1313,8 +1313,8 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "14",
-        "issueNumber": "1"
+        "volumeNumber": 14,
+        "issueNumber": 1
       },
       "pageStart": "S8"
     },
@@ -1353,10 +1353,10 @@ expression: node
             }
           }
         ],
-        "volumeNumber": "15",
-        "issueNumber": "4"
+        "volumeNumber": 15,
+        "issueNumber": 4
       },
-      "pageStart": "520"
+      "pageStart": 520
     }
   ],
   "title": [
@@ -1391,9 +1391,9 @@ expression: node
           "1932-6203"
         ]
       },
-      "volumeNumber": "18"
+      "volumeNumber": 18
     },
-    "issueNumber": "12",
+    "issueNumber": 12,
     "pageStart": "e0295623"
   },
   "publisher": {

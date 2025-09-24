@@ -358,8 +358,8 @@ impl From<ReferenceValue> for Reference {
                 work_type: Some(stencila_schema::CreativeWorkType::Periodical),
                 title: Some(journal_title.into()),
                 options: Box::new(ReferenceOptions {
-                    issue_number: ref_value.issue.map(IntegerOrString::String),
-                    volume_number: ref_value.volume.map(IntegerOrString::String),
+                    issue_number: ref_value.issue.map(IntegerOrString::from),
+                    volume_number: ref_value.volume.map(IntegerOrString::from),
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -367,7 +367,7 @@ impl From<ReferenceValue> for Reference {
             .map(Box::new);
 
         // Extract page start from first-page
-        let page_start = ref_value.first_page.map(IntegerOrString::String);
+        let page_start = ref_value.first_page.map(IntegerOrString::from);
 
         let publisher = ref_value.publisher.map(|publisher| {
             PersonOrOrganization::Organization(Organization {
@@ -566,31 +566,19 @@ fn create_publication_info(
         ..Default::default()
     };
 
-    if let Some(vol) = volume {
-        let volume_str = match vol {
-            OrdinaryField::String(s) => s.clone(),
-            OrdinaryField::Integer(n) => n.to_string(),
-            OrdinaryField::Float(n) => n.to_string(),
-        };
-
+    if let Some(volume) = volume {
         let mut publication_volume = PublicationVolume {
             is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
-            volume_number: Some(IntegerOrString::String(volume_str)),
+            volume_number: Some(volume.clone().into()),
             ..Default::default()
         };
 
-        if let Some(iss) = issue {
-            let issue_str = match iss {
-                OrdinaryField::String(s) => s.clone(),
-                OrdinaryField::Integer(n) => n.to_string(),
-                OrdinaryField::Float(n) => n.to_string(),
-            };
-
+        if let Some(issue) = issue {
             let mut publication_issue = PublicationIssue {
                 is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
                     publication_volume,
                 ))),
-                issue_number: Some(IntegerOrString::String(issue_str)),
+                issue_number: Some(issue.clone().into()),
                 ..Default::default()
             };
 
@@ -617,13 +605,13 @@ fn extract_page_start(page_range: &str) -> Option<IntegerOrString> {
     if let Some(dash_pos) = page_range.find('-') {
         let start = page_range[..dash_pos].trim();
         if !start.is_empty() {
-            return Some(IntegerOrString::String(start.to_string()));
+            return Some(IntegerOrString::from(start));
         }
     }
     // Single page or no dash
     let trimmed = page_range.trim();
     if !trimmed.is_empty() {
-        Some(IntegerOrString::String(trimmed.to_string()))
+        Some(IntegerOrString::from(trimmed))
     } else {
         None
     }
@@ -634,7 +622,7 @@ fn extract_page_end(page_range: &str) -> Option<IntegerOrString> {
     if let Some(dash_pos) = page_range.find('-') {
         let end = page_range[dash_pos + 1..].trim();
         if !end.is_empty() {
-            return Some(IntegerOrString::String(end.to_string()));
+            return Some(IntegerOrString::from(end));
         }
     }
     None
