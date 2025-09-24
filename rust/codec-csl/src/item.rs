@@ -1,25 +1,25 @@
-use serde::Deserialize;
-
-use stencila_codec::stencila_schema::{
-    self, Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
-    Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
-    PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
-    ReferenceOptions,
-    shortcuts::{p, t},
-};
-
 use indexmap::IndexMap;
 use itertools::Itertools;
+use serde::Deserialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;
 
-use crate::{date::DateField, name::NameField, ordinary::OrdinaryField};
+use stencila_codec::stencila_schema::{
+    self, Article, ArticleOptions, Author, Block, CreativeWorkType, CreativeWorkVariant, Date,
+    IntegerOrString, Node, Organization, Paragraph, Periodical, PeriodicalOptions,
+    PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
+    PublicationVolume, Reference, ReferenceOptions,
+    shortcuts::{p, t},
+};
+
+use crate::{date::DateField, name::NameField, ordinary::OrdinaryField, title::TitleField};
 
 /// A CSL item
 ///
-/// Represents a bibliographic item in Citation Style Language JSON format.
-/// This implementation aims to be comprehensive and flexible, supporting both
-/// standard CSL fields and extension fields used by various publishers and repositories.
+/// Represents a bibliographic item in Citation Style Language JSON format. This
+/// implementation aims to be comprehensive and flexible, supporting both
+/// standard CSL fields and extension fields used by various publishers and
+/// repositories.
 ///
 /// See:
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iii-types
@@ -32,52 +32,56 @@ use crate::{date::DateField, name::NameField, ordinary::OrdinaryField};
 /// Given that, and to avoid adding another dependency, this crate implements
 /// serde deserialization and serialization for CSL types and implements the
 /// `From` trait to convert CSL types to Stencila Schema types.
+///
+/// Fields that are not currently used are commented out. This avoids
+/// deserialization errors if the data is not of the expected type (e.g. an
+/// array instead of a string).
 #[skip_serializing_none]
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct Item {
     /// Unique identifier
-    pub id: Option<String>,
+    //pub id: Option<String>,
 
     /// Type of the item
     #[serde(rename = "type")]
     pub item_type: ItemType,
 
     // Title fields
-    pub title: Option<String>,
-    pub title_short: Option<String>,
-    pub subtitle: Option<Vec<String>>,
-    pub short_title: Option<Vec<String>>,
+    pub title: Option<TitleField>,
+    //pub title_short: Option<TitleField>,
+    //pub subtitle: Option<TitleField>,
+    //pub short_title: Option<TitleField>,
 
     // Creator fields
     pub author: Option<Vec<NameField>>,
-    pub editor: Option<Vec<NameField>>,
-    pub translator: Option<Vec<NameField>>,
-    pub recipient: Option<Vec<NameField>>,
-    pub interviewer: Option<Vec<NameField>>,
-    pub composer: Option<Vec<NameField>>,
-    pub director: Option<Vec<NameField>>,
-    pub illustrator: Option<Vec<NameField>>,
+    //pub editor: Option<Vec<NameField>>,
+    //pub translator: Option<Vec<NameField>>,
+    //pub recipient: Option<Vec<NameField>>,
+    //pub interviewer: Option<Vec<NameField>>,
+    //pub composer: Option<Vec<NameField>>,
+    //pub director: Option<Vec<NameField>>,
+    //pub illustrator: Option<Vec<NameField>>,
 
     // Date fields
     pub issued: Option<DateField>,
-    pub submitted: Option<DateField>,
-    pub accessed: Option<DateField>,
-    pub event_date: Option<DateField>,
-    pub original_date: Option<DateField>,
+    //pub submitted: Option<DateField>,
+    //pub accessed: Option<DateField>,
+    //pub event_date: Option<DateField>,
+    //pub original_date: Option<DateField>,
 
     // Publication fields
-    pub container_title: Option<Value>,
-    pub container_title_short: Option<String>,
-    pub collection_title: Option<String>,
-    pub collection_number: Option<OrdinaryField>,
+    pub container_title: Option<TitleField>,
+    //pub container_title_short: Option<TitleField>,
+    //pub collection_title: Option<TitleField>,
+    //pub collection_number: Option<OrdinaryField>,
     pub volume: Option<OrdinaryField>,
     pub issue: Option<OrdinaryField>,
-    pub edition: Option<OrdinaryField>,
+    //pub edition: Option<OrdinaryField>,
     pub page: Option<String>,
-    pub page_first: Option<String>,
-    pub number_of_pages: Option<OrdinaryField>,
-    pub chapter_number: Option<OrdinaryField>,
+    //pub page_first: Option<String>,
+    //pub number_of_pages: Option<OrdinaryField>,
+    //pub chapter_number: Option<OrdinaryField>,
 
     // Identifier fields
     #[serde(alias = "DOI")]
@@ -86,8 +90,8 @@ pub struct Item {
     pub url: Option<String>,
     #[serde(alias = "ISSN")]
     pub issn: Option<Vec<String>>,
-    #[serde(alias = "ISBN")]
-    pub isbn: Option<Vec<String>>,
+    //#[serde(alias = "ISBN")]
+    //pub isbn: Option<Vec<String>>,
     #[serde(alias = "PMID")]
     pub pmid: Option<String>,
     #[serde(alias = "PMCID")]
@@ -95,87 +99,87 @@ pub struct Item {
 
     // Publication info
     pub publisher: Option<String>,
-    pub publisher_place: Option<String>,
-    pub jurisdiction: Option<String>,
+    //pub publisher_place: Option<String>,
+    //pub jurisdiction: Option<String>,
 
     // Description fields
     #[serde(rename = "abstract")]
     pub abstract_text: Option<String>,
-    pub note: Option<String>,
-    pub annote: Option<String>,
-    pub keyword: Option<String>,
+    //pub note: Option<String>,
+    //pub annote: Option<String>,
+    //pub keyword: Option<String>,
 
     // Classification fields
-    pub genre: Option<String>,
-    pub medium: Option<String>,
-    pub status: Option<String>,
-    pub version: Option<String>,
+    //pub genre: Option<String>,
+    //pub medium: Option<String>,
+    //pub status: Option<String>,
+    //pub version: Option<String>,
 
     // Event fields
-    pub event: Option<String>,
-    pub event_place: Option<String>,
+    //pub event: Option<Value>,
+    //pub event_place: Option<String>,
 
     // Archive fields
-    pub archive: Option<String>,
-    pub archive_location: Option<String>,
-    pub archive_place: Option<String>,
-    pub call_number: Option<String>,
+    //pub archive: Option<String>,
+    //pub archive_location: Option<String>,
+    //pub archive_place: Option<String>,
+    //pub call_number: Option<String>,
 
     // Technical fields
-    pub language: Option<String>,
-    pub source: Option<String>,
-    pub references: Option<String>,
-    pub dimensions: Option<String>,
-    pub scale: Option<String>,
+    //pub language: Option<String>,
+    //pub source: Option<String>,
+    //pub references: Option<String>,
+    //pub dimensions: Option<String>,
+    //pub scale: Option<String>,
 
     // Legal fields
-    pub authority: Option<String>,
-    pub section: Option<String>,
+    //pub authority: Option<String>,
+    //pub section: Option<String>,
 
     // Numbers and counts
-    pub citation_number: Option<OrdinaryField>,
-    pub citation_label: Option<String>,
-    pub first_reference_note_number: Option<OrdinaryField>,
-    pub locator: Option<String>,
-    pub label: Option<String>,
+    //pub citation_number: Option<OrdinaryField>,
+    //pub citation_label: Option<String>,
+    //pub first_reference_note_number: Option<OrdinaryField>,
+    //pub locator: Option<String>,
+    //pub label: Option<String>,
 
     // Bibliographic metadata
-    pub reference_count: Option<OrdinaryField>,
-    pub references_count: Option<OrdinaryField>,
-    pub is_referenced_by_count: Option<OrdinaryField>,
+    //pub reference_count: Option<OrdinaryField>,
+    //pub references_count: Option<OrdinaryField>,
+    //pub is_referenced_by_count: Option<OrdinaryField>,
 
     // Repository/Database metadata
-    pub indexed: Option<DateField>,
-    pub deposited: Option<DateField>,
-    pub posted: Option<DateField>,
-    pub accepted: Option<DateField>,
-    pub published_print: Option<DateField>,
-    pub published_online: Option<DateField>,
+    //pub indexed: Option<DateField>,
+    //pub deposited: Option<DateField>,
+    //pub posted: Option<DateField>,
+    //pub accepted: Option<DateField>,
+    //pub published_print: Option<DateField>,
+    //pub published_online: Option<DateField>,
 
     // Classification and categorization
-    pub subject: Option<Vec<String>>,
-    pub funder: Option<Vec<Value>>,
-    pub license: Option<Vec<Value>>,
-    pub link: Option<Vec<Value>>,
-    pub relation: Option<Value>,
+    //pub subject: Option<Vec<String>>,
+    //pub funder: Option<Vec<Value>>,
+    //pub license: Option<Vec<Value>>,
+    //pub link: Option<Vec<Value>>,
+    //pub relation: Option<Value>,
 
     // Publication structure
-    pub journal_issue: Option<Value>,
-    pub original_title: Option<Vec<String>>,
-    pub alternative_id: Option<Vec<String>>,
+    //pub journal_issue: Option<Value>,
+    //pub original_title: Option<Vec<String>>,
+    //pub alternative_id: Option<Vec<String>>,
 
     // Content metadata
-    pub content_domain: Option<Value>,
-    pub subtype: Option<String>,
-    pub categories: Option<Vec<String>>,
-    pub group_title: Option<String>,
-    pub institution: Option<Vec<Value>>,
+    //pub content_domain: Option<Value>,
+    //pub subtype: Option<String>,
+    //pub categories: Option<Vec<String>>,
+    //pub group_title: Option<String>,
+    //pub institution: Option<Vec<Value>>,
 
     // Technical metadata
-    pub score: Option<f64>,
-    pub resource: Option<Value>,
-    pub prefix: Option<String>,
-    pub member: Option<String>,
+    //pub score: Option<f64>,
+    //pub resource: Option<Value>,
+    //pub prefix: Option<String>,
+    //pub member: Option<String>,
 
     // Reference list
     pub reference: Option<Vec<ReferenceValue>>,
@@ -256,13 +260,14 @@ pub enum ItemType {
 /// See:
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables
 /// - https://www.crossref.org/documentation/retrieve-metadata/rest-api/
+///
+/// As for [`Item`], this comments out fields that are currently not used.
 #[skip_serializing_none]
 #[derive(Default, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct ReferenceValue {
-    /// Unique key for this reference
-    pub key: Option<String>,
-
+    // Unique key for this reference
+    //pub key: Option<String>,
     /// DOI of the referenced work
     #[serde(alias = "DOI")]
     pub doi: Option<String>,
@@ -274,13 +279,13 @@ pub struct ReferenceValue {
     pub year: Option<String>,
 
     /// Title of the referenced article
-    pub article_title: Option<String>,
+    pub article_title: Option<TitleField>,
 
     /// Journal or publication title
-    pub journal_title: Option<String>,
+    pub journal_title: Option<TitleField>,
 
     /// Volume title (for books, conference proceedings)
-    pub volume_title: Option<String>,
+    pub volume_title: Option<TitleField>,
 
     /// Volume number
     pub volume: Option<String>,
@@ -297,9 +302,8 @@ pub struct ReferenceValue {
     /// Unstructured citation string (fallback)
     pub unstructured: Option<String>,
 
-    /// DOI assertion information
-    pub doi_asserted_by: Option<String>,
-
+    // DOI assertion information
+    //pub doi_asserted_by: Option<String>,
     /// Catch-all for other fields
     #[serde(flatten)]
     pub other: IndexMap<String, Value>,
@@ -307,6 +311,11 @@ pub struct ReferenceValue {
 
 impl From<ReferenceValue> for Reference {
     fn from(ref_value: ReferenceValue) -> Self {
+        let work_type = ref_value
+            .journal_title
+            .is_some()
+            .then_some(CreativeWorkType::Article);
+
         // Clean DOI by removing URL prefix if present
         let doi = ref_value
             .doi
@@ -338,16 +347,15 @@ impl From<ReferenceValue> for Reference {
         // Create title from available title fields
         let title = ref_value
             .article_title
-            .or(ref_value.unstructured)
-            .or(ref_value.volume_title.clone())
-            .map(|title_str| vec![t(&title_str)]);
+            .or(ref_value.volume_title)
+            .map(Into::into);
 
         // Create is_part_of if journal info is available
         let is_part_of = ref_value
             .journal_title
             .map(|journal_title| Reference {
                 work_type: Some(stencila_schema::CreativeWorkType::Periodical),
-                title: Some(vec![t(&journal_title)]),
+                title: Some(journal_title.into()),
                 options: Box::new(ReferenceOptions {
                     issue_number: ref_value.issue.map(IntegerOrString::String),
                     volume_number: ref_value.volume.map(IntegerOrString::String),
@@ -360,14 +368,25 @@ impl From<ReferenceValue> for Reference {
         // Extract page start from first-page
         let page_start = ref_value.first_page.map(IntegerOrString::String);
 
+        let publisher = ref_value.publisher.map(|publisher| {
+            PersonOrOrganization::Organization(Organization {
+                name: Some(publisher),
+                ..Default::default()
+            })
+        });
+
         Reference {
+            work_type,
             doi,
             authors,
             date,
             title,
             is_part_of,
+
             options: Box::new(ReferenceOptions {
                 page_start,
+                publisher,
+                text: ref_value.unstructured,
                 ..Default::default()
             }),
             ..Default::default()
@@ -377,7 +396,7 @@ impl From<ReferenceValue> for Reference {
 
 impl From<Item> for Article {
     fn from(item: Item) -> Self {
-        let title = item.title.as_ref().map(|title_str| vec![t(title_str)]);
+        let title = item.title.map(Into::into);
 
         let authors = item
             .author
@@ -407,7 +426,7 @@ impl From<Item> for Article {
         }
         let identifiers = (!identifiers.is_empty()).then_some(identifiers);
 
-        let is_part_of = item.container_title.as_ref().and_then(|container| {
+        let is_part_of = item.container_title.and_then(|container| {
             create_publication_info(
                 container,
                 item.issn,
@@ -445,6 +464,12 @@ impl From<Item> for Article {
             }),
             ..Default::default()
         }
+    }
+}
+
+impl From<Item> for Node {
+    fn from(item: Item) -> Self {
+        Node::Article(item.into())
     }
 }
 
@@ -499,23 +524,14 @@ fn id_to_identifier(property_id: &str, id: String) -> PropertyValueOrString {
 
 /// Create publication hierarchy from CSL metadata
 fn create_publication_info(
-    container_title: &Value,
+    container_title: TitleField,
     issns: Option<Vec<String>>,
     volume: Option<&OrdinaryField>,
     issue: Option<&OrdinaryField>,
     page: Option<&str>,
 ) -> Option<CreativeWorkVariant> {
-    let periodical_name = match container_title {
-        Value::String(value) => value.to_string(),
-        Value::Array(value) => value
-            .first()
-            .map(|value| value.to_string())
-            .unwrap_or_default(),
-        _ => container_title.to_string(),
-    };
-
     let periodical = Periodical {
-        name: Some(periodical_name),
+        name: Some(container_title.into()),
         options: Box::new(PeriodicalOptions {
             issns,
             ..Default::default()

@@ -1,13 +1,12 @@
 use std::str::FromStr;
 
-use serde::Deserialize;
-
-use stencila_codec::stencila_schema::{Author, Organization, Person, PersonOptions};
-
 use indexmap::IndexMap;
 use itertools::Itertools;
+use serde::Deserialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;
+
+use stencila_codec::stencila_schema::{Author, Organization, Person, PersonOptions};
 
 /// A CSL name field
 ///

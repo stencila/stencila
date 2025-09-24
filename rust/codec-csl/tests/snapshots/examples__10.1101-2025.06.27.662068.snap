@@ -152,14 +152,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.3389/fimmu.2021.631821",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Erandi Pérez-Figueroa , Pablo Álvarez-Carrasco , Enrique Ortega , and Carmen Maldonado-Bernal . Neutrophils: Many ways to die. Frontiers in Immunology, 12:631821, 2021."
-          }
-        }
-      ]
+      "text": "Erandi Pérez-Figueroa , Pablo Álvarez-Carrasco , Enrique Ortega , and Carmen Maldonado-Bernal . Neutrophils: Many ways to die. Frontiers in Immunology, 12:631821, 2021."
     },
     {
       "type": "Reference",

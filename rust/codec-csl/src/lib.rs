@@ -7,6 +7,10 @@ mod date;
 mod item;
 mod name;
 mod ordinary;
+mod title;
+
+/// Export `Item` for use by other codecs that use CSL (e.g. Crossref codec)
+pub use item::Item;
 
 /// A codec for CSL-JSON (Citation Style Language JSON)
 ///
@@ -36,9 +40,9 @@ impl Codec for CslCodec {
         str: &str,
         _options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let csl_item: item::Item = serde_json::from_str(str)?;
-        let article = csl_item.into();
+        let csl_item: Item = serde_json::from_str(str)?;
+        let node = csl_item.into();
 
-        Ok((Node::Article(article), DecodeInfo::default()))
+        Ok((node, DecodeInfo::default()))
     }
 }

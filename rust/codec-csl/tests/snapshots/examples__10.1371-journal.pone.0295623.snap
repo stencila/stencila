@@ -81,6 +81,7 @@ expression: node
   "references": [
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.2165/00007256-200333130-00003",
       "authors": [
         {
@@ -120,6 +121,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1007/s40279-017-0803-2",
       "authors": [
         {
@@ -158,6 +160,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.3389/fpsyg.2020.00664",
       "authors": [
         {
@@ -196,6 +199,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -232,6 +236,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0233796",
       "authors": [
         {
@@ -271,6 +276,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1186/s40798-020-0236-6",
       "authors": [
         {
@@ -310,6 +316,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1371/journal.pone.0202811",
       "authors": [
         {
@@ -349,6 +356,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0000000000000872",
       "authors": [
         {
@@ -388,6 +396,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.5114/biolsport.2022.112086",
       "authors": [
         {
@@ -427,6 +436,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0000000000001234",
       "authors": [
         {
@@ -466,6 +476,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0000000000000724",
       "authors": [
         {
@@ -505,6 +516,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1080/02640414.2017.1329546",
       "authors": [
         {
@@ -544,6 +556,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1080/02640414.2018.1458589",
       "authors": [
         {
@@ -583,6 +596,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0000000000000364",
       "authors": [
         {
@@ -622,6 +636,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1123/ijspp.2018-0523",
       "authors": [
         {
@@ -661,6 +676,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1080/14763141.2017.1391325",
       "authors": [
         {
@@ -700,6 +716,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1123/ijspp.5.4.546",
       "authors": [
         {
@@ -739,6 +756,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0b013e3181ccb18d",
       "authors": [
         {
@@ -778,6 +796,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1007/s40279-015-0446-0",
       "authors": [
         {
@@ -817,6 +836,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -853,6 +873,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -938,6 +959,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0b013e318236d0c2",
       "authors": [
         {
@@ -977,6 +999,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1016/j.jsams.2008.07.004",
       "authors": [
         {
@@ -1017,6 +1040,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1080/02640414.2011.637950",
       "authors": [
         {
@@ -1056,6 +1080,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0b013e318241382a",
       "authors": [
         {
@@ -1095,6 +1120,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1080/02640410600944659",
       "authors": [
         {
@@ -1134,6 +1160,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1519/JSC.0000000000001965",
       "authors": [
         {
@@ -1173,6 +1200,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1123/ijspp.2015-0231",
       "authors": [
         {
@@ -1212,6 +1240,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1016/j.jsams.2016.08.017",
       "authors": [
         {
@@ -1251,6 +1280,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1080/17461391.2011.635812",
       "authors": [
         {
@@ -1290,6 +1320,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1123/ijspp.2019-0154",
       "authors": [
         {

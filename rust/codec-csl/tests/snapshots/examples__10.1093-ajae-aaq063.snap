@@ -119,6 +119,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -180,6 +181,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -286,6 +288,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",

@@ -1,15 +1,14 @@
 use std::str::FromStr;
 
+use indexmap::IndexMap;
 use serde::Deserialize;
+use serde_json::Value;
+use serde_with::skip_serializing_none;
 
 use stencila_codec::{
     eyre::{Report, bail},
     stencila_schema::Date,
 };
-
-use indexmap::IndexMap;
-use serde_json::Value;
-use serde_with::skip_serializing_none;
 
 /// A CSL date field
 ///
@@ -62,6 +61,14 @@ pub enum DateField {
 
         #[serde(flatten)]
         meta: DateMeta,
+    },
+
+    /// Matches a null date range as observed in a Crossref response
+    ///
+    /// "issued": {"date-parts":[null]]}
+    RangeWithNull {
+        #[serde(rename = "date-parts")]
+        date_parts: Vec<Vec<Option<i32>>>,
     },
 }
 
@@ -133,6 +140,7 @@ impl TryFrom<DateField> for Date {
             DateField::Literal { literal, .. } => Date::from_str(&literal)?,
             DateField::Raw { raw, .. } => Date::from_str(&raw)?,
             DateField::Edtf { edtf, .. } => Date::from_str(&edtf)?,
+            _ => bail!("Invalid date"),
         })
     }
 }

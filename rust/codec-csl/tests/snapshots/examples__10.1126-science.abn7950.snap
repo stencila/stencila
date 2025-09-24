@@ -298,36 +298,15 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "B. Fox-Kemper H. T. Hewitt C. Xiao G. Aðalgeirsdóttir S. S. Drijfhout T. L. Edwards N. R. Golledge M. Hemer R. E. Kopp G. Krinner A. Mix D. Notz S. Nowicki I. S. Nurhati L. Ruiz J.-B. Sallée A. B. A. Slangen Y. Yu “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
-          }
-        }
-      ]
+      "text": "B. Fox-Kemper H. T. Hewitt C. Xiao G. Aðalgeirsdóttir S. S. Drijfhout T. L. Edwards N. R. Golledge M. Hemer R. E. Kopp G. Krinner A. Mix D. Notz S. Nowicki I. S. Nurhati L. Ruiz J.-B. Sallée A. B. A. Slangen Y. Yu “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "M. Collins M. Sutherland L. Bouwer S.-M. Cheong T. L. Frölicher H. Jacot Des Combes M. K. Roxy I. Losada K. L. McInnes B. Ratter E. Rivera-Arriaga R. D. Susanto D. Swingedouw L. Tibig P. Bakker C. M. Eakin K. Emanuel M. Grose M. Hemer L. Jackson A. Kääb J. B. Kajtar T. Knutson C. Laufkötter I. Noy M. Payne R. Ranasinghe G. Sgubin M.-L. Timmermans “IPCC Special Report on the Ocean and Cryosphere in a Changing Climate” H.-O. Pörtner D. C. Roberts V. Masson-Delmotte P. Zhai M. Tignor E. Poloczanska K. Mintenbeck A. Alegría M. Nicolai A. Okem J. Petzold B. Rama N. M. Weyer Eds. (2019); pp. 589–655."
-          }
-        }
-      ]
+      "text": "M. Collins M. Sutherland L. Bouwer S.-M. Cheong T. L. Frölicher H. Jacot Des Combes M. K. Roxy I. Losada K. L. McInnes B. Ratter E. Rivera-Arriaga R. D. Susanto D. Swingedouw L. Tibig P. Bakker C. M. Eakin K. Emanuel M. Grose M. Hemer L. Jackson A. Kääb J. B. Kajtar T. Knutson C. Laufkötter I. Noy M. Payne R. Ranasinghe G. Sgubin M.-L. Timmermans “IPCC Special Report on the Ocean and Cryosphere in a Changing Climate” H.-O. Pörtner D. C. Roberts V. Masson-Delmotte P. Zhai M. Tignor E. Poloczanska K. Mintenbeck A. Alegría M. Nicolai A. Okem J. Petzold B. Rama N. M. Weyer Eds. (2019); pp. 589–655."
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "J. Y. Lee J. Marotzke G. Bala L. Cao S. Corti J. P. Dunne F. Engelbrecht E. Fischer J. C. Fyfe C. Jones A. Maycock J. Mutemi O. Ndiaye S. Panickal T. Zhou “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
-          }
-        }
-      ]
+      "text": "J. Y. Lee J. Marotzke G. Bala L. Cao S. Corti J. P. Dunne F. Engelbrecht E. Fischer J. C. Fyfe C. Jones A. Maycock J. Mutemi O. Ndiaye S. Panickal T. Zhou “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
     },
     {
       "type": "Reference",
@@ -339,14 +318,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "D. Chen M. Rojas B. H. Samset K. Cobb A. D. Niang P. Edwards S. Emori S. H. Faria E. Hawkins P. Hope P. Huybrechts M. Meinshausen S. K. Mustafa G.-K. Plattner A.-M. Tréguier “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
-          }
-        }
-      ]
+      "text": "D. Chen M. Rojas B. H. Samset K. Cobb A. D. Niang P. Edwards S. Emori S. H. Faria E. Hawkins P. Hope P. Huybrechts M. Meinshausen S. K. Mustafa G.-K. Plattner A.-M. Tréguier “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
     },
     {
       "type": "Reference",
@@ -354,25 +326,11 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "R. Ranasinghe A. C. Ruane R. Vautard N. Arnell E. Coppola F. A. Cruz S. Dessai A. S. Islam M. Rahimi D. R. Carrascal J. Sillmann M. B. Sylla C. Tebaldi W. Wang R. Zaaboul “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021) p. 73."
-          }
-        }
-      ]
+      "text": "R. Ranasinghe A. C. Ruane R. Vautard N. Arnell E. Coppola F. A. Cruz S. Dessai A. S. Islam M. Rahimi D. R. Carrascal J. Sillmann M. B. Sylla C. Tebaldi W. Wang R. Zaaboul “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021) p. 73."
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "National Research Council Abrupt Climate Change: Inevitable Surprises (The National Academies Press 2002); https://www.nap.edu/catalog/10136."
-          }
-        }
-      ]
+      "text": "National Research Council Abrupt Climate Change: Inevitable Surprises (The National Academies Press 2002); https://www.nap.edu/catalog/10136."
     },
     {
       "type": "Reference",
@@ -396,14 +354,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "I. Allison N. L. Bindoff R. A. Bindoff R. A. Bindschadler P. M. Cox N. de Noblet M. H. England J. E. Francis N. Gruber A.M. Haywood D. J. Karoly G. Kaser C. Le Quéré T. M. Lenton M. E. Mann B. I. McNeil A. J. Pitman S. Rahmstorf E. Rignot H. J. Schellnhuber S. H. Schneider S. C. Sherwood R .C. J. Somerville K. Steffen E. J. Steig M. Visbeck A. J. Weaver “The Copenhagen Diagnosis” (The Univ. of New South Wales Climate Change Research Centre 2009); https://www.ccrc.unsw.edu.au/sites/default/files/Copenhagen_Diagnosis_LOW.pdf)."
-          }
-        }
-      ]
+      "text": "I. Allison N. L. Bindoff R. A. Bindoff R. A. Bindschadler P. M. Cox N. de Noblet M. H. England J. E. Francis N. Gruber A.M. Haywood D. J. Karoly G. Kaser C. Le Quéré T. M. Lenton M. E. Mann B. I. McNeil A. J. Pitman S. Rahmstorf E. Rignot H. J. Schellnhuber S. H. Schneider S. C. Sherwood R .C. J. Somerville K. Steffen E. J. Steig M. Visbeck A. J. Weaver “The Copenhagen Diagnosis” (The Univ. of New South Wales Climate Change Research Centre 2009); https://www.ccrc.unsw.edu.au/sites/default/files/Copenhagen_Diagnosis_LOW.pdf)."
     },
     {
       "type": "Reference",
@@ -415,6 +366,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1038/s41586-019-1855-2",
       "authors": [
         {
@@ -447,7 +399,8 @@ expression: node
         ],
         "volumeNumber": "579"
       },
-      "pageStart": "233"
+      "pageStart": "233",
+      "text": "A. Shepherd, E. Ivins, E. Rignot, B. Smith, M. van den Broeke, I. Velicogna, P. Whitehouse, K. Briggs, I. Joughin, G. Krinner, S. Nowicki, T. Payne, T. Scambos, N. Schlegel, G. A, C. Agosta, A. Ahlstrøm, G. Babonis, V. R. Barletta, A. A. Bjørk, A. Blazquez, J. Bonin, W. Colgan, B. Csatho, R. Cullather, M. E. Engdahl, D. Felikson, X. Fettweis, R. Forsberg, A. E. Hogg, H. Gallee, A. Gardner, L. Gilbert, N. Gourmelen, A. Groh, B. Gunter, E. Hanna, C. Harig, V. Helm, A. Horvath, M. Horwath, S. Khan, K. K. Kjeldsen, H. Konrad, P. L. Langen, B. Lecavalier, B. Loomis, S. Luthcke, M. McMillan, D. Melini, S. Mernild, Y. Mohajerani, P. Moore, R. Mottram, J. Mouginot, G. Moyano, A. Muir, T. Nagler, G. Nield, J. Nilsson, B. Noël, I. Otosaka, M. E. Pattle, W. R. Peltier, N. Pie, R. Rietbroek, H. Rott, L. Sandberg Sørensen, I. Sasgen, H. Save, B. Scheuchl, E. Schrama, L. Schröder, K. W. Seo, S. B. Simonsen, T. Slater, G. Spada, T. Sutterley, M. Talpe, L. Tarasov, W. J. van de Berg, W. van der Wal, M. van Wessem, B. D. Vishwakarma, D. Wiese, D. Wilton, T. Wagner, B. Wouters, J. Wuite, Mass balance of the Greenland Ice Sheet from 1992 to 2018. Nature 579, 233–239 (2020)."
     },
     {
       "type": "Reference",
@@ -519,14 +472,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "J. G. Canadell P. M. S. Monteiro M. H. Costa L. C. da Cunha P. M. Cox A. V. Eliseev S. Henson M. Ishii S. Jaccard C. Koven A. Lohila P. K. Patra S. Piao J. Rogelj S. Syampungani S. Zaehle K. Zickfeld “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
-          }
-        }
-      ]
+      "text": "J. G. Canadell P. M. S. Monteiro M. H. Costa L. C. da Cunha P. M. Cox A. V. Eliseev S. Henson M. Ishii S. Jaccard C. Koven A. Lohila P. K. Patra S. Piao J. Rogelj S. Syampungani S. Zaehle K. Zickfeld “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
     },
     {
       "type": "Reference",
@@ -554,14 +500,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "R. Hock G. Rasul C. Adler B. Cáceres S. Gruber Y. Hirabayashi M. Jackson A. Kääb S. Kang S. Kutuzov A. Milner U. Molau S. Morin B. Orlove H. I. Steltzer “IPCC Special Report on the Ocean and Cryosphere in a Changing Climate” H.-O. Pörtner D. C. Roberts V. Masson-Delmotte P. Zhai M. Tignor E. Poloczanska K. Mintenbeck A. Alegría M. Nicolai A. Okem J. Petzold B. Rama N. M. Weyer Eds. (Cambridge Univ. Press 2019) pp. 131–202."
-          }
-        }
-      ]
+      "text": "R. Hock G. Rasul C. Adler B. Cáceres S. Gruber Y. Hirabayashi M. Jackson A. Kääb S. Kang S. Kutuzov A. Milner U. Molau S. Morin B. Orlove H. I. Steltzer “IPCC Special Report on the Ocean and Cryosphere in a Changing Climate” H.-O. Pörtner D. C. Roberts V. Masson-Delmotte P. Zhai M. Tignor E. Poloczanska K. Mintenbeck A. Alegría M. Nicolai A. Okem J. Petzold B. Rama N. M. Weyer Eds. (Cambridge Univ. Press 2019) pp. 131–202."
     },
     {
       "type": "Reference",
@@ -589,14 +528,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "H. Douville K. Raghavan J. Renwick R. P. Allan P. A. Arias M. Barlow R. Cerezo-Mota A. Cherchi T. Y. Gan J. Gergis D. Jiang A. Khan W. P. Mba D. Rosenfeld J. Tierney O. Zolina “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021) p. 73."
-          }
-        }
-      ]
+      "text": "H. Douville K. Raghavan J. Renwick R. P. Allan P. A. Arias M. Barlow R. Cerezo-Mota A. Cherchi T. Y. Gan J. Gergis D. Jiang A. Khan W. P. Mba D. Rosenfeld J. Tierney O. Zolina “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021) p. 73."
     },
     {
       "type": "Reference",
@@ -616,14 +548,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Science Panel for the Amazon (SPA) “Executive Summary of the Amazon Assessment Report 2021” C. Nobre A. Encalada E. Anderson F.H. Roca Alcazar M. Bustamante C. Mena M. Peña-Claros G. Poveda J.P. Rodriguez S. Saleska S. Trumbore A.L. Val L. Villa Nova R. Abramovay A. Alencar A.C.R. Alzza D. Armenteras P. Artaxo S. Athayde H.T. Barretto Filho J. Barlow E. Berenguer F. Bortolotto F.A. Costa M.H. Costa N. Cuvi P.M. Fearnside J. Ferreira B.M. Flores S. Frieri L.V. Gatti J.M. Guayasamin S. Hecht M. Hirota C. Hoorn C. Josse D.M. Lapola C. Larrea D.M. Larrea-Alcazar Z. Lehm Ardaya Y. Malhi J.A. Marengo M.R. Moraes P. Moutinho M.R. Murmis E.G. Neves B. Paez L. Painter A. Ramos M.C. Rosero-Peña M. Schmink P. Sist H. ter Steege P. Val H. van der Voort M. Varese Zapata-Ríos Eds. (United Nations Sustainable Development Solutions Network 2021); https://www.theamazonwewant.org/wp-content/uploads/2021/09/SPA-Executive-Summary-11Mb.pdf."
-          }
-        }
-      ]
+      "text": "Science Panel for the Amazon (SPA) “Executive Summary of the Amazon Assessment Report 2021” C. Nobre A. Encalada E. Anderson F.H. Roca Alcazar M. Bustamante C. Mena M. Peña-Claros G. Poveda J.P. Rodriguez S. Saleska S. Trumbore A.L. Val L. Villa Nova R. Abramovay A. Alencar A.C.R. Alzza D. Armenteras P. Artaxo S. Athayde H.T. Barretto Filho J. Barlow E. Berenguer F. Bortolotto F.A. Costa M.H. Costa N. Cuvi P.M. Fearnside J. Ferreira B.M. Flores S. Frieri L.V. Gatti J.M. Guayasamin S. Hecht M. Hirota C. Hoorn C. Josse D.M. Lapola C. Larrea D.M. Larrea-Alcazar Z. Lehm Ardaya Y. Malhi J.A. Marengo M.R. Moraes P. Moutinho M.R. Murmis E.G. Neves B. Paez L. Painter A. Ramos M.C. Rosero-Peña M. Schmink P. Sist H. ter Steege P. Val H. van der Voort M. Varese Zapata-Ríos Eds. (United Nations Sustainable Development Solutions Network 2021); https://www.theamazonwewant.org/wp-content/uploads/2021/09/SPA-Executive-Summary-11Mb.pdf."
     },
     {
       "type": "Reference",
@@ -683,14 +608,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "O. Hoegh-Guldberg D. Jacob M. Taylor M. Bindi S. Brown I. Camilloni A. Diedhiou R. Djalante K. L. Ebi F. Engelbrecht J. Guiot Y. Hijioka S. Mehrotra A. Payne S. I. Seneviratne A. Thomas R. Warren G. Zhou “Impacts of 1.5°C Global Warming on Natural and Human Systems. In: Global Warming of 1.5°C. An IPCC Special Report on the impacts of global warming of 1.5°C above pre-industrial levels and related global greenhouse gas emission pathways in the context of strengthening the global response to the threat of climate change sustainable development and efforts to eradicate poverty.” V. Masson-Delmotte P. Zhai H.-O. Pörtner D. Roberts J. Skea P. R. Shukla A. Pirani W. Moufouma-Okia C. Péan R. Pidcock S. Connors J. B. R. Matthews Y. Chen X. Zhou M. I. Gomis E. Lonnoy T. Maycock M. Tignor T. Waterfield Eds. (2018) pp. 175–311."
-          }
-        }
-      ]
+      "text": "O. Hoegh-Guldberg D. Jacob M. Taylor M. Bindi S. Brown I. Camilloni A. Diedhiou R. Djalante K. L. Ebi F. Engelbrecht J. Guiot Y. Hijioka S. Mehrotra A. Payne S. I. Seneviratne A. Thomas R. Warren G. Zhou “Impacts of 1.5°C Global Warming on Natural and Human Systems. In: Global Warming of 1.5°C. An IPCC Special Report on the impacts of global warming of 1.5°C above pre-industrial levels and related global greenhouse gas emission pathways in the context of strengthening the global response to the threat of climate change sustainable development and efforts to eradicate poverty.” V. Masson-Delmotte P. Zhai H.-O. Pörtner D. Roberts J. Skea P. R. Shukla A. Pirani W. Moufouma-Okia C. Péan R. Pidcock S. Connors J. B. R. Matthews Y. Chen X. Zhou M. I. Gomis E. Lonnoy T. Maycock M. Tignor T. Waterfield Eds. (2018) pp. 175–311."
     },
     {
       "type": "Reference",
@@ -723,14 +641,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.1126/science.abj0359",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "M. Rietkerk R. Bastiaansen S. Banerjee J. Van De Koppel Evasion of tipping in complex systems through spatial pattern formation. \n374 abj0359 (2021). 10.1038/s41561-019-0310-1 abj0359"
-          }
-        }
-      ]
+      "text": "M. Rietkerk R. Bastiaansen S. Banerjee J. Van De Koppel Evasion of tipping in complex systems through spatial pattern formation. \n374 abj0359 (2021). 10.1038/s41561-019-0310-1 abj0359"
     },
     {
       "type": "Reference",
@@ -742,14 +653,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "M. D. Mastrandrea C. B. Field T. F. Stocker O. Edenhofer K. L. Ebi D. J. Frame H. Held E. Kriegler K. J. Mach P. R. Matschoss G.-K. Plattner G. W. Yohe F. W. Zwiers “Guidance Note for Lead Authors of the IPCC Fifth Assessment Report on Consistent Treatment of Uncertainties.” (IPCC 2010); www.ipcc.ch/site/assets/uploads/2017/08/AR5_Uncertainty_Guidance_Note.pdf."
-          }
-        }
-      ]
+      "text": "M. D. Mastrandrea C. B. Field T. F. Stocker O. Edenhofer K. L. Ebi D. J. Frame H. Held E. Kriegler K. J. Mach P. R. Matschoss G.-K. Plattner G. W. Yohe F. W. Zwiers “Guidance Note for Lead Authors of the IPCC Fifth Assessment Report on Consistent Treatment of Uncertainties.” (IPCC 2010); www.ipcc.ch/site/assets/uploads/2017/08/AR5_Uncertainty_Guidance_Note.pdf."
     },
     {
       "type": "Reference",
@@ -881,14 +785,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "E. C. Pettit C. Wild K. Alley A. Muto M. Truffer D. Benn in AGU Fall Meeting (New Orleans USA 2021)."
-          }
-        }
-      ]
+      "text": "E. C. Pettit C. Wild K. Alley A. Muto M. Truffer D. Benn in AGU Fall Meeting (New Orleans USA 2021)."
     },
     {
       "type": "Reference",
@@ -900,14 +797,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "J. N. Bassis in APS March Meeting 2022 (Chicago 2022)."
-          }
-        }
-      ]
+      "text": "J. N. Bassis in APS March Meeting 2022 (Chicago 2022)."
     },
     {
       "type": "Reference",
@@ -920,14 +810,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.5194/tc-2022-105-supplement",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "R. Reese J. Garbe E. A. Hill B. Urruty K. A. Naughten O. Gagliardini G. Durand F. Gillet-chaulet D. Chandler P. M. Langebroek R. Winkelmann The stability of present-day Antarctic grounding lines — Part B: Possible commitment of regional collapse under current climate. The Cryosphere Discuss . tc-2022-105 [Preprint] (2022); .10.5194/tc-2022-105"
-          }
-        }
-      ]
+      "text": "R. Reese J. Garbe E. A. Hill B. Urruty K. A. Naughten O. Gagliardini G. Durand F. Gillet-chaulet D. Chandler P. M. Langebroek R. Winkelmann The stability of present-day Antarctic grounding lines — Part B: Possible commitment of regional collapse under current climate. The Cryosphere Discuss . tc-2022-105 [Preprint] (2022); .10.5194/tc-2022-105"
     },
     {
       "type": "Reference",
@@ -984,14 +867,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.1111/j.1600-0889.2007.00336.x",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "D. V. Khvorostyanov P. Ciais G. Krinner S. A. Zimov C. Corradi G. Guggenberger Vulnerability of permafrost carbon to global warming. Part II: Sensitivity of permafrost carbon stock to global warming. Tellus B: Chem. Phys. Meteorol . 60 265–275 (2008) .10.5194/bg-12-3469-2015"
-          }
-        }
-      ]
+      "text": "D. V. Khvorostyanov P. Ciais G. Krinner S. A. Zimov C. Corradi G. Guggenberger Vulnerability of permafrost carbon to global warming. Part II: Sensitivity of permafrost carbon stock to global warming. Tellus B: Chem. Phys. Meteorol . 60 265–275 (2008) .10.5194/bg-12-3469-2015"
     },
     {
       "type": "Reference",
@@ -999,14 +875,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "FAO ITPS Recarbonizing global soils – A technical manual of recommended management practices (FAO 2021); https://www.fao.org/documents/card/en/c/cb6378en"
-          }
-        }
-      ]
+      "text": "FAO ITPS Recarbonizing global soils – A technical manual of recommended management practices (FAO 2021); https://www.fao.org/documents/card/en/c/cb6378en"
     },
     {
       "type": "Reference",
@@ -1019,14 +888,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.1111/j.1600-0889.2007.00333.x",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "D. V. Khvorostyanov G. Krinner P. Ciais M. Heimann S. A. Zimov Vulnerability of permafrost carbon to global warming. Part I: Model description and role of heat generated by organic matter decomposition. Tellus B: Chem. Phys. Meteorol . . \n60 250–\n264 (2008). 10.1038/nclimate1955"
-          }
-        }
-      ]
+      "text": "D. V. Khvorostyanov G. Krinner P. Ciais M. Heimann S. A. Zimov Vulnerability of permafrost carbon to global warming. Part I: Model description and role of heat generated by organic matter decomposition. Tellus B: Chem. Phys. Meteorol . . \n60 250–\n264 (2008). 10.1038/nclimate1955"
     },
     {
       "type": "Reference",
@@ -1091,17 +953,11 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.1098/rsta.2014.0423",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "C. D. Koven E. A. G. Schuur C. Schädel T. J. Bohn E. J. Burke G. Chen X. Chen P. Ciais G. Grosse J. W. Harden D. J. Hayes G. Hugelius E. E. Jafarov G. Krinner P. Kuhry D. M. Lawrence A. H. MacDougall S. S. Marchenko A. D. McGuire S. M. Natali D. J. Nicolsky D. Olefeldt S. Peng V. E. Romanovsky K. M. Schaefer J. Strauss C. C. Treat M. Turetsky A simplified data-constrained approach to estimate the permafrost carbon-climate feedback. Philos. Trans. R. Soc. A 373 20140423 (2015). 26438276 20140423"
-          }
-        }
-      ]
+      "text": "C. D. Koven E. A. G. Schuur C. Schädel T. J. Bohn E. J. Burke G. Chen X. Chen P. Ciais G. Grosse J. W. Harden D. J. Hayes G. Hugelius E. E. Jafarov G. Krinner P. Kuhry D. M. Lawrence A. H. MacDougall S. S. Marchenko A. D. McGuire S. M. Natali D. J. Nicolsky D. Olefeldt S. Peng V. E. Romanovsky K. M. Schaefer J. Strauss C. C. Treat M. Turetsky A simplified data-constrained approach to estimate the permafrost carbon-climate feedback. Philos. Trans. R. Soc. A 373 20140423 (2015). 26438276 20140423"
     },
     {
       "type": "Reference",
+      "workType": "Article",
       "doi": "10.1038/s41598-022-13568-5",
       "authors": [
         {
@@ -1134,7 +990,8 @@ expression: node
         ],
         "volumeNumber": "12"
       },
-      "pageStart": "9371"
+      "pageStart": "9371",
+      "text": "K. Isaksen, Ø. Nordli, B. Ivanov, M. A. Ø. Køltzow, S. Aaboe, H. M. Gjelten, A. Mezghani, S. Eastwood, E. Førland, R. E. Benestad, I. Hanssen-Bauer, R. Brækkan, P. Sviashchennikov, V. Demin, A. Revina, T. Karandasheva, Exceptional warming over the Barents area. Sci. Rep. 12, 9371 (2022). 35705593"
     },
     {
       "type": "Reference",
@@ -1295,14 +1152,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.5194/egusphere-2022-82",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "I. Parry P. Ritchie P. Cox Evidence of Amazon rainforest dieback in CMIP6 models. EGUsphere egusphere-2022-82 [Preprint] (2022); ."
-          }
-        }
-      ]
+      "text": "I. Parry P. Ritchie P. Cox Evidence of Amazon rainforest dieback in CMIP6 models. EGUsphere egusphere-2022-82 [Preprint] (2022); ."
     },
     {
       "type": "Reference",
@@ -1319,14 +1169,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.1017/CBO9780511921155.009",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "R. A. Betts N. W. Arnell P. M. Boorman S. E. Cornell J. I. House N. R. Kaye M. P. McCarthy D. J. McNeall M. G. Sanderson A. J. Wiltshire in Understanding the Earth System S. Cornell I. C. Prentice J. House C. Downy Eds. (Cambridge Univ. Press 2012; pp. 160–201.10.1017/CBO9780511921155.009"
-          }
-        }
-      ]
+      "text": "R. A. Betts N. W. Arnell P. M. Boorman S. E. Cornell J. I. House N. R. Kaye M. P. McCarthy D. J. McNeall M. G. Sanderson A. J. Wiltshire in Understanding the Earth System S. Cornell I. C. Prentice J. House C. Downy Eds. (Cambridge Univ. Press 2012; pp. 160–201.10.1017/CBO9780511921155.009"
     },
     {
       "type": "Reference",
@@ -1335,14 +1178,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.1098/rsta.2010.0238",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "P. Zelazowski Y. Malhi C. Huntingford S. Sitch J. B. Fisher Changes in the potential distribution of humid tropical forests on a warmer planet. Philos. Trans. R. Soc. A 369 137–160 (2011). 21115517"
-          }
-        }
-      ]
+      "text": "P. Zelazowski Y. Malhi C. Huntingford S. Sitch J. B. Fisher Changes in the potential distribution of humid tropical forests on a warmer planet. Philos. Trans. R. Soc. A 369 137–160 (2011). 21115517"
     },
     {
       "type": "Reference",
@@ -1351,14 +1187,7 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.1111/gcb.15871",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "C. Lyon E. E. Saupe C. J. Smith D. J. Hill A. P. Beckerman L. C. Stringer R. Marchant J. McKay A. Burke P. O’Higgins A. M. Dunhill B. J. Allen J. Riel-Salvatore T. Aze Climate change research and action must look beyond 2100. Glob. Chang. Biol . 28 349–361 (2021). 10.1111/gcb.1373328449261"
-          }
-        }
-      ]
+      "text": "C. Lyon E. E. Saupe C. J. Smith D. J. Hill A. P. Beckerman L. C. Stringer R. Marchant J. McKay A. Burke P. O’Higgins A. M. Dunhill B. J. Allen J. Riel-Salvatore T. Aze Climate change research and action must look beyond 2100. Glob. Chang. Biol . 28 349–361 (2021). 10.1111/gcb.1373328449261"
     },
     {
       "type": "Reference",
@@ -1374,14 +1203,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Science Panel for the Amazon (SPA) “Amazon Assessment Report 2021” Nobre C Encalada A Anderson E Roca Alcazar FH Bustamante M Mena C Peña-Claros M Poveda G Rodriguez JP Saleska S Trumbore S Val AL Villa Nova L Abramovay R Alencar A Rodríguez Alzza C Armenteras D Artaxo P Athayde S Barretto Filho HT Barlow J Berenguer E Bortolotto F Costa FA Costa MH Cuvi N Fearnside PM Ferreira J Flores BM Frieri S Gatti LV Guayasamin JM Hecht S Hirota M Hoorn C Josse C Lapola DM Larrea C Larrea-Alcazar DM Lehm Ardaya Z Malhi Y Marengo JA Melack J Moraes R M Moutinho P Murmis MR Neves EG Paez B Painter L Ramos A Rosero-Peña MC Schmink M Sist P ter Steege H Val P van der Voort H Varese M Zapata-Ríos G Eds. (United Nations Sustainable Development Solutions Network 2021);"
-          }
-        }
-      ]
+      "text": "Science Panel for the Amazon (SPA) “Amazon Assessment Report 2021” Nobre C Encalada A Anderson E Roca Alcazar FH Bustamante M Mena C Peña-Claros M Poveda G Rodriguez JP Saleska S Trumbore S Val AL Villa Nova L Abramovay R Alencar A Rodríguez Alzza C Armenteras D Artaxo P Athayde S Barretto Filho HT Barlow J Berenguer E Bortolotto F Costa FA Costa MH Cuvi N Fearnside PM Ferreira J Flores BM Frieri S Gatti LV Guayasamin JM Hecht S Hirota M Hoorn C Josse C Lapola DM Larrea C Larrea-Alcazar DM Lehm Ardaya Z Malhi Y Marengo JA Melack J Moraes R M Moutinho P Murmis MR Neves EG Paez B Painter L Ramos A Rosero-Peña MC Schmink M Sist P ter Steege H Val P van der Voort H Varese M Zapata-Ríos G Eds. (United Nations Sustainable Development Solutions Network 2021);"
     },
     {
       "type": "Reference",
@@ -1478,26 +1300,12 @@ expression: node
     {
       "type": "Reference",
       "doi": "10.5194/esd-12-367-2021",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "A. Katzenberger J. Schewe J. Pongratz A. Levermann Robust increase of Indian monsoon rainfall and its variability under future warming in CMIP-6 models. Earth Syst. Dyn . 12 367–386 (2021). 10.1073/pnas.160362611327091959"
-          }
-        }
-      ]
+      "text": "A. Katzenberger J. Schewe J. Pongratz A. Levermann Robust increase of Indian monsoon rainfall and its variability under future warming in CMIP-6 models. Earth Syst. Dyn . 12 367–386 (2021). 10.1073/pnas.160362611327091959"
     },
     {
       "type": "Reference",
       "doi": "10.1098/rsta.2016.0318",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "A. J. Watson T. M. Lenton B. J. W. Mills Ocean deoxygenation the global phosphorus cycle and the possibility of human-caused large-scale ocean anoxia. Philos. Trans. R. Soc. A 375 20160318 (2017). 28784709 20160318"
-          }
-        }
-      ]
+      "text": "A. J. Watson T. M. Lenton B. J. W. Mills Ocean deoxygenation the global phosphorus cycle and the possibility of human-caused large-scale ocean anoxia. Philos. Trans. R. Soc. A 375 20160318 (2017). 28784709 20160318"
     },
     {
       "type": "Reference",
@@ -1621,25 +1429,11 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "B. Weatherhead A. Tanskanen A. Stevermer S. B. Andersen A. Arola J. Austin G. Bernhard H. Browman V. Fioletov V. Grewe J. Herman W. Josefsson A. Kylling E. Kyrö A. Lindfors D. Shindell P. Taalas D. Tarasick in “Arctic Climate Impact Assessment Report” C. Symon L. Arris B. Heal Eds. (Cambridge Univ. Press 2005; http://www.acia.uaf.edu/pages/scientific.html) pp. 151–182."
-          }
-        }
-      ]
+      "text": "B. Weatherhead A. Tanskanen A. Stevermer S. B. Andersen A. Arola J. Austin G. Bernhard H. Browman V. Fioletov V. Grewe J. Herman W. Josefsson A. Kylling E. Kyrö A. Lindfors D. Shindell P. Taalas D. Tarasick in “Arctic Climate Impact Assessment Report” C. Symon L. Arris B. Heal Eds. (Cambridge Univ. Press 2005; http://www.acia.uaf.edu/pages/scientific.html) pp. 151–182."
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "V. Eyring N. P. Gillett K. M. A. Rao R. Barimalala M. Barreiro Parrillo N. Bellouin C. Cassou P. J. Durack Y. Kosaka S. McGregor S. Min O. Morgenstern Y. Sun “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021); https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_Chapter_03.pdf"
-          }
-        }
-      ]
+      "text": "V. Eyring N. P. Gillett K. M. A. Rao R. Barimalala M. Barreiro Parrillo N. Bellouin C. Cassou P. J. Durack Y. Kosaka S. McGregor S. Min O. Morgenstern Y. Sun “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021); https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_Chapter_03.pdf"
     },
     {
       "type": "Reference",
@@ -1651,14 +1445,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "F. J. Doblas-Reyes A. A. Sörensson M. Almazroui A. Dosio W. J. Gutowski R. Haarsma R. Hamdi B. Hewitson W.-T. Kwon B. L. Lamptey D. Maraun T. S. Stephenson I. Takayabu L. Terray A. Turner Z. Zuo “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2020)."
-          }
-        }
-      ]
+      "text": "F. J. Doblas-Reyes A. A. Sörensson M. Almazroui A. Dosio W. J. Gutowski R. Haarsma R. Hamdi B. Hewitson W.-T. Kwon B. L. Lamptey D. Maraun T. S. Stephenson I. Takayabu L. Terray A. Turner Z. Zuo “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2020)."
     },
     {
       "type": "Reference",
@@ -1714,14 +1501,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "W. S. Broecker T.-H. Peng Lamont-Doherty Geological Observatory Tracers in the sea (Eldigio Press 1982)."
-          }
-        }
-      ]
+      "text": "W. S. Broecker T.-H. Peng Lamont-Doherty Geological Observatory Tracers in the sea (Eldigio Press 1982)."
     },
     {
       "type": "Reference",
