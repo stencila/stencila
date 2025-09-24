@@ -26,7 +26,11 @@ expression: node
       ],
       "givenNames": [
         "Hariprasath"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5085186219"
+      ],
+      "name": "Hariprasath Manoharan"
     },
     {
       "type": "Person",
@@ -35,7 +39,10 @@ expression: node
         {
           "type": "Organization",
           "name": "University of Sheffield",
-          "ror": "05krs5044"
+          "ror": "05krs5044",
+          "identifiers": [
+            "https://openalex.org/I91136226"
+          ]
         }
       ],
       "familyNames": [
@@ -43,7 +50,11 @@ expression: node
       ],
       "givenNames": [
         "Yuvaraja"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5084215524"
+      ],
+      "name": "Yuvaraja Teekaraman"
     },
     {
       "type": "Person",
@@ -52,7 +63,11 @@ expression: node
       ],
       "givenNames": [
         "Ramya"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5008249092"
+      ],
+      "name": "Ramya Kuppusamy"
     },
     {
       "type": "Person",
@@ -61,7 +76,10 @@ expression: node
         {
           "type": "Organization",
           "name": "Jimma University",
-          "ror": "05eer8g02"
+          "ror": "05eer8g02",
+          "identifiers": [
+            "https://openalex.org/I1443707"
+          ]
         }
       ],
       "familyNames": [
@@ -69,7 +87,11 @@ expression: node
       ],
       "givenNames": [
         "Arun"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5066119714"
+      ],
+      "name": "Arun Radhakrishnan"
     }
   ],
   "datePublished": {

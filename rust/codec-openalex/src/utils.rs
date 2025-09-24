@@ -1,13 +1,4 @@
-use indexmap::IndexMap;
-use stencila_codec::{
-    eyre::Result,
-    stencila_schema::{Primitive, PropertyValue, PropertyValueOrString},
-};
-
-/// Strip the OpenAlex ID prefix
-pub fn strip_openalex_prefix(id: &str) -> String {
-    id.trim_start_matches("https://openalex.org/").into()
-}
+use stencila_codec::eyre::Result;
 
 /// Strip DOI URL prefix to get just the identifier
 pub fn strip_doi_prefix(doi: Option<String>) -> Option<String> {
@@ -83,36 +74,4 @@ pub fn generate_pseudo_ror(openalex_id: &str, prefix: char) -> String {
         .trim_start_matches("https://openalex.org/")
         .trim_start_matches('I');
     format!("{prefix}{digits}")
-}
-
-/// Convert OpenAlex ids to Stencila identifiers
-pub fn convert_ids_to_identifiers(
-    ids: &IndexMap<String, String>,
-) -> Option<Vec<PropertyValueOrString>> {
-    if ids.is_empty() {
-        return None;
-    }
-
-    let identifiers: Vec<PropertyValueOrString> = ids
-        .iter()
-        .map(|(property_id, value)| {
-            // If the value is a URL, use it directly as a string identifier
-            if value.starts_with("http://") || value.starts_with("https://") {
-                PropertyValueOrString::String(value.clone())
-            } else {
-                // Otherwise create a PropertyValue with property_id and value
-                PropertyValueOrString::PropertyValue(PropertyValue {
-                    property_id: Some(property_id.clone()),
-                    value: Primitive::String(value.clone()),
-                    ..Default::default()
-                })
-            }
-        })
-        .collect();
-
-    if identifiers.is_empty() {
-        None
-    } else {
-        Some(identifiers)
-    }
 }

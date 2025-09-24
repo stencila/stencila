@@ -1,71 +1,79 @@
 use serde::Deserialize;
 
-use indexmap::IndexMap;
 use stencila_codec::stencila_schema::{ImageObject, Node, Organization, OrganizationOptions};
 
-use crate::utils::{convert_ids_to_identifiers, strip_ror_prefix};
+use crate::{
+    ids::{Ids, id_to_identifiers, ids_get_maybe, ids_to_identifiers},
+    utils::{get_or_generate_ror, strip_ror_prefix},
+};
 
 /// An OpenAlex `Institution` object
 ///
 /// See https://docs.openalex.org/api-entities/institutions/institution-object
+///
+/// Fields not currently used are commented out to reduce bloat and avoid risk
+/// or deserialization errors.
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Institution {
     pub id: String,
     pub ror: Option<String>,
     pub display_name: Option<String>,
-    pub country_code: Option<String>,
-    pub r#type: Option<String>,
+    //pub country_code: Option<String>,
+    //pub r#type: Option<String>,
     pub homepage_url: Option<String>,
     pub image_url: Option<String>,
-    pub image_thumbnail_url: Option<String>,
+    //pub image_thumbnail_url: Option<String>,
     pub display_name_acronyms: Option<Vec<String>>,
     pub display_name_alternatives: Option<Vec<String>>,
-    pub works_count: Option<i64>,
-    pub cited_by_count: Option<i64>,
-    pub summary_stats: Option<SummaryStats>,
-    pub ids: Option<ExternalIds>,
-    pub geo: Option<Geo>,
-    pub international: Option<International>,
-    pub associated_institutions: Option<Vec<AssociatedInstitution>>,
-    pub counts_by_year: Option<Vec<CountsByYear>>,
-    pub works_api_url: Option<String>,
-    pub updated_date: Option<String>,
-    pub created_date: Option<String>,
-    pub lineage: Option<Vec<String>>,
-    pub roles: Option<Vec<Role>>,
-    pub x_concepts: Option<Vec<Concept>>,
+    //pub works_count: Option<i64>,
+    //pub cited_by_count: Option<i64>,
+    //pub summary_stats: Option<SummaryStats>,
+    pub ids: Option<Ids>,
+    //pub geo: Option<Geo>,
+    //pub international: Option<International>,
+    //pub associated_institutions: Option<Vec<AssociatedInstitution>>,
+    //pub counts_by_year: Option<Vec<CountsByYear>>,
+    //pub works_api_url: Option<String>,
+    //pub updated_date: Option<String>,
+    //pub created_date: Option<String>,
+    //pub lineage: Option<Vec<String>>,
+    //pub roles: Option<Vec<Role>>,
+    //pub x_concepts: Option<Vec<Concept>>,
 }
 
 impl Institution {
     /// Get the ROR of an institution, or generate a pseudo ROR
     pub fn ror(&self, prefix: char) -> String {
-        crate::utils::get_or_generate_ror(&self.ror, &self.id, prefix)
+        get_or_generate_ror(&self.ror, &self.id, prefix)
     }
 }
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct SummaryStats {
-    #[serde(rename = "2yr_mean_citedness")]
-    pub impact_factor: Option<f64>,
-    pub h_index: Option<i32>,
-    pub i10_index: Option<i32>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct ExternalIds {
-    pub openalex: Option<String>,
+pub struct DehydratedInstitution {
+    pub id: Option<String>,
     pub ror: Option<String>,
-    pub grid: Option<String>,
-    pub wikipedia: Option<String>,
-    pub wikidata: Option<String>,
-    pub mag: Option<String>,
+    pub display_name: Option<String>,
+    //pub country_code: Option<String>,
+    //pub r#type: Option<String>,
+    //pub lineage: Option<Vec<String>>,
+}
+
+impl DehydratedInstitution {
+    /// Get the ROR of an institution, or generate a pseudo ROR
+    pub fn ror(&self, prefix: char) -> String {
+        if let Some(id) = &self.id {
+            get_or_generate_ror(&self.ror, id, prefix)
+        } else {
+            format!("{prefix}unknown")
+        }
+    }
 }
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub struct Geo {
     pub city: Option<String>,
     pub geonames_city_id: Option<String>,
@@ -78,12 +86,14 @@ pub struct Geo {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub struct International {
     pub display_name: Option<serde_json::Value>,
 }
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub struct AssociatedInstitution {
     pub id: Option<String>,
     pub display_name: Option<String>,
@@ -93,41 +103,17 @@ pub struct AssociatedInstitution {
     pub relationship: Option<String>,
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct CountsByYear {
-    pub year: Option<i32>,
-    pub works_count: Option<i64>,
-    pub cited_by_count: Option<i64>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct Role {
-    pub role: Option<String>,
-    pub id: Option<String>,
-    pub works_count: Option<i64>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct Concept {
-    pub id: Option<String>,
-    pub display_name: Option<String>,
-    pub score: Option<f64>,
-}
-
 impl From<Institution> for Organization {
     fn from(institution: Institution) -> Self {
-        // Get ROR
         let ror = strip_ror_prefix(
-            institution
-                .ror
-                .clone()
-                .or(institution.ids.as_ref().and_then(|ids| ids.ror.clone())),
+            institution.ror.clone().or(institution
+                .ids
+                .as_ref()
+                .and_then(|ids| ids_get_maybe(ids, "ror"))),
         );
 
-        // Map display_name_acronyms and display_name_alternatives to alternate_names
+        let name = institution.display_name;
+
         let mut alternate_names = institution.display_name_alternatives.unwrap_or_default();
         if let Some(acronyms) = institution.display_name_acronyms {
             for acronym in acronyms {
@@ -138,45 +124,20 @@ impl From<Institution> for Organization {
         }
         let alternate_names = (!alternate_names.is_empty()).then_some(alternate_names);
 
-        // Map image_url to organization options images
-        let images = institution.image_url.map(|image_url| {
-            vec![ImageObject {
-                content_url: image_url,
-                ..Default::default()
-            }]
-        });
+        let url = institution.homepage_url;
 
-        // Map ids to identifiers
-        let identifiers = institution.ids.as_ref().and_then(|ids| {
-            let mut id_map = IndexMap::new();
-            if let Some(openalex) = &ids.openalex {
-                id_map.insert("openalex".to_string(), openalex.clone());
-            }
-            if let Some(ror) = &ids.ror {
-                id_map.insert("ror".to_string(), ror.clone());
-            }
-            if let Some(grid) = &ids.grid {
-                id_map.insert("grid".to_string(), grid.clone());
-            }
-            if let Some(wikipedia) = &ids.wikipedia {
-                id_map.insert("wikipedia".to_string(), wikipedia.clone());
-            }
-            if let Some(wikidata) = &ids.wikidata {
-                id_map.insert("wikidata".to_string(), wikidata.clone());
-            }
-            if let Some(mag) = &ids.mag {
-                id_map.insert("mag".to_string(), mag.clone());
-            }
-            convert_ids_to_identifiers(&id_map)
-        });
+        let images = institution
+            .image_url
+            .map(|image_url| vec![ImageObject::new(image_url)]);
+
+        let identifiers = institution.ids.and_then(ids_to_identifiers);
 
         Organization {
-            id: Some(institution.id),
-            name: institution.display_name,
+            name,
             ror,
             options: Box::new(OrganizationOptions {
-                url: institution.homepage_url,
                 alternate_names,
+                url,
                 images,
                 identifiers,
                 ..Default::default()
@@ -189,5 +150,27 @@ impl From<Institution> for Organization {
 impl From<Institution> for Node {
     fn from(inst: Institution) -> Self {
         Node::Organization(inst.into())
+    }
+}
+
+impl From<DehydratedInstitution> for Organization {
+    fn from(institution: DehydratedInstitution) -> Self {
+        let ror = strip_ror_prefix(institution.ror);
+
+        let name = institution.display_name;
+
+        let identifiers = institution
+            .id
+            .and_then(|id| id_to_identifiers("openalex".into(), id.into()));
+
+        Self {
+            ror,
+            name,
+            options: Box::new(OrganizationOptions {
+                identifiers,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
     }
 }

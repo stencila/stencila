@@ -25,8 +25,14 @@ expression: node
         {
           "type": "Organization",
           "name": "Washington University in St. Louis",
-          "ror": "01yc7t268"
+          "ror": "01yc7t268",
+          "identifiers": [
+            "https://openalex.org/I204465549"
+          ]
         }
+      ],
+      "identifiers": [
+        "https://openalex.org/A5110127684"
       ],
       "name": "OliverH. Lowry"
     },
@@ -36,8 +42,14 @@ expression: node
         {
           "type": "Organization",
           "name": "Washington University in St. Louis",
-          "ror": "01yc7t268"
+          "ror": "01yc7t268",
+          "identifiers": [
+            "https://openalex.org/I204465549"
+          ]
         }
+      ],
+      "identifiers": [
+        "https://openalex.org/A5032482932"
       ],
       "name": "NiraJ. Rosebrough"
     },
@@ -47,12 +59,19 @@ expression: node
         {
           "type": "Organization",
           "name": "Washington University in St. Louis",
-          "ror": "01yc7t268"
+          "ror": "01yc7t268",
+          "identifiers": [
+            "https://openalex.org/I204465549"
+          ]
         }
       ],
       "familyNames": [
         "Farr"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5004071084"
+      ],
+      "name": "A. Farr"
     },
     {
       "type": "Person",
@@ -60,8 +79,14 @@ expression: node
         {
           "type": "Organization",
           "name": "Washington University in St. Louis",
-          "ror": "01yc7t268"
+          "ror": "01yc7t268",
+          "identifiers": [
+            "https://openalex.org/I204465549"
+          ]
         }
+      ],
+      "identifiers": [
+        "https://openalex.org/A5109894513"
       ],
       "name": "RoseJ. Randall"
     }

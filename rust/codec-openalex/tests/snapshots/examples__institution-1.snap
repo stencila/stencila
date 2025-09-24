@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Organization",
-  "id": "https://openalex.org/I4210112410",
   "name": "Universidad Regional del Norte",
   "ror": "021jdc910",
   "alternateNames": [

@@ -14,7 +14,11 @@ expression: node
       ],
       "givenNames": [
         "Allison"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5044863873"
+      ],
+      "name": "Allison Q. Byrne"
     },
     {
       "type": "Person",
@@ -24,7 +28,11 @@ expression: node
       ],
       "givenNames": [
         "Anthony"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5025931738"
+      ],
+      "name": "Anthony W. Waddle"
     },
     {
       "type": "Person",
@@ -34,7 +42,11 @@ expression: node
       ],
       "givenNames": [
         "Veronica"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5017266182"
+      ],
+      "name": "Veronica Saenz"
     },
     {
       "type": "Person",
@@ -44,7 +56,11 @@ expression: node
       ],
       "givenNames": [
         "Michel"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5041883795"
+      ],
+      "name": "Michel E. B. Ohmer"
     },
     {
       "type": "Person",
@@ -53,7 +69,11 @@ expression: node
       ],
       "givenNames": [
         "Jef"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5035664436"
+      ],
+      "name": "Jef R. Jaeger"
     },
     {
       "type": "Person",
@@ -63,7 +83,11 @@ expression: node
       ],
       "givenNames": [
         "Corinne"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5021819956"
+      ],
+      "name": "Corinne L. Richards‐Zawacki"
     },
     {
       "type": "Person",
@@ -73,7 +97,11 @@ expression: node
       ],
       "givenNames": [
         "Jamie"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5079651093"
+      ],
+      "name": "Jamie Voyles"
     },
     {
       "type": "Person",
@@ -84,7 +112,11 @@ expression: node
       "givenNames": [
         "Erica",
         "Bree"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5073659833"
+      ],
+      "name": "Erica Bree Rosenblum"
     }
   ],
   "datePublished": {

@@ -5,7 +5,7 @@ use insta::assert_json_snapshot;
 
 use stencila_codec::{
     Codec,
-    eyre::{OptionExt, Result},
+    eyre::{Context, OptionExt, Result, eyre},
 };
 use stencila_codec_openalex::OpenAlexCodec;
 
@@ -26,7 +26,10 @@ async fn examples() -> Result<()> {
             .and_then(|name| name.strip_suffix(".json").map(String::from))
             .ok_or_eyre("should have .json suffix")?;
 
-        let (node, ..) = OpenAlexCodec.from_path(&path, None).await?;
+        let (node, ..) = OpenAlexCodec
+            .from_path(&path, None)
+            .await
+            .wrap_err_with(|| eyre!("Unable to deserialize {id}.json"))?;
 
         assert_json_snapshot!(id, node, {
             ".commit" => "redacted"

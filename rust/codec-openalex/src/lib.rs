@@ -11,6 +11,7 @@ mod author;
 mod client;
 mod entity;
 mod funder;
+mod ids;
 mod institution;
 mod license;
 mod publisher;

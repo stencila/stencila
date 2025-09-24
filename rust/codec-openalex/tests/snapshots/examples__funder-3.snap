@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Organization",
-  "id": "https://openalex.org/F4320330868",
   "name": "Kerry Group Kuok Foundation",
   "alternateNames": [
     "KGKF",

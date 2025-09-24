@@ -26,7 +26,10 @@ expression: node
         {
           "type": "Organization",
           "name": "Yunnan Agricultural University",
-          "ror": "04dpa3g90"
+          "ror": "04dpa3g90",
+          "identifiers": [
+            "https://openalex.org/I195019228"
+          ]
         }
       ],
       "familyNames": [
@@ -34,7 +37,11 @@ expression: node
       ],
       "givenNames": [
         "Liping"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5114255301"
+      ],
+      "name": "Liping Chen"
     }
   ],
   "datePublished": {

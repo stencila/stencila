@@ -54,12 +54,14 @@ pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
             .as_ref()
             .and_then(|date| date.year())
             .map(|y| y as i32);
-        let works = search_works_title_year(&title, year).await?;
-        let Some(work) = works.first() else {
+
+        let mut works = search_works_title_year(&title, year).await?;
+
+        if works.is_empty() {
             return Ok(());
         };
 
-        (*work).clone()
+        works.swap_remove(0)
     };
 
     // Canonicalize DOI if necessary

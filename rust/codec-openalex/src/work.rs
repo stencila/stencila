@@ -1,63 +1,65 @@
 use std::collections::HashMap;
 
-use indexmap::IndexMap;
 use itertools::Itertools;
 use serde::Deserialize;
 
-use stencila_codec::{
-    eyre::{Result, bail},
-    stencila_schema::{
-        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkType,
-        CreativeWorkVariant, CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node,
-        Organization, OrganizationOptions, Paragraph, Periodical, Person, PropertyValueOrString,
-        PublicationIssue, PublicationVolume, Reference, ReferenceOptions,
-    },
+use stencila_codec::stencila_schema::{
+    Article, ArticleOptions, Author as StencilaAuthor, AuthorRole, AuthorRoleName, Block,
+    CreativeWork, CreativeWorkOptions, CreativeWorkType, CreativeWorkVariant,
+    CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node, Organization, Paragraph,
+    Periodical, Person, PublicationIssue, PublicationVolume, Reference, ReferenceOptions,
 };
 
 use crate::{
+    author::DehydratedAuthor,
+    ids::{Ids, ids_to_identifiers},
+    institution::DehydratedInstitution,
     license::normalize_license,
-    utils::{convert_ids_to_identifiers, strip_doi_prefix, strip_orcid_prefix, strip_ror_prefix},
+    source::DehydratedSource,
+    utils::strip_doi_prefix,
 };
 
 /// An OpenAlex `Work` object
 ///
 /// See https://docs.openalex.org/api-entities/works/work-object
-#[derive(Deserialize, Clone)]
+///
+/// Fields not currently used are commented out to reduce bloat and avoid risk
+/// or deserialization errors.
+#[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Work {
     pub id: String,
+    pub doi: Option<String>,
+    pub ids: Option<Ids>,
     pub display_name: Option<String>,
     pub title: Option<String>,
-    pub doi: Option<String>,
-    pub ids: Option<IndexMap<String, String>>,
     pub publication_date: Option<String>,
     pub publication_year: Option<i32>,
-    pub language: Option<String>,
+    //pub language: Option<String>,
     pub r#type: Option<String>,
-    pub type_crossref: Option<String>,
+    //pub type_crossref: Option<String>,
     pub open_access: Option<OpenAccess>,
     pub authorships: Option<Vec<Authorship>>,
     pub abstract_inverted_index: Option<HashMap<String, Vec<i32>>>,
-    pub cited_by_count: Option<i64>,
+    //pub cited_by_count: Option<i64>,
     pub biblio: Option<Biblio>,
-    pub is_retracted: Option<bool>,
-    pub is_paratext: Option<bool>,
+    //pub is_retracted: Option<bool>,
+    //pub is_paratext: Option<bool>,
     pub primary_location: Option<Location>,
     pub locations: Option<Vec<Location>>,
     pub best_oa_location: Option<Location>,
-    pub sustainable_development_goals: Option<Vec<SustainableDevelopmentGoal>>,
-    pub grants: Option<Vec<Grant>>,
-    pub datasets: Option<Vec<String>>,
+    //pub sustainable_development_goals: Option<Vec<SustainableDevelopmentGoal>>,
+    //pub grants: Option<Vec<Grant>>,
+    //pub datasets: Option<Vec<String>>,
     pub versions: Option<Vec<String>>,
     pub referenced_works: Option<Vec<String>>,
-    pub related_works: Option<Vec<String>>,
-    pub ngrams_url: Option<String>,
-    pub abstract_inverted_index_url: Option<String>,
-    pub cited_by_api_url: Option<String>,
-    pub counts_by_year: Option<Vec<CountsByYear>>,
-    pub updated_date: Option<String>,
-    pub created_date: Option<String>,
-
+    //pub related_works: Option<Vec<String>>,
+    //pub ngrams_url: Option<String>,
+    //pub abstract_inverted_index_url: Option<String>,
+    //pub cited_by_api_url: Option<String>,
+    //pub counts_by_year: Option<Vec<CountsByYear>>,
+    //pub updated_date: Option<String>,
+    //pub created_date: Option<String>,
     /// The fetched `referenced_works`
     #[serde(skip)]
     pub referenced_works_fetched: Vec<Work>,
@@ -78,7 +80,7 @@ impl Work {
 /// An OpenAlex `Authorship` object
 ///
 /// See https://docs.openalex.org/api-entities/works/work-object/authorship-object
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Authorship {
     pub author_position: Option<String>,
@@ -90,48 +92,7 @@ pub struct Authorship {
     pub raw_affiliation_strings: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub struct DehydratedAuthor {
-    pub id: Option<String>,
-    pub display_name: Option<String>,
-    pub orcid: Option<String>,
-}
-
-impl DehydratedAuthor {
-    /// Get the ORCID of an author, or generate a pseudo ORCID
-    pub fn orcid(&self, prefix: char) -> Result<String> {
-        if let Some(id) = &self.id {
-            crate::utils::get_or_generate_orcid(&self.orcid, id, prefix)
-        } else {
-            bail!("Missing author ID")
-        }
-    }
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub struct DehydratedInstitution {
-    pub id: Option<String>,
-    pub display_name: Option<String>,
-    pub ror: Option<String>,
-    pub country_code: Option<String>,
-    pub r#type: Option<String>,
-    pub lineage: Option<Vec<String>>,
-}
-
-impl DehydratedInstitution {
-    /// Get the ROR of an institution, or generate a pseudo ROR
-    pub fn ror(&self, prefix: char) -> String {
-        if let Some(id) = &self.id {
-            crate::utils::get_or_generate_ror(&self.ror, id, prefix)
-        } else {
-            format!("{prefix}unknown")
-        }
-    }
-}
-
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct OpenAccess {
     pub is_oa: Option<bool>,
@@ -140,7 +101,7 @@ pub struct OpenAccess {
     pub any_repository_has_fulltext: Option<bool>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Biblio {
     pub volume: Option<String>,
@@ -149,54 +110,33 @@ pub struct Biblio {
     pub last_page: Option<String>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Location {
     pub source: Option<DehydratedSource>,
     pub landing_page_url: Option<String>,
-    pub pdf_url: Option<String>,
-    pub is_oa: Option<bool>,
-    pub version: Option<String>,
+    //pub pdf_url: Option<String>,
+    //pub is_oa: Option<bool>,
+    //pub version: Option<String>,
     pub license: Option<String>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct DehydratedSource {
-    pub id: Option<String>,
-    pub display_name: Option<String>,
-    pub issn_l: Option<String>,
-    pub issn: Option<Vec<String>>,
-    pub is_oa: Option<bool>,
-    pub is_in_doaj: Option<bool>,
-    pub is_core: Option<bool>,
-    pub host_organization: Option<String>,
-    pub host_organization_name: Option<String>,
-    pub host_organization_lineage: Option<Vec<String>>,
-    pub r#type: Option<String>,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub struct SustainableDevelopmentGoal {
     pub id: Option<String>,
     pub display_name: Option<String>,
     pub score: Option<f64>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub struct Grant {
     pub funder: Option<String>,
     pub funder_display_name: Option<String>,
     pub award_id: Option<String>,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub struct CountsByYear {
-    pub year: Option<i32>,
-    pub cited_by_count: Option<i64>,
 }
 
 impl From<Work> for Article {
@@ -204,17 +144,18 @@ impl From<Work> for Article {
         let title = extract_title(&work);
         let doi = extract_doi(&work);
         let r#abstract = extract_abstract(&work);
-        let identifiers = extract_identifiers(&work);
         let date_published = extract_publication_date(&work);
-        let authors = extract_authors(&work);
         let (page_start, page_end) = extract_page_info(&work);
-        let is_part_of = extract_publication_info(&work).map(|info| *info);
+        let is_part_of = extract_work_part_of(&work).map(|info| *info);
         let licenses = extract_licenses(&work);
+
+        let identifiers = work.ids.and_then(ids_to_identifiers);
+        let authors = extract_authors(work.authorships);
 
         let references = work
             .referenced_works_fetched
             .into_iter()
-            .map(Into::into)
+            .map(Reference::from)
             .collect_vec();
         let references = (!references.is_empty()).then_some(references);
 
@@ -240,15 +181,16 @@ impl From<Work> for Article {
 
 impl From<Work> for Reference {
     fn from(work: Work) -> Self {
-        let work_type = map_work_type(work.r#type.as_ref());
+        let work_type = creative_work_type(work.r#type.as_ref());
         let title = extract_title(&work);
         let doi = extract_doi(&work);
-        let identifiers = extract_identifiers(&work);
         let date = extract_publication_date(&work);
-        let authors = extract_authors(&work);
-        let is_part_of = create_reference_part_of(&work);
+        let is_part_of = extract_reference_part_of(&work);
         let (page_start, page_end) = extract_page_info(&work);
         let (volume_number, issue_number) = extract_volume_issue(&work);
+
+        let identifiers = work.ids.and_then(ids_to_identifiers);
+        let authors = extract_authors(work.authorships);
 
         Reference {
             work_type,
@@ -258,13 +200,10 @@ impl From<Work> for Reference {
             date,
             is_part_of,
             options: Box::new(ReferenceOptions {
-                editors: None,
-                publisher: None,
                 volume_number,
                 issue_number,
                 page_start,
                 page_end,
-                pagination: None,
                 identifiers,
                 ..Default::default()
             }),
@@ -278,11 +217,12 @@ impl From<Work> for CreativeWork {
         let title = extract_title(&work);
         let doi = extract_doi(&work);
         let r#abstract = extract_abstract(&work);
-        let identifiers = extract_identifiers(&work);
         let date_published = extract_publication_date(&work);
-        let authors = extract_authors(&work);
-        let is_part_of = extract_publication_info(&work).map(|info| *info);
+        let is_part_of = extract_work_part_of(&work).map(|info| *info);
         let licenses = extract_licenses(&work);
+
+        let identifiers = work.ids.and_then(ids_to_identifiers);
+        let authors = extract_authors(work.authorships);
 
         CreativeWork {
             doi,
@@ -307,6 +247,32 @@ impl From<Work> for Node {
             Node::Article(work.into())
         } else {
             Node::CreativeWork(work.into())
+        }
+    }
+}
+
+impl From<Authorship> for StencilaAuthor {
+    fn from(authorship: Authorship) -> Self {
+        if let Some(mut person) = authorship.author.map(Person::from) {
+            // Authorship has an OpenAlex author, so author is person
+            let affiliations = authorship
+                .institutions
+                .into_iter()
+                .flatten()
+                .map(Organization::from)
+                .collect_vec();
+            person.affiliations = (!affiliations.is_empty()).then_some(affiliations);
+
+            StencilaAuthor::Person(person)
+        } else if let Some(name) = authorship.raw_author_name {
+            //No OpenAlex author, but has name, so assume organization
+            StencilaAuthor::Organization(Organization {
+                name: Some(name),
+                ..Default::default()
+            })
+        } else {
+            // No author, and no author name, so make anon
+            StencilaAuthor::AuthorRole(AuthorRole::anon(AuthorRoleName::Writer))
         }
     }
 }
@@ -339,51 +305,16 @@ fn extract_doi(work: &Work) -> Option<String> {
     strip_doi_prefix(doi)
 }
 
-/// Extract identifiers from a Work
-fn extract_identifiers(work: &Work) -> Option<Vec<PropertyValueOrString>> {
-    work.ids.as_ref().and_then(convert_ids_to_identifiers)
-}
-
 /// Extract publication date from a Work
 fn extract_publication_date(work: &Work) -> Option<Date> {
     work.publication_date.clone().map(Date::new)
 }
 
 /// Extract authors from a Work
-fn extract_authors(work: &Work) -> Option<Vec<stencila_schema::Author>> {
-    work.authorships.as_ref().and_then(|authorships| {
-        let authors: Vec<stencila_schema::Author> = authorships
-            .iter()
-            .filter_map(|authorship| {
-                authorship.author.as_ref().map(|dehydrated_author| {
-                    let affiliations = authorship
-                        .institutions
-                        .as_ref()
-                        .map(|institutions| {
-                            institutions
-                                .iter()
-                                .map(|inst| Organization {
-                                    name: inst.display_name.clone(),
-                                    ror: strip_ror_prefix(inst.ror.clone()),
-                                    options: Box::new(OrganizationOptions::default()),
-                                    ..Default::default()
-                                })
-                                .collect()
-                        })
-                        .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
-
-                    let mut person = match &dehydrated_author.display_name {
-                        Some(name) => Person::from(name),
-                        None => Person::default(),
-                    };
-                    person.orcid = strip_orcid_prefix(dehydrated_author.orcid.clone());
-                    person.affiliations = affiliations;
-
-                    stencila_schema::Author::Person(person)
-                })
-            })
-            .collect();
-
+fn extract_authors(authorships: Option<Vec<Authorship>>) -> Option<Vec<StencilaAuthor>> {
+    authorships.and_then(|authorships| {
+        let authors: Vec<StencilaAuthor> =
+            authorships.into_iter().map(StencilaAuthor::from).collect();
         (!authors.is_empty()).then_some(authors)
     })
 }
@@ -396,7 +327,7 @@ fn extract_abstract(work: &Work) -> Option<Vec<Block>> {
 }
 
 /// Extract publication info from a Work
-fn extract_publication_info(work: &Work) -> Option<Box<CreativeWorkVariant>> {
+fn extract_work_part_of(work: &Work) -> Option<Box<CreativeWorkVariant>> {
     work.primary_location.as_ref().and_then(|primary_location| {
         create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
     })
@@ -439,8 +370,8 @@ fn extract_licenses(work: &Work) -> Option<Vec<CreativeWorkVariantOrString>> {
 }
 
 /// Map OpenAlex work type string to CreativeWorkType enum
-fn map_work_type(work_type: Option<&String>) -> Option<CreativeWorkType> {
-    work_type.and_then(|wt| match wt.as_str() {
+fn creative_work_type(work_type: Option<&String>) -> Option<CreativeWorkType> {
+    work_type.and_then(|work_type| match work_type.as_str() {
         "article" => Some(CreativeWorkType::Article),
         "book" => Some(CreativeWorkType::Book),
         "book-chapter" => Some(CreativeWorkType::Chapter),
@@ -461,21 +392,10 @@ fn map_work_type(work_type: Option<&String>) -> Option<CreativeWorkType> {
 }
 
 /// Create a simple Reference for is_part_of field
-fn create_reference_part_of(work: &Work) -> Option<Box<Reference>> {
-    work.primary_location.as_ref().and_then(|location| {
-        location.source.as_ref().map(|source| {
-            let title = source
-                .display_name
-                .as_ref()
-                .map(|name| vec![Inline::Text(name.clone().into())]);
-
-            Box::new(Reference {
-                work_type: Some(CreativeWorkType::Periodical),
-                title,
-                ..Default::default()
-            })
-        })
-    })
+fn extract_reference_part_of(work: &Work) -> Option<Box<Reference>> {
+    work.primary_location
+        .as_ref()
+        .and_then(|location| location.source.as_ref().map(Reference::from).map(Box::new))
 }
 
 /// Create publication hierarchy from OpenAlex biblio information
@@ -485,7 +405,7 @@ fn create_publication_info(
 ) -> Option<Box<CreativeWorkVariant>> {
     // Get periodical name from source
     let periodical_name = source
-        .and_then(|s| s.display_name.as_ref())
+        .and_then(|source| source.display_name.as_ref())
         .cloned()
         .unwrap_or_else(|| "Unknown Publication".to_string());
 

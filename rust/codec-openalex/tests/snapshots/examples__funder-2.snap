@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Organization",
-  "id": "https://openalex.org/F4320329370",
   "name": "Departamento de Salud, Gobierno de Navarra",
   "alternateNames": [
     "Department of Health, Government of Navarra"

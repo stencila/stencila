@@ -17,7 +17,6 @@ use crate::{
     author::Author,
     institution::Institution,
     responses::{AuthorsResponse, IdResponse, InstitutionsResponse, WorksResponse},
-    utils::strip_openalex_prefix,
     work::Work,
 };
 
@@ -202,7 +201,7 @@ pub async fn work_by_doi(doi: &str) -> Result<Option<Work>> {
 pub async fn fetch_work_references(work: &mut Work) -> Result<()> {
     tracing::trace!("Fetching references of work");
 
-    let id = strip_openalex_prefix(&work.id);
+    let id = work.id.trim_start_matches("https://openalex.org/");
 
     let response = request("works", &[("filter", format!("cited_by:{id}"))]).await?;
     let response: WorksResponse = response.json().await?;

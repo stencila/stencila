@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Periodical",
-  "id": "https://openalex.org/S4306501059",
   "name": "AGU Fall Meeting 2019",
   "identifiers": [
     "https://openalex.org/S4306501059"

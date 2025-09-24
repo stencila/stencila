@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Organization",
-  "id": "https://openalex.org/F4320333583",
   "name": "Directorate-General for International Partnerships",
   "alternateNames": [
     "DG International Partnerships",

@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Organization",
-  "id": "https://openalex.org/P4310321080",
   "name": "Association for Information Systems",
   "identifiers": [
     "https://openalex.org/P4310321080",

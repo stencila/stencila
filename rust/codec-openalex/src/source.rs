@@ -1,15 +1,18 @@
 use serde::Deserialize;
 
-use indexmap::IndexMap;
 use stencila_codec::stencila_schema::{
-    Node, Organization, Periodical, PeriodicalOptions, PersonOrOrganization,
+    CreativeWorkType, Node, Organization, Periodical, PeriodicalOptions, PersonOrOrganization,
+    Primitive, PropertyValue, PropertyValueOrString, Reference, ReferenceOptions, shortcuts::t,
 };
 
-use crate::utils::convert_ids_to_identifiers;
+use crate::ids::{Ids, ids_to_identifiers};
 
 /// An OpenAlex `Source` object
 ///
 /// See https://docs.openalex.org/api-entities/sources/source-object
+///
+/// Fields not currently used are commented out to reduce bloat and avoid risk
+/// or deserialization errors.
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Source {
@@ -17,85 +20,55 @@ pub struct Source {
     pub display_name: Option<String>,
     pub alternate_titles: Option<Vec<String>>,
     pub abbreviated_title: Option<String>,
-    pub r#type: Option<String>,
+    //pub r#type: Option<String>,
     pub homepage_url: Option<String>,
-    pub country_code: Option<String>,
-    pub is_oa: Option<bool>,
-    pub is_in_doaj: Option<bool>,
-    pub is_core: Option<bool>,
+    //pub country_code: Option<String>,
+    //pub is_oa: Option<bool>,
+    //pub is_in_doaj: Option<bool>,
+    //pub is_core: Option<bool>,
     pub host_organization: Option<String>,
     pub host_organization_name: Option<String>,
-    pub host_organization_lineage: Option<Vec<String>>,
+    //pub host_organization_lineage: Option<Vec<String>>,
     pub issn_l: Option<String>,
     pub issn: Option<Vec<String>>,
-    pub works_count: Option<i64>,
-    pub cited_by_count: Option<i64>,
-    pub summary_stats: Option<SummaryStats>,
-    pub ids: Option<ExternalIds>,
-    pub counts_by_year: Option<Vec<CountsByYear>>,
-    pub updated_date: Option<String>,
-    pub created_date: Option<String>,
-    pub societies: Option<Vec<Society>>,
+    //pub works_count: Option<i64>,
+    //pub cited_by_count: Option<i64>,
+    //pub summary_stats: Option<SummaryStats>,
+    pub ids: Option<Ids>,
+    //pub counts_by_year: Option<Vec<CountsByYear>>,
+    //pub updated_date: Option<String>,
+    //pub created_date: Option<String>,
+    //pub societies: Option<Vec<Society>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
-pub struct SummaryStats {
-    #[serde(rename = "2yr_mean_citedness")]
-    pub impact_factor: Option<f64>,
-    pub h_index: Option<i32>,
-    pub i10_index: Option<i32>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct ExternalIds {
-    pub openalex: Option<String>,
+pub struct DehydratedSource {
+    pub id: Option<String>,
+    pub display_name: Option<String>,
     pub issn_l: Option<String>,
-    pub issn: Option<Vec<String>>,
-    pub wikidata: Option<String>,
-    pub fatcat: Option<String>,
+    //pub issn: Option<Vec<String>>,
+    //pub is_oa: Option<bool>,
+    //pub is_in_doaj: Option<bool>,
+    //pub is_core: Option<bool>,
+    //pub host_organization: Option<String>,
+    //pub host_organization_name: Option<String>,
+    //pub host_organization_lineage: Option<Vec<String>>,
+    pub r#type: Option<String>,
 }
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct CountsByYear {
-    pub year: Option<i32>,
-    pub works_count: Option<i64>,
-    pub cited_by_count: Option<i64>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub struct Society {
     pub url: Option<String>,
     pub organization: Option<String>,
 }
 
-/// Convert Source ExternalIds to IndexMap for use with convert_ids_to_identifiers
-///
-/// Note: does not include ISSNs since there is a specific property for those.
-fn convert_source_ids_to_indexmap(ids: &ExternalIds) -> IndexMap<String, String> {
-    let mut id_map = IndexMap::new();
-
-    if let Some(openalex) = &ids.openalex {
-        id_map.insert("openalex".to_string(), openalex.clone());
-    }
-
-    if let Some(wikidata) = &ids.wikidata {
-        id_map.insert("wikidata".to_string(), wikidata.clone());
-    }
-
-    if let Some(fatcat) = &ids.fatcat {
-        id_map.insert("fatcat".to_string(), fatcat.clone());
-    }
-
-    id_map
-}
-
 impl From<Source> for Periodical {
     fn from(source: Source) -> Self {
-        // Map alternative titles and abbreviated titles
+        let name = source.display_name;
+
         let mut alternate_names = source.alternate_titles.unwrap_or_default();
         if let Some(abbreviated) = source.abbreviated_title
             && !alternate_names.contains(&abbreviated)
@@ -104,7 +77,8 @@ impl From<Source> for Periodical {
         }
         let alternate_names = (!alternate_names.is_empty()).then_some(alternate_names);
 
-        // Map publisher (host organization)
+        let url = source.homepage_url;
+
         let publisher =
             if source.host_organization.is_some() || source.host_organization_name.is_some() {
                 Some(PersonOrOrganization::Organization(Organization {
@@ -116,7 +90,6 @@ impl From<Source> for Periodical {
                 None
             };
 
-        // Map ISSN information
         let mut issns = Vec::new();
         if let Some(issn_l) = source.issn_l {
             issns.push(issn_l);
@@ -126,18 +99,13 @@ impl From<Source> for Periodical {
         }
         let issns = (!issns.is_empty()).then_some(issns);
 
-        // Map other ids to identifiers
-        let identifiers = source.ids.as_ref().and_then(|ids| {
-            let id_map = convert_source_ids_to_indexmap(ids);
-            convert_ids_to_identifiers(&id_map)
-        });
+        let identifiers = source.ids.and_then(ids_to_identifiers);
 
         Periodical {
-            id: Some(source.id),
-            name: source.display_name,
+            name,
             options: Box::new(PeriodicalOptions {
-                url: source.homepage_url,
                 alternate_names,
+                url,
                 publisher,
                 issns,
                 identifiers,
@@ -152,4 +120,42 @@ impl From<Source> for Node {
     fn from(source: Source) -> Self {
         Node::Periodical(source.into())
     }
+}
+
+impl From<&DehydratedSource> for Reference {
+    fn from(source: &DehydratedSource) -> Self {
+        let work_type = creative_work_type(source.r#type.as_deref());
+
+        let title = source.display_name.as_ref().map(|name| vec![t(name)]);
+
+        let identifiers = if let Some(issn_l) = &source.issn_l {
+            Some(vec![PropertyValueOrString::PropertyValue(PropertyValue {
+                property_id: Some("issn".into()),
+                value: Primitive::String(issn_l.into()),
+                ..Default::default()
+            })])
+        } else {
+            None
+        };
+
+        Reference {
+            work_type,
+            title,
+            options: Box::new(ReferenceOptions {
+                identifiers,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+}
+
+/// Map OpenAlex source type string to CreativeWorkType enum
+fn creative_work_type(source_type: Option<&str>) -> Option<CreativeWorkType> {
+    source_type.and_then(|source_type| match source_type {
+        "journal" => Some(CreativeWorkType::Periodical),
+        "repository" => Some(CreativeWorkType::Collection),
+        "conference" => Some(CreativeWorkType::Collection),
+        "ebook platform" | "book series" | "metadata" | "other" | _ => None,
+    })
 }

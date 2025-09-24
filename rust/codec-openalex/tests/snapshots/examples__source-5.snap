@@ -4,10 +4,27 @@ expression: node
 ---
 {
   "type": "Periodical",
-  "id": "https://openalex.org/S137773608",
   "name": "Nature",
   "identifiers": [
     "https://openalex.org/S137773608",
+    {
+      "type": "PropertyValue",
+      "propertyId": "issn_l",
+      "value": "0028-0836"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "issn",
+      "value": [
+        "0028-0836",
+        "1476-4687"
+      ]
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "mag",
+      "value": "137773608"
+    },
     "https://www.wikidata.org/entity/Q180445"
   ],
   "url": "https://www.nature.com/nature/",

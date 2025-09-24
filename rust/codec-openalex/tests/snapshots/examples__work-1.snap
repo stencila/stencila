@@ -19,7 +19,11 @@ expression: node
         "例",
         "研",
         "究"
-      ]
+      ],
+      "identifiers": [
+        "https://openalex.org/A5087317007"
+      ],
+      "name": "東京大学判例研究会"
     }
   ],
   "datePublished": {

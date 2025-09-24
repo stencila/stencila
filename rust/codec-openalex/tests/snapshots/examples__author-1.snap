@@ -4,19 +4,22 @@ expression: node
 ---
 {
   "type": "Person",
-  "id": "https://openalex.org/A5080056684",
   "affiliations": [
     {
       "type": "Organization",
-      "id": "https://openalex.org/I4210141302",
       "name": "Instituto Jalisciense de Cancerología",
-      "ror": "04bzrjn90"
+      "ror": "04bzrjn90",
+      "identifiers": [
+        "https://openalex.org/I4210141302"
+      ]
     },
     {
       "type": "Organization",
-      "id": "https://openalex.org/I4210130711",
       "name": "Centro de Epilepsia y Neurocirugía Funcional",
-      "ror": "036gb6b33"
+      "ror": "036gb6b33",
+      "identifiers": [
+        "https://openalex.org/I4210130711"
+      ]
     }
   ],
   "familyNames": [
@@ -24,6 +27,9 @@ expression: node
   ],
   "givenNames": [
     "Luz"
+  ],
+  "identifiers": [
+    "https://openalex.org/A5080056684"
   ],
   "name": "Luz A Cuellar-Espinosa"
 }

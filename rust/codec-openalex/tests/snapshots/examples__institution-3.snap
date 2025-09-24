@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Organization",
-  "id": "https://openalex.org/I4210134686",
   "name": "Charles George VA Medical Center",
   "ror": "03vwf8m18",
   "alternateNames": [

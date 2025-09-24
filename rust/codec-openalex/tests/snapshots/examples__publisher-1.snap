@@ -4,7 +4,6 @@ expression: node
 ---
 {
   "type": "Organization",
-  "id": "https://openalex.org/P4310322363",
   "name": "Academy of Medical Sciences of Bosnia and Herzegovina",
   "ror": "01vbw1f94",
   "identifiers": [
