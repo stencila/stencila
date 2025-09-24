@@ -20,6 +20,7 @@ stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-codec = { path = "../codec" }
 stencila-codec-arxiv = { path = "../codec-arxiv" }
+stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-cbor = { path = "../codec-cbor" }
 stencila-codec-cff = { path = "../codec-cff" }
 stencila-codec-crossref = { path = "../codec-crossref" }
@@ -43,6 +44,7 @@ stencila-codec-lexical = { path = "../codec-lexical" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codec-meca = { path = "../codec-meca" }
 stencila-codec-odt = { path = "../codec-odt" }
+stencila-codec-openalex = { path = "../codec-openalex" }
 stencila-codec-openrxiv = { path = "../codec-openrxiv" }
 stencila-codec-pandoc = { path = "../codec-pandoc" }
 stencila-codec-polars = { path = "../codec-polars", optional = true }

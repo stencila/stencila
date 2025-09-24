@@ -32,6 +32,7 @@ use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
 
 use stencila_codec_arxiv::ArxivCodec;
+use stencila_codec_biblio::decode::text_to_reference;
 use stencila_codec_cbor::CborCodec;
 use stencila_codec_cff::CffCodec;
 use stencila_codec_crossref::CrossrefCodec;
@@ -55,6 +56,7 @@ use stencila_codec_lexical::LexicalCodec;
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_meca::MecaCodec;
 use stencila_codec_odt::OdtCodec;
+use stencila_codec_openalex::OpenAlexCodec;
 use stencila_codec_openrxiv::OpenRxivCodec;
 use stencila_codec_pandoc::PandocCodec;
 use stencila_codec_pdf::PdfCodec;
@@ -237,8 +239,6 @@ pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
         Some(Box::new(OpenRxivCodec))
     } else if PmcCodec::supports_identifier(identifier) {
         Some(Box::new(PmcCodec))
-    } else if DoiCodec::supports_identifier(identifier) {
-        Some(Box::new(DoiCodec))
     } else if GithubCodec::supports_identifier(identifier) {
         Some(Box::new(GithubCodec))
     } else {
@@ -249,10 +249,18 @@ pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
 /// Decode a Stencila Schema node from an identifier
 #[tracing::instrument]
 pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    // Read from stdin
     if identifier == "-" {
         return from_stdin(options).await;
     }
 
+    // Read from an existing path
+    let path = PathBuf::from(identifier);
+    if path.exists() {
+        return from_path(&path, options).await;
+    }
+
+    // Try codecs that supports identifiers (including specific URLs)
     if let Some((mut node, .., codec_structuring_options)) =
         if ArxivCodec::supports_identifier(identifier) {
             Some(ArxivCodec::from_identifier(identifier, options.clone()).await?)
@@ -262,10 +270,6 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
             Some(PmcCodec::from_identifier(identifier, options.clone()).await?)
         } else if GithubCodec::supports_identifier(identifier) {
             Some(GithubCodec::from_identifier(identifier, options.clone()).await?)
-        } else if DoiCodec::supports_identifier(identifier) {
-            Some(DoiCodec::from_identifier(identifier, options.clone()).await?)
-        } else if CrossrefCodec::supports_identifier(identifier) {
-            Some(CrossrefCodec::from_identifier(identifier, options.clone()).await?)
         } else {
             None
         }
@@ -285,14 +289,27 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
         return Ok(node);
     }
 
-    if identifier.starts_with("https://")
-        || identifier.starts_with("http://")
+    // Read from a generic URL (ignoring DOI URLs which are handled below)
+    if ((identifier.starts_with("https://") || identifier.starts_with("http://"))
+        && !identifier.contains("doi.org/"))
         || identifier.starts_with("file://")
     {
-        from_url(identifier, options).await
-    } else {
-        from_path(&PathBuf::from(identifier), options).await
+        return from_url(identifier, options).await;
     }
+
+    // Try codecs that provide metadata from a reference (could be a citation, or a DOI)
+    let reference = text_to_reference(identifier);
+    if let Ok(node) = OpenAlexCodec::from_reference(&reference).await {
+        return Ok(node);
+    }
+    if let Ok(node) = CrossrefCodec::from_reference(&reference).await {
+        return Ok(node);
+    }
+    if let Ok(node) = DoiCodec::from_reference(&reference).await {
+        return Ok(node);
+    }
+
+    bail!("Unable to decode identifier into a node: {identifier}")
 }
 
 /// Decode a Stencila Schema node from a file system path
