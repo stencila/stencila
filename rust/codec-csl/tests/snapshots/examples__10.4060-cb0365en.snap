@@ -1,0 +1,33 @@
+---
+source: rust/codec-csl/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.4060/cb0365en",
+  "datePublished": {
+    "type": "Date",
+    "value": "2020"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Identification guide to the mesopelagic fishes of the central and south east Atlantic Ocean"
+      }
+    }
+  ],
+  "content": [],
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "isbn",
+      "value": "9789251330944"
+    }
+  ],
+  "url": "http://dx.doi.org/10.4060/cb0365en",
+  "publisher": {
+    "type": "Organization",
+    "name": "FAO"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "indexed": {
+    "date-parts": [
+      [
+        2025,
+        8,
+        27
+      ]
+    ],
+    "date-time": "2025-08-27T16:01:10Z",
+    "timestamp": 1756310470644
+  },
+  "reference-count": 0,
+  "publisher": "FAO",
+  "isbn-type": [
+    {
+      "value": "9789251330944",
+      "type": "print"
+    }
+  ],
+  "content-domain": {
+    "domain": [],
+    "crossmark-restriction": false
+  },
+  "published-print": {
+    "date-parts": [
+      [
+        2020
+      ]
+    ]
+  },
+  "DOI": "10.4060/cb0365en",
+  "type": "edited-book",
+  "created": {
+    "date-parts": [
+      [
+        2020,
+        8,
+        12
+      ]
+    ],
+    "date-time": "2020-08-12T10:03:26Z",
+    "timestamp": 1597226606000
+  },
+  "source": "Crossref",
+  "is-referenced-by-count": 17,
+  "title": "Identification guide to the mesopelagic fishes of the central and south east Atlantic Ocean",
+  "prefix": "10.4060",
+  "member": "2504",
+  "container-title": [],
+  "original-title": [],
+  "language": "en",
+  "link": [
+    {
+      "URL": "http://www.fao.org/3/cb0365en/cb0365en.pdf",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "similarity-checking"
+    }
+  ],
+  "deposited": {
+    "date-parts": [
+      [
+        2020,
+        12,
+        22
+      ]
+    ],
+    "date-time": "2020-12-22T08:05:19Z",
+    "timestamp": 1608624319000
+  },
+  "score": 1,
+  "resource": {
+    "primary": {
+      "URL": "http://www.fao.org/documents/card/en/c/cb0365en"
+    }
+  },
+  "subtitle": [],
+  "short-title": [],
+  "issued": {
+    "date-parts": [
+      [
+        2020
+      ]
+    ]
+  },
+  "ISBN": [
+    "9789251330944"
+  ],
+  "references-count": 0,
+  "URL": "http://dx.doi.org/10.4060/cb0365en",
+  "relation": {},
+  "subject": [],
+  "published": {
+    "date-parts": [
+      [
+        2020
+      ]
+    ]
+  }
+}

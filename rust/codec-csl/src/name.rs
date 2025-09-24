@@ -52,20 +52,19 @@ pub struct NameField {
     pub extra: IndexMap<String, Value>,
 }
 
-impl From<NameField> for Author {
+impl From<NameField> for Person {
     fn from(name: NameField) -> Self {
         if name.family.is_none()
             && name.given.is_none()
             && let Some(literal) = name.literal
         {
-            let person = Person::from_str(&literal).unwrap_or_else(|_| Person {
+            return Person::from_str(&literal).unwrap_or_else(|_| Person {
                 options: Box::new(PersonOptions {
                     name: Some(literal),
                     ..Default::default()
                 }),
                 ..Default::default()
             });
-            return Author::Person(person);
         }
 
         let family_names = name
@@ -95,7 +94,7 @@ impl From<NameField> for Author {
             .collect_vec();
         let affiliations = (!affiliations.is_empty()).then_some(affiliations);
 
-        Author::Person(Person {
+        Person {
             family_names,
             given_names,
             affiliations,
@@ -107,6 +106,12 @@ impl From<NameField> for Author {
                 ..Default::default()
             }),
             ..Default::default()
-        })
+        }
+    }
+}
+
+impl From<NameField> for Author {
+    fn from(name: NameField) -> Self {
+        Author::Person(name.into())
     }
 }

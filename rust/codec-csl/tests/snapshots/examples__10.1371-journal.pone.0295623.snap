@@ -1369,6 +1369,17 @@ expression: node
   ],
   "content": [],
   "url": "http://dx.doi.org/10.1371/journal.pone.0295623",
+  "editors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Cè"
+      ],
+      "givenNames": [
+        "Emiliano"
+      ]
+    }
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {

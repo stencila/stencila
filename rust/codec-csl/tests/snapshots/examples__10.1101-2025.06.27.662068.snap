@@ -169,10 +169,6 @@ expression: node
   ],
   "content": [],
   "url": "http://dx.doi.org/10.1101/2025.06.27.662068",
-  "isPartOf": {
-    "type": "Periodical",
-    "name": ""
-  },
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"

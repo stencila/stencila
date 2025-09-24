@@ -6,9 +6,10 @@ use serde_with::skip_serializing_none;
 
 use stencila_codec::stencila_schema::{
     self, Article, ArticleOptions, Author, Block, CreativeWorkType, CreativeWorkVariant, Date,
-    IntegerOrString, Node, Organization, Paragraph, Periodical, PeriodicalOptions,
-    PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
-    PublicationVolume, Reference, ReferenceOptions,
+    IntegerOrString, Node, Organization, OrganizationOptions, Paragraph, Periodical,
+    PeriodicalOptions, Person, PersonOrOrganization, PostalAddressOrString, Primitive,
+    PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
+    ReferenceOptions,
     shortcuts::{p, t},
 };
 
@@ -55,7 +56,7 @@ pub struct Item {
 
     // Creator fields
     pub author: Option<Vec<NameField>>,
-    //pub editor: Option<Vec<NameField>>,
+    pub editor: Option<Vec<NameField>>,
     //pub translator: Option<Vec<NameField>>,
     //pub recipient: Option<Vec<NameField>>,
     //pub interviewer: Option<Vec<NameField>>,
@@ -65,7 +66,7 @@ pub struct Item {
 
     // Date fields
     pub issued: Option<DateField>,
-    //pub submitted: Option<DateField>,
+    pub submitted: Option<DateField>,
     //pub accessed: Option<DateField>,
     //pub event_date: Option<DateField>,
     //pub original_date: Option<DateField>,
@@ -77,7 +78,7 @@ pub struct Item {
     //pub collection_number: Option<OrdinaryField>,
     pub volume: Option<OrdinaryField>,
     pub issue: Option<OrdinaryField>,
-    //pub edition: Option<OrdinaryField>,
+    pub edition: Option<OrdinaryField>,
     pub page: Option<String>,
     //pub page_first: Option<String>,
     //pub number_of_pages: Option<OrdinaryField>,
@@ -90,8 +91,8 @@ pub struct Item {
     pub url: Option<String>,
     #[serde(alias = "ISSN")]
     pub issn: Option<Vec<String>>,
-    //#[serde(alias = "ISBN")]
-    //pub isbn: Option<Vec<String>>,
+    #[serde(alias = "ISBN")]
+    pub isbn: Option<Vec<String>>,
     #[serde(alias = "PMID")]
     pub pmid: Option<String>,
     #[serde(alias = "PMCID")]
@@ -99,7 +100,7 @@ pub struct Item {
 
     // Publication info
     pub publisher: Option<String>,
-    //pub publisher_place: Option<String>,
+    pub publisher_place: Option<String>,
     //pub jurisdiction: Option<String>,
 
     // Description fields
@@ -406,7 +407,16 @@ impl From<Item> for Article {
             .collect_vec();
         let authors = (!authors.is_empty()).then_some(authors);
 
+        let editors = item
+            .editor
+            .into_iter()
+            .flatten()
+            .map(Person::from)
+            .collect_vec();
+        let editors = (!editors.is_empty()).then_some(editors);
+
         let date_published = item.issued.and_then(|date| Date::try_from(date).ok());
+        let date_received = item.submitted.and_then(|date| Date::try_from(date).ok());
 
         let r#abstract = item.abstract_text.map(parse_jats_paragraphs);
 
@@ -418,6 +428,9 @@ impl From<Item> for Article {
             .map(|doi| doi.trim_start_matches("https://doi.org").to_string());
 
         let mut identifiers = Vec::new();
+        if let Some(id) = item.isbn.into_iter().flatten().next() {
+            identifiers.push(id_to_identifier("isbn", id));
+        }
         if let Some(id) = item.pmid {
             identifiers.push(id_to_identifier("pmid", id));
         }
@@ -425,6 +438,8 @@ impl From<Item> for Article {
             identifiers.push(id_to_identifier("pmcid", id));
         }
         let identifiers = (!identifiers.is_empty()).then_some(identifiers);
+
+        let version = item.edition.map(Into::into);
 
         let is_part_of = item.container_title.and_then(|container| {
             create_publication_info(
@@ -439,6 +454,10 @@ impl From<Item> for Article {
         let publisher = item.publisher.map(|publisher| {
             PersonOrOrganization::Organization(Organization {
                 name: Some(publisher),
+                options: Box::new(OrganizationOptions {
+                    address: item.publisher_place.map(PostalAddressOrString::String),
+                    ..Default::default()
+                }),
                 ..Default::default()
             })
         });
@@ -458,6 +477,9 @@ impl From<Item> for Article {
             options: Box::new(ArticleOptions {
                 url,
                 identifiers,
+                version,
+                editors,
+                date_received,
                 is_part_of,
                 publisher,
                 ..Default::default()
@@ -530,8 +552,13 @@ fn create_publication_info(
     issue: Option<&OrdinaryField>,
     page: Option<&str>,
 ) -> Option<CreativeWorkVariant> {
+    let periodical_name: String = container_title.into();
+    if periodical_name.is_empty() {
+        return None;
+    }
+
     let periodical = Periodical {
-        name: Some(container_title.into()),
+        name: Some(periodical_name),
         options: Box::new(PeriodicalOptions {
             issns,
             ..Default::default()
