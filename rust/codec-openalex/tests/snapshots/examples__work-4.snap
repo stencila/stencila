@@ -50,7 +50,9 @@ expression: node
           "ror": "01yc7t268"
         }
       ],
-      "name": "A. Farr"
+      "familyNames": [
+        "Farr"
+      ]
     },
     {
       "type": "Person",
@@ -95,9 +97,9 @@ expression: node
         "type": "Periodical",
         "name": "Journal of Biological Chemistry"
       },
-      "volumeNumber": "193"
+      "volumeNumber": 193
     },
-    "issueNumber": "1"
+    "issueNumber": 1
   },
   "licenses": [
     "https://creativecommons.org/licenses/by/4.0/"
@@ -105,6 +107,6 @@ expression: node
   "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-openalex/tests/examples/work-4.json",
   "commit": "redacted",
-  "pageStart": "265",
-  "pageEnd": "275"
+  "pageStart": 265,
+  "pageEnd": 275
 }

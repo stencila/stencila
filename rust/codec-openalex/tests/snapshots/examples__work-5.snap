@@ -9,41 +9,82 @@ expression: node
     {
       "type": "Person",
       "orcid": "0000-0002-5366-0673",
-      "name": "Allison Q. Byrne"
+      "familyNames": [
+        "Byrne"
+      ],
+      "givenNames": [
+        "Allison"
+      ]
     },
     {
       "type": "Person",
       "orcid": "0000-0002-5154-4302",
-      "name": "Anthony W. Waddle"
+      "familyNames": [
+        "Waddle"
+      ],
+      "givenNames": [
+        "Anthony"
+      ]
     },
     {
       "type": "Person",
       "orcid": "0000-0003-4038-4339",
-      "name": "Veronica Saenz"
+      "familyNames": [
+        "Saenz"
+      ],
+      "givenNames": [
+        "Veronica"
+      ]
     },
     {
       "type": "Person",
       "orcid": "0000-0002-5937-6585",
-      "name": "Michel E. B. Ohmer"
+      "familyNames": [
+        "Ohmer"
+      ],
+      "givenNames": [
+        "Michel"
+      ]
     },
     {
       "type": "Person",
-      "name": "Jef R. Jaeger"
+      "familyNames": [
+        "Jaeger"
+      ],
+      "givenNames": [
+        "Jef"
+      ]
     },
     {
       "type": "Person",
       "orcid": "0000-0002-4212-041X",
-      "name": "Corinne L. Richards‐Zawacki"
+      "familyNames": [
+        "Richards‐Zawacki"
+      ],
+      "givenNames": [
+        "Corinne"
+      ]
     },
     {
       "type": "Person",
       "orcid": "0000-0002-0073-5790",
-      "name": "Jamie Voyles"
+      "familyNames": [
+        "Voyles"
+      ],
+      "givenNames": [
+        "Jamie"
+      ]
     },
     {
       "type": "Person",
       "orcid": "0000-0002-7384-8032",
-      "name": "Erica Bree Rosenblum"
+      "familyNames": [
+        "Rosenblum"
+      ],
+      "givenNames": [
+        "Erica",
+        "Bree"
+      ]
     }
   ],
   "datePublished": {

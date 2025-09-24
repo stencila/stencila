@@ -21,7 +21,12 @@ expression: node
   "authors": [
     {
       "type": "Person",
-      "name": "Hariprasath Manoharan"
+      "familyNames": [
+        "Manoharan"
+      ],
+      "givenNames": [
+        "Hariprasath"
+      ]
     },
     {
       "type": "Person",
@@ -33,11 +38,21 @@ expression: node
           "ror": "05krs5044"
         }
       ],
-      "name": "Yuvaraja Teekaraman"
+      "familyNames": [
+        "Teekaraman"
+      ],
+      "givenNames": [
+        "Yuvaraja"
+      ]
     },
     {
       "type": "Person",
-      "name": "Ramya Kuppusamy"
+      "familyNames": [
+        "Kuppusamy"
+      ],
+      "givenNames": [
+        "Ramya"
+      ]
     },
     {
       "type": "Person",
@@ -49,7 +64,12 @@ expression: node
           "ror": "05eer8g02"
         }
       ],
-      "name": "Arun Radhakrishnan"
+      "familyNames": [
+        "Radhakrishnan"
+      ],
+      "givenNames": [
+        "Arun"
+      ]
     }
   ],
   "datePublished": {
@@ -77,9 +97,9 @@ expression: node
         "type": "Periodical",
         "name": "Energy Exploration & Exploitation"
       },
-      "volumeNumber": "41"
+      "volumeNumber": 41
     },
-    "issueNumber": "1"
+    "issueNumber": 1
   },
   "licenses": [
     "https://creativecommons.org/licenses/by/4.0/"
@@ -87,6 +107,6 @@ expression: node
   "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-openalex/tests/examples/work-2.json",
   "commit": "redacted",
-  "pageStart": "210",
-  "pageEnd": "223"
+  "pageStart": 210,
+  "pageEnd": 223
 }

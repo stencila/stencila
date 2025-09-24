@@ -29,7 +29,12 @@ expression: node
           "ror": "04dpa3g90"
         }
       ],
-      "name": "Liping Chen"
+      "familyNames": [
+        "Chen"
+      ],
+      "givenNames": [
+        "Liping"
+      ]
     }
   ],
   "datePublished": {
@@ -62,9 +67,9 @@ expression: node
         "type": "Periodical",
         "name": "International Education Studies"
       },
-      "volumeNumber": "2"
+      "volumeNumber": 2
     },
-    "issueNumber": "4"
+    "issueNumber": 4
   },
   "licenses": [
     "https://creativecommons.org/licenses/by/4.0/"

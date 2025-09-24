@@ -7,7 +7,19 @@ expression: node
   "authors": [
     {
       "type": "Person",
-      "name": "東京大学判例研究会"
+      "familyNames": [
+        "会"
+      ],
+      "givenNames": [
+        "東",
+        "京",
+        "大",
+        "学",
+        "判",
+        "例",
+        "研",
+        "究"
+      ]
     }
   ],
   "datePublished": {
@@ -39,13 +51,13 @@ expression: node
         "type": "Periodical",
         "name": "法学協会雑誌"
       },
-      "volumeNumber": "117"
+      "volumeNumber": 117
     },
-    "issueNumber": "11"
+    "issueNumber": 11
   },
   "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-openalex/tests/examples/work-1.json",
   "commit": "redacted",
-  "pageStart": "1697",
-  "pageEnd": "1708"
+  "pageStart": 1697,
+  "pageEnd": 1708
 }
