@@ -34,6 +34,7 @@ use stencila_node_structuring::structuring;
 use stencila_codec_arxiv::ArxivCodec;
 use stencila_codec_cbor::CborCodec;
 use stencila_codec_cff::CffCodec;
+use stencila_codec_crossref::CrossrefCodec;
 use stencila_codec_csl::CslCodec;
 use stencila_codec_csv::CsvCodec;
 use stencila_codec_debug::DebugCodec;
@@ -259,10 +260,12 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
             Some(OpenRxivCodec::from_identifier(identifier, options.clone()).await?)
         } else if PmcCodec::supports_identifier(identifier) {
             Some(PmcCodec::from_identifier(identifier, options.clone()).await?)
-        } else if DoiCodec::supports_identifier(identifier) {
-            Some(DoiCodec::from_identifier(identifier, options.clone()).await?)
         } else if GithubCodec::supports_identifier(identifier) {
             Some(GithubCodec::from_identifier(identifier, options.clone()).await?)
+        } else if DoiCodec::supports_identifier(identifier) {
+            Some(DoiCodec::from_identifier(identifier, options.clone()).await?)
+        } else if CrossrefCodec::supports_identifier(identifier) {
+            Some(CrossrefCodec::from_identifier(identifier, options.clone()).await?)
         } else {
             None
         }

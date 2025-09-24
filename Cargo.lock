@@ -9102,6 +9102,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-crossref"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "insta",
+ "itertools 0.14.0",
+ "monostate",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-biblio",
+ "stencila-codec-csl",
+ "stencila-codec-doi",
+ "stencila-codec-text",
+ "stencila-version",
+ "tracing",
+]
+
+[[package]]
 name = "stencila-codec-csl"
 version = "0.0.0"
 dependencies = [
@@ -9799,6 +9820,7 @@ dependencies = [
  "stencila-codec-arxiv",
  "stencila-codec-cbor",
  "stencila-codec-cff",
+ "stencila-codec-crossref",
  "stencila-codec-csl",
  "stencila-codec-csv",
  "stencila-codec-debug",

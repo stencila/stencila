@@ -22,6 +22,7 @@ stencila-codec = { path = "../codec" }
 stencila-codec-arxiv = { path = "../codec-arxiv" }
 stencila-codec-cbor = { path = "../codec-cbor" }
 stencila-codec-cff = { path = "../codec-cff" }
+stencila-codec-crossref = { path = "../codec-crossref" }
 stencila-codec-csl = { path = "../codec-csl" }
 stencila-codec-csv = { path = "../codec-csv" }
 stencila-codec-debug = { path = "../codec-debug" }
