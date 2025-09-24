@@ -198,8 +198,8 @@ pub async fn work_by_doi(doi: &str) -> Result<Option<Work>> {
 
 /// Search for works by title and optional year
 #[tracing::instrument]
-pub async fn search_works(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
-    tracing::trace!("Searching for work with title: {title}");
+pub async fn search_works_title_year(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
+    tracing::trace!("Searching works by title: {title}");
 
     let title = title.replace(",", " ");
 
@@ -217,10 +217,20 @@ pub async fn search_works(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
     Ok(response.results)
 }
 
+/// Search for works by general search
+#[tracing::instrument]
+pub async fn search_works(text: &str) -> Result<Vec<Work>> {
+    tracing::trace!("Searching works: {text}");
+
+    let response = request("works", &[("search", text.into())]).await?;
+    let response: WorksResponse = response.json().await?;
+    Ok(response.results)
+}
+
 /// Search for authors by name
 #[tracing::instrument]
 pub async fn search_authors(name: &str) -> Result<Vec<Author>> {
-    tracing::trace!("Searching for author: {name}");
+    tracing::trace!("Searching authors: {name}");
 
     let response = request("authors", &[("search", name.into())]).await?;
     let response: AuthorsResponse = response.json().await?;
@@ -230,7 +240,7 @@ pub async fn search_authors(name: &str) -> Result<Vec<Author>> {
 /// Search for institutions by name
 #[tracing::instrument]
 pub async fn search_institutions(name: &str) -> Result<Vec<Institution>> {
-    tracing::trace!("Searching for institution: {name}");
+    tracing::trace!("Searching institutions: {name}");
 
     let response = request("institutions", &[("search", name.into())]).await?;
     let response: InstitutionsResponse = response.json().await?;
