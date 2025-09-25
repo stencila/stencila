@@ -304,12 +304,31 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --heading-color-opacity-decrement: 0;
 
     /* Paragraphs */
-    --paragraph-spacing-xs: var(--space-2);
     --paragraph-spacing-sm: var(--space-3);
     --paragraph-spacing-md: var(--space-4);
     --paragraph-spacing-lg: var(--space-6);
     --paragraph-line-height: var(--line-height-relaxed);
-    --paragraph-max-width: var(--content-width);
+    --paragraph-text-align: left;
+    --paragraph-text-indent: 0;
+    --paragraph-hyphens: none;
+    --paragraph-orphans: 2;
+    --paragraph-widows: 2;
+    --paragraph-text-wrap: auto;
+    --paragraph-lead-font-size: inherit;
+    --paragraph-lead-font-weight: inherit;
+    --paragraph-lead-text-indent: 0;
+
+    /* Lists */
+    --list-indent: var(--space-6);
+    --list-indent-nested: var(--space-2);
+    --list-spacing: var(--space-2);
+    --list-spacing-nested: var(--space-2);
+    --list-marker-gap: var(--space-2);
+    --list-marker-color: var(--text-color-muted);
+    --list-marker-unordered: disc;
+    --list-marker-ordered: decimal;
+    --list-marker-nested-unordered: circle;
+    --list-marker-nested-ordered: lower-alpha;
 
     /* Code */
     --code-font-family: var(--font-family-mono);
@@ -356,18 +375,6 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --figure-margin-vertical-md: var(--space-8);
     --figure-margin-vertical-lg: var(--space-12);
     --figure-border-radius: var(--radius-md);
-
-    /* Lists */
-    --list-indent: var(--space-6);
-    --list-indent-nested: var(--space-2);
-    --list-spacing: var(--space-2);
-    --list-spacing-nested: var(--space-2);
-    --list-marker-gap: var(--space-2);
-    --list-marker-color: var(--text-color-muted);
-    --list-marker-unordered: disc;
-    --list-marker-ordered: decimal;
-    --list-marker-nested-unordered: circle;
-    --list-marker-nested-ordered: lower-alpha;
 
     /* Quotes */
     --quote-border-width: 4px;
@@ -868,7 +875,25 @@ p {
     color: var(--text-color-primary);
     margin-top: var(--paragraph-spacing-md);
     margin-bottom: 0;
-    max-width: var(--paragraph-max-width);
+    max-width: var(--content-width);
+    text-align: var(--paragraph-text-align);
+    text-indent: var(--paragraph-text-indent);
+    hyphens: var(--paragraph-hyphens);
+    orphans: var(--paragraph-orphans);
+    widows: var(--paragraph-widows);
+    text-wrap: var(--paragraph-text-wrap);
+}
+
+/* Lead paragraphs (first paragraph after headings) */
+h1+p,
+h2+p,
+h3+p,
+h4+p,
+h5+p,
+h6+p {
+    font-size: var(--paragraph-lead-font-size);
+    font-weight: var(--paragraph-lead-font-weight);
+    text-indent: var(--paragraph-lead-text-indent);
 }
 
 /* Lists */

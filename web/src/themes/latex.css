@@ -68,9 +68,14 @@
     --heading-margin-top-sm: 2rem;
     --heading-margin-bottom-md: 1rem;
 
-    /* Paragraph spacing for academic documents */
+    /* Paragraph spacing for scholarly documents */
     --paragraph-spacing-md: 1rem;
     --paragraph-spacing-lg: 1.5rem;
+
+    /* LaTeX text flow */
+    --paragraph-text-align: justify;
+    --paragraph-text-indent: 1.463rem; /* Traditional LaTeX \parindent */
+    --paragraph-hyphens: auto;
 
     /* LaTeX dark mode colors */
     --dark-surface-background: hsl(0, 0%, 16%);
@@ -89,12 +94,6 @@
     /* LaTeX document styling */
     counter-reset: theorem definition sidenote-counter table-counter;
     text-rendering: optimizeLegibility;
-
-    /* Justify text like traditional LaTeX documents */
-    text-align: justify;
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    -moz-hyphens: auto;
 }
 
 /* Center the first heading (typical LaTeX title style) */
@@ -104,23 +103,10 @@
     margin-bottom: 2rem;
 }
 
-/* LaTeX-style paragraph indentation */
+/* LaTeX-style paragraph indentation - second and subsequent paragraphs */
 [root] p+p,
 [root] stencila-paragraph+stencila-paragraph p {
-    text-indent: 1.463rem;
-    /* Traditional LaTeX \parindent */
     margin-top: 0;
-}
-
-/* But don't indent paragraphs after headings */
-[root] h1+p,
-[root] h2+p,
-[root] h3+p,
-[root] h4+p,
-[root] h5+p,
-[root] h6+p,
-[root] stencila-heading+stencila-paragraph p {
-    text-indent: 0;
 }
 
 /* LaTeX heading hierarchy with proper spacing */
