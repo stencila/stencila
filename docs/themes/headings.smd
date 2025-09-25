@@ -1,0 +1,254 @@
+---
+title: Headings
+description: |
+  Design tokens and examples for customizing heading typography and hierarchy in Stencila themes.
+---
+
+# Tokens
+
+Design tokens for headings use a modular scale system with base values and ratios to automatically calculate font sizes, weights, and spacing across all heading levels.
+
+| Token                               | Description                                        | Default Value                |
+| ----------------------------------- | -------------------------------------------------- | ---------------------------- |
+| `--heading-font-family`             | Font family for all heading levels                 | `var(--font-family-heading)` |
+| `--heading-font-size`               | Font size for `<h1>` (largest heading)             | `2.5rem`                     |
+| `--heading-font-size-ratio`         | Multiplier for scaling font sizes between levels   | `0.8`                        |
+| `--heading-font-weight`             | Font weight for `<h1>`                             | `700`                        |
+| `--heading-font-weight-decrement`   | Amount to reduce font weight per level             | `50`                         |
+| `--heading-line-height`             | Line height for all headings                       | `1.2`                        |
+| `--heading-letter-spacing`          | Letter spacing for all headings                    | `-0.02em`                    |
+| `--heading-margin-top`              | Top margin for `<h1>`                              | `var(--space-12)`            |
+| `--heading-margin-bottom`           | Bottom margin for `<h1>`                           | `var(--space-4)`             |
+| `--heading-margin-ratio`            | Ratio for scaling margins between levels           | `0.8`                        |
+| `--heading-color`                   | Text color for all headings                        | `var(--text-color-primary)`  |
+| `--heading-color-opacity-decrement` | Amount to reduce opacity per level (0 = no change) | `0`                          |
+
+# Usage
+
+The heading system uses three key token types to automatically calculate all heading properties:
+
+**Base tokens** define the starting point for `<h1>`:
+
+- `--heading-font-size: 2.5rem` - h1 font size
+- `--heading-font-weight: 700` - h1 font weight
+- `--heading-margin-top: var(--space-12)` - h1 top margin
+
+**Ratio tokens** control multiplicative scaling from the base. For example, if `--heading-font-size: 2.5rem` and `--heading-font-size-ratio: 0.8` then,
+
+- h1 = `2.5rem`
+- h2 = `2rem` (2.5 × 0.8)
+- h3 = `1.6rem` (2 × 0.8)
+
+**Decrement tokens** control linear reduction from the base. For example, if `--heading-font-weight: 700` and `--heading-font-weight-decrement: 50` then,
+
+- h1 = `700`
+- h2 = `650` (700 - 50)
+- h3 = `600` (650 - 50)
+
+For quick customization, focus on these tokens:
+
+- `--heading-color` - Change all heading colors at once
+- `--heading-font-size` - Sets overall heading scale
+- `--heading-font-size-ratio` - Controls hierarchy contrast (0.9 = subtle, 0.7 = dramatic)
+- `--heading-font-weight` - Make headings lighter or bolder
+- `--heading-font-weight-decrement` - Fine-tune weight progression
+- `--heading-margin-top` - Adjust spacing above headings
+- `--heading-margin-ratio` - Control margin scaling independently from font sizes
+
+# Patterns
+
+## Compact Headings
+
+Ideal for documentation, technical content, or high-density information:
+
+```css
+:root {
+  --heading-font-size: 1.875rem;
+  --heading-font-size-ratio: 0.833; /* Minor Third inverted - subtle differences */
+  --heading-margin-top: var(--space-6);
+  --heading-margin-bottom: var(--space-2);
+  --heading-font-weight: 600;
+  --heading-color: var(--color-blue-900);
+}
+```
+
+```html raw
+<div
+  style="
+  --heading-font-size: 1.875rem;
+  --heading-font-size-ratio: 0.833;
+  --heading-margin-top: var(--space-6);
+  --heading-margin-bottom: var(--space-2);
+  --heading-font-weight: 600;
+  --heading-color: var(--color-blue-900);
+"
+>
+  <h1>Heading One</h1>
+  <h2>Heading Two</h2>
+  <h3>Heading Three</h3>
+  <h4>Heading Four</h4>
+  <h5>Heading Five</h5>
+  <h6>Heading Six</h6>
+</div>
+```
+
+## Spacious Headings
+
+Better for presentations, marketing content, and editorial layouts:
+
+```css
+:root {
+  --heading-font-size: 3rem;
+  --heading-font-size-ratio: 0.75; /* Perfect Fourth inverted - noticeable hierarchy */
+  --heading-margin-top: var(--space-16);
+  --heading-margin-bottom: var(--space-6);
+  --heading-letter-spacing: -0.03em;
+  --heading-color: var(--color-green-800);
+}
+```
+
+```html raw
+<div
+  style="
+  --heading-font-size: 3rem;
+  --heading-font-size-ratio: 0.75;
+  --heading-margin-top: var(--space-16);
+  --heading-margin-bottom: var(--space-6);
+  --heading-letter-spacing: -0.03em;
+  --heading-color: var(--color-green-800);
+"
+>
+  <h1>Heading One</h1>
+  <h2>Heading Two</h2>
+  <h3>Heading Three</h3>
+  <h4>Heading Four</h4>
+  <h5>Heading Five</h5>
+  <h6>Heading Six</h6>
+</div>
+```
+
+## Editorial Headings
+
+Classic typography for articles, blogs, and long-form content:
+
+```css
+:root {
+  --heading-font-family: Georgia, serif;
+  --heading-font-size: 2.25rem;
+  --heading-font-size-ratio: 0.8; /* Major Third inverted - traditional harmony */
+  --heading-font-weight: 400;
+  --heading-font-weight-decrement: 0;
+  --heading-line-height: 1.3;
+  --heading-color: var(--color-amber-800);
+}
+```
+
+```html raw
+<div
+  style="
+  --heading-font-family: Georgia, serif;
+  --heading-font-size: 2.25rem;
+  --heading-font-size-ratio: 0.8;
+  --heading-font-weight: 400;
+  --heading-font-weight-decrement: 0;
+  --heading-line-height: 1.3;
+  --heading-color: var(--color-amber-800);
+"
+>
+  <h1>Heading One</h1>
+  <h2>Heading Two</h2>
+  <h3>Heading Three</h3>
+  <h4>Heading Four</h4>
+  <h5>Heading Five</h5>
+  <h6>Heading Six</h6>
+</div>
+```
+
+## Minimal Headings
+
+Clean, modern styling with subtle hierarchy:
+
+```css
+:root {
+  --heading-font-size: 2rem;
+  --heading-font-size-ratio: 0.87; /* Subtle scale */
+  --heading-font-weight: 500;
+  --heading-font-weight-decrement: 100;
+  --heading-color-opacity-decrement: 0.15;
+  --heading-letter-spacing: 0;
+  --heading-color: var(--color-gray-700);
+}
+```
+
+```html raw
+<div
+  style="
+  --heading-font-size: 2rem;
+  --heading-font-size-ratio: 0.87;
+  --heading-font-weight: 500;
+  --heading-font-weight-decrement: 100;
+  --heading-letter-spacing: 0;
+  --heading-color: var(--color-gray-700);
+"
+>
+  <h1>Heading One</h1>
+  <h2>Heading Two</h2>
+  <h3>Heading Three</h3>
+  <h4>Heading Four</h4>
+  <h5>Heading Five</h5>
+  <h6>Heading Six</h6>
+</div>
+```
+
+## Dramatic Headings
+
+High contrast for landing pages and marketing materials:
+
+```css
+:root {
+  --heading-font-size: 4rem;
+  --heading-font-size-ratio: 0.618; /* Golden Ratio for maximum contrast */
+  --heading-font-weight: 800;
+  --heading-letter-spacing: -0.04em;
+  --heading-margin-ratio: 0.6;
+  --heading-color: var(--color-red-900);
+}
+```
+
+```html raw
+<div
+  style="
+  --heading-font-size: 4rem;
+  --heading-font-size-ratio: 0.618;
+  --heading-font-weight: 800;
+  --heading-letter-spacing: -0.04em;
+  --heading-margin-ratio: 0.6;
+  --heading-color: var(--color-red-900);
+"
+>
+  <h1>Heading One</h1>
+  <h2>Heading Two</h2>
+  <h3>Heading Three</h3>
+  <h4>Heading Four</h4>
+  <h5>Heading Five</h5>
+  <h6>Heading Six</h6>
+</div>
+```
+
+# Tips
+
+**Choose appropriate ratios**: Larger ratios (0.87-0.9) create subtle hierarchy for dense content, while smaller ratios (0.6-0.75) create dramatic contrast for marketing or presentation materials.
+
+**Consider viewport sizes**: You might want different `--heading-font-size-ratio` values for mobile vs desktop using media queries - mobile often benefits from less dramatic scaling.
+
+**Maintain readability**: Keep `--heading-line-height` between 1.1 and 1.4 for optimal readability across different sizes.
+
+**Test weight decrements**: Ensure `--heading-font-weight-decrement` doesn't result in weights below 300 (too thin) or create insufficient contrast between levels.
+
+**Use opacity sparingly**: `--heading-color-opacity-decrement` can help create hierarchy, but avoid going below 0.7 opacity for accessibility.
+
+**Responsive base size**: Consider using `clamp()` for `--heading-font-size` to create fluid typography:
+
+```css
+--heading-font-size: clamp(2rem, 4vw, 3rem);
+```

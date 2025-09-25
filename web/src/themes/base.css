@@ -287,16 +287,18 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --content-width-wide: 80ch;
 
     /* Headings */
-    --heading-font-weight: var(--font-weight-semibold);
+    --heading-font-family: var(--font-family-heading);
+    --heading-font-size: 2.5rem;
+    --heading-font-size-ratio: 0.8;
+    --heading-font-weight: var(--font-weight-bold);
+    --heading-font-weight-decrement: 50;
     --heading-line-height: var(--line-height-tight);
     --heading-letter-spacing: -0.025em;
-    --heading-margin-top-xs: var(--space-6);
-    --heading-margin-top-sm: var(--space-8);
-    --heading-margin-top-md: var(--space-10);
-    --heading-margin-top-lg: var(--space-12);
-    --heading-margin-bottom-xs: var(--space-2);
-    --heading-margin-bottom-sm: var(--space-3);
-    --heading-margin-bottom-md: var(--space-4);
+    --heading-margin-top: var(--space-12);
+    --heading-margin-bottom: var(--space-4);
+    --heading-margin-ratio: 0.8;
+    --heading-color: var(--text-color-primary);
+    --heading-color-opacity-decrement: 0;
 
     /* Paragraphs */
     --paragraph-spacing-xs: var(--space-2);
@@ -334,18 +336,7 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --table-cell-padding-md: var(--space-3);
     --table-margin-vertical: var(--space-8);
 
-    /* Quotes */
-    --quote-border-width: 4px;
-    --quote-border-color: var(--border-color-emphasis);
-    --quote-background: var(--surface-sunken);
-    --quote-padding-xs: var(--space-2);
-    --quote-padding-sm: var(--space-3);
-    --quote-padding-md: var(--space-4);
-    --quote-margin-horizontal: var(--space-6);
-    --quote-font-style: italic;
-    --quote-font-size: var(--font-size-lg);
-
-    /* Figures & Media */
+    /* Figures */
     --figure-caption-font-size-xs: var(--font-size-xs);
     --figure-caption-font-size: var(--font-size-sm);
     --figure-caption-color: var(--text-color-secondary);
@@ -367,6 +358,17 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --list-marker-ordered: decimal;
     --list-marker-nested-unordered: circle;
     --list-marker-nested-ordered: lower-alpha;
+
+    /* Quotes */
+    --quote-border-width: 4px;
+    --quote-border-color: var(--border-color-emphasis);
+    --quote-background: var(--surface-sunken);
+    --quote-padding-xs: var(--space-2);
+    --quote-padding-sm: var(--space-3);
+    --quote-padding-md: var(--space-4);
+    --quote-margin-horizontal: var(--space-6);
+    --quote-font-style: italic;
+    --quote-font-size: var(--font-size-lg);
 
     /* Admonitions */
     --admonition-padding-xs: var(--space-2);
@@ -801,42 +803,52 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: var(--font-family-heading);
-    font-weight: var(--heading-font-weight);
+    font-family: var(--heading-font-family);
     line-height: var(--heading-line-height);
     letter-spacing: var(--heading-letter-spacing);
-    color: var(--text-color-primary);
-    margin-bottom: var(--heading-margin-bottom-md);
+    color: var(--heading-color);
+    margin-bottom: var(--heading-margin-bottom);
 }
 
 h1 {
-    font-size: var(--font-size-4xl);
-    margin-top: var(--heading-margin-top-lg);
+    font-size: var(--heading-font-size);
+    font-weight: var(--heading-font-weight);
+    margin-top: var(--heading-margin-top);
 }
 
 h2 {
-    font-size: var(--font-size-3xl);
-    margin-top: var(--heading-margin-top-md);
+    font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio));
+    font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement));
+    margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio));
+    margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio));
 }
 
 h3 {
-    font-size: var(--font-size-2xl);
-    margin-top: var(--heading-margin-top-sm);
+    font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+    font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 2);
+    margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
 }
 
 h4 {
-    font-size: var(--font-size-xl);
-    margin-top: var(--heading-margin-top-sm);
+    font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+    font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
+    margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
 }
 
 h5 {
-    font-size: var(--font-size-lg);
-    margin-top: var(--heading-margin-top-xs);
+    font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+    font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
+    margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
 }
 
 h6 {
-    font-size: var(--font-size-md);
-    margin-top: var(--heading-margin-top-xs);
+    font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+    font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
+    margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
 }
 
 /* Paragraphs */
