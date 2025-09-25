@@ -1284,7 +1284,7 @@
     "package": "npx vsce package"
   },
   "dependencies": {
-    "@vscode/python-extension": "1.0.5",
+    "@vscode/python-extension": "1.0.6",
     "posthog-js": "1.260.2",
     "vscode-languageclient": "9.0.1"
   },
