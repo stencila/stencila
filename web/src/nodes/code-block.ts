@@ -67,7 +67,6 @@ export class CodeBlock extends CodeStatic {
           language=${this.programmingLanguage}
           read-only
           no-gutters
-          container-classes=${`rounded-sm border border-gray-200`}
         >
         </stencila-ui-node-code>
       </div>

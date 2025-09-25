@@ -17,43 +17,6 @@ import { getTooltipContent } from '../authorship/utils'
 import type { AuthorshipMarker } from './types'
 
 /**
- * Custom CSS for CodeMirror editor
- */
-export const stencilaTheme = EditorView.theme({
-  '.cm-content,.cm-lineNumbers,.cm-diagnostic': {
-    fontFamily: "'IBM Plex Mono', Menlo, Courier, mono",
-    fontSize: '0.85rem',
-  },
-  '.cm-diagnostic': {
-    paddingLeft: '16px',
-    paddingRight: '16px',
-    borderBottom: '1px solid #dedede', // grey-200
-  },
-  '.cm-diagnostic:last-child': {
-    borderBottom: '0px',
-  },
-  '.cm-tooltip:has(> .cm-provenance-tooltip)': {
-    minWidth: '30px',
-    border: 'none',
-    color: '#ffffff',
-    // use sl tooltip variables for consistency
-    backgroundColor: 'var(--sl-tooltip-background-color)',
-    fontFamily: 'var(--sl-tooltip-font-family)',
-    borderRadius: 'var(--sl-tooltip-border-radius)',
-    fontSize: 'var(--sl-tooltip-font-size)',
-    fontWeight: 'var(--sl-tooltip-font-weight)',
-    lineHeight: 'var(--sl-tooltip-line-height)',
-    padding: 'var(--sl-tooltip-padding)',
-  },
-  'div.cm-tooltip-arrow::after': {
-    borderBottomColor: `var(--sl-tooltip-background-color) !important`,
-  },
-  'div.cm-tooltip-arrow::before': {
-    borderBottomColor: `var(--sl-tooltip-background-color) !important`,
-  },
-})
-
-/**
  * Creates a set of CodeMirror mark type decorations from the
  * array of `AuthorshipMarkers`
  */

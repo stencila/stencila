@@ -160,7 +160,6 @@ export class CodeChunk extends CodeExecutable {
         execution-required=${this.executionRequired}
         read-only
         no-gutters
-        container-classes=${`rounded-sm border border-gray-200`}
       >
         <slot name="compilation-messages" slot="messages"></slot>
         <slot name="execution-messages" slot="messages"></slot>

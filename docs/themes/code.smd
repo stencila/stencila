@@ -1,0 +1,552 @@
+---
+title: Code
+description: |
+  Design tokens and examples for customizing code styling in both inline and block contexts in Stencila themes.
+---
+
+# Tokens
+
+> **Note:** CodeMirror editors (interactive code blocks and chunks) do not support `border-radius` styling due to technical limitations in the editor's DOM structure. The `--code-border-radius` token only applies to static `<pre><code>` elements.
+
+## Font and Typography Tokens
+
+Base tokens with semantic overrides for inline vs block contexts.
+
+| Token                     | Description                                | Default Value               |
+| ------------------------- | ------------------------------------------ | --------------------------- |
+| `--code-font-family`      | Font family for all code elements          | `var(--font-family-mono)`   |
+| `--code-font-size-inline` | Font size for inline `<code>` elements     | `var(--font-size-sm)`       |
+| `--code-font-size-block`  | Font size for block `<pre><code>` elements | `var(--font-size-sm)`       |
+| `--code-line-height`      | Line height for code blocks                | `var(--line-height-normal)` |
+
+## Visual Style Tokens
+
+Base tokens with semantic overrides for different contexts.
+
+| Token                      | Description                       | Default Value                 |
+| -------------------------- | --------------------------------- | ----------------------------- |
+| `--code-background`        | Base background color for code    | `var(--color-gray-100)`       |
+| `--code-background-inline` | Background color for inline code  | `var(--code-background)`      |
+| `--code-background-block`  | Background color for code blocks  | `var(--code-background)`      |
+| `--code-border-color`      | Border color for code elements    | `var(--border-color-muted)`   |
+| `--code-border-width`      | Border width for code elements    | `var(--border-width-default)` |
+| `--code-border-radius`     | Corner radius for code containers (note: not supported in CodeMirror editors) | `var(--radius-sm)`            |
+
+## Spacing Tokens
+
+Simple padding tokens for different code contexts.
+
+| Token                   | Description                              | Default Value     |
+| ----------------------- | ---------------------------------------- | ----------------- |
+| `--code-padding-inline` | Horizontal padding for all code elements | `var(--space-xs)` |
+| `--code-padding-block`  | Vertical padding for code blocks         | `var(--space-4)`  |
+
+## Editor Tokens
+
+**Editor Layout Tokens** - Core editor appearance and behavior:
+
+| Token                                 | Description                    | Default Value                 |
+| ------------------------------------- | ------------------------------ | ----------------------------- |
+| `--editor-background`                 | Editor background color        | `var(--code-background)`      |
+| `--editor-color`                      | Editor text color              | `var(--text-color-primary)`   |
+| `--editor-font-family`                | Editor font family             | `var(--code-font-family)`     |
+| `--editor-font-size`                  | Editor font size               | `var(--code-font-size-block)` |
+| `--editor-line-height`                | Editor line height             | `var(--code-line-height)`     |
+| `--editor-caret-color`                | Cursor/caret color             | `var(--text-color-primary)`   |
+| `--editor-selection-background`       | Text selection background      | `var(--color-blue-200)`       |
+| `--editor-selection-match-background` | Search match highlight         | `var(--color-blue-100)`       |
+| `--editor-focused-background`         | Editor background when focused | `var(--editor-background)`    |
+| `--editor-cursor-line-background`     | Active line background         | `rgba(0, 0, 0, 0.02)`         |
+
+**Gutter Tokens** - Line numbers and editor margins:
+
+| Token                             | Description                   | Default Value                          |
+| --------------------------------- | ----------------------------- | -------------------------------------- |
+| `--gutter-background`             | Gutter background color       | `var(--editor-background)`             |
+| `--gutter-color`                  | Line number color             | `var(--text-color-muted)`              |
+| `--gutter-border-color`           | Gutter border color           | `var(--border-color-muted)`            |
+| `--gutter-border-width`           | Gutter border width           | `var(--border-width-default)`          |
+| `--gutter-padding`                | Gutter padding                | `var(--space-3)`                       |
+| `--gutter-min-width`              | Minimum gutter width          | `2.5rem`                               |
+| `--gutter-active-line-background` | Active line gutter background | `var(--editor-cursor-line-background)` |
+| `--gutter-active-line-color`      | Active line number color      | `var(--text-color-secondary)`          |
+
+**Syntax Highlighting Tokens** - Colors for different code elements:
+
+| Token                            | Description             | Default Value               |
+| -------------------------------- | ----------------------- | --------------------------- |
+| `--syntax-comment`               | Comments                | `var(--color-gray-500)`     |
+| `--syntax-comment-block`         | Block comments          | `var(--syntax-comment)`     |
+| `--syntax-comment-line`          | Line comments           | `var(--syntax-comment)`     |
+| `--syntax-comment-doc`           | Documentation comments  | `var(--color-gray-600)`     |
+| `--syntax-keyword`               | Keywords                | `var(--color-blue-700)`     |
+| `--syntax-keyword-control`       | Control flow keywords   | `var(--syntax-keyword)`     |
+| `--syntax-keyword-operator`      | Operator keywords       | `var(--color-gray-700)`     |
+| `--syntax-keyword-modifier`      | Modifier keywords       | `var(--syntax-keyword)`     |
+| `--syntax-keyword-definition`    | Definition keywords     | `var(--syntax-keyword)`     |
+| `--syntax-string`                | Strings                 | `var(--color-green-700)`    |
+| `--syntax-string-special`        | Special strings         | `var(--color-green-800)`    |
+| `--syntax-string-regex`          | Regular expressions     | `var(--color-amber-700)`    |
+| `--syntax-string-escape`         | String escape sequences | `var(--color-red-600)`      |
+| `--syntax-number`                | Numbers                 | `var(--color-blue-600)`     |
+| `--syntax-number-integer`        | Integer numbers         | `var(--syntax-number)`      |
+| `--syntax-number-float`          | Floating point numbers  | `var(--syntax-number)`      |
+| `--syntax-boolean`               | Boolean values          | `var(--color-blue-800)`     |
+| `--syntax-constant`              | Constants               | `var(--color-blue-800)`     |
+| `--syntax-constant-builtin`      | Built-in constants      | `var(--syntax-constant)`    |
+| `--syntax-variable`              | Variables               | `var(--text-color-primary)` |
+| `--syntax-variable-builtin`      | Built-in variables      | `var(--color-blue-600)`     |
+| `--syntax-variable-special`      | Special variables       | `var(--color-red-700)`      |
+| `--syntax-function`              | Functions               | `var(--color-blue-700)`     |
+| `--syntax-function-builtin`      | Built-in functions      | `var(--color-blue-600)`     |
+| `--syntax-function-method`       | Methods                 | `var(--syntax-function)`    |
+| `--syntax-class`                 | Classes                 | `var(--color-amber-700)`    |
+| `--syntax-class-builtin`         | Built-in classes        | `var(--syntax-class)`       |
+| `--syntax-type`                  | Types                   | `var(--color-green-800)`    |
+| `--syntax-type-builtin`          | Built-in types          | `var(--syntax-type)`        |
+| `--syntax-namespace`             | Namespaces              | `var(--color-gray-700)`     |
+| `--syntax-property`              | Properties              | `var(--color-blue-600)`     |
+| `--syntax-attribute`             | Attributes              | `var(--color-amber-600)`    |
+| `--syntax-tag`                   | Tags (HTML/XML)         | `var(--color-green-700)`    |
+| `--syntax-tag-angle`             | Tag angle brackets      | `var(--color-gray-600)`     |
+| `--syntax-operator`              | Operators               | `var(--color-gray-700)`     |
+| `--syntax-punctuation`           | Punctuation             | `var(--color-gray-600)`     |
+| `--syntax-punctuation-bracket`   | Brackets                | `var(--syntax-punctuation)` |
+| `--syntax-punctuation-delimiter` | Delimiters              | `var(--syntax-punctuation)` |
+| `--syntax-meta`                  | Meta information        | `var(--color-gray-500)`     |
+| `--syntax-invalid`               | Invalid code            | `var(--color-red-700)`      |
+| `--syntax-invalid-deprecated`    | Deprecated code         | `var(--color-amber-700)`    |
+
+# Usage
+
+## Token Application
+
+**Inline code** (`<code>`) uses:
+
+- `--code-font-size-inline` - compact size for inline context
+- `--code-background-inline` - subtle background highlighting
+- `--code-padding-inline` for horizontal padding with minimal vertical padding
+
+**Code blocks** (`<pre><code>`) use:
+
+- `--code-font-size-block` - larger size for better readability
+- `--code-background-block` - consistent with inline background
+- `--code-padding-inline` for horizontal and `--code-padding-block` for generous vertical padding
+
+**CodeMirror integration** is used for all code display in Stencila documents:
+
+- **Static code blocks** (`<pre><code>`) use CodeMirror for syntax highlighting when JavaScript loads
+- **Executable code chunks** use CodeMirror for both editing and display
+- **Fallback styling** uses base code tokens when JavaScript fails to load
+
+**Editor tokens** (`--editor-*`) control the CodeMirror appearance and behavior:
+
+- Used for all code blocks and chunks when CodeMirror loads
+- Automatically inherit from base code tokens for consistency
+- Can be customized independently for editor-specific styling
+
+**Gutter and syntax tokens** provide fine-grained control:
+
+- **Gutter tokens** (`--gutter-*`) control line numbers and margins
+- **Syntax tokens** (`--syntax-*`) control code highlighting colors
+- All tokens support CSS variables and adapt to theme changes automatically
+
+# Examples
+
+These examples of code blocks in popular languages allow you to preview how the `--editor-` and `--syntax-` tokens work. Remember that both these sets of tokens are applied to static `CodeBlock` and executable `CodeChunk` nodes, even when they are not editable.
+
+## Python
+
+```python
+import numpy as np
+from scipy import stats
+
+def analyze_experiment(data, control_group=None):
+    """Calculate p-value for experimental results."""
+    mean_effect = np.mean(data)
+    if control_group is not None:
+        t_stat, p_value = stats.ttest_ind(data, control_group)
+        return {'mean': mean_effect, 'p_value': p_value, 'significant': p_value < 0.05}
+    return mean_effect
+```
+
+## R
+
+```r
+library(tidyverse)
+library(broom)
+
+# Analyze gene expression data
+gene_analysis <- function(expression_matrix, metadata) {
+  results <- expression_matrix %>%
+    filter(gene_type == "protein_coding") %>%
+    mutate(log_expression = log2(count + 1)) %>%
+    group_by(sample_id) %>%
+    summarise(median_expr = median(log_expression), .groups = "drop")
+
+  return(results)
+}
+```
+
+## JavaScript
+
+```js
+class ExperimentTracker {
+  constructor(studyId, sampleSize = 100) {
+    this.studyId = studyId;
+    this.sampleSize = sampleSize;
+    this.results = [];
+  }
+
+  async recordMeasurement(participant, measurement) {
+    const timestamp = new Date().toISOString();
+    this.results.push({participant, measurement, timestamp});
+    return this.calculateStatistics();
+  }
+}
+```
+
+## SQL
+
+```sql
+SELECT
+    p.patient_id,
+    p.age_at_diagnosis,
+    t.treatment_type,
+    AVG(m.biomarker_value) AS mean_biomarker,
+    COUNT(*) AS measurement_count
+FROM patients p
+    INNER JOIN treatments t ON p.patient_id = t.patient_id
+    LEFT JOIN measurements m ON p.patient_id = m.patient_id
+WHERE p.diagnosis_date >= '2023-01-01'
+    AND m.biomarker_name = 'IL-6'
+GROUP BY p.patient_id, t.treatment_type
+HAVING COUNT(*) >= 3;
+```
+
+# Patterns
+
+## Technical Documentation
+
+Clean, readable styling for technical content:
+
+```css
+:root {
+  --code-font-size-inline: 0.875rem;
+  --code-font-size-block: 0.875rem;
+  --code-background: #f8f9fa;
+  --code-background-inline: #f1f3f4;
+  --code-border-radius: 4px;
+  --code-padding-inline: 0.5rem;
+  --code-padding-block-block: 1rem;
+
+  /* Editor tokens for CodeMirror */
+  --editor-background: #f8f9fa;
+  --gutter-background: #f0f0f0;
+  --gutter-border-color: #e0e0e0;
+  --syntax-keyword: #0066cc;
+  --syntax-string: #008800;
+  --syntax-comment: #888888;
+}
+```
+
+```html raw
+<div
+  style="
+  --code-font-size-inline: 0.875rem;
+  --code-font-size-block: 0.875rem;
+  --code-background: #f8f9fa;
+  --code-background-inline: #f1f3f4;
+  --code-border-radius: 4px;
+  --code-padding-inline: 0.5rem;
+  --code-padding-block-block: 1rem;
+  --editor-background: #f8f9fa;
+  --gutter-background: #f0f0f0;
+  --gutter-border-color: #e0e0e0;
+  --syntax-keyword: #0066cc;
+  --syntax-string: #008800;
+  --syntax-comment: #888888;
+  padding: 1rem;
+"
+>
+  <h3>Installation</h3>
+  <p>
+    Install the package using <code>pip install research-toolkit</code> or
+    <code>npm install research-toolkit</code> depending on your environment.
+  </p>
+
+  <p>For Python environments:</p>
+  <pre><code>pip install research-toolkit
+import research_toolkit as rt
+rt.configure(api_key="your-key")</code></pre>
+</div>
+```
+
+## Minimal Code Style
+
+Subtle, unobtrusive code formatting:
+
+```css
+:root {
+  --code-background: transparent;
+  --code-background-inline: rgba(0, 0, 0, 0.05);
+  --code-border-width: 0;
+  --code-padding-inline: 0.25rem;
+  --code-padding-block-inline: 0.125rem;
+  --code-padding-block-block: 0.75rem;
+  --code-border-radius: 2px;
+
+  /* Subtle editor styling */
+  --editor-background: transparent;
+  --gutter-background: transparent;
+  --gutter-border-width: 0;
+  --editor-cursor-line-background: rgba(0, 0, 0, 0.03);
+  --syntax-keyword: inherit;
+  --syntax-string: inherit;
+}
+```
+
+```html raw
+<div
+  style="
+  --code-background: transparent;
+  --code-background-inline: rgba(0, 0, 0, 0.05);
+  --code-border-width: 0;
+  --code-padding-inline: 0.25rem;
+  --code-padding-block-inline: 0.125rem;
+  --code-padding-block-block: 0.75rem;
+  --code-border-radius: 2px;
+  --editor-background: transparent;
+  --gutter-background: transparent;
+  --gutter-border-width: 0;
+  --editor-cursor-line-background: rgba(0, 0, 0, 0.03);
+  --syntax-keyword: inherit;
+  --syntax-string: inherit;
+  padding: 1rem;
+"
+>
+  <h3>Data Analysis</h3>
+  <p>
+    Use the <code>analyze()</code> function to process your dataset. The
+    function accepts parameters like <code>method="pearson"</code> for
+    correlation analysis.
+  </p>
+
+  <p>Example workflow:</p>
+  <pre><code>data = load_dataset("experiment.csv")
+results = analyze(data, method="pearson")
+print(results.summary())</code></pre>
+</div>
+```
+
+## High Contrast Code
+
+Bold, prominent styling for tutorials and learning materials:
+
+```css
+:root {
+  --code-background: #2d3748;
+  --code-background-inline: #e2e8f0;
+  --code-font-size-inline: 0.9rem;
+  --code-font-size-block: 1rem;
+  --code-border-radius: 8px;
+  --code-padding-inline: 0.75rem;
+  --code-padding-block-block: 1.5rem;
+  --code-border-width: 2px;
+  --code-border-color: #4a5568;
+
+  /* High contrast editor */
+  --editor-background: #2d3748;
+  --editor-color: #ffffff;
+  --gutter-background: #1a202c;
+  --gutter-color: #a0aec0;
+  --editor-selection-background: #4299e1;
+  --syntax-keyword: #63b3ed;
+  --syntax-string: #68d391;
+  --syntax-comment: #a0aec0;
+  --syntax-function: #f6ad55;
+}
+```
+
+```html raw
+<div
+  style="
+  --code-background: #2d3748;
+  --code-background-inline: #e2e8f0;
+  --code-font-size-inline: 0.9rem;
+  --code-font-size-block: 1rem;
+  --code-border-radius: 8px;
+  --code-padding-inline: 0.75rem;
+  --code-padding-block-block: 1.5rem;
+  --code-border-width: 2px;
+  --code-border-color: #4a5568;
+  --editor-background: #2d3748;
+  --editor-color: #ffffff;
+  --gutter-background: #1a202c;
+  --gutter-color: #a0aec0;
+  --editor-selection-background: #4299e1;
+  --syntax-keyword: #63b3ed;
+  --syntax-string: #68d391;
+  --syntax-comment: #a0aec0;
+  --syntax-function: #f6ad55;
+  padding: 1rem;
+"
+>
+  <h3>Machine Learning Pipeline</h3>
+  <p>
+    Import the required modules using
+    <code>from sklearn import datasets</code> and
+    <code>from sklearn.model_selection import train_test_split</code>.
+  </p>
+
+  <p>Complete example:</p>
+  <pre><code>from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+# Load data
+iris = datasets.load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+    iris.data, iris.target, test_size=0.3
+)</code></pre>
+</div>
+```
+
+## Academic Paper Style
+
+Formal styling suitable for research publications:
+
+```css
+:root {
+  --code-font-size-sm: 0.85rem;
+  --code-font-size-md: 0.9rem;
+  --code-background: #f7f7f7;
+  --code-background-inline: #f0f0f0;
+  --code-border-width: 1px;
+  --code-border-color: #d0d0d0;
+  --code-border-radius: 0;
+  --code-padding-inline: 0.4rem;
+  --code-padding-block-md: 1rem;
+  --code-line-height: 1.4;
+}
+```
+
+```html raw
+<div
+  style="
+  --code-font-size-sm: 0.85rem;
+  --code-font-size-md: 0.9rem;
+  --code-background: #f7f7f7;
+  --code-background-inline: #f0f0f0;
+  --code-border-width: 1px;
+  --code-border-color: #d0d0d0;
+  --code-border-radius: 0;
+  --code-padding-inline: 0.4rem;
+  --code-padding-block-md: 1rem;
+  --code-line-height: 1.4;
+  padding: 1rem;
+"
+>
+  <h3>Statistical Analysis</h3>
+  <p>
+    The analysis was performed using the <code>cor.test()</code> function in R
+    version 4.3.0. Significance was set at <code>p < 0.05</code> for all tests.
+  </p>
+
+  <p>R code for correlation analysis:</p>
+  <pre><code># Load required libraries
+library(tidyverse)
+library(corrplot)
+
+# Perform correlation test
+result <- cor.test(data$variable1, data$variable2,
+                   method = "pearson")
+print(result)</code></pre>
+</div>
+```
+
+## Compact Terminal Style
+
+Dense, console-like formatting:
+
+```css
+:root {
+  --code-font-size-inline: 0.8rem;
+  --code-font-size-block: 0.85rem;
+  --code-background: #1a1a1a;
+  --code-background-inline: #333;
+  --code-border-radius: 0;
+  --code-padding-inline: 0.5rem;
+  --code-padding-block-block: 0.75rem;
+  --code-line-height: 1.3;
+  --code-border-width: 0;
+
+  /* Terminal editor styling */
+  --editor-background: #1a1a1a;
+  --editor-color: #00ff00;
+  --gutter-background: #1a1a1a;
+  --gutter-color: #666666;
+  --gutter-border-width: 0;
+  --syntax-keyword: #00ffff;
+  --syntax-string: #ffff00;
+  --syntax-comment: #666666;
+}
+```
+
+```html raw
+<div
+  style="
+  --code-font-size-inline: 0.8rem;
+  --code-font-size-block: 0.85rem;
+  --code-background: #1a1a1a;
+  --code-background-inline: #333;
+  --code-border-radius: 0;
+  --code-padding-inline: 0.5rem;
+  --code-padding-block-block: 0.75rem;
+  --code-line-height: 1.3;
+  --code-border-width: 0;
+  --editor-background: #1a1a1a;
+  --editor-color: #00ff00;
+  --gutter-background: #1a1a1a;
+  --gutter-color: #666666;
+  --gutter-border-width: 0;
+  --syntax-keyword: #00ffff;
+  --syntax-string: #ffff00;
+  --syntax-comment: #666666;
+  padding: 1rem;
+"
+>
+  <h3>Command Line Usage</h3>
+  <p>
+    Run the analysis script with <code>python analyze.py --verbose</code> to see
+    detailed output.
+  </p>
+
+  <p>Full command sequence:</p>
+  <pre><code>$ cd research-project
+$ python -m venv venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
+$ python analyze.py --input data.csv --output results.json</code></pre>
+</div>
+```
+
+# Tips
+
+**Consistent font sizing**: Use a clear hierarchy with `--code-font-size-sm` for inline code and `--code-font-size-md` for blocks, typically 0.1-0.2rem smaller than body text.
+
+**Background contrast**: Ensure sufficient contrast between `--code-background` and surrounding content, while keeping inline code subtle with `--code-background-inline`.
+
+**Padding balance**: Use minimal padding for inline code (`--code-padding-block-sm`) but generous spacing for blocks (`--code-padding-block-md`) to improve readability.
+
+**Border consistency**: Either use borders on all code elements or none - mixing bordered and borderless code can look inconsistent.
+
+**Line height optimization**: Code blocks benefit from slightly tighter `--code-line-height` (1.3-1.5) than body text for better density.
+
+**Consider context**: Technical documentation needs clear, readable code styling, while academic papers may prefer more subdued formatting.
+
+**Test with real content**: Verify your tokens work well with both short snippets (`console.log()`) and longer code blocks with multiple lines.
+
+**Accessibility**: Ensure code text maintains sufficient contrast ratios, especially when using custom background colors.
+
+**Monospace consistency**: Always use `--code-font-family` with a proper monospace stack for predictable character alignment.

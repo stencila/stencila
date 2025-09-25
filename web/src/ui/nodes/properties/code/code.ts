@@ -21,12 +21,11 @@ import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
 import '../../../buttons/chevron'
-import { nodeUi } from '../../icons-and-colours'
 
+import { createTheme } from './theme'
 import { AuthorshipRun, AuthorshipMarker as AuthorshipMarker } from './types'
 import {
   createProvenanceDecorations,
-  stencilaTheme,
   provenanceTooltip,
   createLinterDiagnostics,
   clipBoardKeyBindings,
@@ -106,12 +105,6 @@ export class UINodeCode extends LitElement {
    */
   @property({ type: Boolean })
   collapsed: boolean = false
-
-  /**
-   * Classes to apply to the editor container
-   */
-  @property({ attribute: 'container-classes' })
-  containerClasses?: string
 
   /**
    * Limits the editor to single line
@@ -412,7 +405,7 @@ export class UINodeCode extends LitElement {
       keymap.of(filteredKeyMap),
       keymap.of(historyKeymap),
       keymap.of(clipBoardKeyBindings),
-      stencilaTheme,
+      createTheme(),
       keymap.of([
         {
           key: 'Ctrl-Enter',
@@ -570,12 +563,6 @@ export class UINodeCode extends LitElement {
   }
 
   override render() {
-    const { borderColour } = nodeUi(this.type)
-
-    const containerClasses = apply([
-      this.containerClasses ?? `border-t border-[${borderColour}]`,
-    ])
-
     const contentClasses = apply([
       'text-black',
       this.collapsed ? 'max-h-0' : 'max-h-full',
@@ -585,16 +572,14 @@ export class UINodeCode extends LitElement {
     // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
     // the CodeMirror stylesheet from being applied to the `<slot name="content">`
     return html`
-      <div class=${containerClasses}>
-        <div class=${contentClasses}>
-          <div hidden>
-            <slot
-              name="messages"
-              @slotchange=${this.onMessagesSlotChange}
-            ></slot>
-          </div>
-          <div id="codemirror" class="bg-gray-50"></div>
+      <div class=${contentClasses}>
+        <div hidden>
+          <slot
+            name="messages"
+            @slotchange=${this.onMessagesSlotChange}
+          ></slot>
         </div>
+        <div id="codemirror" class="bg-gray-50"></div>
       </div>
     `
   }

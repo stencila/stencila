@@ -332,26 +332,85 @@ elements (stencila-heading, stencila-paragraph, etc.).
 
     /* Code */
     --code-font-family: var(--font-family-mono);
-
-    /* Math */
-    --math-font-family: var(--font-family-math);
-
-    /* Data Tables */
-    --data-font-family: var(--font-family-mono);
+    --code-font-size-inline: var(--font-size-sm);
+    --code-font-size-block: var(--font-size-sm);
+    --code-line-height: var(--line-height-normal);
     --code-background: var(--color-gray-100);
-    --code-background-inline: var(--color-gray-100);
+    --code-background-inline: var(--code-background);
+    --code-background-block: var(--code-background);
     --code-border-color: var(--border-color-muted);
     --code-border-width: var(--border-width-default);
     --code-border-radius: var(--radius-sm);
-    --code-padding-inline-xs: var(--space-1);
-    --code-padding-inline: var(--space-2);
-    --code-padding-block-xs: var(--space-1);
-    --code-padding-block-sm: var(--space-2);
-    --code-padding-block-md: var(--space-4);
-    --code-font-size-xs: var(--font-size-xs);
-    --code-font-size-sm: var(--font-size-sm);
-    --code-font-size-md: var(--font-size-md);
-    --code-line-height: var(--line-height-normal);
+    --code-padding-inline: var(--space-xs);
+    --code-padding-block: var(--space-4);
+
+    /* CodeMirror Editor Layout */
+    --editor-background: var(--code-background);
+    --editor-color: var(--text-color-primary);
+    --editor-font-family: var(--code-font-family);
+    --editor-font-size: var(--code-font-size-block);
+    --editor-line-height: var(--code-line-height);
+    --editor-caret-color: var(--text-color-primary);
+    --editor-selection-background: var(--color-blue-200);
+    --editor-selection-match-background: var(--color-blue-100);
+    --editor-focused-background: var(--editor-background);
+    --editor-cursor-line-background: rgba(0, 0, 0, 0.02);
+
+    /* CodeMirror Gutter */
+    --gutter-background: var(--editor-background);
+    --gutter-color: var(--text-color-muted);
+    --gutter-border-color: var(--border-color-muted);
+    --gutter-border-width: var(--border-width-default);
+    --gutter-padding: var(--space-3);
+    --gutter-min-width: 2.5rem;
+    --gutter-active-line-background: var(--editor-cursor-line-background);
+    --gutter-active-line-color: var(--text-color-secondary);
+
+    /* CodeMirror Syntax Highlighting */
+    --syntax-comment: var(--color-gray-500);
+    --syntax-comment-block: var(--syntax-comment);
+    --syntax-comment-line: var(--syntax-comment);
+    --syntax-comment-doc: var(--color-gray-600);
+    --syntax-keyword: var(--color-blue-700);
+    --syntax-keyword-control: var(--syntax-keyword);
+    --syntax-keyword-operator: var(--color-gray-700);
+    --syntax-keyword-modifier: var(--syntax-keyword);
+    --syntax-keyword-definition: var(--syntax-keyword);
+    --syntax-string: var(--color-green-700);
+    --syntax-string-special: var(--color-green-800);
+    --syntax-string-regex: var(--color-amber-700);
+    --syntax-string-escape: var(--color-red-600);
+    --syntax-number: var(--color-blue-600);
+    --syntax-number-integer: var(--syntax-number);
+    --syntax-number-float: var(--syntax-number);
+    --syntax-boolean: var(--color-blue-800);
+    --syntax-constant: var(--color-blue-800);
+    --syntax-constant-builtin: var(--syntax-constant);
+    --syntax-variable: var(--text-color-primary);
+    --syntax-variable-builtin: var(--color-blue-600);
+    --syntax-variable-special: var(--color-red-700);
+    --syntax-function: var(--color-blue-700);
+    --syntax-function-builtin: var(--color-blue-600);
+    --syntax-function-method: var(--syntax-function);
+    --syntax-class: var(--color-amber-700);
+    --syntax-class-builtin: var(--syntax-class);
+    --syntax-type: var(--color-green-800);
+    --syntax-type-builtin: var(--syntax-type);
+    --syntax-namespace: var(--color-gray-700);
+    --syntax-property: var(--color-blue-600);
+    --syntax-attribute: var(--color-amber-600);
+    --syntax-tag: var(--color-green-700);
+    --syntax-tag-angle: var(--color-gray-600);
+    --syntax-operator: var(--color-gray-700);
+    --syntax-punctuation: var(--color-gray-600);
+    --syntax-punctuation-bracket: var(--syntax-punctuation);
+    --syntax-punctuation-delimiter: var(--syntax-punctuation);
+    --syntax-meta: var(--color-gray-500);
+    --syntax-invalid: var(--color-red-700);
+    --syntax-invalid-deprecated: var(--color-amber-700);
+
+    /* Math */
+    --math-font-family: var(--font-family-math);
 
     /* Tables */
     --table-header-background: var(--surface-sunken);
@@ -364,6 +423,9 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --table-cell-padding-sm: var(--space-2);
     --table-cell-padding-md: var(--space-3);
     --table-margin-vertical: var(--space-8);
+
+    /* Data Tables */
+    --data-font-family: var(--font-family-mono);
 
     /* Figures */
     --figure-caption-font-size-xs: var(--font-size-xs);
@@ -443,6 +505,64 @@ elements (stencila-heading, stencila-paragraph, etc.).
 
     --dark-code-background: #2a2a2a;
     --dark-code-background-inline: #2a2a2a;
+    --dark-code-border-color: #404040;
+
+    /* Dark mode CodeMirror editor tokens */
+    --dark-editor-background: #2a2a2a;
+    --dark-editor-color: #e8e8e8;
+    --dark-editor-caret-color: #e8e8e8;
+    --dark-editor-selection-background: #1a3a5c;
+    --dark-editor-selection-match-background: #2d4f70;
+    --dark-editor-cursor-line-background: rgba(255, 255, 255, 0.05);
+
+    --dark-gutter-background: #2a2a2a;
+    --dark-gutter-color: #888888;
+    --dark-gutter-border-color: #404040;
+    --dark-gutter-active-line-background: rgba(255, 255, 255, 0.05);
+    --dark-gutter-active-line-color: #b8b8b8;
+
+    /* Dark mode syntax highlighting */
+    --dark-syntax-comment: #888888;
+    --dark-syntax-comment-block: #888888;
+    --dark-syntax-comment-line: #888888;
+    --dark-syntax-comment-doc: #a8a8a8;
+    --dark-syntax-keyword: #66b3ff;
+    --dark-syntax-keyword-control: #66b3ff;
+    --dark-syntax-keyword-operator: #b8b8b8;
+    --dark-syntax-keyword-modifier: #66b3ff;
+    --dark-syntax-keyword-definition: #66b3ff;
+    --dark-syntax-string: #5cb85c;
+    --dark-syntax-string-special: #6cc76c;
+    --dark-syntax-string-regex: #f0ad4e;
+    --dark-syntax-string-escape: #ff6b6b;
+    --dark-syntax-number: #66b3ff;
+    --dark-syntax-number-integer: #66b3ff;
+    --dark-syntax-number-float: #66b3ff;
+    --dark-syntax-boolean: #80c7ff;
+    --dark-syntax-constant: #80c7ff;
+    --dark-syntax-constant-builtin: #80c7ff;
+    --dark-syntax-variable: #e8e8e8;
+    --dark-syntax-variable-builtin: #66b3ff;
+    --dark-syntax-variable-special: #ff8a80;
+    --dark-syntax-function: #66b3ff;
+    --dark-syntax-function-builtin: #80c7ff;
+    --dark-syntax-function-method: #66b3ff;
+    --dark-syntax-class: #ffb347;
+    --dark-syntax-class-builtin: #ffb347;
+    --dark-syntax-type: #5cb85c;
+    --dark-syntax-type-builtin: #5cb85c;
+    --dark-syntax-namespace: #b8b8b8;
+    --dark-syntax-property: #66b3ff;
+    --dark-syntax-attribute: #ffb347;
+    --dark-syntax-tag: #5cb85c;
+    --dark-syntax-tag-angle: #888888;
+    --dark-syntax-operator: #b8b8b8;
+    --dark-syntax-punctuation: #888888;
+    --dark-syntax-punctuation-bracket: #888888;
+    --dark-syntax-punctuation-delimiter: #888888;
+    --dark-syntax-meta: #888888;
+    --dark-syntax-invalid: #ff6b6b;
+    --dark-syntax-invalid-deprecated: #f0ad4e;
 
     --dark-table-header-background: #2d2d2d;
     --dark-table-row-hover: #303030;
@@ -464,28 +584,6 @@ elements (stencila-heading, stencila-paragraph, etc.).
 
     --dark-focus-ring-color: #66b3ff;
 }
-
-
-/* =================================================================
-   SECTION 3: TOKEN APPLICATION
-
-   Apply design tokens to create the visual design system.
-
-   Guidelines:
-   - ONLY use CSS custom properties, no hard-coded design values
-   - Acceptable hard-coded values: 0, auto, none, inherit
-   - Organize by specificity: Document → Typography → Components
-   - Keep related styles together
-   - Add comments for each major component group
-
-   Application Order:
-   - Dark mode token mapping
-   - Document root and body
-   - Typography (headings, paragraphs, links)
-   - Content elements (lists, tables, code)
-   - Interactive elements (forms, buttons)
-   - Custom Stencila elements
-   ================================================================= */
 
 /* -----------------------------------------------------------------
    DARK MODE TOKEN MAPPING
@@ -518,6 +616,62 @@ elements (stencila-heading, stencila-paragraph, etc.).
 
         --code-background: var(--dark-code-background);
         --code-background-inline: var(--dark-code-background-inline);
+        --code-border-color: var(--dark-code-border-color);
+
+        --editor-background: var(--dark-editor-background);
+        --editor-color: var(--dark-editor-color);
+        --editor-caret-color: var(--dark-editor-caret-color);
+        --editor-selection-background: var(--dark-editor-selection-background);
+        --editor-selection-match-background: var(--dark-editor-selection-match-background);
+        --editor-cursor-line-background: var(--dark-editor-cursor-line-background);
+
+        --gutter-background: var(--dark-gutter-background);
+        --gutter-color: var(--dark-gutter-color);
+        --gutter-border-color: var(--dark-gutter-border-color);
+        --gutter-active-line-background: var(--dark-gutter-active-line-background);
+        --gutter-active-line-color: var(--dark-gutter-active-line-color);
+
+        --syntax-comment: var(--dark-syntax-comment);
+        --syntax-comment-block: var(--dark-syntax-comment-block);
+        --syntax-comment-line: var(--dark-syntax-comment-line);
+        --syntax-comment-doc: var(--dark-syntax-comment-doc);
+        --syntax-keyword: var(--dark-syntax-keyword);
+        --syntax-keyword-control: var(--dark-syntax-keyword-control);
+        --syntax-keyword-operator: var(--dark-syntax-keyword-operator);
+        --syntax-keyword-modifier: var(--dark-syntax-keyword-modifier);
+        --syntax-keyword-definition: var(--dark-syntax-keyword-definition);
+        --syntax-string: var(--dark-syntax-string);
+        --syntax-string-special: var(--dark-syntax-string-special);
+        --syntax-string-regex: var(--dark-syntax-string-regex);
+        --syntax-string-escape: var(--dark-syntax-string-escape);
+        --syntax-number: var(--dark-syntax-number);
+        --syntax-number-integer: var(--dark-syntax-number-integer);
+        --syntax-number-float: var(--dark-syntax-number-float);
+        --syntax-boolean: var(--dark-syntax-boolean);
+        --syntax-constant: var(--dark-syntax-constant);
+        --syntax-constant-builtin: var(--dark-syntax-constant-builtin);
+        --syntax-variable: var(--dark-syntax-variable);
+        --syntax-variable-builtin: var(--dark-syntax-variable-builtin);
+        --syntax-variable-special: var(--dark-syntax-variable-special);
+        --syntax-function: var(--dark-syntax-function);
+        --syntax-function-builtin: var(--dark-syntax-function-builtin);
+        --syntax-function-method: var(--dark-syntax-function-method);
+        --syntax-class: var(--dark-syntax-class);
+        --syntax-class-builtin: var(--dark-syntax-class-builtin);
+        --syntax-type: var(--dark-syntax-type);
+        --syntax-type-builtin: var(--dark-syntax-type-builtin);
+        --syntax-namespace: var(--dark-syntax-namespace);
+        --syntax-property: var(--dark-syntax-property);
+        --syntax-attribute: var(--dark-syntax-attribute);
+        --syntax-tag: var(--dark-syntax-tag);
+        --syntax-tag-angle: var(--dark-syntax-tag-angle);
+        --syntax-operator: var(--dark-syntax-operator);
+        --syntax-punctuation: var(--dark-syntax-punctuation);
+        --syntax-punctuation-bracket: var(--dark-syntax-punctuation-bracket);
+        --syntax-punctuation-delimiter: var(--dark-syntax-punctuation-delimiter);
+        --syntax-meta: var(--dark-syntax-meta);
+        --syntax-invalid: var(--dark-syntax-invalid);
+        --syntax-invalid-deprecated: var(--dark-syntax-invalid-deprecated);
 
         --table-header-background: var(--dark-table-header-background);
         --table-row-hover: var(--dark-table-row-hover);
@@ -564,6 +718,62 @@ elements (stencila-heading, stencila-paragraph, etc.).
 
     --code-background: var(--dark-code-background);
     --code-background-inline: var(--dark-code-background-inline);
+    --code-border-color: var(--dark-code-border-color);
+
+    --editor-background: var(--dark-editor-background);
+    --editor-color: var(--dark-editor-color);
+    --editor-caret-color: var(--dark-editor-caret-color);
+    --editor-selection-background: var(--dark-editor-selection-background);
+    --editor-selection-match-background: var(--dark-editor-selection-match-background);
+    --editor-cursor-line-background: var(--dark-editor-cursor-line-background);
+
+    --gutter-background: var(--dark-gutter-background);
+    --gutter-color: var(--dark-gutter-color);
+    --gutter-border-color: var(--dark-gutter-border-color);
+    --gutter-active-line-background: var(--dark-gutter-active-line-background);
+    --gutter-active-line-color: var(--dark-gutter-active-line-color);
+
+    --syntax-comment: var(--dark-syntax-comment);
+    --syntax-comment-block: var(--dark-syntax-comment-block);
+    --syntax-comment-line: var(--dark-syntax-comment-line);
+    --syntax-comment-doc: var(--dark-syntax-comment-doc);
+    --syntax-keyword: var(--dark-syntax-keyword);
+    --syntax-keyword-control: var(--dark-syntax-keyword-control);
+    --syntax-keyword-operator: var(--dark-syntax-keyword-operator);
+    --syntax-keyword-modifier: var(--dark-syntax-keyword-modifier);
+    --syntax-keyword-definition: var(--dark-syntax-keyword-definition);
+    --syntax-string: var(--dark-syntax-string);
+    --syntax-string-special: var(--dark-syntax-string-special);
+    --syntax-string-regex: var(--dark-syntax-string-regex);
+    --syntax-string-escape: var(--dark-syntax-string-escape);
+    --syntax-number: var(--dark-syntax-number);
+    --syntax-number-integer: var(--dark-syntax-number-integer);
+    --syntax-number-float: var(--dark-syntax-number-float);
+    --syntax-boolean: var(--dark-syntax-boolean);
+    --syntax-constant: var(--dark-syntax-constant);
+    --syntax-constant-builtin: var(--dark-syntax-constant-builtin);
+    --syntax-variable: var(--dark-syntax-variable);
+    --syntax-variable-builtin: var(--dark-syntax-variable-builtin);
+    --syntax-variable-special: var(--dark-syntax-variable-special);
+    --syntax-function: var(--dark-syntax-function);
+    --syntax-function-builtin: var(--dark-syntax-function-builtin);
+    --syntax-function-method: var(--dark-syntax-function-method);
+    --syntax-class: var(--dark-syntax-class);
+    --syntax-class-builtin: var(--dark-syntax-class-builtin);
+    --syntax-type: var(--dark-syntax-type);
+    --syntax-type-builtin: var(--dark-syntax-type-builtin);
+    --syntax-namespace: var(--dark-syntax-namespace);
+    --syntax-property: var(--dark-syntax-property);
+    --syntax-attribute: var(--dark-syntax-attribute);
+    --syntax-tag: var(--dark-syntax-tag);
+    --syntax-tag-angle: var(--dark-syntax-tag-angle);
+    --syntax-operator: var(--dark-syntax-operator);
+    --syntax-punctuation: var(--dark-syntax-punctuation);
+    --syntax-punctuation-bracket: var(--dark-syntax-punctuation-bracket);
+    --syntax-punctuation-delimiter: var(--dark-syntax-punctuation-delimiter);
+    --syntax-meta: var(--dark-syntax-meta);
+    --syntax-invalid: var(--dark-syntax-invalid);
+    --syntax-invalid-deprecated: var(--dark-syntax-invalid-deprecated);
 
     --table-header-background: var(--dark-table-header-background);
     --table-row-hover: var(--dark-table-row-hover);
@@ -728,12 +938,40 @@ details>summary::-webkit-details-marker {
     display: none;
 }
 
+/* Reset nested code element inside pre */
+pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+}
+
 /* Smooth scroll with motion preference respect */
 @media (prefers-reduced-motion: no-preference) {
     html {
         scroll-behavior: smooth;
     }
 }
+
+/* =================================================================
+   SECTION 3: TOKEN APPLICATION
+
+   Apply design tokens to create the visual design system.
+
+   Guidelines:
+   - ONLY use CSS custom properties, no hard-coded design values
+   - Acceptable hard-coded values: 0, auto, none, inherit
+   - Organize by specificity: Document → Typography → Components
+   - Keep related styles together
+   - Add comments for each major component group
+
+   Application Order:
+   - Document root and body
+   - Typography (headings, paragraphs, links)
+   - Content elements (lists, tables, code)
+   - Interactive elements (forms, buttons)
+   - Custom Stencila elements
+   ================================================================= */
 
 /* -----------------------------------------------------------------
    DOCUMENT ROOT & BODY STYLES
@@ -951,30 +1189,23 @@ li p+p {
 /* Code */
 code {
     font-family: var(--code-font-family);
-    font-size: var(--code-font-size-sm);
+    font-size: var(--code-font-size-inline);
     background-color: var(--code-background-inline);
     border: var(--code-border-width) solid var(--code-border-color);
     border-radius: var(--code-border-radius);
-    padding: var(--code-padding-block-xs) var(--code-padding-inline);
+    padding: var(--code-padding-inline);
 }
 
 pre {
     font-family: var(--code-font-family);
-    font-size: var(--code-font-size-md);
+    font-size: var(--code-font-size-block);
     line-height: var(--code-line-height);
-    background-color: var(--code-background);
+    background-color: var(--code-background-block);
     border: var(--code-border-width) solid var(--code-border-color);
     border-radius: var(--code-border-radius);
-    padding: var(--code-padding-block-md);
+    padding: var(--code-padding-block);
     margin: var(--paragraph-spacing-lg) 0;
     overflow-x: auto;
-}
-
-pre code {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: inherit;
 }
 
 /* Math */
