@@ -223,7 +223,6 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --font-family-heading: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-family-code: ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
     --font-family-math: 'STIX Two Math', 'Times New Roman', serif;
-    --font-family-ui: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
     /* Text Colors - Hierarchy and emphasis */
     --text-color-primary: var(--color-gray-900);
