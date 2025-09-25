@@ -5259,7 +5259,8 @@ expression: article
   },
   "funders": [
     {
-      "type": "Organization"
+      "type": "Organization",
+      "name": "European Union"
     }
   ],
   "keywords": [

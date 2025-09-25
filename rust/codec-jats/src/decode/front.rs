@@ -433,7 +433,7 @@ fn decode_funding_group(path: &str, node: &Node, article: &mut Article, losses: 
             award_group
                 .children()
                 .filter(|child| child.tag_name().name() == "funding-source")
-                .map(|child| decode_funding_source(path, &child, losses))
+                .filter_map(|child| decode_funding_source(path, &child, losses))
                 .collect::<Vec<PersonOrOrganization>>()
         })
         .collect();
@@ -442,31 +442,46 @@ fn decode_funding_group(path: &str, node: &Node, article: &mut Article, losses: 
 }
 
 /// Decode a `<funding-source>` element
-fn decode_funding_source(path: &str, node: &Node, losses: &mut Losses) -> PersonOrOrganization {
+fn decode_funding_source(
+    path: &str,
+    node: &Node,
+    losses: &mut Losses,
+) -> Option<PersonOrOrganization> {
     record_attrs_lost(path, node, [], losses);
 
-    let mut funder = None;
+    let mut name = None;
     let mut url = None;
 
-    for funding_source in node.children() {
-        for child in funding_source.children() {
-            let tag = child.tag_name().name();
-            if tag == "institution" {
-                funder = child.text().map(str::to_string);
-            } else if tag == "institution-id" {
-                url = child.text().map(str::to_string);
-            }
+    for child in node.descendants() {
+        let tag = child.tag_name().name();
+        if tag == "institution" {
+            name = child.text().map(String::from);
+        } else if tag == "institution-id" {
+            url = child.text().map(String::from);
         }
     }
 
-    PersonOrOrganization::Organization(Organization {
-        name: funder,
+    if name.is_none()
+        && let Some(text) = node.text()
+    {
+        let text = text.trim();
+        if !text.is_empty() {
+            name = Some(text.to_string());
+        }
+    }
+
+    if name.is_none() && url.is_none() {
+        return None;
+    }
+
+    Some(PersonOrOrganization::Organization(Organization {
+        name,
         options: Box::new(OrganizationOptions {
             url,
             ..Default::default()
         }),
         ..Default::default()
-    })
+    }))
 }
 
 /// Decode a `<contrib-group>` element

@@ -9523,7 +9523,8 @@ expression: article
       "url": "http://dx.doi.org/10.13039/100009619"
     },
     {
-      "type": "Organization"
+      "type": "Organization",
+      "name": "Jikei University"
     },
     {
       "type": "Organization",
@@ -9531,7 +9532,8 @@ expression: article
       "url": "http://dx.doi.org/10.13039/501100008660"
     },
     {
-      "type": "Organization"
+      "type": "Organization",
+      "name": "Jikei University"
     }
   ],
   "isPartOf": {

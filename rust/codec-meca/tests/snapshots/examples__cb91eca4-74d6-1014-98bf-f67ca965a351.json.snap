@@ -4146,7 +4146,8 @@ expression: article
   },
   "funders": [
     {
-      "type": "Organization"
+      "type": "Organization",
+      "name": "Research Ireland"
     }
   ],
   "isPartOf": {
