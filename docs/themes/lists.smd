@@ -21,6 +21,35 @@ Design tokens for lists define spacing, indentation, marker appearance, and nest
 | `--list-marker-nested-unordered` | Style for nested unordered markers                       | `circle`                  |
 | `--list-marker-nested-ordered`   | Style for nested ordered markers                         | `lower-alpha`             |
 
+# Usage
+
+The list system uses different token types to control list appearance and hierarchy:
+
+**Spacing tokens** control distances and positioning:
+
+- `--list-indent: var(--space-6)` - main indentation from page margin
+- `--list-spacing: var(--space-2)` - vertical space between list items
+- `--list-marker-gap: var(--space-2)` - space between marker and content
+
+**Marker tokens** control visual appearance:
+
+- `--list-marker-unordered: disc` - bullet style for main level
+- `--list-marker-nested-unordered: circle` - bullet style for nested level
+- `--list-marker-color: var(--text-color-muted)` - color of all markers
+
+**Nested tokens** control nested list behavior:
+
+- `--list-indent-nested: var(--space-2)` - additional indent for nested lists
+- `--list-spacing-nested: var(--space-2)` - space before nested lists
+
+For quick customization, focus on these tokens:
+
+- `--list-indent` - Controls how far lists are indented from content
+- `--list-spacing` - Controls vertical rhythm between items
+- `--list-marker-gap` - Controls readability by adjusting marker-to-text spacing
+- `--list-marker-color` - Change all marker colors at once
+- `--list-marker-unordered` - Customize bullet appearance (disc, circle, square, "•", etc.)
+
 # Patterns
 
 ## Compact Lists
@@ -34,8 +63,6 @@ Perfect for dense content like documentation or scholarly papers:
   --list-marker-gap: var(--space-1);
 }
 ```
-
-Example:
 
 ```html raw
 <div
@@ -65,8 +92,6 @@ Better for readability in educational content and presentations:
   --list-marker-gap: var(--space-4);
 }
 ```
-
-Example:
 
 ```html raw
 <div
@@ -98,8 +123,6 @@ Clean, minimal styling:
   --list-marker-color: var(--color-accent);
 }
 ```
-
-Example:
 
 ```html raw
 <div
@@ -148,8 +171,6 @@ Create unique list hierarchies:
   --list-marker-nested-ordered: lower-alpha;
 }
 ```
-
-Example:
 
 ```html raw
 <div
