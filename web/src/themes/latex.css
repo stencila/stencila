@@ -12,9 +12,9 @@
 
 :root {
     /* Typography - LaTeX-inspired fonts and spacing */
-    --font-family-document: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-heading: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-code: 'Inconsolata', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    --text-font-family: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --heading-font-family: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --code-font-family: 'Inconsolata', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
     /* LaTeX line spacing - traditionally looser for readability */
     --paragraph-line-height: 1.8;

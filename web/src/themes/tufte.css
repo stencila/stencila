@@ -11,9 +11,9 @@
 
 :root {
     /* Typography - Use Crimson Text as ET Book alternative */
-    --font-family-document: 'Crimson Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-heading: 'Crimson Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-code: 'Source Code Pro', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    --text-font-family: 'Crimson Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --heading-font-family: 'Crimson Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --code-font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
     /* Colors - Warm paper aesthetic */
     --surface-background: #fffff8;

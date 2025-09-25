@@ -40,7 +40,7 @@ To create a new theme, import this base theme and override tokens in Section 1:
 @import url('./base.css');
 
 :root {
-    --font-family-document: 'Your Font', serif;
+    --text-font-family: 'Your Font', serif;
     --color-accent: #your-brand-color;
 }
 ```
@@ -169,6 +169,12 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --color-amber-900: #78350f;
     --color-amber-950: #451a03;
 
+    /* Primitive Font Stacks */
+    --font-family-serif: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Bitstream Charter', Charter, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-mono: ui-monospace, 'Cascadia Code', SFMono-Regular, 'SF Mono', Menlo, Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
+    --font-family-math: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', 'Times New Roman', serif;
+
     /* Typography Scale - Fluid sizes using clamp() for responsive design */
     --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8rem);
     --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 0.9rem);
@@ -218,11 +224,8 @@ elements (stencila-heading, stencila-paragraph, etc.).
        language of the design system and should be used instead of primitives.
        ----------------------------------------------------------------- */
 
-    /* Font Families - Different font stacks for different content types */
-    --font-family-document: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-heading: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-code: ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    --font-family-math: 'STIX Two Math', 'Times New Roman', serif;
+    /* Main Document Font */
+    --text-font-family: var(--font-family-serif);
 
     /* Text Colors - Hierarchy and emphasis */
     --text-color-primary: var(--color-gray-900);
@@ -287,7 +290,7 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --content-width-wide: 80ch;
 
     /* Headings */
-    --heading-font-family: var(--font-family-heading);
+    --heading-font-family: var(--font-family-serif);
     --heading-font-size: 2.5rem;
     --heading-font-size-ratio: 0.8;
     --heading-font-weight: var(--font-weight-bold);
@@ -309,6 +312,13 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --paragraph-max-width: var(--content-width);
 
     /* Code */
+    --code-font-family: var(--font-family-mono);
+
+    /* Math */
+    --math-font-family: var(--font-family-math);
+
+    /* Data Tables */
+    --data-font-family: var(--font-family-mono);
     --code-background: var(--color-gray-100);
     --code-background-inline: var(--color-gray-100);
     --code-border-color: var(--border-color-muted);
@@ -736,7 +746,7 @@ body {
 
 [root] {
     /* Typography */
-    font-family: var(--font-family-document);
+    font-family: var(--text-font-family);
     font-size: var(--font-size-md);
     line-height: var(--paragraph-line-height);
     color: var(--text-color-primary);
@@ -853,7 +863,7 @@ h6 {
 
 /* Paragraphs */
 p {
-    font-family: var(--font-family-document);
+    font-family: var(--text-font-family);
     line-height: var(--paragraph-line-height);
     color: var(--text-color-primary);
     margin-top: var(--paragraph-spacing-md);
@@ -915,7 +925,7 @@ li p+p {
 
 /* Code */
 code {
-    font-family: var(--font-family-code);
+    font-family: var(--code-font-family);
     font-size: var(--code-font-size-sm);
     background-color: var(--code-background-inline);
     border: var(--code-border-width) solid var(--code-border-color);
@@ -924,7 +934,7 @@ code {
 }
 
 pre {
-    font-family: var(--font-family-code);
+    font-family: var(--code-font-family);
     font-size: var(--code-font-size-md);
     line-height: var(--code-line-height);
     background-color: var(--code-background);
@@ -940,6 +950,11 @@ pre code {
     border: none;
     padding: 0;
     font-size: inherit;
+}
+
+/* Math */
+math {
+    font-family: var(--math-font-family);
 }
 
 /* Tables */
@@ -1046,6 +1061,10 @@ hr {
 /* Datatable */
 [root] stencila-datatable {
     max-width: var(--content-width-wide);
+}
+
+[root] stencila-datatable table {
+    font-family: var(--data-font-family);
 }
 
 /* Figure */

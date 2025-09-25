@@ -1,0 +1,135 @@
+---
+title: Fonts
+description: |
+  Design tokens and examples for customizing typography with web fonts and font stacks in Stencila themes.
+---
+
+# Tokens
+
+## Primitive Font Stacks
+
+Base font stacks that provide fallback chains. Override these to add custom fonts while maintaining robust fallbacks.
+
+| Token                 | Description                           | Default Value                                         |
+| --------------------- | ------------------------------------- | ----------------------------------------------------- |
+| `--font-family-serif` | Serif font stack for body text        | `ui-serif, 'Iowan Old Style', 'Palatino Linotype'...` |
+| `--font-family-sans`  | Sans-serif font stack for UI elements | `ui-sans-serif, system-ui, -apple-system...`          |
+| `--font-family-mono`  | Monospace font stack for code         | `ui-monospace, 'Cascadia Code', SFMono-Regular...`    |
+| `--font-family-math`  | Mathematical font stack for equations | `'Cambria Math', 'STIX Two Math'...`                  |
+
+## Semantic Font Tokens
+
+Semantic assignments that reference primitive stacks. Override these to change what fonts are used where.
+
+| Token                   | Description                          | Default Value              |
+| ----------------------- | ------------------------------------ | -------------------------- |
+| `--text-font-family`    | Main document font                   | `var(--font-family-serif)` |
+| `--heading-font-family` | Font for all heading levels          | `var(--font-family-serif)` |
+| `--code-font-family`    | Font for code blocks and inline code | `var(--font-family-mono)`  |
+| `--math-font-family`    | Font for math elements               | `var(--font-family-math)`  |
+| `--data-font-family`    | Font for data table content          | `var(--font-family-mono)`  |
+
+# Patterns
+
+## Google Fonts
+
+Load multiple fonts efficiently with a single import:
+
+```css
+@import url("./base.css");
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Inter:ital,wght@0,100..900;1,100..900&display=swap");
+
+:root {
+  --font-family-serif: "Source Serif 4", var(--font-family-serif);
+  --font-family-sans: "Inter", var(--font-family-sans);
+}
+```
+
+## Self-Hosted Fonts
+
+For self-hosted fonts, define @font-face rules first:
+
+```css
+@import url("./base.css");
+
+@font-face {
+  font-family: "Custom Font";
+  src:
+    url("./fonts/custom-font.woff2") format("woff2"),
+    url("./fonts/custom-font.woff") format("woff");
+  font-weight: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-family-serif: "Custom Font", var(--font-family-serif);
+}
+```
+
+## Mixed Typography
+
+Create themes with different fonts for different purposes:
+
+```css
+:root {
+  /* Serif for body text */
+  --text-font-family: "Crimson Text", var(--font-family-serif);
+
+  /* Sans-serif for headings */
+  --heading-font-family: "Inter", var(--font-family-sans);
+
+  /* Specialized monospace for code */
+  --code-font-family: "JetBrains Mono", var(--font-family-mono);
+}
+```
+
+## Mathematical Typography
+
+Include mathematical fonts for scientific content:
+
+```css
+@import url("https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap");
+
+:root {
+  --font-family-math: "STIX Two Math", var(--font-family-math);
+}
+```
+
+## Academic Theme Example
+
+Complete academic theme with proper typography:
+
+```css
+@import url("./base.css");
+@import url("https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=STIX+Two+Math&family=Inconsolata:wght@200..900&display=swap");
+
+:root {
+  /* Classic serif for readability */
+  --font-family-serif: "EB Garamond", var(--font-family-serif);
+
+  /* Mathematical typography */
+  --font-family-math: "STIX Two Math", var(--font-family-math);
+
+  /* Clean monospace for code */
+  --font-family-mono: "Inconsolata", var(--font-family-mono);
+
+  /* Larger line height for academic reading */
+  --paragraph-line-height: 1.8;
+}
+```
+
+# Tips
+
+**Use font-display: swap**: Always include `display=swap` in Google Fonts URLs or `font-display: swap` in @font-face rules to prevent invisible text during font loading.
+
+**Extend, don't replace**: Use `'Your Font', var(--font-family-serif)` instead of defining complete stacks to maintain fallbacks.
+
+**Load efficiently**: Combine multiple Google Fonts in a single import URL rather than multiple imports.
+
+**Test fallbacks**: Disable your custom fonts in browser dev tools to ensure fallback fonts look acceptable.
+
+**Weight ranges**: Use variable fonts or load specific weights you actually use to avoid loading unnecessary font data.
+
+**Performance**: Consider loading only essential weights initially and lazy-loading additional weights for better performance.
+
+**Accessibility**: Ensure sufficient contrast and readability across all your chosen fonts, including fallbacks.

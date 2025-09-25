@@ -5,10 +5,13 @@
 
 @import url('./base.css');
 
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Inter:ital,wght@0,100..900;1,100..900&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&family=STIX+Two+Math&display=swap');
 
 :root {
-    --font-family-document: 'Source Serif 4', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-heading: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-family-code: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    --font-family-serif: 'Source Serif 4', ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Bitstream Charter', Charter, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-family-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', SFMono-Regular, 'SF Mono', Menlo, Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
+    --font-family-math: 'STIX Two Math', 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif;
+
+    --heading-font-family: var(--font-family-sans);
 }
