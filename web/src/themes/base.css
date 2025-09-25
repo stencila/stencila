@@ -1,29 +1,40 @@
 /* Base theme
 
-A comprehensive base theme that provides a consistent design system for Stencila documents.
-This theme serves as the foundation that can be extended by specific theme implementations.
+A base theme that provides a consistent design system for Stencila documents and
+serves as a foundation that can be extended by specific theme implementations.
 
 ## Architecture
 
-This theme is organized into distinct layers following design token best practices:
+This file follows a strict 4-layer architecture with clear separation of concerns:
 
-1. **Primitive tokens** (colors, spacing, typography scales)
-   - Base values that form the foundation of the design system
-   - Should not be used directly in components
+1. **Design Tokens Layer** (Section 1)
+   - All CSS custom properties that define the design system
+   - Primitive tokens (raw values) and semantic tokens (meaningful aliases)
+   - Includes both light and dark mode token definitions
+   - NO styling rules, only variable definitions
 
-2. **Semantic tokens** (surfaces, text colors, borders)
-   - Meaningful tokens that reference primitive values
-   - Define the visual language of the design system
+2. **CSS Reset & Normalization Layer** (Section 2)
+   - Browser default overrides for consistency
+   - NO design tokens or custom properties used here
+   - Pure normalization without design decisions
+   - Foundation for predictable cross-browser behavior
 
-3. **Component tokens** (headings, paragraphs, code, tables, etc.)
-   - Specific styling configurations for document components
-   - Reference semantic and primitive tokens
+3. **Token Application Layer** (Section 3)
+   - Maps design tokens to actual CSS selectors
+   - ONLY uses CSS custom properties, no hard-coded values
+   - All visual styling happens here
+   - Organized by: Document → Typography → Components → Custom Elements
 
-## Usage
+4. **Print Styles Layer** (Section 4)
+   - Print-specific overrides and optimizations
+   - May override tokens for print media
+   - Ensures proper document printing
+
+## Usage Guidelines
 
 ### Extending this theme
 
-To create a new theme, import this base theme and override specific variables:
+To create a new theme, import this base theme and override tokens in Section 1:
 
 ```css
 @import url('./base.css');
@@ -34,6 +45,13 @@ To create a new theme, import this base theme and override specific variables:
 }
 ```
 
+### Modifying the architecture
+
+- **To add new design values**: Define tokens in Section 1
+- **To change browser defaults**: Modify Section 2 (no tokens allowed)
+- **To style components**: Update Section 3 (only tokens allowed)
+- **To customize printing**: Override Section 4
+
 ### Document structure
 
 The root node of a document is identified by the `[root]` attribute and receives
@@ -41,8 +59,9 @@ special styling to differentiate it from child elements.
 
 ### Dark mode
 
-Dark mode is automatically applied based on system preferences or can be manually
-controlled via the `data-color-scheme="dark"` attribute on the root element.
+Dark mode is automatically applied based on system preferences or can be
+manually controlled via the `data-color-scheme="dark"` attribute on the root
+element.
 
 ### Custom elements
 
@@ -51,20 +70,39 @@ elements (stencila-heading, stencila-paragraph, etc.).
 
 ## Notes
 
-- This theme applies to the Light DOM only
-- UI elements use Tailwind via Twind
+- This theme applies to the Light DOM only (the UI of custom elements e.g.
+  <stencila-table> is styled in the Shadow DOM of each component)
 - Responsive design uses fluid typography with clamp()
 - Print styles are included for PDF generation
-- Accessibility best practices are followed throughout
+- Never mix hard-coded values with token applications
+- Reset layer must work independently of tokens
 */
 
-:root {
-    /* =================================================================
-     PRIMITIVE DESIGN TOKENS
+/* =================================================================
+   SECTION 1: DESIGN TOKENS
 
-     Base values that form the foundation of the design system. These should not
-     be used directly in components.
-     ================================================================= */
+   All design system values are defined here as CSS custom properties.
+
+   Guidelines:
+   - Define ALL colors, spacing, typography, and other design values here
+   - Use semantic naming (--text-color-primary not --gray-900)
+   - Group related tokens with comments
+   - Include both light and dark mode tokens
+   - DO NOT apply any styles here, only define variables
+
+   Token Categories:
+   - Primitive tokens: Raw values (colors, scales)
+   - Semantic tokens: Meaningful aliases that reference primitives
+   - Component tokens: Specific component configurations
+   ================================================================= */
+
+:root {
+    /* -----------------------------------------------------------------
+       PRIMITIVE DESIGN TOKENS
+
+       Base values that form the foundation of the design system. These should not
+       be used directly in components - use semantic tokens instead.
+       ----------------------------------------------------------------- */
 
     /* Color Palette - Neutral grays for text, borders, backgrounds */
     --color-gray-50: #fafafa;
@@ -173,12 +211,12 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 
-    /* =================================================================
-     SEMANTIC TOKENS
+    /* -----------------------------------------------------------------
+       SEMANTIC DESIGN TOKENS
 
-     Meaningful tokens that reference primitive values. These define the visual
-     language of the design system.
-     ================================================================= */
+       Meaningful tokens that reference primitive values. These define the visual
+       language of the design system and should be used instead of primitives.
+       ----------------------------------------------------------------- */
 
     /* Font Families - Different font stacks for different content types */
     --font-family-document: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
@@ -357,9 +395,12 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --breakpoint-xl: 1280px;
     --breakpoint-2xl: 1536px;
 
-    /* =================================================================
-     DARK COLOR SCHEME
-     ================================================================= */
+    /* -----------------------------------------------------------------
+       DARK MODE DESIGN TOKENS
+
+       Dark mode variants of all semantic tokens. These are automatically
+       applied based on system preferences or manual override.
+       ----------------------------------------------------------------- */
 
     --dark-surface-background: #1a1a1a;
     --dark-surface-foreground: #242424;
@@ -404,115 +445,34 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --dark-focus-ring-color: #66b3ff;
 }
 
-/* =================================================================
-   CSS RESET & NORMALIZATION
 
-   Basic reset to ensure consistent rendering across browsers
+/* =================================================================
+   SECTION 3: TOKEN APPLICATION
+
+   Apply design tokens to create the visual design system.
+
+   Guidelines:
+   - ONLY use CSS custom properties, no hard-coded design values
+   - Acceptable hard-coded values: 0, auto, none, inherit
+   - Organize by specificity: Document → Typography → Components
+   - Keep related styles together
+   - Add comments for each major component group
+
+   Application Order:
+   - Dark mode token mapping
+   - Document root and body
+   - Typography (headings, paragraphs, links)
+   - Content elements (lists, tables, code)
+   - Interactive elements (forms, buttons)
+   - Custom Stencila elements
    ================================================================= */
 
-/* Modern CSS reset based on Josh Comeau's CSS reset */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-* {
-    margin: 0;
-}
-
-body {
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-}
-
-img,
-picture,
-video,
-canvas,
-svg {
-    display: block;
-    max-width: 100%;
-}
-
-input,
-button,
-textarea,
-select {
-    font: inherit;
-}
-
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    overflow-wrap: break-word;
-}
-
-#root,
-#__next {
-    isolation: isolate;
-}
-
-/* Remove default list styling */
-ul,
-ol {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-/* Re-enable list styling for content lists */
-[root] ul,
-[root] ol,
-stencila-list ul,
-stencila-list ol {
-    list-style: revert;
-    padding-left: var(--list-indent-md);
-    margin-top: var(--paragraph-spacing-md);
-}
-
-/* Ensure links have consistent styling */
-a {
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Remove button styling */
-button {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-}
-
-/* Consistent table styling */
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
-}
-
-/* Remove default form element styling */
-input,
-textarea,
-select {
-    background: none;
-    border: none;
-    outline: none;
-}
-
-/* =================================================================
-   DARK MODE SUPPORT
+/* -----------------------------------------------------------------
+   DARK MODE TOKEN MAPPING
 
    Automatic dark mode support using CSS custom properties. Supports both system
    preference and manual override via `data-color-scheme` attribute.
-   ================================================================= */
+   ----------------------------------------------------------------- */
 
 /* Automatic dark mode based on system preference */
 @media (prefers-color-scheme: dark) {
@@ -607,10 +567,151 @@ select {
 }
 
 /* =================================================================
-   DOCUMENT ROOT STYLES
+   SECTION 2: CSS RESET & NORMALIZATION
 
-   Base styles for the document root element
+   Pure browser normalization for consistent cross-browser rendering.
+
+   Guidelines:
+   - ONLY reset browser defaults, no design decisions
+   - DO NOT use CSS custom properties/tokens here
+   - Use standard values (0, none, inherit, 1.5, 100vh, etc.)
+   - Focus on consistency, not aesthetics
+   - This section should work even if all tokens are removed
+
+   Reset Categories:
+   - Box model normalization
+   - Typography defaults
+   - Form element resets
+   - Media element handling
+   - Interactive element defaults
+
+   Based on Josh Comeau's modern CSS reset
    ================================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+#root,
+#__next {
+    isolation: isolate;
+}
+
+/* Remove default list styling */
+ul,
+ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Basic link reset */
+a {
+    text-decoration: none;
+}
+
+/* Remove button styling */
+button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Consistent table styling */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Normalize form element styling while preserving accessibility */
+input,
+textarea,
+select {
+    background: none;
+    border: 1px solid transparent;
+}
+
+/* Preserve basic focus outline for accessibility */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+/* Modern element resets */
+dialog {
+    max-width: min(90vw, 600px);
+    max-height: min(80vh, 400px);
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+}
+
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+details>summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+details>summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Smooth scroll with motion preference respect */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* -----------------------------------------------------------------
+   DOCUMENT ROOT & BODY STYLES
+
+   Base styles for the document structure using design tokens
+   ----------------------------------------------------------------- */
 
 html {
     background-color: var(--surface-background);
@@ -619,7 +720,6 @@ html {
 body {
     background-color: var(--surface-background);
     color: var(--text-color-primary);
-    margin: 0;
     padding: 0;
 }
 
@@ -657,15 +757,11 @@ body {
     margin-right: auto;
 }
 
-/* Wide content like tables can use more space */
-[root] stencila-table,
-[root] stencila-datatable {
-    max-width: var(--content-width-wide);
-}
-
-/* =================================================================
+/* -----------------------------------------------------------------
    TYPOGRAPHY STYLES
-   ================================================================= */
+
+   Font styling using design tokens for headings, paragraphs, links
+   ----------------------------------------------------------------- */
 
 /* Links */
 a {
@@ -680,9 +776,10 @@ a:visited {
 a:hover,
 a:focus {
     color: var(--text-color-link-hover);
+    text-decoration: underline;
 }
 
-a:focus {
+a:focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: var(--focus-ring-offset);
     border-radius: var(--radius-xs);
@@ -875,15 +972,14 @@ hr {
     margin: var(--paragraph-spacing-lg) 0;
 }
 
-/* =================================================================
+/* -----------------------------------------------------------------
    STENCILA CUSTOM ELEMENTS
 
-   Specific styling tweaks for Stencila custom elements that are not covered by
-   the above rules in standard HTML elements
-   ================================================================= */
+   Specific styling for Stencila custom elements using design tokens
+   ----------------------------------------------------------------- */
 
-/* Admonitions */
-stencila-admonition {
+/* Admonition */
+[root] stencila-admonition {
     display: block;
 
     p[slot='title'] {
@@ -900,10 +996,38 @@ stencila-admonition {
     }
 }
 
-/* =================================================================
-   PRINT STYLES
+/* Datatable */
+[root] stencila-datatable {
+    max-width: var(--content-width-wide);
+}
 
-   CSS Paged Media rules for printing
+/* Figure */
+[root] stencila-figure {
+    max-width: var(--content-width-wide);
+}
+
+/* Table */
+[root] stencila-table {
+    max-width: var(--content-width-wide);
+}
+
+/* =================================================================
+   SECTION 4: PRINT STYLES
+
+   Print-specific optimizations and overrides.
+
+   Guidelines:
+   - Override tokens for print-friendly values
+   - Remove unnecessary UI elements
+   - Ensure proper page breaks
+   - Optimize for black & white printing
+   - Consider page size constraints
+
+   Print Optimizations:
+   - High contrast colors
+   - Serif fonts for better readability
+   - Hidden interactive elements
+   - Page break controls
    ================================================================= */
 @media print {
     :root {
@@ -923,48 +1047,63 @@ stencila-admonition {
         @top-left-corner {
             content: '';
         }
+
         @top-left {
             content: '';
         }
+
         @top-center {
             content: '';
         }
+
         @top-right {
             content: '';
         }
+
         @top-right-corner {
             content: '';
         }
+
         @left-top {
             content: '';
         }
+
         @left-middle {
             content: '';
         }
+
         @left-bottom {
             content: '';
         }
+
         @right-top {
             content: '';
         }
+
         @right-middle {
             content: '';
         }
+
         @right-bottom {
             content: '';
         }
+
         @bottom-left-corner {
             content: '';
         }
+
         @bottom-left {
             content: '';
         }
+
         @bottom-center {
             content: '';
         }
+
         @bottom-right {
             content: '';
         }
+
         @bottom-right-corner {
             content: '';
         }
