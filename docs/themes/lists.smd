@@ -1,0 +1,193 @@
+---
+title: Lists
+description: |
+  Design tokens and examples for customizing list styling in Stencila themes.
+---
+
+# Tokens
+
+Design tokens for lists define spacing, indentation, marker appearance, and nesting behavior. These tokens allow for consistent control over both ordered and unordered lists at multiple nesting levels, with separate controls for visual hierarchy and readability.
+
+| Token                            | Description                                              | Default Value             |
+| -------------------------------- | -------------------------------------------------------- | ------------------------- |
+| `--list-indent`                  | Main list indentation from page margin                   | `var(--space-6)`          |
+| `--list-indent-nested`           | Additional indentation for nested lists                  | `var(--space-2)`          |
+| `--list-spacing`                 | Vertical spacing between list items (`margin-bottom`)    | `var(--space-2)`          |
+| `--list-spacing-nested`          | Vertical spacing before nested lists (`margin-top`)      | `var(--space-2)`          |
+| `--list-marker-gap`              | Space between marker and content                         | `var(--space-2)`          |
+| `--list-marker-color`            | Color of bullets, numbers, and markers                   | `var(--text-color-muted)` |
+| `--list-marker-unordered`        | Style for unordered list markers (CSS `list-style-type`) | `disc`                    |
+| `--list-marker-ordered`          | Style for ordered list markers (CSS `list-style-type`)   | `decimal`                 |
+| `--list-marker-nested-unordered` | Style for nested unordered markers                       | `circle`                  |
+| `--list-marker-nested-ordered`   | Style for nested ordered markers                         | `lower-alpha`             |
+
+# Patterns
+
+## Compact Lists
+
+Perfect for dense content like documentation or scholarly papers:
+
+```css
+:root {
+  --list-indent: var(--space-4);
+  --list-spacing: var(--space-1);
+  --list-marker-gap: var(--space-1);
+}
+```
+
+Example:
+
+```html raw
+<div
+  style="
+  --list-indent: var(--space-4);
+  --list-spacing: var(--space-1);
+  --list-marker-gap: var(--space-1);
+"
+>
+  <ol>
+    <li>Mercury (closest to Sun, 88-day orbit)</li>
+    <li>Venus (hottest planet, 462°C surface)</li>
+    <li>Earth (only known planet with life)</li>
+    <li>Mars (red color from iron oxide)</li>
+  </ol>
+</div>
+```
+
+## Spacious Lists
+
+Better for readability in educational content and presentations:
+
+```css
+:root {
+  --list-indent: var(--space-8);
+  --list-spacing: var(--space-4);
+  --list-marker-gap: var(--space-4);
+}
+```
+
+Example:
+
+```html raw
+<div
+  style="
+  --list-indent: var(--space-8);
+  --list-spacing: var(--space-4);
+  --list-marker-gap: var(--space-4);
+"
+>
+  <ul>
+    <li>Conduct literature review of existing research</li>
+    <li>Design experimental methodology and protocols</li>
+    <li>Collect and analyze data using statistical methods</li>
+    <li>Prepare manuscript for peer review</li>
+  </ul>
+</div>
+```
+
+## Minimal Lists
+
+Clean, minimal styling:
+
+```css
+:root {
+  --list-indent: var(--space-4);
+  --list-spacing: var(--space-1);
+  --list-marker-unordered: "•";
+  --list-marker-nested-unordered: "◦";
+  --list-marker-color: var(--color-accent);
+}
+```
+
+Example:
+
+```html raw
+<div
+  style="
+  --list-indent: var(--space-4);
+  --list-spacing: var(--space-1);
+  --list-marker-unordered: '•';
+  --list-marker-nested-unordered: '◦';
+  --list-marker-color: var(--color-accent);
+"
+>
+  <ul>
+    <li>
+      Python
+      <ul>
+        <li><code>pandas</code></li>
+        <li><code>numpy</code></li>
+      </ul>
+    </li>
+    <li>
+      R
+      <ul>
+        <li><code>ggplot2</code></li>
+        <li><code>dplyr</code></li>
+      </ul>
+    </li>
+    <li>
+      Julia
+      <ul>
+        <li><code>DataFrames.jl</code></li>
+        <li><code>Plots.jl</code></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+```
+
+## Custom Markers
+
+Create unique list hierarchies:
+
+```css
+:root {
+  --list-marker-ordered: upper-roman;
+  --list-marker-nested-unordered: "▸";
+  --list-marker-nested-ordered: lower-alpha;
+}
+```
+
+Example:
+
+```html raw
+<div
+  style="
+  --list-marker-ordered: upper-roman;
+  --list-marker-nested-unordered: '▸';
+  --list-marker-nested-ordered: lower-alpha;
+"
+>
+  <ol>
+    <li>
+      Research Design
+      <ul>
+        <li>Hypothesis formulation</li>
+        <li>Variable identification</li>
+      </ul>
+    </li>
+    <li>
+      Data Collection
+      <ol>
+        <li>Sample selection</li>
+        <li>Measurement protocols</li>
+      </ol>
+    </li>
+  </ol>
+</div>
+```
+
+# Tips
+
+**Maintain hierarchy**: Nested markers should be visually distinct from parent markers.
+
+**Consider content density**: Compact spacing works well for reference material, while spacious formatting suits presentations and educational content.
+
+**Test nested structures**: Ensure your token combinations work well at 2-3 levels of nesting, especially when mixing ordered and unordered lists.
+
+**Use semantic tokens**: Reference spacing tokens like `var(--space-2)` rather than hard-coded values for consistency with your design system.
+
+**Accessibility**: Ensure sufficient contrast between `--list-marker-color` and background, particularly when using custom colors.
+
+**Performance**: The `--list-marker-gap` controls readability, too little makes text crowded, too much disrupts scanning flow.

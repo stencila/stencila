@@ -357,14 +357,16 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --figure-border-radius: var(--radius-md);
 
     /* Lists */
-    --list-indent-xs: var(--space-4);
-    --list-indent-sm: var(--space-6);
-    --list-indent-md: var(--space-8);
-    --list-item-spacing-xs: var(--space-1);
-    --list-item-spacing-sm: var(--space-2);
-    --list-item-spacing-md: var(--space-3);
+    --list-indent: var(--space-6);
+    --list-indent-nested: var(--space-2);
+    --list-spacing: var(--space-2);
+    --list-spacing-nested: var(--space-2);
+    --list-marker-gap: var(--space-2);
     --list-marker-color: var(--text-color-muted);
-    --list-nested-indent: var(--space-4);
+    --list-marker-unordered: disc;
+    --list-marker-ordered: decimal;
+    --list-marker-nested-unordered: circle;
+    --list-marker-nested-ordered: lower-alpha;
 
     /* Admonitions */
     --admonition-padding-xs: var(--space-2);
@@ -634,12 +636,20 @@ h6 {
     isolation: isolate;
 }
 
-/* Remove default list styling */
 ul,
 ol {
-    list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+}
+
+li p {
+    margin: 0;
+    max-width: none;
+}
+
+li p:first-child {
+    display: inline-block;
+    width: 100%;
 }
 
 /* Basic link reset */
@@ -843,17 +853,16 @@ p {
 ul,
 ol {
     margin-top: var(--paragraph-spacing-md);
-    margin-bottom: 0;
-    padding-left: var(--list-indent-md);
+    padding-left: var(--list-indent);
+    list-style-position: outside;
 }
 
-li {
-    margin-bottom: var(--list-item-spacing-sm);
-    line-height: var(--paragraph-line-height);
+ul {
+    list-style-type: var(--list-marker-unordered);
 }
 
-li::marker {
-    color: var(--list-marker-color);
+ol {
+    list-style-type: var(--list-marker-ordered);
 }
 
 /* Nested lists */
@@ -861,9 +870,36 @@ ul ul,
 ol ol,
 ul ol,
 ol ul {
-    margin-top: var(--list-item-spacing-sm);
-    margin-left: var(--list-nested-indent);
+    margin-top: var(--list-spacing-nested);
+    margin-left: var(--list-indent-nested);
 }
+
+ul ul,
+ol ul {
+    list-style-type: var(--list-marker-nested-unordered);
+}
+
+ol ol,
+ul ol {
+    list-style-type: var(--list-marker-nested-ordered);
+}
+
+/* List items */
+li {
+    margin-bottom: var(--list-spacing);
+    line-height: var(--paragraph-line-height);
+    padding-left: var(--list-marker-gap);
+}
+
+li::marker {
+    color: var(--list-marker-color);
+}
+
+/* Multiple paragraphs within list items */
+li p+p {
+    margin-top: var(--paragraph-spacing-sm);
+}
+
 
 /* Code */
 code {
