@@ -82,6 +82,8 @@ impl OpenAlexCodec {
             };
         }
 
+        tracing::debug!("Searching OpenAlex API");
+
         // If the reference does not have a DOI, or the above failed, search by title and year
         let mut works = if let Some(title) = &reference.title {
             let year = reference
