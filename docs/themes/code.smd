@@ -69,46 +69,46 @@ Colors for different code elements:
 
 | Token                            | Description             | Default Value               |
 | -------------------------------- | ----------------------- | --------------------------- |
-| `--syntax-comment`               | Comments                | `var(--color-gray-500)`     |
+| `--syntax-comment`               | Comments                | `var(--color-green-600)`    |
 | `--syntax-comment-block`         | Block comments          | `var(--syntax-comment)`     |
 | `--syntax-comment-line`          | Line comments           | `var(--syntax-comment)`     |
-| `--syntax-comment-doc`           | Documentation comments  | `var(--color-gray-600)`     |
+| `--syntax-comment-doc`           | Documentation comments  | `var(--color-green-700)`    |
 | `--syntax-keyword`               | Keywords                | `var(--color-blue-700)`     |
 | `--syntax-keyword-control`       | Control flow keywords   | `var(--syntax-keyword)`     |
-| `--syntax-keyword-operator`      | Operator keywords       | `var(--color-gray-700)`     |
+| `--syntax-keyword-operator`      | Operator keywords       | `var(--color-gray-600)`     |
 | `--syntax-keyword-modifier`      | Modifier keywords       | `var(--syntax-keyword)`     |
 | `--syntax-keyword-definition`    | Definition keywords     | `var(--syntax-keyword)`     |
-| `--syntax-string`                | Strings                 | `var(--color-green-700)`    |
-| `--syntax-string-special`        | Special strings         | `var(--color-green-800)`    |
-| `--syntax-string-regex`          | Regular expressions     | `var(--color-amber-700)`    |
+| `--syntax-string`                | Strings                 | `var(--color-red-600)`      |
+| `--syntax-string-special`        | Special strings         | `var(--color-red-700)`      |
+| `--syntax-string-regex`          | Regular expressions     | `var(--color-red-600)`      |
 | `--syntax-string-escape`         | String escape sequences | `var(--color-red-600)`      |
-| `--syntax-number`                | Numbers                 | `var(--color-blue-600)`     |
+| `--syntax-number`                | Numbers                 | `var(--color-green-700)`    |
 | `--syntax-number-integer`        | Integer numbers         | `var(--syntax-number)`      |
 | `--syntax-number-float`          | Floating point numbers  | `var(--syntax-number)`      |
-| `--syntax-boolean`               | Boolean values          | `var(--color-blue-800)`     |
-| `--syntax-constant`              | Constants               | `var(--color-blue-800)`     |
+| `--syntax-boolean`               | Boolean values          | `var(--color-blue-700)`     |
+| `--syntax-constant`              | Constants               | `var(--color-blue-700)`     |
 | `--syntax-constant-builtin`      | Built-in constants      | `var(--syntax-constant)`    |
-| `--syntax-variable`              | Variables               | `var(--text-color-primary)` |
+| `--syntax-variable`              | Variables               | `var(--color-blue-600)`     |
 | `--syntax-variable-builtin`      | Built-in variables      | `var(--color-blue-600)`     |
 | `--syntax-variable-special`      | Special variables       | `var(--color-red-700)`      |
-| `--syntax-function`              | Functions               | `var(--color-blue-700)`     |
-| `--syntax-function-builtin`      | Built-in functions      | `var(--color-blue-600)`     |
+| `--syntax-function`              | Functions               | `var(--color-amber-700)`    |
+| `--syntax-function-builtin`      | Built-in functions      | `var(--color-amber-700)`    |
 | `--syntax-function-method`       | Methods                 | `var(--syntax-function)`    |
 | `--syntax-class`                 | Classes                 | `var(--color-amber-700)`    |
 | `--syntax-class-builtin`         | Built-in classes        | `var(--syntax-class)`       |
-| `--syntax-type`                  | Types                   | `var(--color-green-800)`    |
+| `--syntax-type`                  | Types                   | `var(--color-blue-300)`     |
 | `--syntax-type-builtin`          | Built-in types          | `var(--syntax-type)`        |
-| `--syntax-namespace`             | Namespaces              | `var(--color-gray-700)`     |
+| `--syntax-namespace`             | Namespaces              | `var(--color-gray-600)`     |
 | `--syntax-property`              | Properties              | `var(--color-blue-600)`     |
 | `--syntax-attribute`             | Attributes              | `var(--color-amber-600)`    |
-| `--syntax-tag`                   | Tags (HTML/XML)         | `var(--color-green-700)`    |
+| `--syntax-tag`                   | Tags (HTML/XML)         | `var(--color-green-600)`    |
 | `--syntax-tag-angle`             | Tag angle brackets      | `var(--color-gray-600)`     |
-| `--syntax-operator`              | Operators               | `var(--color-gray-700)`     |
+| `--syntax-operator`              | Operators               | `var(--color-gray-600)`     |
 | `--syntax-punctuation`           | Punctuation             | `var(--color-gray-600)`     |
 | `--syntax-punctuation-bracket`   | Brackets                | `var(--syntax-punctuation)` |
 | `--syntax-punctuation-delimiter` | Delimiters              | `var(--syntax-punctuation)` |
 | `--syntax-meta`                  | Meta information        | `var(--color-gray-500)`     |
-| `--syntax-invalid`               | Invalid code            | `var(--color-red-700)`      |
+| `--syntax-invalid`               | Invalid code            | `var(--color-red-600)`      |
 | `--syntax-invalid-deprecated`    | Deprecated code         | `var(--color-amber-700)`    |
 
 # Usage
@@ -152,12 +152,13 @@ These examples of code blocks in popular languages allow you to preview how the 
 ## Python
 
 ```python
+# Statistical analysis for experimental data
 import numpy as np
 from scipy import stats
 
 def analyze_experiment(data, control_group=None):
     """Calculate p-value for experimental results."""
-    mean_effect = np.mean(data)
+    mean_effect = np.mean(data)  # Calculate mean effect size
     if control_group is not None:
         t_stat, p_value = stats.ttest_ind(data, control_group)
         return {'mean': mean_effect, 'p_value': p_value, 'significant': p_value < 0.05}
@@ -185,15 +186,16 @@ gene_analysis <- function(expression_matrix, metadata) {
 ## JavaScript
 
 ```js
+// Data tracking class for research experiments
 class ExperimentTracker {
   constructor(studyId, sampleSize = 100) {
     this.studyId = studyId;
     this.sampleSize = sampleSize;
-    this.results = [];
+    this.results = [];  // Array to store measurements
   }
 
   async recordMeasurement(participant, measurement) {
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toISOString();  // ISO timestamp
     this.results.push({ participant, measurement, timestamp });
     return this.calculateStatistics();
   }
@@ -203,19 +205,20 @@ class ExperimentTracker {
 ## SQL
 
 ```sql
+-- Query to analyze biomarker data for recent patient cohort
 SELECT
     p.patient_id,
     p.age_at_diagnosis,
     t.treatment_type,
-    AVG(m.biomarker_value) AS mean_biomarker,
-    COUNT(*) AS measurement_count
+    AVG(m.biomarker_value) AS mean_biomarker,  -- Average biomarker level
+    COUNT(*) AS measurement_count             -- Number of measurements
 FROM patients p
     INNER JOIN treatments t ON p.patient_id = t.patient_id
     LEFT JOIN measurements m ON p.patient_id = m.patient_id
-WHERE p.diagnosis_date >= '2023-01-01'
-    AND m.biomarker_name = 'IL-6'
+WHERE p.diagnosis_date >= '2023-01-01'       -- Recent diagnoses only
+    AND m.biomarker_name = 'IL-6'           -- Specific biomarker
 GROUP BY p.patient_id, t.treatment_type
-HAVING COUNT(*) >= 3;
+HAVING COUNT(*) >= 3;                        -- Minimum measurement threshold
 ```
 
 # Patterns
