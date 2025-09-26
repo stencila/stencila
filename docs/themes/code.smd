@@ -265,13 +265,11 @@ Clean, readable styling for technical content:
 
   <stencila-code-block
     depth="1"
-    ancestors="Article"
+    programming-language="python"
     code="# Configure tool
 import research_toolkit as rt
 rt.configure(api_key='your-key')"
-    programming-language="python"
   >
-    <pre><code></code></pre>
   </stencila-code-block>
 </div>
 ```
@@ -309,13 +307,11 @@ Subtle, unobtrusive code formatting:
 
   <stencila-code-block
     depth="1"
-    ancestors="Article"
+    programming-language="python"
     code="data = load_dataset('experiment.csv')
 results = analyze(data, method='pearson')
 print(results.summary())"
-    programming-language="python"
   >
-    <pre><code></code></pre>
   </stencila-code-block>
 </div>
 ```
@@ -358,7 +354,7 @@ Bold, prominent styling for tutorials and learning materials:
 
   <stencila-code-block
     depth="1"
-    ancestors="Article"
+    programming-language="python"
     code="from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -368,9 +364,7 @@ iris = datasets.load_iris()
 X_train, X_test, y_train, y_test = train_test_split(
     iris.data, iris.target, test_size=0.3
 )"
-    programming-language="python"
   >
-    <pre><code></code></pre>
   </stencila-code-block>
 </div>
 ```
