@@ -4701,16 +4701,19 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [],
                       "rowSpan": 2
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [],
                       "rowSpan": 2
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4728,6 +4731,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4745,6 +4749,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": []
                     }
                   ],
@@ -4755,6 +4760,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4771,6 +4777,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4787,6 +4794,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4803,6 +4811,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4819,6 +4828,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4835,6 +4845,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4851,6 +4862,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4867,6 +4879,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -4883,6 +4896,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8115,6 +8129,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8132,6 +8147,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8150,6 +8166,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8167,6 +8184,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": []
                     }
                   ],
@@ -8177,6 +8195,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8193,6 +8212,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8209,6 +8229,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8225,6 +8246,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8241,6 +8263,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8257,6 +8280,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8273,6 +8297,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8289,6 +8314,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8305,6 +8331,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8321,6 +8348,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8337,6 +8365,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8353,6 +8382,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8369,6 +8399,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8385,6 +8416,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8401,6 +8433,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8417,6 +8450,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -8433,6 +8467,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",

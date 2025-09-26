@@ -12,8 +12,8 @@ use stencila_codec::{
         DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
         Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions, MathInline,
         MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
-        SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions, TableOptions,
-        TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
+        SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions, TableCellType,
+        TableOptions, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
         VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
@@ -811,6 +811,12 @@ fn decode_table_row(
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/td.html
 /// and https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/th.html
 fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> TableCell {
+    let cell_type = if node.tag_name().name() == "th" {
+        Some(TableCellType::HeaderCell)
+    } else {
+        None
+    };
+
     let row_span = node
         .attribute("rowspan")
         .and_then(|alignment| alignment.parse().ok())
@@ -853,6 +859,7 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
     };
 
     TableCell {
+        cell_type,
         content,
         options: Box::new(TableCellOptions {
             row_span,

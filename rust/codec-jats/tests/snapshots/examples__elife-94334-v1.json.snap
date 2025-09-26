@@ -13376,6 +13376,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13392,6 +13393,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13408,6 +13410,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13430,6 +13433,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13446,6 +13450,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13462,6 +13467,7 @@ expression: article
                     },
                     {
                       "type": "TableCell",
+                      "cellType": "HeaderCell",
                       "content": [
                         {
                           "type": "Paragraph",
