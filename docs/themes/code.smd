@@ -191,11 +191,11 @@ class ExperimentTracker {
   constructor(studyId, sampleSize = 100) {
     this.studyId = studyId;
     this.sampleSize = sampleSize;
-    this.results = [];  // Array to store measurements
+    this.results = []; // Array to store measurements
   }
 
   async recordMeasurement(participant, measurement) {
-    const timestamp = new Date().toISOString();  // ISO timestamp
+    const timestamp = new Date().toISOString(); // ISO timestamp
     this.results.push({ participant, measurement, timestamp });
     return this.calculateStatistics();
   }
@@ -229,53 +229,45 @@ Clean, readable styling for technical content:
 
 ```css
 :root {
-  --code-font-size-inline: 0.875rem;
-  --code-font-size-block: 0.875rem;
-  --code-background: #f8f9fa;
-  --code-background-inline: #f1f3f4;
-  --code-border-radius: 4px;
-  --code-padding-inline: 0.5rem;
-  --code-padding-block: 1rem;
-
-  /* Editor tokens for CodeMirror */
-  --code-background: #f8f9fa;
-  --code-gutter-background: #f0f0f0;
-  --code-gutter-border-color: #e0e0e0;
-  --syntax-keyword: #0066cc;
-  --syntax-string: #008800;
-  --syntax-comment: #888888;
+  --code-font-size-inline: var(--font-size-sm);
+  --code-font-size-block: var(--font-size-sm);
+  --code-border-radius: var(--radius-sm);
+  --code-padding-inline: var(--space-xs);
+  --code-padding-block: var(--space-4);
+  --syntax-keyword: var(--color-blue-600);
+  --syntax-string: var(--color-green-700);
+  --syntax-comment-line: var(--color-gray-500);
 }
 ```
 
 ```html raw
 <div
   style="
-  --code-font-size-inline: 0.875rem;
-  --code-font-size-block: 0.875rem;
-  --code-background: #f8f9fa;
-  --code-background-inline: #f1f3f4;
-  --code-border-radius: 4px;
-  --code-padding-inline: 0.5rem;
-  --code-padding-block: 1rem;
-  --code-background: #f8f9fa;
-  --code-gutter-background: #f0f0f0;
-  --code-gutter-border-color: #e0e0e0;
-  --syntax-keyword: #0066cc;
-  --syntax-string: #008800;
-  --syntax-comment: #888888;
-  padding: 1rem;
+  --code-font-size-inline: var(--font-size-sm);
+  --code-font-size-block: var(--font-size-sm);
+  --code-border-radius: var(--radius-sm);
+  --code-padding-inline: var(--space-xs);
+  --code-padding-block: var(--space-4);
+  --syntax-keyword: var(--color-blue-600);
+  --syntax-string: var(--color-green-700);
+  --syntax-comment-line: var(--color-gray-500);
 "
 >
-  <h3>Installation</h3>
   <p>
-    Install the package using <code>pip install research-toolkit</code> or
-    <code>npm install research-toolkit</code> depending on your environment.
+    e.g. Install using <code>pip install research-toolkit</code> and configure
+    with your API key.
   </p>
 
-  <p>For Python environments:</p>
-  <pre><code>pip install research-toolkit
+  <stencila-code-block
+    depth="1"
+    ancestors="Article"
+    code="# Configure tool
 import research_toolkit as rt
-rt.configure(api_key="your-key")</code></pre>
+rt.configure(api_key='your-key')"
+    programming-language="python"
+  >
+    <pre><code></code></pre>
+  </stencila-code-block>
 </div>
 ```
 
@@ -285,52 +277,37 @@ Subtle, unobtrusive code formatting:
 
 ```css
 :root {
-  --code-background: transparent;
-  --code-background-inline: rgba(0, 0, 0, 0.05);
-  --code-border-width: 0;
-  --code-padding-inline: 0.25rem;
-  --code-padding-block: 0.75rem;
-  --code-border-radius: 2px;
-
-  /* Subtle editor styling */
-  --code-background: transparent;
-  --code-gutter-background: transparent;
-  --code-gutter-border-width: 0;
-  --code-cursor-line-background: rgba(0, 0, 0, 0.03);
-  --syntax-keyword: inherit;
-  --syntax-string: inherit;
+  --code-border-width: var(--space-0);
+  --code-padding-inline: var(--space-0);
+  --code-padding-block: var(--space-1);
+  --code-gutter-border-width: var(--space-0);
 }
 ```
 
 ```html raw
 <div
   style="
-  --code-background: transparent;
-  --code-background-inline: rgba(0, 0, 0, 0.05);
-  --code-border-width: 0;
-  --code-padding-inline: 0.25rem;
-  --code-padding-block: 0.75rem;
-  --code-border-radius: 2px;
-  --code-background: transparent;
-  --code-gutter-background: transparent;
-  --code-gutter-border-width: 0;
-  --code-cursor-line-background: rgba(0, 0, 0, 0.03);
-  --syntax-keyword: inherit;
-  --syntax-string: inherit;
-  padding: 1rem;
+  --code-border-width: var(--space-0);
+  --code-padding-inline: var(--space-0);
+  --code-padding-block: var(--space-1);
+  --code-gutter-border-width: var(--space-0);
 "
 >
-  <h3>Data Analysis</h3>
   <p>
-    Use the <code>analyze()</code> function to process your dataset. The
-    function accepts parameters like <code>method="pearson"</code> for
+    e.g. Use <code>analyze(method="pearson")</code> to process datasets with
     correlation analysis.
   </p>
 
-  <p>Example workflow:</p>
-  <pre><code>data = load_dataset("experiment.csv")
-results = analyze(data, method="pearson")
-print(results.summary())</code></pre>
+  <stencila-code-block
+    depth="1"
+    ancestors="Article"
+    code="data = load_dataset('experiment.csv')
+results = analyze(data, method='pearson')
+print(results.summary())"
+    programming-language="python"
+  >
+    <pre><code></code></pre>
+  </stencila-code-block>
 </div>
 ```
 
@@ -340,208 +317,68 @@ Bold, prominent styling for tutorials and learning materials:
 
 ```css
 :root {
-  --code-background: #2d3748;
-  --code-background-inline: #e2e8f0;
-  --code-font-size-inline: 0.9rem;
-  --code-font-size-block: 1rem;
-  --code-border-radius: 8px;
-  --code-padding-inline: 0.75rem;
-  --code-padding-block: 1.5rem;
-  --code-border-width: 2px;
-  --code-border-color: #4a5568;
-
-  /* High contrast editor */
-  --code-background: #2d3748;
-  --code-color: #ffffff;
-  --code-gutter-background: #1a202c;
-  --code-gutter-color: #a0aec0;
-  --code-selection-background: #4299e1;
-  --syntax-keyword: #63b3ed;
-  --syntax-string: #68d391;
-  --syntax-comment: #a0aec0;
-  --syntax-function: #f6ad55;
+  --code-font-size-inline: var(--font-size-md);
+  --code-font-size-block: var(--font-size-md);
+  --code-padding-inline: var(--space-2);
+  --code-gutter-background: var(--color-gray-800);
+  --code-gutter-color: var(--color-gray-400);
+  --syntax-keyword: var(--color-red-400);
+  --syntax-string: var(--color-green-400);
+  --syntax-comment-line: var(--color-gray-400);
+  --syntax-function: var(--color-amber-500);
 }
 ```
 
 ```html raw
 <div
   style="
-  --code-background: #2d3748;
-  --code-background-inline: #e2e8f0;
-  --code-font-size-inline: 0.9rem;
-  --code-font-size-block: 1rem;
-  --code-border-radius: 8px;
-  --code-padding-inline: 0.75rem;
-  --code-padding-block: 1.5rem;
-  --code-border-width: 2px;
-  --code-border-color: #4a5568;
-  --code-background: #2d3748;
-  --code-color: #ffffff;
-  --code-gutter-background: #1a202c;
-  --code-gutter-color: #a0aec0;
-  --code-selection-background: #4299e1;
-  --syntax-keyword: #63b3ed;
-  --syntax-string: #68d391;
-  --syntax-comment: #a0aec0;
-  --syntax-function: #f6ad55;
-  padding: 1rem;
+  --code-font-size-inline: var(--font-size-md);
+  --code-font-size-block: var(--font-size-md);
+  --code-padding-inline: var(--space-2);
+  --code-gutter-background: var(--color-gray-800);
+  --code-gutter-color: var(--color-gray-400);
+  --syntax-keyword: var(--color-red-400);
+  --syntax-string: var(--color-green-400);
+  --syntax-comment-line: var(--color-gray-400);
+  --syntax-function: var(--color-amber-500);
 "
 >
-  <h3>Machine Learning Pipeline</h3>
   <p>
-    Import the required modules using
-    <code>from sklearn import datasets</code> and
-    <code>from sklearn.model_selection import train_test_split</code>.
+    e.g. Import modules like <code>from sklearn import datasets</code> for
+    machine learning pipelines.
   </p>
 
-  <p>Complete example:</p>
-  <pre><code>from sklearn import datasets
+  <stencila-code-block
+    depth="1"
+    ancestors="Article"
+    code="from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
-# Load data
+# Load and split data
 iris = datasets.load_iris()
 X_train, X_test, y_train, y_test = train_test_split(
     iris.data, iris.target, test_size=0.3
-)</code></pre>
-</div>
-```
-
-## Academic Paper Style
-
-Formal styling suitable for research publications:
-
-```css
-:root {
-  --code-font-size-sm: 0.85rem;
-  --code-font-size-md: 0.9rem;
-  --code-background: #f7f7f7;
-  --code-background-inline: #f0f0f0;
-  --code-border-width: 1px;
-  --code-border-color: #d0d0d0;
-  --code-border-radius: 0;
-  --code-padding-inline: 0.4rem;
-  --code-padding-block: 1rem;
-  --code-line-height: 1.4;
-}
-```
-
-```html raw
-<div
-  style="
-  --code-font-size-sm: 0.85rem;
-  --code-font-size-md: 0.9rem;
-  --code-background: #f7f7f7;
-  --code-background-inline: #f0f0f0;
-  --code-border-width: 1px;
-  --code-border-color: #d0d0d0;
-  --code-border-radius: 0;
-  --code-padding-inline: 0.4rem;
-  --code-padding-block: 1rem;
-  --code-line-height: 1.4;
-  padding: 1rem;
-"
->
-  <h3>Statistical Analysis</h3>
-  <p>
-    The analysis was performed using the <code>cor.test()</code> function in R
-    version 4.3.0. Significance was set at <code>p < 0.05</code> for all tests.
-  </p>
-
-  <p>R code for correlation analysis:</p>
-  <pre><code># Load required libraries
-library(tidyverse)
-library(corrplot)
-
-# Perform correlation test
-result <- cor.test(data$variable1, data$variable2,
-                   method = "pearson")
-print(result)</code></pre>
-</div>
-```
-
-## Compact Terminal Style
-
-Dense, console-like formatting:
-
-```css
-:root {
-  --code-font-size-inline: 0.8rem;
-  --code-font-size-block: 0.85rem;
-  --code-background: #1a1a1a;
-  --code-background-inline: #333;
-  --code-border-radius: 0;
-  --code-padding-inline: 0.5rem;
-  --code-padding-block: 0.75rem;
-  --code-line-height: 1.3;
-  --code-border-width: 0;
-
-  /* Terminal editor styling */
-  --code-background: #1a1a1a;
-  --code-color: #00ff00;
-  --code-gutter-background: #1a1a1a;
-  --code-gutter-color: #666666;
-  --code-gutter-border-width: 0;
-  --syntax-keyword: #00ffff;
-  --syntax-string: #ffff00;
-  --syntax-comment: #666666;
-}
-```
-
-```html raw
-<div
-  style="
-  --code-font-size-inline: 0.8rem;
-  --code-font-size-block: 0.85rem;
-  --code-background: #1a1a1a;
-  --code-background-inline: #333;
-  --code-border-radius: 0;
-  --code-padding-inline: 0.5rem;
-  --code-padding-block: 0.75rem;
-  --code-line-height: 1.3;
-  --code-border-width: 0;
-  --code-background: #1a1a1a;
-  --code-color: #00ff00;
-  --code-gutter-background: #1a1a1a;
-  --code-gutter-color: #666666;
-  --code-gutter-border-width: 0;
-  --syntax-keyword: #00ffff;
-  --syntax-string: #ffff00;
-  --syntax-comment: #666666;
-  padding: 1rem;
-"
->
-  <h3>Command Line Usage</h3>
-  <p>
-    Run the analysis script with <code>python analyze.py --verbose</code> to see
-    detailed output.
-  </p>
-
-  <p>Full command sequence:</p>
-  <pre><code>$ cd research-project
-$ python -m venv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
-$ python analyze.py --input data.csv --output results.json</code></pre>
+)"
+    programming-language="python"
+  >
+    <pre><code></code></pre>
+  </stencila-code-block>
 </div>
 ```
 
 # Tips
 
-**Consistent font sizing**: Use a clear hierarchy with `--code-font-size-sm` for inline code and `--code-font-size-md` for blocks, typically 0.1-0.2rem smaller than body text.
+**Size tokens**: Use `--font-size-sm` for both `--code-font-size-inline` and `--code-font-size-block` to maintain consistency with the design system.
 
-**Background contrast**: Ensure sufficient contrast between `--code-background` and surrounding content, while keeping inline code subtle with `--code-background-inline`.
+**Padding hierarchy**: Inline code needs minimal padding (`--space-xs`), while blocks need generous vertical padding (`--space-4`) for readability.
 
-**Padding balance**: Use minimal horizontal padding for inline code but generous vertical padding for blocks (`--code-padding-block`) to improve readability.
+**Border removal**: Set `--code-border-width: var(--space-0)` and `--code-gutter-border-width: var(--space-0)` for minimal styling patterns.
 
-**Border consistency**: Either use borders on all code elements or none - mixing bordered and borderless code can look inconsistent.
+**Gutter styling**: Use muted colors like `--color-gray-400` for `--code-gutter-color` and darker backgrounds like `--color-gray-800` for high contrast themes.
 
-**Line height optimization**: Code blocks benefit from slightly tighter `--code-line-height` (1.3-1.5) than body text for better density.
+**Syntax color balance**: Keywords (`--syntax-keyword`) should use strong colors like `--color-blue-600`, while comments (`--syntax-comment`) work best with muted grays like `--color-gray-500`.
 
-**Consider context**: Technical documentation needs clear, readable code styling, while academic papers may prefer more subdued formatting.
+**Background coordination**: Keep `--code-background-inline` and `--code-background-block` consistent, typically using `--color-gray-100` or similar light backgrounds.
 
-**Test with real content**: Verify your tokens work well with both short snippets (`console.log()`) and longer code blocks with multiple lines.
-
-**Accessibility**: Ensure code text maintains sufficient contrast ratios, especially when using custom background colors.
-
-**Monospace consistency**: Always use `--code-font-family` with a proper monospace stack for predictable character alignment.
+**Selection visibility**: Use `--color-blue-200` for `--code-selection-background` to ensure clear text selection without overwhelming syntax colors.

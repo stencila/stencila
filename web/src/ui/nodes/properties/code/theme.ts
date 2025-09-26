@@ -22,7 +22,7 @@ export function createTheme(): Extension {
       backgroundColor: 'var(--code-focused-background)',
     },
     '.cm-content': {
-      padding: 'var(--code-padding-block) var(--code-padding-inline)',
+      padding: 'var(--code-padding-block)',
       caretColor: 'var(--code-caret-color)',
     },
     '.cm-scroller': {
