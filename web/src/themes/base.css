@@ -331,6 +331,7 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --list-marker-nested-ordered: lower-alpha;
 
     /* Code */
+    --code-color: var(--text-color-primary);
     --code-font-family: var(--font-family-mono);
     --code-font-size-inline: var(--font-size-sm);
     --code-font-size-block: var(--font-size-sm);
@@ -344,27 +345,20 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --code-padding-inline: var(--space-xs);
     --code-padding-block: var(--space-4);
 
-    /* CodeMirror Editor Layout */
-    --editor-background: var(--code-background);
-    --editor-color: var(--text-color-primary);
-    --editor-font-family: var(--code-font-family);
-    --editor-font-size: var(--code-font-size-block);
-    --editor-line-height: var(--code-line-height);
-    --editor-caret-color: var(--text-color-primary);
-    --editor-selection-background: var(--color-blue-200);
-    --editor-selection-match-background: var(--color-blue-100);
-    --editor-focused-background: var(--editor-background);
-    --editor-cursor-line-background: rgba(0, 0, 0, 0.02);
-
-    /* CodeMirror Gutter */
-    --gutter-background: var(--editor-background);
-    --gutter-color: var(--text-color-muted);
-    --gutter-border-color: var(--border-color-muted);
-    --gutter-border-width: var(--border-width-default);
-    --gutter-padding: var(--space-3);
-    --gutter-min-width: 2.5rem;
-    --gutter-active-line-background: var(--editor-cursor-line-background);
-    --gutter-active-line-color: var(--text-color-secondary);
+    /* CodeMirror Editor */
+    --code-caret-color: var(--text-color-primary);
+    --code-selection-background: var(--color-blue-200);
+    --code-selection-match-background: var(--color-blue-100);
+    --code-focused-background: var(--code-background);
+    --code-cursor-line-background: rgba(0, 0, 0, 0.02);
+    --code-gutter-background: var(--code-background);
+    --code-gutter-color: var(--text-color-muted);
+    --code-gutter-border-color: var(--border-color-muted);
+    --code-gutter-border-width: var(--border-width-default);
+    --code-gutter-padding: var(--space-3);
+    --code-gutter-min-width: 2.5rem;
+    --code-gutter-active-line-background: var(--code-cursor-line-background);
+    --code-gutter-active-line-color: var(--text-color-secondary);
 
     /* CodeMirror Syntax Highlighting */
     --syntax-comment: var(--color-gray-500);

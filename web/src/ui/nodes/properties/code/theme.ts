@@ -11,56 +11,56 @@ export function createTheme(): Extension {
   // Base editor theme - layout, colors, and UI elements
   const editorTheme = EditorView.theme({
     '&': {
-      color: 'var(--editor-color)',
-      backgroundColor: 'var(--editor-background)',
-      fontFamily: 'var(--editor-font-family)',
-      fontSize: 'var(--editor-font-size)',
-      lineHeight: 'var(--editor-line-height)',
+      color: 'var(--code-color)',
+      backgroundColor: 'var(--code-background)',
+      fontFamily: 'var(--code-font-family)',
+      fontSize: 'var(--code-font-size-block)',
+      lineHeight: 'var(--code-line-height)',
       border: 'var(--code-border-width) solid var(--code-border-color)',
     },
     '&.cm-focused': {
-      backgroundColor: 'var(--editor-focused-background)',
+      backgroundColor: 'var(--code-focused-background)',
     },
     '.cm-content': {
       padding: 'var(--code-padding-block) var(--code-padding-inline)',
-      caretColor: 'var(--editor-caret-color)',
+      caretColor: 'var(--code-caret-color)',
     },
     '.cm-scroller': {
       overflowX: 'auto',
     },
     '.cm-focused .cm-cursor': {
-      borderLeftColor: 'var(--editor-caret-color)',
+      borderLeftColor: 'var(--code-caret-color)',
     },
     '.cm-selectionBackground, ::selection': {
-      backgroundColor: 'var(--editor-selection-background)',
+      backgroundColor: 'var(--code-selection-background)',
     },
     '.cm-selectionMatch': {
-      backgroundColor: 'var(--editor-selection-match-background)',
+      backgroundColor: 'var(--code-selection-match-background)',
     },
     '.cm-activeLine': {
-      backgroundColor: 'var(--editor-cursor-line-background)',
+      backgroundColor: 'var(--code-cursor-line-background)',
     },
     '.cm-gutters': {
-      backgroundColor: 'var(--gutter-background)',
-      color: 'var(--gutter-color)',
+      backgroundColor: 'var(--code-gutter-background)',
+      color: 'var(--code-gutter-color)',
       border: 'none',
-      borderRight: 'var(--gutter-border-width) solid var(--gutter-border-color)',
-      paddingLeft: 'var(--gutter-padding)',
-      paddingRight: 'var(--gutter-padding)',
-      minWidth: 'var(--gutter-min-width)',
+      borderRight: 'var(--code-gutter-border-width) solid var(--code-gutter-border-color)',
+      paddingLeft: 'var(--code-gutter-padding)',
+      paddingRight: 'var(--code-gutter-padding)',
+      minWidth: 'var(--code-gutter-min-width)',
     },
     '.cm-gutterElement': {
       paddingLeft: '0',
       paddingRight: '0',
     },
     '.cm-activeLineGutter': {
-      backgroundColor: 'var(--gutter-active-line-background)',
-      color: 'var(--gutter-active-line-color)',
+      backgroundColor: 'var(--code-gutter-active-line-background)',
+      color: 'var(--code-gutter-active-line-color)',
     },
     '.cm-lineNumbers .cm-gutterElement': {
-      color: 'var(--gutter-color)',
-      fontSize: 'var(--editor-font-size)',
-      fontFamily: 'var(--editor-font-family)',
+      color: 'var(--code-gutter-color)',
+      fontSize: 'var(--code-font-size-block)',
+      fontFamily: 'var(--code-font-family)',
     },
     // Diagnostic styles (for error messages, tooltips, etc.)
     '.cm-diagnostic': {
