@@ -1,0 +1,249 @@
+---
+title: Diagrams
+description: |
+  Design tokens and examples for customizing diagram styling in Stencila themes, supporting Mermaid.js and Cytoscape.js visualizations.
+---
+
+# Tokens
+
+## Core Diagram Tokens
+
+Base styling tokens that apply to all diagram types.
+
+| Token                   | Description                   | Default Value               |
+| ----------------------- | ----------------------------- | --------------------------- |
+| `--diagram-background`  | Background color for diagrams | `var(--surface-foreground)` |
+| `--diagram-font-family` | Font family for diagram text  | `var(--font-family-sans)`   |
+| `--diagram-font-size`   | Font size for diagram text    | `var(--font-size-sm)`       |
+| `--diagram-text-color`  | Primary text color            | `var(--text-color-primary)` |
+
+## Node and Shape Tokens
+
+Colors and styling for nodes, shapes, and containers in diagrams.
+
+| Token                                | Description                          | Default Value               |
+| ------------------------------------ | ------------------------------------ | --------------------------- |
+| `--diagram-node-background`          | Primary node/shape fill color        | `var(--color-blue-100)`     |
+| `--diagram-node-background-alt`      | Secondary node background            | `var(--color-blue-200)`     |
+| `--diagram-node-background-tertiary` | Tertiary node background (3+ states) | `var(--color-blue-300)`     |
+| `--diagram-node-border`              | Node border color                    | `var(--color-blue-600)`     |
+| `--diagram-node-text`                | Text color inside nodes              | `var(--text-color-primary)` |
+
+## Edge and Connection Tokens
+
+Styling for lines, arrows, and connections between diagram elements.
+
+| Token                        | Description           | Default Value                 |
+| ---------------------------- | --------------------- | ----------------------------- |
+| `--diagram-edge-color`       | Line/edge color       | `var(--color-gray-600)`       |
+| `--diagram-edge-label-color` | Edge label text color | `var(--text-color-secondary)` |
+
+## Diagram-Specific Tokens
+
+Specialized tokens for specific diagram types and elements.
+
+| Token                          | Description                          | Default Value           |
+| ------------------------------ | ------------------------------------ | ----------------------- |
+| `--diagram-actor-background`   | Actor background (sequence diagrams) | `var(--color-gray-100)` |
+| `--diagram-actor-border`       | Actor border color                   | `var(--color-gray-500)` |
+| `--diagram-sequence-signal`    | Signal color (sequence diagrams)     | `var(--color-blue-600)` |
+| `--diagram-cluster-background` | Subgraph/cluster background          | `var(--color-gray-50)`  |
+
+# Usage
+
+## Tool Integration
+
+**Mermaid.js integration** uses the `base` theme with `themeVariables`:
+
+- All diagram tokens are automatically mapped to Mermaid's theme variables
+- Colors are converted from CSS custom properties to hex format as required by Mermaid
+- Theme is applied during diagram initialization in `compileMermaid()`
+
+**Cytoscape.js integration** uses style objects:
+
+- Diagram tokens are mapped to Cytoscape style properties like `background-color`, `line-color`
+- Theme styles are merged with existing graph styles if present
+- Applied during graph initialization in `compileCytoscape()`
+
+**Token Application** follows the design system:
+
+- **Core tokens** (`--diagram-background`, `--diagram-text-color`) provide base styling
+- **Node tokens** control shape appearance and text within nodes
+- **Edge tokens** style connections and relationship lines
+- **Specialized tokens** handle diagram-specific elements like actors and clusters
+
+# Examples
+
+These examples show various diagram types with different theming approaches, demonstrating how the `--diagram-*` tokens work across both Mermaid and Cytoscape visualizations.
+
+## Mermaid Flowchart
+
+```mermaid exec
+flowchart LR
+  A[Data Collection] --> B{Quality Check}
+  B -->|Pass| C[Analysis]
+  B -->|Fail| D[Data Cleaning]
+  D --> A
+  C --> E[Results]
+```
+
+## Mermaid Sequence Diagram
+
+```mermaid exec
+sequenceDiagram
+  participant R as Researcher
+  participant S as System
+  participant D as Database
+
+  R->>S: Submit analysis request
+  S->>D: Query experimental data
+  D-->>S: Return dataset
+  S->>S: Process data
+  S-->>R: Analysis results
+```
+
+## Mermaid State Diagram
+
+```mermaid exec
+stateDiagram-v2
+  [*] --> Planning
+  Planning --> DataCollection
+  DataCollection --> Analysis
+  Analysis --> Review
+  Review --> Publication
+  Review --> Planning : Revisions needed
+  Publication --> [*]
+```
+
+# Patterns
+
+## Scientific Documentation
+
+Clean, professional styling for research papers and documentation:
+
+```css
+:root {
+  --diagram-node-background: var(--color-blue-50);
+  --diagram-node-border: var(--color-blue-600);
+  --diagram-edge-color: var(--color-gray-700);
+  --diagram-text-color: var(--color-gray-800);
+  --diagram-actor-background: var(--color-gray-50);
+  --diagram-sequence-signal: var(--color-blue-700);
+}
+```
+
+```html raw
+<div
+  style="
+  --diagram-node-background: var(--color-blue-50);
+  --diagram-node-border: var(--color-blue-600);
+  --diagram-edge-color: var(--color-gray-700);
+  --diagram-text-color: var(--color-gray-800);
+  --diagram-actor-background: var(--color-gray-50);
+  --diagram-sequence-signal: var(--color-blue-700);
+"
+>
+  <stencila-image-object
+    depth="1"
+    media-type="text/vnd.mermaid"
+    content-url="flowchart LR
+    A[Hypothesis] --> B[Experiment Design]
+    B --> C[Data Collection]
+    C --> D[Statistical Analysis]
+    D --> E[Results Interpretation]"
+  ></stencila-image-object>
+</div>
+```
+
+## Minimal Diagram Style
+
+Subtle, unobtrusive diagram formatting with reduced visual emphasis:
+
+```css
+:root {
+  --diagram-node-background: var(--surface-foreground);
+  --diagram-node-border: var(--color-gray-300);
+  --diagram-edge-color: var(--color-gray-400);
+  --diagram-cluster-background: var(--color-gray-25);
+  --diagram-font-size: var(--font-size-xs);
+}
+```
+
+```html raw
+<div
+  style="
+  --diagram-node-background: var(--surface-foreground);
+  --diagram-node-border: var(--color-gray-300);
+  --diagram-edge-color: var(--color-gray-400);
+  --diagram-cluster-background: var(--color-gray-25);
+  --diagram-font-size: var(--font-size-xs);
+"
+>
+  <stencila-image-object
+    depth="1"
+    media-type="text/vnd.mermaid"
+    content-url="graph TD
+    subgraph Processing
+        A --> B
+        B --> C
+    end
+    C --> D[Output]"
+  ></stencila-image-object>
+</div>
+```
+
+## High Contrast Diagrams
+
+Bold, prominent styling for presentations and accessibility:
+
+```css
+:root {
+  --diagram-node-background: var(--color-blue-600);
+  --diagram-node-text: white;
+  --diagram-node-border: var(--color-blue-800);
+  --diagram-edge-color: var(--color-gray-800);
+  --diagram-text-color: var(--color-gray-900);
+  --diagram-font-size: var(--font-size-md);
+}
+```
+
+```html raw
+<div
+  style="
+  --diagram-node-background: var(--color-blue-600);
+  --diagram-node-text: white;
+  --diagram-node-border: var(--color-blue-800);
+  --diagram-edge-color: var(--color-gray-800);
+  --diagram-text-color: var(--color-gray-900);
+  --diagram-font-size: var(--font-size-md);
+"
+>
+  <stencila-image-object
+    depth="1"
+    media-type="text/vnd.mermaid"
+    content-url="sequenceDiagram
+    participant A as Alice
+    participant B as Bob
+    A->>B: Authentication Request
+    B-->>A: Authentication Response"
+  ><stencila-image-object>
+</div>
+```
+
+# Tips
+
+**Color coordination**: Use color families like `--color-blue-*` for node backgrounds and borders to maintain visual harmony across diagram elements.
+
+**Font sizing**: Keep `--diagram-font-size` at `--font-size-sm` or smaller to prevent text from overwhelming diagram shapes and maintain readability.
+
+**Edge visibility**: Use `--color-gray-600` or darker for `--diagram-edge-color` to ensure connections are clearly visible against light backgrounds.
+
+**Node hierarchy**: Utilize the three node background tokens (`background`, `background-alt`, `background-tertiary`) to create visual hierarchy in complex diagrams.
+
+**Actor styling**: For sequence diagrams, coordinate `--diagram-actor-background` with `--diagram-node-background` while using a neutral color like `--color-gray-100`.
+
+**Cluster differentiation**: Keep `--diagram-cluster-background` subtle (like `--color-gray-50`) to group elements without competing with main content.
+
+**Dark mode consideration**: Ensure sufficient contrast between node backgrounds and text colors, especially when using colored backgrounds in dark themes.
+
+**Tool consistency**: Both Mermaid and Cytoscape inherit from the same tokens, so diagram appearance remains consistent regardless of the underlying visualization tool.

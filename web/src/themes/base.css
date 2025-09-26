@@ -434,6 +434,23 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --figure-margin-vertical-lg: var(--space-12);
     --figure-border-radius: var(--radius-md);
 
+    /* Diagrams */
+    --diagram-background: var(--surface-foreground);
+    --diagram-font-family: var(--font-family-sans);
+    --diagram-font-size: var(--font-size-sm);
+    --diagram-text-color: var(--text-color-primary);
+    --diagram-node-background: var(--color-blue-100);
+    --diagram-node-background-alt: var(--color-blue-200);
+    --diagram-node-background-tertiary: var(--color-blue-300);
+    --diagram-node-border: var(--color-blue-600);
+    --diagram-node-text: var(--text-color-primary);
+    --diagram-edge-color: var(--color-blue-700);
+    --diagram-edge-label-color: var(--text-color-primary);
+    --diagram-actor-background: var(--color-gray-100);
+    --diagram-actor-border: var(--color-gray-500);
+    --diagram-sequence-signal: var(--color-blue-600);
+    --diagram-cluster-background: var(--color-gray-50);
+
     /* Quotes */
     --quote-border-width: 4px;
     --quote-border-color: var(--border-color-emphasis);
@@ -560,6 +577,20 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --dark-table-row-hover: #303030;
     --dark-table-row-striped: #222222;
 
+    --dark-diagram-background: var(--color-gray-800);
+    --dark-diagram-text-color: var(--color-gray-100);
+    --dark-diagram-node-background: var(--color-blue-900);
+    --dark-diagram-node-background-alt: var(--color-blue-800);
+    --dark-diagram-node-background-tertiary: var(--color-blue-700);
+    --dark-diagram-node-border: var(--color-blue-400);
+    --dark-diagram-node-text: var(--color-gray-100);
+    --dark-diagram-edge-color: var(--color-blue-400);
+    --dark-diagram-edge-label-color: var(--color-gray-100);
+    --dark-diagram-actor-background: var(--color-gray-700);
+    --dark-diagram-actor-border: var(--color-gray-500);
+    --dark-diagram-sequence-signal: var(--color-blue-400);
+    --dark-diagram-cluster-background: var(--color-gray-900);
+
     --dark-quote-background: #222222;
     --dark-quote-border-color: #505050;
 
@@ -667,6 +698,20 @@ elements (stencila-heading, stencila-paragraph, etc.).
         --table-row-hover: var(--dark-table-row-hover);
         --table-row-striped: var(--dark-table-row-striped);
 
+        --diagram-background: var(--dark-diagram-background);
+        --diagram-text-color: var(--dark-diagram-text-color);
+        --diagram-node-background: var(--dark-diagram-node-background);
+        --diagram-node-background-alt: var(--dark-diagram-node-background-alt);
+        --diagram-node-background-tertiary: var(--dark-diagram-node-background-tertiary);
+        --diagram-node-border: var(--dark-diagram-node-border);
+        --diagram-node-text: var(--dark-diagram-node-text);
+        --diagram-edge-color: var(--dark-diagram-edge-color);
+        --diagram-edge-label-color: var(--dark-diagram-edge-label-color);
+        --diagram-actor-background: var(--dark-diagram-actor-background);
+        --diagram-actor-border: var(--dark-diagram-actor-border);
+        --diagram-sequence-signal: var(--dark-diagram-sequence-signal);
+        --diagram-cluster-background: var(--dark-diagram-cluster-background);
+
         --quote-background: var(--dark-quote-background);
         --quote-border-color: var(--dark-quote-border-color);
 
@@ -766,6 +811,20 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --table-header-background: var(--dark-table-header-background);
     --table-row-hover: var(--dark-table-row-hover);
     --table-row-striped: var(--dark-table-row-striped);
+
+    --diagram-background: var(--dark-diagram-background);
+    --diagram-text-color: var(--dark-diagram-text-color);
+    --diagram-node-background: var(--dark-diagram-node-background);
+    --diagram-node-background-alt: var(--dark-diagram-node-background-alt);
+    --diagram-node-background-tertiary: var(--dark-diagram-node-background-tertiary);
+    --diagram-node-border: var(--dark-diagram-node-border);
+    --diagram-node-text: var(--dark-diagram-node-text);
+    --diagram-edge-color: var(--dark-diagram-edge-color);
+    --diagram-edge-label-color: var(--dark-diagram-edge-label-color);
+    --diagram-actor-background: var(--dark-diagram-actor-background);
+    --diagram-actor-border: var(--dark-diagram-actor-border);
+    --diagram-sequence-signal: var(--dark-diagram-sequence-signal);
+    --diagram-cluster-background: var(--dark-diagram-cluster-background);
 
     --quote-background: var(--dark-quote-background);
     --quote-border-color: var(--dark-quote-border-color);

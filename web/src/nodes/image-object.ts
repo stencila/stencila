@@ -4,6 +4,8 @@ import { customElement, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
 
 import { withTwind } from '../twind'
+import { colorToHex } from '../utilities/colorUtils'
+import { getCSSVariable, getCSSVariables } from '../utilities/cssVariables'
 
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/cards/inline-on-demand'
@@ -76,6 +78,50 @@ export class ImageObject extends MediaObject {
     this.cytoscape?.resize()
   }
 
+  /**
+   * Extract diagram theme variables from CSS custom properties
+   * @returns Object containing theme configuration for diagrams
+   */
+  private computeDiagramTheme() {
+    const cssVars = getCSSVariables(document.documentElement, {
+      background: '--diagram-background',
+      fontFamily: '--diagram-font-family',
+      fontSize: '--diagram-font-size',
+      nodeBackground: '--diagram-node-background',
+      nodeText: '--diagram-node-text',
+      nodeBackgroundAlt: '--diagram-node-background-alt',
+      nodeBackgroundTertiary: '--diagram-node-background-tertiary',
+      edgeColor: '--diagram-edge-color',
+      textColor: '--diagram-text-color',
+      nodeBorder: '--diagram-node-border',
+      actorBackground: '--diagram-actor-background',
+      actorBorder: '--diagram-actor-border',
+      sequenceSignal: '--diagram-sequence-signal',
+      clusterBackground: '--diagram-cluster-background',
+      edgeLabelColor: '--diagram-edge-label-color'
+    })
+
+    return {
+      background: colorToHex(cssVars.background),
+      fontFamily: cssVars.fontFamily.replace(/['"]/g, ''),
+      fontSize: cssVars.fontSize,
+      primaryColor: colorToHex(cssVars.nodeBackground),
+      primaryTextColor: colorToHex(cssVars.nodeText),
+      secondaryColor: colorToHex(cssVars.nodeBackgroundAlt),
+      tertiaryColor: colorToHex(cssVars.nodeBackgroundTertiary),
+      lineColor: colorToHex(cssVars.edgeColor),
+      textColor: colorToHex(cssVars.textColor),
+      nodeBorder: colorToHex(cssVars.nodeBorder),
+      actorBkg: colorToHex(cssVars.actorBackground),
+      actorBorder: colorToHex(cssVars.actorBorder),
+      signalColor: colorToHex(cssVars.sequenceSignal),
+      clusterBkg: colorToHex(cssVars.clusterBackground),
+      edgeLabelBackground: 'transparent',
+      labelTextColor: colorToHex(cssVars.edgeLabelColor),
+      primaryBorderColor: colorToHex(cssVars.nodeBorder)
+    }
+  }
+
   override connectedCallback() {
     super.connectedCallback()
     window.addEventListener('resize', this.onResize)
@@ -128,6 +174,42 @@ export class ImageObject extends MediaObject {
       graph.autoungrabify = true
     }
 
+    // Apply theme styles from CSS custom properties
+    const theme = this.computeDiagramTheme()
+    const themeStyle = [
+      {
+        selector: 'node',
+        style: {
+          'background-color': theme.primaryColor,
+          'border-color': theme.nodeBorder,
+          'color': theme.primaryTextColor,
+          'font-family': theme.fontFamily,
+          'font-size': theme.fontSize
+        }
+      },
+      {
+        selector: 'edge',
+        style: {
+          'line-color': theme.lineColor,
+          'target-arrow-color': theme.lineColor,
+          'color': theme.textColor,
+          'font-family': theme.fontFamily,
+          'font-size': theme.fontSize
+        }
+      }
+    ]
+
+    // Merge theme styles with existing styles if any
+    if (graph.style) {
+      if (Array.isArray(graph.style)) {
+        graph.style = [...themeStyle, ...graph.style]
+      } else {
+        graph.style = [...themeStyle, graph.style]
+      }
+    } else {
+      graph.style = themeStyle
+    }
+
     this.cytoscape = cytoscape(graph)
   }
 
@@ -136,6 +218,13 @@ export class ImageObject extends MediaObject {
     // it bundled into the main JS file for the view
     // @ts-expect-error - Using ESM min build to avoid parser dependency issues
     const { default: mermaid } = await import('mermaid/dist/mermaid.esm.min.mjs')
+
+    // Initialize Mermaid with theme from CSS custom properties
+    const theme = this.computeDiagramTheme()
+    mermaid.initialize({
+      theme: 'base',
+      themeVariables: theme
+    })
 
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -428,16 +517,37 @@ export class ImageObject extends MediaObject {
         text-align: initial;
         letter-spacing: normal;
         word-spacing: normal;
-        
+
         /* Reset box model properties that might interfere */
         margin: 0;
         padding: 0;
         border: none;
-        
+
         /* Ensure SVG displays properly */
         display: block;
         max-width: 100%;
         height: auto;
+
+        /* Fix Mermaid edge label backgrounds */
+        /* Based on solution from: https://stephenkernan.com/blog/how-to-style-mermaid-edge-labels */
+        /* and related issue: https://github.com/mermaid-js/mermaid/issues/3021 */
+        foreignObject {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          &:has(.edgeLabel) {
+            background-color: transparent;
+            .edgeLabel,
+            .labelBkg {
+              background-color: transparent !important;
+            }
+            p {
+              margin-inline: auto !important;
+              max-width: max-content;
+              color: ${getCSSVariable(document.documentElement, '--diagram-edge-label-color')};
+            }
+          }
+        }
       }
     `
 

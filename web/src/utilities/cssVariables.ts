@@ -21,6 +21,26 @@ export function getCSSVariable(
 }
 
 /**
+ * Get multiple CSS custom properties as an object
+ *
+ * @param element - The element to read CSS variables from
+ * @param propertyNames - Object mapping result keys to CSS property names
+ * @returns Object with computed CSS custom property values
+ */
+export function getCSSVariables(
+  element: Element,
+  propertyNames: Record<string, string>
+): Record<string, string> {
+  const result: Record<string, string> = {}
+
+  for (const [key, propertyName] of Object.entries(propertyNames)) {
+    result[key] = getCSSVariable(element, propertyName)
+  }
+
+  return result
+}
+
+/**
  * Check if a CSS custom property indicates a feature should be visible
  *
  * Treats 'none', 'hidden', 'false' as false, everything else as true
