@@ -21,6 +21,9 @@ import { MediaObject } from './media-object'
 @customElement('stencila-image-object')
 @withTwind()
 export class ImageObject extends MediaObject {
+  /**
+   * Image media types that are rendered in the browser
+   */
   static MEDIA_TYPES = {
     cytoscape: 'application/vnd.cytoscape.v3+json',
     mermaid: 'text/vnd.mermaid',
@@ -48,6 +51,11 @@ export class ImageObject extends MediaObject {
    * accidental bloat of the bundle if cytoscape is statically imported.
    */
   private cytoscape?: { resize: () => void }
+
+  override needsCompiling(): boolean {
+    // @ts-expect-error re media type
+    return Object.values(ImageObject.MEDIA_TYPES).includes(this.mediaType)
+  }
 
   private clearCodeChunkMessages(codeChunk: HTMLElement) {
     // Clear any existing messages

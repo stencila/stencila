@@ -37,6 +37,15 @@ export abstract class MediaObject extends Entity {
   @state()
   protected error?: string
 
+  /**
+   * Whether the media object is "compiled" in the browser
+   *
+   * These types of media need to be treated differently in the `resolveMediaUrl` method.
+   */
+  protected needsCompiling(): boolean {
+    return false
+  }
+
   override async updated(properties: PropertyValues) {
     super.updated(properties)
 
@@ -50,7 +59,7 @@ export abstract class MediaObject extends Entity {
   }
 
   private async resolveMediaUrl() {
-    if (this.contentUrl.startsWith('data:')) {
+    if (this.contentUrl.startsWith('data:') || this.needsCompiling()) {
       // Do not set contentUrl for dataURIs because we want the original
       // <img> <audio> or <video> within the <slot> to be used (there is
       // no need for any transformation or prefetch check)
