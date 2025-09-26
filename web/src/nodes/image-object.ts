@@ -543,7 +543,13 @@ export class ImageObject extends MediaObject {
      * and was breaking mermaid rending on Chrome
      */
     const svgStyles = css`
-      & svg {
+      & {
+        /* Horizontally centre the SVG */
+        display: flex;
+        justify-content: center;
+      }
+      
+      svg {
         /* Reset text-related inherited properties */
         line-height: 1;
         font-size: inherit;
@@ -564,21 +570,15 @@ export class ImageObject extends MediaObject {
 
         /* Fix Mermaid edge label backgrounds */
         /* Based on solution from: https://stephenkernan.com/blog/how-to-style-mermaid-edge-labels */
-        /* and related issue: https://github.com/mermaid-js/mermaid/issues/3021 */
         foreignObject {
-          display: flex;
-          align-items: center;
-          justify-content: center;
           &:has(.edgeLabel) {
             background-color: transparent;
             .edgeLabel,
             .labelBkg {
               background-color: transparent !important;
-            }
-            p {
-              margin-inline: auto !important;
-              max-width: max-content;
-              color: ${getCSSVariable(document.documentElement, '--diagram-edge-text-color')};
+              /* Prevent clipping of some words. Seems to be no solved by Stephen Kernan's approach
+              but because calculated width of the foreignObject is too small 🤷‍♂️ */
+              font-size: 97.5%;
             }
           }
         }
