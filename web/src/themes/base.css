@@ -406,28 +406,45 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --syntax-invalid: var(--color-red-600);
     --syntax-invalid-deprecated: var(--color-amber-700);
 
+    /* Labels within table and figure captions as well as math equation labels */
+    --label-font-weight: var(--font-weight-bold);
+
+    /* Captions (tokens applied to table and figure captions, including those
+    that are the outputs of code chunks) */
+    --caption-font-family: var(--font-family-sans);
+    --caption-font-size: var(--font-size-sm);
+    --caption-color: var(--text-color-secondary);
+
     /* Math */
     --math-font-family: var(--font-family-math);
+    --math-label-font-weight: var(--label-font-weight);
 
     /* Tables */
+    --table-label-font-weight: var(--label-font-weight);
+    --table-caption-font-family: var(--caption-font-family);
+    --table-caption-font-size: var(--caption-font-size);
+    --table-caption-color: var(--caption-color);
     --table-header-background: var(--surface-sunken);
     --table-header-font-weight: var(--font-weight-semibold);
     --table-row-hover: var(--color-gray-50);
     --table-row-striped: var(--color-gray-50);
     --table-border-color: var(--border-color-default);
     --table-border-width: var(--border-width-default);
+    --table-cell-font-family: var(--font-family-sans);
+    --table-cell-font-size: var(--font-size-xs);
     --table-cell-padding-xs: var(--space-1);
     --table-cell-padding-sm: var(--space-2);
     --table-cell-padding-md: var(--space-3);
     --table-margin-vertical: var(--space-8);
 
     /* Data Tables */
-    --data-font-family: var(--font-family-mono);
+    --data-font-family: var(--font-family-sans);
 
     /* Figures */
-    --figure-caption-font-size-xs: var(--font-size-xs);
-    --figure-caption-font-size: var(--font-size-sm);
-    --figure-caption-color: var(--text-color-secondary);
+    --figure-label-font-weight: var(--label-font-weight);
+    --figure-caption-font-family: var(--caption-font-family);
+    --figure-caption-font-size: var(--caption-font-size);
+    --figure-caption-color: var(--caption-color);
     --figure-caption-margin-top: var(--space-2);
     --figure-margin-vertical-xs: var(--space-4);
     --figure-margin-vertical-sm: var(--space-6);
@@ -1385,10 +1402,31 @@ math {
 }
 
 /* Tables */
+
+stencila-table {
+    display: block;
+    margin: var(--table-margin-vertical) 0;
+}
+
+stencila-table>[slot='caption'] p {
+    max-width: none;
+
+    text-align: justify;
+    line-height: 150%;
+    margin-bottom: 1rem;
+
+    font-family: var(--table-caption-font-family);
+    font-size: var(--table-caption-font-size);
+    color: var(--table-caption-color);
+}
+
+.table-label {
+    font-weight: var(--table-label-font-weight);
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: var(--table-margin-vertical) 0;
     border: var(--table-border-width) solid var(--table-border-color);
     border-radius: var(--border-radius-default);
 }
@@ -1402,6 +1440,9 @@ td {
     padding: var(--table-cell-padding-md);
     text-align: left;
     border-bottom: var(--table-border-width) solid var(--table-border-color);
+
+    font-family: var(--table-cell-font-family);
+    font-size: var(--table-cell-font-size);
 }
 
 th {
@@ -1433,18 +1474,35 @@ blockquote p {
 }
 
 /* Figures */
-figure {
-    margin: var(--figure-margin-vertical-md) 0;
+
+stencila-figure {
+    display: block;
+    margin: 4rem 0;
     border-radius: var(--figure-border-radius);
-    overflow: hidden;
+}
+
+figure {
+    /* Remove any UAS margins */
+    margin: 0;
 }
 
 figcaption {
+    /* Margin between bottom of <figure> and top of caption */
+    margin-top: var(--figure-caption-margin-top);
+}
+
+figcaption p {
+    max-width: none;
+    text-align: justify;
+    line-height: 150%;
+
+    font-family: var(--figure-caption-font-family);
     font-size: var(--figure-caption-font-size);
     color: var(--figure-caption-color);
-    margin-top: var(--figure-caption-margin-top);
-    text-align: center;
-    font-style: italic;
+}
+
+.figure-label {
+    font-weight: var(--figure-label-font-weight);
 }
 
 /* Images */
