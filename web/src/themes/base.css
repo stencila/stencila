@@ -176,15 +176,15 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --font-family-math: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', 'Times New Roman', serif;
 
     /* Typography Scale - Fluid sizes using clamp() for responsive design */
-    --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8rem);
-    --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 0.9rem);
-    --font-size-md: clamp(1rem, 0.9rem + 0.5vw, 1rem);
-    --font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.2rem);
-    --font-size-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.35rem);
-    --font-size-2xl: clamp(1.5rem, 1.3rem + 1vw, 1.7rem);
-    --font-size-3xl: clamp(1.875rem, 1.6rem + 1.375vw, 2.1rem);
-    --font-size-4xl: clamp(2.25rem, 1.9rem + 1.75vw, 2.6rem);
-    --font-size-5xl: clamp(3rem, 2.5rem + 2.5vw, 3.5rem);
+    --font-size-xs: clamp(0.8rem, 0.75rem + 0.25vw, 0.85rem);
+    --font-size-sm: clamp(0.9rem, 0.85rem + 0.375vw, 0.95rem);
+    --font-size-md: clamp(1rem, 0.95rem + 0.5vw, 1.1rem);
+    --font-size-lg: clamp(1.125rem, 1.05rem + 0.625vw, 1.25rem);
+    --font-size-xl: clamp(1.3rem, 1.15rem + 0.75vw, 1.4rem);
+    --font-size-2xl: clamp(1.6rem, 1.4rem + 1vw, 1.8rem);
+    --font-size-3xl: clamp(1.95rem, 1.7rem + 1.375vw, 2.2rem);
+    --font-size-4xl: clamp(2.4rem, 2rem + 1.75vw, 2.8rem);
+    --font-size-5xl: clamp(3.2rem, 2.6rem + 2.5vw, 3.8rem);
 
     /* Spacing Scale - Consistent spacing based on 4px baseline */
     --space-0: 0;
@@ -282,12 +282,13 @@ elements (stencila-heading, stencila-paragraph, etc.).
      ================================================================= */
 
     /* Document Layout */
-    --document-padding-xs: var(--space-4);
+    --document-padding-xs: var(--space-3);
     --document-padding-sm: var(--space-8);
     --document-padding-md: var(--space-12);
     --document-max-width: 80rem;
     --content-width: 65ch;
     --content-width-wide: 80ch;
+    --content-width-mobile: 100%;
 
     /* Headings */
     --heading-font-family: var(--font-family-serif);
@@ -879,10 +880,6 @@ elements (stencila-heading, stencila-paragraph, etc.).
     box-sizing: border-box;
 }
 
-* {
-    margin: 0;
-}
-
 body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -1071,6 +1068,76 @@ body {
     }
 }
 
+/* Mobile-first responsive overrides */
+@media (max-width: 640px) {
+    [root] {
+        padding: var(--space-4);
+        font-size: var(--font-size-md);
+    }
+
+    /* Remove content width constraints on mobile */
+    [root] > * {
+        max-width: var(--content-width-mobile);
+    }
+
+    /* Make paragraphs more readable on mobile */
+    p {
+        max-width: var(--content-width-mobile);
+        margin-top: var(--space-3);
+        line-height: 1.6;
+    }
+
+    /* Adjust heading margins for mobile */
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: var(--space-6);
+        margin-bottom: var(--space-3);
+    }
+
+    h1 {
+        margin-top: var(--space-4);
+    }
+
+    /* Make tables horizontally scrollable on mobile */
+    table {
+        font-size: var(--font-size-sm);
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
+    }
+
+    table tbody,
+    table thead,
+    table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table thead {
+        width: calc(100% - 1em);
+    }
+
+    table th,
+    table td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    th, td {
+        padding: var(--table-cell-padding-xs);
+    }
+
+    /* Improve blockquote margins on mobile */
+    blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        padding: var(--quote-padding-sm);
+        font-size: var(--font-size-md);
+    }
+}
+
 /* Content width constraints */
 [root]>* {
     max-width: var(--content-width);
@@ -1240,6 +1307,24 @@ li p+p {
     margin-top: var(--paragraph-spacing-sm);
 }
 
+/* Mobile-specific list refinements */
+@media (max-width: 640px) {
+    ul, ol {
+        padding-left: var(--space-4);
+    }
+
+    li {
+        padding-left: var(--space-1);
+        margin-bottom: var(--space-1);
+    }
+
+    /* Reduce nested list indentation on mobile */
+    ul ul, ol ol, ul ol, ol ul {
+        margin-left: var(--space-1);
+        padding-left: var(--space-3);
+    }
+}
+
 
 /* Code */
 code {
@@ -1261,6 +1346,26 @@ pre {
     padding: var(--code-padding-block);
     margin: var(--paragraph-spacing-lg) 0;
     overflow-x: auto;
+    max-width: 100%;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+/* Mobile-specific code block refinements */
+@media (max-width: 640px) {
+    pre {
+        font-size: calc(var(--code-font-size-block) * 0.9);
+        padding: var(--space-3);
+        margin-left: calc(-1 * var(--space-2));
+        margin-right: calc(-1 * var(--space-2));
+        border-radius: var(--radius-sm);
+    }
+
+    code {
+        font-size: calc(var(--code-font-size-inline) * 0.9);
+        padding: var(--space-xs) var(--space-1);
+        word-break: break-word;
+    }
 }
 
 /* Math */
