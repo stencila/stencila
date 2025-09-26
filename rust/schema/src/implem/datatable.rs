@@ -2,7 +2,8 @@ use indexmap::IndexMap;
 use stencila_codec_info::lost_options;
 
 use crate::{
-    ArrayValidator, Datatable, DatatableColumn, Object, Primitive, Table, TableRowType, prelude::*,
+    ArrayValidator, Block, Datatable, DatatableColumn, Object, Primitive, Table, TableRowType,
+    prelude::*,
 };
 
 use stencila_codec_text_trait::to_text;
@@ -110,11 +111,28 @@ impl Datatable {
         // Validate that all cells can be converted to simple text
         for row in table.rows.iter() {
             for cell in row.cells.iter() {
-                // Cell must have exactly one block that is a paragraph
+                // Cell must have exactly one block that is a paragraph that
+                // contains exactly one inline that is text, or one of the primitive types
+                // that are permitted as inline content
                 if cell.content.len() != 1 {
                     return None;
                 }
-                if !matches!(cell.content[0], crate::Block::Paragraph(..)) {
+
+                let Block::Paragraph(paragraph) = &cell.content[0] else {
+                    return None;
+                };
+
+                if paragraph.content.len() != 1 {
+                    return None;
+                }
+
+                use NodeType::*;
+                if !paragraph.content.iter().all(|inline| {
+                    matches!(
+                        inline.node_type(),
+                        Text | Null | Boolean | Integer | UnsignedInteger | Number
+                    )
+                }) {
                     return None;
                 }
             }

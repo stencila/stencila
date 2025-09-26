@@ -11,7 +11,7 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "This document has a simple table that should be converted to a datatable."
+            "string": "This table has consistent rows, simple text-only cells, and no spans, so should be converted to a datatable."
           }
         }
       ]
@@ -72,8 +72,135 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "This table has consistent rows, simple text-only cells, and no spans, so should be converted to a datatable."
+            "string": "This table has formatting in some cells so should not be automatically converted to a datatable"
           }
+        }
+      ]
+    },
+    {
+      "type": "Table",
+      "rows": [
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Species"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Weight"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rowType": "HeaderRow"
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Arripis trutta"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1.4"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Coryphaena hippurus"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "24.3"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }
