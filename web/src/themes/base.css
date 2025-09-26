@@ -1076,7 +1076,7 @@ body {
     }
 
     /* Remove content width constraints on mobile */
-    [root] > * {
+    [root]>* {
         max-width: var(--content-width-mobile);
     }
 
@@ -1088,7 +1088,12 @@ body {
     }
 
     /* Adjust heading margins for mobile */
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         margin-top: var(--space-6);
         margin-bottom: var(--space-3);
     }
@@ -1125,7 +1130,8 @@ body {
         text-overflow: ellipsis;
     }
 
-    th, td {
+    th,
+    td {
         padding: var(--table-cell-padding-xs);
     }
 
@@ -1309,7 +1315,9 @@ li p+p {
 
 /* Mobile-specific list refinements */
 @media (max-width: 640px) {
-    ul, ol {
+
+    ul,
+    ol {
         padding-left: var(--space-4);
     }
 
@@ -1319,7 +1327,10 @@ li p+p {
     }
 
     /* Reduce nested list indentation on mobile */
-    ul ul, ol ol, ul ol, ol ul {
+    ul ul,
+    ol ol,
+    ul ol,
+    ol ul {
         margin-left: var(--space-1);
         padding-left: var(--space-3);
     }
