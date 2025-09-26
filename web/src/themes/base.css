@@ -355,10 +355,12 @@ elements (stencila-heading, stencila-paragraph, etc.).
     --code-gutter-color: var(--text-color-muted);
     --code-gutter-border-color: var(--border-color-muted);
     --code-gutter-border-width: var(--border-width-default);
-    --code-gutter-padding: var(--space-3);
+    --code-gutter-padding: var(--space-0);
     --code-gutter-min-width: 2.5rem;
     --code-gutter-active-line-background: var(--code-cursor-line-background);
     --code-gutter-active-line-color: var(--text-color-secondary);
+    --code-line-numbers: visible;
+    --code-fold-gutter: visible;
 
     /* CodeMirror Syntax Highlighting */
     --syntax-comment: var(--color-green-600);

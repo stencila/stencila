@@ -54,6 +54,8 @@ Core editor appearance and behavior:
 | `--code-selection-match-background`    | Search match highlight         | `var(--color-blue-100)`              |
 | `--code-focused-background`            | Editor background when focused | `var(--code-background)`             |
 | `--code-cursor-line-background`        | Active line background         | `rgba(0, 0, 0, 0.02)`                |
+| `--code-line-numbers`                  | Show/hide line numbers         | `visible`                            |
+| `--code-fold-gutter`                   | Show/hide code folding gutter  | `visible`                            |
 | `--code-gutter-background`             | Gutter background color        | `var(--code-background)`             |
 | `--code-gutter-color`                  | Line number color              | `var(--text-color-muted)`            |
 | `--code-gutter-border-color`           | Gutter border color            | `var(--border-color-muted)`          |
@@ -62,6 +64,9 @@ Core editor appearance and behavior:
 | `--code-gutter-min-width`              | Minimum gutter width           | `2.5rem`                             |
 | `--code-gutter-active-line-background` | Active line gutter background  | `var(--code-cursor-line-background)` |
 | `--code-gutter-active-line-color`      | Active line number color       | `var(--text-color-secondary)`        |
+
+> [!note]
+> The `--code-gutter-*` tokens have no effect if both `--code-line-numbers` and `--code-fold-gutter` are `none` or `hidden`.
 
 ## Syntax Highlighting Tokens
 
@@ -281,6 +286,8 @@ Subtle, unobtrusive code formatting:
   --code-padding-inline: var(--space-0);
   --code-padding-block: var(--space-1);
   --code-gutter-border-width: var(--space-0);
+  --code-line-numbers: none;
+  --code-fold-gutter: none;
 }
 ```
 
@@ -291,6 +298,8 @@ Subtle, unobtrusive code formatting:
   --code-padding-inline: var(--space-0);
   --code-padding-block: var(--space-1);
   --code-gutter-border-width: var(--space-0);
+  --code-line-numbers: none;
+  --code-fold-gutter: none;
 "
 >
   <p>
@@ -320,8 +329,7 @@ Bold, prominent styling for tutorials and learning materials:
   --code-font-size-inline: var(--font-size-md);
   --code-font-size-block: var(--font-size-md);
   --code-padding-inline: var(--space-2);
-  --code-gutter-background: var(--color-gray-800);
-  --code-gutter-color: var(--color-gray-400);
+  --code-line-numbers: none;
   --syntax-keyword: var(--color-red-400);
   --syntax-string: var(--color-green-400);
   --syntax-comment-line: var(--color-gray-400);
@@ -335,8 +343,8 @@ Bold, prominent styling for tutorials and learning materials:
   --code-font-size-inline: var(--font-size-md);
   --code-font-size-block: var(--font-size-md);
   --code-padding-inline: var(--space-2);
-  --code-gutter-background: var(--color-gray-800);
-  --code-gutter-color: var(--color-gray-400);
+  --code-line-numbers: none;
+  --code-fold-gutter: none;
   --syntax-keyword: var(--color-red-400);
   --syntax-string: var(--color-green-400);
   --syntax-comment-line: var(--color-gray-400);

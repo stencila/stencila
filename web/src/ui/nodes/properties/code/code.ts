@@ -20,6 +20,7 @@ import { patchValue, patchValueExecute } from '../../../../clients/commands'
 import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
+import { isCSSFeatureVisible } from '../../../../utilities/cssVariables'
 import '../../../buttons/chevron'
 
 import { createTheme } from './theme'
@@ -87,12 +88,6 @@ export class UINodeCode extends LitElement {
    */
   @property({ attribute: 'execution-required' })
   executionRequired: ExecutionRequired
-
-  /**
-   * Whether line number and other gutters should be shown
-   */
-  @property({ type: Boolean, attribute: 'no-gutters' })
-  noGutters: boolean = false
 
   /**
    * Whether the code, and language, are readonly or not
@@ -400,7 +395,7 @@ export class UINodeCode extends LitElement {
       ...languageExtension,
       ...linterExtension,
       this.viewAuthorship.of(this.readOnly ? this.authorshipExtensions : []),
-      this.noGutters ? [] : [lineNumbers(), foldGutter()],
+      this.getGutterExtensions(),
       history(),
       keymap.of(filteredKeyMap),
       keymap.of(historyKeymap),
@@ -416,6 +411,23 @@ export class UINodeCode extends LitElement {
         },
       ]),
     ]
+  }
+
+  /**
+   * Get gutter extensions based on CSS custom properties
+   */
+  private getGutterExtensions(): Extension[] {
+    const extensions: Extension[] = []
+
+    if (isCSSFeatureVisible(this, '--code-line-numbers', true)) {
+      extensions.push(lineNumbers())
+    }
+
+    if (isCSSFeatureVisible(this, '--code-fold-gutter', true)) {
+      extensions.push(foldGutter())
+    }
+
+    return extensions
   }
 
   /**

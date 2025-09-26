@@ -49,10 +49,6 @@ export function createTheme(): Extension {
       paddingRight: 'var(--code-gutter-padding)',
       minWidth: 'var(--code-gutter-min-width)',
     },
-    '.cm-gutterElement': {
-      paddingLeft: '0',
-      paddingRight: '0',
-    },
     '.cm-activeLineGutter': {
       backgroundColor: 'var(--code-gutter-active-line-background)',
       color: 'var(--code-gutter-active-line-color)',
