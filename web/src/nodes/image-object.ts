@@ -88,17 +88,19 @@ export class ImageObject extends MediaObject {
       fontFamily: '--diagram-font-family',
       fontSize: '--diagram-font-size',
       nodeBackground: '--diagram-node-background',
-      nodeText: '--diagram-node-text',
-      nodeBackgroundAlt: '--diagram-node-background-alt',
+      nodeText: '--diagram-node-text-color',
+      nodeBackgroundSecondary: '--diagram-node-background-secondary',
       nodeBackgroundTertiary: '--diagram-node-background-tertiary',
       edgeColor: '--diagram-edge-color',
       textColor: '--diagram-text-color',
-      nodeBorder: '--diagram-node-border',
+      nodeBorderColor: '--diagram-node-border-color',
+      nodeBorderWidth: '--diagram-node-border-width',
+      edgeWidth: '--diagram-edge-width',
       actorBackground: '--diagram-actor-background',
       actorBorder: '--diagram-actor-border',
       sequenceSignal: '--diagram-sequence-signal',
       clusterBackground: '--diagram-cluster-background',
-      edgeLabelColor: '--diagram-edge-label-color'
+      edgeLabelColor: '--diagram-edge-text-color'
     })
 
     return {
@@ -107,18 +109,40 @@ export class ImageObject extends MediaObject {
       fontSize: cssVars.fontSize,
       primaryColor: colorToHex(cssVars.nodeBackground),
       primaryTextColor: colorToHex(cssVars.nodeText),
-      secondaryColor: colorToHex(cssVars.nodeBackgroundAlt),
+      secondaryColor: colorToHex(cssVars.nodeBackgroundSecondary),
       tertiaryColor: colorToHex(cssVars.nodeBackgroundTertiary),
       lineColor: colorToHex(cssVars.edgeColor),
       textColor: colorToHex(cssVars.textColor),
-      nodeBorder: colorToHex(cssVars.nodeBorder),
-      actorBkg: colorToHex(cssVars.actorBackground),
-      actorBorder: colorToHex(cssVars.actorBorder),
+      nodeBorder: colorToHex(cssVars.nodeBorderColor),
+      nodeBorderWidth: cssVars.nodeBorderWidth,
+      edgeWidth: cssVars.edgeWidth,
+
+      // Sequence diagram variables
+      actorBkg: colorToHex(cssVars.nodeBackground), // Use consistent node background
+      actorBorder: colorToHex(cssVars.nodeBorderColor), // Use consistent border
+      actorTextColor: colorToHex(cssVars.nodeText), // Use consistent text color
       signalColor: colorToHex(cssVars.sequenceSignal),
+      signalTextColor: colorToHex(cssVars.textColor),
+      activationBkgColor: colorToHex(cssVars.nodeBackgroundSecondary),
+      activationBorderColor: colorToHex(cssVars.nodeBorderColor),
+      labelBoxBkgColor: 'transparent',
+      labelTextColor: colorToHex(cssVars.edgeLabelColor),
+
+      // State diagram variables
+      stateBkg: colorToHex(cssVars.nodeBackground), // Use consistent node background
+      stateLabelColor: colorToHex(cssVars.nodeText), // Use consistent text color
+      transitionColor: colorToHex(cssVars.edgeColor),
+      transitionLabelColor: colorToHex(cssVars.edgeLabelColor),
+      specialStateColor: colorToHex(cssVars.nodeBorderColor),
+      arrowheadColor: colorToHex(cssVars.edgeColor), // Ensure arrowheads match edges
+      fillType0: colorToHex(cssVars.nodeBackground), // Additional state fills
+      fillType1: colorToHex(cssVars.nodeBackgroundSecondary),
+      fillType2: colorToHex(cssVars.nodeBackgroundTertiary),
+
+      // Existing variables
       clusterBkg: colorToHex(cssVars.clusterBackground),
       edgeLabelBackground: 'transparent',
-      labelTextColor: colorToHex(cssVars.edgeLabelColor),
-      primaryBorderColor: colorToHex(cssVars.nodeBorder)
+      primaryBorderColor: colorToHex(cssVars.nodeBorderColor)
     }
   }
 
@@ -182,6 +206,7 @@ export class ImageObject extends MediaObject {
         style: {
           'background-color': theme.primaryColor,
           'border-color': theme.nodeBorder,
+          'border-width': theme.nodeBorderWidth,
           'color': theme.primaryTextColor,
           'font-family': theme.fontFamily,
           'font-size': theme.fontSize
@@ -191,6 +216,7 @@ export class ImageObject extends MediaObject {
         selector: 'edge',
         style: {
           'line-color': theme.lineColor,
+          'width': theme.edgeWidth,
           'target-arrow-color': theme.lineColor,
           'color': theme.textColor,
           'font-family': theme.fontFamily,
@@ -544,7 +570,7 @@ export class ImageObject extends MediaObject {
             p {
               margin-inline: auto !important;
               max-width: max-content;
-              color: ${getCSSVariable(document.documentElement, '--diagram-edge-label-color')};
+              color: ${getCSSVariable(document.documentElement, '--diagram-edge-text-color')};
             }
           }
         }

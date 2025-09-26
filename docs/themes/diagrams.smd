@@ -19,24 +19,26 @@ Base styling tokens that apply to all diagram types.
 
 ## Node and Shape Tokens
 
-Colors and styling for nodes, shapes, and containers in diagrams.
+Colors and styling for diagram nodes, shapes, and containers in diagrams.
 
-| Token                                | Description                          | Default Value               |
-| ------------------------------------ | ------------------------------------ | --------------------------- |
-| `--diagram-node-background`          | Primary node/shape fill color        | `var(--color-blue-100)`     |
-| `--diagram-node-background-alt`      | Secondary node background            | `var(--color-blue-200)`     |
-| `--diagram-node-background-tertiary` | Tertiary node background (3+ states) | `var(--color-blue-300)`     |
-| `--diagram-node-border`              | Node border color                    | `var(--color-blue-600)`     |
-| `--diagram-node-text`                | Text color inside nodes              | `var(--text-color-primary)` |
+| Token                                 | Description                          | Default Value               |
+| ------------------------------------- | ------------------------------------ | --------------------------- |
+| `--diagram-node-background`           | Primary node/shape fill color        | `var(--color-blue-100)`     |
+| `--diagram-node-background-secondary` | Secondary node background            | `var(--color-blue-200)`     |
+| `--diagram-node-background-tertiary`  | Tertiary node background (3+ states) | `var(--color-blue-300)`     |
+| `--diagram-node-border-color`         | Node border color                    | `var(--color-blue-500)`     |
+| `--diagram-node-border-width`         | Node border width                    | `2px`                       |
+| `--diagram-node-text-color`           | Text color inside nodes              | `var(--diagram-text-color)` |
 
 ## Edge and Connection Tokens
 
-Styling for lines, arrows, and connections between diagram elements.
+Styling for lines, arrows, and connections between diagram nodes.
 
-| Token                        | Description           | Default Value                 |
-| ---------------------------- | --------------------- | ----------------------------- |
-| `--diagram-edge-color`       | Line/edge color       | `var(--color-gray-600)`       |
-| `--diagram-edge-label-color` | Edge label text color | `var(--text-color-secondary)` |
+| Token                             | Description           | Default Value               |
+| --------------------------------- | --------------------- | --------------------------- |
+| `--diagram-edge-color`            | Line/edge color       | `var(--color-blue-700)`     |
+| `--diagram-edge-width`            | Line/edge width       | `1px`                       |
+| `--diagram-edge-text-color`       | Edge label text color | `var(--diagram-text-color)` |
 
 ## Diagram-Specific Tokens
 
@@ -72,6 +74,12 @@ Specialized tokens for specific diagram types and elements.
 - **Edge tokens** style connections and relationship lines
 - **Specialized tokens** handle diagram-specific elements like actors and clusters
 
+**Token Hierarchy** creates consistency with flexibility:
+
+- **Base text color**: `--diagram-text-color` sets the default for all diagram text
+- **Specific text colors**: `--diagram-node-text-color` and `--diagram-edge-text-color` inherit from the base by default
+- **Theme customization**: Specific tokens can be overridden independently while maintaining the base as a fallback
+
 # Examples
 
 These examples show various diagram types with different theming approaches, demonstrating how the `--diagram-*` tokens work across both Mermaid and Cytoscape visualizations.
@@ -79,11 +87,11 @@ These examples show various diagram types with different theming approaches, dem
 ## Mermaid Flowchart
 
 ```mermaid exec
-flowchart LR
+flowchart
   A[Data Collection] --> B{Quality Check}
   B -->|Pass| C[Analysis]
   B -->|Fail| D[Data Cleaning]
-  D --> A
+  D --> B
   C --> E[Results]
 ```
 
@@ -92,27 +100,61 @@ flowchart LR
 ```mermaid exec
 sequenceDiagram
   participant R as Researcher
-  participant S as System
-  participant D as Database
+  participant DS as Data Scientist
 
-  R->>S: Submit analysis request
-  S->>D: Query experimental data
-  D-->>S: Return dataset
-  S->>S: Process data
-  S-->>R: Analysis results
+  R->>DS: Submit data
+  DS->>DS: Quality check
+  DS-->>R: Analysis results
 ```
 
 ## Mermaid State Diagram
 
 ```mermaid exec
 stateDiagram-v2
-  [*] --> Planning
-  Planning --> DataCollection
-  DataCollection --> Analysis
-  Analysis --> Review
-  Review --> Publication
-  Review --> Planning : Revisions needed
-  Publication --> [*]
+  [*] --> DataCollection
+  DataCollection --> QualityCheck
+  QualityCheck --> Analysis : Pass
+  QualityCheck --> DataCleaning : Fail
+  DataCleaning --> QualityCheck
+  Analysis --> [*]
+```
+
+## Cytoscape Network Graph
+
+```js exec
+var graph = {
+  elements: {
+    nodes: [
+      { data: { id: "data", label: "Data Collection" } },
+      { data: { id: "check", label: "Quality Check" } },
+      { data: { id: "clean", label: "Data Cleaning" } },
+      { data: { id: "analysis", label: "Analysis" } },
+      { data: { id: "results", label: "Results" } },
+    ],
+    edges: [
+      { data: { id: "e1", source: "data", target: "check", label: "submit" } },
+      { data: { id: "e2", source: "check", target: "analysis", label: "pass" } },
+      { data: { id: "e3", source: "check", target: "clean", label: "fail" } },
+      { data: { id: "e5", source: "analysis", target: "results", label: "complete" } },
+    ],
+  },
+  style: [
+    {
+      selector: "node",
+      style: { label: "data(label)" },
+    },
+    {
+      selector: "edge",
+      style: { label: "data(label)" },
+    },
+  ],
+};
+
+console.log({
+  type: "ImageObject",
+  mediaType: "application/vnd.cytoscape.v3+json",
+  contentUrl: JSON.stringify(graph),
+});
 ```
 
 # Patterns
@@ -238,7 +280,9 @@ Bold, prominent styling for presentations and accessibility:
 
 **Edge visibility**: Use `--color-gray-600` or darker for `--diagram-edge-color` to ensure connections are clearly visible against light backgrounds.
 
-**Node hierarchy**: Utilize the three node background tokens (`background`, `background-alt`, `background-tertiary`) to create visual hierarchy in complex diagrams.
+**Node hierarchy**: Utilize the three node background tokens (`background`, `background-secondary`, `background-tertiary`) to create visual hierarchy in complex diagrams.
+
+**Text hierarchy**: Use `--diagram-text-color` as the base and override `--diagram-node-text-color` or `--diagram-edge-text-color` only when you need specific customization.
 
 **Actor styling**: For sequence diagrams, coordinate `--diagram-actor-background` with `--diagram-node-background` while using a neutral color like `--color-gray-100`.
 
