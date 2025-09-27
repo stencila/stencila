@@ -1,0 +1,358 @@
+/* =================================================================
+   PRINT DESIGN TOKENS
+
+   Print-specific token overrides and margin box styling tokens.
+   ================================================================= */
+
+@media print {
+    :root {
+        /* Override primitive design tokens for compact print layout */
+        --font-size-xs: 8pt;
+        --font-size-sm: 9pt;
+        --font-size-md: 10pt;
+        --font-size-lg: 11pt;
+        --font-size-xl: 12pt;
+        --font-size-2xl: 14pt;
+        --font-size-3xl: 16pt;
+        --font-size-4xl: 18pt;
+        --font-size-5xl: 20pt;
+
+        /* Tighter line height for print */
+        --line-height-relaxed: 1.4;
+
+        /* Reduced spacing scale for print */
+        --space-1: 0.1rem;
+        --space-2: 0.25rem;
+        --space-3: 0.4rem;
+        --space-4: 0.5rem;
+        --space-6: 0.75rem;
+        --space-8: 1rem;
+        --space-10: 1.25rem;
+        --space-12: 1.5rem;
+        --space-16: 2rem;
+        --space-20: 2.5rem;
+
+        /* Print colors - direct semantic token overrides */
+        --surface-background: white;
+        --surface-foreground: white;
+        --text-color-primary: black;
+        --text-color-secondary: #333;
+        --text-color-muted: #666;
+        --border-color-default: #666;
+        --code-background: #f5f5f5;
+
+        /* Document & Content Layout */
+        --document-padding-xs: var(--space-2);
+        --document-padding-sm: var(--space-2);
+        --document-padding-md: var(--space-2);
+        --content-width: 100%;
+        --content-width-wide: 100%;
+        --document-max-width: 100%;
+
+        /* Typography */
+        --heading-font-size: 14pt;
+        --heading-margin-top: var(--space-6);
+        --heading-margin-bottom: var(--space-2);
+        --paragraph-spacing-sm: var(--space-1);
+        --paragraph-spacing-md: var(--space-2);
+        --paragraph-spacing-lg: var(--space-3);
+
+        /* Tables */
+        --table-cell-padding-xs: var(--space-1);
+        --table-cell-padding-sm: var(--space-1);
+        --table-cell-padding-md: var(--space-1);
+        --table-margin-vertical: var(--space-4);
+        --table-border-color: #ccc;
+
+        /* Figures */
+        --figure-caption-margin-top: var(--space-1);
+        --figure-margin-vertical-xs: var(--space-2);
+        --figure-margin-vertical-sm: var(--space-3);
+        --figure-margin-vertical-md: var(--space-4);
+        --figure-margin-vertical-lg: var(--space-6);
+
+        /* Code */
+        --code-padding-inline: var(--space-xs);
+        --code-padding-block: var(--space-2);
+
+        /* Lists */
+        --list-indent: var(--space-4);
+        --list-spacing: var(--space-1);
+        --list-spacing-nested: var(--space-1);
+
+        /* Quotes */
+        --quote-padding-xs: var(--space-1);
+        --quote-padding-sm: var(--space-2);
+        --quote-padding-md: var(--space-2);
+        --quote-margin-horizontal: var(--space-3);
+
+        /* Admonitions */
+        --admonition-padding-xs: var(--space-1);
+        --admonition-padding-sm: var(--space-2);
+        --admonition-padding-md: var(--space-2);
+        --admonition-margin-vertical: var(--space-3);
+    }
+}
+
+/* Print margin box styling tokens available globally */
+:root {
+    /* Print Layout */
+    --print-page-size: a4;
+    --print-page-margin: 0.5in;
+
+    /* Page padding - space between content and margin boxes */
+    --print-page-padding: var(--space-1);
+    --print-page-padding-top: var(--print-page-padding);
+    --print-page-padding-bottom: var(--print-page-padding);
+
+    /* Print Margin Box Styling */
+    --print-margin-font-family: var(--font-family-sans);
+    --print-margin-font-size: 9pt;
+    --print-margin-color: var(--text-color-secondary);
+    --print-margin-line-height: 1.2;
+    --print-margin-padding: var(--space-2);
+
+    /* Print Margin Box Content - Set these to control margin content */
+    --print-margin-top-left-content: '';
+    --print-margin-top-center-content: '';
+    --print-margin-top-right-content: '';
+    --print-margin-bottom-left-content: '';
+    --print-margin-bottom-center-content: '';
+    --print-margin-bottom-right-content: '';
+
+    /* Print Margin Box Borders - Border span control */
+    --print-margin-top-border-style: solid;
+    --print-margin-top-border-color: var(--border-color-default);
+    --print-margin-bottom-border-style: solid;
+    --print-margin-bottom-border-color: var(--border-color-default);
+
+    /* Horizontal border span tokens - apply to both top and bottom */
+    --print-margin-horizontal-border-narrow: initial;
+    --print-margin-horizontal-border-wide: initial;
+    --print-margin-horizontal-border-full: initial;
+
+    /* Border span tokens - default to horizontal values but can be overridden individually */
+    --print-margin-top-border-narrow: var(--print-margin-horizontal-border-narrow);
+    --print-margin-top-border-wide: var(--print-margin-horizontal-border-wide);
+    --print-margin-top-border-full: var(--print-margin-horizontal-border-full);
+    --print-margin-bottom-border-narrow: var(--print-margin-horizontal-border-narrow);
+    --print-margin-bottom-border-wide: var(--print-margin-horizontal-border-wide);
+    --print-margin-bottom-border-full: var(--print-margin-horizontal-border-full);
+}
+
+
+/* =================================================================
+   PAGE LAYOUT & MARGIN BOXES
+
+   @page rules defining page size, margins, and margin box content.
+   ================================================================= */
+
+@page {
+    size: var(--print-page-size);
+    margin: var(--print-page-margin);
+    padding-top: var(--print-page-padding-top);
+    padding-bottom: var(--print-page-padding-bottom);
+
+    /* Top margin boxes */
+    @top-left-corner {
+        content: '';
+        border-bottom: var(--print-margin-top-border-full, 0) var(--print-margin-top-border-style) var(--print-margin-top-border-color);
+    }
+
+    @top-left {
+        content: var(--print-margin-top-left-content);
+        font-family: var(--print-margin-font-family);
+        font-size: var(--print-margin-font-size);
+        color: var(--print-margin-color);
+        line-height: var(--print-margin-line-height);
+        padding: var(--print-margin-padding);
+        border-bottom: var(--print-margin-top-border-wide, var(--print-margin-top-border-full, 0)) var(--print-margin-top-border-style) var(--print-margin-top-border-color);
+    }
+
+    @top-center {
+        content: var(--print-margin-top-center-content);
+        font-family: var(--print-margin-font-family);
+        font-size: var(--print-margin-font-size);
+        color: var(--print-margin-color);
+        line-height: var(--print-margin-line-height);
+        padding: var(--print-margin-padding);
+        border-bottom: var(--print-margin-top-border-narrow, var(--print-margin-top-border-wide, var(--print-margin-top-border-full, 0))) var(--print-margin-top-border-style) var(--print-margin-top-border-color);
+    }
+
+    @top-right {
+        content: var(--print-margin-top-right-content);
+        font-family: var(--print-margin-font-family);
+        font-size: var(--print-margin-font-size);
+        color: var(--print-margin-color);
+        line-height: var(--print-margin-line-height);
+        padding: var(--print-margin-padding);
+        border-bottom: var(--print-margin-top-border-wide, var(--print-margin-top-border-full, 0)) var(--print-margin-top-border-style) var(--print-margin-top-border-color);
+    }
+
+    @top-right-corner {
+        content: '';
+        border-bottom: var(--print-margin-top-border-full, 0) var(--print-margin-top-border-style) var(--print-margin-top-border-color);
+    }
+
+    /* Left margin boxes */
+    @left-top {
+        content: '';
+    }
+
+    @left-middle {
+        content: '';
+    }
+
+    @left-bottom {
+        content: '';
+    }
+
+    /* Right margin boxes */
+    @right-top {
+        content: '';
+    }
+
+    @right-middle {
+        content: '';
+    }
+
+    @right-bottom {
+        content: '';
+    }
+
+    /* Bottom margin boxes */
+    @bottom-left-corner {
+        content: '';
+        border-top: var(--print-margin-bottom-border-full, 0) var(--print-margin-bottom-border-style) var(--print-margin-bottom-border-color);
+    }
+
+    @bottom-left {
+        content: var(--print-margin-bottom-left-content);
+        font-family: var(--print-margin-font-family);
+        font-size: var(--print-margin-font-size);
+        color: var(--print-margin-color);
+        line-height: var(--print-margin-line-height);
+        padding: var(--print-margin-padding);
+        border-top: var(--print-margin-bottom-border-wide, var(--print-margin-bottom-border-full, 0)) var(--print-margin-bottom-border-style) var(--print-margin-bottom-border-color);
+    }
+
+    @bottom-center {
+        content: var(--print-margin-bottom-center-content);
+        font-family: var(--print-margin-font-family);
+        font-size: var(--print-margin-font-size);
+        color: var(--print-margin-color);
+        line-height: var(--print-margin-line-height);
+        padding: var(--print-margin-padding);
+        border-top: var(--print-margin-bottom-border-narrow, var(--print-margin-bottom-border-wide, var(--print-margin-bottom-border-full, 0))) var(--print-margin-bottom-border-style) var(--print-margin-bottom-border-color);
+    }
+
+    @bottom-right {
+        content: var(--print-margin-bottom-right-content);
+        font-family: var(--print-margin-font-family);
+        font-size: var(--print-margin-font-size);
+        color: var(--print-margin-color);
+        line-height: var(--print-margin-line-height);
+        padding: var(--print-margin-padding);
+        border-top: var(--print-margin-bottom-border-wide, var(--print-margin-bottom-border-full, 0)) var(--print-margin-bottom-border-style) var(--print-margin-bottom-border-color);
+    }
+
+    @bottom-right-corner {
+        content: '';
+        border-top: var(--print-margin-bottom-border-full, 0) var(--print-margin-bottom-border-style) var(--print-margin-bottom-border-color);
+    }
+}
+
+/* =================================================================
+   PRINT MEDIA OPTIMIZATIONS
+
+   Print-specific element styling and layout adjustments.
+   ================================================================= */
+
+@media print {
+
+    /* Print-specific table styling */
+    table {
+        border: none !important;
+        border-top: 1px solid var(--table-border-color) !important;
+        border-bottom: 1px solid var(--table-border-color) !important;
+    }
+
+    th,
+    td {
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        border-bottom: 1px solid var(--table-border-color) !important;
+    }
+
+    /* Remove border from last row */
+    tr:last-child th,
+    tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    /* Scale large images to fit on page while preserving natural size */
+    stencila-figure img,
+    stencila-figure svg,
+    stencila-figure canvas {
+        /* Use a maximum height to leave space on a page for the caption */
+        max-height: 80% !important;
+        /* Don't stretch small images - only constrain large ones */
+        max-width: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        object-fit: contain !important;
+        /* Center images that are smaller than page width */
+        display: block !important;
+        margin: 0 auto !important;
+    }
+
+    /* Override global img rule to prevent stretching in figures */
+    stencila-figure img {
+        width: auto !important;
+    }
+
+    /* Ensure figures don't break across pages */
+    stencila-figure {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Compact captions for print */
+    stencila-figure figcaption p,
+    stencila-table [slot='caption'] p {
+        line-height: 1.2 !important;
+        margin-top: var(--space-1) !important;
+        margin-bottom: 0 !important;
+        font-size: 9pt !important;
+    }
+
+    stencila-figure figcaption,
+    stencila-table [slot='caption'] {
+        margin-top: var(--space-1) !important;
+        margin-bottom: var(--space-2) !important;
+    }
+
+    /* Ensure user interface elements are hidden. Normally, a document will only
+     be printed when there is no "view" and hence non of these elements present
+     but this ensure that this is the case */
+    stencila-document-menu {
+        display: none;
+    }
+
+    /* Avoid breaks within these node types. For tables, figures, and code
+     chunks this keeps captions with tables and images. */
+    stencila-table,
+    stencila-figure,
+    stencila-code-chunk,
+    stencila-reference {
+        break-inside: avoid;
+    }
+
+    /* Float tables, figures, and code chunks to the bottom of the page. */
+    stencila-table,
+    stencila-figure,
+    stencila-code-chunk {
+        float: bottom;
+    }
+}

@@ -1,0 +1,751 @@
+---
+title: Print & Margins
+description: |
+  Design tokens and patterns for customizing print output and page margin content in Stencila themes.
+---
+
+# Tokens
+
+## Print Margin Box Styling
+
+Style tokens control the appearance of content in page margin boxes (headers and footers).
+
+| Token                        | Description                        | Default Value                 |
+| ---------------------------- | ---------------------------------- | ----------------------------- |
+| `--print-margin-font-family` | Font family for all margin boxes   | `var(--font-family-sans)`     |
+| `--print-margin-font-size`   | Font size for margin box content   | `9pt`                         |
+| `--print-margin-color`       | Text color for margin boxes        | `var(--text-color-secondary)` |
+| `--print-margin-line-height` | Line height for margin box content | `1.2`                         |
+| `--print-margin-padding`     | Padding **inside** each margin box around the text content | `var(--space-2)` |
+
+## Print Margin Box Content
+
+Content tokens define what appears in each page margin box. Set these tokens to control margin content without writing @page rules.
+
+| Token                                  | Description                      | Default Value |
+| -------------------------------------- | -------------------------------- | ------------- |
+| `--print-margin-top-left-content`      | Content for top-left margin      | `''`          |
+| `--print-margin-top-center-content`    | Content for top-center margin    | `''`          |
+| `--print-margin-top-right-content`     | Content for top-right margin     | `''`          |
+| `--print-margin-bottom-left-content`   | Content for bottom-left margin   | `''`          |
+| `--print-margin-bottom-center-content` | Content for bottom-center margin | `''`          |
+| `--print-margin-bottom-right-content`  | Content for bottom-right margin  | `''`          |
+
+## Print Layout Tokens
+
+General print layout settings.
+
+| Token                 | Description                   | Default Value |
+| --------------------- | ----------------------------- | ------------- |
+| `--print-page-size`   | Paper size (a4, letter, etc.) | `a4`          |
+| `--print-page-margin` | Page margin (all sides)       | `0.5in`       |
+
+### Page Padding
+
+Control spacing **between** the main document content and margin boxes to prevent visual conflicts:
+
+| Token                          | Description                              | Default Value              |
+| ------------------------------ | ---------------------------------------- | -------------------------- |
+| `--print-page-padding`         | Padding for both top and bottom         | `var(--space-1)`           |
+| `--print-page-padding-top`     | Top padding (overrides general padding) | `var(--print-page-padding)` |
+| `--print-page-padding-bottom`  | Bottom padding (overrides general padding) | `var(--print-page-padding)` |
+
+> **Note**: This is different from `--print-margin-padding` which controls spacing **inside** each margin box. Page content padding creates space between the main content and margin areas, while margin padding creates space around text within each margin box.
+
+```
+┌──────────────────────────────────────────────────┐
+│ @top-center margin box                           │
+│ ┌──print-margin-padding──┐                       │
+│ │    "Document Title"    │                       │
+│ └────────────────────────┘                       │
+└──────────────────────────────────────────────────┘
+            ↕ print-page-padding
+┌──────────────────────────────────────────────────┐
+│                                                  │
+│            Main document content                 │
+│                                                  │
+└──────────────────────────────────────────────────┘
+            ↕ print-page-padding
+┌──────────────────────────────────────────────────┐
+│ ┌──print-margin-padding──┐                       │
+│ │       "Page 1"         │                       │
+│ └────────────────────────┘                       │
+│ @bottom-center margin box                        │
+└──────────────────────────────────────────────────┘
+```
+
+## Print Margin Border Spans
+
+Control which margin boxes get borders. Set **ONE** token to define border span.
+
+### Horizontal Tokens (Recommended)
+
+Apply borders to both top and bottom margins with a single token:
+
+| Token                                      | Description                                      | Usage                      |
+| ------------------------------------------ | ------------------------------------------------ | -------------------------- |
+| `--print-margin-horizontal-border-narrow` | Border only on center boxes                     | Set to `1px` to enable     |
+| `--print-margin-horizontal-border-wide`   | Border on left, center, right boxes             | Set to `1px` to enable     |
+| `--print-margin-horizontal-border-full`   | Border on all boxes (including corners)         | Set to `1px` to enable     |
+
+### Individual Top/Bottom Tokens
+
+Override horizontal defaults or set top/bottom borders independently:
+
+| Token                                    | Description                                      | Usage                      |
+| ---------------------------------------- | ------------------------------------------------ | -------------------------- |
+| `--print-margin-top-border-narrow`      | Border only on `@top-center`                    | Set to `1px` to enable     |
+| `--print-margin-top-border-wide`        | Border on `@top-left`, `@top-center`, `@top-right` | Set to `1px` to enable  |
+| `--print-margin-top-border-full`        | Border on all top margin boxes (including corners) | Set to `1px` to enable |
+| `--print-margin-bottom-border-narrow`   | Border only on `@bottom-center`                 | Set to `1px` to enable     |
+| `--print-margin-bottom-border-wide`     | Border on `@bottom-left`, `@bottom-center`, `@bottom-right` | Set to `1px` to enable |
+| `--print-margin-bottom-border-full`     | Border on all bottom margin boxes (including corners) | Set to `1px` to enable |
+
+**Border styling tokens:**
+
+| Token                                 | Description                  | Default Value                 |
+| ------------------------------------- | ---------------------------- | ----------------------------- |
+| `--print-margin-top-border-style`    | Border style for top margins | `solid`                       |
+| `--print-margin-top-border-color`    | Border color for top margins | `var(--border-color-default)` |
+| `--print-margin-bottom-border-style` | Border style for bottom margins | `solid`                    |
+| `--print-margin-bottom-border-color` | Border color for bottom margins | `var(--border-color-default)` |
+
+# Available Content Variables
+
+## Document Metadata Variables
+
+Stencila automatically extracts document metadata and injects it as CSS variables in the document `<head>`. These variables can be used in margin box content:
+
+| Variable Name        | Description                      | Example                  |
+| -------------------- | -------------------------------- | ------------------------ |
+| `--document-title`   | Main document title              | "Climate Change Impacts" |
+| `--document-authors` | Document authors                 | "Smith, J. & Jones, M."  |
+| `--document-doi`     | Digital Object Identifier        | "10.1234/example.5678"   |
+| `--document-date`    | Publication or modification date | "2025-09-27"             |
+
+## Dynamic Content
+
+CSS `string-set` and `string()` functions are not yet supported in browsers (see [Chromium issue #376420244](https://issues.chromium.org/issues/376420244) and [CSS Paged Media support status](https://publishing-project.rivendellweb.net/css-paged-media-in-the-browser/#set-strings)).
+
+Stencila may add support for the following when browser support becomes available:
+
+- **Section titles**: Current section heading that changes as document flows
+- **Section breadcrumbs**: Hierarchical section path (h1 › h2 › h3) that changes as document flows
+
+## Page Counters
+
+| Counter Name | Description         | Usage                                     |
+| ------------ | ------------------- | ----------------------------------------- |
+| `page`       | Current page number | `counter(page)` or `counter(page, roman)` |
+| `pages`      | Total page count    | `counter(pages)`                          |
+
+# Patterns
+
+## Basic Page Numbers
+
+Add page numbers to the bottom-right corner using tokens:
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-bottom-right-content: counter(page);
+}
+```
+
+Or use the full @page approach for more control:
+
+```css
+@import url("./base.css");
+
+@media print {
+  @page {
+    @bottom-right {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      color: var(--print-margin-color);
+    }
+  }
+}
+```
+
+## Academic Article Headers
+
+Show authors in top-left, title in top-right, and page numbers with DOI at bottom using tokens:
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-top-left-content: var(--document-authors);
+  --print-margin-top-right-content: var(--document-title);
+  --print-margin-bottom-left-content: "DOI: " var(--document-doi);
+  --print-margin-bottom-right-content: "Page " counter(page);
+
+  /* Add borders across main margin boxes */
+  --print-margin-horizontal-border-wide: 1px;
+}
+```
+
+Or use the full @page approach for custom styling:
+
+```css
+@import url("./base.css");
+
+@media print {
+  @page {
+    @top-left {
+      content: var(--document-authors);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      color: var(--print-margin-color);
+    }
+
+    @top-right {
+      content: var(--document-title);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      color: var(--print-margin-color);
+    }
+
+    @bottom-left {
+      content: "DOI: " var(--document-doi);
+      font-family: var(--print-margin-font-family);
+      font-size: 8pt;
+      color: var(--text-color-muted);
+    }
+
+    @bottom-right {
+      content: "Page " counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      color: var(--print-margin-color);
+    }
+  }
+}
+```
+
+## Institution Branding
+
+Add institution name and department to margins using tokens:
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-top-left-content: "Yale University";
+  --print-margin-top-right-content: "Department of Computer Science";
+  --print-margin-bottom-center-content: counter(page);
+}
+```
+
+Or use the full @page approach for custom styling:
+
+```css
+@import url("./base.css");
+
+@media print {
+  @page {
+    @top-left {
+      content: "Yale University";
+      font-family: var(--print-margin-font-family);
+      font-size: 10pt;
+      font-weight: 600;
+      color: var(--text-color-primary);
+    }
+
+    @top-right {
+      content: "Department of Computer Science";
+      font-family: var(--print-margin-font-family);
+      font-size: 8pt;
+      color: var(--text-color-secondary);
+    }
+
+    @bottom-center {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+  }
+}
+```
+
+## Border Span Examples
+
+Control which margin boxes get borders using the span tokens:
+
+### Narrow Border (Center Only)
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-horizontal-border-narrow: 1px;
+  --print-margin-top-center-content: var(--document-title);
+  --print-margin-bottom-center-content: counter(page);
+}
+```
+
+### Wide Border (Left, Center, Right)
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-horizontal-border-wide: 1px;
+  --print-margin-top-left-content: var(--document-authors);
+  --print-margin-top-right-content: var(--document-title);
+  --print-margin-bottom-left-content: "DOI: " var(--document-doi);
+  --print-margin-bottom-right-content: "Page " counter(page);
+}
+```
+
+### Full Border (Including Corners)
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-horizontal-border-full: 1px;
+  --print-margin-top-center-content: var(--document-title);
+  --print-margin-bottom-center-content: counter(page);
+}
+```
+
+### Override Top/Bottom Independently
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-horizontal-border-wide: 1px;  /* Default for both */
+  --print-margin-top-border-full: 1px;         /* Override: top gets full border */
+  --print-margin-top-center-content: var(--document-title);
+  --print-margin-bottom-center-content: counter(page);
+}
+```
+
+### Custom Border Colors
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-horizontal-border-wide: 2px;
+  --print-margin-top-border-style: dashed;
+  --print-margin-top-border-color: #0066cc;
+  --print-margin-top-center-content: var(--document-title);
+}
+```
+
+### Adjust Content Spacing
+
+Control spacing between content and margin borders to prevent visual conflicts:
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-horizontal-border-wide: 1px;
+  --print-page-padding: 0.2in;  /* More space around content */
+  --print-margin-top-center-content: var(--document-title);
+  --print-margin-bottom-center-content: counter(page);
+}
+```
+
+### Different Top/Bottom Spacing
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-horizontal-border-wide: 1px;
+  --print-page-padding-top: 0.3in;    /* Extra space for top border */
+  --print-page-padding-bottom: 0.1in; /* Less space at bottom */
+  --print-margin-top-center-content: var(--document-title);
+  --print-margin-bottom-center-content: counter(page);
+}
+```
+
+## Running Headers with Section Titles
+
+> **⚠️ Not Yet Supported**: The following examples use CSS `string-set` and `string()` functions which are not yet supported in browsers. This is planned for future browser versions.
+
+Show the current section heading in the page header using dynamic strings:
+
+```css
+@import url("./base.css");
+
+/* Set up string capture for section headings */
+h2 {
+  string-set: section-title content(text);
+}
+
+:root {
+  --print-margin-top-center-content: string(section-title);
+  --print-margin-bottom-right-content: counter(page);
+}
+```
+
+Or with full @page control:
+
+```css
+@import url("./base.css");
+
+/* Set up string capture for section headings */
+h2 {
+  string-set: section-title content(text);
+}
+
+@media print {
+  @page {
+    @top-center {
+      content: string(section-title);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      font-style: italic;
+      color: var(--text-color-secondary);
+    }
+
+    @bottom-right {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+  }
+}
+```
+
+## Hierarchical Section Breadcrumbs
+
+> **⚠️ Not Yet Supported**: The following examples use CSS `string-set` and `string()` functions which are not yet supported in browsers. This is planned for future browser versions.
+
+Show the complete section path in page headers for better navigation:
+
+```css
+@import url("./base.css");
+
+/* Build hierarchical breadcrumb trail */
+h1 {
+  string-set: section-breadcrumb content(text);
+}
+h2 {
+  string-set: section-breadcrumb string(section-breadcrumb) " › " content(text);
+}
+h3 {
+  string-set: section-breadcrumb string(section-breadcrumb) " › " content(text);
+}
+
+:root {
+  --print-margin-top-center-content: string(section-breadcrumb);
+  --print-margin-bottom-right-content: counter(page);
+}
+```
+
+This creates breadcrumbs like:
+
+- "Introduction"
+- "Introduction › Background"
+- "Introduction › Background › Previous Work"
+
+Or with full @page control for custom styling:
+
+```css
+@import url("./base.css");
+
+/* Build hierarchical breadcrumb trail */
+h1 {
+  string-set: section-breadcrumb content(text);
+}
+h2 {
+  string-set: section-breadcrumb string(section-breadcrumb) " › " content(text);
+}
+h3 {
+  string-set: section-breadcrumb string(section-breadcrumb) " › " content(text);
+}
+
+@media print {
+  @page {
+    @top-center {
+      content: string(section-breadcrumb);
+      font-family: var(--print-margin-font-family);
+      font-size: 8pt;
+      font-style: italic;
+      color: var(--text-color-muted);
+      text-align: center;
+    }
+
+    @bottom-right {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+  }
+}
+```
+
+## Different Margins for Left/Right Pages
+
+Use `:left` and `:right` pseudo-classes for alternating page layouts (useful for two-sided printing):
+
+```css
+@import url("./base.css");
+
+@media print {
+  /* Left (even) pages */
+  @page :left {
+    @top-left {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+
+    @top-right {
+      content: string(article-title);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      font-style: italic;
+    }
+  }
+
+  /* Right (odd) pages */
+  @page :right {
+    @top-left {
+      content: string(section-title);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      font-style: italic;
+    }
+
+    @top-right {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+  }
+}
+```
+
+## First Page Different
+
+Remove headers/footers from the first page:
+
+```css
+@import url("./base.css");
+
+@media print {
+  /* First page - no headers/footers */
+  @page :first {
+    @top-left {
+      content: "";
+    }
+    @top-right {
+      content: "";
+    }
+    @bottom-left {
+      content: "";
+    }
+    @bottom-right {
+      content: "";
+    }
+  }
+
+  /* All other pages */
+  @page {
+    @top-center {
+      content: string(article-title);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+
+    @bottom-center {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+  }
+}
+```
+
+## Minimal Theme Example
+
+A complete minimal theme with basic page numbers using tokens:
+
+```css
+@import url("./base.css");
+
+:root {
+  /* Override base theme for cleaner print */
+  --text-font-family: "Georgia", serif;
+  --print-margin-font-size: 9pt;
+  --print-margin-color: #666;
+
+  /* Simple page numbers */
+  --print-margin-bottom-right-content: counter(page);
+}
+```
+
+Or with full @page control:
+
+```css
+@import url("./base.css");
+
+:root {
+  /* Override base theme for cleaner print */
+  --text-font-family: "Georgia", serif;
+  --print-margin-font-size: 9pt;
+  --print-margin-color: #666;
+}
+
+@media print {
+  @page {
+    size: letter;
+    margin: 0.75in;
+
+    @bottom-right {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      color: var(--print-margin-color);
+    }
+  }
+}
+```
+
+## Professional Report Theme
+
+Corporate report with full branding and metadata using tokens:
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-font-family: "Arial", sans-serif;
+  --print-margin-font-size: 8pt;
+
+  /* Content tokens for different page types will need @page rules for :first, :left, :right */
+  --print-margin-top-left-content: "Acme Research Institute";
+  --print-margin-bottom-left-content: "© 2025 Acme Research Institute. All rights reserved.";
+  --print-margin-bottom-right-content: counter(page);
+}
+
+@media print {
+  @page {
+    size: letter;
+    margin: 1in;
+
+    /* First page - title page style */
+  }
+
+  @page :first {
+    @top-left {
+      content: "";
+    }
+    @top-right {
+      content: "";
+    }
+    @bottom-left {
+      content: "";
+    }
+    @bottom-right {
+      content: "";
+    }
+  }
+
+  @page :left {
+    @top-left {
+      content: var(--print-margin-institution-name);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      font-weight: 600;
+    }
+
+    @top-right {
+      content: string(article-date);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+
+    @bottom-left {
+      content: var(--print-margin-copyright-text);
+      font-family: var(--print-margin-font-family);
+      font-size: 7pt;
+      color: var(--text-color-muted);
+    }
+
+    @bottom-right {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+  }
+
+  @page :right {
+    @top-left {
+      content: string(section-title);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      font-style: italic;
+    }
+
+    @top-right {
+      content: string(article-title);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+      font-weight: 500;
+    }
+
+    @bottom-left {
+      content: counter(page);
+      font-family: var(--print-margin-font-family);
+      font-size: var(--print-margin-font-size);
+    }
+
+    @bottom-right {
+      content: string(article-doi);
+      font-family: var(--print-margin-font-family);
+      font-size: 7pt;
+      color: var(--text-color-muted);
+    }
+  }
+}
+```
+
+# Tips
+
+**Use design tokens**: Always reference `--print-margin-*` tokens instead of hard-coded values for consistency and easier customization.
+
+**Browser support**: CSS page margin boxes have limited browser support. Chrome/Chromium (including PDF export) supports them best. Firefox and Safari have partial support.
+
+**Test thoroughly**: Always preview PDF output before finalizing your theme, as print rendering can differ from screen display.
+
+**Keep it readable**: Margin box content should be subtle - use smaller font sizes (8-10pt) and muted colors to avoid competing with main content.
+
+**Static vs dynamic strings**: Static strings (`document-title`, `document-authors`, etc.) are injected by Stencila and remain constant throughout the document. Dynamic strings (`section-title`) are captured using CSS `string-set` and change as the document flows.
+
+**String extraction**: The `string()` function retrieves the last occurrence of a named string on the current page or previous pages. This works well for running headers but may not update mid-page.
+
+**Custom strings**: You can create your own dynamic strings using `string-set`. For example: `h1 { string-set: chapter-title content(text); }` then use `string(chapter-title)` in margins.
+
+**Breadcrumb length**: Section breadcrumbs can get long with deep nesting. Consider limiting to 2-3 levels for readability, or use smaller font sizes (8pt) and muted colors to keep them subtle.
+
+**Hierarchy reset**: When moving from h3 back to h1, the breadcrumb automatically resets since h1 overwrites the previous value. This ensures clean hierarchy transitions.
+
+**Content tokens**: Content tokens like `--print-margin-top-left-content` are tested in Chrome 131+ but may have limited support in other browsers. If tokens don't work, use the full `@page` approach with literal content.
+
+**Page counters**: Use `counter(page)` for page numbers. You can also use `counter(page, roman)` for Roman numerals or create custom counter styles.
+
+**Margin box sizing**: The size of margin boxes is determined by the page margin settings. Larger margins give more space for margin box content.
+
+**Multiple content values**: You can combine multiple content sources:
+
+```css
+content: "Page " counter(page) " of " counter(pages) ' " ' string(article-title);
+```
+
+**Accessibility**: Remember that margin box content is primarily for print - ensure your document remains fully accessible without relying on margin box information.
+
+**Page selection**: Use pseudo-classes like `:first`, `:left`, `:right`, and `:blank` to style different page types. Combine them for specificity: `@page :right:first`.
+
+**Reset defaults**: The base theme sets all margin boxes to empty content (`content: ''`) to override browser defaults. Override specific boxes as needed in your theme.

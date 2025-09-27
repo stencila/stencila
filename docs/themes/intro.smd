@@ -1,0 +1,75 @@
+---
+title: Introduction
+description: |
+  Overview of the Stencila theme system, modular architecture, and how to create custom themes.
+---
+
+# Stencila Themes
+
+Stencila themes provide a comprehensive design system for academic documents, supporting both screen and print output with extensive customization options.
+
+## Modular Architecture
+
+The theme system is built with a modular architecture that allows you to choose exactly what you need:
+
+### Core Module (`base/core.css`)
+
+Contains everything needed for screen rendering:
+
+- **Design Tokens** - All CSS custom properties defining the design system
+- **CSS Reset & Normalization** - Browser default overrides for consistency
+- **Typography & Layout** - Screen-optimized styles for headings, paragraphs, lists, etc.
+- **Components** - Tables, figures, code blocks, admonitions, and custom elements
+- **Dark Mode** - Automatic system preference detection with manual override
+
+### Print Module (`base/print.css`)
+
+Optional module for print and PDF output:
+
+- **Print Design Tokens** - Print-specific token overrides and margin box styling
+- **Dynamic Content Extraction** - CSS `string-set` rules for section titles and breadcrumbs
+- **Page Layout & Margin Boxes** - Complete `@page` system with 16 margin boxes
+- **Print Optimizations** - Print-specific element styling and page break controls
+
+## Import Patterns
+
+### Screen Only
+
+For web-only themes that don't need print support:
+
+```css
+@import url("./base/core.css");
+
+:root {
+  --text-font-family: "Your Font", serif;
+  --color-accent: #your-brand-color;
+}
+```
+
+### Screen + Print
+
+For themes that support both screen and print output:
+
+```css
+@import url("./base/core.css");
+@import url("./base/print.css");
+
+:root {
+  --text-font-family: "Your Font", serif;
+  --print-margin-bottom-right-content: counter(page);
+}
+```
+
+### Monolithic
+
+For themes that want everything included automatically:
+
+```css
+@import url("./base.css");
+
+:root {
+  --text-font-family: "Your Font", serif;
+}
+```
+
+The `base.css` file automatically imports both `core.css` and `print.css` for backward compatibility.

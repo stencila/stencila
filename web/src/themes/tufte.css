@@ -15,6 +15,10 @@
     --heading-font-family: 'Crimson Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --code-font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
+    /* Print margin content - test the new margin system */
+    --print-margin-top-center-content: string(section-title);
+    --print-margin-bottom-right-content: counter(page);
+
     /* Colors - Warm paper aesthetic */
     --surface-background: #fffff8;
     --surface-foreground: #fffff8;
