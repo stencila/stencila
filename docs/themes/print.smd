@@ -76,39 +76,49 @@ Control spacing **between** the main document content and margin boxes to preven
 
 ## Print Margin Border Spans
 
-Control which margin boxes get borders. Set **ONE** token to define border span.
+Control which margin boxes get borders using a hierarchical token system. Set tokens at the most general level that applies to your needs.
 
-### Horizontal Tokens (Recommended)
+### Level 1: General Tokens (Recommended)
 
-Apply borders to both top and bottom margins with a single token:
+Apply borders and styling to all margins with a single token:
+
+| Token                         | Description                                      | Usage                      |
+| ----------------------------- | ------------------------------------------------ | -------------------------- |
+| `--print-margin-border-narrow` | Border only on center boxes                     | Set to `1px` to enable     |
+| `--print-margin-border-wide`   | Border on left, center, right boxes             | Set to `1px` to enable     |
+| `--print-margin-border-full`   | Border on all boxes (including corners)         | Set to `1px` to enable     |
+| `--print-margin-border-style`  | Border style for all margins                    | `solid` (default)          |
+| `--print-margin-border-color`  | Border color for all margins                    | `var(--border-color-default)` |
+
+### Level 2: Horizontal Tokens
+
+Override general defaults for both top and bottom margins:
 
 | Token                                      | Description                                      | Usage                      |
 | ------------------------------------------ | ------------------------------------------------ | -------------------------- |
 | `--print-margin-horizontal-border-narrow` | Border only on center boxes                     | Set to `1px` to enable     |
 | `--print-margin-horizontal-border-wide`   | Border on left, center, right boxes             | Set to `1px` to enable     |
 | `--print-margin-horizontal-border-full`   | Border on all boxes (including corners)         | Set to `1px` to enable     |
+| `--print-margin-horizontal-border-style`  | Border style for top and bottom margins         | Inherits from general      |
+| `--print-margin-horizontal-border-color`  | Border color for top and bottom margins         | Inherits from general      |
 
-### Individual Top/Bottom Tokens
+### Level 3: Specific Tokens
 
-Override horizontal defaults or set top/bottom borders independently:
+Override horizontal defaults for individual top or bottom margins:
 
 | Token                                    | Description                                      | Usage                      |
 | ---------------------------------------- | ------------------------------------------------ | -------------------------- |
 | `--print-margin-top-border-narrow`      | Border only on `@top-center`                    | Set to `1px` to enable     |
 | `--print-margin-top-border-wide`        | Border on `@top-left`, `@top-center`, `@top-right` | Set to `1px` to enable  |
 | `--print-margin-top-border-full`        | Border on all top margin boxes (including corners) | Set to `1px` to enable |
+| `--print-margin-top-border-style`       | Border style for top margins only               | Inherits from horizontal   |
+| `--print-margin-top-border-color`       | Border color for top margins only               | Inherits from horizontal   |
 | `--print-margin-bottom-border-narrow`   | Border only on `@bottom-center`                 | Set to `1px` to enable     |
 | `--print-margin-bottom-border-wide`     | Border on `@bottom-left`, `@bottom-center`, `@bottom-right` | Set to `1px` to enable |
 | `--print-margin-bottom-border-full`     | Border on all bottom margin boxes (including corners) | Set to `1px` to enable |
+| `--print-margin-bottom-border-style`    | Border style for bottom margins only            | Inherits from horizontal   |
+| `--print-margin-bottom-border-color`    | Border color for bottom margins only            | Inherits from horizontal   |
 
-**Border styling tokens:**
-
-| Token                                 | Description                  | Default Value                 |
-| ------------------------------------- | ---------------------------- | ----------------------------- |
-| `--print-margin-top-border-style`    | Border style for top margins | `solid`                       |
-| `--print-margin-top-border-color`    | Border color for top margins | `var(--border-color-default)` |
-| `--print-margin-bottom-border-style` | Border style for bottom margins | `solid`                    |
-| `--print-margin-bottom-border-color` | Border color for bottom margins | `var(--border-color-default)` |
 
 # Available Content Variables
 
@@ -184,7 +194,7 @@ Show authors in top-left, title in top-right, and page numbers with DOI at botto
   --print-margin-bottom-right-content: "Page " counter(page);
 
   /* Add borders across main margin boxes */
-  --print-margin-horizontal-border-wide: 1px;
+  --print-margin-border-wide: 1px;
 }
 ```
 
@@ -275,29 +285,32 @@ Or use the full @page approach for custom styling:
 
 Control which margin boxes get borders using the span tokens:
 
+### Simple Border (Most Common)
+
+Use Level 1 tokens for the simplest approach:
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-border-wide: 1px;  /* All margins get wide borders */
+  --print-margin-border-color: blue;
+  --print-margin-top-left-content: var(--document-authors);
+  --print-margin-top-right-content: var(--document-title);
+  --print-margin-bottom-left-content: "DOI: " var(--document-doi);
+  --print-margin-bottom-right-content: "Page " counter(page);
+}
+```
+
 ### Narrow Border (Center Only)
 
 ```css
 @import url("./base.css");
 
 :root {
-  --print-margin-horizontal-border-narrow: 1px;
+  --print-margin-border-narrow: 1px;
   --print-margin-top-center-content: var(--document-title);
   --print-margin-bottom-center-content: counter(page);
-}
-```
-
-### Wide Border (Left, Center, Right)
-
-```css
-@import url("./base.css");
-
-:root {
-  --print-margin-horizontal-border-wide: 1px;
-  --print-margin-top-left-content: var(--document-authors);
-  --print-margin-top-right-content: var(--document-title);
-  --print-margin-bottom-left-content: "DOI: " var(--document-doi);
-  --print-margin-bottom-right-content: "Page " counter(page);
 }
 ```
 
@@ -307,20 +320,38 @@ Control which margin boxes get borders using the span tokens:
 @import url("./base.css");
 
 :root {
-  --print-margin-horizontal-border-full: 1px;
+  --print-margin-border-full: 1px;
   --print-margin-top-center-content: var(--document-title);
   --print-margin-bottom-center-content: counter(page);
 }
 ```
 
-### Override Top/Bottom Independently
+### Horizontal Override
+
+Use Level 2 tokens to override just top and bottom:
 
 ```css
 @import url("./base.css");
 
 :root {
-  --print-margin-horizontal-border-wide: 1px;  /* Default for both */
-  --print-margin-top-border-full: 1px;         /* Override: top gets full border */
+  --print-margin-border-wide: 1px;              /* Default for all */
+  --print-margin-horizontal-border-color: red;  /* Override both top/bottom color */
+  --print-margin-top-center-content: var(--document-title);
+  --print-margin-bottom-center-content: counter(page);
+}
+```
+
+### Specific Override
+
+Use Level 3 tokens for individual control:
+
+```css
+@import url("./base.css");
+
+:root {
+  --print-margin-border-wide: 1px;          /* Default for all */
+  --print-margin-top-border-full: 1px;      /* Override: top gets full border */
+  --print-margin-top-border-color: blue;    /* Override: top gets blue color */
   --print-margin-top-center-content: var(--document-title);
   --print-margin-bottom-center-content: counter(page);
 }
@@ -612,6 +643,104 @@ Or with full @page control:
   }
 }
 ```
+
+## First Page Customization
+
+The print margin system includes comprehensive support for customizing the first page independently from other pages. This is useful for cover pages, title pages, or documents where the first page should have different header/footer content.
+
+### First Page Content Tokens
+
+First page content tokens default to the regular margin content, but can be overridden:
+
+```css
+:root {
+  /* Regular page margins */
+  --print-margin-top-left-content: var(--document-authors);
+  --print-margin-top-right-content: var(--document-title);
+  --print-margin-bottom-right-content: counter(page);
+
+  /* Override just the first page */
+  --print-margin-page1-top-left-content: '';  /* Hide authors on first page */
+  --print-margin-page1-top-right-content: '';  /* Hide title on first page */
+  --print-margin-page1-bottom-right-content: '';  /* No page number on cover */
+}
+```
+
+### First Page Border Control
+
+First page borders use the same hierarchical token system:
+
+```css
+:root {
+  /* Regular pages have borders */
+  --print-margin-border-wide: 1px;
+  --print-margin-border-color: #ccc;
+
+  /* First page has no borders */
+  --print-margin-page1-border-wide: initial;
+}
+```
+
+### Common First Page Patterns
+
+**Clean Cover Page (no headers/footers):**
+```css
+:root {
+  /* Hide all first page content */
+  --print-margin-page1-top-left-content: '';
+  --print-margin-page1-top-center-content: '';
+  --print-margin-page1-top-right-content: '';
+  --print-margin-page1-bottom-left-content: '';
+  --print-margin-page1-bottom-center-content: '';
+  --print-margin-page1-bottom-right-content: '';
+
+  /* Remove all first page borders */
+  --print-margin-page1-border-wide: initial;
+}
+```
+
+**Title Page with Custom Header:**
+```css
+:root {
+  /* Custom first page header */
+  --print-margin-page1-top-center-content: 'CONFIDENTIAL DRAFT';
+  --print-margin-page1-top-left-content: '';
+  --print-margin-page1-top-right-content: '';
+
+  /* No borders on first page */
+  --print-margin-page1-border-wide: initial;
+}
+```
+
+**Different First Page Styling:**
+```css
+:root {
+  /* Regular pages */
+  --print-margin-border-wide: 1px;
+  --print-margin-border-color: #666;
+
+  /* First page with thicker, different color border */
+  --print-margin-page1-border-wide: 2px;
+  --print-margin-page1-border-color: #000;
+}
+```
+
+### First Page Token Reference
+
+All first page tokens follow the same hierarchical structure as regular margins:
+
+**Content Tokens:**
+- `--print-margin-page1-top-left-content`
+- `--print-margin-page1-top-center-content`
+- `--print-margin-page1-top-right-content`
+- `--print-margin-page1-bottom-left-content`
+- `--print-margin-page1-bottom-center-content`
+- `--print-margin-page1-bottom-right-content`
+
+**Border Tokens (3 levels):**
+- Level 1: `--print-margin-page1-border-*` (all margins)
+- Level 2: `--print-margin-page1-horizontal-border-*` (top + bottom)
+- Level 3: `--print-margin-page1-top-border-*` and `--print-margin-page1-bottom-border-*`
 
 ## Professional Report Theme
 

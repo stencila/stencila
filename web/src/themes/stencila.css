@@ -14,12 +14,22 @@
 
     --heading-font-family: var(--font-family-sans);
 
+    --print-page-size: a4;
+    --print-page-margin: 1.5cm 1.75cm;
     --print-page-padding: var(--space-8);
-    --print-margin-horizontal-border-wide: 1px;
-    --print-margin-top-border-color: var(--color-gray-300);
+
+    /* Top and bottom margins with borders and document metadata */
+    --print-margin-border-wide: 1px;
+    --print-margin-border-color: var(--color-gray-300);
     --print-margin-font-family: var(--font-family-sans);
     --print-margin-top-left-content: var(--document-authors);
     --print-margin-top-right-content: var(--document-title);
-    --print-margin-bottom-left-content: "DOI: " var(--document-doi);
-    --print-margin-bottom-right-content: "Enriched and rendered by Stencila";
+    --print-margin-bottom-left-content: var(--document-doi);
+    --print-margin-bottom-right-content: url(https://placehold.co/80x30/white/blue?text=Stencila);
+
+    /* No top margin content or borders on first page */
+    --print-margin-page1-top-left-content: '';
+    --print-margin-page1-top-center-content: '';
+    --print-margin-page1-top-right-content: '';
+    --print-margin-page1-top-border-wide: initial;
 }
