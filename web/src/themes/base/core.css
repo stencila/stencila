@@ -305,8 +305,8 @@
     --code-gutter-min-width: 2.5rem;
     --code-gutter-active-line-background: var(--code-cursor-line-background);
     --code-gutter-active-line-color: var(--text-color-secondary);
-    --code-line-numbers: visible;
-    --code-fold-gutter: visible;
+    --code-line-numbers: hidden;
+    --code-fold-gutter: hidden;
 
     /* CodeMirror Syntax Highlighting */
     --syntax-comment: var(--color-green-600);
