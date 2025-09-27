@@ -63,6 +63,16 @@ impl Author {
         }
     }
 
+    /// Get the short name of an [`Author`]
+    pub fn short_name(&self) -> String {
+        match self {
+            Author::Person(person) => person.short_name(),
+            Author::Organization(org) => org.short_name(),
+            Author::SoftwareApplication(software) => software.short_name(),
+            Author::AuthorRole(role) => role.short_name(),
+        }
+    }
+
     /// Create an [`AuthorRole`] from an author
     ///
     /// Note that this will intentionally change the `role_name` of any existing [`AuthorRole`].

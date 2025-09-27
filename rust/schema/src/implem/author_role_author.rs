@@ -25,7 +25,17 @@ impl AuthorRoleAuthor {
             AuthorRoleAuthor::Person(person) => person.name(),
             AuthorRoleAuthor::Organization(org) => org.name(),
             AuthorRoleAuthor::SoftwareApplication(software) => software.name(),
-            AuthorRoleAuthor::Thing(role) => role.name(),
+            AuthorRoleAuthor::Thing(thing) => thing.name(),
+        }
+    }
+
+    /// Get the short name of an [`AuthorRoleAuthor`]
+    pub fn short_name(&self) -> String {
+        match self {
+            AuthorRoleAuthor::Person(person) => person.short_name(),
+            AuthorRoleAuthor::Organization(org) => org.short_name(),
+            AuthorRoleAuthor::SoftwareApplication(software) => software.short_name(),
+            AuthorRoleAuthor::Thing(thing) => thing.short_name(),
         }
     }
 }

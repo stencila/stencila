@@ -1,4 +1,5 @@
 use stencila_codec_markdown_trait::to_markdown;
+use stencila_codec_text_trait::to_text;
 
 use crate::{
     Article, Block, CreativeWorkType, Heading, Inline, RawBlock, Reference, Text,
@@ -137,6 +138,50 @@ impl DomCodec for Article {
         self.options.commit.to_dom_attr("commit", context);
 
         if context.is_root() {
+            // Generate CSS variable for print media support
+            let mut css = ":root {".to_string();
+            if let Some(title) = &self.title {
+                let mut title = to_text(title).replace("\"", "'");
+                const MAX_LEN: usize = 65;
+                if title.len() > MAX_LEN {
+                    title.truncate(MAX_LEN);
+                    title.push('…');
+                }
+                css.push_str("--document-title: \"");
+                css.push_str(&title);
+                css.push_str("\";");
+            }
+            if let Some(authors) = &self.authors {
+                let authors = match authors.len() {
+                    0 => String::new(),
+                    1 => authors[0].short_name(),
+                    2 => [&authors[0].short_name(), " & ", &authors[1].short_name()].concat(),
+                    _ => [&authors[0].short_name(), " et al."].concat(),
+                };
+                css.push_str("--document-authors: \"");
+                css.push_str(&authors.replace("\"", "'"));
+                css.push_str("\";");
+            }
+            if let Some(date) = self
+                .date_published
+                .as_ref()
+                .or(self.options.date_modified.as_ref())
+                .or(self.options.date_accepted.as_ref())
+                .or(self.options.date_received.as_ref())
+                .or(self.options.date_created.as_ref())
+            {
+                css.push_str("--document-date:\"");
+                css.push_str(&date.value.replace("\"", "'"));
+                css.push_str("\";");
+            }
+            if let Some(doi) = &self.doi {
+                css.push_str("--document-doi:\"DOI: ");
+                css.push_str(&doi.replace("\"", "'"));
+                css.push_str("\";");
+            }
+            css.push('}');
+            context.push_css(&css);
+
             if let Some(title) = &self.title {
                 context.push_slot_fn("section", "title", |context| {
                     context.enter_elem("h1");

@@ -27,6 +27,23 @@ impl Person {
         name
     }
 
+    /// Get the short name of a [`Person`]
+    pub fn short_name(&self) -> String {
+        let mut name = self.family_names.iter().flatten().join(" ");
+
+        if name.is_empty()
+            && let Some(opt_name) = &self.options.name
+        {
+            name = opt_name.clone();
+        }
+
+        if name.is_empty() {
+            name = "Anon".to_string();
+        }
+
+        name
+    }
+
     /// Generate a string representation of a [`Person`]
     pub fn as_string(&self) -> String {
         let mut string = String::new();

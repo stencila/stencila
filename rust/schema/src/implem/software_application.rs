@@ -8,6 +8,11 @@ impl SoftwareApplication {
         self.name.clone()
     }
 
+    /// Get the short name of a [`SoftwareApplication`]
+    pub fn short_name(&self) -> String {
+        self.name.clone()
+    }
+
     /// Create an [`AuthorRole`] for a software application
     pub fn into_author_role(
         self,

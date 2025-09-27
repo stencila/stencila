@@ -77,6 +77,11 @@ impl AuthorRole {
     pub fn name(&self) -> String {
         self.author.name()
     }
+
+    /// Get the short name of the author of an [`AuthorRole`]
+    pub fn short_name(&self) -> String {
+        self.author.short_name()
+    }
 }
 
 impl DomCodec for AuthorRole {
