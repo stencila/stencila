@@ -1,0 +1,76 @@
+/* Paragraph styles
+ *
+ * Schema: [Paragraph](../../schema/Paragraph.yaml)
+ * Purpose: Text paragraphs, the fundamental unit of prose content.
+ *
+ * DOM Structure:
+ * <stencila-paragraph id=xxx depth=N ancestors=Parent>
+ *     <p slot=content>
+ *         <stencila-text id=xxx depth=N+1 ancestors=Parent.Paragraph>Paragraph text content.</stencila-text>
+ *     </p>
+ * </stencila-paragraph>
+ *
+ * Key Attributes:
+ * - No specific attributes beyond standard id, depth, ancestors
+ *
+ * Slots:
+ * - content: Contains the HTML p element with text and inline content
+ *
+ * Notes:
+ * - Paragraphs contain text and inline elements (links, emphasis, etc.)
+ *
+ * Examples: examples/conversion/paragraph/paragraph.dom.html
+ */
+
+:root {
+    --paragraph-spacing-sm: var(--space-3);
+    --paragraph-spacing-md: var(--space-4);
+    --paragraph-spacing-lg: var(--space-6);
+    --paragraph-line-height: var(--line-height-relaxed);
+    --paragraph-text-align: left;
+    --paragraph-text-indent: 0;
+    --paragraph-hyphens: none;
+    --paragraph-orphans: 2;
+    --paragraph-widows: 2;
+    --paragraph-text-wrap: auto;
+    --paragraph-lead-font-size: inherit;
+    --paragraph-lead-font-weight: inherit;
+    --paragraph-lead-text-indent: 0;
+}
+
+stencila-paragraph {
+    p {
+        font-family: var(--text-font-family);
+        line-height: var(--paragraph-line-height);
+        color: var(--text-color-primary);
+        margin-top: var(--paragraph-spacing-md);
+        margin-bottom: 0;
+        max-width: var(--content-width);
+        text-align: var(--paragraph-text-align);
+        text-indent: var(--paragraph-text-indent);
+        hyphens: var(--paragraph-hyphens);
+        orphans: var(--paragraph-orphans);
+        widows: var(--paragraph-widows);
+        text-wrap: var(--paragraph-text-wrap);
+    }
+}
+
+/* Lead paragraphs (first paragraph after headings) */
+h1+p,
+h2+p,
+h3+p,
+h4+p,
+h5+p,
+h6+p {
+    font-size: var(--paragraph-lead-font-size);
+    font-weight: var(--paragraph-lead-font-weight);
+    text-indent: var(--paragraph-lead-text-indent);
+}
+
+@media (max-width: 640px) {
+    p {
+        max-width: var(--content-width-mobile);
+        margin-top: var(--space-3);
+        line-height: 1.6;
+    }
+}

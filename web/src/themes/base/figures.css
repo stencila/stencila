@@ -1,0 +1,78 @@
+/* Figure styles
+ *
+ * Schema: [Figure](../../schema/Figure.yaml)
+ * Purpose: Container for figures with content (typically images) and optional captions.
+ *
+ * DOM Structure:
+ * <stencila-figure id=xxx depth=N ancestors=Parent label=X label-automatically=false>
+ *     <figure slot=content>
+ *         <stencila-image-object id=xxx depth=N+1 ancestors=Parent.Figure content-url='https://example.org/image.jpg'>
+ *             <img src='https://example.org/image.jpg'/>
+ *         </stencila-image-object>
+ *     </figure>
+ *     <figcaption slot=caption>
+ *         <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.Figure>
+ *             <p slot=content>
+ *                 <span class=figure-label>Figure 2</span>:<stencila-text id=xxx depth=N+2 ancestors=Parent.Figure.Paragraph>Caption text.</stencila-text>
+ *             </p>
+ *         </stencila-paragraph>
+ *     </figcaption>
+ * </stencila-figure>
+ *
+ * Key Attributes:
+ * - label: Figure number (e.g., "2")
+ * - label-automatically: Boolean indicating if label was auto-generated
+ *
+ * Slots:
+ * - content: Contains the figure element with media content
+ * - caption: Optional figcaption with descriptive text
+ *
+ * Notes:
+ * - Figures can contain various media objects (images, videos, etc.)
+ * - Caption includes a figure label (e.g., "Figure 2")
+ * - Labels can be automatically generated or manually specified
+ *
+ * Examples: examples/conversion/figure/figure.dom.html
+ */
+
+:root {
+    --figure-label-font-weight: var(--label-font-weight);
+    --figure-caption-font-family: var(--caption-font-family);
+    --figure-caption-font-size: var(--caption-font-size);
+    --figure-caption-color: var(--caption-color);
+    --figure-caption-margin-top: var(--space-2);
+    --figure-margin-vertical-xs: var(--space-4);
+    --figure-margin-vertical-sm: var(--space-6);
+    --figure-margin-vertical-md: var(--space-8);
+    --figure-margin-vertical-lg: var(--space-12);
+    --figure-border-radius: var(--radius-md);
+}
+
+stencila-figure {
+    display: block;
+    margin: 4rem 0;
+    border-radius: var(--figure-border-radius);
+
+    figure {
+        /* Browser normalization */
+        margin: 0;
+    }
+
+    figcaption {
+        margin-top: var(--figure-caption-margin-top);
+    }
+
+    figcaption p {
+        max-width: none;
+        text-align: justify;
+        line-height: 150%;
+
+        font-family: var(--figure-caption-font-family);
+        font-size: var(--figure-caption-font-size);
+        color: var(--figure-caption-color);
+    }
+
+    .figure-label {
+        font-weight: var(--figure-label-font-weight);
+    }
+}

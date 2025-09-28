@@ -1,0 +1,309 @@
+/* Code styles
+ *
+ * Reset, styling, and responsive behavior for inline and block code elements.
+ * Includes support for pre/code blocks and mobile optimizations.
+ */
+
+:root {
+    /* Code Design Tokens */
+    --code-color: var(--text-color-primary);
+    --code-font-family: var(--font-family-mono);
+    --code-font-size-inline: var(--font-size-sm);
+    --code-font-size-block: var(--font-size-sm);
+    --code-line-height: var(--line-height-normal);
+    --code-background: var(--color-gray-100);
+    --code-background-inline: var(--code-background);
+    --code-background-block: var(--code-background);
+    --code-border-color: var(--border-color-muted);
+    --code-border-width: var(--border-width-default);
+    --code-border-radius: var(--radius-sm);
+    --code-padding-inline: var(--space-xs);
+    --code-padding-block: var(--space-4);
+
+    /* CodeMirror Editor */
+    --code-caret-color: var(--text-color-primary);
+    --code-selection-background: var(--color-blue-200);
+    --code-selection-match-background: var(--color-blue-100);
+    --code-focused-background: var(--code-background);
+    --code-cursor-line-background: rgba(0, 0, 0, 0.02);
+    --code-gutter-background: var(--code-background);
+    --code-gutter-color: var(--text-color-muted);
+    --code-gutter-border-color: var(--border-color-muted);
+    --code-gutter-border-width: var(--border-width-default);
+    --code-gutter-padding: var(--space-0);
+    --code-gutter-min-width: 2.5rem;
+    --code-gutter-active-line-background: var(--code-cursor-line-background);
+    --code-gutter-active-line-color: var(--text-color-secondary);
+    --code-line-numbers: hidden;
+    --code-fold-gutter: hidden;
+
+    /* CodeMirror Syntax Highlighting */
+    --syntax-comment: var(--color-green-600);
+    --syntax-comment-block: var(--syntax-comment);
+    --syntax-comment-line: var(--syntax-comment);
+    --syntax-comment-doc: var(--color-green-700);
+    --syntax-keyword: var(--color-blue-700);
+    --syntax-keyword-control: var(--syntax-keyword);
+    --syntax-keyword-operator: var(--color-gray-600);
+    --syntax-keyword-modifier: var(--syntax-keyword);
+    --syntax-keyword-definition: var(--syntax-keyword);
+    --syntax-string: var(--color-red-600);
+    --syntax-string-special: var(--color-red-700);
+    --syntax-string-regex: var(--color-red-600);
+    --syntax-string-escape: var(--color-red-600);
+    --syntax-number: var(--color-green-700);
+    --syntax-number-integer: var(--syntax-number);
+    --syntax-number-float: var(--syntax-number);
+    --syntax-boolean: var(--color-blue-700);
+    --syntax-constant: var(--color-blue-700);
+    --syntax-constant-builtin: var(--syntax-constant);
+    --syntax-variable: var(--color-blue-600);
+    --syntax-variable-builtin: var(--color-blue-600);
+    --syntax-variable-special: var(--color-red-700);
+    --syntax-function: var(--color-amber-700);
+    --syntax-function-builtin: var(--color-amber-700);
+    --syntax-function-method: var(--syntax-function);
+    --syntax-class: var(--color-amber-700);
+    --syntax-class-builtin: var(--syntax-class);
+    --syntax-type: var(--color-blue-700);
+    --syntax-type-builtin: var(--syntax-type);
+    --syntax-namespace: var(--color-gray-600);
+    --syntax-property: var(--color-blue-600);
+    --syntax-attribute: var(--color-amber-600);
+    --syntax-tag: var(--color-green-600);
+    --syntax-tag-angle: var(--color-gray-600);
+    --syntax-operator: var(--color-gray-600);
+    --syntax-punctuation: var(--color-gray-600);
+    --syntax-punctuation-bracket: var(--syntax-punctuation);
+    --syntax-punctuation-delimiter: var(--syntax-punctuation);
+    --syntax-meta: var(--color-gray-500);
+    --syntax-invalid: var(--color-red-600);
+    --syntax-invalid-deprecated: var(--color-amber-700);
+
+    /* Dark Mode Code Tokens */
+    --dark-code-background: #2a2a2a;
+    --dark-code-background-inline: #2a2a2a;
+    --dark-code-border-color: #404040;
+    --dark-code-color: #e8e8e8;
+    --dark-code-caret-color: #e8e8e8;
+    --dark-code-selection-background: #1a3a5c;
+    --dark-code-selection-match-background: #2d4f70;
+    --dark-code-cursor-line-background: rgba(255, 255, 255, 0.05);
+    --dark-code-focused-background: #2a2a2a;
+    --dark-code-gutter-background: #2a2a2a;
+    --dark-code-gutter-color: #888888;
+    --dark-code-gutter-border-color: #404040;
+    --dark-code-gutter-active-line-background: rgba(255, 255, 255, 0.05);
+    --dark-code-gutter-active-line-color: #b8b8b8;
+
+    /* Dark Mode Syntax Highlighting */
+    --dark-syntax-comment: var(--color-green-500);
+    --dark-syntax-comment-block: var(--dark-syntax-comment);
+    --dark-syntax-comment-line: var(--dark-syntax-comment);
+    --dark-syntax-comment-doc: var(--color-green-400);
+    --dark-syntax-keyword: var(--color-blue-400);
+    --dark-syntax-keyword-control: var(--dark-syntax-keyword);
+    --dark-syntax-keyword-operator: var(--color-gray-400);
+    --dark-syntax-keyword-modifier: var(--dark-syntax-keyword);
+    --dark-syntax-keyword-definition: var(--dark-syntax-keyword);
+    --dark-syntax-string: var(--color-red-500);
+    --dark-syntax-string-special: var(--color-red-600);
+    --dark-syntax-string-regex: var(--color-red-600);
+    --dark-syntax-string-escape: var(--color-red-600);
+    --dark-syntax-number: var(--color-green-300);
+    --dark-syntax-number-integer: var(--dark-syntax-number);
+    --dark-syntax-number-float: var(--dark-syntax-number);
+    --dark-syntax-boolean: var(--color-blue-400);
+    --dark-syntax-constant: var(--color-blue-400);
+    --dark-syntax-constant-builtin: var(--dark-syntax-constant);
+    --dark-syntax-variable: var(--color-blue-300);
+    --dark-syntax-variable-builtin: var(--color-blue-400);
+    --dark-syntax-variable-special: var(--color-red-400);
+    --dark-syntax-function: var(--color-amber-500);
+    --dark-syntax-function-builtin: var(--color-amber-300);
+    --dark-syntax-function-method: var(--dark-syntax-function);
+    --dark-syntax-class: var(--color-amber-400);
+    --dark-syntax-class-builtin: var(--dark-syntax-class);
+    --dark-syntax-type: var(--color-blue-300);
+    --dark-syntax-type-builtin: var(--dark-syntax-type);
+    --dark-syntax-namespace: var(--color-gray-400);
+    --dark-syntax-property: var(--color-blue-300);
+    --dark-syntax-attribute: var(--color-amber-400);
+    --dark-syntax-tag: var(--color-green-400);
+    --dark-syntax-tag-angle: var(--color-gray-500);
+    --dark-syntax-operator: var(--color-gray-400);
+    --dark-syntax-punctuation: var(--color-gray-500);
+    --dark-syntax-punctuation-bracket: var(--dark-syntax-punctuation);
+    --dark-syntax-punctuation-delimiter: var(--dark-syntax-punctuation);
+    --dark-syntax-meta: var(--color-gray-600);
+    --dark-syntax-invalid: var(--color-red-400);
+    --dark-syntax-invalid-deprecated: var(--color-amber-400);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --code-background: var(--dark-code-background);
+        --code-background-inline: var(--dark-code-background-inline);
+        --code-border-color: var(--dark-code-border-color);
+        --code-color: var(--dark-code-color);
+        --code-caret-color: var(--dark-code-caret-color);
+        --code-selection-background: var(--dark-code-selection-background);
+        --code-selection-match-background: var(--dark-code-selection-match-background);
+        --code-cursor-line-background: var(--dark-code-cursor-line-background);
+        --code-focused-background: var(--dark-code-focused-background);
+        --code-gutter-background: var(--dark-code-gutter-background);
+        --code-gutter-color: var(--dark-code-gutter-color);
+        --code-gutter-border-color: var(--dark-code-gutter-border-color);
+        --code-gutter-active-line-background: var(--dark-code-gutter-active-line-background);
+        --code-gutter-active-line-color: var(--dark-code-gutter-active-line-color);
+
+        --syntax-comment: var(--dark-syntax-comment);
+        --syntax-comment-block: var(--dark-syntax-comment-block);
+        --syntax-comment-line: var(--dark-syntax-comment-line);
+        --syntax-comment-doc: var(--dark-syntax-comment-doc);
+        --syntax-keyword: var(--dark-syntax-keyword);
+        --syntax-keyword-control: var(--dark-syntax-keyword-control);
+        --syntax-keyword-operator: var(--dark-syntax-keyword-operator);
+        --syntax-keyword-modifier: var(--dark-syntax-keyword-modifier);
+        --syntax-keyword-definition: var(--dark-syntax-keyword-definition);
+        --syntax-string: var(--dark-syntax-string);
+        --syntax-string-special: var(--dark-syntax-string-special);
+        --syntax-string-regex: var(--dark-syntax-string-regex);
+        --syntax-string-escape: var(--dark-syntax-string-escape);
+        --syntax-number: var(--dark-syntax-number);
+        --syntax-number-integer: var(--dark-syntax-number-integer);
+        --syntax-number-float: var(--dark-syntax-number-float);
+        --syntax-boolean: var(--dark-syntax-boolean);
+        --syntax-constant: var(--dark-syntax-constant);
+        --syntax-constant-builtin: var(--dark-syntax-constant-builtin);
+        --syntax-variable: var(--dark-syntax-variable);
+        --syntax-variable-builtin: var(--dark-syntax-variable-builtin);
+        --syntax-variable-special: var(--dark-syntax-variable-special);
+        --syntax-function: var(--dark-syntax-function);
+        --syntax-function-builtin: var(--dark-syntax-function-builtin);
+        --syntax-function-method: var(--dark-syntax-function-method);
+        --syntax-class: var(--dark-syntax-class);
+        --syntax-class-builtin: var(--dark-syntax-class-builtin);
+        --syntax-type: var(--dark-syntax-type);
+        --syntax-type-builtin: var(--dark-syntax-type-builtin);
+        --syntax-namespace: var(--dark-syntax-namespace);
+        --syntax-property: var(--dark-syntax-property);
+        --syntax-attribute: var(--dark-syntax-attribute);
+        --syntax-tag: var(--dark-syntax-tag);
+        --syntax-tag-angle: var(--dark-syntax-tag-angle);
+        --syntax-operator: var(--dark-syntax-operator);
+        --syntax-punctuation: var(--dark-syntax-punctuation);
+        --syntax-punctuation-bracket: var(--dark-syntax-punctuation-bracket);
+        --syntax-punctuation-delimiter: var(--dark-syntax-punctuation-delimiter);
+        --syntax-meta: var(--dark-syntax-meta);
+        --syntax-invalid: var(--dark-syntax-invalid);
+        --syntax-invalid-deprecated: var(--dark-syntax-invalid-deprecated);
+    }
+}
+
+:root[data-color-scheme="dark"] {
+    --code-background: var(--dark-code-background);
+    --code-background-inline: var(--dark-code-background-inline);
+    --code-border-color: var(--dark-code-border-color);
+    --code-color: var(--dark-code-color);
+    --code-caret-color: var(--dark-code-caret-color);
+    --code-selection-background: var(--dark-code-selection-background);
+    --code-selection-match-background: var(--dark-code-selection-match-background);
+    --code-cursor-line-background: var(--dark-code-cursor-line-background);
+    --code-focused-background: var(--dark-code-focused-background);
+    --code-gutter-background: var(--dark-code-gutter-background);
+    --code-gutter-color: var(--dark-code-gutter-color);
+    --code-gutter-border-color: var(--dark-code-gutter-border-color);
+    --code-gutter-active-line-background: var(--dark-code-gutter-active-line-background);
+    --code-gutter-active-line-color: var(--dark-code-gutter-active-line-color);
+
+    --syntax-comment: var(--dark-syntax-comment);
+    --syntax-comment-block: var(--dark-syntax-comment-block);
+    --syntax-comment-line: var(--dark-syntax-comment-line);
+    --syntax-comment-doc: var(--dark-syntax-comment-doc);
+    --syntax-keyword: var(--dark-syntax-keyword);
+    --syntax-keyword-control: var(--dark-syntax-keyword-control);
+    --syntax-keyword-operator: var(--dark-syntax-keyword-operator);
+    --syntax-keyword-modifier: var(--dark-syntax-keyword-modifier);
+    --syntax-keyword-definition: var(--dark-syntax-keyword-definition);
+    --syntax-string: var(--dark-syntax-string);
+    --syntax-string-special: var(--dark-syntax-string-special);
+    --syntax-string-regex: var(--dark-syntax-string-regex);
+    --syntax-string-escape: var(--dark-syntax-string-escape);
+    --syntax-number: var(--dark-syntax-number);
+    --syntax-number-integer: var(--dark-syntax-number-integer);
+    --syntax-number-float: var(--dark-syntax-number-float);
+    --syntax-boolean: var(--dark-syntax-boolean);
+    --syntax-constant: var(--dark-syntax-constant);
+    --syntax-constant-builtin: var(--dark-syntax-constant-builtin);
+    --syntax-variable: var(--dark-syntax-variable);
+    --syntax-variable-builtin: var(--dark-syntax-variable-builtin);
+    --syntax-variable-special: var(--dark-syntax-variable-special);
+    --syntax-function: var(--dark-syntax-function);
+    --syntax-function-builtin: var(--dark-syntax-function-builtin);
+    --syntax-function-method: var(--dark-syntax-function-method);
+    --syntax-class: var(--dark-syntax-class);
+    --syntax-class-builtin: var(--dark-syntax-class-builtin);
+    --syntax-type: var(--dark-syntax-type);
+    --syntax-type-builtin: var(--dark-syntax-type-builtin);
+    --syntax-namespace: var(--dark-syntax-namespace);
+    --syntax-property: var(--dark-syntax-property);
+    --syntax-attribute: var(--dark-syntax-attribute);
+    --syntax-tag: var(--dark-syntax-tag);
+    --syntax-tag-angle: var(--dark-syntax-tag-angle);
+    --syntax-operator: var(--dark-syntax-operator);
+    --syntax-punctuation: var(--dark-syntax-punctuation);
+    --syntax-punctuation-bracket: var(--dark-syntax-punctuation-bracket);
+    --syntax-punctuation-delimiter: var(--dark-syntax-punctuation-delimiter);
+    --syntax-meta: var(--dark-syntax-meta);
+    --syntax-invalid: var(--dark-syntax-invalid);
+    --syntax-invalid-deprecated: var(--dark-syntax-invalid-deprecated);
+}
+
+/* Reset nested code element inside pre */
+pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+code {
+    font-family: var(--code-font-family);
+    font-size: var(--code-font-size-inline);
+    background-color: var(--code-background-inline);
+    border: var(--code-border-width) solid var(--code-border-color);
+    border-radius: var(--code-border-radius);
+    padding: var(--code-padding-inline);
+}
+
+pre {
+    font-family: var(--code-font-family);
+    font-size: var(--code-font-size-block);
+    line-height: var(--code-line-height);
+    background-color: var(--code-background-block);
+    border: var(--code-border-width) solid var(--code-border-color);
+    border-radius: var(--code-border-radius);
+    padding: var(--code-padding-block);
+    margin: var(--paragraph-spacing-lg) 0;
+    overflow-x: auto;
+    max-width: 100%;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+    pre {
+        font-size: calc(var(--code-font-size-block) * 0.9);
+        padding: var(--space-3);
+        margin-left: calc(-1 * var(--space-2));
+        margin-right: calc(-1 * var(--space-2));
+        border-radius: var(--radius-sm);
+    }
+
+    code {
+        font-size: calc(var(--code-font-size-inline) * 0.9);
+        padding: var(--space-xs) var(--space-1);
+        word-break: break-word;
+    }
+}

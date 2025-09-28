@@ -1,0 +1,53 @@
+/* Link styles
+ *
+ * Schema: [Link](../../schema/Link.yaml)
+ * Purpose: Clickable links to external or internal resources.
+ *
+ * DOM Structure:
+ * <stencila-link id=xxx depth=N ancestors=Parent target='https://example.org'>
+ *     <a href='https://example.org' title='optional title'>
+ *         <span slot=content>
+ *             <stencila-text id=xxx depth=N+1 ancestors=Parent.Link>Link text</stencila-text>
+ *         </span>
+ *     </a>
+ * </stencila-link>
+ *
+ * Key Attributes:
+ * - target: URL or reference that the link points to
+ *
+ * Slots:
+ * - content: Link text content, which can include styled text (strong, emphasis, etc.)
+ *
+ * Notes:
+ * - Links can contain rich content including bold, italic, and other inline formatting
+ * - Title attribute provides additional context when hovering
+ *
+ * Examples: examples/conversion/link/link.dom.html
+ */
+
+stencila-link {
+    a {
+        text-decoration: none;
+    }
+
+    a {
+        color: var(--text-color-link);
+        transition: color var(--transition-duration-base) ease;
+    }
+
+    a:visited {
+        color: var(--text-color-link-visited);
+    }
+
+    a:hover,
+    a:focus {
+        color: var(--text-color-link-hover);
+        text-decoration: underline;
+    }
+
+    a:focus-visible {
+        outline: var(--focus-ring-width) solid var(--focus-ring-color);
+        outline-offset: var(--focus-ring-offset);
+        border-radius: var(--radius-xs);
+    }
+}

@@ -1,0 +1,41 @@
+/* Image styles
+ *
+ * Schema: [ImageObject](../../schema/ImageObject.yaml)
+ * Purpose: Displays images with optional captions and titles, both inline and as figure content.
+ *
+ * DOM Structure:
+ * <stencila-image-object id=xxx depth=N ancestors=Parent content-url='https://example.org/image.jpg'>
+ *     <img src='https://example.org/image.jpg'/>
+ *     <span slot=title>
+ *         <stencila-text id=xxx depth=N+1 ancestors=Parent.ImageObject>Image title</stencila-text>
+ *     </span>
+ *     <span slot=caption>
+ *         <stencila-text id=xxx depth=N+1 ancestors=Parent.ImageObject>Image caption</stencila-text>
+ *     </span>
+ * </stencila-image-object>
+ *
+ * Key Attributes:
+ * - content-url: URL of the image source
+ *
+ * Slots:
+ * - title: Optional title text for the image
+ * - caption: Optional caption text for the image
+ *
+ * Notes:
+ * - ImageObject can appear inline within paragraphs or as figure content
+ * - Both title and caption slots are optional
+ * - When used in figures, captions are typically handled by the figure element
+ *
+ * Examples: examples/conversion/media-objects/media-objects.dom.html
+ */
+
+stencila-image-object {
+    img,
+    picture,
+    canvas,
+    svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+}

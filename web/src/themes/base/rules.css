@@ -1,0 +1,18 @@
+/* Horizontal Rule Styles
+ *
+ * Styling for horizontal rule elements (hr).
+ * Uses design tokens for consistent appearance.
+ */
+
+/* -----------------------------------------------------------------
+   HORIZONTAL RULE STYLING
+
+   Apply design tokens for consistent rule appearance
+   ----------------------------------------------------------------- */
+
+/* Horizontal Rules */
+hr {
+    border: none;
+    border-top: var(--border-width-default) solid var(--border-color-default);
+    margin: var(--paragraph-spacing-lg) 0;
+}

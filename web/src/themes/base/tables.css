@@ -1,0 +1,169 @@
+/* Table styles
+ *
+ * Schema: [`Table`](../../schema/Table.yaml)
+ * Purpose: Structured data presentation in rows and columns.
+ *
+ * DOM Structure:
+ * <stencila-table id=xxx depth=N ancestors=Parent>
+ *     <table slot=rows>
+ *         <tr id=xxx depth=N+1 ancestors=Parent.Table>
+ *             <td id=xxx depth=N+2 ancestors=Parent.Table.TableRow>
+ *                 <stencila-text id=xxx depth=N+3 ancestors=Parent.Table.TableRow.TableCell>Cell content</stencila-text>
+ *             </td>
+ *             <td id=xxx depth=N+2 ancestors=Parent.Table.TableRow>
+ *                 <stencila-text id=xxx depth=N+3 ancestors=Parent.Table.TableRow.TableCell>More content</stencila-text>
+ *             </td>
+ *         </tr>
+ *     </table>
+ * </stencila-table>
+ *
+ * Key Attributes:
+ * - No specific attributes on the table element itself
+ * - Row and cell elements have standard HTML table structure
+ *
+ * Slots:
+ * - rows: Contains the HTML table element with all rows and cells
+ *
+ * Notes:
+ * - Tables use semantic HTML table elements (table, tr, td)
+ * - Each cell contains Stencila text or other inline content
+ * - Supports both simple data tables and complex structured content
+ * - Can include headers, though basic structure uses td for all cells
+ * - May have captions, labels, and notes in more complex table structures
+ *
+ * Examples: examples/conversion/table/table.dom.html
+ */
+
+:root {
+    --table-label-font-weight: var(--label-font-weight);
+    --table-caption-font-family: var(--caption-font-family);
+    --table-caption-font-size: var(--caption-font-size);
+    --table-caption-color: var(--caption-color);
+    --table-header-background: var(--surface-sunken);
+    --table-header-font-weight: var(--font-weight-semibold);
+    --table-row-hover: var(--color-gray-50);
+    --table-row-striped: var(--color-gray-50);
+    --table-border-color: var(--border-color-default);
+    --table-border-width: var(--border-width-default);
+    --table-cell-font-family: var(--font-family-sans);
+    --table-cell-font-size: var(--font-size-xs);
+    --table-cell-padding-xs: var(--space-1);
+    --table-cell-padding-sm: var(--space-2);
+    --table-cell-padding-md: var(--space-3);
+    --table-margin-vertical: var(--space-8);
+
+    --dark-table-header-background: #2d2d2d;
+    --dark-table-row-hover: #303030;
+    --dark-table-row-striped: #222222;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --table-header-background: var(--dark-table-header-background);
+        --table-row-hover: var(--dark-table-row-hover);
+        --table-row-striped: var(--dark-table-row-striped);
+    }
+}
+
+:root[data-color-scheme="dark"] {
+    --table-header-background: var(--dark-table-header-background);
+    --table-row-hover: var(--dark-table-row-hover);
+    --table-row-striped: var(--dark-table-row-striped);
+}
+
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+stencila-table {
+    display: block;
+    margin: var(--table-margin-vertical) 0;
+}
+
+stencila-table>[slot='caption'] p {
+    max-width: none;
+
+    text-align: justify;
+    line-height: 150%;
+    margin-bottom: 1rem;
+
+    font-family: var(--table-caption-font-family);
+    font-size: var(--table-caption-font-size);
+    color: var(--table-caption-color);
+}
+
+.table-label {
+    font-weight: var(--table-label-font-weight);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: var(--table-border-width) solid var(--table-border-color);
+    border-radius: var(--border-radius-default);
+}
+
+thead {
+    background-color: var(--table-header-background);
+}
+
+th,
+td {
+    padding: var(--table-cell-padding-md);
+    text-align: left;
+    border-bottom: var(--table-border-width) solid var(--table-border-color);
+
+    font-family: var(--table-cell-font-family);
+    font-size: var(--table-cell-font-size);
+}
+
+th {
+    font-weight: var(--table-header-font-weight);
+    color: var(--text-color-primary);
+}
+
+tr:hover {
+    background-color: var(--table-row-hover);
+}
+
+tr:nth-child(even) {
+    background-color: var(--table-row-striped);
+}
+
+@media (max-width: 640px) {
+
+    /* Make tables horizontally scrollable on mobile */
+    table {
+        font-size: var(--font-size-sm);
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
+    }
+
+    table tbody,
+    table thead,
+    table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table thead {
+        width: calc(100% - 1em);
+    }
+
+    table th,
+    table td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    th,
+    td {
+        padding: var(--table-cell-padding-xs);
+    }
+}

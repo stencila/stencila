@@ -1,0 +1,329 @@
+/* Base Design Tokens
+ *
+ * All CSS custom properties that define the Stencila design system.
+ * This file contains only variable definitions - no styles are applied.
+ *
+ * Token Categories:
+ * - Primitive tokens: Raw values (colors, scales)
+ * - Semantic tokens: Meaningful aliases that reference primitives
+ * - Component tokens: Specific component configurations
+ * - Dark mode tokens: Dark theme variants
+ */
+
+:root {
+    /* -----------------------------------------------------------------
+       PRIMITIVE DESIGN TOKENS
+
+       Base values that form the foundation of the design system. These should not
+       be used directly in components - use semantic tokens instead.
+       ----------------------------------------------------------------- */
+
+    /* Color Palette - Neutral grays for text, borders, backgrounds */
+    --color-gray-50: #fafafa;
+    --color-gray-100: #f5f5f5;
+    --color-gray-200: #e5e5e5;
+    --color-gray-300: #d4d4d4;
+    --color-gray-400: #a3a3a3;
+    --color-gray-500: #737373;
+    --color-gray-600: #525252;
+    --color-gray-700: #404040;
+    --color-gray-800: #262626;
+    --color-gray-900: #171717;
+    --color-gray-950: #0a0a0a;
+
+    /* Color Palette - Blue for primary brand and interactive elements */
+    --color-blue-50: #eff6ff;
+    --color-blue-100: #dbeafe;
+    --color-blue-200: #bfdbfe;
+    --color-blue-300: #93c5fd;
+    --color-blue-400: #60a5fa;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+    --color-blue-800: #1e40af;
+    --color-blue-900: #1e3a8a;
+    --color-blue-950: #172554;
+
+    /* Color Palette - Green for success states and positive feedback */
+    --color-green-50: #f0fdf4;
+    --color-green-100: #dcfce7;
+    --color-green-200: #bbf7d0;
+    --color-green-300: #86efac;
+    --color-green-400: #4ade80;
+    --color-green-500: #22c55e;
+    --color-green-600: #16a34a;
+    --color-green-700: #15803d;
+    --color-green-800: #166534;
+    --color-green-900: #14532d;
+    --color-green-950: #052e16;
+
+    /* Color Palette - Red for error states and destructive actions */
+    --color-red-50: #fef2f2;
+    --color-red-100: #fee2e2;
+    --color-red-200: #fecaca;
+    --color-red-300: #fca5a5;
+    --color-red-400: #f87171;
+    --color-red-500: #ef4444;
+    --color-red-600: #dc2626;
+    --color-red-700: #b91c1c;
+    --color-red-800: #991b1b;
+    --color-red-900: #7f1d1d;
+    --color-red-950: #450a0a;
+
+    /* Color Palette - Amber for warning states and cautionary elements */
+    --color-amber-50: #fffbeb;
+    --color-amber-100: #fef3c7;
+    --color-amber-200: #fde68a;
+    --color-amber-300: #fcd34d;
+    --color-amber-400: #fbbf24;
+    --color-amber-500: #f59e0b;
+    --color-amber-600: #d97706;
+    --color-amber-700: #b45309;
+    --color-amber-800: #92400e;
+    --color-amber-900: #78350f;
+    --color-amber-950: #451a03;
+
+    /* Primitive Font Stacks */
+    --font-family-serif: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Bitstream Charter', Charter, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-mono: ui-monospace, 'Cascadia Code', SFMono-Regular, 'SF Mono', Menlo, Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
+    --font-family-math: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', 'Times New Roman', serif;
+
+    /* Typography Scale - Fluid sizes using clamp() for responsive design */
+    --font-size-xs: clamp(0.8rem, 0.75rem + 0.25vw, 0.85rem);
+    --font-size-sm: clamp(0.9rem, 0.85rem + 0.375vw, 0.95rem);
+    --font-size-md: clamp(1rem, 0.95rem + 0.5vw, 1.1rem);
+    --font-size-lg: clamp(1.125rem, 1.05rem + 0.625vw, 1.25rem);
+    --font-size-xl: clamp(1.3rem, 1.15rem + 0.75vw, 1.4rem);
+    --font-size-2xl: clamp(1.6rem, 1.4rem + 1vw, 1.8rem);
+    --font-size-3xl: clamp(1.95rem, 1.7rem + 1.375vw, 2.2rem);
+    --font-size-4xl: clamp(2.4rem, 2rem + 1.75vw, 2.8rem);
+    --font-size-5xl: clamp(3.2rem, 2.6rem + 2.5vw, 3.8rem);
+
+    /* Spacing Scale - Consistent spacing based on 4px baseline */
+    --space-0: 0;
+    --space-xs: 0.125rem;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+
+    /* Border Radii - Corner rounding values */
+    --radius-none: 0;
+    --radius-xs: 0.125rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
+
+    /* Shadows - Elevation system for layered elements */
+    --shadow-none: none;
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+    /* -----------------------------------------------------------------
+       SEMANTIC DESIGN TOKENS
+
+       Meaningful tokens that reference primitive values. These define the visual
+       language of the design system and should be used instead of primitives.
+       ----------------------------------------------------------------- */
+
+    /* Main Document Font */
+    --text-font-family: var(--font-family-serif);
+
+    /* Text Colors - Hierarchy and emphasis */
+    --text-color-primary: var(--color-gray-800);
+    --text-color-secondary: var(--color-gray-700);
+    --text-color-muted: var(--color-gray-500);
+    --text-color-inverse: var(--color-gray-50);
+    --text-color-link: var(--color-blue-600);
+    --text-color-link-visited: var(--color-blue-800);
+    --text-color-link-hover: var(--color-blue-700);
+
+    /* Line Heights - For different text contexts */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    --line-height-loose: 2;
+
+    /* Font Weights - For emphasis and hierarchy */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Surface Colors - Background colors for different depth levels */
+    --surface-background: var(--color-gray-50);
+    --surface-foreground: white;
+    --surface-overlay: rgba(0, 0, 0, 0.05);
+    --surface-raised: white;
+    --surface-sunken: var(--color-gray-100);
+
+    /* Border Colors and Properties */
+    --border-color-default: var(--color-gray-300);
+    --border-color-muted: var(--color-gray-200);
+    --border-color-emphasis: var(--color-gray-400);
+    --border-width-default: 1px;
+    --border-width-thick: 2px;
+    --border-radius-default: var(--radius-md);
+
+    /* Semantic Colors - For specific admonitions etc*/
+    --color-accent: var(--color-blue-600);
+    --color-accent-muted: var(--color-blue-100);
+    --color-info: var(--color-blue-500);
+    --color-info-muted: var(--color-blue-50);
+    --color-success: var(--color-green-600);
+    --color-success-muted: var(--color-green-50);
+    --color-warning: var(--color-amber-500);
+    --color-warning-muted: var(--color-amber-50);
+    --color-error: var(--color-red-600);
+    --color-error-muted: var(--color-red-50);
+
+
+    /* Interactive States */
+    --focus-ring-color: var(--color-blue-500);
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+    --hover-opacity: 0.8;
+    --active-scale: 0.98;
+    --disabled-opacity: 0.5;
+    --transition-duration-fast: 150ms;
+    --transition-duration-base: 250ms;
+    --transition-duration-slow: 350ms;
+
+    /* Responsive Breakpoints */
+    --breakpoint-xs: 480px;
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* -----------------------------------------------------------------
+       DARK MODE DESIGN TOKENS
+
+       Dark mode variants of semantic tokens. These are automatically
+       applied based on system preferences or manual override.
+       ----------------------------------------------------------------- */
+
+    --dark-surface-background: #1a1a1a;
+    --dark-surface-foreground: #242424;
+    --dark-surface-overlay: rgba(255, 255, 255, 0.08);
+    --dark-surface-raised: #2d2d2d;
+    --dark-surface-sunken: #161616;
+
+    --dark-text-color-primary: #e8e8e8;
+    --dark-text-color-secondary: #b8b8b8;
+    --dark-text-color-muted: #888888;
+    --dark-text-color-inverse: #1a1a1a;
+
+    --dark-text-color-link: #66b3ff;
+    --dark-text-color-link-visited: #b19cd9;
+    --dark-text-color-link-hover: #80c7ff;
+
+    --dark-border-color-default: #404040;
+    --dark-border-color-muted: #2a2a2a;
+    --dark-border-color-emphasis: #606060;
+
+    --dark-color-accent: #4a9eff;
+    --dark-color-accent-muted: #1a3a5c;
+    --dark-color-info: #66b3ff;
+    --dark-color-info-muted: #1a2d3d;
+    --dark-color-success: #5cb85c;
+    --dark-color-success-muted: #1a3d1a;
+    --dark-color-warning: #f0ad4e;
+    --dark-color-warning-muted: #3d2a1a;
+    --dark-color-error: #d9534f;
+    --dark-color-error-muted: #3d1a1a;
+
+    --dark-focus-ring-color: #66b3ff;
+}
+
+/* -----------------------------------------------------------------
+   DARK MODE TOKEN MAPPING
+
+   Automatic dark mode support using CSS custom properties. Supports both system
+   preference and manual override via `data-color-scheme` attribute.
+   ----------------------------------------------------------------- */
+
+/* Automatic dark mode based on system preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --surface-background: var(--dark-surface-background);
+        --surface-foreground: var(--dark-surface-foreground);
+        --surface-overlay: var(--dark-surface-overlay);
+        --surface-raised: var(--dark-surface-raised);
+        --surface-sunken: var(--dark-surface-sunken);
+
+        --text-color-primary: var(--dark-text-color-primary);
+        --text-color-secondary: var(--dark-text-color-secondary);
+        --text-color-muted: var(--dark-text-color-muted);
+        --text-color-inverse: var(--dark-text-color-inverse);
+
+        --text-color-link: var(--dark-text-color-link);
+        --text-color-link-visited: var(--dark-text-color-link-visited);
+        --text-color-link-hover: var(--dark-text-color-link-hover);
+
+        --border-color-default: var(--dark-border-color-default);
+        --border-color-muted: var(--dark-border-color-muted);
+        --border-color-emphasis: var(--dark-border-color-emphasis);
+
+        --color-accent: var(--dark-color-accent);
+        --color-accent-muted: var(--dark-color-accent-muted);
+        --color-info: var(--dark-color-info);
+        --color-info-muted: var(--dark-color-info-muted);
+        --color-success: var(--dark-color-success);
+        --color-success-muted: var(--dark-color-success-muted);
+        --color-warning: var(--dark-color-warning);
+        --color-warning-muted: var(--dark-color-warning-muted);
+        --color-error: var(--dark-color-error);
+        --color-error-muted: var(--dark-color-error-muted);
+
+        --focus-ring-color: var(--dark-focus-ring-color);
+    }
+}
+
+/* Manual dark mode override - references the same dark mode variables */
+:root[data-color-scheme="dark"] {
+    --surface-background: var(--dark-surface-background);
+    --surface-foreground: var(--dark-surface-foreground);
+    --surface-overlay: var(--dark-surface-overlay);
+    --surface-raised: var(--dark-surface-raised);
+    --surface-sunken: var(--dark-surface-sunken);
+
+    --text-color-primary: var(--dark-text-color-primary);
+    --text-color-secondary: var(--dark-text-color-secondary);
+    --text-color-muted: var(--dark-text-color-muted);
+    --text-color-inverse: var(--dark-text-color-inverse);
+
+    --text-color-link: var(--dark-text-color-link);
+    --text-color-link-visited: var(--dark-text-color-link-visited);
+    --text-color-link-hover: var(--dark-text-color-link-hover);
+
+    --border-color-default: var(--dark-border-color-default);
+    --border-color-muted: var(--dark-border-color-muted);
+    --border-color-emphasis: var(--dark-border-color-emphasis);
+
+    --color-accent: var(--dark-color-accent);
+    --color-accent-muted: var(--dark-color-accent-muted);
+    --color-info: var(--dark-color-info);
+    --color-info-muted: var(--dark-color-info-muted);
+    --color-success: var(--dark-color-success);
+    --color-success-muted: var(--dark-color-success-muted);
+    --color-warning: var(--dark-color-warning);
+    --color-warning-muted: var(--dark-color-warning-muted);
+    --color-error: var(--dark-color-error);
+    --color-error-muted: var(--dark-color-error-muted);
+
+    --focus-ring-color: var(--dark-focus-ring-color);
+}

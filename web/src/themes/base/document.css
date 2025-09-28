@@ -1,0 +1,160 @@
+/* Document Layout & Root Styles
+ *
+ * Document-level layout, scrollbars, and root container styling.
+ * This file handles the document structure and overall page layout.
+ */
+
+:root {
+    /* Document Layout Tokens */
+    --document-padding-xs: var(--space-3);
+    --document-padding-sm: var(--space-8);
+    --document-padding-md: var(--space-12);
+    --document-max-width: 80rem;
+    --content-width: 65ch;
+    --content-width-wide: 80ch;
+    --content-width-mobile: 100%;
+
+    /* Scrollbar Dimensions */
+    --scrollbar-width-thin: 4px;
+    --scrollbar-width-medium: 8px;
+    --scrollbar-width-thick: 12px;
+
+    /* Scrollbar Design Tokens */
+    --scrollbar-width: var(--scrollbar-width-thin);
+    --scrollbar-track-background: transparent;
+    --scrollbar-thumb-background: var(--color-gray-300);
+    --scrollbar-thumb-hover-background: var(--color-gray-400);
+    --scrollbar-thumb-active-background: var(--color-gray-500);
+    --scrollbar-border-radius: var(--radius-full);
+
+    /* Dark Mode Scrollbar Tokens */
+    --dark-scrollbar-track-background: transparent;
+    --dark-scrollbar-thumb-background: var(--color-gray-600);
+    --dark-scrollbar-thumb-hover-background: var(--color-gray-500);
+    --dark-scrollbar-thumb-active-background: var(--color-gray-400);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --scrollbar-track-background: var(--dark-scrollbar-track-background);
+        --scrollbar-thumb-background: var(--dark-scrollbar-thumb-background);
+        --scrollbar-thumb-hover-background: var(--dark-scrollbar-thumb-hover-background);
+        --scrollbar-thumb-active-background: var(--dark-scrollbar-thumb-active-background);
+    }
+}
+
+:root[data-color-scheme="dark"] {
+    --scrollbar-track-background: var(--dark-scrollbar-track-background);
+    --scrollbar-thumb-background: var(--dark-scrollbar-thumb-background);
+    --scrollbar-thumb-hover-background: var(--dark-scrollbar-thumb-hover-background);
+    --scrollbar-thumb-active-background: var(--dark-scrollbar-thumb-active-background);
+}
+
+/* -----------------------------------------------------------------
+   DOCUMENT ROOT & BODY STYLES
+
+   Base styles for the document structure using design tokens
+   ----------------------------------------------------------------- */
+
+html {
+    background-color: var(--surface-background);
+}
+
+body {
+    background-color: var(--surface-background);
+    color: var(--text-color-primary);
+    padding: 0;
+}
+
+/* -----------------------------------------------------------------
+   SCROLLBAR STYLES
+
+   Cross-browser scrollbar styling using design tokens
+   ----------------------------------------------------------------- */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-background);
+    border-radius: var(--scrollbar-border-radius);
+    transition: background-color var(--transition-duration-fast) ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-background);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-thumb-active-background);
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--scrollbar-track-background);
+}
+
+/* Firefox */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
+}
+
+/* -----------------------------------------------------------------
+   ROOT CONTAINER & RESPONSIVE LAYOUT
+
+   Main document container with responsive behavior
+   ----------------------------------------------------------------- */
+
+[root] {
+    /* Typography */
+    font-family: var(--text-font-family);
+    font-size: var(--font-size-md);
+    line-height: var(--paragraph-line-height);
+    color: var(--text-color-primary);
+
+    /* Layout */
+    max-width: var(--document-max-width);
+    background-color: var(--surface-background);
+
+    /* Responsive padding */
+    padding: var(--document-padding-xs);
+}
+
+@media (min-width: 768px) {
+    [root] {
+        padding: var(--document-padding-sm);
+    }
+}
+
+@media (min-width: 1024px) {
+    [root] {
+        padding: var(--document-padding-md);
+    }
+}
+
+/* Mobile-first responsive overrides */
+@media (max-width: 640px) {
+    [root] {
+        padding: var(--space-4);
+        font-size: var(--font-size-md);
+    }
+
+    /* Remove content width constraints on mobile */
+    [root]>* {
+        max-width: var(--content-width-mobile);
+    }
+}
+
+/* Content width constraints */
+[root]>* {
+    max-width: var(--content-width);
+    margin-left: auto;
+    margin-right: auto;
+}

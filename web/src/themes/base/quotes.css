@@ -1,0 +1,89 @@
+/* Quote styles
+ *
+ * Schema: [QuoteBlock](../../schema/QuoteBlock.yaml) [QuoteInline](../../schema/QuoteInline.yaml)
+ * Purpose: Block and inline quotations with optional citation information.
+ *
+ * DOM Structure (Block):
+ * <stencila-quote-block id=xxx depth=N ancestors=Parent>
+ *     <blockquote slot=content>
+ *         <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.QuoteBlock>
+ *             <p slot=content>
+ *                 <stencila-text id=xxx depth=N+2 ancestors=Parent.QuoteBlock.Paragraph>Quote content</stencila-text>
+ *             </p>
+ *         </stencila-paragraph>
+ *     </blockquote>
+ * </stencila-quote-block>
+ *
+ * DOM Structure (Inline):
+ * <stencila-quote-inline id=xxx depth=N ancestors=Parent>
+ *     <q>
+ *         <stencila-text id=xxx depth=N+1 ancestors=Parent.QuoteInline>Inline quote text</stencila-text>
+ *     </q>
+ * </stencila-quote-inline>
+ *
+ * Key Attributes:
+ * - No specific attributes beyond standard id, depth, ancestors
+ *
+ * Slots:
+ * - content: Contains <blockquote> (block) or <q> element (inline) with quoted content
+ *
+ * Notes:
+ * - QuoteBlock creates standalone quoted sections with visual emphasis
+ * - QuoteInline embeds quotes within paragraph text flow
+ * - Block quotes support multiple paragraphs and nested quotes
+ *
+ * Examples: examples/conversion/quote-block/quote-block.dom.html
+ *          examples/conversion/quote-inline/quote-inline.dom.html
+ */
+
+:root {
+    --quote-border-width: 4px;
+    --quote-border-color: var(--border-color-emphasis);
+    --quote-background: var(--surface-sunken);
+    --quote-padding-xs: var(--space-2);
+    --quote-padding-sm: var(--space-3);
+    --quote-padding-md: var(--space-4);
+    --quote-margin-horizontal: var(--space-6);
+    --quote-font-style: italic;
+    --quote-font-size: var(--font-size-lg);
+
+    --dark-quote-background: #222222;
+    --dark-quote-border-color: #505050;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --quote-background: var(--dark-quote-background);
+        --quote-border-color: var(--dark-quote-border-color);
+    }
+}
+
+:root[data-color-scheme="dark"] {
+    --quote-background: var(--dark-quote-background);
+    --quote-border-color: var(--dark-quote-border-color);
+}
+
+stencila-quote-block {
+    blockquote {
+        border-left: var(--quote-border-width) solid var(--quote-border-color);
+        background-color: var(--quote-background);
+        padding: var(--quote-padding-md);
+        margin: var(--paragraph-spacing-lg) var(--quote-margin-horizontal);
+        font-style: var(--quote-font-style);
+        font-size: var(--quote-font-size);
+        border-radius: var(--border-radius-default);
+    }
+
+    blockquote p {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        padding: var(--quote-padding-sm);
+        font-size: var(--font-size-md);
+    }
+}

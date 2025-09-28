@@ -1,0 +1,80 @@
+/* Diagram Styles
+ *
+ * Styling for diagram elements. Most diagram styling is handled
+ * through design tokens that are applied via JavaScript integration
+ * with Mermaid.js and Cytoscape.js.
+ */
+
+:root {
+    --diagram-background: var(--surface-foreground);
+    --diagram-font-family: var(--font-family-sans);
+    --diagram-font-size: var(--font-size-sm);
+    --diagram-text-color: var(--color-blue-950);
+    --diagram-node-background: var(--color-blue-100);
+    --diagram-node-background-secondary: var(--color-blue-200);
+    --diagram-node-background-tertiary: var(--color-blue-300);
+    --diagram-node-border-color: var(--color-blue-500);
+    --diagram-node-border-width: 2px;
+    --diagram-node-text-color: var(--diagram-text-color);
+    --diagram-edge-color: var(--color-blue-600);
+    --diagram-edge-width: 1px;
+    --diagram-edge-text-color: var(--diagram-text-color);
+    --diagram-actor-background: var(--color-gray-100);
+    --diagram-actor-border: var(--color-gray-500);
+    --diagram-sequence-signal: var(--color-blue-500);
+    --diagram-cluster-background: var(--color-gray-50);
+
+    --dark-diagram-background: var(--color-gray-800);
+    --dark-diagram-text-color: var(--color-gray-100);
+    --dark-diagram-node-background: var(--color-blue-900);
+    --dark-diagram-node-background-secondary: var(--color-blue-800);
+    --dark-diagram-node-background-tertiary: var(--color-blue-700);
+    --dark-diagram-node-border-color: var(--color-blue-400);
+    --dark-diagram-node-border-width: 2px;
+    --dark-diagram-node-text-color: var(--dark-diagram-text-color);
+    --dark-diagram-edge-color: var(--color-blue-400);
+    --dark-diagram-edge-width: 1px;
+    --dark-diagram-edge-text-color: var(--color-blue-300);
+    --dark-diagram-actor-background: var(--color-gray-700);
+    --dark-diagram-actor-border: var(--color-gray-500);
+    --dark-diagram-sequence-signal: var(--color-blue-400);
+    --dark-diagram-cluster-background: var(--color-gray-900);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --diagram-background: var(--dark-diagram-background);
+        --diagram-text-color: var(--dark-diagram-text-color);
+        --diagram-node-background: var(--dark-diagram-node-background);
+        --diagram-node-background-secondary: var(--dark-diagram-node-background-secondary);
+        --diagram-node-background-tertiary: var(--dark-diagram-node-background-tertiary);
+        --diagram-node-border-color: var(--dark-diagram-node-border-color);
+        --diagram-node-border-width: var(--dark-diagram-node-border-width);
+        --diagram-node-text-color: var(--dark-diagram-node-text-color);
+        --diagram-edge-color: var(--dark-diagram-edge-color);
+        --diagram-edge-width: var(--dark-diagram-edge-width);
+        --diagram-edge-text-color: var(--dark-diagram-edge-text-color);
+        --diagram-actor-background: var(--dark-diagram-actor-background);
+        --diagram-actor-border: var(--dark-diagram-actor-border);
+        --diagram-sequence-signal: var(--dark-diagram-sequence-signal);
+        --diagram-cluster-background: var(--dark-diagram-cluster-background);
+    }
+}
+
+:root[data-color-scheme="dark"] {
+    --diagram-background: var(--dark-diagram-background);
+    --diagram-text-color: var(--dark-diagram-text-color);
+    --diagram-node-background: var(--dark-diagram-node-background);
+    --diagram-node-background-secondary: var(--dark-diagram-node-background-secondary);
+    --diagram-node-background-tertiary: var(--dark-diagram-node-background-tertiary);
+    --diagram-node-border-color: var(--dark-diagram-node-border-color);
+    --diagram-node-border-width: var(--dark-diagram-node-border-width);
+    --diagram-node-text-color: var(--dark-diagram-node-text-color);
+    --diagram-edge-color: var(--dark-diagram-edge-color);
+    --diagram-edge-width: var(--dark-diagram-edge-width);
+    --diagram-edge-text-color: var(--dark-diagram-edge-text-color);
+    --diagram-actor-background: var(--dark-diagram-actor-background);
+    --diagram-actor-border: var(--dark-diagram-actor-border);
+    --diagram-sequence-signal: var(--dark-diagram-sequence-signal);
+    --diagram-cluster-background: var(--dark-diagram-cluster-background);
+}

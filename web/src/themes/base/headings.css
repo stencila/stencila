@@ -1,0 +1,115 @@
+/* Heading styles
+ *
+ * Schema: [Heading](../../schema/Heading.yaml)
+ * Purpose: Document headings with hierarchical levels (h1-h6).
+ *
+ * DOM Structure:
+ * <stencila-heading id=xxx depth=N ancestors=Parent level=1>
+ *     <h1 slot=content>
+ *         <stencila-text id=xxx depth=N+1 ancestors=Parent.Heading>Heading text</stencila-text>
+ *     </h1>
+ * </stencila-heading>
+ *
+ * Key Attributes:
+ * - level: Heading level (1-6) determining which HTML heading element is used
+ *
+ * Slots:
+ * - content: Contains the HTML heading element (h1-h6) with text content
+ *
+ * Notes:
+ * - Heading levels automatically map to appropriate HTML elements (h1-h6)
+ *
+ * Examples: examples/conversion/heading/heading.dom.html
+ */
+
+:root {
+    --heading-font-family: var(--font-family-serif);
+    --heading-font-size: 2.5rem;
+    --heading-font-size-ratio: 0.8;
+    --heading-font-weight: var(--font-weight-bold);
+    --heading-font-weight-decrement: 50;
+    --heading-line-height: var(--line-height-tight);
+    --heading-letter-spacing: -0.025em;
+    --heading-margin-top: var(--space-12);
+    --heading-margin-bottom: var(--space-4);
+    --heading-margin-ratio: 0.8;
+    --heading-color: var(--text-color-primary);
+    --heading-color-opacity-decrement: 0;
+}
+
+stencila-heading {
+    display: block;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        /* Browser normalization */
+        overflow-wrap: break-word;
+
+        font-family: var(--heading-font-family);
+        line-height: var(--heading-line-height);
+        letter-spacing: var(--heading-letter-spacing);
+        color: var(--heading-color);
+        margin-bottom: var(--heading-margin-bottom);
+    }
+
+    h1 {
+        font-size: var(--heading-font-size);
+        font-weight: var(--heading-font-weight);
+        margin-top: var(--heading-margin-top);
+    }
+
+    h2 {
+        font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio));
+        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement));
+        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio));
+        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio));
+    }
+
+    h3 {
+        font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 2);
+        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    }
+
+    h4 {
+        font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
+        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    }
+
+    h5 {
+        font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
+        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    }
+
+    h6 {
+        font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
+        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
+        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+    }
+}
+
+@media (max-width: 640px) {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin-top: var(--space-6);
+        margin-bottom: var(--space-3);
+    }
+
+    h1 {
+        margin-top: var(--space-4);
+    }
+}

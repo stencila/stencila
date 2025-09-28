@@ -1,0 +1,63 @@
+/* Math styles
+ *
+ * Schema: [MathBlock](../../schema/MathBlock.yaml) [MathInline](../../schema/MathInline.yaml)
+ * Purpose: Mathematical expressions and equations in both block and inline contexts.
+ *
+ * DOM Structure (Block):
+ * <stencila-math-block id=xxx depth=N ancestors=Parent code='2 \pi r^2' math-language=tex label=1 label-automatically=true>
+ *     <div slot=mathml>
+ *         <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+ *             <mn>2</mn>
+ *             <mi>π</mi>
+ *             <msup>
+ *                 <mi>r</mi>
+ *                 <mn>2</mn>
+ *             </msup>
+ *         </math>
+ *     </div>
+ * </stencila-math-block>
+ *
+ * DOM Structure (Inline):
+ * <stencila-math-inline id=xxx depth=N ancestors=Parent code='2 \pi r^2' math-language=asciimath>
+ *     <span slot=mathml>
+ *         <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline">
+ *             <mn>2</mn>
+ *             <mi>π</mi>
+ *             <msup>
+ *                 <mi>r</mi>
+ *                 <mn>2</mn>
+ *             </msup>
+ *         </math>
+ *     </span>
+ * </stencila-math-inline>
+ *
+ * Key Attributes:
+ * - code: The mathematical expression/equation source code (from [Math](../../schema/Math.yaml))
+ * - math-language: Language format string (tex, asciimath, mathml, etc.)
+ * - label: Short label for the math block (MathBlock only)
+ * - label-automatically: Whether label should be auto-updated (MathBlock only)
+ *
+ * Slots:
+ * - mathml: Contains the rendered MathML content in a div (block) or span (inline)
+ *
+ * Notes:
+ * - MathBlock creates display-style equations with optional labeling/numbering
+ * - MathInline embeds math within text flow with no labels
+ * - Input code is converted to MathML for rendering
+ * - Supports multiple input formats: TeX/LaTeX, ASCIIMath, and MathML
+ *
+ * Examples: examples/rendering/math-block/math-block.html
+ *          examples/rendering/math-inline/math-inline.html
+ */
+
+:root {
+    --math-font-family: var(--font-family-math);
+    --math-label-font-weight: var(--label-font-weight);
+}
+
+stencila-math-block,
+stencila-math-inline {
+    math {
+        font-family: var(--math-font-family);
+    }
+}

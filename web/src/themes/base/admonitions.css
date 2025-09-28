@@ -1,0 +1,61 @@
+/* Admonition styles
+ *
+ * Schema: [Admonition](../../schema/Admonition.yaml)
+ * Purpose: Highlights important ideas or signals content that's supplemental or
+ * only relevant in certain situations.
+ *
+ * DOM Structure:
+ * <stencila-admonition id=xxx depth=1 ancestors=Parent admonition-type=Type is-folded=true>
+ *     <p slot=title>
+ *        <stencila-text id=xxx depth=2 ancestors=Parent.Admonition>Folded with a title</stencila-text>
+ *     </p>
+ *     <aside slot=content>
+ *         <stencila-paragraph id=xxx depth=2 ancestors=Parent.Admonition>
+ *             <p slot=content>
+ *                  <stencila-text id=xxx depth=3 ancestors=Parent.Admonition.Paragraph>Foldable</stencila-text>
+ *             </p>
+ *         </stencila-paragraph>
+ *     </aside>
+ * </stencila-admonition>
+ *
+ * Key Attributes:
+ * - admonition-type: Type from [AdmonitionType](../../schema/AdmonitionType.yaml)
+ *   (Note, Info, Tip, Important, Success, Failure, Warning, Danger, Error)
+ * - is-folded: true/false - When present, content can be toggled; true = initially folded
+ *
+ * Slots:
+ * - title: Optional title/heading for the admonition
+ * - content: Required body content wrapped in <aside>
+ *
+ * Notes:
+ * - Foldable admonitions should include interactive toggle controls
+ * - Different admonition types typically use distinct colors/icons
+ * - Content maintains its own internal structure and spacing
+ *
+ * Examples: examples/conversion/admonition/admonition.dom.html
+ */
+
+:root {
+    --admonition-margin-vertical: var(--space-6);
+    --admonition-padding: var(--space-2);
+    --admonition-border-width: var(--border-width-default);
+    --admonition-border-radius: var(--radius-md);
+    --admonition-icon-size: var(--space-6);
+}
+
+stencila-admonition {
+    display: block;
+
+    p[slot='title'] {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    [slot='content'] {
+        stencila-paragraph:first-child {
+            p {
+                margin-top: 0;
+            }
+        }
+    }
+}

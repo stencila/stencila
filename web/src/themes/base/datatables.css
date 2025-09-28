@@ -1,0 +1,29 @@
+/* DataTable styles
+ *
+ * Schema: [Datatable](../../schema/Datatable.yaml)
+ * Purpose: Interactive data tables with sorting, filtering, and pagination capabilities.
+ *
+ * DOM Structure:
+ * <stencila-datatable id=xxx depth=N ancestors=Parent>
+ *     <table slot=content>
+ *         [table rows and cells]
+ *     </table>
+ * </stencila-datatable>
+ *
+ * Key Attributes:
+ * - data-* attributes: Various data attributes for interactive functionality
+ *
+ * Slots:
+ * - content: Contains the HTML table element
+ *
+ * Notes:
+ * - DataTables are enhanced versions of regular tables with JavaScript functionality
+ * - Inherits base table styling but may have additional interactive elements
+ * - Often includes search, sort, and pagination controls
+ */
+
+stencila-datatable {
+    table {
+        font-family: var(--data-font-family);
+    }
+}
