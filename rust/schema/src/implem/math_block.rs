@@ -100,6 +100,12 @@ impl DomCodec for MathBlock {
             });
         }
 
+        if let Some(label) = &self.label {
+            context.push_slot_fn("div", "label", |context| {
+                context.push_html("(").push_text(label).push_html(")");
+            });
+        }
+
         if self.options.mathml.is_none()
             && let Some(images) = &self.options.images
         {

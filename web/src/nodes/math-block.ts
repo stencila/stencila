@@ -65,18 +65,11 @@ export class MathBlock extends Math {
   }
 
   private renderContent() {
-    const label = this.label ? html`(${this.label})` : ''
-
     return html`
       <slot name="id"></slot>
-      <div class="px-4 py-6 text-base flex justify-between items-center">
-        <div></div>
-        <div class="flex justify-center">
-          <slot name="mathml"></slot>
-          <slot name="images"></slot>
-        </div>
-        <label class="flex-shrink-0">${label}</label>
-      </div>
+      <slot name="mathml"></slot>
+      <slot name="images"></slot>
+      <slot name="label"></slot>
     `
   }
 }
