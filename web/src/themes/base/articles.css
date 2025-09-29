@@ -1,0 +1,133 @@
+/* Article styles
+ *
+ * Schema: [Article](../../schema/Article.yaml)
+ * Purpose: Document container for articles, including news and scholarly articles.
+ * Provides structure for content, metadata, and document-level layout.
+ *
+ * DOM Structure:
+ * <stencila-article id=xxx depth=0 ancestors='' repository='...' path='...' commit=xxx root>
+ *     <section slot=content>
+ *         <stencila-paragraph id=xxx depth=1 ancestors=Article>
+ *             <p slot=content>
+ *                 <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Article content...</stencila-text>
+ *             </p>
+ *         </stencila-paragraph>
+ *         <!-- More content blocks... -->
+ *     </section>
+ * </stencila-article>
+ *
+ * Key Attributes:
+ * - root: Boolean indicating if this is the root document element
+ *
+ * Slots:
+ * - content: Required section containing all article content blocks
+ * - title: Optional article title
+ * - authors: Optional author information
+ * - abstract: Optional article abstract
+ *
+ * Notes:
+ * - Articles serve as the main document container
+ * - Content is wrapped in a section element for semantic structure
+ * - Articles can contain any type of block content (paragraphs, headings, figures, etc.)
+ * - When marked as root, articles receive document-level styling
+ *
+ * Examples: examples/conversion/article/article.dom.html
+ */
+
+:root {
+    /* Article Layout */
+    --article-max-width: var(--document-max-width);
+    --article-padding: var(--space-0);
+    --article-padding-tablet: var(--space-2);
+    --article-padding-mobile: var(--space-4);
+    --article-background: var(--surface-background);
+
+    /* Article Title */
+    --article-title-font-family: var(--heading-font-family);
+    --article-title-font-size: var(--font-size-xl);
+    --article-title-font-weight: var(--font-weight-bold);
+    --article-title-color: var(--text-color-primary);
+    --article-title-text-align: center;
+    --article-title-margin-bottom: var(--space-8);
+
+    /* Article Authors */
+    --article-authors-font-size: var(--font-size-sm);
+    --article-authors-color: var(--text-color-secondary);
+    --article-authors-margin-bottom: var(--space-6);
+
+    /* Article Abstract */
+    --article-abstract-font-size: var(--font-size-sm);
+    --article-abstract-color: var(--text-color-secondary);
+    --article-abstract-background: var(--surface-sunken);
+    --article-abstract-margin-bottom: var(--space-6);
+
+    /* Article Content */
+    --article-content-spacing: var(--space-6);
+    --article-content-max-width: var(--content-width);
+    --article-content-max-width-mobile: var(--content-width-mobile);
+}
+
+stencila-article {
+    display: block;
+    max-width: var(--article-max-width);
+    padding: var(--article-padding);
+    background-color: var(--article-background);
+
+    >[slot="content"] {
+        max-width: var(--article-content-max-width);
+        margin: 0 auto;
+
+        >*+* {
+            margin-top: var(--article-content-spacing);
+        }
+    }
+
+    >[slot="title"] {
+        font-family: var(--article-title-font-family);
+        font-size: var(--article-title-font-size);
+        font-weight: var(--article-title-font-weight);
+        color: var(--article-title-color);
+        text-align: var(--article-title-text-align);
+        margin-bottom: var(--article-title-margin-bottom);
+    }
+
+    >[slot="authors"] {
+        font-size: var(--article-authors-font-size);
+        color: var(--article-authors-color);
+        margin-bottom: var(--article-authors-margin-bottom);
+    }
+
+    >[slot="abstract"] {
+        font-size: var(--article-abstract-font-size);
+        color: var(--article-abstract-color);
+        background-color: var(--article-abstract-background);
+        margin-bottom: var(--article-abstract-margin-bottom);
+    }
+}
+
+/* Responsive Application */
+@media (max-width: 768px) {
+    :root {
+        --article-padding: var(--article-padding-tablet);
+    }
+}
+
+@media (max-width: 640px) {
+    :root {
+        --article-padding: var(--article-padding-mobile);
+        --article-content-max-width: var(--article-content-max-width-mobile);
+    }
+}
+
+@media print {
+    stencila-article {
+        /* Reset print margins for articles */
+        max-width: none;
+        padding: 0;
+
+        /* Ensure content flows properly for print */
+        section[slot="content"] {
+            max-width: none;
+        }
+    }
+}
