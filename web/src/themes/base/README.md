@@ -146,11 +146,13 @@ The duplication between the media query and attribute selector is necessary due 
 Responsive variants are optional and should be used judiciously. Consider whether your component needs explicit responsive behavior or can inherit it from semantic tokens:
 
 **When to use explicit responsive variants:**
+
 - Component-specific adjustments that don't scale proportionally with document spacing
 - Override cases where automatic scaling doesn't work well (e.g., mobile h1 margins)
 - Typography that needs different scaling than the document default
 
 **When to rely on semantic token inheritance (preferred):**
+
 - Spacing that should scale with document rhythm (base on `--content-spacing`)
 - Typography that follows document-wide responsive adjustments
 - Colors and other properties that don't need responsive changes
@@ -158,6 +160,7 @@ Responsive variants are optional and should be used judiciously. Consider whethe
 - Any component behavior that should follow system-wide theming
 
 **Automatic scaling through semantic tokens:**
+
 Components that use `--content-spacing` automatically inherit responsive and print behavior without explicit media queries. For example, lists using `--list-spacing: var(--content-spacing)` automatically scale on mobile (`--content-spacing-mobile`) and print (`--content-spacing-print`) without additional CSS.
 
 If responsive variant tokens are defined, apply them using CSS fallbacks to create a cascade from desktop to tablet to mobile:
@@ -245,11 +248,11 @@ When adding responsive overrides that deviate from automatic scaling or token in
 /* Mobile breakpoint (640px) - Special case for h1 top margin
  * Override from automatic 1.5rem (calc(1rem * 1.5)) to 1rem for better mobile spacing */
 @media (max-width: 640px) {
-    stencila-heading {
-        h1 {
-            margin-top: var(--space-4);
-        }
+  stencila-heading {
+    h1 {
+      margin-top: var(--space-4);
     }
+  }
 }
 ```
 
@@ -261,12 +264,28 @@ The theming system and its design tokens are documented in `docs/themes`. Node-s
 
 Most of the documentation file include examples to demonstrate token usage. When writing these:
 
-- **Keep examples focused**: Each example should demonstrate specific token usage patterns rather than complex layouts
-- **Prefer design tokens over raw values**: Use `var(--space-10)` instead of `2.5rem`, `var(--font-size-lg)` instead of `1.125rem`
-- **Pair CSS with HTML examples**: Each pattern should include a CSS code block showing the tokens with syntax highlighting, immediately followed by an HTML raw block with exactly matching token values applied via inline styles
-- **Use inline styles for demonstration**: In the HTML, apply token overrides via `style` attributes to show customization clearly and make sure these match the values in the preceding CSS block.
-- **Use proper Stencila structure**: Include the correct custom element wrappers in the HTML (e.g., `<stencila-paragraph>`) with appropriate slots (e.g., `<p slot="content">`)
-- **Test token combinations**: Ensure the token values used in examples actually work together harmoniously
+**Keep examples focused**: Each example should demonstrate specific token usage patterns rather than complex layouts
+
+**Prefer design tokens over raw values**: Use `var(--space-10)` instead of `2.5rem`, `var(--font-size-lg)` instead of `1.125rem`
+
+**Use StyledBlocks for demonstrations**: Pair a CSS `CodeBlock` with a `StyledBlock` for clean, readable examples that apply token overrides directly to rendered content:
+
+````markdown
+```css
+:root {
+  --component-spacing: var(--space-4);
+  --component-color: var(--color-accent);
+}
+```
+
+::: style --component-spacing: var(--space-4); --component-color: var(--color-accent);
+
+Your Stencila Markdown example here
+
+:::
+````
+
+**Test token combinations**: Ensure the token values used in examples actually work together harmoniously
 
 ## Component CSS Checklist
 

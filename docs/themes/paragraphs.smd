@@ -90,37 +90,15 @@ Traditional scholarly document with justified text and paragraph indentation:
 }
 ```
 
-```html raw
-<div
-  style="
-  --paragraph-text-align: justify;
-  --paragraph-text-indent: 1.5em;
-  --paragraph-hyphens: auto;
-"
->
-  <stencila-paragraph>
-    <p slot="content">
-      We conducted a randomized controlled trial to evaluate the effectiveness
-      of the proposed algorithm. Participants were recruited from three research
-      institutions across North America between January 2023 and March 2024.
-    </p>
-  </stencila-paragraph>
-  <stencila-paragraph>
-    <p slot="content">
-      The primary endpoint was computational efficiency measured in operations
-      per second. Secondary endpoints included memory usage, error rates, and
-      user satisfaction scores collected via standardized questionnaires.
-    </p>
-  </stencila-paragraph>
-  <stencila-paragraph>
-    <p slot="content">
-      Statistical analysis was performed using R version 4.3.0. All tests were
-      two-tailed with significance set at p &lt; 0.05. Missing data were handled
-      using multiple imputation techniques.
-    </p>
-  </stencila-paragraph>
-</div>
-```
+::: style --paragraph-text-align: justify; --paragraph-text-indent: 1.5em; --paragraph-hyphens: auto;
+
+We conducted a randomized controlled trial to evaluate the effectiveness of the proposed algorithm. Participants were recruited from three research institutions across North America between January 2023 and March 2024.
+
+The primary endpoint was computational efficiency measured in operations per second. Secondary endpoints included memory usage, error rates, and user satisfaction scores collected via standardized questionnaires.
+
+Statistical analysis was performed using R version 4.3.0. All tests were two-tailed with significance set at p < 0.05. Missing data were handled using multiple imputation techniques.
+
+:::
 
 ## Scientific Journal
 
@@ -137,44 +115,17 @@ Professional layout with lead paragraphs and enhanced typography:
 }
 ```
 
-```html raw
-<div
-  style="
-  --paragraph-text-align: justify;
-  --paragraph-hyphens: auto;
-  --paragraph-lead-font-size: var(--font-size-lg);
-  --paragraph-lead-font-weight: var(--font-weight-medium);
-  --paragraph-orphans: 3;
-  --paragraph-widows: 3;
-"
->
-  <stencila-heading>
-    <h3 slot="content">Abstract</h3>
-  </stencila-heading>
-  <stencila-paragraph>
-    <p slot="content">
-      Machine learning algorithms have shown promising results in predicting
-      protein folding structures, but computational complexity remains a
-      significant barrier to widespread adoption in clinical settings.
-    </p>
-  </stencila-paragraph>
-  <stencila-paragraph>
-    <p slot="content">
-      This study presents a novel approach combining transformer architectures
-      with physics-based constraints to achieve 95% accuracy while reducing
-      computational time by 60% compared to existing methods.
-    </p>
-  </stencila-paragraph>
-  <stencila-paragraph>
-    <p slot="content">
-      Our results demonstrate that hybrid models can bridge the gap between
-      theoretical precision and practical implementation, opening new
-      possibilities for real-time protein structure prediction in drug discovery
-      pipelines.
-    </p>
-  </stencila-paragraph>
-</div>
-```
+::: style --paragraph-text-align: justify; --paragraph-hyphens: auto; --paragraph-lead-font-size: var(--font-size-lg); --paragraph-lead-font-weight: var(--font-weight-medium); --paragraph-orphans: 3; --paragraph-widows: 3;
+
+### Abstract
+
+Machine learning algorithms have shown promising results in predicting protein folding structures, but computational complexity remains a significant barrier to widespread adoption in clinical settings.
+
+This study presents a novel approach combining transformer architectures with physics-based constraints to achieve 95% accuracy while reducing computational time by 60% compared to existing methods.
+
+Our results demonstrate that hybrid models can bridge the gap between theoretical precision and practical implementation, opening new possibilities for real-time protein structure prediction in drug discovery pipelines.
+
+:::
 
 ## Thesis Chapter
 
@@ -189,34 +140,13 @@ Generous spacing for long-form scholarly reading:
 }
 ```
 
-```html raw
-<div
-  style="
-  --paragraph-spacing: var(--space-10);
-  --paragraph-text-align: left;
-  --paragraph-line-height: var(--line-height-md);
-  --paragraph-text-wrap: pretty;
-"
->
-  <stencila-paragraph>
-    <p slot="content">
-      The field of computational biology has witnessed remarkable advances in
-      the past decade, driven largely by the availability of large datasets and
-      improved algorithmic approaches. Early work by Smith et al. (2018) laid
-      the foundation for sequence-based prediction methods.
-    </p>
-  </stencila-paragraph>
-  <stencila-paragraph>
-    <p slot="content">
-      Subsequent research has focused on integrating multiple data modalities,
-      including structural information, evolutionary relationships, and
-      functional annotations. The breakthrough came with the introduction of
-      attention mechanisms, which allowed models to capture long-range
-      dependencies in protein sequences.
-    </p>
-  </stencila-paragraph>
-</div>
-```
+::: style --paragraph-spacing: var(--space-10); --paragraph-text-align: left; --paragraph-line-height: var(--line-height-md); --paragraph-text-wrap: pretty;
+
+The field of computational biology has witnessed remarkable advances in the past decade, driven largely by the availability of large datasets and improved algorithmic approaches. Early work by Smith et al. (2018) laid the foundation for sequence-based prediction methods.
+
+Subsequent research has focused on integrating multiple data modalities, including structural information, evolutionary relationships, and functional annotations. The breakthrough came with the introduction of attention mechanisms, which allowed models to capture long-range dependencies in protein sequences.
+
+:::
 
 ## References Section
 
@@ -230,38 +160,15 @@ Dense layout for appendices, bibliographies, and reference materials:
 }
 ```
 
-```html raw
-<div
-  style="
-  --paragraph-spacing: var(--space-3);
-  --paragraph-text-indent: -1.5em;
-  --paragraph-lead-text-indent: -1.5em;
-  padding-left: 1.5em;
-"
->
-  <stencila-paragraph depth="1">
-    <p>
-      Johnson, A., Smith, B., & Davis, C. (2024). Advances in computational
-      protein folding prediction using transformer architectures.
-      <em>Nature Computational Biology</em>, 15(3), 234-251.
-    </p>
-  </stencila-paragraph>
-  <stencila-paragraph depth="1">
-    <p>
-      Williams, D. E., & Brown, F. G. (2023). Machine learning approaches to
-      drug discovery: A comprehensive review of recent developments and future
-      directions. <em>Journal of Medicinal Chemistry</em>, 66(12), 8123-8145.
-    </p>
-  </stencila-paragraph>
-  <stencila-paragraph depth="1">
-    <p>
-      Zhang, L., Kumar, R., & Patel, S. (2024). Real-time protein structure
-      prediction in clinical environments: Challenges and opportunities.
-      <em>Bioinformatics</em>, 40(8), 1456-1468.
-    </p>
-  </stencila-paragraph>
-</div>
-```
+::: style --paragraph-spacing: var(--space-3); --paragraph-text-indent: -1.5em; --paragraph-lead-text-indent: -1.5em; padding-left: 1.5em;
+
+Johnson, A., Smith, B., & Davis, C. (2024). Advances in computational protein folding prediction using transformer architectures. _Nature Computational Biology_, 15(3), 234-251.
+
+Williams, D. E., & Brown, F. G. (2023). Machine learning approaches to drug discovery: A comprehensive review of recent developments and future directions. _Journal of Medicinal Chemistry_, 66(12), 8123-8145.
+
+Zhang, L., Kumar, R., & Patel, S. (2024). Real-time protein structure prediction in clinical environments: Challenges and opportunities. _Bioinformatics_, 40(8), 1456-1468.
+
+:::
 
 # Tips
 
