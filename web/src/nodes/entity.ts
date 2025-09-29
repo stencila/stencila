@@ -48,10 +48,11 @@ export abstract class Entity extends LitElement {
   /**
    * The depth of the node in the node tree
    *
-   * The root node (e.g. `Article`) will have a depth of zero.
+   * The root node (e.g. `Article`) will have a depth of zero. Defaults to 1 so
+   * that manually written elements (e.g. in raw blocks) do not have to specify.
    */
   @property({ type: Number })
-  depth: number
+  depth: number = 1
 
   /**
    * The dot separated list of the types of the ancestors of the node
