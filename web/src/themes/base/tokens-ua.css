@@ -47,13 +47,22 @@
     --focus-ring-color: var(--focus-ring-color-dark);
 }
 
+/* Browser element normalization */
 html {
-    /* Firefox */
+    background-color: var(--surface-background);
+    
+    /* Firefox scrollbar */
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
 }
 
-/* Webkit browsers (Chrome, Safari, Edge) */
+body {
+    background-color: var(--surface-background);
+    color: var(--text-color-primary);
+    padding: 0;
+}
+
+/* Webkit scrollbar (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
     width: var(--scrollbar-width);
     height: var(--scrollbar-width);

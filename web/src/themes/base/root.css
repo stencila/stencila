@@ -1,0 +1,53 @@
+/* Root Document Styles
+ *
+ * Purpose: Styles for any element marked as a document root with the [root] attribute.
+ * This applies to Articles, Prompts, Claims, and other top-level document nodes.
+ * Provides shared layout, typography, and responsive behavior for all root documents.
+ *
+ * Notes:
+ * - The [root] attribute is a generic marker for top-level document nodes
+ * - Individual node types (Article, Prompt, etc.) may have additional specific styling
+ * - Content width constraints are applied to direct children for reading comfort
+ */
+
+:root {
+    --root-padding: var(--space-0);
+    --root-padding-tablet: var(--space-2);
+    --root-padding-mobile: var(--space-4);
+}
+
+[root] {
+    min-height: 100vh;
+    margin: 0 auto;
+
+    /* Layout */
+    max-width: var(--root-max-width);
+    padding: var(--root-padding);
+    background-color: var(--surface-background);
+
+    /* Typography */
+    font-family: var(--text-font-family);
+    font-size: var(--text-font-size);
+    line-height: var(--text-line-height);
+    color: var(--text-color-primary);
+}
+
+@media (min-width: 768px) {
+    :root {
+        --root-padding: var(--root-padding-tablet);
+    }
+}
+
+@media (max-width: 640px) {
+    :root {
+        --root-padding: var(--root-padding-mobile);
+    }
+}
+
+@media print {
+
+    /* Hide user interface elements during print */
+    stencila-document-menu {
+        display: none;
+    }
+}

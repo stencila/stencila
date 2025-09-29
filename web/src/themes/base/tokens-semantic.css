@@ -81,10 +81,10 @@
     --text-font-family: var(--font-family-serif);
 
     /* Typography Semantic Tokens with responsive and print variants */
-    --text-size-body: var(--font-size-md);
-    --text-size-body-tablet: var(--font-size-sm);
-    --text-size-body-mobile: var(--font-size-sm);
-    --text-size-body-print: 10pt;
+    --text-font-size: var(--font-size-md);
+    --text-font-size-tablet: var(--font-size-sm);
+    --text-font-size-mobile: var(--font-size-sm);
+    --text-font-size-print: 10pt;
     --text-line-height-body: var(--line-height-sm);
     --text-line-height-body-mobile: var(--line-height-md);
     --text-line-height-body-print: 1.4;
@@ -195,7 +195,7 @@
 /* Responsive Application - Tablet Breakpoint (768px) */
 @media (max-width: 768px) {
     :root {
-        --text-size-body: var(--text-size-body-tablet);
+        --text-font-size: var(--text-font-size-tablet);
         --spacing-section: var(--spacing-section-tablet);
         --spacing-content: var(--spacing-content-tablet);
     }
@@ -204,7 +204,7 @@
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
-        --text-size-body: var(--text-size-body-mobile);
+        --text-font-size: var(--text-font-size-mobile);
         --text-line-height-body: var(--text-line-height-body-mobile);
         --spacing-section: var(--spacing-section-mobile);
         --spacing-content: var(--spacing-content-mobile);
@@ -215,7 +215,7 @@
 /* Print Application */
 @media print {
     :root {
-        --text-size-body: var(--text-size-body-print);
+        --text-font-size: var(--text-font-size-print);
         --text-line-height-body: var(--text-line-height-body-print);
         --spacing-section: var(--spacing-section-print);
         --spacing-content: var(--spacing-content-print);
