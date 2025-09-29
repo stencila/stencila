@@ -56,7 +56,7 @@ For quick customization, focus on these tokens:
 
 **Note:** Most spacing tokens are based on `--content-spacing` and automatically scale for mobile, tablet, and print without additional CSS. The lists component inherits responsive behavior automatically through this semantic token integration - no explicit responsive variants are needed.
 
-# Patterns
+# Examples
 
 ## Default Lists
 

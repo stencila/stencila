@@ -149,7 +149,7 @@ Stencila may add support for the following when browser support becomes availabl
 | `page`       | Current page number | `counter(page)` or `counter(page, roman)` |
 | `pages`      | Total page count    | `counter(pages)`                          |
 
-# Patterns
+# Examples
 
 ## Basic Page Numbers
 

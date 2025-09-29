@@ -29,7 +29,7 @@ Semantic assignments that reference primitive stacks. Override these to change w
 | `--math-font-family`    | Font for math elements               | `var(--font-family-math)`  |
 | `--data-font-family`    | Font for data table content          | `var(--font-family-mono)`  |
 
-# Patterns
+# Examples
 
 ## Google Fonts
 

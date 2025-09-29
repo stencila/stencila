@@ -77,7 +77,7 @@ Paragraphs work with the design system's responsive tokens:
 
 **Modern text wrapping**: Set `--paragraph-text-wrap: pretty` for improved line breaking in supported browsers.
 
-# Patterns
+# Examples
 
 ## Default Paragraphs
 
