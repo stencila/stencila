@@ -79,6 +79,24 @@ Paragraphs work with the design system's responsive tokens:
 
 # Patterns
 
+## Default Paragraphs
+
+Standard paragraph styling with automatic responsive spacing and typography:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+This is a default paragraph that demonstrates the base typography and spacing. Paragraphs automatically inherit responsive spacing from the content system, scaling appropriately across different screen sizes without explicit customization.
+
+The line height, font family, and colors all use semantic tokens that provide automatic dark mode support. This gives you a solid foundation that works well across different contexts and user preferences.
+
+:::
+
 ## Research Paper Style
 
 Traditional scholarly document with justified text and paragraph indentation:

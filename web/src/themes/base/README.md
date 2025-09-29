@@ -285,6 +285,28 @@ Your Stencila Markdown example here
 :::
 ````
 
+**Start with default baseline examples**: All component pattern sections should begin with a "Default [Component]" example that shows the component without any token overrides. This establishes a baseline for comparison and helps users understand what customizations are being applied in subsequent examples. Use the format:
+
+````markdown
+## Default [Component]
+
+Standard [component] styling with [brief description of default behavior]:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+````
+
+::: style
+
+[Example content demonstrating default appearance and behavior]
+
+:::
+
+```
+
 **Test token combinations**: Ensure the token values used in examples actually work together harmoniously
 
 ## Component CSS Checklist
@@ -301,3 +323,4 @@ Before committing a component CSS file, verify:
 - [ ] Component tokens leverage semantic tokens where possible for automatic theming behavior
 - [ ] Spacing tokens are based on `--content-spacing` unless component-specific spacing is required
 - [ ] Documentation exists in `docs/themes/` following the established pattern and is accurate with respect to the implementation
+```

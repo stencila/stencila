@@ -58,6 +58,38 @@ For quick customization, focus on these tokens:
 
 # Patterns
 
+## Default Lists
+
+Standard list styling with automatic responsive spacing and indentation:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+### Unordered Lists
+
+- First item with default bullet styling
+- Second item demonstrating spacing
+- Third item with nested content:
+  - Nested item with automatic indentation
+  - Another nested item
+  - Third level nesting:
+    - Deep nested item
+
+### Ordered Lists
+
+1. First numbered item
+2. Second item with proper numbering
+3. Third item with nested content:
+   1. Nested numbered item
+   2. Another nested numbered item
+
+:::
+
 ## Compact Lists
 
 Perfect for dense content like documentation or scholarly papers:
@@ -86,12 +118,12 @@ Better for readability in educational content and presentations:
 ```css
 :root {
   --list-indent: calc(var(--content-spacing) * 1.5);
-  --list-item-spacing: calc(var(--content-spacing) * 0.5);
+  --list-item-spacing: var(--space-8);
   --list-marker-gap: var(--space-4);
 }
 ```
 
-::: style --list-indent: calc(var(--content-spacing) _ 1.5); --list-item-spacing: calc(var(--content-spacing) _ 0.5); --list-marker-gap: var(--space-4);
+::: style --list-indent: calc(var(--content-spacing) \* 1.5); --list-item-spacing: var(--space-8); --list-marker-gap: var(--space-4);
 
 - Conduct literature review of existing research
 - Design experimental methodology and protocols

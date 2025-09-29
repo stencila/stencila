@@ -60,6 +60,27 @@ For quick customization, focus on these tokens:
 
 # Patterns
 
+## Default Headings
+
+Standard heading hierarchy with automatic scaling and responsive spacing:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+# Heading One
+## Heading Two
+### Heading Three
+#### Heading Four
+##### Heading Five
+###### Heading Six
+
+:::
+
 ## Compact Headings
 
 Ideal for documentation, technical content, or high-density information:
