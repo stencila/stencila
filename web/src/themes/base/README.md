@@ -7,7 +7,7 @@ The design system uses a three-tier token architecture that separates concerns a
 **Primitives** (`tokens-primitive.css`) → **Semantics** (`tokens-semantic.css`) → **Components**
 
 - **Primitive tokens**: Raw foundation values like `--space-4: 1rem`, `--color-gray-800: #262626`, `--font-family-serif`. No variants or contextual meaning. Override with caution only for system-wide changes (e.g., custom web fonts).
-- **Semantic tokens**: Meaningful aliases like `--content-spacing: var(--space-8)`, `--text-color-primary: var(--color-gray-800)` that reference primitives using `var()`. These provide automatic dark mode and responsive behavior through suffix variants (-dark, -tablet, -mobile).
+- **Semantic tokens**: Meaningful aliases like `--content-spacing: var(--space-8)`, `--text-color-primary: var(--color-gray-800)` that reference primitives using `var()`. These provide automatic dark mode, responsive, and print behavior through suffix variants (-dark, -tablet, -mobile, -print).
 - **Component tokens**: Component-specific tokens like `--heading-spacing-top: calc(var(--content-spacing) * 1.5)` that reference semantic tokens to inherit automatic theming behavior.
 
 The Semantic tokens are the main public API for theme developers. They should prefer overriding semantic tokens for targeted customization. Override primitives only when you need system-wide changes that affect many tokens at once.
@@ -29,11 +29,25 @@ The Semantic tokens are the main public API for theme developers. They should pr
 :root {
   --color-gray-800: #1e40af; /* Use semantic tokens instead */
 }
+
+/* ❌ Bad - Fighting against semantic token scaling */
+@media (max-width: 640px) {
+  :root {
+    --list-spacing: var(--space-2); /* Breaks content-spacing relationship */
+  }
+}
+
+/* ❌ Bad - Redundant print overrides */
+@media print {
+  :root {
+    --list-spacing: var(--space-1); /* content-spacing already handles print */
+  }
+}
 ```
 
 ## Token Relationships and Best Practices
 
-When defining component tokens, consider their relationship to semantic tokens for better integration and automatic responsive behavior:
+When defining component tokens, consider their relationship to semantic tokens for better integration and automatic responsive behavior. Build token hierarchies where related tokens derive from the same semantic base:
 
 **Spacing tokens** should typically base themselves on `--content-spacing` or its multiples to ensure automatic responsive scaling:
 
@@ -41,6 +55,13 @@ When defining component tokens, consider their relationship to semantic tokens f
 /* ✅ Good - Inherits responsive behavior automatically */
 :root {
   --component-spacing-top: calc(var(--content-spacing) * 1.5);
+}
+
+/* ✅ Good - Build token hierarchies from the same base */
+:root {
+  --list-spacing: var(--content-spacing);
+  --list-item-spacing: calc(var(--list-spacing) * 0.25);
+  --list-indent: calc(var(--content-spacing) * 0.75);
 }
 
 /* ⚠️ Consider carefully - May need manual responsive variants */
@@ -88,6 +109,8 @@ Each CSS module must start with a comprehensive documentation block that provide
 
 Define CSS custom properties (design tokens) in the `:root` selector using a consistent naming convention: `--component-property-modifier` (e.g., `--heading-font-size`, `--table-border-color`). Reference existing base tokens from the design system where possible to maintain consistency across the theme.
 
+**Token organization:** Group related tokens with descriptive comments to improve maintainability.
+
 For components requiring dark mode variants, define dark tokens alongside their light counterparts using a `-dark` suffix (e.g., `--table-header-background` and `--table-header-background-dark`). This approach groups related tokens together and makes the light/dark relationship clear.
 
 For responsive design, optionally define `-tablet` and `-mobile` variants that cascade from desktop to mobile (e.g., `--heading-margin-top`, `--heading-margin-top-tablet`, `--heading-margin-top-mobile`). These variants are not required but provide a systematic way to handle responsive adjustments when needed.
@@ -127,10 +150,15 @@ Responsive variants are optional and should be used judiciously. Consider whethe
 - Override cases where automatic scaling doesn't work well (e.g., mobile h1 margins)
 - Typography that needs different scaling than the document default
 
-**When to rely on semantic token inheritance:**
+**When to rely on semantic token inheritance (preferred):**
 - Spacing that should scale with document rhythm (base on `--content-spacing`)
 - Typography that follows document-wide responsive adjustments
 - Colors and other properties that don't need responsive changes
+- Print layouts that should scale with document print spacing
+- Any component behavior that should follow system-wide theming
+
+**Automatic scaling through semantic tokens:**
+Components that use `--content-spacing` automatically inherit responsive and print behavior without explicit media queries. For example, lists using `--list-spacing: var(--content-spacing)` automatically scale on mobile (`--content-spacing-mobile`) and print (`--content-spacing-print`) without additional CSS.
 
 If responsive variant tokens are defined, apply them using CSS fallbacks to create a cascade from desktop to tablet to mobile:
 
