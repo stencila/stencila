@@ -8,27 +8,29 @@ description: |
 
 Design tokens for lists define spacing, indentation, marker appearance, and nesting behavior. These tokens allow for consistent control over both ordered and unordered lists at multiple nesting levels, with separate controls for visual hierarchy and readability.
 
-| Token                            | Description                                              | Default Value             |
-| -------------------------------- | -------------------------------------------------------- | ------------------------- |
-| `--list-indent`                  | Main list indentation from page margin                   | `var(--space-6)`          |
-| `--list-indent-nested`           | Additional indentation for nested lists                  | `var(--space-2)`          |
-| `--list-spacing`                 | Vertical spacing between list items (`margin-bottom`)    | `var(--space-2)`          |
-| `--list-spacing-nested`          | Vertical spacing before nested lists (`margin-top`)      | `var(--space-2)`          |
-| `--list-marker-gap`              | Space between marker and content                         | `var(--space-2)`          |
-| `--list-marker-color`            | Color of bullets, numbers, and markers                   | `var(--text-color-muted)` |
-| `--list-marker-unordered`        | Style for unordered list markers (CSS `list-style-type`) | `disc`                    |
-| `--list-marker-ordered`          | Style for ordered list markers (CSS `list-style-type`)   | `decimal`                 |
-| `--list-marker-nested-unordered` | Style for nested unordered markers                       | `circle`                  |
-| `--list-marker-nested-ordered`   | Style for nested ordered markers                         | `lower-alpha`             |
+| Token                            | Description                                              | Default Value                         |
+| -------------------------------- | -------------------------------------------------------- | ------------------------------------- |
+| `--list-spacing`                 | Vertical spacing before lists (`margin-top`)             | `var(--content-spacing)`              |
+| `--list-spacing-nested`          | Vertical spacing before nested lists (`margin-top`)      | `calc(var(--content-spacing) * 0.25)` |
+| `--list-indent`                  | Main list indentation from page margin                   | `calc(var(--content-spacing) * 0.75)` |
+| `--list-indent-nested`           | Additional indentation for nested lists                  | `calc(var(--content-spacing) * 0.25)` |
+| `--list-item-spacing`            | Vertical spacing between list items (`margin-bottom`)    | `calc(var(--list-spacing) * 0.25)`    |
+| `--list-marker-gap`              | Space between marker and content                         | `var(--space-2)`                      |
+| `--list-marker-color`            | Color of bullets, numbers, and markers                   | `var(--text-color-muted)`             |
+| `--list-marker-unordered`        | Style for unordered list markers (CSS `list-style-type`) | `disc`                                |
+| `--list-marker-ordered`          | Style for ordered list markers (CSS `list-style-type`)   | `decimal`                             |
+| `--list-marker-nested-unordered` | Style for nested unordered markers                       | `circle`                              |
+| `--list-marker-nested-ordered`   | Style for nested ordered markers                         | `lower-alpha`                         |
 
 # Usage
 
 The list system uses different token types to control list appearance and hierarchy:
 
-**Spacing tokens** control distances and positioning:
+**Spacing tokens** control distances and positioning, with automatic responsive scaling:
 
-- `--list-indent: var(--space-6)` - main indentation from page margin
-- `--list-spacing: var(--space-2)` - vertical space between list items
+- `--list-spacing: var(--content-spacing)` - space before lists (scales automatically)
+- `--list-item-spacing: calc(var(--list-spacing) * 0.25)` - space between list items
+- `--list-indent: calc(var(--content-spacing) * 0.75)` - main indentation from page margin
 - `--list-marker-gap: var(--space-2)` - space between marker and content
 
 **Marker tokens** control visual appearance:
@@ -39,16 +41,19 @@ The list system uses different token types to control list appearance and hierar
 
 **Nested tokens** control nested list behavior:
 
-- `--list-indent-nested: var(--space-2)` - additional indent for nested lists
-- `--list-spacing-nested: var(--space-2)` - space before nested lists
+- `--list-indent-nested: calc(var(--content-spacing) * 0.25)` - additional indent for nested lists
+- `--list-spacing-nested: calc(var(--content-spacing) * 0.25)` - space before nested lists
 
 For quick customization, focus on these tokens:
 
+- `--list-spacing` - Controls space before lists and drives automatic scaling
+- `--list-item-spacing` - Controls vertical rhythm between items
 - `--list-indent` - Controls how far lists are indented from content
-- `--list-spacing` - Controls vertical rhythm between items
 - `--list-marker-gap` - Controls readability by adjusting marker-to-text spacing
 - `--list-marker-color` - Change all marker colors at once
 - `--list-marker-unordered` - Customize bullet appearance (disc, circle, square, "•", etc.)
+
+**Note:** Most spacing tokens are based on `--content-spacing` and automatically scale for mobile, tablet, and print without additional CSS.
 
 # Patterns
 
@@ -58,28 +63,20 @@ Perfect for dense content like documentation or scholarly papers:
 
 ```css
 :root {
-  --list-indent: var(--space-4);
-  --list-spacing: var(--space-1);
+  --list-indent: calc(var(--content-spacing) * 0.5);
+  --list-item-spacing: var(--space-1);
   --list-marker-gap: var(--space-1);
 }
 ```
 
-```html raw
-<div
-  style="
-  --list-indent: var(--space-4);
-  --list-spacing: var(--space-1);
-  --list-marker-gap: var(--space-1);
-"
->
-  <ol>
-    <li>Mercury (closest to Sun, 88-day orbit)</li>
-    <li>Venus (hottest planet, 462°C surface)</li>
-    <li>Earth (only known planet with life)</li>
-    <li>Mars (red color from iron oxide)</li>
-  </ol>
-</div>
-```
+::: style --list-indent: calc(var(--content-spacing) \* 0.5); --list-item-spacing: var(--space-1); --list-marker-gap: var(--space-1);
+
+1. Mercury (closest to Sun, 88-day orbit)
+2. Venus (hottest planet, 462°C surface)
+3. Earth (only known planet with life)
+4. Mars (red color from iron oxide)
+
+:::
 
 ## Spacious Lists
 
@@ -87,28 +84,20 @@ Better for readability in educational content and presentations:
 
 ```css
 :root {
-  --list-indent: var(--space-8);
-  --list-spacing: var(--space-4);
+  --list-indent: calc(var(--content-spacing) * 1.5);
+  --list-item-spacing: calc(var(--content-spacing) * 0.5);
   --list-marker-gap: var(--space-4);
 }
 ```
 
-```html raw
-<div
-  style="
-  --list-indent: var(--space-8);
-  --list-spacing: var(--space-4);
-  --list-marker-gap: var(--space-4);
-"
->
-  <ul>
-    <li>Conduct literature review of existing research</li>
-    <li>Design experimental methodology and protocols</li>
-    <li>Collect and analyze data using statistical methods</li>
-    <li>Prepare manuscript for peer review</li>
-  </ul>
-</div>
-```
+::: style --list-indent: calc(var(--content-spacing) _ 1.5); --list-item-spacing: calc(var(--content-spacing) _ 0.5); --list-marker-gap: var(--space-4);
+
+- Conduct literature review of existing research
+- Design experimental methodology and protocols
+- Collect and analyze data using statistical methods
+- Prepare manuscript for peer review
+
+:::
 
 ## Minimal Lists
 
@@ -116,49 +105,27 @@ Clean, minimal styling:
 
 ```css
 :root {
-  --list-indent: var(--space-4);
-  --list-spacing: var(--space-1);
+  --list-indent: calc(var(--content-spacing) * 0.5);
+  --list-item-spacing: var(--space-1);
   --list-marker-unordered: "•";
   --list-marker-nested-unordered: "◦";
   --list-marker-color: var(--color-accent);
 }
 ```
 
-```html raw
-<div
-  style="
-  --list-indent: var(--space-4);
-  --list-spacing: var(--space-1);
-  --list-marker-unordered: '•';
-  --list-marker-nested-unordered: '◦';
-  --list-marker-color: var(--color-accent);
-"
->
-  <ul>
-    <li>
-      Python
-      <ul>
-        <li><code>pandas</code></li>
-        <li><code>numpy</code></li>
-      </ul>
-    </li>
-    <li>
-      R
-      <ul>
-        <li><code>ggplot2</code></li>
-        <li><code>dplyr</code></li>
-      </ul>
-    </li>
-    <li>
-      Julia
-      <ul>
-        <li><code>DataFrames.jl</code></li>
-        <li><code>Plots.jl</code></li>
-      </ul>
-    </li>
-  </ul>
-</div>
-```
+::: style --list-indent: calc(var(--content-spacing) \* 0.5); --list-item-spacing: var(--space-1); --list-marker-unordered: "•"; --list-marker-nested-unordered: "◦"; --list-marker-color: var(--color-accent);
+
+- Python
+  - `pandas`
+  - `numpy`
+- R
+  - `ggplot2`
+  - `dplyr`
+- Julia
+  - `DataFrames.jl`
+  - `Plots.jl`
+
+:::
 
 ## Custom Markers
 
@@ -172,32 +139,16 @@ Create unique list hierarchies:
 }
 ```
 
-```html raw
-<div
-  style="
-  --list-marker-ordered: upper-roman;
-  --list-marker-nested-unordered: '▸';
-  --list-marker-nested-ordered: lower-alpha;
-"
->
-  <ol>
-    <li>
-      Research Design
-      <ul>
-        <li>Hypothesis formulation</li>
-        <li>Variable identification</li>
-      </ul>
-    </li>
-    <li>
-      Data Collection
-      <ol>
-        <li>Sample selection</li>
-        <li>Measurement protocols</li>
-      </ol>
-    </li>
-  </ol>
-</div>
-```
+::: style --list-marker-ordered: upper-roman; --list-marker-nested-unordered: "▸"; --list-marker-nested-ordered: lower-alpha;
+
+1. Research Design
+   - Hypothesis formulation
+   - Variable identification
+2. Data Collection
+   1. Sample selection
+   2. Measurement protocols
+
+:::
 
 # Tips
 

@@ -33,13 +33,17 @@
  */
 
 :root {
-    /* List Design Tokens */
-    --list-indent: var(--space-6);
-    --list-indent-nested: var(--space-2);
-    --list-spacing: var(--space-2);
-    --list-spacing-nested: var(--space-2);
+    --list-spacing: var(--content-spacing);
+    --list-spacing-nested: calc(var(--content-spacing) * 0.25);
+
+    --list-indent: calc(var(--content-spacing) * 0.75);
+    --list-indent-nested: calc(var(--content-spacing) * 0.25);
+
+    --list-item-spacing: calc(var(--list-spacing) * 0.25);
+
     --list-marker-gap: var(--space-2);
     --list-marker-color: var(--text-color-muted);
+    --list-marker-color-dark: var(--text-color-muted-dark);
     --list-marker-unordered: disc;
     --list-marker-ordered: decimal;
     --list-marker-nested-unordered: circle;
@@ -47,26 +51,15 @@
 }
 
 stencila-list {
+    display: block;
 
     ul,
     ol {
+        /* Browser normalization */
         margin: 0;
         padding: 0;
-    }
 
-    li p {
-        margin: 0;
-        max-width: none;
-    }
-
-    li p:first-child {
-        display: inline-block;
-        width: 100%;
-    }
-
-    ul,
-    ol {
-        margin-top: var(--paragraph-spacing-md);
+        margin-top: var(--list-spacing);
         padding-left: var(--list-indent);
         list-style-position: outside;
     }
@@ -80,6 +73,7 @@ stencila-list {
     }
 
     /* Nested lists */
+
     ul ul,
     ol ol,
     ul ol,
@@ -98,42 +92,51 @@ stencila-list {
         list-style-type: var(--list-marker-nested-ordered);
     }
 
-    /* List items */
-    li {
-        margin-bottom: var(--list-spacing);
-        line-height: var(--paragraph-line-height);
-        padding-left: var(--list-marker-gap);
-    }
+    stencila-list-item {
+        li {
+            margin-bottom: var(--list-item-spacing);
+            line-height: var(--text-line-height-body);
+            padding-left: var(--list-marker-gap);
 
-    li::marker {
-        color: var(--list-marker-color);
-    }
+            &::marker {
+                color: var(--list-marker-color);
+            }
 
-    /* Multiple paragraphs within list items */
-    li p+p {
-        margin-top: var(--paragraph-spacing-sm);
+            /* Paragraphs spacing: use list-item spacing instead of full
+             * paragraph spacing to maintain visual hierarchy */
+            stencila-paragraph p {
+                margin-top: var(--list-item-spacing);
+            }
+        }
     }
-
 }
 
-@media (max-width: 640px) {
-
-    ul,
-    ol {
-        padding-left: var(--space-4);
+/* Dark Mode Application - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --list-marker-color: var(--list-marker-color-dark);
     }
+}
 
-    li {
-        padding-left: var(--space-1);
-        margin-bottom: var(--space-1);
-    }
+/* Dark Mode Application - Explicit User Choice */
+:root[data-color-scheme="dark"] {
+    --list-marker-color: var(--list-marker-color-dark);
+}
 
-    /* Reduce nested list indentation on mobile */
-    ul ul,
-    ol ol,
-    ul ol,
-    ol ul {
-        margin-left: var(--space-1);
-        padding-left: var(--space-3);
+@media print {
+    stencila-list {
+        li {
+            /* Ensure proper list item breaks for print */
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Optimize nested lists for print */
+        ul ul,
+        ol ol,
+        ul ol,
+        ol ul {
+            margin-top: calc(var(--list-spacing) * 0.5);
+        }
     }
 }
