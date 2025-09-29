@@ -307,3 +307,11 @@ pre {
         word-break: break-word;
     }
 }
+
+@media print {
+    /* Avoid breaks within code chunks and float to bottom */
+    stencila-code-chunk {
+        break-inside: avoid;
+        float: bottom;
+    }
+}

@@ -76,3 +76,46 @@ stencila-figure {
         font-weight: var(--figure-label-font-weight);
     }
 }
+
+@media print {
+    /* Scale large images to fit on page while preserving natural size */
+    stencila-figure img,
+    stencila-figure svg,
+    stencila-figure canvas {
+        /* Use a maximum height to leave space on a page for the caption */
+        max-height: 80% !important;
+        /* Don't stretch small images - only constrain large ones */
+        max-width: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        object-fit: contain !important;
+        /* Center images that are smaller than page width */
+        display: block !important;
+        margin: 0 auto !important;
+    }
+
+    /* Override global img rule to prevent stretching in figures */
+    stencila-figure img {
+        width: auto !important;
+    }
+
+    /* Ensure figures don't break across pages and float to bottom */
+    stencila-figure {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        float: bottom;
+    }
+
+    /* Compact captions for print */
+    stencila-figure figcaption p {
+        line-height: 1.2 !important;
+        margin-top: var(--spacing-content) !important;
+        margin-bottom: 0 !important;
+        font-size: 9pt !important;
+    }
+
+    stencila-figure figcaption {
+        margin-top: var(--spacing-content) !important;
+        margin-bottom: var(--spacing-content) !important;
+    }
+}

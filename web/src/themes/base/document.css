@@ -158,3 +158,10 @@ html {
     margin-left: auto;
     margin-right: auto;
 }
+
+@media print {
+    /* Hide user interface elements during print */
+    stencila-document-menu {
+        display: none;
+    }
+}

@@ -17,20 +17,25 @@
     /* Layout Tokens */
     --content-width: 65ch;
     --content-width-mobile: 100%;
+    --content-width-print: 100%;
 
-    /* Spacing Semantic Tokens with responsive variants */
+    /* Spacing Semantic Tokens with responsive and print variants */
     --spacing-section: var(--space-16);
     --spacing-section-tablet: var(--space-12);
     --spacing-section-mobile: var(--space-8);
+    --spacing-section-print: var(--space-4);
     --spacing-content: var(--space-8);
     --spacing-content-tablet: var(--space-6);
     --spacing-content-mobile: var(--space-4);
+    --spacing-content-print: var(--space-2);
 
-    /* Surface Colors - Background colors for different depth levels with dark variants */
+    /* Surface Colors - Background colors for different depth levels with dark and print variants */
     --surface-background: var(--color-gray-50);
     --surface-background-dark: var(--color-gray-950);
+    --surface-background-print: white;
     --surface-foreground: white;
     --surface-foreground-dark: var(--color-gray-900);
+    --surface-foreground-print: white;
     --surface-overlay: rgba(0, 0, 0, 0.05);
     --surface-overlay-dark: rgba(255, 255, 255, 0.08);
     --surface-raised: white;
@@ -38,9 +43,10 @@
     --surface-sunken: var(--color-gray-100);
     --surface-sunken-dark: var(--color-gray-950);
 
-    /* Border Colors and Properties with dark variants */
+    /* Border Colors and Properties with dark and print variants */
     --border-color-default: var(--color-gray-300);
     --border-color-default-dark: var(--color-gray-600);
+    --border-color-default-print: var(--color-gray-600);
     --border-color-muted: var(--color-gray-200);
     --border-color-muted-dark: var(--color-gray-700);
     --border-color-emphasis: var(--color-gray-400);
@@ -74,20 +80,25 @@
     /* Main Document Font */
     --text-font-family: var(--font-family-serif);
 
-    /* Typography Semantic Tokens with responsive variants */
+    /* Typography Semantic Tokens with responsive and print variants */
     --text-size-body: var(--font-size-md);
     --text-size-body-tablet: var(--font-size-sm);
     --text-size-body-mobile: var(--font-size-sm);
+    --text-size-body-print: 10pt;
     --text-line-height-body: var(--line-height-sm);
     --text-line-height-body-mobile: var(--line-height-md);
+    --text-line-height-body-print: 1.4;
 
-    /* Text Colors - Hierarchy and emphasis with dark variants */
+    /* Text Colors - Hierarchy and emphasis with dark and print variants */
     --text-color-primary: var(--color-gray-800);
     --text-color-primary-dark: var(--color-gray-200);
+    --text-color-primary-print: black;
     --text-color-secondary: var(--color-gray-700);
     --text-color-secondary-dark: var(--color-gray-300);
+    --text-color-secondary-print: var(--color-gray-700);
     --text-color-muted: var(--color-gray-500);
     --text-color-muted-dark: var(--color-gray-500);
+    --text-color-muted-print: var(--color-gray-600);
     --text-color-inverse: var(--color-gray-50);
     --text-color-inverse-dark: var(--color-gray-900);
 
@@ -210,5 +221,25 @@
         --spacing-section: var(--spacing-section-mobile);
         --spacing-content: var(--spacing-content-mobile);
         --content-width: var(--content-width-mobile);
+    }
+}
+
+/* Print Application */
+@media print {
+    :root {
+        --text-size-body: var(--text-size-body-print);
+        --text-line-height-body: var(--text-line-height-body-print);
+        --spacing-section: var(--spacing-section-print);
+        --spacing-content: var(--spacing-content-print);
+        --content-width: var(--content-width-print);
+
+        --surface-background: var(--surface-background-print);
+        --surface-foreground: var(--surface-foreground-print);
+
+        --text-color-primary: var(--text-color-primary-print);
+        --text-color-secondary: var(--text-color-secondary-print);
+        --text-color-muted: var(--text-color-muted-print);
+
+        --border-color-default: var(--border-color-default-print);
     }
 }

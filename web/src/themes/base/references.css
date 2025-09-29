@@ -1,0 +1,28 @@
+/* Reference styles
+ *
+ * Schema: [Reference](../../schema/Reference.yaml)
+ * Purpose: Bibliographic references within documents.
+ *
+ * DOM Structure:
+ * <stencila-reference id=xxx depth=N ancestors=Parent>
+ *     <span slot=content>
+ *         Reference content
+ *     </span>
+ * </stencila-reference>
+ *
+ * Key Attributes:
+ * - No specific attributes beyond standard id, depth, ancestors
+ *
+ * Slots:
+ * - content: Contains the reference text
+ */
+
+stencila-reference {
+    display: block;
+}
+
+@media print {
+    stencila-reference {
+        break-inside: avoid;
+    }
+}

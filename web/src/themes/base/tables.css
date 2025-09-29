@@ -167,3 +167,45 @@ tr:nth-child(even) {
         padding: var(--table-cell-padding-xs);
     }
 }
+
+@media print {
+    /* Print-specific table styling */
+    table {
+        border: none !important;
+        border-top: 1px solid var(--border-color-default) !important;
+        border-bottom: 1px solid var(--border-color-default) !important;
+    }
+
+    th,
+    td {
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        border-bottom: 1px solid var(--border-color-default) !important;
+    }
+
+    /* Remove border from last row */
+    tr:last-child th,
+    tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    /* Compact captions for print */
+    stencila-table [slot='caption'] p {
+        line-height: 1.2 !important;
+        margin-top: var(--spacing-content) !important;
+        margin-bottom: 0 !important;
+        font-size: 9pt !important;
+    }
+
+    stencila-table [slot='caption'] {
+        margin-top: var(--spacing-content) !important;
+        margin-bottom: var(--spacing-content) !important;
+    }
+
+    /* Avoid breaks within tables and float to bottom */
+    stencila-table {
+        break-inside: avoid;
+        float: bottom;
+    }
+}
