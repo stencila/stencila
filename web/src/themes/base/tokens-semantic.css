@@ -1,0 +1,214 @@
+/* Semantic Design Tokens
+ *
+ * Theme API tokens that provide meaningful aliases referencing primitive values
+ * and also include automatic dark mode and responsive variants that provide
+ * contextual meaning and behavior.
+ *
+ * IMPORTANT: These are the tokens to override in custom themes. They provide
+ * automatic dark mode and responsive behavior "for free" through suffix variants:
+ * - Dark mode: -dark suffix (e.g., --text-color-primary-dark)
+ * - Responsive: -tablet/-mobile suffixes (e.g., --spacing-section-mobile)
+ *
+ * Architecture: Primitives → Semantics → Components
+ * Usage: Always use semantic tokens in component CSS, never primitives directly.
+ */
+
+:root {
+    /* Layout Tokens */
+    --content-width: 65ch;
+    --content-width-mobile: 100%;
+
+    /* Spacing Semantic Tokens with responsive variants */
+    --spacing-section: var(--space-16);
+    --spacing-section-tablet: var(--space-12);
+    --spacing-section-mobile: var(--space-8);
+    --spacing-content: var(--space-8);
+    --spacing-content-tablet: var(--space-6);
+    --spacing-content-mobile: var(--space-4);
+
+    /* Surface Colors - Background colors for different depth levels with dark variants */
+    --surface-background: var(--color-gray-50);
+    --surface-background-dark: var(--color-gray-950);
+    --surface-foreground: white;
+    --surface-foreground-dark: var(--color-gray-900);
+    --surface-overlay: rgba(0, 0, 0, 0.05);
+    --surface-overlay-dark: rgba(255, 255, 255, 0.08);
+    --surface-raised: white;
+    --surface-raised-dark: var(--color-gray-800);
+    --surface-sunken: var(--color-gray-100);
+    --surface-sunken-dark: var(--color-gray-950);
+
+    /* Border Colors and Properties with dark variants */
+    --border-color-default: var(--color-gray-300);
+    --border-color-default-dark: var(--color-gray-600);
+    --border-color-muted: var(--color-gray-200);
+    --border-color-muted-dark: var(--color-gray-700);
+    --border-color-emphasis: var(--color-gray-400);
+    --border-color-emphasis-dark: var(--color-gray-500);
+    --border-width-default: 1px;
+    --border-width-thick: 2px;
+    --border-radius-default: var(--radius-md);
+
+    /* Semantic Colors - For specific admonitions etc with dark variants */
+    --color-accent: var(--color-blue-600);
+    --color-accent-dark: var(--color-blue-400);
+    --color-accent-muted: var(--color-blue-100);
+    --color-accent-muted-dark: var(--color-blue-950);
+    --color-info: var(--color-blue-500);
+    --color-info-dark: var(--color-blue-400);
+    --color-info-muted: var(--color-blue-50);
+    --color-info-muted-dark: var(--color-blue-950);
+    --color-success: var(--color-green-600);
+    --color-success-dark: var(--color-green-500);
+    --color-success-muted: var(--color-green-50);
+    --color-success-muted-dark: var(--color-green-950);
+    --color-warning: var(--color-amber-500);
+    --color-warning-dark: var(--color-amber-400);
+    --color-warning-muted: var(--color-amber-50);
+    --color-warning-muted-dark: var(--color-amber-950);
+    --color-error: var(--color-red-600);
+    --color-error-dark: var(--color-red-500);
+    --color-error-muted: var(--color-red-50);
+    --color-error-muted-dark: var(--color-red-950);
+
+    /* Main Document Font */
+    --text-font-family: var(--font-family-serif);
+
+    /* Typography Semantic Tokens with responsive variants */
+    --text-size-body: var(--font-size-md);
+    --text-size-body-tablet: var(--font-size-sm);
+    --text-size-body-mobile: var(--font-size-sm);
+    --text-line-height-body: var(--line-height-sm);
+    --text-line-height-body-mobile: var(--line-height-md);
+
+    /* Text Colors - Hierarchy and emphasis with dark variants */
+    --text-color-primary: var(--color-gray-800);
+    --text-color-primary-dark: var(--color-gray-200);
+    --text-color-secondary: var(--color-gray-700);
+    --text-color-secondary-dark: var(--color-gray-300);
+    --text-color-muted: var(--color-gray-500);
+    --text-color-muted-dark: var(--color-gray-500);
+    --text-color-inverse: var(--color-gray-50);
+    --text-color-inverse-dark: var(--color-gray-900);
+
+    /* Link Colors with dark variants */
+    --text-color-link: var(--color-blue-600);
+    --text-color-link-dark: var(--color-blue-400);
+    --text-color-link-visited: var(--color-blue-800);
+    --text-color-link-visited-dark: var(--color-blue-300);
+    --text-color-link-hover: var(--color-blue-700);
+    --text-color-link-hover-dark: var(--color-blue-300);
+
+    /* Interactive States with dark variants */
+    --focus-ring-color: var(--color-blue-500);
+    --focus-ring-color-dark: var(--color-blue-400);
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+    --hover-opacity: 0.8;
+    --active-scale: 0.98;
+    --disabled-opacity: 0.5;
+    --transition-duration-fast: 150ms;
+    --transition-duration-base: 250ms;
+    --transition-duration-slow: 350ms;
+
+    /* Responsive Breakpoints - Documentation only */
+    /* These document the breakpoints used in token variants and media queries.
+       Note: CSS doesn't allow variables in media queries, so these are mainly
+       for reference. Developers can use them in calculations if needed. */
+    --breakpoint-mobile: 640px;
+    /* Used for -mobile variants */
+    --breakpoint-tablet: 768px;
+    /* Used for -tablet variants */
+}
+
+/* Dark Mode Application - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --surface-background: var(--surface-background-dark);
+        --surface-foreground: var(--surface-foreground-dark);
+        --surface-overlay: var(--surface-overlay-dark);
+        --surface-raised: var(--surface-raised-dark);
+        --surface-sunken: var(--surface-sunken-dark);
+
+        --text-color-primary: var(--text-color-primary-dark);
+        --text-color-secondary: var(--text-color-secondary-dark);
+        --text-color-muted: var(--text-color-muted-dark);
+        --text-color-inverse: var(--text-color-inverse-dark);
+
+        --text-color-link: var(--text-color-link-dark);
+        --text-color-link-visited: var(--text-color-link-visited-dark);
+        --text-color-link-hover: var(--text-color-link-hover-dark);
+
+        --border-color-default: var(--border-color-default-dark);
+        --border-color-muted: var(--border-color-muted-dark);
+        --border-color-emphasis: var(--border-color-emphasis-dark);
+
+        --color-accent: var(--color-accent-dark);
+        --color-accent-muted: var(--color-accent-muted-dark);
+        --color-info: var(--color-info-dark);
+        --color-info-muted: var(--color-info-muted-dark);
+        --color-success: var(--color-success-dark);
+        --color-success-muted: var(--color-success-muted-dark);
+        --color-warning: var(--color-warning-dark);
+        --color-warning-muted: var(--color-warning-muted-dark);
+        --color-error: var(--color-error-dark);
+        --color-error-muted: var(--color-error-muted-dark);
+
+        --focus-ring-color: var(--focus-ring-color-dark);
+    }
+}
+
+/* Dark Mode Application - Explicit User Choice */
+:root[data-color-scheme="dark"] {
+    --surface-background: var(--surface-background-dark);
+    --surface-foreground: var(--surface-foreground-dark);
+    --surface-overlay: var(--surface-overlay-dark);
+    --surface-raised: var(--surface-raised-dark);
+    --surface-sunken: var(--surface-sunken-dark);
+
+    --text-color-primary: var(--text-color-primary-dark);
+    --text-color-secondary: var(--text-color-secondary-dark);
+    --text-color-muted: var(--text-color-muted-dark);
+    --text-color-inverse: var(--text-color-inverse-dark);
+
+    --text-color-link: var(--text-color-link-dark);
+    --text-color-link-visited: var(--text-color-link-visited-dark);
+    --text-color-link-hover: var(--text-color-link-hover-dark);
+
+    --border-color-default: var(--border-color-default-dark);
+    --border-color-muted: var(--border-color-muted-dark);
+    --border-color-emphasis: var(--border-color-emphasis-dark);
+
+    --color-accent: var(--color-accent-dark);
+    --color-accent-muted: var(--color-accent-muted-dark);
+    --color-info: var(--color-info-dark);
+    --color-info-muted: var(--color-info-muted-dark);
+    --color-success: var(--color-success-dark);
+    --color-success-muted: var(--color-success-muted-dark);
+    --color-warning: var(--color-warning-dark);
+    --color-warning-muted: var(--color-warning-muted-dark);
+    --color-error: var(--color-error-dark);
+    --color-error-muted: var(--color-error-muted-dark);
+
+    --focus-ring-color: var(--focus-ring-color-dark);
+}
+
+/* Responsive Application - Tablet Breakpoint (768px) */
+@media (max-width: 768px) {
+    :root {
+        --text-size-body: var(--text-size-body-tablet);
+        --spacing-section: var(--spacing-section-tablet);
+        --spacing-content: var(--spacing-content-tablet);
+    }
+}
+
+/* Responsive Application - Mobile Breakpoint (640px) */
+@media (max-width: 640px) {
+    :root {
+        --text-size-body: var(--text-size-body-mobile);
+        --text-line-height-body: var(--text-line-height-body-mobile);
+        --spacing-section: var(--spacing-section-mobile);
+        --spacing-content: var(--spacing-content-mobile);
+        --content-width: var(--content-width-mobile);
+    }
+}
