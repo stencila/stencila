@@ -23,10 +23,10 @@
  */
 
 :root {
-    /* Paragraph Spacing */
+    /* Paragraph Spacing - Inherits automatic responsive behavior from semantic token */
     --paragraph-spacing: var(--content-spacing);
 
-    /* Paragraph Typography */
+    /* Paragraph Typography - Colors automatically inherit dark mode from text colors */
     --paragraph-line-height: var(--text-line-height);
     --paragraph-text-align: left;
     --paragraph-text-indent: 0;
@@ -35,13 +35,15 @@
     --paragraph-widows: 2;
     --paragraph-text-wrap: auto;
 
-    /* Lead Paragraph Enhancement */
+    /* Lead Paragraph Enhancement - Applied to first paragraph after headings */
     --paragraph-lead-font-size: inherit;
     --paragraph-lead-font-weight: inherit;
     --paragraph-lead-text-indent: 0;
 }
 
 stencila-paragraph {
+    display: block;
+
     p {
         /* Spacing */
         margin-top: var(--paragraph-spacing);

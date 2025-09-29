@@ -37,7 +37,7 @@ Special styling for the first paragraph after headings.
 
 Use paragraph tokens to customize typography and layout for different document contexts:
 
-**`--paragraph-spacing`**: Controls spacing between paragraphs. References `--content-spacing` by default, which provides automatic responsive behavior (desktop: 2rem, tablet: 1.5rem, mobile: 1rem, print: 0.5rem).
+**`--paragraph-spacing`**: Controls spacing between paragraphs. References `--content-spacing` by default, which provides automatic responsive behavior (desktop: 2rem, tablet: 1.5rem, mobile: 1rem, print: 0.5rem). This inheritance means paragraphs automatically scale with document rhythm without needing explicit responsive variants.
 
 **`--paragraph-line-height`**: Controls line spacing within paragraphs. References `--text-line-height` by default but can be customized for specific reading contexts.
 
@@ -52,11 +52,12 @@ Use paragraph tokens to customize typography and layout for different document c
 
 ## Integration with Semantic Tokens
 
-Paragraphs work seamlessly with the design system's responsive tokens:
+Paragraphs work with the design system's responsive tokens:
 
-- Spacing uses `--content-spacing` for automatic responsive behavior
-- Content width uses `--content-width` for optimal reading line lengths
-- Base typography inherits from semantic text tokens
+- **Automatic responsive behavior**: Spacing uses `--content-spacing` which automatically provides desktop (2rem), tablet (1.5rem), mobile (1rem), and print (0.5rem) variants without explicit media queries
+- **Content width optimization**: Uses `--content-width` for optimal reading line lengths across devices
+- **Typography inheritance**: Base typography and colors inherit from semantic text tokens, including automatic dark mode support through `--text-color-primary`
+- **System-wide consistency**: Changes to semantic tokens automatically propagate to paragraphs, maintaining design coherence
 
 ## Text Flow and Advanced Features
 
@@ -180,7 +181,7 @@ Zhang, L., Kumar, R., & Patel, S. (2024). Real-time protein structure prediction
 
 **Consider hyphenation carefully**: Enable `--paragraph-hyphens: auto` only with justified text, and test across different browsers for consistent results.
 
-**Leverage semantic integration**: Paragraph spacing and content width use semantic tokens automatically. Override `--content-spacing` or `--content-width` when needed for special layouts.
+**Leverage semantic integration**: Paragraph spacing and content width use semantic tokens automatically, providing responsive and dark mode behavior without explicit CSS. Override `--content-spacing` or `--content-width` when needed for special layouts.
 
 **Modern text wrapping**: Use `--paragraph-text-wrap: pretty` in supported browsers for improved line breaking, especially in technical documentation.
 
