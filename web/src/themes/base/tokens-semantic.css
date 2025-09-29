@@ -98,14 +98,6 @@
     --text-color-inverse: var(--color-gray-50);
     --text-color-inverse-dark: var(--color-gray-900);
 
-    /* Link Colors with dark variants */
-    --text-color-link: var(--color-blue-600);
-    --text-color-link-dark: var(--color-blue-400);
-    --text-color-link-visited: var(--color-blue-800);
-    --text-color-link-visited-dark: var(--color-blue-300);
-    --text-color-link-hover: var(--color-blue-700);
-    --text-color-link-hover-dark: var(--color-blue-300);
-
     --transition-duration-fast: 150ms;
     --transition-duration-base: 250ms;
     --transition-duration-slow: 350ms;
@@ -133,10 +125,6 @@
         --text-color-secondary: var(--text-color-secondary-dark);
         --text-color-muted: var(--text-color-muted-dark);
         --text-color-inverse: var(--text-color-inverse-dark);
-
-        --text-color-link: var(--text-color-link-dark);
-        --text-color-link-visited: var(--text-color-link-visited-dark);
-        --text-color-link-hover: var(--text-color-link-hover-dark);
 
         --border-color-default: var(--border-color-default-dark);
         --border-color-muted: var(--border-color-muted-dark);
@@ -167,10 +155,6 @@
     --text-color-secondary: var(--text-color-secondary-dark);
     --text-color-muted: var(--text-color-muted-dark);
     --text-color-inverse: var(--text-color-inverse-dark);
-
-    --text-color-link: var(--text-color-link-dark);
-    --text-color-link-visited: var(--text-color-link-visited-dark);
-    --text-color-link-hover: var(--text-color-link-hover-dark);
 
     --border-color-default: var(--border-color-default-dark);
     --border-color-muted: var(--border-color-muted-dark);

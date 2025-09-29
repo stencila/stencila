@@ -1,0 +1,165 @@
+---
+title: Links
+description: |
+  Design tokens and examples for customizing link colors, decoration, and interactive states in Stencila themes.
+---
+
+# Tokens
+
+## Link Color Tokens
+
+Control the visual appearance of links in different states. These tokens automatically inherit dark mode behavior from semantic tokens.
+
+| Token                   | Description                              | Default Value                    |
+| ----------------------- | ---------------------------------------- | -------------------------------- |
+| `--link-color`          | Default link color                       | `var(--color-accent)`            |
+| `--link-color-visited`  | Color for visited links                  | `var(--color-purple-700)`        |
+| `--link-color-hover`    | Color when hovering or focused           | `var(--color-blue-700)`          |
+
+## Link Decoration Tokens
+
+Control underline visibility and behavior across different link states.
+
+| Token                     | Description                                      | Default Value |
+| ------------------------- | ------------------------------------------------ | ------------- |
+| `--link-decoration`       | Default text decoration (underline visibility)  | `none`        |
+| `--link-decoration-hover` | Text decoration on hover/focus                   | `underline`   |
+
+## Link Interaction Tokens
+
+Control transitions and focus ring styling for enhanced user experience.
+
+| Token                         | Description                                  | Default Value                    |
+| ----------------------------- | -------------------------------------------- | -------------------------------- |
+| `--link-transition-duration`  | Duration of color transitions                | `var(--transition-duration-base)` |
+| `--link-focus-ring-width`     | Focus ring outline width                     | `var(--focus-ring-width)`        |
+| `--link-focus-ring-color`     | Focus ring outline color                     | `var(--focus-ring-color)`        |
+| `--link-focus-ring-offset`    | Focus ring offset from link                  | `var(--focus-ring-offset)`       |
+| `--link-focus-border-radius`  | Focus ring border radius                     | `var(--radius-xs)`               |
+
+# Usage
+
+## Semantic Integration
+
+Links automatically integrate with the design system's semantic tokens, providing consistent behavior across themes:
+
+**Color inheritance**: Link colors reference semantic accent and blue color tokens (`--color-accent`, `--color-blue-*`), which automatically include dark mode variants. The primary link color uses the theme's accent color for consistency with other interactive elements.
+
+**Focus accessibility**: Focus ring tokens reference the user agent token system (`--focus-ring-*`), ensuring consistent keyboard navigation styling that respects user preferences and accessibility guidelines.
+
+**Smooth transitions**: Link color changes use semantic transition durations for consistent timing across all interactive elements in the interface.
+
+## Link Color Customization
+
+**`--link-color`**: The default link color that appears in normal state. Should provide sufficient contrast against text and background colors for accessibility.
+
+**`--link-color-visited`**: Indicates previously visited links. Typically darker or more muted than the default link color to provide visual distinction while maintaining readability.
+
+**`--link-color-hover`**: Active state color for hover and focus interactions. Often brighter or more saturated than the default to provide clear feedback for interactive elements.
+
+## Decoration Control
+
+**`--link-decoration`**: Controls whether links show underlines by default. Set to `none` for clean, modern appearance or `underline` for traditional web styling that clearly identifies clickable text.
+
+**`--link-decoration-hover`**: Controls underline visibility during interaction. Setting to `underline` provides clear hover feedback even when default decoration is hidden.
+
+## Accessibility and Interaction
+
+**Focus ring styling**: The focus ring tokens ensure keyboard navigation remains visible and consistent. The ring appears when users navigate with keyboard (Tab key) but not when clicking with mouse, following modern accessibility best practices.
+
+**Transition timing**: Smooth color transitions provide polished user experience without being distracting. Duration references the semantic timing system for consistency across the interface.
+
+# Patterns
+
+## Default Links
+
+Clean, modern link styling with hover underlines:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+This is a paragraph with a [default link](https://example.com) that shows underline on hover. Links maintain clean appearance while providing clear interaction feedback.
+
+:::
+
+## Always Underlined Links
+
+Traditional web styling with persistent underlines:
+
+```css
+:root {
+  --link-decoration: underline;
+  --link-decoration-hover: underline;
+  --link-color: var(--color-blue-700);
+}
+```
+
+::: style --link-decoration: underline; --link-decoration-hover: underline; --link-color: var(--color-blue-700);
+
+Traditional [underlined links](https://example.com) maintain the classic web convention where all links are visually distinct through persistent underlines, making them immediately identifiable as clickable elements.
+
+:::
+
+## Subtle Links
+
+Reduced contrast for secondary content areas:
+
+```css
+:root {
+  --link-color: var(--color-gray-600);
+  --link-color-hover: var(--color-gray-900);
+  --link-decoration: none;
+  --link-decoration-hover: underline;
+  --link-transition-duration: var(--transition-duration-slow);
+}
+```
+
+::: style --link-color: var(--color-gray-600); --link-color-hover: var(--color-gray-900); --link-decoration: none; --link-decoration-hover: underline; --link-transition-duration: var(--transition-duration-slow);
+
+For sidebars, footnotes, or secondary content, [subtle links](https://example.com) use muted colors that don't compete with primary content while still providing clear interaction feedback through slower, more deliberate transitions.
+
+:::
+
+## High Contrast Links
+
+Bold, accessible styling for maximum visibility:
+
+```css
+:root {
+  --link-color: var(--color-blue-800);
+  --link-color-visited: var(--color-purple-800);
+  --link-color-hover: var(--color-blue-900);
+  --link-decoration: underline;
+  --link-decoration-hover: underline;
+}
+```
+
+::: style --link-color: var(--color-blue-800); --link-color-visited: var(--color-purple-800); --link-color-hover: var(--color-blue-900); --link-decoration: underline; --link-decoration-hover: underline;
+
+For accessibility-focused designs, [high-contrast links](https://example.com) use strong colors and persistent underlines to ensure maximum visibility. [Previously visited links](https://example.com) show distinct purple coloring to help users track their navigation history.
+
+:::
+
+
+# Tips
+
+**Color accessibility**: Ensure link colors provide sufficient contrast against text and background colors. Test with color contrast analyzers and verify readability in both light and dark modes.
+
+**State differentiation**: Use distinct colors for different link states (default, visited, hover) to help users understand navigation context and interaction feedback.
+
+**Decoration consistency**: Choose decoration patterns that match your content context - clean for modern interfaces, underlined for traditional web content, button-style for calls-to-action.
+
+**Focus visibility**: Never remove focus rings without providing alternative focus indicators. The focus ring tokens ensure keyboard navigation remains accessible while matching your theme's visual style.
+
+**Semantic token leverage**: Link tokens reference semantic colors like `--color-accent` that automatically include dark mode variants. Override `--color-accent` to change the primary link color globally, or override specific `--link-color*` tokens for fine-grained control.
+
+**Transition timing**: Use semantic transition durations for consistency with other interface elements. Slower transitions work well for subtle links, faster transitions for high-interaction contexts.
+
+**Test interaction states**: Verify that hover, focus, and visited states provide clear feedback and maintain accessibility across different devices and input methods.
+
+**Content context**: Consider your content type when choosing link styling - academic papers benefit from subtle styling, marketing content from bold styling, and technical documentation from clear, functional styling.

@@ -25,29 +25,65 @@
  * Examples: examples/conversion/link/link.dom.html
  */
 
+:root {
+    /* Link Colors - Use semantic colors with dark variants */
+    --link-color: var(--color-accent);
+    --link-color-dark: var(--color-accent-dark);
+    --link-color-visited: var(--color-purple-700);
+    --link-color-visited-dark: var(--color-purple-400);
+    --link-color-hover: var(--color-blue-700);
+    --link-color-hover-dark: var(--color-blue-300);
+
+    /* Link Decoration - Control underline visibility */
+    --link-decoration: none;
+    --link-decoration-hover: underline;
+
+    /* Link Transitions - Smooth state changes */
+    --link-transition-duration: var(--transition-duration-base);
+
+    /* Link Focus Ring - Accessibility outline styling */
+    --link-focus-ring-width: var(--focus-ring-width);
+    --link-focus-ring-color: var(--focus-ring-color);
+    --link-focus-ring-offset: var(--focus-ring-offset);
+    --link-focus-border-radius: var(--radius-xs);
+}
+
 stencila-link {
     a {
-        text-decoration: none;
-    }
-
-    a {
-        color: var(--text-color-link);
-        transition: color var(--transition-duration-base) ease;
+        color: var(--link-color);
+        text-decoration: var(--link-decoration);
+        transition: color var(--link-transition-duration) ease;
     }
 
     a:visited {
-        color: var(--text-color-link-visited);
+        color: var(--link-color-visited);
     }
 
     a:hover,
     a:focus {
-        color: var(--text-color-link-hover);
-        text-decoration: underline;
+        color: var(--link-color-hover);
+        text-decoration: var(--link-decoration-hover);
     }
 
     a:focus-visible {
-        outline: var(--focus-ring-width) solid var(--focus-ring-color);
-        outline-offset: var(--focus-ring-offset);
-        border-radius: var(--radius-xs);
+        outline: var(--link-focus-ring-width) solid var(--link-focus-ring-color);
+        outline-offset: var(--link-focus-ring-offset);
+        border-radius: var(--link-focus-border-radius);
     }
+}
+
+/* Dark Mode Application - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --link-color: var(--link-color-dark);
+        --link-color-visited: var(--link-color-visited-dark);
+        --link-color-hover: var(--link-color-hover-dark);
+    }
+}
+
+/* Dark Mode Application - Explicit User Choice */
+:root[data-color-scheme="dark"] {
+    --link-color: var(--link-color-dark);
+    --link-color-visited: var(--link-color-visited-dark);
+    --link-color-hover: var(--link-color-hover-dark);
 }
