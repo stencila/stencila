@@ -81,9 +81,9 @@
     --text-font-size-tablet: var(--font-size-sm);
     --text-font-size-mobile: var(--font-size-sm);
     --text-font-size-print: 10pt;
-    --text-line-height-body: var(--line-height-sm);
-    --text-line-height-body-mobile: var(--line-height-md);
-    --text-line-height-body-print: 1.4;
+    --text-line-height: var(--line-height-sm);
+    --text-line-height-mobile: var(--line-height-md);
+    --text-line-height-print: 1.4;
 
     /* Text Colors - Hierarchy and emphasis with dark and print variants */
     --text-color-primary: var(--color-gray-800);
@@ -204,7 +204,7 @@
         --content-width: var(--content-width-mobile);
 
         --text-font-size: var(--text-font-size-mobile);
-        --text-line-height-body: var(--text-line-height-body-mobile);
+        --text-line-height: var(--text-line-height-mobile);
     }
 }
 
@@ -218,7 +218,7 @@
         --surface-foreground: var(--surface-foreground-print);
 
         --text-font-size: var(--text-font-size-print);
-        --text-line-height-body: var(--text-line-height-body-print);
+        --text-line-height: var(--text-line-height-print);
 
         --text-color-primary: var(--text-color-primary-print);
         --text-color-secondary: var(--text-color-secondary-print);

@@ -26,13 +26,18 @@
     --heading-spacing-top: calc(var(--content-spacing) * 1.5);
     --heading-spacing-bottom: calc(var(--content-spacing) * 0.5);
     --heading-spacing-ratio: 0.8;
+
     --heading-font-family: var(--font-family-serif);
+
     --heading-font-size: 2rem;
     --heading-font-size-ratio: 0.8;
+
     --heading-font-weight: var(--font-weight-bold);
     --heading-font-weight-decrement: 50;
+
     --heading-line-height: var(--line-height-xs);
     --heading-letter-spacing: -0.025em;
+
     --heading-color: var(--text-color-primary);
     --heading-color-dark: var(--text-color-primary);
     --heading-color-opacity-decrement: 0;
@@ -68,6 +73,7 @@ stencila-heading {
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement));
         margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio));
+        opacity: calc(1 - var(--heading-color-opacity-decrement) * 1);
     }
 
     h3 {
@@ -75,6 +81,7 @@ stencila-heading {
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 2);
         margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        opacity: calc(1 - var(--heading-color-opacity-decrement) * 2);
     }
 
     h4 {
@@ -82,6 +89,7 @@ stencila-heading {
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
         margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        opacity: calc(1 - var(--heading-color-opacity-decrement) * 3);
     }
 
     h5 {
@@ -89,6 +97,7 @@ stencila-heading {
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
         margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        opacity: calc(1 - var(--heading-color-opacity-decrement) * 4);
     }
 
     h6 {
@@ -96,23 +105,27 @@ stencila-heading {
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
         margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        opacity: calc(1 - var(--heading-color-opacity-decrement) * 5);
     }
 }
 
-/* Apply dark mode - respects system preference */
+/* Dark Mode Application - System Preference */
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
         --heading-color: var(--heading-color-dark);
     }
 }
 
-/* Explicit user preference overrides system */
+/* Dark Mode Application - Explicit User Choice */
 :root[data-color-scheme="dark"] {
     --heading-color: var(--heading-color-dark);
 }
 
 /* Mobile breakpoint (640px) - Special case for h1 top margin
- * Override from automatic 1.5rem (calc(1rem * 1.5)) to 1rem for better mobile spacing */
+ * Override from automatic 1.5rem (calc(1rem * 1.5)) to 1rem for better mobile spacing
+ * This deviation from automatic scaling is needed because h1's large size creates too much
+ * visual weight and negative space on mobile screens. The fixed 1rem provides better
+ * visual balance while maintaining content rhythm. */
 @media (max-width: 640px) {
     stencila-heading {
         h1 {

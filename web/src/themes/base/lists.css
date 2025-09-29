@@ -95,7 +95,7 @@ stencila-list {
     stencila-list-item {
         li {
             margin-bottom: var(--list-item-spacing);
-            line-height: var(--text-line-height-body);
+            line-height: var(--text-line-height);
             padding-left: var(--list-marker-gap);
 
             &::marker {

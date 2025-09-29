@@ -149,13 +149,40 @@ Clean, modern styling with subtle hierarchy:
   --heading-font-size-ratio: 0.87; /* Subtle scale */
   --heading-font-weight: 500;
   --heading-font-weight-decrement: 100;
-  --heading-color-opacity-decrement: 0.15;
+  --heading-color-opacity-decrement: 0.08; /* Subtle opacity reduction */
   --heading-letter-spacing: 0;
   --heading-color: var(--color-gray-700);
+  --heading-color-dark: var(--color-gray-100); /* Lighter for dark mode */
 }
 ```
 
-::: style --heading-font-size: 2rem; --heading-font-size-ratio: 0.87; --heading-font-weight: 500; --heading-font-weight-decrement: 100; --heading-letter-spacing: 0; --heading-color: var(--color-gray-700);
+::: style --heading-font-size: 2rem; --heading-font-size-ratio: 0.87; --heading-font-weight: 500; --heading-font-weight-decrement: 100; --heading-color-opacity-decrement: 0.08; --heading-letter-spacing: 0; --heading-color: var(--color-gray-700); --heading-color-dark: var(--color-gray-100);
+
+# Heading One
+## Heading Two
+### Heading Three
+#### Heading Four
+##### Heading Five
+###### Heading Six
+
+:::
+
+## Opacity Hierarchy
+
+Create visual hierarchy through opacity changes while maintaining consistent color:
+
+```css
+:root {
+  --heading-font-size: 2.5rem;
+  --heading-font-size-ratio: 0.85;
+  --heading-font-weight: 600;
+  --heading-font-weight-decrement: 0; /* Keep same weight */
+  --heading-color-opacity-decrement: 0.12; /* Progressive opacity reduction */
+  --heading-color: var(--color-indigo-800);
+}
+```
+
+::: style --heading-font-size: 2.5rem; --heading-font-size-ratio: 0.85; --heading-font-weight: 600; --heading-font-weight-decrement: 0; --heading-color-opacity-decrement: 0.12; --heading-color: var(--color-indigo-800);
 
 # Heading One
 ## Heading Two
@@ -206,7 +233,7 @@ High contrast for landing pages and marketing materials:
 
 **Test weight decrements**: Ensure `--heading-font-weight-decrement` doesn't result in weights below 300 (too thin) or create insufficient contrast between levels.
 
-**Use opacity sparingly**: `--heading-color-opacity-decrement` can help create hierarchy, but avoid going below 0.7 opacity for accessibility.
+**Use opacity thoughtfully**: `--heading-color-opacity-decrement` creates subtle hierarchy through progressive opacity reduction. Start with small values (0.05-0.1) to maintain readability, especially in dark mode. With default value 0, each heading level has full opacity. Setting 0.08 creates: h1 (1.0), h2 (0.92), h3 (0.84), h4 (0.76), h5 (0.68), h6 (0.60). Avoid opacity below 0.6 for accessibility, particularly in dark themes where contrast is already reduced.
 
 **Responsive base size**: Consider using `clamp()` for `--heading-font-size` to create fluid typography:
 

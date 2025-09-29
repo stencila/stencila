@@ -17,6 +17,7 @@ Design tokens for lists define spacing, indentation, marker appearance, and nest
 | `--list-item-spacing`            | Vertical spacing between list items (`margin-bottom`)    | `calc(var(--list-spacing) * 0.25)`    |
 | `--list-marker-gap`              | Space between marker and content                         | `var(--space-2)`                      |
 | `--list-marker-color`            | Color of bullets, numbers, and markers                   | `var(--text-color-muted)`             |
+| `--list-marker-color-dark`       | Color of bullets, numbers, and markers in dark mode      | `var(--text-color-muted-dark)`        |
 | `--list-marker-unordered`        | Style for unordered list markers (CSS `list-style-type`) | `disc`                                |
 | `--list-marker-ordered`          | Style for ordered list markers (CSS `list-style-type`)   | `decimal`                             |
 | `--list-marker-nested-unordered` | Style for nested unordered markers                       | `circle`                              |
@@ -53,7 +54,7 @@ For quick customization, focus on these tokens:
 - `--list-marker-color` - Change all marker colors at once
 - `--list-marker-unordered` - Customize bullet appearance (disc, circle, square, "•", etc.)
 
-**Note:** Most spacing tokens are based on `--content-spacing` and automatically scale for mobile, tablet, and print without additional CSS.
+**Note:** Most spacing tokens are based on `--content-spacing` and automatically scale for mobile, tablet, and print without additional CSS. The lists component inherits responsive behavior automatically through this semantic token integration - no explicit responsive variants are needed.
 
 # Patterns
 
@@ -163,3 +164,5 @@ Create unique list hierarchies:
 **Accessibility**: Ensure sufficient contrast between `--list-marker-color` and background, particularly when using custom colors.
 
 **Performance**: The `--list-marker-gap` controls readability, too little makes text crowded, too much disrupts scanning flow.
+
+**Print optimization**: Lists automatically optimize for print media with reduced nested spacing and improved page-break handling to prevent awkward breaks within list items.
