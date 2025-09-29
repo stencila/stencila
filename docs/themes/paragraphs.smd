@@ -6,80 +6,75 @@ description: |
 
 # Tokens
 
-## Spacing Tokens
+## Spacing and Typography Tokens
 
-A semantic scale of spacing tokens for different typographic contexts and visual hierarchy.
+Paragraph-specific controls for spacing, typography, alignment, and text flow.
 
-| Token                     | Description                         | Default Value                |
-| ------------------------- | ----------------------------------- | ---------------------------- |
-| `--paragraph-spacing-sm`  | Small spacing for list items        | `var(--space-3)`             |
-| `--paragraph-spacing-md`  | Standard paragraph and list spacing | `var(--space-4)`             |
-| `--paragraph-spacing-lg`  | Large spacing for blocks and quotes | `var(--space-6)`             |
-| `--paragraph-line-height` | Line height within paragraphs       | `var(--line-height-relaxed)` |
+| Token                     | Description                                     | Default Value             |
+| ------------------------- | ----------------------------------------------- | ------------------------- |
+| `--paragraph-spacing`     | Paragraph spacing (responsive)                  | `var(--content-spacing)`  |
+| `--paragraph-line-height` | Line height within paragraphs                   | `var(--text-line-height)` |
+| `--paragraph-text-align`  | Text alignment (left, right, center, justify)   | `left`                    |
+| `--paragraph-text-indent` | First-line indentation                          | `0`                       |
+| `--paragraph-hyphens`     | Hyphenation control (none, auto, manual)        | `none`                    |
+| `--paragraph-orphans`     | Minimum lines at bottom of page/column break    | `2`                       |
+| `--paragraph-widows`      | Minimum lines at top of page/column break       | `2`                       |
+| `--paragraph-text-wrap`   | Text wrapping algorithm (auto, pretty, balance) | `auto`                    |
 
-## Text Flow Tokens
+## Lead Paragraph Tokens
 
-Control text alignment, indentation, and hyphenation for different document styles.
+Special styling for the first paragraph after headings.
 
-| Token                     | Description                                   | Default Value |
-| ------------------------- | --------------------------------------------- | ------------- |
-| `--paragraph-text-align`  | Text alignment (left, right, center, justify) | `left`        |
-| `--paragraph-text-indent` | First-line indentation                        | `0`           |
-| `--paragraph-hyphens`     | Hyphenation control (none, auto, manual)      | `none`        |
-
-## Typography Enhancement Tokens
-
-Advanced typography features. A _lead_ paragraph is the first paragraph after a heading.
-
-| Token                          | Description                                     | Default Value |
-| ------------------------------ | ----------------------------------------------- | ------------- |
-| `--paragraph-orphans`          | Minimum lines at bottom of page/column break    | `2`           |
-| `--paragraph-widows`           | Minimum lines at top of page/column break       | `2`           |
-| `--paragraph-text-wrap`        | Text wrapping algorithm (auto, pretty, balance) | `auto`        |
-| `--paragraph-lead-font-size`   | Font size for lead paragraphs                   | `inherit`     |
-| `--paragraph-lead-font-weight` | Font weight for lead paragraphs                 | `inherit`     |
-| `--paragraph-lead-text-indent` | First-line indentation for lead paragraphs      | `0`           |
+| Token                          | Description                                | Default Value |
+| ------------------------------ | ------------------------------------------ | ------------- |
+| `--paragraph-lead-font-size`   | Font size for lead paragraphs              | `inherit`     |
+| `--paragraph-lead-font-weight` | Font weight for lead paragraphs            | `inherit`     |
+| `--paragraph-lead-text-indent` | First-line indentation for lead paragraphs | `0`           |
 
 # Usage
 
-## Spacing Context
+## Paragraph-Specific Customization
 
-Each spacing token serves a specific purpose in research and technical document layout:
+Use paragraph tokens to customize typography and layout for different document contexts:
 
-**sm (0.75rem)**: Used for `li p+p` - multiple paragraphs within list items need tighter spacing.
+**`--paragraph-spacing`**: Controls spacing between paragraphs. References `--content-spacing` by default, which provides automatic responsive behavior (desktop: 2rem, tablet: 1.5rem, mobile: 1rem, print: 0.5rem).
 
-**md (1rem)**: Standard spacing for regular content:
+**`--paragraph-line-height`**: Controls line spacing within paragraphs. References `--text-line-height` by default but can be customized for specific reading contexts.
 
-- `p` elements - body text paragraphs
-- `ul, ol` - list containers
+**`--paragraph-text-align`**: Choose alignment based on document style:
 
-**lg (1.5rem)**: Larger spacing for special blocks that need visual separation:
+- `left` - Web and technical documentation (default)
+- `justify` - Scholarly papers and formal documents
+- `center` - Special layouts or emphasis
+- `right` - Specialized design contexts
 
-- `pre` - code blocks and algorithms
-- `blockquote` - quoted literature or equations
-- `hr` - section dividers
+**Lead paragraphs**: First paragraphs after headings automatically receive enhanced styling. Use `--paragraph-lead-font-size` and `--paragraph-lead-font-weight` to emphasize opening content.
 
-## Text Flow Control
+## Integration with Semantic Tokens
 
-**Text alignment**: Choose between `left` (web standard), `justify` (scholarly papers), `center` (titles), or `right` (specialized layouts).
+Paragraphs work seamlessly with the design system's responsive tokens:
 
-**Text indentation**: Use `--paragraph-text-indent` for traditional scholarly formatting. Common values:
+- Spacing uses `--content-spacing` for automatic responsive behavior
+- Content width uses `--content-width` for optimal reading line lengths
+- Base typography inherits from semantic text tokens
 
-- `0` - Web/modern style (no indent)
+## Text Flow and Advanced Features
+
+**Text indentation**: Use `--paragraph-text-indent` for traditional scholarly formatting:
+
+- `0` - Web/modern style (no indent, default)
 - `1.5em` - Standard scholarly indent
 - `1.463rem` - Traditional LaTeX paragraph indent
 
-**Hyphenation**: Control word breaking:
+**Hyphenation**: Control word breaking with `--paragraph-hyphens`:
 
 - `none` - No hyphenation (web default)
 - `auto` - Automatic hyphenation (recommended for justified text)
 - `manual` - Only break at explicit hyphens
 
-## Typography Enhancement
+**Print control**: Use `--paragraph-orphans` and `--paragraph-widows` to prevent awkward line breaks across pages/columns.
 
-**Orphans and widows**: Control how paragraphs break across pages/columns to prevent single lines appearing isolated.
-
-**Text wrap**: Modern browsers support improved line breaking with `text-wrap: pretty` for better readability.
+**Modern text wrapping**: Set `--paragraph-text-wrap: pretty` for improved line breaking in supported browsers.
 
 # Patterns
 
@@ -92,8 +87,6 @@ Traditional scholarly document with justified text and paragraph indentation:
   --paragraph-text-align: justify;
   --paragraph-text-indent: 1.5em;
   --paragraph-hyphens: auto;
-  --paragraph-spacing-md: 1rem;
-  --paragraph-spacing-lg: 1.5rem;
 }
 ```
 
@@ -103,68 +96,29 @@ Traditional scholarly document with justified text and paragraph indentation:
   --paragraph-text-align: justify;
   --paragraph-text-indent: 1.5em;
   --paragraph-hyphens: auto;
-  --paragraph-spacing-md: 1rem;
-  --paragraph-spacing-lg: 1.5rem;
-  max-width: 60ch;
 "
 >
-  <h3>Methods</h3>
-  <p>
-    We conducted a randomized controlled trial to evaluate the effectiveness of
-    the proposed algorithm. Participants were recruited from three research
-    institutions across North America between January 2023 and March 2024.
-  </p>
-  <p>
-    The primary endpoint was computational efficiency measured in operations per
-    second. Secondary endpoints included memory usage, error rates, and user
-    satisfaction scores collected via standardized questionnaires.
-  </p>
-  <p>
-    Statistical analysis was performed using R version 4.3.0. All tests were
-    two-tailed with significance set at p &lt; 0.05. Missing data were handled
-    using multiple imputation techniques.
-  </p>
-</div>
-```
-
-## Technical Documentation
-
-Clean, left-aligned text optimized for code and technical content:
-
-```css
-:root {
-  --paragraph-text-align: left;
-  --paragraph-text-indent: 0;
-  --paragraph-spacing-sm: 0.5rem;
-  --paragraph-spacing-md: 0.75rem;
-  --paragraph-spacing-lg: 1rem;
-  --paragraph-text-wrap: pretty;
-}
-```
-
-```html raw
-<div
-  style="
-  --paragraph-text-align: left;
-  --paragraph-text-indent: 0;
-  --paragraph-spacing-sm: 0.5rem;
-  --paragraph-spacing-md: 0.75rem;
-  --paragraph-spacing-lg: 1rem;
-  --paragraph-text-wrap: pretty;
-  max-width: 70ch;
-"
->
-  <h3>Installation</h3>
-  <p>
-    Install the package using npm or pip depending on your environment. The
-    installation process automatically handles dependencies and sets up the
-    required configuration files.
-  </p>
-  <p>
-    For Python environments, ensure you have Python 3.8 or higher installed. For
-    JavaScript environments, Node.js 16 or higher is required.
-  </p>
-  <pre>pip install research-toolkit</pre>
+  <stencila-paragraph>
+    <p slot="content">
+      We conducted a randomized controlled trial to evaluate the effectiveness
+      of the proposed algorithm. Participants were recruited from three research
+      institutions across North America between January 2023 and March 2024.
+    </p>
+  </stencila-paragraph>
+  <stencila-paragraph>
+    <p slot="content">
+      The primary endpoint was computational efficiency measured in operations
+      per second. Secondary endpoints included memory usage, error rates, and
+      user satisfaction scores collected via standardized questionnaires.
+    </p>
+  </stencila-paragraph>
+  <stencila-paragraph>
+    <p slot="content">
+      Statistical analysis was performed using R version 4.3.0. All tests were
+      two-tailed with significance set at p &lt; 0.05. Missing data were handled
+      using multiple imputation techniques.
+    </p>
+  </stencila-paragraph>
 </div>
 ```
 
@@ -176,8 +130,8 @@ Professional layout with lead paragraphs and enhanced typography:
 :root {
   --paragraph-text-align: justify;
   --paragraph-hyphens: auto;
-  --paragraph-lead-font-size: 1.125rem;
-  --paragraph-lead-font-weight: 500;
+  --paragraph-lead-font-size: var(--font-size-lg);
+  --paragraph-lead-font-weight: var(--font-weight-medium);
   --paragraph-orphans: 3;
   --paragraph-widows: 3;
 }
@@ -188,30 +142,37 @@ Professional layout with lead paragraphs and enhanced typography:
   style="
   --paragraph-text-align: justify;
   --paragraph-hyphens: auto;
-  --paragraph-lead-font-size: 1.125rem;
-  --paragraph-lead-font-weight: 500;
+  --paragraph-lead-font-size: var(--font-size-lg);
+  --paragraph-lead-font-weight: var(--font-weight-medium);
   --paragraph-orphans: 3;
   --paragraph-widows: 3;
-  max-width: 65ch;
 "
 >
-  <h3>Abstract</h3>
-  <p>
-    Machine learning algorithms have shown promising results in predicting
-    protein folding structures, but computational complexity remains a
-    significant barrier to widespread adoption in clinical settings.
-  </p>
-  <p>
-    This study presents a novel approach combining transformer architectures
-    with physics-based constraints to achieve 95% accuracy while reducing
-    computational time by 60% compared to existing methods.
-  </p>
-  <p>
-    Our results demonstrate that hybrid models can bridge the gap between
-    theoretical precision and practical implementation, opening new
-    possibilities for real-time protein structure prediction in drug discovery
-    pipelines.
-  </p>
+  <stencila-heading>
+    <h3 slot="content">Abstract</h3>
+  </stencila-heading>
+  <stencila-paragraph>
+    <p slot="content">
+      Machine learning algorithms have shown promising results in predicting
+      protein folding structures, but computational complexity remains a
+      significant barrier to widespread adoption in clinical settings.
+    </p>
+  </stencila-paragraph>
+  <stencila-paragraph>
+    <p slot="content">
+      This study presents a novel approach combining transformer architectures
+      with physics-based constraints to achieve 95% accuracy while reducing
+      computational time by 60% compared to existing methods.
+    </p>
+  </stencila-paragraph>
+  <stencila-paragraph>
+    <p slot="content">
+      Our results demonstrate that hybrid models can bridge the gap between
+      theoretical precision and practical implementation, opening new
+      possibilities for real-time protein structure prediction in drug discovery
+      pipelines.
+    </p>
+  </stencila-paragraph>
 </div>
 ```
 
@@ -221,10 +182,9 @@ Generous spacing for long-form scholarly reading:
 
 ```css
 :root {
+  --paragraph-spacing: var(--space-10);
   --paragraph-text-align: left;
-  --paragraph-spacing-md: 1.4rem;
-  --paragraph-spacing-lg: 2rem;
-  --paragraph-line-height: 1.7;
+  --paragraph-line-height: var(--line-height-md);
   --paragraph-text-wrap: pretty;
 }
 ```
@@ -232,28 +192,29 @@ Generous spacing for long-form scholarly reading:
 ```html raw
 <div
   style="
+  --paragraph-spacing: var(--space-10);
   --paragraph-text-align: left;
-  --paragraph-spacing-md: 1.4rem;
-  --paragraph-spacing-lg: 2rem;
-  --paragraph-line-height: 1.7;
+  --paragraph-line-height: var(--line-height-md);
   --paragraph-text-wrap: pretty;
-  max-width: 70ch;
 "
 >
-  <h3>Literature Review</h3>
-  <p>
-    The field of computational biology has witnessed remarkable advances in the
-    past decade, driven largely by the availability of large datasets and
-    improved algorithmic approaches. Early work by Smith et al. (2018) laid the
-    foundation for sequence-based prediction methods.
-  </p>
-  <p>
-    Subsequent research has focused on integrating multiple data modalities,
-    including structural information, evolutionary relationships, and functional
-    annotations. The breakthrough came with the introduction of attention
-    mechanisms, which allowed models to capture long-range dependencies in
-    protein sequences.
-  </p>
+  <stencila-paragraph>
+    <p slot="content">
+      The field of computational biology has witnessed remarkable advances in
+      the past decade, driven largely by the availability of large datasets and
+      improved algorithmic approaches. Early work by Smith et al. (2018) laid
+      the foundation for sequence-based prediction methods.
+    </p>
+  </stencila-paragraph>
+  <stencila-paragraph>
+    <p slot="content">
+      Subsequent research has focused on integrating multiple data modalities,
+      including structural information, evolutionary relationships, and
+      functional annotations. The breakthrough came with the introduction of
+      attention mechanisms, which allowed models to capture long-range
+      dependencies in protein sequences.
+    </p>
+  </stencila-paragraph>
 </div>
 ```
 
@@ -263,10 +224,7 @@ Dense layout for appendices, bibliographies, and reference materials:
 
 ```css
 :root {
-  --paragraph-spacing-sm: 0.25rem;
-  --paragraph-spacing-md: 0.5rem;
-  --paragraph-spacing-lg: 0.75rem;
-  --paragraph-line-height: 1.4;
+  --paragraph-spacing: var(--space-3);
   --paragraph-text-indent: -1.5em;
   --paragraph-lead-text-indent: -1.5em;
 }
@@ -275,50 +233,48 @@ Dense layout for appendices, bibliographies, and reference materials:
 ```html raw
 <div
   style="
-  --paragraph-spacing-sm: 0.25rem;
-  --paragraph-spacing-md: 0.5rem;
-  --paragraph-spacing-lg: 0.75rem;
-  --paragraph-line-height: 1.4;
+  --paragraph-spacing: var(--space-3);
   --paragraph-text-indent: -1.5em;
   --paragraph-lead-text-indent: -1.5em;
-  max-width: 80ch;
   padding-left: 1.5em;
 "
 >
-  <p>
-    Johnson, A., Smith, B., & Davis, C. (2024). Advances in computational
-    protein folding prediction using transformer architectures.
-    <em>Nature Computational Biology</em>, 15(3), 234-251.
-  </p>
-  <p>
-    Williams, D. E., & Brown, F. G. (2023). Machine learning approaches to drug
-    discovery: A comprehensive review of recent developments and future
-    directions. <em>Journal of Medicinal Chemistry</em>, 66(12), 8123-8145.
-  </p>
-  <p>
-    Zhang, L., Kumar, R., & Patel, S. (2024). Real-time protein structure
-    prediction in clinical environments: Challenges and opportunities.
-    <em>Bioinformatics</em>, 40(8), 1456-1468.
-  </p>
+  <stencila-paragraph depth="1">
+    <p>
+      Johnson, A., Smith, B., & Davis, C. (2024). Advances in computational
+      protein folding prediction using transformer architectures.
+      <em>Nature Computational Biology</em>, 15(3), 234-251.
+    </p>
+  </stencila-paragraph>
+  <stencila-paragraph depth="1">
+    <p>
+      Williams, D. E., & Brown, F. G. (2023). Machine learning approaches to
+      drug discovery: A comprehensive review of recent developments and future
+      directions. <em>Journal of Medicinal Chemistry</em>, 66(12), 8123-8145.
+    </p>
+  </stencila-paragraph>
+  <stencila-paragraph depth="1">
+    <p>
+      Zhang, L., Kumar, R., & Patel, S. (2024). Real-time protein structure
+      prediction in clinical environments: Challenges and opportunities.
+      <em>Bioinformatics</em>, 40(8), 1456-1468.
+    </p>
+  </stencila-paragraph>
 </div>
 ```
 
 # Tips
 
-**Choose alignment for context**: Use `left` for web/technical content, `justify` for scholarly papers, but ensure proper hyphenation with justified text.
+**Focus on paragraph tokens**: Use `--paragraph-*` tokens for typography-specific customizations. These integrate with the design system while providing paragraph-specific control.
 
-**Indent consistently**: If using `--paragraph-text-indent`, set `--paragraph-lead-text-indent: 0` to skip indentation after headings, following scholarly conventions.
+**Choose alignment for context**: Use `--paragraph-text-align: left` for web/technical content, `justify` for scholarly papers, but ensure proper hyphenation with justified text.
 
-**Control orphans/widows**: For print or PDF output, increase `--paragraph-orphans` and `--paragraph-widows` to 3 or more to prevent awkward line breaks.
-
-**Use lead paragraphs strategically**: Apply `p.lead` class to opening paragraphs in research abstracts, executive summaries, or article introductions.
+**Customize line height thoughtfully**: Use `--paragraph-line-height` to override the default text line height when specific reading contexts require it (e.g., dense academic text).
 
 **Consider hyphenation carefully**: Enable `--paragraph-hyphens: auto` only with justified text, and test across different browsers for consistent results.
 
-**Optimize for reading length**: Combine appropriate `--paragraph-spacing-*` tokens with `max-width` to maintain optimal line lengths (45-75 characters).
+**Leverage semantic integration**: Paragraph spacing and content width use semantic tokens automatically. Override `--content-spacing` or `--content-width` when needed for special layouts.
 
 **Modern text wrapping**: Use `--paragraph-text-wrap: pretty` in supported browsers for improved line breaking, especially in technical documentation.
 
-**Test across contexts**: Paragraph tokens work differently in lists, blockquotes, and special elements - verify appearance in all content types.
-
-**Spacing serves hierarchy**: Use `sm` for tight contexts (list items), `md` for standard content, `lg` for special blocks that need visual separation.
+**Test across contexts**: Verify paragraph customizations work well in lists, blockquotes, and other content contexts where paragraphs appear.

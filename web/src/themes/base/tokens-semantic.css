@@ -7,7 +7,7 @@
  * IMPORTANT: These are the tokens to override in custom themes. They provide
  * automatic dark mode and responsive behavior "for free" through suffix variants:
  * - Dark mode: -dark suffix (e.g., --text-color-primary-dark)
- * - Responsive: -tablet/-mobile suffixes (e.g., --spacing-section-mobile)
+ * - Responsive: -tablet/-mobile suffixes (e.g., --content-spacing-mobile)
  *
  * Architecture: Primitives → Semantics → Components
  * Usage: Always use semantic tokens in component CSS, never primitives directly.
@@ -20,14 +20,10 @@
     --content-width-print: 100%;
 
     /* Spacing Semantic Tokens with responsive and print variants */
-    --spacing-section: var(--space-16);
-    --spacing-section-tablet: var(--space-12);
-    --spacing-section-mobile: var(--space-8);
-    --spacing-section-print: var(--space-4);
-    --spacing-content: var(--space-8);
-    --spacing-content-tablet: var(--space-6);
-    --spacing-content-mobile: var(--space-4);
-    --spacing-content-print: var(--space-2);
+    --content-spacing: var(--space-8);
+    --content-spacing-tablet: var(--space-6);
+    --content-spacing-mobile: var(--space-4);
+    --content-spacing-print: var(--space-2);
 
     /* Surface Colors - Background colors for different depth levels with dark and print variants */
     --surface-background: var(--color-gray-50);
@@ -195,34 +191,34 @@
 /* Responsive Application - Tablet Breakpoint (768px) */
 @media (max-width: 768px) {
     :root {
+        --content-spacing: var(--content-spacing-tablet);
+
         --text-font-size: var(--text-font-size-tablet);
-        --spacing-section: var(--spacing-section-tablet);
-        --spacing-content: var(--spacing-content-tablet);
     }
 }
 
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
+        --content-spacing: var(--content-spacing-mobile);
+        --content-width: var(--content-width-mobile);
+
         --text-font-size: var(--text-font-size-mobile);
         --text-line-height-body: var(--text-line-height-body-mobile);
-        --spacing-section: var(--spacing-section-mobile);
-        --spacing-content: var(--spacing-content-mobile);
-        --content-width: var(--content-width-mobile);
     }
 }
 
 /* Print Application */
 @media print {
     :root {
-        --text-font-size: var(--text-font-size-print);
-        --text-line-height-body: var(--text-line-height-body-print);
-        --spacing-section: var(--spacing-section-print);
-        --spacing-content: var(--spacing-content-print);
+        --content-spacing: var(--content-spacing-print);
         --content-width: var(--content-width-print);
 
         --surface-background: var(--surface-background-print);
         --surface-foreground: var(--surface-foreground-print);
+
+        --text-font-size: var(--text-font-size-print);
+        --text-line-height-body: var(--text-line-height-body-print);
 
         --text-color-primary: var(--text-color-primary-print);
         --text-color-secondary: var(--text-color-secondary-print);

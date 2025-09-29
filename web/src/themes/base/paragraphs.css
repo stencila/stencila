@@ -23,16 +23,19 @@
  */
 
 :root {
-    --paragraph-spacing-sm: var(--space-3);
-    --paragraph-spacing-md: var(--space-4);
-    --paragraph-spacing-lg: var(--space-6);
-    --paragraph-line-height: var(--line-height-relaxed);
+    /* Paragraph Spacing */
+    --paragraph-spacing: var(--content-spacing);
+
+    /* Paragraph Typography */
+    --paragraph-line-height: var(--text-line-height);
     --paragraph-text-align: left;
     --paragraph-text-indent: 0;
     --paragraph-hyphens: none;
     --paragraph-orphans: 2;
     --paragraph-widows: 2;
     --paragraph-text-wrap: auto;
+
+    /* Lead Paragraph Enhancement */
     --paragraph-lead-font-size: inherit;
     --paragraph-lead-font-weight: inherit;
     --paragraph-lead-text-indent: 0;
@@ -40,15 +43,17 @@
 
 stencila-paragraph {
     p {
-        font-family: var(--text-font-family);
-        line-height: var(--paragraph-line-height);
-        color: var(--text-color-primary);
-        margin-top: var(--paragraph-spacing-md);
+        /* Spacing */
+        margin-top: var(--paragraph-spacing);
         margin-bottom: 0;
-        max-width: var(--content-width);
+
+        /* Typography control */
+        line-height: var(--paragraph-line-height);
         text-align: var(--paragraph-text-align);
         text-indent: var(--paragraph-text-indent);
         hyphens: var(--paragraph-hyphens);
+
+        /* Print control */
         orphans: var(--paragraph-orphans);
         widows: var(--paragraph-widows);
         text-wrap: var(--paragraph-text-wrap);
@@ -56,21 +61,19 @@ stencila-paragraph {
 }
 
 /* Lead paragraphs (first paragraph after headings) */
-h1+p,
-h2+p,
-h3+p,
-h4+p,
-h5+p,
-h6+p {
+stencila-heading+stencila-paragraph p {
     font-size: var(--paragraph-lead-font-size);
     font-weight: var(--paragraph-lead-font-weight);
     text-indent: var(--paragraph-lead-text-indent);
 }
 
-@media (max-width: 640px) {
-    p {
-        max-width: var(--content-width-mobile);
-        margin-top: var(--space-3);
-        line-height: 1.6;
+@media print {
+    stencila-paragraph p {
+        /* Ensure proper paragraph breaks for print */
+        page-break-inside: avoid;
+        break-inside: avoid;
+
+        /* Optimize text rendering for print */
+        text-rendering: optimizeLegibility;
     }
 }

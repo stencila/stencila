@@ -109,13 +109,13 @@ stencila-figure {
     /* Compact captions for print */
     stencila-figure figcaption p {
         line-height: 1.2 !important;
-        margin-top: var(--spacing-content) !important;
+        margin-top: var(--content-spacing) !important;
         margin-bottom: 0 !important;
         font-size: 9pt !important;
     }
 
     stencila-figure figcaption {
-        margin-top: var(--spacing-content) !important;
-        margin-bottom: var(--spacing-content) !important;
+        margin-top: var(--content-spacing) !important;
+        margin-bottom: var(--content-spacing) !important;
     }
 }
