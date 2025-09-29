@@ -1,0 +1,217 @@
+---
+title: Quotes
+description: |
+  Design tokens and examples for customizing block and inline quotes, including borders, backgrounds, and typography in Stencila themes.
+---
+
+# Tokens
+
+## Block Quote Tokens
+
+Visual styling controls for block quotes, including borders, backgrounds, and spacing.
+
+| Token                       | Description                                        | Default Value                         |
+| --------------------------- | -------------------------------------------------- | ------------------------------------- |
+| `--quote-border-width`      | Left border thickness for emphasis                 | `3px`                                 |
+| `--quote-border-color`      | Left border color                                  | `var(--border-color-emphasis)`        |
+| `--quote-border-color-dark` | Border color for dark mode                         | `var(--border-color-emphasis-dark)`   |
+| `--quote-border-radius`     | Corner rounding for quote background              | `var(--border-radius-default)`        |
+| `--quote-background`        | Background color                                   | `var(--surface-sunken)`               |
+| `--quote-background-dark`   | Background color for dark mode                     | `var(--surface-sunken-dark)`          |
+| `--quote-spacing`           | Vertical spacing (top and bottom margins)          | `var(--content-spacing)`              |
+| `--quote-padding`           | Internal padding around quote content (responsive) | `calc(var(--content-spacing) * 0.5)`  |
+| `--quote-spacing-horizontal` | Left and right margins (responsive)               | `calc(var(--content-spacing) * 0.75)` |
+| `--quote-spacing-horizontal-mobile` | Left and right margins on mobile (full-width) | `0` |
+| `--quote-font-style`        | Font style for quoted text                         | `italic`                              |
+| `--quote-font-size`         | Font size for block quotes (responsive)           | `calc(var(--text-font-size) * 1.125)` |
+
+## Inline Quote Tokens
+
+Styling controls specifically for inline quotes within text flow.
+
+| Token                       | Description                                   | Default Value |
+| --------------------------- | --------------------------------------------- | ------------- |
+| `--quote-inline-font-style` | Font style for inline quoted text             | `inherit`     |
+| `--quote-inline-quotes`     | Quotation marks style (auto, none, or custom) | `auto`        |
+
+# Usage
+
+## Block Quote Styling
+
+Block quotes use visual emphasis to distinguish quoted content from regular text. The design leverages semantic tokens for automatic responsive and dark mode behavior.
+
+**Visual hierarchy**: Block quotes use a colored left border, subtle background, larger font size, and italic styling to create clear visual separation from body text.
+
+**Responsive scaling**: Spacing, padding, and font size automatically scale with semantic tokens (`--content-spacing` and `--text-font-size`), ensuring proper proportions across desktop, tablet, and mobile devices without explicit media queries.
+
+**Dark mode**: Border and background colors automatically adapt to dark themes through semantic token variants.
+
+## Inline Quote Styling
+
+Inline quotes are designed to integrate within text flow while providing customization options:
+
+**Default behavior**: By default, inline quotes inherit typography from surrounding text and use browser-standard quotation marks. This ensures optimal readability and follows user language preferences.
+
+**Font styling**: Use `--quote-inline-font-style` to add emphasis through italic styling or maintain normal font weight for subtle integration.
+
+**Quotation marks**: The `--quote-inline-quotes` token provides control over quotation mark appearance:
+
+- `auto` - Browser defaults based on document language
+- `none` - No visible quotation marks (semantic meaning preserved)
+- Custom marks - Specify opening/closing quotes for different languages or styles
+
+**Integration considerations**: Since inline quotes flow within text, avoid heavy styling that disrupts reading flow. Changes to font color, size, or weight are generally discouraged as they can harm readability.
+
+## Integration with Semantic Tokens
+
+Quotes work with the design system's token architecture:
+
+- **Automatic responsive behavior**: Spacing, padding, and font size use semantic token calculations (`--content-spacing` and `--text-font-size`) which provide desktop, tablet, mobile, and print scaling without manual media queries
+- **Surface integration**: Background uses `--surface-sunken` which automatically provides light/dark variants and print optimization
+- **Border consistency**: Border color references `--border-color-emphasis` ensuring consistency with other emphasized elements
+- **Typography inheritance**: Font sizes reference semantic font tokens for system-wide typography consistency
+
+## Mobile Optimization
+
+Mobile devices automatically receive optimized spacing:
+
+- Horizontal margins collapse to zero through `--quote-spacing-horizontal-mobile` for full-width appearance
+- Padding automatically scales down through `--content-spacing` calculation (desktop: 1rem → mobile: 0.5rem)
+- Font size automatically scales with `--text-font-size` calculation
+
+# Examples
+
+## Default Block Quotes
+
+Standard block quote styling with automatic responsive spacing and dark mode support:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+> This is a default block quote that demonstrates the base visual styling. Block quotes automatically receive a colored left border, subtle background, italic typography, and larger font size to distinguish them from regular paragraph text.
+>
+> The spacing and colors automatically adapt to different screen sizes and dark mode preferences through semantic token integration.
+
+:::
+
+## Minimal Block Quotes
+
+Simplified block quotes with reduced visual emphasis:
+
+```css
+:root {
+  --quote-background: transparent;
+  --quote-border-width: 0;
+  --quote-padding: var(--space-2);
+  --quote-font-size: inherit;
+}
+```
+
+::: style --quote-background: transparent; --quote-border-width: 0; --quote-padding: var(--space-2); --quote-font-size: inherit;
+
+> This quote uses minimal styling with no background, no border, reduced padding, and standard font size. Visual distinction comes only from italic styling and slight indentation.
+
+:::
+
+## Academic Paper Block Quotes
+
+Enhanced quotes for scholarly documents with increased emphasis:
+
+```css
+:root {
+  --quote-padding: var(--space-6);
+  --quote-spacing-horizontal: var(--content-spacing);
+  --quote-font-size: var(--font-size-xl);
+  --quote-border-width: 6px;
+}
+```
+
+::: style --quote-padding: var(--space-6); --quote-spacing-horizontal: var(--content-spacing); --quote-font-size: var(--font-size-xl); --quote-border-width: 6px;
+
+> This is an academic-style quote with increased padding, larger margins, bigger font size, and thicker border. The enhanced spacing and typography create stronger visual hierarchy appropriate for scholarly documents.
+
+:::
+
+## Colored Block Quotes
+
+Custom border colors for different quote types:
+
+```css
+:root {
+  --quote-border-color: var(--color-accent);
+  --quote-border-radius: 0;
+}
+```
+
+::: style --quote-border-color: var(--color-accent); --quote-border-radius: 0;
+
+> This quote uses the theme's accent color for the border and removes the rounded corners for a more geometric appearance. The semantic color token ensures automatic dark mode support while maintaining the visual emphasis.
+
+:::
+
+## Inline Quotes
+
+Inline quotes can be customized while maintaining their integration within text flow:
+
+**Default styling** (browser defaults):
+
+```css
+:root {
+  --quote-inline-font-style: inherit;
+  --quote-inline-quotes: auto;
+}
+```
+
+::: style
+
+Default inline quotes: <q>To be or not to be</q> use browser quotation marks and inherit font styling from surrounding text.
+
+:::
+
+**Italic emphasis**:
+
+```css
+:root {
+  --quote-inline-font-style: italic;
+}
+```
+
+::: style --quote-inline-font-style: italic;
+
+Italic inline quotes: <q>I have a dream</q> receive italic emphasis while maintaining text flow.
+
+:::
+
+**Custom quotation marks**:
+
+```css
+:root {
+  --quote-inline-quotes: "«" "»" "‹" "›"; /* French guillemets */
+}
+```
+
+::: style --quote-inline-quotes: "«" "»" "‹" "›";
+
+Custom quotes: <q>One small step for man</q> use French-style guillemet quotation marks.
+
+:::
+
+**No quotation marks**:
+
+```css
+:root {
+  --quote-inline-quotes: none;
+  --quote-inline-font-style: italic;
+}
+```
+
+::: style --quote-inline-quotes: none; --quote-inline-font-style: italic;
+
+Minimal inline quotes: <q>Never memorize something that you can look up</q> use only italic styling without visible quotation marks.
+
+:::

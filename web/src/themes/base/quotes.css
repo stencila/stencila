@@ -33,57 +33,72 @@
  * - Block quotes support multiple paragraphs and nested quotes
  *
  * Examples: examples/conversion/quote-block/quote-block.dom.html
- *          examples/conversion/quote-inline/quote-inline.dom.html
+ *           examples/conversion/quote-inline/quote-inline.dom.html
  */
 
 :root {
-    --quote-border-width: 4px;
-    --quote-border-color: var(--border-color-emphasis);
     --quote-background: var(--surface-sunken);
-    --quote-padding-xs: var(--space-2);
-    --quote-padding-sm: var(--space-3);
-    --quote-padding-md: var(--space-4);
-    --quote-margin-horizontal: var(--space-6);
-    --quote-font-style: italic;
-    --quote-font-size: var(--font-size-lg);
+    --quote-background-dark: var(--surface-sunken-dark);
 
-    --dark-quote-background: #222222;
-    --dark-quote-border-color: #505050;
+    --quote-border-width: 3px;
+    --quote-border-color: var(--border-color-emphasis);
+    --quote-border-color-dark: var(--border-color-emphasis-dark);
+    --quote-border-radius: var(--border-radius-default);
+
+    --quote-spacing: var(--content-spacing);
+    --quote-padding: calc(var(--content-spacing) * 0.5);
+    --quote-spacing-horizontal: calc(var(--content-spacing) * 0.75);
+    --quote-spacing-horizontal-mobile: 0;
+
+    --quote-font-style: italic;
+    --quote-font-size: calc(var(--text-font-size) * 1.125);
+
+    --quote-inline-font-style: inherit;
+    --quote-inline-quotes: auto;
 }
 
+/* Dark Mode Application - System Preference */
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
-        --quote-background: var(--dark-quote-background);
-        --quote-border-color: var(--dark-quote-border-color);
+        --quote-background: var(--quote-background-dark);
+        --quote-border-color: var(--quote-border-color-dark);
     }
 }
 
+/* Dark Mode Application - Explicit User Choice */
 :root[data-color-scheme="dark"] {
-    --quote-background: var(--dark-quote-background);
-    --quote-border-color: var(--dark-quote-border-color);
+    --quote-background: var(--quote-background-dark);
+    --quote-border-color: var(--quote-border-color-dark);
 }
 
 stencila-quote-block {
     blockquote {
         border-left: var(--quote-border-width) solid var(--quote-border-color);
         background-color: var(--quote-background);
-        padding: var(--quote-padding-md);
-        margin: var(--paragraph-spacing-lg) var(--quote-margin-horizontal);
+        padding: var(--quote-padding);
+        margin: var(--quote-spacing) var(--quote-spacing-horizontal);
         font-style: var(--quote-font-style);
         font-size: var(--quote-font-size);
-        border-radius: var(--border-radius-default);
+        border-radius: var(--quote-border-radius);
     }
 
-    blockquote p {
+    /* Remove default top margin from first paragraph to align with quote padding */
+    blockquote stencila-paragraph:first-child p {
         margin-top: 0;
     }
 }
 
+stencila-quote-inline {
+    q {
+        font-style: var(--quote-inline-font-style);
+        quotes: var(--quote-inline-quotes);
+    }
+}
+
+/* Mobile adjustments - Full-width quotes on small screens
+ * Override horizontal spacing to 0 for edge-to-edge appearance */
 @media (max-width: 640px) {
-    blockquote {
-        margin-left: 0;
-        margin-right: 0;
-        padding: var(--quote-padding-sm);
-        font-size: var(--font-size-md);
+    :root {
+        --quote-spacing-horizontal: var(--quote-spacing-horizontal-mobile);
     }
 }
