@@ -1,0 +1,32 @@
+/**
+ * Label styles
+ *
+ * Labels are a property of `Figure`, `Table`, `CodeChunk` and `MathBlock`
+ * nodes. Because `CodeChunk` nodes can "masquerade" as figures or tables, they
+ * also have a label type property to indicate whether they belong to the table
+ * or figure label series.
+ *
+ * When generating HTML for these node types, Stencila will create a <span> with
+ * class `figure-label`, `table-label`, or `math-label`. This is one of the few
+ * instances where stencila uses class names in generated HTML.
+ *
+ * The content of that span is also generated containing the label type and
+ * label for table and figures e.g.
+ *
+ *   <span class="table-label">Table 2</span>
+ *
+ *   <span class="figure-label">Figure 4</span>
+ *
+ * For `MathBlock` the label is simply surrounded by brackets e.g.
+ *
+ *   <span class="math-label">(7)</span>
+ *
+ * This CSS file defines some base design tokens for labels, which are used as
+ * overridable defaults in node type specific files such as `figures.css` and
+ * `math.css`.
+ */
+
+:root {
+    --label-font-weight: var(--font-weight-bold);
+    --label-font-style: normal;
+}

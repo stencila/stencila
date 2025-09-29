@@ -15,6 +15,7 @@
  *             </msup>
  *         </math>
  *     </div>
+ *     <div slot=label>(1)</div>
  * </stencila-math-block>
  *
  * DOM Structure (Inline):
@@ -47,15 +48,49 @@
  * - Supports multiple input formats: TeX/LaTeX, ASCIIMath, and MathML
  *
  * Examples: examples/rendering/math-block/math-block.html
- *          examples/rendering/math-inline/math-inline.html
+ *           examples/rendering/math-inline/math-inline.html
  */
 
 :root {
+    /* Typography */
     --math-font-family: var(--font-family-math);
+
+    /* Spacing */
+    --math-spacing: var(--content-spacing);
+
+    /* Label styling */
+    --math-label-gap: var(--space-4);
     --math-label-font-weight: var(--label-font-weight);
+    --math-label-font-style: var(--label-font-style);
+    --math-label-color: var(--text-color-secondary);
 }
 
-stencila-math-block,
+stencila-math-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: var(--math-label-gap);
+    margin-top: var(--math-spacing);
+
+    [slot="mathml"] {
+        flex: 1;
+        text-align: center;
+
+        math {
+            font-family: var(--math-font-family);
+        }
+    }
+
+    [slot="label"] {
+        flex: 0 0 auto;
+
+        font-weight: var(--math-label-font-weight);
+        font-style: var(--math-label-font-style);
+        color: var(--math-label-color);
+    }
+}
+
 stencila-math-inline {
     math {
         font-family: var(--math-font-family);

@@ -5,6 +5,8 @@
 
 @import url("./root.css");
 
+@import url("./labels.css");
+
 @import url("./admonitions.css");
 @import url("./articles.css");
 @import url("./code.css");
