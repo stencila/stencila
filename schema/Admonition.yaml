@@ -2,7 +2,9 @@ title: Admonition
 '@id': stencila:Admonition
 extends: Entity
 category: prose
-description: A admonition within a document.
+description: An admonition within a document.
+$comment: |
+  Highlight important ideas or signal content that’s supplemental or only relevant in certain situations.
 html:
   elem: aside
 jats:
