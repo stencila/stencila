@@ -8,20 +8,21 @@ description: |
 
 Design tokens for headings use a modular scale system with base values and ratios to automatically calculate font sizes, weights, and spacing across all heading levels.
 
-| Token                               | Description                                        | Default Value                |
-| ----------------------------------- | -------------------------------------------------- | ---------------------------- |
-| `--heading-font-family`             | Font family for all heading levels                 | `var(--font-family-heading)` |
-| `--heading-font-size`               | Font size for `<h1>` (largest heading)             | `2.5rem`                     |
-| `--heading-font-size-ratio`         | Multiplier for scaling font sizes between levels   | `0.8`                        |
-| `--heading-font-weight`             | Font weight for `<h1>`                             | `700`                        |
-| `--heading-font-weight-decrement`   | Amount to reduce font weight per level             | `50`                         |
-| `--heading-line-height`             | Line height for all headings                       | `1.2`                        |
-| `--heading-letter-spacing`          | Letter spacing for all headings                    | `-0.02em`                    |
-| `--heading-margin-top`              | Top margin for `<h1>`                              | `var(--space-12)`            |
-| `--heading-margin-bottom`           | Bottom margin for `<h1>`                           | `var(--space-4)`             |
-| `--heading-margin-ratio`            | Ratio for scaling margins between levels           | `0.8`                        |
-| `--heading-color`                   | Text color for all headings                        | `var(--text-color-primary)`  |
-| `--heading-color-opacity-decrement` | Amount to reduce opacity per level (0 = no change) | `0`                          |
+| Token                               | Description                                            | Default Value                        |
+| ----------------------------------- | ------------------------------------------------------ | ------------------------------------ |
+| `--heading-font-family`             | Font family for all heading levels                     | `var(--font-family-serif)`           |
+| `--heading-font-size`               | Font size for `<h1>` (largest heading)                 | `2rem`                               |
+| `--heading-font-size-ratio`         | Multiplier for scaling font sizes between levels       | `0.8`                                |
+| `--heading-font-weight`             | Font weight for `<h1>`                                 | `var(--font-weight-bold)`            |
+| `--heading-font-weight-decrement`   | Amount to reduce font weight per level                 | `50`                                 |
+| `--heading-line-height`             | Line height for all headings                           | `var(--line-height-xs)`              |
+| `--heading-letter-spacing`          | Letter spacing for all headings                        | `-0.025em`                           |
+| `--heading-spacing-top`             | Top spacing for `<h1>` - scales with content rhythm    | `calc(var(--content-spacing) * 1.5)` |
+| `--heading-spacing-bottom`          | Bottom spacing for `<h1>` - scales with content rhythm | `calc(var(--content-spacing) * 0.5)` |
+| `--heading-spacing-ratio`           | Ratio for scaling spacing between levels               | `0.8`                                |
+| `--heading-color`                   | Text color for all headings                            | `var(--text-color-primary)`          |
+| `--heading-color-dark`              | Text color for headings in dark mode                   | `var(--text-color-primary)`          |
+| `--heading-color-opacity-decrement` | Amount to reduce opacity per level (0 = no change)     | `0`                                  |
 
 # Usage
 
@@ -29,31 +30,33 @@ The heading system uses three key token types to automatically calculate all hea
 
 **Base tokens** define the starting point for `<h1>`:
 
-- `--heading-font-size: 2.5rem` - h1 font size
-- `--heading-font-weight: 700` - h1 font weight
-- `--heading-margin-top: var(--space-12)` - h1 top margin
+- `--heading-font-size: 2rem` - h1 font size
+- `--heading-font-weight: var(--font-weight-bold)` - h1 font weight
+- `--heading-spacing-top: calc(var(--content-spacing) * 1.5)` - h1 top spacing (scales with content rhythm)
 
-**Ratio tokens** control multiplicative scaling from the base. For example, if `--heading-font-size: 2.5rem` and `--heading-font-size-ratio: 0.8` then,
+**Ratio tokens** control multiplicative scaling from the base. For example, if `--heading-font-size: 2rem` and `--heading-font-size-ratio: 0.8` then,
 
-- h1 = `2.5rem`
-- h2 = `2rem` (2.5 × 0.8)
-- h3 = `1.6rem` (2 × 0.8)
+- h1 = `2rem`
+- h2 = `1.6rem` (2 × 0.8)
+- h3 = `1.28rem` (1.6 × 0.8)
 
-**Decrement tokens** control linear reduction from the base. For example, if `--heading-font-weight: 700` and `--heading-font-weight-decrement: 50` then,
+**Decrement tokens** control linear reduction from the base. For example, if `--heading-font-weight: var(--font-weight-bold)` (700) and `--heading-font-weight-decrement: 50` then,
 
 - h1 = `700`
 - h2 = `650` (700 - 50)
 - h3 = `600` (650 - 50)
 
+**Semantic Integration**: Spacing tokens automatically scale with document spacing through `--content-spacing`. When content spacing changes for different screen sizes, heading spacing adjusts proportionally without explicit responsive tokens.
+
 For quick customization, focus on these tokens:
 
-- `--heading-color` - Change all heading colors at once
+- `--heading-color` - Change all heading colors at once (includes dark mode via `--heading-color-dark`)
 - `--heading-font-size` - Sets overall heading scale
 - `--heading-font-size-ratio` - Controls hierarchy contrast (0.9 = subtle, 0.7 = dramatic)
 - `--heading-font-weight` - Make headings lighter or bolder
 - `--heading-font-weight-decrement` - Fine-tune weight progression
-- `--heading-margin-top` - Adjust spacing above headings
-- `--heading-margin-ratio` - Control margin scaling independently from font sizes
+- `--heading-spacing-top` - Adjust spacing above headings (automatically responsive)
+- `--heading-spacing-ratio` - Control spacing scaling independently from font sizes
 
 # Patterns
 
@@ -65,8 +68,8 @@ Ideal for documentation, technical content, or high-density information:
 :root {
   --heading-font-size: 1.875rem;
   --heading-font-size-ratio: 0.833; /* Minor Third inverted - subtle differences */
-  --heading-margin-top: var(--space-6);
-  --heading-margin-bottom: var(--space-2);
+  --heading-spacing-top: calc(var(--content-spacing) * 0.75);
+  --heading-spacing-bottom: calc(var(--content-spacing) * 0.25);
   --heading-font-weight: 600;
   --heading-color: var(--color-blue-900);
 }
@@ -77,18 +80,30 @@ Ideal for documentation, technical content, or high-density information:
   style="
   --heading-font-size: 1.875rem;
   --heading-font-size-ratio: 0.833;
-  --heading-margin-top: var(--space-6);
-  --heading-margin-bottom: var(--space-2);
+  --heading-spacing-top: calc(var(--content-spacing) * 0.75);
+  --heading-spacing-bottom: calc(var(--content-spacing) * 0.25);
   --heading-font-weight: 600;
   --heading-color: var(--color-blue-900);
 "
 >
-  <h1>Heading One</h1>
-  <h2>Heading Two</h2>
-  <h3>Heading Three</h3>
-  <h4>Heading Four</h4>
-  <h5>Heading Five</h5>
-  <h6>Heading Six</h6>
+  <stencila-heading level="1">
+    <h1 slot="content">Heading One</h1>
+  </stencila-heading>
+  <stencila-heading level="2">
+    <h2 slot="content">Heading Two</h2>
+  </stencila-heading>
+  <stencila-heading level="3">
+    <h3 slot="content">Heading Three</h3>
+  </stencila-heading>
+  <stencila-heading level="4">
+    <h4 slot="content">Heading Four</h4>
+  </stencila-heading>
+  <stencila-heading level="5">
+    <h5 slot="content">Heading Five</h5>
+  </stencila-heading>
+  <stencila-heading level="6">
+    <h6 slot="content">Heading Six</h6>
+  </stencila-heading>
 </div>
 ```
 
@@ -100,8 +115,8 @@ Better for presentations, marketing content, and editorial layouts:
 :root {
   --heading-font-size: 3rem;
   --heading-font-size-ratio: 0.75; /* Perfect Fourth inverted - noticeable hierarchy */
-  --heading-margin-top: var(--space-16);
-  --heading-margin-bottom: var(--space-6);
+  --heading-spacing-top: calc(var(--content-spacing) * 2);
+  --heading-spacing-bottom: calc(var(--content-spacing) * 0.75);
   --heading-letter-spacing: -0.03em;
   --heading-color: var(--color-green-800);
 }
@@ -112,18 +127,30 @@ Better for presentations, marketing content, and editorial layouts:
   style="
   --heading-font-size: 3rem;
   --heading-font-size-ratio: 0.75;
-  --heading-margin-top: var(--space-16);
-  --heading-margin-bottom: var(--space-6);
+  --heading-spacing-top: calc(var(--content-spacing) * 2);
+  --heading-spacing-bottom: calc(var(--content-spacing) * 0.75);
   --heading-letter-spacing: -0.03em;
   --heading-color: var(--color-green-800);
 "
 >
-  <h1>Heading One</h1>
-  <h2>Heading Two</h2>
-  <h3>Heading Three</h3>
-  <h4>Heading Four</h4>
-  <h5>Heading Five</h5>
-  <h6>Heading Six</h6>
+  <stencila-heading level="1">
+    <h1 slot="content">Heading One</h1>
+  </stencila-heading>
+  <stencila-heading level="2">
+    <h2 slot="content">Heading Two</h2>
+  </stencila-heading>
+  <stencila-heading level="3">
+    <h3 slot="content">Heading Three</h3>
+  </stencila-heading>
+  <stencila-heading level="4">
+    <h4 slot="content">Heading Four</h4>
+  </stencila-heading>
+  <stencila-heading level="5">
+    <h5 slot="content">Heading Five</h5>
+  </stencila-heading>
+  <stencila-heading level="6">
+    <h6 slot="content">Heading Six</h6>
+  </stencila-heading>
 </div>
 ```
 
@@ -155,12 +182,24 @@ Classic typography for articles, blogs, and long-form content:
   --heading-color: var(--color-amber-800);
 "
 >
-  <h1>Heading One</h1>
-  <h2>Heading Two</h2>
-  <h3>Heading Three</h3>
-  <h4>Heading Four</h4>
-  <h5>Heading Five</h5>
-  <h6>Heading Six</h6>
+  <stencila-heading level="1">
+    <h1 slot="content">Heading One</h1>
+  </stencila-heading>
+  <stencila-heading level="2">
+    <h2 slot="content">Heading Two</h2>
+  </stencila-heading>
+  <stencila-heading level="3">
+    <h3 slot="content">Heading Three</h3>
+  </stencila-heading>
+  <stencila-heading level="4">
+    <h4 slot="content">Heading Four</h4>
+  </stencila-heading>
+  <stencila-heading level="5">
+    <h5 slot="content">Heading Five</h5>
+  </stencila-heading>
+  <stencila-heading level="6">
+    <h6 slot="content">Heading Six</h6>
+  </stencila-heading>
 </div>
 ```
 
@@ -191,12 +230,24 @@ Clean, modern styling with subtle hierarchy:
   --heading-color: var(--color-gray-700);
 "
 >
-  <h1>Heading One</h1>
-  <h2>Heading Two</h2>
-  <h3>Heading Three</h3>
-  <h4>Heading Four</h4>
-  <h5>Heading Five</h5>
-  <h6>Heading Six</h6>
+  <stencila-heading level="1">
+    <h1 slot="content">Heading One</h1>
+  </stencila-heading>
+  <stencila-heading level="2">
+    <h2 slot="content">Heading Two</h2>
+  </stencila-heading>
+  <stencila-heading level="3">
+    <h3 slot="content">Heading Three</h3>
+  </stencila-heading>
+  <stencila-heading level="4">
+    <h4 slot="content">Heading Four</h4>
+  </stencila-heading>
+  <stencila-heading level="5">
+    <h5 slot="content">Heading Five</h5>
+  </stencila-heading>
+  <stencila-heading level="6">
+    <h6 slot="content">Heading Six</h6>
+  </stencila-heading>
 </div>
 ```
 
@@ -210,7 +261,7 @@ High contrast for landing pages and marketing materials:
   --heading-font-size-ratio: 0.618; /* Golden Ratio for maximum contrast */
   --heading-font-weight: 800;
   --heading-letter-spacing: -0.04em;
-  --heading-margin-ratio: 0.6;
+  --heading-spacing-ratio: 0.6;
   --heading-color: var(--color-red-900);
 }
 ```
@@ -222,16 +273,28 @@ High contrast for landing pages and marketing materials:
   --heading-font-size-ratio: 0.618;
   --heading-font-weight: 800;
   --heading-letter-spacing: -0.04em;
-  --heading-margin-ratio: 0.6;
+  --heading-spacing-ratio: 0.6;
   --heading-color: var(--color-red-900);
 "
 >
-  <h1>Heading One</h1>
-  <h2>Heading Two</h2>
-  <h3>Heading Three</h3>
-  <h4>Heading Four</h4>
-  <h5>Heading Five</h5>
-  <h6>Heading Six</h6>
+  <stencila-heading level="1">
+    <h1 slot="content">Heading One</h1>
+  </stencila-heading>
+  <stencila-heading level="2">
+    <h2 slot="content">Heading Two</h2>
+  </stencila-heading>
+  <stencila-heading level="3">
+    <h3 slot="content">Heading Three</h3>
+  </stencila-heading>
+  <stencila-heading level="4">
+    <h4 slot="content">Heading Four</h4>
+  </stencila-heading>
+  <stencila-heading level="5">
+    <h5 slot="content">Heading Five</h5>
+  </stencila-heading>
+  <stencila-heading level="6">
+    <h6 slot="content">Heading Six</h6>
+  </stencila-heading>
 </div>
 ```
 
@@ -239,7 +302,11 @@ High contrast for landing pages and marketing materials:
 
 **Choose appropriate ratios**: Larger ratios (0.87-0.9) create subtle hierarchy for dense content, while smaller ratios (0.6-0.75) create dramatic contrast for marketing or presentation materials.
 
-**Consider viewport sizes**: You might want different `--heading-font-size-ratio` values for mobile vs desktop using media queries - mobile often benefits from less dramatic scaling.
+**Leverage responsive spacing**: Spacing tokens automatically scale with `--content-spacing`, so changing document spacing affects headings proportionally. For special mobile adjustments, use media queries targeting specific heading levels.
+
+**Semantic spacing**: Base spacing tokens on `--content-spacing` multiples rather than fixed primitive tokens to maintain visual rhythm and automatic responsive behavior across the document.
+
+**Dark mode support**: Use `--heading-color-dark` to define heading colors for dark themes. The base theme automatically applies dark mode through system preference and explicit user choice.
 
 **Maintain readability**: Keep `--heading-line-height` between 1.1 and 1.4 for optimal readability across different sizes.
 

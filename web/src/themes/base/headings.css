@@ -23,17 +23,18 @@
  */
 
 :root {
+    --heading-spacing-top: calc(var(--content-spacing) * 1.5);
+    --heading-spacing-bottom: calc(var(--content-spacing) * 0.5);
+    --heading-spacing-ratio: 0.8;
     --heading-font-family: var(--font-family-serif);
     --heading-font-size: 2rem;
     --heading-font-size-ratio: 0.8;
     --heading-font-weight: var(--font-weight-bold);
     --heading-font-weight-decrement: 50;
-    --heading-line-height: var(--line-height-tight);
+    --heading-line-height: var(--line-height-xs);
     --heading-letter-spacing: -0.025em;
-    --heading-margin-top: var(--space-12);
-    --heading-margin-bottom: var(--space-4);
-    --heading-margin-ratio: 0.8;
     --heading-color: var(--text-color-primary);
+    --heading-color-dark: var(--text-color-primary);
     --heading-color-opacity-decrement: 0;
 }
 
@@ -53,63 +54,69 @@ stencila-heading {
         line-height: var(--heading-line-height);
         letter-spacing: var(--heading-letter-spacing);
         color: var(--heading-color);
-        margin-bottom: var(--heading-margin-bottom);
+        margin-bottom: var(--heading-spacing-bottom);
     }
 
     h1 {
         font-size: var(--heading-font-size);
         font-weight: var(--heading-font-weight);
-        margin-top: var(--heading-margin-top);
+        margin-top: var(--heading-spacing-top);
     }
 
     h2 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement));
-        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio));
-        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio));
+        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio));
+        margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio));
     }
 
     h3 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 2);
-        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
-        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
     }
 
     h4 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
-        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
-        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
     }
 
     h5 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
-        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
-        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
     }
 
     h6 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
-        margin-top: calc(var(--heading-margin-top) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
-        margin-bottom: calc(var(--heading-margin-bottom) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio) * var(--heading-margin-ratio));
+        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+        margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
     }
 }
 
-@media (max-width: 640px) {
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        margin-top: var(--space-6);
-        margin-bottom: var(--space-3);
+/* Apply dark mode - respects system preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --heading-color: var(--heading-color-dark);
     }
+}
 
-    h1 {
-        margin-top: var(--space-4);
+/* Explicit user preference overrides system */
+:root[data-color-scheme="dark"] {
+    --heading-color: var(--heading-color-dark);
+}
+
+/* Mobile breakpoint (640px) - Special case for h1 top margin
+ * Override from automatic 1.5rem (calc(1rem * 1.5)) to 1rem for better mobile spacing */
+@media (max-width: 640px) {
+    stencila-heading {
+        h1 {
+            margin-top: var(--space-4);
+        }
     }
 }
