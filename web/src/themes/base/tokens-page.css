@@ -1,0 +1,326 @@
+/* Page Design Tokens
+ *
+ * Page layout semantic tokens for paged media (@page rules).
+ * Component print variants are handled in tokens-semantic.css.
+ */
+
+:root {
+    /* Page Layout */
+    --page-size: a4;
+    --page-margin: 1.5cm;
+
+    /* Page padding - space between content and margin boxes */
+    --page-padding: var(--space-1);
+    --page-padding-top: var(--page-padding);
+    --page-padding-bottom: var(--page-padding);
+
+    /* Page Margin Box Styling */
+    --page-margin-font-family: var(--font-family-sans);
+    --page-margin-font-size: 8pt;
+    --page-margin-color: var(--text-color-secondary);
+    --page-margin-line-height: 1.2;
+    --page-margin-padding: var(--space-2);
+
+    /* Page Margin Box Content - Set these to control margin content */
+    --page-top-left-content: '';
+    --page-top-center-content: '';
+    --page-top-right-content: '';
+    --page-bottom-left-content: '';
+    --page-bottom-center-content: '';
+    --page-bottom-right-content: '';
+
+    /* First Page Margin Box Content - Defaults to regular margin content */
+    --page1-top-left-content: var(--page-top-left-content);
+    --page1-top-center-content: var(--page-top-center-content);
+    --page1-top-right-content: var(--page-top-right-content);
+    --page1-bottom-left-content: var(--page-bottom-left-content);
+    --page1-bottom-center-content: var(--page-bottom-center-content);
+    --page1-bottom-right-content: var(--page-bottom-right-content);
+
+    /* Page Margin Box Borders - Hierarchical token system */
+
+    /* Level 1: General border tokens (apply to all margins) */
+    --page-border-style: solid;
+    --page-border-color: var(--border-color-default);
+    --page-border-narrow: initial;
+    --page-border-wide: initial;
+    --page-border-full: initial;
+
+    /* Level 2: Horizontal border tokens (apply to both top and bottom) */
+    --page-horizontal-border-style: var(--page-border-style);
+    --page-horizontal-border-color: var(--page-border-color);
+    --page-horizontal-border-narrow: var(--page-border-narrow);
+    --page-horizontal-border-wide: var(--page-border-wide);
+    --page-horizontal-border-full: var(--page-border-full);
+
+    /* Level 3: Specific border tokens (individual top/bottom overrides) */
+    --page-top-border-style: var(--page-horizontal-border-style);
+    --page-top-border-color: var(--page-horizontal-border-color);
+    --page-top-border-narrow: var(--page-horizontal-border-narrow);
+    --page-top-border-wide: var(--page-horizontal-border-wide);
+    --page-top-border-full: var(--page-horizontal-border-full);
+    --page-bottom-border-style: var(--page-horizontal-border-style);
+    --page-bottom-border-color: var(--page-horizontal-border-color);
+    --page-bottom-border-narrow: var(--page-horizontal-border-narrow);
+    --page-bottom-border-wide: var(--page-horizontal-border-wide);
+    --page-bottom-border-full: var(--page-horizontal-border-full);
+
+    /* First Page Border Tokens - Hierarchical system for first page */
+
+    /* Level 1: General first page border tokens (apply to all first page margins) */
+    --page1-border-style: var(--page-border-style);
+    --page1-border-color: var(--page-border-color);
+    --page1-border-narrow: var(--page-border-narrow);
+    --page1-border-wide: var(--page-border-wide);
+    --page1-border-full: var(--page-border-full);
+
+    /* Level 2: First page horizontal border tokens (apply to both top and bottom) */
+    --page1-horizontal-border-style: var(--page1-border-style);
+    --page1-horizontal-border-color: var(--page1-border-color);
+    --page1-horizontal-border-narrow: var(--page1-border-narrow);
+    --page1-horizontal-border-wide: var(--page1-border-wide);
+    --page1-horizontal-border-full: var(--page1-border-full);
+
+    /* Level 3: Specific first page border tokens (individual top/bottom overrides) */
+    --page1-top-border-style: var(--page1-horizontal-border-style);
+    --page1-top-border-color: var(--page1-horizontal-border-color);
+    --page1-top-border-narrow: var(--page1-horizontal-border-narrow);
+    --page1-top-border-wide: var(--page1-horizontal-border-wide);
+    --page1-top-border-full: var(--page1-horizontal-border-full);
+    --page1-bottom-border-style: var(--page1-horizontal-border-style);
+    --page1-bottom-border-color: var(--page1-horizontal-border-color);
+    --page1-bottom-border-narrow: var(--page1-horizontal-border-narrow);
+    --page1-bottom-border-wide: var(--page1-horizontal-border-wide);
+    --page1-bottom-border-full: var(--page1-horizontal-border-full);
+}
+
+@page {
+    size: var(--page-size);
+    margin: var(--page-margin);
+    padding-top: var(--page-padding-top);
+    padding-bottom: var(--page-padding-bottom);
+
+    /* Top margin boxes */
+    @top-left-corner {
+        content: '';
+        border-bottom: var(--page-top-border-full, 0) var(--page-top-border-style) var(--page-top-border-color);
+    }
+
+    @top-left {
+        content: var(--page-top-left-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-bottom: var(--page-top-border-wide, var(--page-top-border-full, 0)) var(--page-top-border-style) var(--page-top-border-color);
+    }
+
+    @top-center {
+        content: var(--page-top-center-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-bottom: var(--page-top-border-narrow, var(--page-top-border-wide, var(--page-top-border-full, 0))) var(--page-top-border-style) var(--page-top-border-color);
+    }
+
+    @top-right {
+        content: var(--page-top-right-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-bottom: var(--page-top-border-wide, var(--page-top-border-full, 0)) var(--page-top-border-style) var(--page-top-border-color);
+    }
+
+    @top-right-corner {
+        content: '';
+        border-bottom: var(--page-top-border-full, 0) var(--page-top-border-style) var(--page-top-border-color);
+    }
+
+    /* Left margin boxes */
+    @left-top {
+        content: '';
+    }
+
+    @left-middle {
+        content: '';
+    }
+
+    @left-bottom {
+        content: '';
+    }
+
+    /* Right margin boxes */
+    @right-top {
+        content: '';
+    }
+
+    @right-middle {
+        content: '';
+    }
+
+    @right-bottom {
+        content: '';
+    }
+
+    /* Bottom margin boxes */
+    @bottom-left-corner {
+        content: '';
+        border-top: var(--page-bottom-border-full, 0) var(--page-bottom-border-style) var(--page-bottom-border-color);
+    }
+
+    @bottom-left {
+        content: var(--page-bottom-left-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-top: var(--page-bottom-border-wide, var(--page-bottom-border-full, 0)) var(--page-bottom-border-style) var(--page-bottom-border-color);
+    }
+
+    @bottom-center {
+        content: var(--page-bottom-center-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-top: var(--page-bottom-border-narrow, var(--page-bottom-border-wide, var(--page-bottom-border-full, 0))) var(--page-bottom-border-style) var(--page-bottom-border-color);
+    }
+
+    @bottom-right {
+        content: var(--page-bottom-right-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-top: var(--page-bottom-border-wide, var(--page-bottom-border-full, 0)) var(--page-bottom-border-style) var(--page-bottom-border-color);
+    }
+
+    @bottom-right-corner {
+        content: '';
+        border-top: var(--page-bottom-border-full, 0) var(--page-bottom-border-style) var(--page-bottom-border-color);
+    }
+}
+
+/* First page layout with margin boxes */
+@page :first {
+    size: var(--page-size);
+    margin: var(--page-margin);
+    padding-top: var(--page-padding-top);
+    padding-bottom: var(--page-padding-bottom);
+
+    /* Top margin boxes */
+    @top-left-corner {
+        content: '';
+        border-bottom: var(--page1-top-border-full, 0) var(--page1-top-border-style) var(--page1-top-border-color);
+    }
+
+    @top-left {
+        content: var(--page1-top-left-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-bottom: var(--page1-top-border-wide, var(--page1-top-border-full, 0)) var(--page1-top-border-style) var(--page1-top-border-color);
+    }
+
+    @top-center {
+        content: var(--page1-top-center-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-bottom: var(--page1-top-border-narrow, var(--page1-top-border-wide, var(--page1-top-border-full, 0))) var(--page1-top-border-style) var(--page1-top-border-color);
+    }
+
+    @top-right {
+        content: var(--page1-top-right-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-bottom: var(--page1-top-border-wide, var(--page1-top-border-full, 0)) var(--page1-top-border-style) var(--page1-top-border-color);
+    }
+
+    @top-right-corner {
+        content: '';
+        border-bottom: var(--page1-top-border-full, 0) var(--page1-top-border-style) var(--page1-top-border-color);
+    }
+
+    /* Left margin boxes */
+    @left-top {
+        content: '';
+    }
+
+    @left-middle {
+        content: '';
+    }
+
+    @left-bottom {
+        content: '';
+    }
+
+    /* Right margin boxes */
+    @right-top {
+        content: '';
+    }
+
+    @right-middle {
+        content: '';
+    }
+
+    @right-bottom {
+        content: '';
+    }
+
+    /* Bottom margin boxes */
+    @bottom-left-corner {
+        content: '';
+        border-top: var(--page1-bottom-border-full, 0) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
+    }
+
+    @bottom-left {
+        content: var(--page1-bottom-left-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-top: var(--page1-bottom-border-wide, var(--page1-bottom-border-full, 0)) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
+    }
+
+    @bottom-center {
+        content: var(--page1-bottom-center-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-top: var(--page1-bottom-border-narrow, var(--page1-bottom-border-wide, var(--page1-bottom-border-full, 0))) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
+    }
+
+    @bottom-right {
+        content: var(--page1-bottom-right-content);
+        font-family: var(--page-margin-font-family);
+        font-size: var(--page-margin-font-size);
+        color: var(--page-margin-color);
+        line-height: var(--page-margin-line-height);
+        padding: var(--page-margin-padding);
+        border-top: var(--page1-bottom-border-wide, var(--page1-bottom-border-full, 0)) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
+    }
+
+    @bottom-right-corner {
+        content: '';
+        border-top: var(--page1-bottom-border-full, 0) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
+    }
+}
