@@ -1,0 +1,82 @@
+/* User Agent UI Tokens
+ *
+ * Browser UI normalization tokens and styles for cross-browser
+ * consistency. Includes scrollbars, form controls, and other
+ * browser-specific interface elements.
+ */
+
+:root {
+    /* Scrollbar */
+    --scrollbar-width-thin: 4px;
+    --scrollbar-width-medium: 8px;
+    --scrollbar-width-thick: 12px;
+    --scrollbar-width: var(--scrollbar-width-thin);
+    --scrollbar-track-background: transparent;
+    --scrollbar-track-background-dark: transparent;
+    --scrollbar-thumb-background: var(--color-gray-300);
+    --scrollbar-thumb-background-dark: var(--color-gray-600);
+    --scrollbar-thumb-hover-background: var(--color-accent);
+    --scrollbar-thumb-hover-background-dark: var(--color-accent-dark);
+    --scrollbar-thumb-active-background: var(--color-accent);
+    --scrollbar-thumb-active-background-dark: var(--color-accent-dark);
+    --scrollbar-border-radius: var(--radius-full);
+
+    /* Focus ring */
+    --focus-ring-color: var(--color-accent);
+    --focus-ring-color-dark: var(--color-accent-dark);
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --scrollbar-track-background: var(--scrollbar-track-background-dark);
+        --scrollbar-thumb-background: var(--scrollbar-thumb-background-dark);
+        --scrollbar-thumb-hover-background: var(--scrollbar-thumb-hover-background-dark);
+        --scrollbar-thumb-active-background: var(--scrollbar-thumb-active-background-dark);
+        --focus-ring-color: var(--focus-ring-color-dark);
+    }
+}
+
+:root[data-color-scheme="dark"] {
+    --scrollbar-track-background: var(--scrollbar-track-background-dark);
+    --scrollbar-thumb-background: var(--scrollbar-thumb-background-dark);
+    --scrollbar-thumb-hover-background: var(--scrollbar-thumb-hover-background-dark);
+    --scrollbar-thumb-active-background: var(--scrollbar-thumb-active-background-dark);
+
+    --focus-ring-color: var(--focus-ring-color-dark);
+}
+
+html {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-background);
+    border-radius: var(--scrollbar-border-radius);
+    transition: background-color var(--transition-duration-fast) ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-background);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-thumb-active-background);
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--scrollbar-track-background);
+}

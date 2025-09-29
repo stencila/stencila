@@ -110,14 +110,6 @@
     --text-color-link-hover: var(--color-blue-700);
     --text-color-link-hover-dark: var(--color-blue-300);
 
-    /* Interactive States with dark variants */
-    --focus-ring-color: var(--color-blue-500);
-    --focus-ring-color-dark: var(--color-blue-400);
-    --focus-ring-width: 2px;
-    --focus-ring-offset: 2px;
-    --hover-opacity: 0.8;
-    --active-scale: 0.98;
-    --disabled-opacity: 0.5;
     --transition-duration-fast: 150ms;
     --transition-duration-base: 250ms;
     --transition-duration-slow: 350ms;
@@ -164,8 +156,6 @@
         --color-warning-muted: var(--color-warning-muted-dark);
         --color-error: var(--color-error-dark);
         --color-error-muted: var(--color-error-muted-dark);
-
-        --focus-ring-color: var(--focus-ring-color-dark);
     }
 }
 
@@ -200,8 +190,6 @@
     --color-warning-muted: var(--color-warning-muted-dark);
     --color-error: var(--color-error-dark);
     --color-error-muted: var(--color-error-muted-dark);
-
-    --focus-ring-color: var(--focus-ring-color-dark);
 }
 
 /* Responsive Application - Tablet Breakpoint (768px) */

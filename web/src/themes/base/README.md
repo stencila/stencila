@@ -31,6 +31,11 @@ The Semantic tokens are the main public API for theme developers. They should pr
 }
 ```
 
+**Additional specialized token files**:
+
+- **Page layout tokens** (`tokens-page.css`): Defines tokens for paged media layout (@page rules), including page margins, headers, footers, and print-specific page styling. These tokens control how documents appear when printed or exported to PDF.
+- **User agent tokens** (`tokens-ua.css`): Provides browser UI normalizations for cross-browser consistency. Currently includes scrollbar styling tokens, with potential for future additions like form controls, focus rings, and selection colors.
+
 ## Structure of files
 
 Most of the files in this folder are for node type specific styles (e.g. `admonition.css` and `headings.css`). These files should follow the following structure:
