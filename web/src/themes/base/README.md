@@ -6,9 +6,9 @@ The design system uses a three-tier token architecture that separates concerns a
 
 **Primitives** (`tokens-primitive.css`) → **Semantics** (`tokens-semantic.css`) → **Components**
 
-- **Primitive tokens**: Raw foundation values (colors, fonts, spacing) with no variants. Override with caution only for system-wide changes (e.g., custom web fonts).
-- **Semantic tokens**: Theme API that references primitives using `var()`. These provide automatic dark mode and responsive behavior through suffix variants (-dark, -tablet, -mobile).
-- **Component usage**: CSS modules use semantic tokens to get automatic theming behavior.
+- **Primitive tokens**: Raw foundation values like `--space-4: 1rem`, `--color-gray-800: #262626`, `--font-family-serif`. No variants or contextual meaning. Override with caution only for system-wide changes (e.g., custom web fonts).
+- **Semantic tokens**: Meaningful aliases like `--content-spacing: var(--space-8)`, `--text-color-primary: var(--color-gray-800)` that reference primitives using `var()`. These provide automatic dark mode and responsive behavior through suffix variants (-dark, -tablet, -mobile).
+- **Component tokens**: Component-specific tokens like `--heading-spacing-top: calc(var(--content-spacing) * 1.5)` that reference semantic tokens to inherit automatic theming behavior.
 
 The Semantic tokens are the main public API for theme developers. They should prefer overriding semantic tokens for targeted customization. Override primitives only when you need system-wide changes that affect many tokens at once.
 
@@ -31,12 +31,52 @@ The Semantic tokens are the main public API for theme developers. They should pr
 }
 ```
 
+## Token Relationships and Best Practices
+
+When defining component tokens, consider their relationship to semantic tokens for better integration and automatic responsive behavior:
+
+**Spacing tokens** should typically base themselves on `--content-spacing` or its multiples to ensure automatic responsive scaling:
+
+```css
+/* ✅ Good - Inherits responsive behavior automatically */
+:root {
+  --component-spacing-top: calc(var(--content-spacing) * 1.5);
+}
+
+/* ⚠️ Consider carefully - May need manual responsive variants */
+:root {
+  --component-spacing-top: var(--space-12);
+  --component-spacing-top-tablet: var(--space-8);
+  --component-spacing-top-mobile: var(--space-6);
+}
+```
+
+**Color tokens** should reference semantic color tokens that already include dark variants:
+
+```css
+/* ✅ Good - Gets dark mode automatically */
+:root {
+  --component-background: var(--surface-foreground);
+  --component-text: var(--text-color-primary);
+}
+```
+
+**Typography tokens** should use semantic font and line-height tokens for consistency:
+
+```css
+/* ✅ Good - Follows document typography system */
+:root {
+  --component-font-family: var(--text-font-family);
+  --component-line-height: var(--line-height-xs);
+}
+```
+
 **Additional specialized token files**:
 
 - **Page layout tokens** (`tokens-page.css`): Defines tokens for paged media layout (@page rules), including page margins, headers, footers, and print-specific page styling. These tokens control how documents appear when printed or exported to PDF.
 - **User agent tokens** (`tokens-ua.css`): Provides browser UI normalizations for cross-browser consistency. Currently includes scrollbar styling tokens, with potential for future additions like form controls, focus rings, and selection colors.
 
-## Structure of files
+## Structure of node-specific CSS files
 
 Most of the files in this folder are for node type specific styles (e.g. `admonition.css` and `headings.css`). These files should follow the following structure:
 
@@ -80,7 +120,19 @@ The duplication between the media query and attribute selector is necessary due 
 
 ### 4. Mobile and tablet token application
 
-If responsive variant tokens were defined, apply them using CSS fallbacks to create a cascade from desktop to tablet to mobile:
+Responsive variants are optional and should be used judiciously. Consider whether your component needs explicit responsive behavior or can inherit it from semantic tokens:
+
+**When to use explicit responsive variants:**
+- Component-specific adjustments that don't scale proportionally with document spacing
+- Override cases where automatic scaling doesn't work well (e.g., mobile h1 margins)
+- Typography that needs different scaling than the document default
+
+**When to rely on semantic token inheritance:**
+- Spacing that should scale with document rhythm (base on `--content-spacing`)
+- Typography that follows document-wide responsive adjustments
+- Colors and other properties that don't need responsive changes
+
+If responsive variant tokens are defined, apply them using CSS fallbacks to create a cascade from desktop to tablet to mobile:
 
 ```css
 /* Define responsive variants */
@@ -157,10 +209,48 @@ stencila-heading[level="1"] {
 
 Instead, use the semantic HTML element that corresponds to the attribute (e.g., `stencila-heading h1` rather than `stencila-heading[level="1"]`).
 
-## Notes
+#### Special Cases and Overrides
 
-- When Stencila generates HTML, it always creates a custom element for the node type (e.g. `<stencila-heading>`) which have attributes and slots containing metadata about that node and which wrap the related semantic HTML element (e.g. `h1`, `h2`). This creates a heavily nested structure which you should be aware of when writing CSS rules.
+When adding responsive overrides that deviate from automatic scaling or token inheritance, always document why they exist:
 
-- If you add CSS rules that aim for normalization across browsers, add a comment `/* Browser normalization */`. This helps other developers understand why a particular rule exists.
+```css
+/* Mobile breakpoint (640px) - Special case for h1 top margin
+ * Override from automatic 1.5rem (calc(1rem * 1.5)) to 1rem for better mobile spacing */
+@media (max-width: 640px) {
+    stencila-heading {
+        h1 {
+            margin-top: var(--space-4);
+        }
+    }
+}
+```
 
-- Use CSS custom properties (design tokens) consistently. Token names should follow the pattern `--component-property-modifier` where applicable.
+If you add CSS rules that aim for normalization across browsers, add a comment `/* Browser normalization */`. This helps other developers understand why a particular rule exists.
+
+## Documentation
+
+The theming system and its design tokens are documented in `docs/themes`. Node-specific design tokens have their own documentation file e.g. `paragraph.smd`. Follow the structure and style of these when creating new documentation.
+
+Most of the documentation file include examples to demonstrate token usage. When writing these:
+
+- **Keep examples focused**: Each example should demonstrate specific token usage patterns rather than complex layouts
+- **Prefer design tokens over raw values**: Use `var(--space-10)` instead of `2.5rem`, `var(--font-size-lg)` instead of `1.125rem`
+- **Pair CSS with HTML examples**: Each pattern should include a CSS code block showing the tokens with syntax highlighting, immediately followed by an HTML raw block with exactly matching token values applied via inline styles
+- **Use inline styles for demonstration**: In the HTML, apply token overrides via `style` attributes to show customization clearly and make sure these match the values in the preceding CSS block.
+- **Use proper Stencila structure**: Include the correct custom element wrappers in the HTML (e.g., `<stencila-paragraph>`) with appropriate slots (e.g., `<p slot="content">`)
+- **Test token combinations**: Ensure the token values used in examples actually work together harmoniously
+
+## Component CSS Checklist
+
+Before committing a component CSS file, verify:
+
+- [ ] All referenced tokens exist in primitive or semantic token layers
+- [ ] Component tokens follow `--component-property-modifier` naming convention
+- [ ] Dark mode variants are defined and applied where needed using the standard pattern
+- [ ] Responsive behavior is either inherited from semantic tokens or explicitly defined with variants
+- [ ] Special cases and responsive overrides are documented with explanatory comments
+- [ ] Browser normalizations are marked with `/* Browser normalization */` comments
+- [ ] File follows the standard structure: header comment, component tokens, dark mode rules, responsive rules
+- [ ] Component tokens leverage semantic tokens where possible for automatic theming behavior
+- [ ] Spacing tokens are based on `--content-spacing` unless component-specific spacing is required
+- [ ] Documentation exists in `docs/themes/` following the established pattern and is accurate with respect to the implementation
