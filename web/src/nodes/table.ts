@@ -54,11 +54,9 @@ export class Table extends Entity {
   private renderContent() {
     return html`
       <slot name="id"></slot>
-      <slot name="caption"></slot>
-      <div class="overflow-x-auto">
-        <slot name="rows"></slot>
-        <slot name="images"></slot>
-      </div>
+      <slot name="rows"></slot>
+      <slot name="images"></slot>
+      <slot name="notes"></slot>
     `
   }
 }

@@ -126,16 +126,26 @@ impl DomCodec for Table {
                 .exit_slot();
         }
 
-        // Strictly, <caption> should be within <table> but slots need to be direct children of web components.
-        // Furthermore, we use a <div> because the browser will unwrap a <caption> if not within a <table>.
-        // See https://github.com/stencila/stencila/pull/2240#issuecomment-2136358172
-        if self.label.is_some() || self.caption.is_some() {
-            context.push_slot_fn("div", "caption", |context| {
-                caption_to_dom(context, "table-label", "Table", &self.label, &self.caption)
-            });
-        }
+        context.push_slot_fn("table", "rows", |context| {
+            if (self.label.is_some() && matches!(self.label_automatically, Some(false)))
+                || self.caption.is_some()
+            {
+                // The HTML spec requires <caption> to be within <table>. But slotted elements must be direct children
+                // of the custom element (in this case, <stencila-table>). For those reasons, the caption is not
+                // assigned to a slot
+                context.enter_elem("caption");
+                caption_to_dom(
+                    context,
+                    "table-label",
+                    "Table",
+                    &self.label,
+                    &self.caption,
+                );
+                context.exit_elem();
+            }
 
-        context.push_slot_fn("table", "rows", |context| self.rows.to_dom(context));
+            self.rows.to_dom(context)
+        });
 
         if self.rows.is_empty()
             && let Some(images) = &self.options.images
