@@ -31,20 +31,26 @@ impl DomCodec for Figure {
                 .exit_slot();
         }
 
-        context.push_slot_fn("figure", "content", |context| self.content.to_dom(context));
+        context.push_slot_fn("figure", "content", |context| {
+            self.content.to_dom(context);
 
-        // Strictly, <figcaption> should be within <figure> but slots need to be direct children of web components.
-        if self.label.is_some() || self.caption.is_some() {
-            context.push_slot_fn("figcaption", "caption", |context| {
+            if (self.label.is_some() && matches!(self.label_automatically, Some(false)))
+                || self.caption.is_some()
+            {
+                // The HTML spec requires <figcaption> to be within <figure>. But slotted elements must be direct children
+                // of the custom element (in this case, <stencila-figure>). For those reasons, the caption is not
+                // assigned to a slot
+                context.enter_elem("figcaption");
                 caption_to_dom(
                     context,
                     "figure-label",
                     "Figure",
                     &self.label,
                     &self.caption,
-                )
-            });
-        }
+                );
+                context.exit_elem();
+            }
+        });
 
         context.exit_node();
     }

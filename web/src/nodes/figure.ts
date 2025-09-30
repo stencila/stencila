@@ -54,7 +54,6 @@ export class Figure extends Entity {
     return html`
       <slot name="id"></slot>
       <slot name="content"></slot>
-      <slot name="caption"></slot>
     `
   }
 }
