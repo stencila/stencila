@@ -29,4 +29,5 @@
 :root {
     --label-font-weight: var(--font-weight-bold);
     --label-font-style: normal;
+    --label-color: var(--text-color-primary);
 }

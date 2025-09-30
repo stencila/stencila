@@ -1,0 +1,47 @@
+/**
+ * Caption styles
+ *
+ * Captions are a property of `Figure` and `Table` nodes. They provide
+ * descriptive text that explains or provides context for the content.
+ *
+ * When generating HTML for these node types, Stencila will create a
+ * <figcaption> element for figures and a caption section for tables.
+ * These elements contain the caption text along with labels.
+ *
+ * For `Figure` nodes, captions appear within the <figcaption> element:
+ *
+ *   <figcaption>
+ *     <stencila-paragraph>
+ *       <p>
+ *         <span class="figure-label">Figure 1</span>: Caption text here.
+ *       </p>
+ *     </stencila-paragraph>
+ *   </figcaption>
+ *
+ * For `Table` nodes, captions appear in a similar structure with table-label:
+ *
+ *   <span class="table-label">Table 1</span>: Caption text here.
+ *
+ * This CSS file defines base design tokens for captions, which are used as
+ * overridable defaults in node type specific files such as `figures.css` and
+ * `tables.css`.
+ */
+
+:root {
+    --caption-font-family: var(--font-family-serif);
+    --caption-font-size: var(--font-size-sm);
+    --caption-color: var(--text-color-secondary);
+    --caption-color-dark: var(--text-color-secondary-dark);
+}
+
+/* Dark Mode Application - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --caption-color: var(--caption-color-dark);
+    }
+}
+
+/* Dark Mode Application - Explicit User Choice */
+:root[data-color-scheme="dark"] {
+    --caption-color: var(--caption-color-dark);
+}

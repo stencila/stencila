@@ -1,0 +1,273 @@
+---
+title: Figures
+description: |
+  Design tokens and examples for customizing figures, captions, and labels in Stencila themes.
+---
+
+# Tokens
+
+## Spacing Tokens
+
+Control vertical separation and layout spacing for figures.
+
+| Token                     | Description                                  | Default Value            |
+| ------------------------- | -------------------------------------------- | ------------------------ |
+| `--figure-spacing-top`    | Top margin (automatic responsive scaling)    | `var(--content-spacing)` |
+| `--figure-spacing-bottom` | Bottom margin (automatic responsive scaling) | `var(--content-spacing)` |
+
+## Container Styling Tokens
+
+Optional visual isolation through backgrounds and borders (defaults to minimal appearance).
+
+| Token                        | Description                            | Default Value                     |
+| ---------------------------- | -------------------------------------- | --------------------------------- |
+| `--figure-background`        | Background color                       | `transparent`                     |
+| `--figure-background-dark`   | Background color for dark mode         | `transparent`                     |
+| `--figure-border-width`      | Border thickness                       | `0`                               |
+| `--figure-border-color`      | Border color                           | `var(--border-color-subtle)`      |
+| `--figure-border-color-dark` | Border color for dark mode             | `var(--border-color-subtle-dark)` |
+| `--figure-border-radius`     | Corner rounding                        | `var(--border-radius-default)`    |
+| `--figure-padding`           | Internal padding around figure content | `0`                               |
+
+## Content Layout Tokens
+
+Control figure content positioning and width constraints.
+
+| Token                                | Description                      | Default Value |
+| ------------------------------------ | -------------------------------- | ------------- |
+| `--figure-content-display`           | Display type for figure content  | `block`       |
+| `--figure-content-max-width`         | Maximum width for figure content | `100%`        |
+| `--figure-content-margin-horizontal` | Horizontal margins for centering | `auto`        |
+
+## Caption Layout and Typography Tokens
+
+Layout and typography styling for figure captions (inherits from caption and label tokens).
+
+| Token                          | Description                                   | Default Value                        |
+| ------------------------------ | --------------------------------------------- | ------------------------------------ |
+| `--figure-caption-font-family` | Font family for captions                      | `var(--caption-font-family)`         |
+| `--figure-caption-font-size`   | Font size for captions                        | `var(--caption-font-size)`           |
+| `--figure-caption-color`       | Text color (automatic dark mode)              | `var(--caption-color)`               |
+| `--figure-caption-spacing-top` | Gap between image and caption                 | `calc(var(--content-spacing) * 0.5)` |
+| `--figure-caption-line-height` | Line height for caption text                  | `var(--line-height-sm)`              |
+| `--figure-caption-text-align`  | Text alignment (left, center, right, justify) | `left`                               |
+| `--figure-caption-max-width`   | Maximum width for caption text                | `100%`                               |
+| `--figure-label-font-weight`   | Font weight for figure labels                 | `var(--label-font-weight)`           |
+| `--figure-label-font-style`    | Font style for figure labels                  | `var(--label-font-style)`            |
+
+# Usage
+
+## Figure Structure
+
+Figures combine visual content (images, charts, diagrams) with descriptive captions. The theming system provides:
+
+**Vertical spacing**: Figures use `--figure-spacing-top` and `--figure-spacing-bottom` based on `--content-spacing`, ensuring automatic responsive and print scaling without explicit media queries.
+
+**Optional isolation**: By default, figures have transparent backgrounds and no borders for a clean, minimal appearance. Theme authors can add visual separation through `--figure-background` and `--figure-border-*` tokens.
+
+**Caption hierarchy**: Captions use smaller font sizes and secondary text colors to create clear visual hierarchy. Labels (e.g., "Figure 1") receive bold or italic emphasis through semantic label tokens.
+
+**Responsive behavior**: All spacing tokens automatically scale with document rhythm through `--content-spacing` calculations, providing proper proportions across desktop, tablet, mobile, and print without manual breakpoints.
+
+## Caption Layout
+
+Caption styling supports both single and multi-paragraph captions:
+
+**First paragraph**: No top margin, aligning with the figcaption spacing from the image.
+
+**Subsequent paragraphs**: Use `--figure-caption-spacing-top` to maintain consistent spacing, similar to the pattern used in list items.
+
+**Typography**: Captions inherit from semantic caption tokens (`--caption-font-family`, `--caption-font-size`, `--caption-color`) which provide automatic dark mode support.
+
+## Integration with Semantic Tokens
+
+Figures integrate with the design system's token architecture:
+
+- **Automatic responsive behavior**: Spacing uses `--content-spacing` calculations which provide desktop, tablet, mobile, and print scaling automatically
+- **Surface integration**: Optional backgrounds use `--surface-*` tokens for consistent layering
+- **Border consistency**: Border colors reference semantic `--border-color-subtle` ensuring visual harmony
+- **Caption integration**: Caption tokens provide shared styling with table captions for consistency
+
+## Customization Patterns
+
+**Minimal figures** (default): Transparent background, no borders, just spacing and captions.
+
+**Isolated figures**: Add subtle backgrounds and borders to create visual containers for important figures.
+
+**Centered captions**: Change `--figure-caption-text-align` to `center` for symmetrical layouts.
+
+**Compact figures**: Reduce spacing tokens for documentation or high-density layouts.
+
+# Examples
+
+## Default Figures
+
+Standard figure styling with automatic responsive spacing and dark mode support:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+::: figure
+
+An example figure demonstrating default styling with a placeholder image and caption.
+
+![](https://placehold.co/600x400/93c5fd/ddd?text=1)
+
+:::
+
+:::
+
+## Isolated Figures
+
+Figures with background and border for enhanced visual separation:
+
+```css
+:root {
+  --figure-background: var(--surface-sunken);
+  --figure-border-width: 1px;
+  --figure-border-color: var(--border-color-default);
+  --figure-padding: var(--space-4);
+  --figure-border-radius: var(--radius-lg);
+}
+```
+
+::: style --figure-background: var(--surface-sunken); --figure-border-width: 1px; --figure-border-color: var(--border-color-default); --figure-padding: var(--space-4); --figure-border-radius: var(--radius-lg);
+
+::: figure
+
+A figure with background, border, and padding to create a distinct visual container.
+
+![](https://placehold.co/600x400/93c5fd/ddd?text=2)
+
+:::
+
+:::
+
+## Scholarly Article Figures
+
+Enhanced spacing and typography for scholarly documents:
+
+```css
+:root {
+  --figure-spacing-top: calc(var(--content-spacing) * 2);
+  --figure-spacing-bottom: calc(var(--content-spacing) * 2);
+  --figure-caption-spacing-top: var(--content-spacing);
+  --figure-caption-font-size: var(--font-size-xs);
+  --figure-caption-line-height: var(--line-height-md);
+  --figure-caption-text-align: justify;
+}
+```
+
+::: style --figure-spacing-top: calc(var(--content-spacing) \* 2); --figure-spacing-bottom: calc(var(--content-spacing) \* 2); --figure-caption-spacing-top: var(--content-spacing); --figure-caption-font-size: var(--font-size-xs); --figure-caption-line-height: var(--line-height-md); --figure-caption-text-align: justify;
+
+::: figure
+
+Scholarly figures benefit from increased vertical spacing, larger gaps between image and caption, smaller caption font sizes, and justified text alignment for a formal academic appearance.
+
+![](https://placehold.co/600x400/93c5fd/ddd?text=3)
+
+:::
+
+:::
+
+## Centered Captions
+
+Symmetrical layout with centered caption text:
+
+```css
+:root {
+  --figure-caption-text-align: center;
+  --figure-caption-spacing-top: var(--space-3);
+}
+```
+
+::: style --figure-caption-text-align: center; --figure-caption-spacing-top: var(--space-3);
+
+::: figure
+
+Centered captions work well for symmetrical images and formal layouts where the caption should be balanced visually beneath the figure content.
+
+![](https://placehold.co/600x400/93c5fd/ddd?text=4)
+
+:::
+
+:::
+
+## Compact Figures
+
+Reduced spacing for documentation or high-density layouts:
+
+```css
+:root {
+  --figure-spacing-top: var(--space-4);
+  --figure-spacing-bottom: var(--space-4);
+  --figure-caption-spacing-top: var(--space-2);
+  --figure-caption-font-family: var(--font-family-sans);
+  --figure-caption-font-size: var(--font-size-xs);
+  --figure-caption-line-height: var(--line-height-xs);
+}
+```
+
+::: style --figure-spacing-top: var(--space-4); --figure-spacing-bottom: var(--space-4); --figure-caption-spacing-top: var(--space-2); --figure-caption-font-family: var(--font-family-sans); --figure-caption-font-size: var(--font-size-xs); --figure-caption-line-height: var(--line-height-xs);
+
+::: figure
+
+Compact figures with minimal spacing, smaller sans-serif captions for technical documentation.
+
+![](https://placehold.co/600x400/93c5fd/ddd?text=5)
+
+:::
+
+:::
+
+## Multi-Paragraph Captions
+
+Captions can contain multiple paragraphs with proper spacing. Using background and borders makes it clear that all paragraphs belong to the figure:
+
+```css
+:root {
+  --figure-background: var(--surface-sunken);
+  --figure-border-width: 1px;
+  --figure-border-color: var(--border-color-default);
+  --figure-padding: var(--space-4);
+  --figure-caption-line-height: var(--line-height-md);
+  --figure-caption-spacing-top: var(--space-4);
+}
+```
+
+::: style --figure-background: var(--surface-sunken); --figure-border-width: 1px; --figure-border-color: var(--border-color-default); --figure-padding: var(--space-4); --figure-caption-line-height: var(--line-height-md); --figure-caption-spacing-top: var(--space-4);
+
+::: figure
+
+This figure demonstrates multi-paragraph captions. The first paragraph introduces the figure content and provides context.
+
+Subsequent paragraphs maintain consistent spacing through the `--figure-caption-spacing-top` token, ensuring proper visual hierarchy within the caption while remaining distinct from the image above. The background and border make it clear that both paragraphs are part of the figure.
+
+![](https://placehold.co/600x400/93c5fd/ddd?text=6)
+
+:::
+
+:::
+
+# Tips
+
+**Leverage automatic responsive behavior**: Figure spacing tokens base on `--content-spacing`, so figures automatically scale for mobile, tablet, and print without explicit media queries. When you adjust document spacing, figures adapt proportionally.
+
+**Choose appropriate isolation**: Default transparent backgrounds work well for most content, creating clean, minimal layouts. Add backgrounds and borders through `--figure-background` and `--figure-border-*` tokens when you need visual separation or want to group related figures.
+
+**Caption alignment matters**: Left-aligned captions (default) work best for multi-paragraph captions and asymmetric layouts. Center-aligned captions suit symmetrical images and formal presentations. Justified alignment works well for scholarly articles with longer captions.
+
+**Maintain label consistency**: Figure labels automatically inherit from semantic label tokens (`--label-font-weight`, `--label-font-style`), ensuring visual consistency with table and equation labels throughout your document.
+
+**Test multi-paragraph captions**: When using backgrounds and borders, verify that multi-paragraph captions clearly belong to the figure. The visual container helps readers understand the caption hierarchy.
+
+**Consider caption width**: The `--figure-caption-max-width` token allows you to constrain caption width independently from figure content width, which can improve readability for wide images with lengthy captions.
+
+**Dark mode integration**: Figure backgrounds and borders automatically adapt to dark themes through semantic token variants. When customizing these tokens, define both light and dark variants for optimal appearance in both modes.
+
+**Accessibility**: Ensure sufficient contrast between caption text color and backgrounds, particularly when using custom `--figure-background` values. Caption colors inherit from semantic caption tokens which provide automatic dark mode support.

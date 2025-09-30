@@ -9,14 +9,14 @@
  *         <stencila-image-object id=xxx depth=N+1 ancestors=Parent.Figure content-url='https://example.org/image.jpg'>
  *             <img src='https://example.org/image.jpg'/>
  *         </stencila-image-object>
+ *         <figcaption>
+ *             <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.Figure>
+ *                 <p slot=content>
+ *                     <span class=figure-label>Figure 2</span>: <stencila-text id=xxx depth=N+2 ancestors=Parent.Figure.Paragraph>Caption text.</stencila-text>
+ *                 </p>
+ *             </stencila-paragraph>
+ *         </figcaption>
  *     </figure>
- *     <figcaption slot=caption>
- *         <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.Figure>
- *             <p slot=content>
- *                 <span class=figure-label>Figure 2</span>:<stencila-text id=xxx depth=N+2 ancestors=Parent.Figure.Paragraph>Caption text.</stencila-text>
- *             </p>
- *         </stencila-paragraph>
- *     </figcaption>
  * </stencila-figure>
  *
  * Key Attributes:
@@ -24,98 +24,120 @@
  * - label-automatically: Boolean indicating if label was auto-generated
  *
  * Slots:
- * - content: Contains the figure element with media content
- * - caption: Optional figcaption with descriptive text
+ * - content: Contains the figure element with media content and optional caption
  *
  * Notes:
  * - Figures can contain various media objects (images, videos, etc.)
- * - Caption includes a figure label (e.g., "Figure 2")
+ * - Caption includes a figure label styled with --figure-label-* tokens
  * - Labels can be automatically generated or manually specified
+ * - Container styling (background, border) defaults to transparent/minimal
+ *   but can be customized for visual isolation similar to quote blocks
  *
  * Examples: examples/conversion/figure/figure.dom.html
+ * Documentation: docs/themes/figures.smd
  */
 
 :root {
-    --figure-label-font-weight: var(--label-font-weight);
+    /* Spacing tokens - vertical separation from surrounding content */
+    --figure-spacing-top: var(--content-spacing);
+    --figure-spacing-bottom: var(--content-spacing);
+
+    /* Container styling - optional visual isolation */
+    --figure-background: transparent;
+    --figure-background-dark: transparent;
+
+    --figure-border-width: 0;
+    --figure-border-color: var(--border-color-subtle);
+    --figure-border-color-dark: var(--border-color-subtle-dark);
+    --figure-border-radius: var(--border-radius-default);
+
+    --figure-padding: 0;
+
+    /* Content layout - positioning and constraints */
+    --figure-content-display: block;
+    --figure-content-max-width: 100%;
+    --figure-content-margin-horizontal: auto;
+
+    /* Caption typography - inherits from caption tokens */
     --figure-caption-font-family: var(--caption-font-family);
     --figure-caption-font-size: var(--caption-font-size);
     --figure-caption-color: var(--caption-color);
-    --figure-caption-margin-top: var(--space-2);
-    --figure-margin-vertical-xs: var(--space-4);
-    --figure-margin-vertical-sm: var(--space-6);
-    --figure-margin-vertical-md: var(--space-8);
-    --figure-margin-vertical-lg: var(--space-12);
-    --figure-border-radius: var(--radius-md);
+
+    /* Caption layout - spacing and text formatting */
+    --figure-caption-spacing-top: calc(var(--content-spacing) * 0.5);
+    --figure-caption-line-height: var(--line-height-sm);
+    --figure-caption-text-align: left;
+    --figure-caption-max-width: 100%;
+
+    /* Label styling - inherits from semantic label tokens */
+    --figure-label-font-weight: var(--label-font-weight);
+    --figure-label-font-style: var(--label-font-style);
+}
+
+/* Dark Mode Application - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --figure-background: var(--figure-background-dark);
+        --figure-border-color: var(--figure-border-color-dark);
+    }
+}
+
+/* Dark Mode Application - Explicit User Choice */
+:root[data-color-scheme="dark"] {
+    --figure-background: var(--figure-background-dark);
+    --figure-border-color: var(--figure-border-color-dark);
 }
 
 stencila-figure {
     display: block;
-    margin: 4rem 0;
-    border-radius: var(--figure-border-radius);
 
     figure {
         /* Browser normalization */
         margin: 0;
+
+        /* Vertical spacing */
+        margin-top: var(--figure-spacing-top);
+        margin-bottom: var(--figure-spacing-bottom);
+
+        /* Optional container styling */
+        background-color: var(--figure-background);
+        border: var(--figure-border-width) solid var(--figure-border-color);
+        border-radius: var(--figure-border-radius);
+        padding: var(--figure-padding);
+
+        /* Content layout */
+        display: var(--figure-content-display);
+        max-width: var(--figure-content-max-width);
+        margin-left: var(--figure-content-margin-horizontal);
+        margin-right: var(--figure-content-margin-horizontal);
     }
 
     figcaption {
-        margin-top: var(--figure-caption-margin-top);
-    }
+        /* Caption spacing and layout */
+        margin-top: var(--figure-caption-spacing-top);
+        max-width: var(--figure-caption-max-width);
 
-    figcaption p {
-        max-width: none;
-        text-align: justify;
-        line-height: 150%;
-
+        /* Caption typography */
         font-family: var(--figure-caption-font-family);
         font-size: var(--figure-caption-font-size);
         color: var(--figure-caption-color);
-    }
+        line-height: var(--figure-caption-line-height);
+        text-align: var(--figure-caption-text-align);
 
-    .figure-label {
-        font-weight: var(--figure-label-font-weight);
-    }
-}
+        /* Paragraph spacing: first paragraph aligns with figcaption,
+         * subsequent paragraphs use caption spacing to maintain visual hierarchy */
+        stencila-paragraph:first-child p {
+            margin-top: 0;
+        }
 
-@media print {
-    /* Scale large images to fit on page while preserving natural size */
-    stencila-figure img,
-    stencila-figure svg,
-    stencila-figure canvas {
-        /* Use a maximum height to leave space on a page for the caption */
-        max-height: 80% !important;
-        /* Don't stretch small images - only constrain large ones */
-        max-width: 100% !important;
-        height: auto !important;
-        width: auto !important;
-        object-fit: contain !important;
-        /* Center images that are smaller than page width */
-        display: block !important;
-        margin: 0 auto !important;
-    }
+        stencila-paragraph:not(:first-child) p {
+            margin-top: var(--figure-caption-spacing-top);
+        }
 
-    /* Override global img rule to prevent stretching in figures */
-    stencila-figure img {
-        width: auto !important;
-    }
-
-    /* Ensure figures don't break across pages and float to bottom */
-    stencila-figure {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        float: bottom;
-    }
-
-    /* Compact captions for print */
-    stencila-figure figcaption p {
-        line-height: 1.2 !important;
-        margin-top: var(--content-spacing) !important;
-        margin-bottom: 0 !important;
-        font-size: 9pt !important;
-    }
-
-    stencila-figure figcaption {
-        margin-top: var(--content-spacing) !important;
-        margin-bottom: var(--content-spacing) !important;
+        /* Label styling within caption */
+        .figure-label {
+            font-weight: var(--figure-label-font-weight);
+            font-style: var(--figure-label-font-style);
+        }
     }
 }
