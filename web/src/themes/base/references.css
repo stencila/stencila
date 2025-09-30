@@ -4,25 +4,76 @@
  * Purpose: Bibliographic references within documents.
  *
  * DOM Structure:
- * <stencila-reference id=xxx depth=N ancestors=Parent>
- *     <span slot=content>
- *         Reference content
- *     </span>
+ * <stencila-reference id=xxx depth=N ancestors=Article.Section workType=Article>
+ *     <p slot=content>
+ *         <!-- Citation style-specific HTML representation of reference -->
+ *         <!-- e.g., "Smith, J. (2024). Article title. Journal Name, 12(3), 45-67." -->
+ *     </p>
  * </stencila-reference>
  *
  * Key Attributes:
- * - No specific attributes beyond standard id, depth, ancestors
+ * - workType: Type of creative work (Article, Book, Dataset, etc.)
+ * - id, depth, ancestors: Standard Stencila attributes
  *
  * Slots:
- * - content: Contains the reference text
+ * - content: Contains the <p> element with formatted reference text
+ *
+ * Notes:
+ * - References typically only appear in references section
+ * - Content format depends on citation style (APA, MLA, Chicago, etc.)
+ * - Common styling needs: hanging indent, compact spacing, smaller font
+ *
+ * Examples: docs/themes/references.smd
  */
+
+:root {
+    /* Reference Spacing - Inherits automatic responsive behavior from semantic token */
+    --reference-spacing: var(--content-spacing);
+
+    /* Reference Typography - Colors automatically inherit dark mode from text colors */
+    --reference-font-size: inherit;
+    --reference-line-height: var(--text-line-height);
+    --reference-text-align: left;
+    --reference-text-indent: 0;
+    --reference-padding-left: 0;
+    --reference-hyphens: none;
+    --reference-orphans: 2;
+    --reference-widows: 2;
+    --reference-text-wrap: auto;
+}
 
 stencila-reference {
     display: block;
+    padding-left: var(--reference-padding-left);
+
+    p {
+        /* Spacing */
+        margin-top: var(--reference-spacing);
+        margin-bottom: 0;
+
+        /* Typography control */
+        font-size: var(--reference-font-size);
+        line-height: var(--reference-line-height);
+        text-align: var(--reference-text-align);
+        text-indent: var(--reference-text-indent);
+        hyphens: var(--reference-hyphens);
+
+        /* Print control */
+        orphans: var(--reference-orphans);
+        widows: var(--reference-widows);
+        text-wrap: var(--reference-text-wrap);
+    }
 }
 
 @media print {
     stencila-reference {
+        /* Ensure references don't break awkwardly across pages */
+        page-break-inside: avoid;
         break-inside: avoid;
+    }
+
+    stencila-reference p {
+        /* Optimize text rendering for print */
+        text-rendering: optimizeLegibility;
     }
 }

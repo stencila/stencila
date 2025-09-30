@@ -167,28 +167,6 @@ Subsequent research has focused on integrating multiple data modalities, includi
 
 :::
 
-## References Section
-
-Dense layout for appendices, bibliographies, and reference materials:
-
-```css
-:root {
-  --paragraph-spacing: var(--space-3);
-  --paragraph-text-indent: -1.5em;
-  --paragraph-lead-text-indent: -1.5em;
-}
-```
-
-::: style --paragraph-spacing: var(--space-3); --paragraph-text-indent: -1.5em; --paragraph-lead-text-indent: -1.5em; padding-left: 1.5em;
-
-Johnson, A., Smith, B., & Davis, C. (2024). Advances in computational protein folding prediction using transformer architectures. _Nature Computational Biology_, 15(3), 234-251.
-
-Williams, D. E., & Brown, F. G. (2023). Machine learning approaches to drug discovery: A comprehensive review of recent developments and future directions. _Journal of Medicinal Chemistry_, 66(12), 8123-8145.
-
-Zhang, L., Kumar, R., & Patel, S. (2024). Real-time protein structure prediction in clinical environments: Challenges and opportunities. _Bioinformatics_, 40(8), 1456-1468.
-
-:::
-
 # Tips
 
 **Focus on paragraph tokens**: Use `--paragraph-*` tokens for typography-specific customizations. These integrate with the design system while providing paragraph-specific control.

@@ -1,0 +1,224 @@
+---
+title: References
+description: |
+  Design tokens and examples for customizing bibliographic reference styling in Stencila themes.
+---
+
+# Tokens
+
+## Spacing and Typography Tokens
+
+Reference-specific controls for spacing, typography, alignment, and text flow in bibliographies and reference lists.
+
+| Token                      | Description                                     | Default Value             |
+| -------------------------- | ----------------------------------------------- | ------------------------- |
+| `--reference-spacing`      | Reference spacing (responsive)                  | `var(--content-spacing)`  |
+| `--reference-font-size`    | Font size for reference text                    | `inherit`                 |
+| `--reference-line-height`  | Line height within references                   | `var(--text-line-height)` |
+| `--reference-text-align`   | Text alignment (left, right, center, justify)   | `left`                    |
+| `--reference-text-indent`  | Text indentation (negative for hanging indent)  | `0`                       |
+| `--reference-padding-left` | Left padding (should match negative indent)     | `0`                       |
+| `--reference-hyphens`      | Hyphenation control (none, auto, manual)        | `none`                    |
+| `--reference-orphans`      | Minimum lines at bottom of page/column break    | `2`                       |
+| `--reference-widows`       | Minimum lines at top of page/column break       | `2`                       |
+| `--reference-text-wrap`    | Text wrapping algorithm (auto, pretty, balance) | `auto`                    |
+
+# Usage
+
+## Reference-Specific Customization
+
+Use reference tokens to customize typography and layout for bibliography sections:
+
+**`--reference-spacing`**: Controls spacing between references. References `--content-spacing` by default, which provides automatic responsive behavior (desktop: 2rem, tablet: 1.5rem, mobile: 1rem, print: 0.5rem). This inheritance means references automatically scale with document rhythm without needing explicit responsive variants.
+
+**`--reference-font-size`**: Controls the size of reference text. Use smaller sizes (e.g., `var(--font-size-sm)`) for dense bibliographies to fit more content.
+
+**`--reference-line-height`**: Controls line spacing within references. References `--text-line-height` by default but can be customized for specific layouts.
+
+**`--reference-text-indent`**: Essential for traditional bibliography formatting. Use negative values (e.g., `-1.5em`) to create hanging indents where the first line extends left of subsequent lines.
+
+**`--reference-padding-left`**: Must be set to match the absolute value of negative `--reference-text-indent` to prevent text overflow. For example, if `--reference-text-indent: -1.5em`, set `--reference-padding-left: 1.5em`.
+
+**`--reference-text-align`**: Choose alignment based on bibliography style:
+- `left` - Most common for academic and technical documents (default)
+- `justify` - Dense academic bibliographies (pair with hyphenation)
+- `center` - Special layouts or design contexts
+- `right` - Specialized design contexts
+
+## Integration with Semantic Tokens
+
+References work with the design system's responsive tokens:
+
+- **Automatic responsive behavior**: Spacing uses `--content-spacing` which automatically provides desktop (2rem), tablet (1.5rem), mobile (1rem), and print (0.5rem) variants without explicit media queries
+- **Typography inheritance**: Base typography and colors inherit from semantic text tokens, including automatic dark mode support through `--text-color-primary`
+- **System-wide consistency**: Changes to semantic tokens automatically propagate to references, maintaining design coherence
+- **Print optimization**: References automatically optimize for print media with compact spacing and break-inside control
+
+## Text Flow and Advanced Features
+
+**Hanging indents**: Use `--reference-text-indent` with negative values for traditional bibliography formatting. Always pair with matching `--reference-padding-left`:
+- `0` + `0` - No indent (default)
+- `-1.5em` + `1.5em` - Standard hanging indent for bibliographies
+- `-2em` + `2em` - Larger hanging indent for emphasis
+
+**Hyphenation**: Control word breaking with `--reference-hyphens`:
+- `none` - No hyphenation (web default)
+- `auto` - Automatic hyphenation (recommended for justified text)
+- `manual` - Only break at explicit hyphens
+
+**Print control**: Use `--reference-orphans` and `--reference-widows` to prevent awkward line breaks across pages. References automatically use `break-inside: avoid` to prevent individual references from splitting.
+
+**Modern text wrapping**: Set `--reference-text-wrap: pretty` for improved line breaking in supported browsers.
+
+# Examples
+
+## Default References
+
+Standard reference styling with automatic responsive spacing and typography:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+```html raw
+  <div style="">
+    <stencila-reference>
+      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+    </stencila-reference>
+  </div>
+```
+
+## Dense Bibliography
+
+Compact spacing and smaller font for space-efficient reference sections:
+
+```css
+:root {
+  --reference-spacing: var(--space-3);
+  --reference-font-size: var(--font-size-sm);
+  --reference-line-height: var(--line-height-sm);
+}
+```
+
+```html raw
+  <div style="--reference-spacing: var(--space-3); --reference-font-size: var(--font-size-sm); --reference-line-height: var(--line-height-sm);">
+    <stencila-reference>
+      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+    </stencila-reference>
+  </div>
+```
+
+## Hanging Indent Style
+
+Traditional bibliography formatting with hanging indents:
+
+```css
+:root {
+  --reference-spacing: var(--space-4);
+  --reference-text-indent: -1.5em;
+  --reference-padding-left: 1.5em;
+}
+```
+
+```html raw
+  <div style="--reference-spacing: var(--space-4); --reference-text-indent: -1.5em; --reference-padding-left: 1.5em;">
+    <stencila-reference>
+      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+    </stencila-reference>
+  </div>
+```
+
+## Justified Dense Bibliography
+
+Scholarly paper style with justified text and hyphenation:
+
+```css
+:root {
+  --reference-spacing: var(--space-3);
+  --reference-font-size: var(--font-size-sm);
+  --reference-text-align: justify;
+  --reference-text-indent: -1.5em;
+  --reference-padding-left: 1.5em;
+  --reference-hyphens: auto;
+}
+```
+
+```html raw
+  <div style="--reference-spacing: var(--space-3); --reference-font-size: var(--font-size-sm); --reference-text-align: justify; --reference-text-indent: -1.5em; --reference-padding-left: 1.5em; --reference-hyphens: auto;">
+    <stencila-reference>
+      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+    </stencila-reference>
+  </div>
+```
+
+## Spacious References
+
+Generous spacing for enhanced readability in presentations or educational materials:
+
+```css
+:root {
+  --reference-spacing: var(--space-8);
+  --reference-line-height: var(--line-height-md);
+  --reference-text-wrap: pretty;
+}
+```
+
+```html raw
+  <div style="--reference-spacing: var(--space-8); --reference-line-height: var(--line-height-md); --reference-text-wrap: pretty;">
+    <stencila-reference>
+      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+    </stencila-reference>
+    <stencila-reference>
+      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+    </stencila-reference>
+  </div>
+```
+
+# Tips
+
+**Focus on reference tokens**: Use `--reference-*` tokens for bibliography-specific customizations. These integrate with the design system while providing reference-specific control.
+
+**Hanging indents require matching padding**: When using negative `--reference-text-indent` values, always set `--reference-padding-left` to the matching positive value to prevent text overflow.
+
+**Combine tokens thoughtfully**: Dense bibliographies work well with `--space-3` spacing, `var(--font-size-sm)` font size, and optional hanging indents.
+
+**Choose alignment for context**: Use `--reference-text-align: left` for most contexts, `justify` for traditional scholarly papers with hyphenation enabled.
+
+**Consider hyphenation with justification**: Enable `--reference-hyphens: auto` when using justified text to prevent awkward spacing.
+
+**Leverage semantic integration**: Reference spacing uses `--content-spacing` automatically, providing responsive and print behavior without explicit CSS. Override for special layouts only.
+
+**Modern text wrapping**: Use `--reference-text-wrap: pretty` in supported browsers for improved line breaking, especially with long URLs or DOIs.
+
+**Print optimization**: References automatically prevent page breaks within individual entries using `break-inside: avoid`. Adjust `--reference-orphans` and `--reference-widows` for additional control.
+
+**Test with real content**: Verify reference styling with actual citations including long author lists, titles, journal names, and DOI/URL strings.
