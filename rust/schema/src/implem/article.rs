@@ -139,7 +139,7 @@ impl DomCodec for Article {
 
         if context.is_root() {
             // Generate CSS variable for print media support
-            let mut css = ":root {".to_string();
+            let mut css = String::new();
             if let Some(title) = &self.title {
                 let mut title = to_text(title).replace("\"", "'");
                 const MAX_LEN: usize = 65;
@@ -179,8 +179,9 @@ impl DomCodec for Article {
                 css.push_str(&doi.replace("\"", "'"));
                 css.push_str("\";");
             }
-            css.push('}');
-            context.push_css(&css);
+            if !css.is_empty() {
+                context.push_css(&[":root {", &css, "}"].concat());
+            }
 
             if let Some(title) = &self.title {
                 context.push_slot_fn("section", "title", |context| {
