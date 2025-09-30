@@ -45,10 +45,12 @@
     /* Container styling - optional visual isolation */
     --figure-background: transparent;
     --figure-background-dark: transparent;
+    --figure-background-print: transparent;
 
     --figure-border-width: 0;
     --figure-border-color: var(--border-color-subtle);
     --figure-border-color-dark: var(--border-color-subtle-dark);
+    --figure-border-color-print: var(--border-color-default-print);
     --figure-border-radius: var(--border-radius-default);
 
     --figure-padding: 0;
@@ -138,6 +140,22 @@ stencila-figure {
         .figure-label {
             font-weight: var(--figure-label-font-weight);
             font-style: var(--figure-label-font-style);
+        }
+    }
+}
+
+/* Print Media Optimization */
+@media print {
+    :root {
+        --figure-background: var(--figure-background-print);
+        --figure-border-color: var(--figure-border-color-print);
+    }
+
+    stencila-figure {
+        figure {
+            /* Prevent figures from breaking across pages */
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
     }
 }
