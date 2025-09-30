@@ -56,6 +56,7 @@ Layout and typography styling for figure captions (inherits from caption and lab
 | `--figure-caption-max-width`   | Maximum width for caption text                | `100%`                               |
 | `--figure-label-font-weight`   | Font weight for figure labels                 | `var(--label-font-weight)`           |
 | `--figure-label-font-style`    | Font style for figure labels                  | `var(--label-font-style)`            |
+| `--figure-label-color`         | Text color for figure labels                  | `var(--label-color)`                 |
 
 # Usage
 

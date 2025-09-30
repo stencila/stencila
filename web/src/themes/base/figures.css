@@ -74,6 +74,7 @@
     /* Label styling - inherits from semantic label tokens */
     --figure-label-font-weight: var(--label-font-weight);
     --figure-label-font-style: var(--label-font-style);
+    --figure-label-color: var(--label-color);
 }
 
 /* Dark Mode Application - System Preference */
@@ -140,6 +141,7 @@ stencila-figure {
         .figure-label {
             font-weight: var(--figure-label-font-weight);
             font-style: var(--figure-label-font-style);
+            color: var(--figure-label-color);
         }
     }
 }
