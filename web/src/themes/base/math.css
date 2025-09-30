@@ -82,6 +82,11 @@ stencila-math-block {
         }
     }
 
+    [slot="images"] {
+        flex: 1;
+        text-align: center;
+    }
+
     [slot="label"] {
         flex: 0 0 auto;
 
@@ -92,7 +97,12 @@ stencila-math-block {
 }
 
 stencila-math-inline {
-    math {
+    [slot="mathml"] math {
         font-family: var(--math-font-family);
+    }
+
+    [slot="images"] img {
+        max-height: 1.1em;
+        vertical-align: middle;
     }
 }
