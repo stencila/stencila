@@ -1,211 +1,243 @@
 /* Table styles
  *
  * Schema: [`Table`](../../schema/Table.yaml)
- * Purpose: Structured data presentation in rows and columns.
+ * Purpose: Structured data presentation in rows and columns with optional captions and notes.
  *
  * DOM Structure:
- * <stencila-table id=xxx depth=N ancestors=Parent>
+ * <stencila-table id=xxx depth=N ancestors=Parent label=X label-automatically=false>
  *     <table slot=rows>
- *         <tr id=xxx depth=N+1 ancestors=Parent.Table>
- *             <td id=xxx depth=N+2 ancestors=Parent.Table.TableRow>
- *                 <stencila-text id=xxx depth=N+3 ancestors=Parent.Table.TableRow.TableCell>Cell content</stencila-text>
- *             </td>
- *             <td id=xxx depth=N+2 ancestors=Parent.Table.TableRow>
- *                 <stencila-text id=xxx depth=N+3 ancestors=Parent.Table.TableRow.TableCell>More content</stencila-text>
- *             </td>
- *         </tr>
+ *         <caption>
+ *             <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.Table>
+ *                 <p slot=content>
+ *                     <span class=table-label>Table X</span>: <stencila-text id=xxx depth=N+2 ancestors=Parent.Table.Paragraph>Caption text.</stencila-text>
+ *                 </p>
+ *             </stencila-paragraph>
+ *         </caption>
+ *         <thead>
+ *             <tr id=xxx depth=N+1 ancestors=Parent.Table>
+ *                 <th id=xxx depth=N+2 ancestors=Parent.Table.TableRow>
+ *                     <stencila-text id=xxx depth=N+3 ancestors=Parent.Table.TableRow.TableCell>Header</stencila-text>
+ *                 </th>
+ *             </tr>
+ *         </thead>
+ *         <tbody>
+ *             <tr id=xxx depth=N+1 ancestors=Parent.Table>
+ *                 <td id=xxx depth=N+2 ancestors=Parent.Table.TableRow>
+ *                     <stencila-text id=xxx depth=N+3 ancestors=Parent.Table.TableRow.TableCell>Cell content</stencila-text>
+ *                 </td>
+ *             </tr>
+ *         </tbody>
  *     </table>
+ *     <aside slot=notes>
+ *         <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.Table>
+ *             <p slot=content>
+ *                 <stencila-text id=xxx depth=N+2 ancestors=Parent.Table.Paragraph>Notes text.</stencila-text>
+ *             </p>
+ *         </stencila-paragraph>
+ *     </aside>
  * </stencila-table>
  *
  * Key Attributes:
- * - No specific attributes on the table element itself
- * - Row and cell elements have standard HTML table structure
+ * - label: Table number (e.g., "3")
+ * - label-automatically: Boolean indicating if label was auto-generated
  *
  * Slots:
+ * - caption: Optional caption with table label and descriptive text
  * - rows: Contains the HTML table element with all rows and cells
+ * - notes: Optional aside with additional notes or annotations
  *
  * Notes:
- * - Tables use semantic HTML table elements (table, tr, td)
+ * - Tables use semantic HTML table elements (table, caption, thead, tbody, tr, th, td)
  * - Each cell contains Stencila text or other inline content
  * - Supports both simple data tables and complex structured content
- * - Can include headers, though basic structure uses td for all cells
- * - May have captions, labels, and notes in more complex table structures
+ * - Caption includes a table label styled with --table-label-* tokens
+ * - Labels can be automatically generated or manually specified
+ * - Headers use th elements within thead, data cells use td elements
  *
  * Examples: examples/conversion/table/table.dom.html
+ * Documentation: docs/themes/tables.smd
  */
 
 :root {
-    --table-label-font-weight: var(--label-font-weight);
+    /* Spacing tokens - vertical separation from surrounding content */
+    --table-spacing-top: var(--content-spacing);
+    --table-spacing-bottom: var(--content-spacing);
+
+    /* Caption typography - inherits from caption tokens */
     --table-caption-font-family: var(--caption-font-family);
     --table-caption-font-size: var(--caption-font-size);
     --table-caption-color: var(--caption-color);
-    --table-header-background: var(--surface-sunken);
-    --table-header-font-weight: var(--font-weight-semibold);
-    --table-row-hover: var(--color-gray-50);
-    --table-row-striped: var(--color-gray-50);
-    --table-border-color: var(--border-color-default);
-    --table-border-width: var(--border-width-default);
-    --table-cell-font-family: var(--font-family-sans);
-    --table-cell-font-size: var(--font-size-xs);
-    --table-cell-padding-xs: var(--space-1);
-    --table-cell-padding-sm: var(--space-2);
-    --table-cell-padding-md: var(--space-3);
-    --table-margin-vertical: var(--space-8);
+    --table-caption-spacing-bottom: calc(var(--content-spacing) * 0.5);
+    --table-caption-line-height: var(--line-height-sm);
+    --table-caption-text-align: left;
+    --table-caption-max-width: 100%;
 
-    --dark-table-header-background: #2d2d2d;
-    --dark-table-row-hover: #303030;
-    --dark-table-row-striped: #222222;
+    /* Label styling - inherits from semantic label tokens */
+    --table-label-font-weight: var(--label-font-weight);
+    --table-label-font-style: var(--label-font-style);
+    --table-label-color: var(--label-color);
+
+    /* Notes spacing and layout */
+    --table-notes-spacing-top: calc(var(--content-spacing) * 0.5);
+    --table-notes-line-height: var(--line-height-sm);
+    --table-notes-font-size: var(--font-size-sm);
+
+    /* Table container styling */
+    --table-border-radius: var(--border-radius-default);
+
+    /* Header styling */
+    --table-header-background: var(--surface-sunken);
+    --table-header-background-dark: #2d2d2d;
+    --table-header-background-print: var(--surface-sunken);
+    --table-header-font-weight: var(--font-weight-semibold);
+
+    /* Row styling with dark and print variants */
+    --table-row-hover: var(--color-gray-50);
+    --table-row-hover-dark: #303030;
+    --table-row-striped: transparent;
+    --table-row-striped-dark: transparent;
+    --table-row-striped-print: transparent;
+
+    /* Cell styling */
+    --table-cell-font-family: var(--text-font-family);
+    --table-cell-font-size: var(--font-size-xs);
+    --table-cell-padding: var(--space-3);
+    --table-cell-padding-print: var(--space-2);
 }
 
+/* Dark Mode Application - System Preference */
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
-        --table-header-background: var(--dark-table-header-background);
-        --table-row-hover: var(--dark-table-row-hover);
-        --table-row-striped: var(--dark-table-row-striped);
+        --table-header-background: var(--table-header-background-dark);
+        --table-row-hover: var(--table-row-hover-dark);
+        --table-row-striped: var(--table-row-striped-dark);
     }
 }
 
+/* Dark Mode Application - Explicit User Choice */
 :root[data-color-scheme="dark"] {
-    --table-header-background: var(--dark-table-header-background);
-    --table-row-hover: var(--dark-table-row-hover);
-    --table-row-striped: var(--dark-table-row-striped);
-}
-
-
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
+    --table-header-background: var(--table-header-background-dark);
+    --table-row-hover: var(--table-row-hover-dark);
+    --table-row-striped: var(--table-row-striped-dark);
 }
 
 stencila-table {
     display: block;
-    margin: var(--table-margin-vertical) 0;
-}
 
-stencila-table>[slot='caption'] p {
-    max-width: none;
+    /* Vertical spacing */
+    margin-top: var(--table-spacing-top);
+    margin-bottom: var(--table-spacing-bottom);
 
-    text-align: justify;
-    line-height: 150%;
-    margin-bottom: 1rem;
-
-    font-family: var(--table-caption-font-family);
-    font-size: var(--table-caption-font-size);
-    color: var(--table-caption-color);
-}
-
-.table-label {
-    font-weight: var(--table-label-font-weight);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: var(--table-border-width) solid var(--table-border-color);
-    border-radius: var(--border-radius-default);
-}
-
-thead {
-    background-color: var(--table-header-background);
-}
-
-th,
-td {
-    padding: var(--table-cell-padding-md);
-    text-align: left;
-    border-bottom: var(--table-border-width) solid var(--table-border-color);
-
-    font-family: var(--table-cell-font-family);
-    font-size: var(--table-cell-font-size);
-}
-
-th {
-    font-weight: var(--table-header-font-weight);
-    color: var(--text-color-primary);
-}
-
-tr:hover {
-    background-color: var(--table-row-hover);
-}
-
-tr:nth-child(even) {
-    background-color: var(--table-row-striped);
-}
-
-@media (max-width: 640px) {
-
-    /* Make tables horizontally scrollable on mobile */
+    /* Table element styling */
     table {
-        font-size: var(--font-size-sm);
         width: 100%;
-        overflow-x: auto;
-        display: block;
-        white-space: nowrap;
+        border-collapse: collapse;
+        border: var(--border-width-default) solid var(--border-color-default);
+        border-radius: var(--table-border-radius);
     }
 
-    table tbody,
-    table thead,
-    table tr {
-        display: table;
-        width: 100%;
-        table-layout: fixed;
+    /* Caption styling */
+    caption {
+        margin-bottom: var(--table-caption-spacing-bottom);
+        max-width: var(--table-caption-max-width);
+
+        p {
+            /* Browser normalization */
+            max-width: none;
+            margin: 0;
+
+            /* Caption typography - inherits from component tokens */
+            font-family: var(--table-caption-font-family);
+            font-size: var(--table-caption-font-size);
+            color: var(--table-caption-color);
+            line-height: var(--table-caption-line-height);
+            text-align: var(--table-caption-text-align);
+        }
+
+        /* Paragraph spacing: first paragraph aligns with caption,
+         * subsequent paragraphs use caption spacing to maintain visual hierarchy */
+        stencila-paragraph:first-child p {
+            margin-top: 0;
+        }
+
+        stencila-paragraph:not(:first-child) p {
+            margin-top: var(--table-caption-spacing-bottom);
+        }
+
+        /* Label styling within caption */
+        .table-label {
+            font-weight: var(--table-label-font-weight);
+            font-style: var(--table-label-font-style);
+            color: var(--table-label-color);
+        }
     }
 
-    table thead {
-        width: calc(100% - 1em);
+    /* Header styling */
+    th {
+        background-color: var(--table-header-background);
+
+        padding: var(--table-cell-padding);
+        text-align: left;
+        border-bottom: var(--border-width-default) solid var(--border-color-default);
+
+        font-family: var(--table-cell-font-family);
+        font-size: var(--table-cell-font-size);
+        font-weight: var(--table-header-font-weight);
+        color: var(--text-color-primary);
     }
 
-    table th,
-    table td {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    th,
+    /* Cell styling */
     td {
-        padding: var(--table-cell-padding-xs);
+        padding: var(--table-cell-padding);
+        text-align: left;
+        border-bottom: var(--border-width-default) solid var(--border-color-default);
+
+        font-family: var(--table-cell-font-family);
+        font-size: var(--table-cell-font-size);
+    }
+
+    /* Row hover effect */
+    tbody tr:hover {
+        background-color: var(--table-row-hover);
+    }
+
+    /* Striped rows */
+    tbody tr:nth-child(even) {
+        background-color: var(--table-row-striped);
+    }
+
+    /* Notes styling */
+    [slot='notes'] {
+        margin-top: var(--table-notes-spacing-top);
+
+        p {
+            font-size: var(--table-notes-font-size);
+            line-height: var(--table-notes-line-height);
+            color: var(--text-color-secondary);
+        }
+
+        /* Paragraph spacing within notes */
+        stencila-paragraph:first-child p {
+            margin-top: 0;
+        }
+
+        stencila-paragraph:not(:first-child) p {
+            margin-top: var(--table-notes-spacing-top);
+        }
     }
 }
 
+/* Print Media Optimization */
 @media print {
-    /* Print-specific table styling */
-    table {
-        border: none !important;
-        border-top: 1px solid var(--border-color-default) !important;
-        border-bottom: 1px solid var(--border-color-default) !important;
+    :root {
+        --table-header-background: var(--table-header-background-print);
+        --table-row-striped: var(--table-row-striped-print);
+        --table-cell-padding: var(--table-cell-padding-print);
     }
 
-    th,
-    td {
-        border-left: none !important;
-        border-right: none !important;
-        border-top: none !important;
-        border-bottom: 1px solid var(--border-color-default) !important;
-    }
-
-    /* Remove border from last row */
-    tr:last-child th,
-    tr:last-child td {
-        border-bottom: none !important;
-    }
-
-    /* Compact captions for print */
-    stencila-table [slot='caption'] p {
-        line-height: 1.2 !important;
-        margin-top: var(--content-spacing) !important;
-        margin-bottom: 0 !important;
-        font-size: 9pt !important;
-    }
-
-    stencila-table [slot='caption'] {
-        margin-top: var(--content-spacing) !important;
-        margin-bottom: var(--content-spacing) !important;
-    }
-
-    /* Avoid breaks within tables and float to bottom */
     stencila-table {
+        /* Prevent table (including caption, rows, and notes) from breaking across pages */
+        page-break-inside: avoid;
         break-inside: avoid;
-        float: bottom;
     }
 }
