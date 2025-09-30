@@ -80,7 +80,7 @@ impl Datatable {
     /// Returns None for:
     /// - Empty tables
     /// - Inconsistent row lengths
-    /// - Cells with span attributes
+    /// - Cells with span or alignment attributes
     /// - Cells with complex content (non-paragraph or multiple blocks)
     pub fn from_table_if_uniform(table: &Table) -> Option<Self> {
         // Return early if table has no rows
@@ -100,9 +100,13 @@ impl Datatable {
                 return None;
             }
 
-            // Check for column/row spans
+            // Check for column/row spans or horizontal/vertical alignment
             for cell in row.cells.iter() {
-                if cell.options.column_span.is_some() || cell.options.row_span.is_some() {
+                if cell.options.column_span.is_some()
+                    || cell.options.row_span.is_some()
+                    || cell.options.vertical_alignment.is_some()
+                    || cell.options.horizontal_alignment.is_some()
+                {
                     return None;
                 }
             }
