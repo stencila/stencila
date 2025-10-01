@@ -213,4 +213,27 @@ stencila-heading {
     :root {
         --heading-font-size: var(--heading-font-size-print);
     }
+
+    stencila-heading {
+        /* Avoid headings from being orphaned at the bottom of pages */
+        page-break-after: avoid;
+        break-after: avoid-page;
+    }
+
+    stencila-heading h1,
+    stencila-heading h2,
+    stencila-heading h3,
+    stencila-heading h4,
+    stencila-heading h5,
+    stencila-heading h6 {
+        /* Additional specificity for the actual h1-h6 elements */
+        page-break-after: avoid;
+        break-after: avoid-page;
+    }
+    
+    stencila-heading + stencila-paragraph {
+        /* Avoid paragraphs from being orphaned at the top of pages */
+        page-break-before: avoid;
+        break-before: avoid-page;
+    }
 }

@@ -31,8 +31,8 @@
     --paragraph-text-align: left;
     --paragraph-text-indent: 0;
     --paragraph-hyphens: none;
-    --paragraph-orphans: 2;
-    --paragraph-widows: 2;
+    --paragraph-orphans: 3;
+    --paragraph-widows: 3;
     --paragraph-text-wrap: auto;
 
     /* Lead Paragraph Enhancement - Applied to first paragraph after headings */
@@ -74,10 +74,6 @@ stencila-heading+stencila-paragraph p {
 
 @media print {
     stencila-paragraph p {
-        /* Ensure proper paragraph breaks for print */
-        page-break-inside: avoid;
-        break-inside: avoid;
-
         /* Optimize text rendering for print */
         text-rendering: optimizeLegibility;
     }
