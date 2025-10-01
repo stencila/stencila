@@ -29,8 +29,12 @@
 
     --heading-font-family: var(--font-family-serif);
 
-    --heading-font-size: 2rem;
-    --heading-font-size-ratio: 0.8;
+    /* Heading size system: base size for h1, ratio for subsequent levels
+     * Each level = previous level × ratio
+     * With 2.0× base and 0.85 ratio: h1=2.0×, h2=1.7×, h3=1.45×, h4=1.23×, h5=1.05×, h6=0.89×
+     * Ensures all headings remain at or near body text size for better hierarchy */
+    --heading-font-size: calc(var(--text-font-size) * 2.0);
+    --heading-font-size-ratio: 0.85;
 
     --heading-font-weight: var(--font-weight-bold);
     --heading-font-weight-decrement: 50;
