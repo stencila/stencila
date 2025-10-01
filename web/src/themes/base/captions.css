@@ -29,6 +29,7 @@
 
 :root {
     --caption-spacing: calc(var(--content-spacing) * 0.5);
+    --caption-spacing-print: var(--content-spacing);
 
     --caption-font-family: var(--font-family-serif);
     --caption-font-size: calc(var(--text-font-size) * 0.85);
@@ -38,7 +39,7 @@
 
     --caption-line-height: var(--line-height-sm);
     --caption-line-height-print: var(--line-height-xs);
-    
+
     --caption-alignment: left;
     --caption-max-width: 100%;
 }
@@ -58,6 +59,7 @@
 /* Print Application */
 @media print {
     :root {
+        --caption-spacing: var(--caption-spacing-print);
         --caption-line-height: var(--caption-line-height-print);
     }
 }
