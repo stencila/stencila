@@ -118,8 +118,12 @@
     /* Cell styling */
     --table-cell-font-family: var(--text-font-family);
     --table-cell-font-size: calc(var(--text-font-size) * 0.75);
-    --table-cell-padding: var(--space-3);
-    --table-cell-padding-print: var(--space-2);
+    --table-cell-line-height: var(--line-height-sm);
+    --table-cell-line-height-mobile: var(--line-height-xs);
+    --table-cell-line-height-print: var(--line-height-xs);
+    --table-cell-padding: var(--space-2);
+    --table-cell-padding-mobile: var(--space-1);
+    --table-cell-padding-print: var(--space-xs);
 }
 
 /* Dark Mode Application - System Preference */
@@ -136,6 +140,14 @@
     --table-header-background: var(--table-header-background-dark);
     --table-row-hover: var(--table-row-hover-dark);
     --table-row-striped: var(--table-row-striped-dark);
+}
+
+/* Responsive Application - Mobile Breakpoint (640px) */
+@media (max-width: 640px) {
+    :root {
+        --table-cell-line-height: var(--table-cell-line-height-mobile);
+        --table-cell-padding: var(--table-cell-padding-mobile);
+    }
 }
 
 stencila-table {
@@ -198,9 +210,9 @@ stencila-table {
         border-bottom: var(--table-row-border-width) var(--table-row-border-style) var(--table-row-border-color);
 
         font-family: var(--table-cell-font-family);
-        font-size: var(--table-cell-font-size);
         font-weight: var(--table-header-font-weight);
-        color: var(--text-color-primary);
+        font-size: var(--table-cell-font-size);
+        line-height: var(--table-cell-line-height);
     }
 
     th:not(:first-child) {
@@ -215,6 +227,7 @@ stencila-table {
 
         font-family: var(--table-cell-font-family);
         font-size: var(--table-cell-font-size);
+        line-height: var(--table-cell-line-height);
     }
 
     td:not(:first-child) {
@@ -262,6 +275,7 @@ stencila-table {
         --table-column-border-width: var(--table-column-border-width-print);
         --table-header-background: var(--table-header-background-print);
         --table-row-striped: var(--table-row-striped-print);
+        --table-cell-line-height: var(--table-cell-line-height-print);
         --table-cell-padding: var(--table-cell-padding-print);
     }
 
