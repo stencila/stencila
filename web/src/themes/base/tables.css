@@ -79,7 +79,7 @@
 
     /* Notes typography - independent from caption tokens */
     --table-notes-font-family: var(--text-font-family);
-    --table-notes-font-size: var(--font-size-sm);
+    --table-notes-font-size: calc(var(--text-font-size) * 0.80);
     --table-notes-color: var(--text-color-secondary);
     --table-notes-spacing-top: calc(var(--content-spacing) * 0.5);
     --table-notes-line-height: var(--line-height-sm);
@@ -103,7 +103,7 @@
 
     /* Cell styling */
     --table-cell-font-family: var(--text-font-family);
-    --table-cell-font-size: var(--font-size-xs);
+    --table-cell-font-size: calc(var(--text-font-size) * 0.75);
     --table-cell-padding: var(--space-3);
     --table-cell-padding-print: var(--space-2);
 }
