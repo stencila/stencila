@@ -6,6 +6,15 @@ description: |
 
 # Tokens
 
+## Base Color Token
+
+The foundation token from which all diagram colors are calculated.
+
+| Token                     | Description                                           | Default Value         |
+| ------------------------- | ----------------------------------------------------- | --------------------- |
+| `--diagram-base-color`    | Base color for all diagram color calculations         | `var(--color-accent)` |
+| `--diagram-base-color-dark` | Base color for dark mode                            | `var(--color-accent-dark)` |
+
 ## Core Diagram Tokens
 
 Base styling tokens that apply to all diagram types.
@@ -15,43 +24,98 @@ Base styling tokens that apply to all diagram types.
 | `--diagram-background`  | Background color for diagrams | `var(--surface-foreground)` |
 | `--diagram-font-family` | Font family for diagram text  | `var(--font-family-sans)`   |
 | `--diagram-font-size`   | Font size for diagram text    | `var(--font-size-sm)`       |
-| `--diagram-text-color`  | Primary text color            | `var(--text-color-primary)` |
+| `--diagram-text-color`  | Primary text color            | `color-mix(in srgb, var(--diagram-base-color) 95%, var(--diagram-background))` |
 
 ## Node and Shape Tokens
 
-Colors and styling for diagram nodes, shapes, and containers in diagrams.
+Colors and styling for diagram nodes, shapes, and containers. All colors calculated from `--diagram-base-color` mixed with `--diagram-background`.
 
-| Token                                 | Description                          | Default Value               |
-| ------------------------------------- | ------------------------------------ | --------------------------- |
-| `--diagram-node-background`           | Primary node/shape fill color        | `var(--color-blue-100)`     |
-| `--diagram-node-background-secondary` | Secondary node background            | `var(--color-blue-200)`     |
-| `--diagram-node-background-tertiary`  | Tertiary node background (3+ states) | `var(--color-blue-300)`     |
-| `--diagram-node-border-color`         | Node border color                    | `var(--color-blue-500)`     |
-| `--diagram-node-border-width`         | Node border width                    | `2px`                       |
+| Token                                 | Description                          | Calculation |
+| ------------------------------------- | ------------------------------------ | ----------- |
+| `--diagram-node-background`           | Primary node/shape fill color        | `color-mix(in srgb, var(--diagram-base-color) 15%, var(--diagram-background))` |
+| `--diagram-node-background-secondary` | Secondary node background            | `color-mix(in srgb, var(--diagram-base-color) 25%, var(--diagram-background))` |
+| `--diagram-node-background-tertiary`  | Tertiary node background (3+ states) | `color-mix(in srgb, var(--diagram-base-color) 35%, var(--diagram-background))` |
+| `--diagram-node-border-color`         | Node border color                    | `color-mix(in srgb, var(--diagram-base-color) 35%, var(--diagram-background))` |
+| `--diagram-node-border-width`         | Node border width                    | `var(--border-width-thick)` |
 | `--diagram-node-text-color`           | Text color inside nodes              | `var(--diagram-text-color)` |
 
 ## Edge and Connection Tokens
 
 Styling for lines, arrows, and connections between diagram nodes.
 
-| Token                             | Description           | Default Value               |
-| --------------------------------- | --------------------- | --------------------------- |
-| `--diagram-edge-color`            | Line/edge color       | `var(--color-blue-700)`     |
-| `--diagram-edge-width`            | Line/edge width       | `1px`                       |
+| Token                             | Description           | Calculation |
+| --------------------------------- | --------------------- | ----------- |
+| `--diagram-edge-color`            | Line/edge color       | `color-mix(in srgb, var(--diagram-base-color) 60%, var(--diagram-background))` |
+| `--diagram-edge-width`            | Line/edge width       | `var(--border-width-default)` |
 | `--diagram-edge-text-color`       | Edge label text color | `var(--diagram-text-color)` |
 
-## Diagram-Specific Tokens
+## State Tokens
 
-Specialized tokens for specific diagram types and elements.
+Generic state tokens applicable across diagram types (Gantt tasks, state diagrams, etc.).
 
-| Token                          | Description                          | Default Value           |
-| ------------------------------ | ------------------------------------ | ----------------------- |
-| `--diagram-actor-background`   | Actor background (sequence diagrams) | `var(--color-gray-100)` |
-| `--diagram-actor-border`       | Actor border color                   | `var(--color-gray-500)` |
-| `--diagram-sequence-signal`    | Signal color (sequence diagrams)     | `var(--color-blue-600)` |
-| `--diagram-cluster-background` | Subgraph/cluster background          | `var(--color-gray-50)`  |
+| Token                              | Description                          | Default Value |
+| ---------------------------------- | ------------------------------------ | ------------- |
+| `--diagram-active-background`      | Background for active states         | `var(--diagram-node-background-tertiary)` |
+| `--diagram-active-border-color`    | Border for active states             | `var(--diagram-node-border-color)` |
+| `--diagram-inactive-background`    | Background for inactive/default states | `var(--diagram-node-background)` |
+| `--diagram-inactive-border-color`  | Border for inactive/default states   | `var(--diagram-node-border-color)` |
+| `--diagram-complete-background`    | Background for completed states      | `var(--diagram-node-background-secondary)` |
+| `--diagram-complete-border-color`  | Border for completed states          | `var(--diagram-node-border-color)` |
+
+## Structure Tokens
+
+Tokens for structural diagram elements like grids, sections, and groupings.
+
+| Token                          | Description                          | Calculation |
+| ------------------------------ | ------------------------------------ | ----------- |
+| `--diagram-grid-color`         | Grid line color                      | `var(--diagram-base-color)` |
+| `--diagram-section-background` | Section/cluster/subgraph background  | `color-mix(in srgb, var(--diagram-base-color) 10%, var(--diagram-background))` |
 
 # Usage
+
+## Base Color System
+
+All diagram colors derive from a single base color for automatic theme integration:
+
+**`--diagram-base-color`** is the foundation:
+- Defaults to `var(--color-accent)` - diagrams automatically match your theme's accent color
+- All node, edge, and text colors are calculated from this base using `color-mix()`
+- Change one token to restyle entire diagrams
+
+**Quick theme changes**:
+```css
+/* Override base color for all diagrams */
+:root {
+  --diagram-base-color: var(--color-success);  /* Green diagrams */
+}
+```
+
+**Fine-grained control**:
+```css
+/* Override specific calculated values */
+:root {
+  --diagram-base-color: var(--color-purple-600);
+  --diagram-node-background: var(--color-purple-50);  /* Override calculation */
+  --diagram-edge-color: var(--color-purple-800);      /* Different from base */
+}
+```
+
+**Color calculations**: All colors are calculated using consistent percentages in both light and dark modes by mixing `--diagram-base-color` with `--diagram-background`:
+- Text: 95% base color
+- Node backgrounds: 15%, 25%, 35% base color (primary, secondary, tertiary)
+- Node borders: 35% base color
+- Edges: 60% base color
+- Sections/clusters: 10% base color
+
+**State tokens**: Provide semantic control over different element states:
+- Inactive (default): Uses primary node background
+- Active: Uses tertiary node background (most saturated)
+- Complete: Uses secondary node background (middle saturation)
+- All state borders default to node border color
+
+This unified approach ensures diagrams adapt naturally to both light and dark themes without separate color logic. See token tables above for specific calculations.
+
+**Limitation**: Examples below cannot demonstrate inline token overrides since diagram theming reads from `document.documentElement`. To test custom styling, create a custom theme file with token overrides.
 
 ## Tool Integration
 
@@ -59,32 +123,24 @@ Specialized tokens for specific diagram types and elements.
 
 - All diagram tokens are automatically mapped to Mermaid's theme variables
 - Colors are converted from CSS custom properties to hex format as required by Mermaid
-- Theme is applied during diagram initialization in `compileMermaid()`
+- Computed values from `color-mix()` are converted from `color(srgb ...)` to hex
+- Theme is applied during diagram initialization and cached for performance
 
 **Cytoscape.js integration** uses style objects:
 
-- Diagram tokens are mapped to Cytoscape style properties like `background-color`, `line-color`
+- Subset of diagram tokens mapped to Cytoscape style properties
 - Theme styles are merged with existing graph styles if present
-- Applied during graph initialization in `compileCytoscape()`
+- Applied during graph initialization and cached for performance
 
-**Token Application** follows the design system:
-
-- **Core tokens** (`--diagram-background`, `--diagram-text-color`) provide base styling
-- **Node tokens** control shape appearance and text within nodes
-- **Edge tokens** style connections and relationship lines
-- **Specialized tokens** handle diagram-specific elements like actors and clusters
-
-**Token Hierarchy** creates consistency with flexibility:
-
-- **Base text color**: `--diagram-text-color` sets the default for all diagram text
-- **Specific text colors**: `--diagram-node-text-color` and `--diagram-edge-text-color` inherit from the base by default
-- **Theme customization**: Specific tokens can be overridden independently while maintaining the base as a fallback
+**Dark mode**: All color tokens have `-dark` variants that automatically apply when system prefers dark mode or user explicitly sets dark theme.
 
 # Examples
 
-These examples show various diagram types with different theming approaches, demonstrating how the `--diagram-*` tokens work across both Mermaid and Cytoscape visualizations.
+These examples demonstrate how the theming system applies across different Mermaid diagram types. Each example tests different aspects of the token system.
 
-## Mermaid Flowchart
+## Flowchart
+
+Tests node backgrounds, decision diamonds, edge colors, and edge labels.
 
 ```mermaid exec
 flowchart
@@ -95,31 +151,102 @@ flowchart
   C --> E[Results]
 ```
 
-## Mermaid Sequence Diagram
+## Sequence Diagram
+
+Tests actor backgrounds/borders, signal colors, and activation boxes (uses secondary background).
 
 ```mermaid exec
 sequenceDiagram
   participant R as Researcher
   participant DS as Data Scientist
+  participant DB as Database
 
   R->>DS: Submit data
+  activate DS
+  DS->>DB: Store data
+  DB-->>DS: Confirmation
   DS->>DS: Quality check
+  deactivate DS
   DS-->>R: Analysis results
 ```
 
-## Mermaid State Diagram
+## State Diagram
+
+Tests state node backgrounds, transition colors, and special state indicators. Uses `--diagram-node-background` variants for different states.
 
 ```mermaid exec
 stateDiagram-v2
-  [*] --> DataCollection
-  DataCollection --> QualityCheck
-  QualityCheck --> Analysis : Pass
-  QualityCheck --> DataCleaning : Fail
-  DataCleaning --> QualityCheck
-  Analysis --> [*]
+  [*] --> Idle
+  Idle --> Processing : Start
+  Processing --> Analyzing : Data Valid
+  Processing --> Error : Data Invalid
+  Analyzing --> Complete
+  Error --> Idle : Retry
+  Complete --> [*]
+```
+
+## Class Diagram
+
+Tests node hierarchy with different visibility levels using primary/secondary/tertiary backgrounds.
+
+```mermaid exec
+classDiagram
+  class DataProcessor {
+    +String id
+    +process()
+    -validate()
+  }
+  class Analyzer {
+    +analyze()
+    #calculate()
+  }
+  class Storage {
+    +save()
+    +load()
+  }
+  DataProcessor --> Analyzer
+  Analyzer --> Storage
+```
+
+## Entity Relationship Diagram
+
+Tests entity boxes, relationship lines, and cardinality labels.
+
+```mermaid exec
+erDiagram
+  Experiment ||--|{ Dataset : generates
+  Dataset ||--o{ Analysis : undergoes
+  Analysis }o--|| Publication : produces
+```
+
+## Gantt Chart
+
+Tests timeline bars using `--diagram-node-background` variants for different task states (done/active/future).
+
+```mermaid exec
+gantt
+  title Research Timeline
+  dateFormat YYYY-MM-DD
+  section Planning
+    Literature Review    :done, 2024-01-01, 10d
+    Study Design        :done, 2024-01-08, 7d
+  section Data
+    Collection     :active, 2024-01-12, 8d
+    Cleaning       :2024-01-18, 6d
+  section Analysis
+    Statistics :2024-01-20, 8d
+    Modeling   :2024-01-24, 7d
+  section Results
+    Visualization :2024-01-28, 5d
+    Interpretation :2024-01-30, 5d
+  section Writing
+    Draft     :2024-02-02, 8d
+    Revision  :2024-02-08, 4d
 ```
 
 ## Cytoscape Network Graph
+
+Tests node styling, edge styling, and state selectors (selected nodes use active colors).
 
 ```js exec
 var graph = {

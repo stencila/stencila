@@ -30,6 +30,20 @@ type Theme = 'stencila' | 'tufte' | 'latex'
  * Utility functions for color scheme management
  */
 class ColorSchemeManager {
+  // Set up media query listener for system color scheme changes
+  private static _mediaQueryListener = (() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      // Only dispatch event if using system preference
+      const currentPreference = ColorSchemeManager.loadColorSchemePreference()
+      if (currentPreference === 'system') {
+        window.dispatchEvent(new CustomEvent('stencila-color-scheme-changed'))
+      }
+    }
+    mediaQuery.addEventListener('change', handleChange)
+    return mediaQuery
+  })()
+
   static loadColorSchemePreference(): ColorScheme {
     try {
       const saved = localStorage.getItem('stencila-color-scheme-preference') as ColorScheme
@@ -47,6 +61,9 @@ class ColorSchemeManager {
     } else {
       root.setAttribute('data-color-scheme', colorScheme)
     }
+
+    // Dispatch event to notify components of color scheme change
+    window.dispatchEvent(new CustomEvent('stencila-color-scheme-changed'))
   }
 
   static persistColorScheme(colorScheme: ColorScheme) {
@@ -86,13 +103,21 @@ class ThemeManager {
     // Store current href as fallback
     const fallbackHref = currentHref
 
+    // Listen for successful load and dispatch event
+    const handleLoad = () => {
+      window.dispatchEvent(new CustomEvent('stencila-theme-changed'))
+      themeLink.removeEventListener('load', handleLoad)
+    }
+
     // Listen for load error and fallback
     const handleError = () => {
       console.warn(`Theme '${theme}' failed to load, falling back to previous theme`)
       themeLink.href = fallbackHref
       themeLink.removeEventListener('error', handleError)
+      themeLink.removeEventListener('load', handleLoad)
     }
 
+    themeLink.addEventListener('load', handleLoad, { once: true })
     themeLink.addEventListener('error', handleError, { once: true })
     themeLink.href = newHref
     return true

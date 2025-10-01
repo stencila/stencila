@@ -45,12 +45,32 @@ export class ImageObject extends MediaObject {
   private htmlMapContent?: string
 
   /**
+   * Cached Cytoscape theme to avoid repeated CSS variable reads
+   */
+  private cytoscapeThemeCache: object | null = null
+
+  /**
    * The Cytoscape.js instance (if relevant)
    *
    * Rather than import cytoscape.Core just stub out what we need. This avoids
    * accidental bloat of the bundle if cytoscape is statically imported.
    */
   private cytoscape?: { resize: () => void }
+
+  /**
+   * Cached Mermaid theme to avoid repeated CSS variable reads
+   */
+  private mermaidThemeCache: object | null = null
+
+  /**
+   * Cache key for Cytoscape theme (stores base color to detect changes)
+   */
+  private cytoscapeCacheKey: string | null = null
+
+  /**
+   * Cache key for Mermaid theme (stores base color to detect changes)
+   */
+  private mermaidCacheKey: string | null = null
 
   override needsCompiling(): boolean {
     // @ts-expect-error re media type
@@ -81,86 +101,44 @@ export class ImageObject extends MediaObject {
     }
   }
 
-  private onResize() {
+  private onResize = () => {
     // If this component is resized then resize the Cytoscape instance, if any
     this.cytoscape?.resize()
   }
 
-  /**
-   * Extract diagram theme variables from CSS custom properties
-   * @returns Object containing theme configuration for diagrams
-   */
-  private computeDiagramTheme() {
-    const cssVars = getCSSVariables(document.documentElement, {
-      background: '--diagram-background',
-      fontFamily: '--diagram-font-family',
-      fontSize: '--diagram-font-size',
-      nodeBackground: '--diagram-node-background',
-      nodeText: '--diagram-node-text-color',
-      nodeBackgroundSecondary: '--diagram-node-background-secondary',
-      nodeBackgroundTertiary: '--diagram-node-background-tertiary',
-      edgeColor: '--diagram-edge-color',
-      textColor: '--diagram-text-color',
-      nodeBorderColor: '--diagram-node-border-color',
-      nodeBorderWidth: '--diagram-node-border-width',
-      edgeWidth: '--diagram-edge-width',
-      actorBackground: '--diagram-actor-background',
-      actorBorder: '--diagram-actor-border',
-      sequenceSignal: '--diagram-sequence-signal',
-      clusterBackground: '--diagram-cluster-background',
-      edgeLabelColor: '--diagram-edge-text-color'
-    })
+  private onThemeChange = async () => {
+    // Clear theme caches
+    this.cytoscapeThemeCache = null
+    this.mermaidThemeCache = null
+    this.cytoscapeCacheKey = null
+    this.mermaidCacheKey = null
 
-    return {
-      background: colorToHex(cssVars.background),
-      fontFamily: cssVars.fontFamily.replace(/['"]/g, ''),
-      fontSize: cssVars.fontSize,
-      primaryColor: colorToHex(cssVars.nodeBackground),
-      primaryTextColor: colorToHex(cssVars.nodeText),
-      secondaryColor: colorToHex(cssVars.nodeBackgroundSecondary),
-      tertiaryColor: colorToHex(cssVars.nodeBackgroundTertiary),
-      lineColor: colorToHex(cssVars.edgeColor),
-      textColor: colorToHex(cssVars.textColor),
-      nodeBorder: colorToHex(cssVars.nodeBorderColor),
-      nodeBorderWidth: cssVars.nodeBorderWidth,
-      edgeWidth: cssVars.edgeWidth,
-
-      // Sequence diagram variables
-      actorBkg: colorToHex(cssVars.nodeBackground), // Use consistent node background
-      actorBorder: colorToHex(cssVars.nodeBorderColor), // Use consistent border
-      actorTextColor: colorToHex(cssVars.nodeText), // Use consistent text color
-      signalColor: colorToHex(cssVars.sequenceSignal),
-      signalTextColor: colorToHex(cssVars.textColor),
-      activationBkgColor: colorToHex(cssVars.nodeBackgroundSecondary),
-      activationBorderColor: colorToHex(cssVars.nodeBorderColor),
-      labelBoxBkgColor: 'transparent',
-      labelTextColor: colorToHex(cssVars.edgeLabelColor),
-
-      // State diagram variables
-      stateBkg: colorToHex(cssVars.nodeBackground), // Use consistent node background
-      stateLabelColor: colorToHex(cssVars.nodeText), // Use consistent text color
-      transitionColor: colorToHex(cssVars.edgeColor),
-      transitionLabelColor: colorToHex(cssVars.edgeLabelColor),
-      specialStateColor: colorToHex(cssVars.nodeBorderColor),
-      arrowheadColor: colorToHex(cssVars.edgeColor), // Ensure arrowheads match edges
-      fillType0: colorToHex(cssVars.nodeBackground), // Additional state fills
-      fillType1: colorToHex(cssVars.nodeBackgroundSecondary),
-      fillType2: colorToHex(cssVars.nodeBackgroundTertiary),
-
-      // Existing variables
-      clusterBkg: colorToHex(cssVars.clusterBackground),
-      edgeLabelBackground: 'transparent',
-      primaryBorderColor: colorToHex(cssVars.nodeBorderColor)
+    // Re-compile diagrams if they exist
+    if (this.cytoscape && this.contentUrl) {
+      await this.compileCytoscape()
     }
+    if (this.svg && this.contentUrl) {
+      await this.compileMermaid()
+    }
+
+    // Trigger Lit re-render
+    this.requestUpdate()
   }
 
   override connectedCallback() {
     super.connectedCallback()
     window.addEventListener('resize', this.onResize)
+    window.addEventListener('stencila-color-scheme-changed', this.onThemeChange)
+    window.addEventListener('stencila-theme-changed', this.onThemeChange)
   }
 
   override disconnectedCallback() {
     window.removeEventListener('resize', this.onResize)
+    window.removeEventListener(
+      'stencila-color-scheme-changed',
+      this.onThemeChange
+    )
+    window.removeEventListener('stencila-theme-changed', this.onThemeChange)
     super.disconnectedCallback()
   }
 
@@ -206,26 +184,142 @@ export class ImageObject extends MediaObject {
       graph.autoungrabify = true
     }
 
-    // Apply theme styles from CSS custom properties
-    const theme = this.computeDiagramTheme()
+    // Compute Cytoscape theme from CSS custom properties (with caching)
+    // Check if cache is valid by comparing base color (detects all theme changes)
+    const currentBaseColor = getCSSVariable(
+      document.documentElement,
+      '--diagram-base-color'
+    )
+    if (
+      !this.cytoscapeThemeCache ||
+      this.cytoscapeCacheKey !== currentBaseColor
+    ) {
+      const cssVars = getCSSVariables(document.documentElement, {
+        background: '--diagram-background',
+        nodeBackground: '--diagram-node-background',
+        nodeBackgroundSecondary: '--diagram-node-background-secondary',
+        nodeBackgroundTertiary: '--diagram-node-background-tertiary',
+        nodeBorderColor: '--diagram-node-border-color',
+        nodeBorderWidth: '--diagram-node-border-width',
+        nodeTextColor: '--diagram-node-text-color',
+        edgeColor: '--diagram-edge-color',
+        edgeWidth: '--diagram-edge-width',
+        textColor: '--diagram-text-color',
+        fontFamily: '--diagram-font-family',
+        fontSize: '--diagram-font-size',
+        activeBackground: '--diagram-active-background',
+        activeBorderColor: '--diagram-active-border-color'
+      })
+
+      // Provide fallback values for critical properties
+      const fallbacks = {
+        background: '#ffffff',
+        nodeBackground: '#e0e0e0',
+        nodeBorderColor: '#999999',
+        nodeTextColor: '#000000',
+        edgeColor: '#666666',
+        textColor: '#000000',
+        fontFamily: 'sans-serif',
+        fontSize: '12px'
+      }
+
+      this.cytoscapeThemeCache = {
+        // Canvas styles
+        background: colorToHex(cssVars.background) || fallbacks.background,
+
+        // Node styles
+        nodeBackground: colorToHex(cssVars.nodeBackground) || fallbacks.nodeBackground,
+        nodeBackgroundSecondary:
+          colorToHex(cssVars.nodeBackgroundSecondary) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+        nodeBackgroundTertiary:
+          colorToHex(cssVars.nodeBackgroundTertiary) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+        nodeBorderColor: colorToHex(cssVars.nodeBorderColor) || fallbacks.nodeBorderColor,
+        nodeBorderWidth: cssVars.nodeBorderWidth || '1px',
+        nodeTextColor: colorToHex(cssVars.nodeTextColor) || fallbacks.nodeTextColor,
+
+        // Edge styles
+        edgeColor: colorToHex(cssVars.edgeColor) || fallbacks.edgeColor,
+        edgeWidth: cssVars.edgeWidth || '1px',
+        textColor: colorToHex(cssVars.textColor) || fallbacks.textColor,
+
+        // State styles
+        activeBackground:
+          colorToHex(cssVars.activeBackground) ||
+          colorToHex(cssVars.nodeBackgroundTertiary) ||
+          fallbacks.nodeBackground,
+        activeBorderColor:
+          colorToHex(cssVars.activeBorderColor) ||
+          colorToHex(cssVars.nodeBorderColor) ||
+          fallbacks.nodeBorderColor,
+
+        // Typography
+        fontFamily: cssVars.fontFamily || fallbacks.fontFamily,
+        fontSize: cssVars.fontSize || fallbacks.fontSize
+      }
+
+      // Store cache key to detect theme changes
+      this.cytoscapeCacheKey = currentBaseColor
+    }
+
+    const theme = this.cytoscapeThemeCache as {
+      background: string
+      nodeBackground: string
+      nodeBackgroundSecondary: string
+      nodeBackgroundTertiary: string
+      nodeBorderColor: string
+      nodeBorderWidth: string
+      nodeTextColor: string
+      edgeColor: string
+      edgeWidth: string
+      textColor: string
+      activeBackground: string
+      activeBorderColor: string
+      fontFamily: string
+      fontSize: string
+    }
+
+    // Apply theme styles from cached values
     const themeStyle = [
       {
         selector: 'node',
         style: {
-          'background-color': theme.primaryColor,
-          'border-color': theme.nodeBorder,
+          'background-color': theme.nodeBackground,
+          'border-color': theme.nodeBorderColor,
           'border-width': theme.nodeBorderWidth,
-          'color': theme.primaryTextColor,
+          'color': theme.nodeTextColor,
           'font-family': theme.fontFamily,
           'font-size': theme.fontSize
         }
       },
       {
+        selector: 'node:selected',
+        style: {
+          'background-color': theme.activeBackground,
+          'border-color': theme.activeBorderColor
+        }
+      },
+      {
+        selector: 'node.secondary',
+        style: {
+          'background-color': theme.nodeBackgroundSecondary
+        }
+      },
+      {
+        selector: 'node.tertiary',
+        style: {
+          'background-color': theme.nodeBackgroundTertiary
+        }
+      },
+      {
         selector: 'edge',
         style: {
-          'line-color': theme.lineColor,
+          'line-color': theme.edgeColor,
           'width': theme.edgeWidth,
-          'target-arrow-color': theme.lineColor,
+          'target-arrow-color': theme.edgeColor,
           'color': theme.textColor,
           'font-family': theme.fontFamily,
           'font-size': theme.fontSize
@@ -253,11 +347,179 @@ export class ImageObject extends MediaObject {
     // @ts-expect-error - Using ESM min build to avoid parser dependency issues
     const { default: mermaid } = await import('mermaid/dist/mermaid.esm.min.mjs')
 
-    // Initialize Mermaid with theme from CSS custom properties
-    const theme = this.computeDiagramTheme()
+    // Compute Mermaid theme from CSS custom properties (with caching)
+    // Check if cache is valid by comparing base color (detects all theme changes)
+    const currentBaseColor = getCSSVariable(
+      document.documentElement,
+      '--diagram-base-color'
+    )
+    if (!this.mermaidThemeCache || this.mermaidCacheKey !== currentBaseColor) {
+      const cssVars = getCSSVariables(document.documentElement, {
+        // Core diagram properties
+        background: '--diagram-background',
+        fontFamily: '--diagram-font-family',
+        fontSize: '--diagram-font-size',
+        textColor: '--diagram-text-color',
+
+        // Node properties
+        nodeBackground: '--diagram-node-background',
+        nodeBackgroundSecondary: '--diagram-node-background-secondary',
+        nodeBackgroundTertiary: '--diagram-node-background-tertiary',
+        nodeBorderColor: '--diagram-node-border-color',
+        nodeBorderWidth: '--diagram-node-border-width',
+        nodeTextColor: '--diagram-node-text-color',
+
+        // Edge properties
+        edgeColor: '--diagram-edge-color',
+        edgeWidth: '--diagram-edge-width',
+        edgeTextColor: '--diagram-edge-text-color',
+
+        // State properties
+        activeBackground: '--diagram-active-background',
+        activeBorderColor: '--diagram-active-border-color',
+        inactiveBackground: '--diagram-inactive-background',
+        inactiveBorderColor: '--diagram-inactive-border-color',
+        completeBackground: '--diagram-complete-background',
+        completeBorderColor: '--diagram-complete-border-color',
+
+        // Structure properties
+        gridColor: '--diagram-grid-color',
+        sectionBackground: '--diagram-section-background'
+      })
+
+      // Provide fallback values for critical properties
+      const fallbacks = {
+        background: '#ffffff',
+        nodeBackground: '#e0e0e0',
+        nodeBorderColor: '#999999',
+        nodeTextColor: '#000000',
+        edgeColor: '#666666',
+        textColor: '#000000',
+        fontFamily: 'sans-serif',
+        fontSize: '12px'
+      }
+
+      this.mermaidThemeCache = {
+        // Core Mermaid theme variables
+        background: colorToHex(cssVars.background) || fallbacks.background,
+        fontFamily: cssVars.fontFamily || fallbacks.fontFamily,
+        fontSize: cssVars.fontSize || fallbacks.fontSize,
+        textColor: colorToHex(cssVars.textColor) || fallbacks.textColor,
+
+        // Primary colors for nodes
+        primaryColor:
+          colorToHex(cssVars.nodeBackground) || fallbacks.nodeBackground,
+        primaryTextColor:
+          colorToHex(cssVars.nodeTextColor) || fallbacks.nodeTextColor,
+        primaryBorderColor:
+          colorToHex(cssVars.nodeBorderColor) || fallbacks.nodeBorderColor,
+
+        // Secondary/tertiary colors for multi-state nodes
+        secondaryColor:
+          colorToHex(cssVars.nodeBackgroundSecondary) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+        tertiaryColor:
+          colorToHex(cssVars.nodeBackgroundTertiary) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+
+        // Node & edge colors
+        nodeBorder:
+          colorToHex(cssVars.nodeBorderColor) || fallbacks.nodeBorderColor,
+        nodeBorderWidth: cssVars.nodeBorderWidth || '1px',
+        lineColor: colorToHex(cssVars.edgeColor) || fallbacks.edgeColor,
+        edgeWidth: cssVars.edgeWidth || '1px',
+
+        // Sequence diagram variables
+        actorBkg: colorToHex(cssVars.nodeBackground) || fallbacks.nodeBackground,
+        actorBorder:
+          colorToHex(cssVars.nodeBorderColor) || fallbacks.nodeBorderColor,
+        actorTextColor:
+          colorToHex(cssVars.nodeTextColor) || fallbacks.nodeTextColor,
+        signalColor: colorToHex(cssVars.edgeColor) || fallbacks.edgeColor,
+        signalTextColor:
+          colorToHex(cssVars.edgeTextColor) || fallbacks.textColor,
+        activationBkgColor:
+          colorToHex(cssVars.nodeBackgroundSecondary) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+        activationBorderColor:
+          colorToHex(cssVars.nodeBorderColor) || fallbacks.nodeBorderColor,
+        labelBoxBkgColor: 'transparent',
+        labelTextColor:
+          colorToHex(cssVars.edgeTextColor) || fallbacks.textColor,
+
+        // State diagram variables
+        stateBkg: colorToHex(cssVars.nodeBackground) || fallbacks.nodeBackground,
+        stateLabelColor:
+          colorToHex(cssVars.nodeTextColor) || fallbacks.nodeTextColor,
+        transitionColor: colorToHex(cssVars.edgeColor) || fallbacks.edgeColor,
+        transitionLabelColor:
+          colorToHex(cssVars.edgeTextColor) || fallbacks.textColor,
+        specialStateColor:
+          colorToHex(cssVars.nodeBorderColor) || fallbacks.nodeBorderColor,
+        arrowheadColor: colorToHex(cssVars.edgeColor) || fallbacks.edgeColor,
+
+        // Additional state fills
+        fillType0: colorToHex(cssVars.nodeBackground) || fallbacks.nodeBackground,
+        fillType1:
+          colorToHex(cssVars.nodeBackgroundSecondary) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+        fillType2:
+          colorToHex(cssVars.nodeBackgroundTertiary) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+
+        // Gantt chart variables
+        taskBkgColor:
+          colorToHex(cssVars.inactiveBackground) ||
+          colorToHex(cssVars.nodeBackground) ||
+          fallbacks.nodeBackground,
+        taskBorderColor:
+          colorToHex(cssVars.inactiveBorderColor) ||
+          colorToHex(cssVars.nodeBorderColor) ||
+          fallbacks.nodeBorderColor,
+        activeTaskBkgColor:
+          colorToHex(cssVars.activeBackground) ||
+          colorToHex(cssVars.nodeBackgroundTertiary) ||
+          fallbacks.nodeBackground,
+        activeTaskBorderColor:
+          colorToHex(cssVars.activeBorderColor) ||
+          colorToHex(cssVars.nodeBorderColor) ||
+          fallbacks.nodeBorderColor,
+        doneTaskBkgColor:
+          colorToHex(cssVars.completeBackground) ||
+          colorToHex(cssVars.nodeBackgroundSecondary) ||
+          fallbacks.nodeBackground,
+        doneTaskBorderColor:
+          colorToHex(cssVars.completeBorderColor) ||
+          colorToHex(cssVars.nodeBorderColor) ||
+          fallbacks.nodeBorderColor,
+        gridColor:
+          colorToHex(cssVars.gridColor) ||
+          colorToHex(cssVars.edgeColor) ||
+          fallbacks.edgeColor,
+        sectionBkgColor:
+          colorToHex(cssVars.sectionBackground) || fallbacks.background,
+        altSectionBkgColor:
+          colorToHex(cssVars.background) || fallbacks.background,
+
+        // Cluster/subgraph styling
+        clusterBkg:
+          colorToHex(cssVars.sectionBackground) || fallbacks.background,
+        edgeLabelBackground: 'transparent'
+      }
+
+      // Store cache key to detect theme changes
+      this.mermaidCacheKey = currentBaseColor
+    }
+
+    // Initialize Mermaid with cached theme
     mermaid.initialize({
       theme: 'base',
-      themeVariables: theme
+      themeVariables: this.mermaidThemeCache
     })
 
     const container = document.createElement('div')

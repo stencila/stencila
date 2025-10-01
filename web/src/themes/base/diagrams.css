@@ -1,80 +1,129 @@
-/* Diagram Styles
+/* Diagram styles
  *
- * Styling for diagram elements. Most diagram styling is handled
- * through design tokens that are applied via JavaScript integration
- * with Mermaid.js and Cytoscape.js.
+ * Purpose: Design tokens for Mermaid.js and Cytoscape.js diagram theming
+ *
+ * Notes:
+ * - Tokens are applied via JavaScript in `web/src/nodes/image-object.ts`
+ * - All color tokens derive from `--diagram-base-color` for consistent theming
+ * - Override `--diagram-base-color` to quickly restyle all diagram colors
+ * - Individual tokens can be overridden for fine-grained control
+ * - Currently supports both Mermaid and Cytoscape with unified token system
+ *
+ * Examples: docs/themes/diagrams.smd
  */
 
 :root {
+    /* Base Color - Base color from which various diagram colors are calculated */
+    --diagram-base-color: var(--color-accent);
+    --diagram-base-color-dark: var(--color-accent-dark);
+
+    /* Background - Uses semantic token for consistency */
     --diagram-background: var(--surface-foreground);
+    --diagram-background-dark: var(--surface-foreground-dark);
+
+    /* Typography */
     --diagram-font-family: var(--font-family-sans);
     --diagram-font-size: var(--font-size-sm);
-    --diagram-text-color: var(--color-blue-950);
-    --diagram-node-background: var(--color-blue-100);
-    --diagram-node-background-secondary: var(--color-blue-200);
-    --diagram-node-background-tertiary: var(--color-blue-300);
-    --diagram-node-border-color: var(--color-blue-500);
-    --diagram-node-border-width: 2px;
-    --diagram-node-text-color: var(--diagram-text-color);
-    --diagram-edge-color: var(--color-blue-600);
-    --diagram-edge-width: 1px;
-    --diagram-edge-text-color: var(--diagram-text-color);
-    --diagram-actor-background: var(--color-gray-100);
-    --diagram-actor-border: var(--color-gray-500);
-    --diagram-sequence-signal: var(--color-blue-500);
-    --diagram-cluster-background: var(--color-gray-50);
 
-    --dark-diagram-background: var(--color-gray-800);
-    --dark-diagram-text-color: var(--color-gray-100);
-    --dark-diagram-node-background: var(--color-blue-900);
-    --dark-diagram-node-background-secondary: var(--color-blue-800);
-    --dark-diagram-node-background-tertiary: var(--color-blue-700);
-    --dark-diagram-node-border-color: var(--color-blue-400);
-    --dark-diagram-node-border-width: 2px;
-    --dark-diagram-node-text-color: var(--dark-diagram-text-color);
-    --dark-diagram-edge-color: var(--color-blue-400);
-    --dark-diagram-edge-width: 1px;
-    --dark-diagram-edge-text-color: var(--color-blue-300);
-    --dark-diagram-actor-background: var(--color-gray-700);
-    --dark-diagram-actor-border: var(--color-gray-500);
-    --dark-diagram-sequence-signal: var(--color-blue-400);
-    --dark-diagram-cluster-background: var(--color-gray-900);
+    /* Text color: calculated from base color mixed with --diagram-background */
+    --diagram-text-color: color-mix(in srgb, var(--diagram-base-color) 95%, var(--diagram-background));
+    --diagram-text-color-dark: color-mix(in srgb, var(--diagram-base-color-dark) 95%, var(--diagram-background-dark));
+
+    /* Node colors: calculated from base color mixed with --diagram-background */
+    --diagram-node-background: color-mix(in srgb, var(--diagram-base-color) 15%, var(--diagram-background));
+    --diagram-node-background-dark: color-mix(in srgb, var(--diagram-base-color-dark) 15%, var(--diagram-background-dark));
+
+    --diagram-node-background-secondary: color-mix(in srgb, var(--diagram-base-color) 25%,var(--diagram-background));
+    --diagram-node-background-secondary-dark: color-mix(in srgb, var(--diagram-base-color-dark) 25%, var(--diagram-background-dark));
+
+    --diagram-node-background-tertiary: color-mix(in srgb, var(--diagram-base-color) 35%,var(--diagram-background));
+    --diagram-node-background-tertiary-dark: color-mix(in srgb, var(--diagram-base-color-dark) 35%, var(--diagram-background-dark));
+
+    --diagram-node-border-color: color-mix(in srgb, var(--diagram-base-color) 35%,var(--diagram-background));
+    --diagram-node-border-color-dark: color-mix(in srgb, var(--diagram-base-color-dark) 35%, var(--diagram-background-dark));
+
+    --diagram-node-border-width: var(--border-width-thick);
+
+    --diagram-node-text-color: var(--diagram-text-color);
+    --diagram-node-text-color-dark: var(--diagram-text-color-dark);
+
+    /* Edge/connection colors */
+    --diagram-edge-color: color-mix(in srgb, var(--diagram-base-color) 60%, var(--diagram-background));
+    --diagram-edge-color-dark: color-mix(in srgb, var(--diagram-base-color-dark) 60%, var(--diagram-background-dark));
+
+    --diagram-edge-width: var(--border-width-default);
+
+    --diagram-edge-text-color: var(--diagram-text-color);
+    --diagram-edge-text-color-dark: var(--diagram-text-color-dark);
+
+    /* State colors - for active/inactive/complete states across diagram types */
+    --diagram-active-background: var(--diagram-node-background-tertiary);
+    --diagram-active-background-dark: var(--diagram-node-background-tertiary-dark);
+
+    --diagram-active-border-color: var(--diagram-node-border-color);
+    --diagram-active-border-color-dark: var(--diagram-node-border-color-dark);
+
+    --diagram-inactive-background: var(--diagram-node-background);
+    --diagram-inactive-background-dark: var(--diagram-node-background-dark);
+
+    --diagram-inactive-border-color: var(--diagram-node-border-color);
+    --diagram-inactive-border-color-dark: var(--diagram-node-border-color-dark);
+
+    --diagram-complete-background: var(--diagram-node-background-secondary);
+    --diagram-complete-background-dark: var(--diagram-node-background-secondary-dark);
+
+    --diagram-complete-border-color: var(--diagram-node-border-color);
+    --diagram-complete-border-color-dark: var(--diagram-node-border-color-dark);
+
+    /* Structure colors - for grids, sections, and grouping elements */
+    --diagram-grid-color: var(--diagram-base-color);
+    --diagram-grid-color-dark: var(--diagram-base-color-dark);
+
+    --diagram-section-background: color-mix(in srgb, var(--diagram-base-color) 10%, var(--diagram-background));
+    --diagram-section-background-dark: color-mix(in srgb, var(--diagram-base-color-dark) 10%, var(--diagram-background-dark));
 }
 
+/* Dark Mode Application - System Preference or Explicit User Choice */
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
-        --diagram-background: var(--dark-diagram-background);
-        --diagram-text-color: var(--dark-diagram-text-color);
-        --diagram-node-background: var(--dark-diagram-node-background);
-        --diagram-node-background-secondary: var(--dark-diagram-node-background-secondary);
-        --diagram-node-background-tertiary: var(--dark-diagram-node-background-tertiary);
-        --diagram-node-border-color: var(--dark-diagram-node-border-color);
-        --diagram-node-border-width: var(--dark-diagram-node-border-width);
-        --diagram-node-text-color: var(--dark-diagram-node-text-color);
-        --diagram-edge-color: var(--dark-diagram-edge-color);
-        --diagram-edge-width: var(--dark-diagram-edge-width);
-        --diagram-edge-text-color: var(--dark-diagram-edge-text-color);
-        --diagram-actor-background: var(--dark-diagram-actor-background);
-        --diagram-actor-border: var(--dark-diagram-actor-border);
-        --diagram-sequence-signal: var(--dark-diagram-sequence-signal);
-        --diagram-cluster-background: var(--dark-diagram-cluster-background);
+        --diagram-base-color: var(--diagram-base-color-dark);
+        --diagram-background: var(--diagram-background-dark);
+        --diagram-text-color: var(--diagram-text-color-dark);
+        --diagram-node-background: var(--diagram-node-background-dark);
+        --diagram-node-background-secondary: var(--diagram-node-background-secondary-dark);
+        --diagram-node-background-tertiary: var(--diagram-node-background-tertiary-dark);
+        --diagram-node-border-color: var(--diagram-node-border-color-dark);
+        --diagram-node-text-color: var(--diagram-node-text-color-dark);
+        --diagram-edge-color: var(--diagram-edge-color-dark);
+        --diagram-edge-text-color: var(--diagram-edge-text-color-dark);
+        --diagram-active-background: var(--diagram-active-background-dark);
+        --diagram-active-border-color: var(--diagram-active-border-color-dark);
+        --diagram-inactive-background: var(--diagram-inactive-background-dark);
+        --diagram-inactive-border-color: var(--diagram-inactive-border-color-dark);
+        --diagram-complete-background: var(--diagram-complete-background-dark);
+        --diagram-complete-border-color: var(--diagram-complete-border-color-dark);
+        --diagram-grid-color: var(--diagram-grid-color-dark);
+        --diagram-section-background: var(--diagram-section-background-dark);
     }
 }
 
 :root[data-color-scheme="dark"] {
-    --diagram-background: var(--dark-diagram-background);
-    --diagram-text-color: var(--dark-diagram-text-color);
-    --diagram-node-background: var(--dark-diagram-node-background);
-    --diagram-node-background-secondary: var(--dark-diagram-node-background-secondary);
-    --diagram-node-background-tertiary: var(--dark-diagram-node-background-tertiary);
-    --diagram-node-border-color: var(--dark-diagram-node-border-color);
-    --diagram-node-border-width: var(--dark-diagram-node-border-width);
-    --diagram-node-text-color: var(--dark-diagram-node-text-color);
-    --diagram-edge-color: var(--dark-diagram-edge-color);
-    --diagram-edge-width: var(--dark-diagram-edge-width);
-    --diagram-edge-text-color: var(--dark-diagram-edge-text-color);
-    --diagram-actor-background: var(--dark-diagram-actor-background);
-    --diagram-actor-border: var(--dark-diagram-actor-border);
-    --diagram-sequence-signal: var(--dark-diagram-sequence-signal);
-    --diagram-cluster-background: var(--dark-diagram-cluster-background);
+    --diagram-base-color: var(--diagram-base-color-dark);
+    --diagram-background: var(--diagram-background-dark);
+    --diagram-text-color: var(--diagram-text-color-dark);
+    --diagram-node-background: var(--diagram-node-background-dark);
+    --diagram-node-background-secondary: var(--diagram-node-background-secondary-dark);
+    --diagram-node-background-tertiary: var(--diagram-node-background-tertiary-dark);
+    --diagram-node-border-color: var(--diagram-node-border-color-dark);
+    --diagram-node-text-color: var(--diagram-node-text-color-dark);
+    --diagram-edge-color: var(--diagram-edge-color-dark);
+    --diagram-edge-text-color: var(--diagram-edge-text-color-dark);
+    --diagram-active-background: var(--diagram-active-background-dark);
+    --diagram-active-border-color: var(--diagram-active-border-color-dark);
+    --diagram-inactive-background: var(--diagram-inactive-background-dark);
+    --diagram-inactive-border-color: var(--diagram-inactive-border-color-dark);
+    --diagram-complete-background: var(--diagram-complete-background-dark);
+    --diagram-complete-border-color: var(--diagram-complete-border-color-dark);
+    --diagram-grid-color: var(--diagram-grid-color-dark);
+    --diagram-section-background: var(--diagram-section-background-dark);
 }
