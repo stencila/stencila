@@ -43,6 +43,7 @@
      * With 2.0× base and 0.85 ratio: h1=2.0×, h2=1.7×, h3=1.45×, h4=1.23×, h5=1.05×, h6=0.89×
      * Ensures all headings remain at or near body text size for better hierarchy */
     --heading-font-size: calc(var(--text-font-size) * 2.0);
+    --heading-font-size-print: calc(var(--text-font-size-print) * 1.75);
     --heading-font-size-ratio: 0.85;
 
     --heading-font-weight: var(--font-weight-bold);
@@ -82,44 +83,44 @@ stencila-heading[level="6"] {
 }
 
 /* Reduced spacing for adjacent headings - avoids awkward gaps when headings follow each other */
-stencila-heading + stencila-heading[level="2"] {
+stencila-heading+stencila-heading[level="2"] {
     margin-top: calc(var(--heading-spacing-top-2) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-heading[level="3"] {
+stencila-heading+stencila-heading[level="3"] {
     margin-top: calc(var(--heading-spacing-top-3) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-heading[level="4"] {
+stencila-heading+stencila-heading[level="4"] {
     margin-top: calc(var(--heading-spacing-top-4) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-heading[level="5"] {
+stencila-heading+stencila-heading[level="5"] {
     margin-top: calc(var(--heading-spacing-top-5) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-heading[level="6"] {
+stencila-heading+stencila-heading[level="6"] {
     margin-top: calc(var(--heading-spacing-top-6) * var(--heading-spacing-adjacent-ratio));
 }
 
 /* Reduced spacing when heading is followed by section (section's first child is typically a heading) */
-stencila-heading + stencila-section > section > stencila-heading[level="2"]:first-child {
+stencila-heading+stencila-section>section>stencila-heading[level="2"]:first-child {
     margin-top: calc(var(--heading-spacing-top-2) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-section > section > stencila-heading[level="3"]:first-child {
+stencila-heading+stencila-section>section>stencila-heading[level="3"]:first-child {
     margin-top: calc(var(--heading-spacing-top-3) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-section > section > stencila-heading[level="4"]:first-child {
+stencila-heading+stencila-section>section>stencila-heading[level="4"]:first-child {
     margin-top: calc(var(--heading-spacing-top-4) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-section > section > stencila-heading[level="5"]:first-child {
+stencila-heading+stencila-section>section>stencila-heading[level="5"]:first-child {
     margin-top: calc(var(--heading-spacing-top-5) * var(--heading-spacing-adjacent-ratio));
 }
 
-stencila-heading + stencila-section > section > stencila-heading[level="6"]:first-child {
+stencila-heading+stencila-section>section>stencila-heading[level="6"]:first-child {
     margin-top: calc(var(--heading-spacing-top-6) * var(--heading-spacing-adjacent-ratio));
 }
 
@@ -204,5 +205,12 @@ stencila-heading {
 @media (max-width: 640px) {
     stencila-heading[level="1"] {
         margin-top: var(--space-4);
+    }
+}
+
+/* Print Application */
+@media print {
+    :root {
+        --heading-font-size: var(--heading-font-size-print);
     }
 }
