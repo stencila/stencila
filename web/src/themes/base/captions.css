@@ -30,8 +30,12 @@
 :root {
     --caption-font-family: var(--font-family-serif);
     --caption-font-size: var(--font-size-sm);
-    --caption-color: var(--text-color-secondary);
-    --caption-color-dark: var(--text-color-secondary-dark);
+    --caption-color: var(--text-color);
+    --caption-color-dark: var(--text-color-dark);
+    --caption-line-height: var(--line-height-sm);
+    --caption-alignment: left;
+    --caption-max-width: 100%;
+    --caption-spacing: calc(var(--content-spacing) * 0.5);
 }
 
 /* Dark Mode Application - System Preference */

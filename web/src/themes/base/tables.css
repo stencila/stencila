@@ -67,20 +67,23 @@
     --table-caption-font-family: var(--caption-font-family);
     --table-caption-font-size: var(--caption-font-size);
     --table-caption-color: var(--caption-color);
-    --table-caption-spacing-bottom: calc(var(--content-spacing) * 0.5);
-    --table-caption-line-height: var(--line-height-sm);
-    --table-caption-text-align: left;
-    --table-caption-max-width: 100%;
+    --table-caption-spacing-bottom: var(--caption-spacing);
+    --table-caption-line-height: var(--caption-line-height);
+    --table-caption-alignment: var(--caption-alignment);
+    --table-caption-max-width: var(--caption-max-width);
 
     /* Label styling - inherits from semantic label tokens */
     --table-label-font-weight: var(--label-font-weight);
     --table-label-font-style: var(--label-font-style);
     --table-label-color: var(--label-color);
 
-    /* Notes spacing and layout */
+    /* Notes typography - independent from caption tokens */
+    --table-notes-font-family: var(--text-font-family);
+    --table-notes-font-size: var(--font-size-sm);
+    --table-notes-color: var(--text-color-secondary);
     --table-notes-spacing-top: calc(var(--content-spacing) * 0.5);
     --table-notes-line-height: var(--line-height-sm);
-    --table-notes-font-size: var(--font-size-sm);
+    --table-notes-alignment: left;
 
     /* Table container styling */
     --table-border-radius: var(--border-radius-default);
@@ -141,7 +144,7 @@ stencila-table {
         margin-bottom: var(--table-caption-spacing-bottom);
         max-width: var(--table-caption-max-width);
 
-        p {
+        stencila-paragraph p {
             /* Browser normalization */
             max-width: none;
             margin: 0;
@@ -151,7 +154,7 @@ stencila-table {
             font-size: var(--table-caption-font-size);
             color: var(--table-caption-color);
             line-height: var(--table-caption-line-height);
-            text-align: var(--table-caption-text-align);
+            text-align: var(--table-caption-alignment);
         }
 
         /* Paragraph spacing: first paragraph aligns with caption,
@@ -210,10 +213,12 @@ stencila-table {
     [slot='notes'] {
         margin-top: var(--table-notes-spacing-top);
 
-        p {
+        stencila-paragraph p {
+            font-family: var(--table-notes-font-family);
             font-size: var(--table-notes-font-size);
+            color: var(--table-notes-color);
             line-height: var(--table-notes-line-height);
-            color: var(--text-color-secondary);
+            text-align: var(--table-notes-alignment);
         }
 
         /* Paragraph spacing within notes */
