@@ -85,13 +85,27 @@
     --table-notes-line-height: var(--line-height-sm);
     --table-notes-alignment: left;
 
-    /* Table container styling */
+    /* Table borders - granular control for theme authors */
     --table-border-radius: var(--border-radius-default);
+    --table-border-width: var(--border-width-default);
+    --table-border-width-print: 0;
+    --table-border-color: var(--border-color-default);
+    --table-border-style: solid;
+
+    --table-row-border-width: var(--border-width-default);
+    --table-row-border-width-print: var(--border-width-default);
+    --table-row-border-color: var(--border-color-default);
+    --table-row-border-style: solid;
+
+    --table-column-border-width: 0;
+    --table-column-border-width-print: 0;
+    --table-column-border-color: var(--border-color-default);
+    --table-column-border-style: solid;
 
     /* Header styling */
     --table-header-background: var(--surface-sunken);
     --table-header-background-dark: #2d2d2d;
-    --table-header-background-print: var(--surface-sunken);
+    --table-header-background-print: transparent;
     --table-header-font-weight: var(--font-weight-semibold);
 
     /* Row styling with dark and print variants */
@@ -135,7 +149,7 @@ stencila-table {
     table {
         width: 100%;
         border-collapse: collapse;
-        border: var(--border-width-default) solid var(--border-color-default);
+        border: var(--table-border-width) var(--table-border-style) var(--table-border-color);
         border-radius: var(--table-border-radius);
     }
 
@@ -181,7 +195,7 @@ stencila-table {
 
         padding: var(--table-cell-padding);
         text-align: left;
-        border-bottom: var(--border-width-default) solid var(--border-color-default);
+        border-bottom: var(--table-row-border-width) var(--table-row-border-style) var(--table-row-border-color);
 
         font-family: var(--table-cell-font-family);
         font-size: var(--table-cell-font-size);
@@ -189,14 +203,22 @@ stencila-table {
         color: var(--text-color-primary);
     }
 
+    th:not(:first-child) {
+        border-left: var(--table-column-border-width) var(--table-column-border-style) var(--table-column-border-color);
+    }
+
     /* Cell styling */
     td {
         padding: var(--table-cell-padding);
         text-align: left;
-        border-bottom: var(--border-width-default) solid var(--border-color-default);
+        border-bottom: var(--table-row-border-width) var(--table-row-border-style) var(--table-row-border-color);
 
         font-family: var(--table-cell-font-family);
         font-size: var(--table-cell-font-size);
+    }
+
+    td:not(:first-child) {
+        border-left: var(--table-column-border-width) var(--table-column-border-style) var(--table-column-border-color);
     }
 
     /* Row hover effect */
@@ -235,6 +257,9 @@ stencila-table {
 /* Print Media Optimization */
 @media print {
     :root {
+        --table-border-width: var(--table-border-width-print);
+        --table-row-border-width: var(--table-row-border-width-print);
+        --table-column-border-width: var(--table-column-border-width-print);
         --table-header-background: var(--table-header-background-print);
         --table-row-striped: var(--table-row-striped-print);
         --table-cell-padding: var(--table-cell-padding-print);
