@@ -23,7 +23,7 @@
 
     /* Typography */
     --diagram-font-family: var(--font-family-sans);
-    --diagram-font-size: var(--font-size-sm);
+    --diagram-font-size: calc(var(--text-font-size) * 0.9);
 
     /* Text color: calculated from base color mixed with --diagram-background */
     --diagram-text-color: color-mix(in srgb, var(--diagram-base-color) 95%, var(--diagram-background));
