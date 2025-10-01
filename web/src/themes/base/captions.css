@@ -28,14 +28,19 @@
  */
 
 :root {
+    --caption-spacing: calc(var(--content-spacing) * 0.5);
+
     --caption-font-family: var(--font-family-serif);
-    --caption-font-size: var(--font-size-sm);
+    --caption-font-size: calc(var(--text-font-size) * 0.85);
+
     --caption-color: var(--text-color);
     --caption-color-dark: var(--text-color-dark);
+
     --caption-line-height: var(--line-height-sm);
+    --caption-line-height-print: var(--line-height-xs);
+    
     --caption-alignment: left;
     --caption-max-width: 100%;
-    --caption-spacing: calc(var(--content-spacing) * 0.5);
 }
 
 /* Dark Mode Application - System Preference */
@@ -48,4 +53,11 @@
 /* Dark Mode Application - Explicit User Choice */
 :root[data-color-scheme="dark"] {
     --caption-color: var(--caption-color-dark);
+}
+
+/* Print Application */
+@media print {
+    :root {
+        --caption-line-height: var(--caption-line-height-print);
+    }
 }
