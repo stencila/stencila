@@ -51,11 +51,13 @@
     --border-width-thick: 2px;
     --border-radius-default: var(--radius-md);
 
-    /* Semantic Colors - For specific admonitions etc with dark variants */
+    /* Theme accent colors */
     --color-accent: var(--color-blue-600);
     --color-accent-dark: var(--color-blue-400);
     --color-accent-muted: var(--color-blue-100);
     --color-accent-muted-dark: var(--color-blue-950);
+
+    /* Semantic Colors - For specific admonitions etc with dark variants */
     --color-info: var(--color-blue-500);
     --color-info-dark: var(--color-blue-400);
     --color-info-muted: var(--color-blue-50);

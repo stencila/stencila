@@ -12,4 +12,9 @@
 :root {
     --font-family-serif: 'Crimson Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-family-mono: 'Source Code Pro', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+    --color-accent: var(--color-amber-600);
+    --color-accent-dark: var(--color-amber-400);
+    --color-accent-muted: var(--color-amber-100);
+    --color-accent-muted-dark: var(--color-amber-950);
 }

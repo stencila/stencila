@@ -13,4 +13,9 @@
 :root {
     --font-family-serif: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-family-mono: 'Inconsolata', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+    --color-accent: var(--color-red-600);
+    --color-accent-dark: var(--color-red-400);
+    --color-accent-muted: var(--color-red-100);
+    --color-accent-muted-dark: var(--color-red-950);
 }
