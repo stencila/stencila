@@ -96,6 +96,7 @@ export class Article extends Entity {
       </stencila-ui-article-headings>
 
       <slot name="title"></slot>
+      <slot name="authors"></slot>
       <slot name="abstract"></slot>
       <slot name="content"></slot>
 

@@ -38,20 +38,21 @@
 
     /* Article Title */
     --article-title-font-family: var(--heading-font-family);
-    --article-title-font-size: var(--font-size-xl);
+    --article-font-size: calc(var(--text-font-size) * 2.5);
+    --article-font-size-print: calc(var(--text-font-size-print) * 2.0);
     --article-title-font-weight: var(--font-weight-bold);
     --article-title-color: var(--text-color-primary);
     --article-title-text-align: center;
     --article-title-margin-bottom: var(--space-8);
 
     /* Article Authors */
-    --article-authors-font-size: var(--font-size-sm);
-    --article-authors-color: var(--text-color-secondary);
+    --article-authors-font-size: var(--text-font-size);
+    --article-authors-color: var(--text-color);
     --article-authors-margin-bottom: var(--space-6);
 
     /* Article Abstract */
-    --article-abstract-font-size: var(--font-size-sm);
-    --article-abstract-color: var(--text-color-secondary);
+    --article-abstract-font-size: var(--text-font-size);
+    --article-abstract-color: var(--text-color);
     --article-abstract-background: var(--surface-background);
     --article-abstract-margin-bottom: var(--space-6);
 
@@ -92,6 +93,10 @@ stencila-article {
 }
 
 @media print {
+    :root {
+        --article-font-size: var(--article-font-size-print);
+    }
+
     stencila-article {
         /* Reset print margins for articles */
         max-width: none;

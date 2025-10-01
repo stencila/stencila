@@ -25,6 +25,11 @@ export class Person extends Entity {
   familyNames?: string[]
 
   override render() {
+    // For now, avoid using <stencila-ui-node-author> for top level authors
+    if (this.depth == 1 && this.parentNodeIs('Article')) {
+      return html`<slot name="name"></slot>`
+    }
+
     const name = `${(this.givenNames ?? []).join(' ')} ${(this.familyNames ?? []).join(' ')}`
 
     return html`<stencila-ui-node-author
