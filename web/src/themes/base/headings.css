@@ -26,6 +26,15 @@
     --heading-spacing-top: calc(var(--content-spacing) * 1.5);
     --heading-spacing-bottom: calc(var(--content-spacing) * 0.5);
     --heading-spacing-ratio: 0.8;
+    --heading-spacing-adjacent-ratio: 0.5;
+
+    /* Pre-calculated spacing for each level - used for normal and adjacent heading spacing */
+    --heading-spacing-top-1: var(--heading-spacing-top);
+    --heading-spacing-top-2: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio));
+    --heading-spacing-top-3: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+    --heading-spacing-top-4: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+    --heading-spacing-top-5: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+    --heading-spacing-top-6: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
 
     --heading-font-family: var(--font-family-serif);
 
@@ -49,27 +58,69 @@
 
 /* Spacing applied at outer element level based on heading level */
 stencila-heading[level="1"] {
-    margin-top: var(--heading-spacing-top);
+    margin-top: var(--heading-spacing-top-1);
 }
 
 stencila-heading[level="2"] {
-    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio));
+    margin-top: var(--heading-spacing-top-2);
 }
 
 stencila-heading[level="3"] {
-    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+    margin-top: var(--heading-spacing-top-3);
 }
 
 stencila-heading[level="4"] {
-    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+    margin-top: var(--heading-spacing-top-4);
 }
 
 stencila-heading[level="5"] {
-    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+    margin-top: var(--heading-spacing-top-5);
 }
 
 stencila-heading[level="6"] {
-    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+    margin-top: var(--heading-spacing-top-6);
+}
+
+/* Reduced spacing for adjacent headings - avoids awkward gaps when headings follow each other */
+stencila-heading + stencila-heading[level="2"] {
+    margin-top: calc(var(--heading-spacing-top-2) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-heading[level="3"] {
+    margin-top: calc(var(--heading-spacing-top-3) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-heading[level="4"] {
+    margin-top: calc(var(--heading-spacing-top-4) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-heading[level="5"] {
+    margin-top: calc(var(--heading-spacing-top-5) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-heading[level="6"] {
+    margin-top: calc(var(--heading-spacing-top-6) * var(--heading-spacing-adjacent-ratio));
+}
+
+/* Reduced spacing when heading is followed by section (section's first child is typically a heading) */
+stencila-heading + stencila-section > section > stencila-heading[level="2"]:first-child {
+    margin-top: calc(var(--heading-spacing-top-2) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-section > section > stencila-heading[level="3"]:first-child {
+    margin-top: calc(var(--heading-spacing-top-3) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-section > section > stencila-heading[level="4"]:first-child {
+    margin-top: calc(var(--heading-spacing-top-4) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-section > section > stencila-heading[level="5"]:first-child {
+    margin-top: calc(var(--heading-spacing-top-5) * var(--heading-spacing-adjacent-ratio));
+}
+
+stencila-heading + stencila-section > section > stencila-heading[level="6"]:first-child {
+    margin-top: calc(var(--heading-spacing-top-6) * var(--heading-spacing-adjacent-ratio));
 }
 
 stencila-heading {
