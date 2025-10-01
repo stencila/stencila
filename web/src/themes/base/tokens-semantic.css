@@ -42,7 +42,7 @@
     /* Border Colors and Properties with dark and print variants */
     --border-color-default: var(--color-gray-300);
     --border-color-default-dark: var(--color-gray-600);
-    --border-color-default-print: var(--color-gray-600);
+    --border-color-default-print: var(--color-gray-300);
     --border-color-muted: var(--color-gray-200);
     --border-color-muted-dark: var(--color-gray-700);
     --border-color-emphasis: var(--color-gray-400);

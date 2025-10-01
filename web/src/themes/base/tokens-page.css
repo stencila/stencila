@@ -17,9 +17,9 @@
     /* Page Margin Box Styling */
     --page-margin-font-family: var(--font-family-sans);
     --page-margin-font-size: 8pt;
+    --page-margin-line-height: var(--line-height-xs);
     --page-margin-color: var(--text-color-secondary);
-    --page-margin-line-height: 1.2;
-    --page-margin-padding: var(--space-2);
+    --page-margin-padding: var(--space-0);
 
     /* Page Margin Box Content - Set these to control margin content */
     --page-top-left-content: '';

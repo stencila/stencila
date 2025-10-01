@@ -31,7 +31,7 @@
     --reference-spacing: var(--content-spacing);
 
     /* Reference Typography - Colors automatically inherit dark mode from text colors */
-    --reference-font-size: inherit;
+    --reference-font-size: var(--text-font-size);
     --reference-line-height: var(--text-line-height);
     --reference-text-align: left;
     --reference-text-indent: 0;
