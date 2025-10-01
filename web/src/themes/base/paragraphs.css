@@ -44,10 +44,13 @@
 stencila-paragraph {
     display: block;
 
+    /* Spacing */
+    margin-top: var(--paragraph-spacing);
+    margin-bottom: 0;
+
     p {
-        /* Spacing */
-        margin-top: var(--paragraph-spacing);
-        margin-bottom: 0;
+        /* Browser normalization */
+        margin: 0;
 
         /* Typography control */
         line-height: var(--paragraph-line-height);

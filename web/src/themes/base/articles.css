@@ -52,11 +52,10 @@
     /* Article Abstract */
     --article-abstract-font-size: var(--font-size-sm);
     --article-abstract-color: var(--text-color-secondary);
-    --article-abstract-background: var(--surface-sunken);
+    --article-abstract-background: var(--surface-background);
     --article-abstract-margin-bottom: var(--space-6);
 
     /* Article Content */
-    --article-content-spacing: var(--space-6);
     --article-content-max-width: var(--content-width);
     --article-content-max-width-mobile: var(--content-width-mobile);
 }
@@ -64,13 +63,9 @@
 stencila-article {
     display: block;
 
-    >[slot="content"] {
+    >[slot] {
         max-width: var(--article-content-max-width);
         margin: 0 auto;
-
-        >*+* {
-            margin-top: var(--article-content-spacing);
-        }
     }
 
     >[slot="title"] {
@@ -86,13 +81,6 @@ stencila-article {
         font-size: var(--article-authors-font-size);
         color: var(--article-authors-color);
         margin-bottom: var(--article-authors-margin-bottom);
-    }
-
-    >[slot="abstract"] {
-        font-size: var(--article-abstract-font-size);
-        color: var(--article-abstract-color);
-        background-color: var(--article-abstract-background);
-        margin-bottom: var(--article-abstract-margin-bottom);
     }
 }
 
@@ -110,7 +98,7 @@ stencila-article {
         padding: 0;
 
         /* Ensure content flows properly for print */
-        section[slot="content"] {
+        section[slot] {
             max-width: none;
         }
     }

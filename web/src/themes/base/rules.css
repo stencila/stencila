@@ -1,18 +1,18 @@
-/* Horizontal Rule Styles
- *
- * Styling for horizontal rule elements (hr).
- * Uses design tokens for consistent appearance.
+/* Horizontal Rule styles
  */
 
-/* -----------------------------------------------------------------
-   HORIZONTAL RULE STYLING
+stencila-thematic-break {
+    display: block;
 
-   Apply design tokens for consistent rule appearance
-   ----------------------------------------------------------------- */
+    /* Spacing */
+    margin-top: var(--content-spacing);
+    margin-bottom: var(--content-spacing);
 
-/* Horizontal Rules */
-hr {
-    border: none;
-    border-top: var(--border-width-default) solid var(--border-color-default);
-    margin: var(--paragraph-spacing-lg) 0;
+    hr {
+        /* Browser normalization */
+        margin: 0;
+        border: none;
+
+        border-top: var(--border-width-default) solid var(--border-color-default);
+    }
 }

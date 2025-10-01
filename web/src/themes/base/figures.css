@@ -92,13 +92,13 @@
 stencila-figure {
     display: block;
 
+    /* Vertical spacing */
+    margin-top: var(--figure-spacing-top);
+    margin-bottom: var(--figure-spacing-bottom);
+
     figure {
         /* Browser normalization */
         margin: 0;
-
-        /* Vertical spacing */
-        margin-top: var(--figure-spacing-top);
-        margin-bottom: var(--figure-spacing-bottom);
 
         /* Optional container styling */
         background-color: var(--figure-background);

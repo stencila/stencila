@@ -43,6 +43,31 @@
     --heading-color-opacity-decrement: 0;
 }
 
+/* Spacing applied at outer element level based on heading level */
+stencila-heading[level="1"] {
+    margin-top: var(--heading-spacing-top);
+}
+
+stencila-heading[level="2"] {
+    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio));
+}
+
+stencila-heading[level="3"] {
+    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+}
+
+stencila-heading[level="4"] {
+    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+}
+
+stencila-heading[level="5"] {
+    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+}
+
+stencila-heading[level="6"] {
+    margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
+}
+
 stencila-heading {
     display: block;
 
@@ -53,6 +78,7 @@ stencila-heading {
     h5,
     h6 {
         /* Browser normalization */
+        margin-top: 0;
         overflow-wrap: break-word;
 
         font-family: var(--heading-font-family);
@@ -65,13 +91,11 @@ stencila-heading {
     h1 {
         font-size: var(--heading-font-size);
         font-weight: var(--heading-font-weight);
-        margin-top: var(--heading-spacing-top);
     }
 
     h2 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement));
-        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 1);
     }
@@ -79,7 +103,6 @@ stencila-heading {
     h3 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 2);
-        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 2);
     }
@@ -87,7 +110,6 @@ stencila-heading {
     h4 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
-        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 3);
     }
@@ -95,7 +117,6 @@ stencila-heading {
     h5 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
-        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 4);
     }
@@ -103,7 +124,6 @@ stencila-heading {
     h6 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
         font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
-        margin-top: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 5);
     }
@@ -127,9 +147,7 @@ stencila-heading {
  * visual weight and negative space on mobile screens. The fixed 1rem provides better
  * visual balance while maintaining content rhythm. */
 @media (max-width: 640px) {
-    stencila-heading {
-        h1 {
-            margin-top: var(--space-4);
-        }
+    stencila-heading[level="1"] {
+        margin-top: var(--space-4);
     }
 }

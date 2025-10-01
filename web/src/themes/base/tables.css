@@ -59,7 +59,7 @@
  */
 
 :root {
-    /* Spacing tokens - vertical separation from surrounding content */
+    /* Vertical spacing tokens - vertical separation from surrounding content */
     --table-spacing-top: var(--content-spacing);
     --table-spacing-bottom: var(--content-spacing);
 
@@ -159,11 +159,11 @@ stencila-table {
 
         /* Paragraph spacing: first paragraph aligns with caption,
          * subsequent paragraphs use caption spacing to maintain visual hierarchy */
-        stencila-paragraph:first-child p {
+        stencila-paragraph:first-child {
             margin-top: 0;
         }
 
-        stencila-paragraph:not(:first-child) p {
+        stencila-paragraph:not(:first-child) {
             margin-top: var(--table-caption-spacing-bottom);
         }
 
@@ -222,11 +222,11 @@ stencila-table {
         }
 
         /* Paragraph spacing within notes */
-        stencila-paragraph:first-child p {
+        stencila-paragraph:first-child {
             margin-top: 0;
         }
 
-        stencila-paragraph:not(:first-child) p {
+        stencila-paragraph:not(:first-child) {
             margin-top: var(--table-notes-spacing-top);
         }
     }

@@ -277,7 +277,18 @@ code {
     padding: var(--code-padding-inline);
 }
 
+stencila-code-chunk {
+    display: block;
+
+    /* Spacing */
+    margin-top: var(--content-spacing);
+    margin-bottom: var(--content-spacing);
+}
+
 pre {
+    /* Browser normalization */
+    margin: 0;
+
     font-family: var(--code-font-family);
     font-size: var(--code-font-size-block);
     line-height: var(--code-line-height);
@@ -285,7 +296,6 @@ pre {
     border: var(--code-border-width) solid var(--code-border-color);
     border-radius: var(--code-border-radius);
     padding: var(--code-padding-block);
-    margin: var(--paragraph-spacing-lg) 0;
     overflow-x: auto;
     max-width: 100%;
     word-break: break-all;

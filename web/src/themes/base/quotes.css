@@ -72,18 +72,30 @@
 }
 
 stencila-quote-block {
+    display: block;
+
+    /* Vertical spacing */
+    margin-top: var(--quote-spacing);
+    margin-bottom: var(--quote-spacing);
+
     blockquote {
+        /* Browser normalization */
+        margin: 0;
+
+        /* Horizontal spacing and styling */
+        margin-left: var(--quote-spacing-horizontal);
+        margin-right: var(--quote-spacing-horizontal);
+
         border-left: var(--quote-border-width) solid var(--quote-border-color);
         background-color: var(--quote-background);
         padding: var(--quote-padding);
-        margin: var(--quote-spacing) var(--quote-spacing-horizontal);
         font-style: var(--quote-font-style);
         font-size: var(--quote-font-size);
         border-radius: var(--quote-border-radius);
     }
 
     /* Remove default top margin from first paragraph to align with quote padding */
-    blockquote stencila-paragraph:first-child p {
+    blockquote stencila-paragraph:first-child {
         margin-top: 0;
     }
 }

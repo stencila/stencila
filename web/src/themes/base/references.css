@@ -44,12 +44,15 @@
 
 stencila-reference {
     display: block;
+
+    /* Spacing */
+    margin-top: var(--reference-spacing);
+
     padding-left: var(--reference-padding-left);
 
     p {
-        /* Spacing */
-        margin-top: var(--reference-spacing);
-        margin-bottom: 0;
+        /* Browser normalization */
+        margin: 0;
 
         /* Typography control */
         font-size: var(--reference-font-size);

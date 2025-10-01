@@ -53,16 +53,20 @@
 stencila-list {
     display: block;
 
+    /* Spacing */
+    margin-top: var(--list-spacing);
+
     ul,
     ol {
         /* Browser normalization */
         margin: 0;
         padding: 0;
 
-        margin-top: var(--list-spacing);
         padding-left: var(--list-indent);
         list-style-position: outside;
     }
+
+    /* Marker types */
 
     ul {
         list-style-type: var(--list-marker-unordered);
@@ -72,29 +76,33 @@ stencila-list {
         list-style-type: var(--list-marker-ordered);
     }
 
-    /* Nested lists */
-
-    ul ul,
-    ol ol,
-    ul ol,
-    ol ul {
-        margin-top: var(--list-spacing-nested);
-        margin-left: var(--list-indent-nested);
-    }
-
-    ul ul,
-    ol ul {
-        list-style-type: var(--list-marker-nested-unordered);
-    }
-
-    ol ol,
-    ul ol {
-        list-style-type: var(--list-marker-nested-ordered);
-    }
-
     stencila-list-item {
+        display: block;
+        
+        /* Spacing */
+        margin-bottom: var(--list-item-spacing);
+
         li {
-            margin-bottom: var(--list-item-spacing);
+            /* Browser normalization */
+            margin: 0;
+
+            /* Nested lists - spacing and indent at outer element level */
+
+            stencila-list {
+                margin-top: var(--list-spacing-nested);
+                margin-left: var(--list-indent-nested);
+            }
+
+            /* Nested list marker types */
+
+            ul {
+                list-style-type: var(--list-marker-nested-unordered);
+            }
+
+            ol {
+                list-style-type: var(--list-marker-nested-ordered);
+            }
+
             line-height: var(--text-line-height);
             padding-left: var(--list-marker-gap);
 
@@ -104,7 +112,7 @@ stencila-list {
 
             /* Paragraphs spacing: use list-item spacing instead of full
              * paragraph spacing to maintain visual hierarchy */
-            stencila-paragraph p {
+            stencila-paragraph {
                 margin-top: var(--list-item-spacing);
             }
         }
