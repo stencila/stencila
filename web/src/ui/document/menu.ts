@@ -31,7 +31,7 @@ type Theme = 'stencila' | 'tufte' | 'latex'
  */
 class ColorSchemeManager {
   // Set up media query listener for system color scheme changes
-  private static _mediaQueryListener = (() => {
+  private static mediaQueryListener = (() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => {
       // Only dispatch event if using system preference
