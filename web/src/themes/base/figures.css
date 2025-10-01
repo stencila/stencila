@@ -129,11 +129,11 @@ stencila-figure {
 
         /* Paragraph spacing: first paragraph aligns with figcaption,
          * subsequent paragraphs use caption spacing to maintain visual hierarchy */
-        stencila-paragraph:first-child p {
+        stencila-paragraph:first-child {
             margin-top: 0;
         }
 
-        stencila-paragraph:not(:first-child) p {
+        stencila-paragraph:not(:first-child) {
             margin-top: var(--figure-caption-spacing-top);
         }
 

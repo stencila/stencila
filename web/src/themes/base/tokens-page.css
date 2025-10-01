@@ -14,6 +14,14 @@
     --page-padding-top: var(--page-padding);
     --page-padding-bottom: var(--page-padding);
 
+    /* Available content height for a page (in pixels) For A4 (297mm high x
+     * 210mm wide) with 20mm margins and padding top and bottom, left and right
+     * this is approximately 970px (257mm * 3.78dpm / 96dpi) and 640px. Adjust for
+     * different page sizes or margins. Used by JavaScript to scale content to
+     * fit pages. */
+    --page-content-height: 970px;
+    --page-content-width: 640px;
+
     /* Page Margin Box Styling */
     --page-margin-font-family: var(--font-family-sans);
     --page-margin-font-size: 8pt;

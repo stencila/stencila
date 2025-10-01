@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
@@ -17,6 +17,12 @@ import '../ui/nodes/properties/provenance'
 @customElement('stencila-table')
 @withTwind()
 export class Table extends Entity {
+  @property()
+  label?: string;
+
+  @property()
+  labelAutomatically?: string;
+
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
