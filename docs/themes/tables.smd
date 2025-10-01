@@ -27,7 +27,7 @@ Layout and typography styling for table captions (inherits from caption and labe
 | `--table-caption-font-size`   | Font size for captions                        | `var(--caption-font-size)`   |
 | `--table-caption-color`       | Text color (automatic dark mode)              | `var(--caption-color)`       |
 | `--table-caption-line-height` | Line height for caption text                  | `var(--line-height-sm)`      |
-| `--table-caption-text-align`  | Text alignment (left, center, right, justify) | `left`                       |
+| `--table-caption-alignment`  | Text alignment (left, center, right, justify) | `left`                       |
 | `--table-caption-max-width`   | Maximum width for caption text                | `100%`                       |
 | `--table-label-font-weight`   | Font weight for table labels                  | `var(--label-font-weight)`   |
 | `--table-label-font-style`    | Font style for table labels                   | `var(--label-font-style)`    |
@@ -185,12 +185,12 @@ Enhanced spacing and typography for formal academic documents:
   --table-spacing-top: calc(var(--content-spacing) * 2);
   --table-spacing-bottom: calc(var(--content-spacing) * 2);
   --table-caption-spacing-bottom: var(--content-spacing);
-  --table-caption-text-align: justify;
+  --table-caption-alignment: justify;
   --table-caption-line-height: var(--line-height-md);
 }
 ```
 
-::: style --table-spacing-top: calc(var(--content-spacing) \* 2); --table-spacing-bottom: calc(var(--content-spacing) \* 2); --table-caption-spacing-bottom: var(--content-spacing); --table-caption-text-align: justify; --table-caption-line-height: var(--line-height-md);
+::: style --table-spacing-top: calc(var(--content-spacing) \* 2); --table-spacing-bottom: calc(var(--content-spacing) \* 2); --table-caption-spacing-bottom: var(--content-spacing); --table-caption-alignment: justify; --table-caption-line-height: var(--line-height-md);
 
 ::: table 1
 

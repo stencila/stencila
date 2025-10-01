@@ -52,7 +52,7 @@ Layout and typography styling for figure captions (inherits from caption and lab
 | `--figure-caption-color`       | Text color (automatic dark mode)              | `var(--caption-color)`               |
 | `--figure-caption-spacing-top` | Gap between image and caption                 | `calc(var(--content-spacing) * 0.5)` |
 | `--figure-caption-line-height` | Line height for caption text                  | `var(--line-height-sm)`              |
-| `--figure-caption-text-align`  | Text alignment (left, center, right, justify) | `left`                               |
+| `--figure-caption-alignment`  | Text alignment (left, center, right, justify) | `left`                               |
 | `--figure-caption-max-width`   | Maximum width for caption text                | `100%`                               |
 | `--figure-label-font-weight`   | Font weight for figure labels                 | `var(--label-font-weight)`           |
 | `--figure-label-font-style`    | Font style for figure labels                  | `var(--label-font-style)`            |
@@ -99,7 +99,7 @@ Figures integrate with the design system's token architecture:
 
 **Isolated figures**: Add subtle backgrounds and borders to create visual containers for important figures.
 
-**Centered captions**: Change `--figure-caption-text-align` to `center` for symmetrical layouts.
+**Centered captions**: Change `--figure-caption-alignment` to `center` for symmetrical layouts.
 
 **Compact figures**: Reduce spacing tokens for documentation or high-density layouts.
 
@@ -164,11 +164,11 @@ Enhanced spacing and typography for scholarly documents:
   --figure-caption-spacing-top: var(--content-spacing);
   --figure-caption-font-size: var(--font-size-xs);
   --figure-caption-line-height: var(--line-height-md);
-  --figure-caption-text-align: justify;
+  --figure-caption-alignment: justify;
 }
 ```
 
-::: style --figure-spacing-top: calc(var(--content-spacing) \* 2); --figure-spacing-bottom: calc(var(--content-spacing) \* 2); --figure-caption-spacing-top: var(--content-spacing); --figure-caption-font-size: var(--font-size-xs); --figure-caption-line-height: var(--line-height-md); --figure-caption-text-align: justify;
+::: style --figure-spacing-top: calc(var(--content-spacing) \* 2); --figure-spacing-bottom: calc(var(--content-spacing) \* 2); --figure-caption-spacing-top: var(--content-spacing); --figure-caption-font-size: var(--font-size-xs); --figure-caption-line-height: var(--line-height-md); --figure-caption-alignment: justify;
 
 ::: figure
 
@@ -186,12 +186,12 @@ Symmetrical layout with centered caption text:
 
 ```css
 :root {
-  --figure-caption-text-align: center;
+  --figure-caption-alignment: center;
   --figure-caption-spacing-top: var(--space-3);
 }
 ```
 
-::: style --figure-caption-text-align: center; --figure-caption-spacing-top: var(--space-3);
+::: style --figure-caption-alignment: center; --figure-caption-spacing-top: var(--space-3);
 
 ::: figure
 
