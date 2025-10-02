@@ -1,9 +1,8 @@
-import { ArrayValidator, NodeType } from '@stencila/types'
+import { ArrayValidator } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import '../ui/icons/icon'
 
@@ -22,20 +21,6 @@ export class DatatableColumn extends Entity {
   validator?: ArrayValidator
 
   override render() {
-    const itemsValidatorType = this.validator?.itemsValidator?.type
-    const itemsType = itemsValidatorType
-      ? itemsValidatorType.replace('Validator', '')
-      : ''
-    const { icon } = nodeUi(itemsType as NodeType)
-
-    return html`
-      <div class="flex justify-start items-center">
-        <stencila-ui-icon
-          name=${icon}
-          class=${`pr-0.5 text-base`}
-        ></stencila-ui-icon>
-        <span class="font-bold">${this.name}</span>
-      </div>
-    `
+    return html`<slot></slot>`
   }
 }

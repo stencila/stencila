@@ -3,7 +3,7 @@ use stencila_codec_info::lost_options;
 
 use crate::{
     ArrayValidator, Block, Datatable, DatatableColumn, Object, Primitive, Table, TableRowType,
-    prelude::*,
+    Validator, implem::utils::caption_to_dom, prelude::*,
 };
 
 use stencila_codec_text_trait::to_text;
@@ -346,37 +346,64 @@ impl From<&Table> for Datatable {
 
 impl DomCodec for Datatable {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .push_id(&self.id)
-            .enter_elem("table");
+        context.enter_node(self.node_type(), self.node_id());
 
-        // Create a <thead><tr> elem with a <th> row describing each column
-        context.enter_elem("thead").enter_elem("tr");
-        for column in &self.columns {
-            context.enter_elem("th");
-            column.to_dom(context);
+        if let Some(label) = &self.label {
+            context.push_attr("label", label);
+        }
+
+        if let Some(label_automatically) = &self.label_automatically {
+            context.push_attr("label-automatically", &label_automatically.to_string());
+        }
+
+        if let Some(id) = &self.id {
+            context
+                .enter_slot("div", "id")
+                .push_attr("id", id)
+                .exit_slot();
+        }
+
+        context.enter_elem_attrs("table", [("slot", "columns")]);
+
+        // The HTML spec requires <caption> to be within <table>. But slotted elements must be direct children
+        // of the custom element (in this case, <stencila-datatable>). For those reasons, the caption is not
+        // assigned to a slot
+        if (self.label.is_some() && matches!(self.label_automatically, Some(false)))
+            || self.caption.is_some()
+        {
+            context.enter_elem("caption");
+            caption_to_dom(context, "table-label", "Table", &self.label, &self.caption);
             context.exit_elem();
         }
-        context.exit_elem().exit_elem();
 
-        // Get a name for the type of each column
-        let data_types = self
+        // Determine the horizontal alignment for each column
+        let alignments = self
             .columns
             .iter()
             .map(|column| match &column.validator {
                 Some(ArrayValidator {
                     items_validator: Some(items_validator),
                     ..
-                }) => Some(
-                    items_validator
-                        .to_string()
-                        .trim_end_matches("Validator")
-                        .to_lowercase(),
-                ),
+                }) => match items_validator.as_ref() {
+                    Validator::StringValidator(..) => None,
+                    _ => Some("text-align:right".to_string()),
+                },
                 _ => None,
             })
             .collect_vec();
+
+        // Create a <thead><tr> elem with a <th> row describing each column
+        context.enter_elem("thead").enter_elem("tr");
+        for (index, column) in self.columns.iter().enumerate() {
+            context.enter_elem("th");
+            if let Some(Some(alignment)) = alignments.get(index) {
+                context.push_attr("style", alignment);
+            }
+
+            column.to_dom(context);
+            context.exit_elem();
+        }
+        context.exit_elem().exit_elem();
 
         // Create a <tbody> elem with a <td> for each value in each column
         context.enter_elem("tbody");
@@ -385,15 +412,22 @@ impl DomCodec for Datatable {
             for (column_index, column) in self.columns.iter().enumerate() {
                 context.enter_elem("td");
 
-                if let Some(Some(data_type)) = data_types.get(column_index) {
-                    context.push_attr("data-type", data_type);
+                if let Some(Some(alignment)) = alignments.get(column_index) {
+                    context.push_attr("style", alignment);
                 }
 
                 if let Some(value) = column.values.get(row) {
-                    let text = if let Primitive::String(value) = &value {
-                        value.clone()
-                    } else {
-                        serde_json::to_string(value).unwrap_or_default()
+                    let text = match value {
+                        Primitive::Null(..) => {
+                            context.exit_elem();
+                            continue;
+                        }
+                        Primitive::Boolean(value) => value.to_string(),
+                        Primitive::Integer(value) => value.to_string(),
+                        Primitive::UnsignedInteger(value) => value.to_string(),
+                        Primitive::Number(value) => value.to_string(),
+                        Primitive::String(value) => value.to_string(),
+                        _ => serde_json::to_string(value).unwrap_or_default(),
                     };
                     context.push_text(&text);
                 }
@@ -401,9 +435,15 @@ impl DomCodec for Datatable {
             }
             context.exit_elem();
         }
-        context.exit_elem();
+        context.exit_elem(); // exit <tbody>
 
-        context.exit_elem().exit_node();
+        context.exit_elem(); // exit <table>
+
+        if let Some(notes) = &self.notes {
+            context.push_slot_fn("aside", "notes", |context| notes.to_dom(context));
+        }
+
+        context.exit_node();
     }
 }
 

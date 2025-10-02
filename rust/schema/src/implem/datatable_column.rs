@@ -291,8 +291,8 @@ impl DomCodec for DatatableColumn {
             context.push_attr("validator", &validator);
         }
 
-        // Put name in a <span> as well so it is visible in static view.
-        context.enter_elem("span").push_text(&self.name).exit_elem();
+        // Also put name as text content so it is visible in static view.
+        context.push_text(&self.name);
 
         context.exit_node();
     }

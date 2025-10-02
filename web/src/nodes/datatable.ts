@@ -37,16 +37,16 @@ export class Datatable extends Entity {
         depth=${this.depth}
         ?has-root=${this.hasRoot()}
       >
-        <div class="content" slot="content">${this.renderContent()}</div>
+        <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `
   }
 
   private renderContent() {
     return html`
-      <div class="overflow-x-scroll data-table">
-        <slot></slot>
-      </div>
+      <slot name="id"></slot>
+      <slot name="columns"></slot>
+      <slot name="notes"></slot>
     `
   }
 }
