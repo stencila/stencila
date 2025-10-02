@@ -10,6 +10,7 @@ pub fn clean_md(md: &str) -> String {
     let md = remove_line_numbers(md);
     let md = remove_extra_blank_lines(&md);
     let md = remove_heading_formatting(&md);
+    let md = fix_superscript_subscript(&md);
     let md = remove_unnecessary_inline_math(&md);
     let md = ensure_isolated_blocks(&md);
     ensure_isolated_references(&md)
@@ -214,6 +215,82 @@ fn remove_unnecessary_inline_math(md: &str) -> String {
             }
         })
         .to_string()
+}
+
+/// Fix invalid superscript and subscript syntax from OCR
+///
+/// OCR can generate LaTeX-style superscript `^{content}` and subscript `_{content}`
+/// syntax instead of Pandoc's Markdown syntax. This function converts them:
+///
+/// - `text^{sup}` -> `text^sup^`
+/// - `text_{sub}` -> `text~sub~`
+///
+/// Does not perform replacements inside math mode (delimited by `$...$` or `$$...$$`).
+fn fix_superscript_subscript(md: &str) -> String {
+    let mut result = String::with_capacity(md.len());
+    let mut chars = md.chars().peekable();
+    let mut in_math = false;
+
+    while let Some(ch) = chars.next() {
+        if ch == '\\' {
+            // Handle escape sequences - preserve backslash and next char
+            result.push(ch);
+            if let Some(next_ch) = chars.next() {
+                result.push(next_ch);
+                // If it's an escaped dollar, don't toggle math mode
+            }
+        } else if ch == '$' {
+            result.push(ch);
+            // Check for $$ (display math) - consume both as one delimiter
+            if let Some(&'$') = chars.peek() {
+                result.push(chars.next().expect("peeked above"));
+            }
+            // Toggle math mode
+            in_math = !in_math;
+        } else if !in_math && (ch == '^' || ch == '_') {
+            let marker = ch; // Save the original marker
+            // Check if followed by {
+            if let Some(&'{') = chars.peek() {
+                chars.next(); // consume the {
+
+                // Collect content until matching }
+                let mut content = String::new();
+                let mut brace_count = 1;
+
+                for ch in chars.by_ref() {
+                    if ch == '{' {
+                        brace_count += 1;
+                        content.push(ch);
+                    } else if ch == '}' {
+                        brace_count -= 1;
+                        if brace_count == 0 {
+                            break;
+                        }
+                        content.push(ch);
+                    } else {
+                        content.push(ch);
+                    }
+                }
+
+                // Replace based on the original marker
+                if marker == '^' {
+                    result.push('^');
+                    result.push_str(&content);
+                    result.push('^');
+                } else {
+                    result.push('~');
+                    result.push_str(&content);
+                    result.push('~');
+                }
+            } else {
+                result.push(ch);
+            }
+        } else {
+            result.push(ch);
+        }
+    }
+
+    result
 }
 
 /// Simplify common TeX commands to Unicode/ASCII equivalents
@@ -1315,5 +1392,128 @@ Regular content";
             10 Large jump should be indented
         4. Fourth reference continues sequence
         ");
+    }
+
+    #[test]
+    fn test_fix_superscript_subscript() {
+        // Basic superscript replacement
+        let input = r"x^{2}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^");
+
+        // Basic subscript replacement
+        let input = r"H_{2}O";
+        assert_snapshot!(fix_superscript_subscript(input), @r"H~2~O");
+
+        // Multiple superscripts in one line
+        let input = r"x^{2} + y^{3}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^ + y^3^");
+
+        // Multiple subscripts in one line
+        let input = r"a_{i} and b_{j}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"a~i~ and b~j~");
+
+        // Mixed superscripts and subscripts
+        let input = r"x^{2} and H_{2}O";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^ and H~2~O");
+
+        // Superscript at start of line
+        let input = r"^{sup}text";
+        assert_snapshot!(fix_superscript_subscript(input), @r"^sup^text");
+
+        // Subscript at end of line
+        let input = r"text_{sub}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"text~sub~");
+
+        // Multi-character content
+        let input = r"text^{superscript} and text_{subscript}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"text^superscript^ and text~subscript~");
+
+        // Math mode protection - inline math with superscript should stay
+        let input = r"$x^{2}$";
+        assert_snapshot!(fix_superscript_subscript(input), @r"$x^{2}$");
+
+        // Math mode protection - inline math with subscript should stay
+        let input = r"$H_{2}O$";
+        assert_snapshot!(fix_superscript_subscript(input), @r"$H_{2}O$");
+
+        // Math mode protection - display math
+        let input = r"$$x^{2} + y^{2}$$";
+        assert_snapshot!(fix_superscript_subscript(input), @r"$$x^{2} + y^{2}$$");
+
+        // Mixed: text with replacements and math mode
+        let input = r"x^{2} in text but $x^{2}$ in math";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^ in text but $x^{2}$ in math");
+
+        // Mixed: subscripts in text and math
+        let input = r"H_{2}O in text but $H_{2}O$ in chemistry formula";
+        assert_snapshot!(fix_superscript_subscript(input), @r"H~2~O in text but $H_{2}O$ in chemistry formula");
+
+        // Multiple math sections
+        let input = r"$a^{2}$ and x^{3} and $b^{4}$";
+        assert_snapshot!(fix_superscript_subscript(input), @r"$a^{2}$ and x^3^ and $b^{4}$");
+
+        // Empty braces
+        let input = r"x^{} and y_{}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^^ and y~~");
+
+        // Nested braces in content
+        let input = r"x^{a{b}c}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^a{b}c^");
+
+        // No braces after ^ or _
+        let input = r"x^2 and y_i";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^2 and y_i");
+
+        // Just ^ or _ alone
+        let input = r"^ and _";
+        assert_snapshot!(fix_superscript_subscript(input), @r"^ and _");
+
+        // Complex real-world example
+        let input = r"The formula E^{tot}_{sys} = mc^{2} works, but $E = mc^{2}$ is in math mode";
+        assert_snapshot!(fix_superscript_subscript(input), @r"The formula E^tot^~sys~ = mc^2^ works, but $E = mc^{2}$ is in math mode");
+
+        // No replacements needed
+        let input = r"Regular text with no special syntax";
+        assert_snapshot!(fix_superscript_subscript(input), @r"Regular text with no special syntax");
+
+        // Empty string
+        let input = r"";
+        assert_snapshot!(fix_superscript_subscript(input), @r"");
+
+        // Multi-line input
+        let input = "Line 1: x^{2}\nLine 2: $x^{2}$\nLine 3: y_{i}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"
+        Line 1: x^2^
+        Line 2: $x^{2}$
+        Line 3: y~i~
+        ");
+
+        // Unclosed brace (edge case - collects to end)
+        let input = r"x^{unclosed";
+        assert_snapshot!(fix_superscript_subscript(input), @r"x^unclosed^");
+
+        // Multiple dollars on same line
+        let input = r"$a^{1}$ and $b^{2}$ and c^{3}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"$a^{1}$ and $b^{2}$ and c^3^");
+
+        // Escaped dollar should not trigger math mode
+        let input = r"I have \$10 and x^{2} here";
+        assert_snapshot!(fix_superscript_subscript(input), @r"I have \$10 and x^2^ here");
+
+        // Multiple escaped dollars
+        let input = r"Cost is \$5 and profit^{max} is \$100";
+        assert_snapshot!(fix_superscript_subscript(input), @r"Cost is \$5 and profit^max^ is \$100");
+
+        // Escaped dollar followed by real math
+        let input = r"Price: \$10, formula: $x^{2}$, result: y^{3}";
+        assert_snapshot!(fix_superscript_subscript(input), @r"Price: \$10, formula: $x^{2}$, result: y^3^");
+
+        // Escaped backslash before dollar (\\$ means literal backslash then math)
+        let input = r"\\$x^{2}$";
+        assert_snapshot!(fix_superscript_subscript(input), @r"\\$x^{2}$");
+
+        // Other escaped characters shouldn't affect behavior
+        let input = r"Test \_ and x^{2} and \_test";
+        assert_snapshot!(fix_superscript_subscript(input), @r"Test \_ and x^2^ and \_test");
     }
 }
