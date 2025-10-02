@@ -224,9 +224,11 @@
     }
 }
 
-/* Print Application */
+/* Print Application - High specificity to override dark mode */
 @media print {
-    :root {
+    :root,
+    :root[data-color-scheme="dark"],
+    :root:not([data-color-scheme="light"]) {
         --content-spacing: var(--content-spacing-print);
         --content-width: var(--content-width-print);
 
