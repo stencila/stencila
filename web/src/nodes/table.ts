@@ -52,7 +52,7 @@ export class Table extends Entity {
           </stencila-ui-node-authors>
         </div>
 
-        <div class="content" slot="content">${this.renderContent()}</div>
+        <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `
   }
