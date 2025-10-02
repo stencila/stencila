@@ -29,7 +29,31 @@
  * Examples: examples/conversion/media-objects/media-objects.dom.html
  */
 
+:root {
+    /* Title typography - inherits from caption tokens */
+    --image-title-font-family: var(--caption-font-family);
+    --image-title-font-size: var(--caption-font-size);
+    --image-title-color: var(--caption-color);
+    --image-title-line-height: var(--caption-line-height);
+    --image-title-alignment: center;
+    --image-title-spacing-bottom: var(--caption-spacing);
+
+    /* Caption typography - inherits from caption tokens */
+    --image-caption-font-family: var(--caption-font-family);
+    --image-caption-font-size: var(--caption-font-size);
+    --image-caption-color: var(--caption-color);
+    --image-caption-line-height: var(--caption-line-height);
+    --image-caption-alignment: center;
+    --image-caption-spacing-top: var(--caption-spacing);
+}
+
+/* Block images usually within a section or figure */
 stencila-image-object {
+    display: block;
+
+    margin-top: var(--content-spacing);
+    margin-bottom: 0;
+
     img,
     picture,
     canvas,
@@ -37,5 +61,45 @@ stencila-image-object {
         display: block;
         max-width: 100%;
         height: auto;
+        margin: 0 auto;
+    }
+
+    /* Title styling */
+    [slot=title] {
+        display: block;
+        margin-bottom: var(--image-title-spacing-bottom);
+
+        font-family: var(--image-title-font-family);
+        font-size: var(--image-title-font-size);
+        color: var(--image-title-color);
+        line-height: var(--image-title-line-height);
+        text-align: var(--image-title-alignment);
+    }
+
+    /* Caption styling */
+    [slot=caption] {
+        display: block;
+        margin-top: var(--image-caption-spacing-top);
+
+        font-family: var(--image-caption-font-family);
+        font-size: var(--image-caption-font-size);
+        color: var(--image-caption-color);
+        line-height: var(--image-caption-line-height);
+        text-align: var(--image-caption-alignment);
+    }
+}
+
+/* Inline images within paragraphs and headings */
+stencila-paragraph stencila-image-object,
+stencila-heading stencila-image-object {
+    display: inline;
+    margin-top: 0;
+    margin-bottom: 0;
+
+    img {
+        display: inline-block;
+        max-height: 1.1em;
+        vertical-align: middle;
+        margin: 0;
     }
 }
