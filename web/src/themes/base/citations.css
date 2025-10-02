@@ -1,0 +1,57 @@
+/* Citation styles
+ *
+ * Schema: [Citation](../../schema/Citation.yaml), [CitationGroup](../../schema/CitationGroup.yaml)
+ * Purpose: References to creative works cited within documents.
+ *
+ * DOM Structure:
+ * <stencila-citation id=xxx depth=N ancestors=Parent target='ref-id' citation-mode='Parenthetical'>
+ *     <span slot=content>
+ *         <!-- Citation content rendered based on citation style -->
+ *         <!-- e.g., "[1]" or "Smith et al., 2024" -->
+ *     </span>
+ * </stencila-citation>
+ *
+ * <stencila-citation-group id=xxx depth=N ancestors=Parent>
+ *     <span slot=content>
+ *         <!-- Multiple citations rendered together -->
+ *         <!-- e.g., "[1-3, 5]" or "(Smith et al., 2024; Jones, 2023)" -->
+ *     </span>
+ * </stencila-citation-group>
+ *
+ * Key Attributes:
+ * - target: Reference ID or URL that the citation points to
+ * - citation-mode: Display mode (Parenthetical, Narrative, etc.)
+ *
+ * Slots:
+ * - content: Citation text rendered according to document citation style
+ *
+ * Notes:
+ * - Citations are inline elements within prose
+ * - CitationGroup wraps multiple related citations
+ * - Content format depends on citation style (numeric, author-year, etc.)
+ */
+
+:root {
+    /* Citation Colors - Use semantic colors with dark variants */
+    --citation-color: var(--color-accent);
+    --citation-color-dark: var(--color-accent-dark);
+}
+
+stencila-citation,
+stencila-citation-group {
+    span {
+        color: var(--citation-color);
+    }
+}
+
+/* Dark Mode Application - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --citation-color: var(--citation-color-dark);
+    }
+}
+
+/* Dark Mode Application - Explicit User Choice */
+:root[data-color-scheme="dark"] {
+    --citation-color: var(--citation-color-dark);
+}
