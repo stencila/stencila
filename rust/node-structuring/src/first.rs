@@ -699,7 +699,14 @@ impl FirstWalk {
             }
 
             if !references.is_empty() {
-                self.references = Some(references);
+                if let Some(existing) = self.references.as_mut() {
+                    // Extend references (sometimes article will have two reference lists, one for the appendix, so
+                    // this extends the first)
+                    existing.extend(references);
+                } else {
+                    // No references encountered yet, so make this list them!
+                    self.references = Some(references);
+                }
             }
 
             // Record that we have finished processing references
