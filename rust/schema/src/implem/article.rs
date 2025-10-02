@@ -142,7 +142,7 @@ impl DomCodec for Article {
             let mut css = String::new();
             if let Some(title) = &self.title {
                 let mut title = to_text(title).replace("\"", "'");
-                const MAX_LEN: usize = 65;
+                const MAX_LEN: usize = 120;
                 if title.len() > MAX_LEN {
                     title.truncate(MAX_LEN);
                     title.push('…');
@@ -192,7 +192,19 @@ impl DomCodec for Article {
             }
 
             if let Some(authors) = &self.authors {
-                context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+                context.push_slot_fn("section", "authors", |context| {
+                    for (index, author) in authors.iter().enumerate() {
+                        if index > 0 {
+                            context.push_html(", ");
+                        }
+                        context
+                            .enter_node(author.node_type(), author.node_id())
+                            .push_slot_fn("span", "name", |context| {
+                                context.push_text(&author.name());
+                            })
+                            .exit_node();
+                    }
+                });
             }
         } else {
             // If this article is not the root (e.g an article output from an
