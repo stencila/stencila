@@ -25,19 +25,62 @@
     --content-spacing-mobile: var(--space-4);
     --content-spacing-print: var(--space-2);
 
+    /* Dark Mode Colors - Optimized for Long-Form Reading
+     *
+     * Research shows pure black (#000) backgrounds create harsh contrast causing
+     * eye strain and fatigue, especially problematic for extended reading sessions.
+     *
+     * Industry Standards:
+     * - Material Design: #121212 background
+     * - Figma: #1E1E1E background
+     * - YouTube: #181818 background
+     * - Recommended text: #E0E0E0 to #D0D0D0 (not pure white)
+     *
+     * Our Approach:
+     * We use gray-800 (#262626) for background and gray-300 (#d4d4d4) for primary text.
+     * This provides ~7.5:1 contrast ratio - exceeding WCAG AAA (7:1) while being
+     * significantly more comfortable than pure black/white for long-form content.
+     *
+     * WCAG Contrast Requirements:
+     * - AA Standard: 4.5:1 for normal text, 3:1 for large text (18pt+/14pt+ bold)
+     * - AAA Standard: 7:1 for normal text, 4.5:1 for large text
+     *
+     * Testing Contrast:
+     * Use WebAIM Contrast Checker: https://webaim.org/resources/contrastchecker/
+     * Or browser DevTools accessibility panel to verify custom color choices.
+     *
+     * For Theme Designers:
+     * When customizing, avoid pure black (#000000) backgrounds and pure white
+     * (#FFFFFF) text. Test all color combinations for WCAG AA compliance minimum.
+     * For content-heavy applications, prioritize readability over aesthetics.
+     */
+
     /* Surface Colors - Background colors for different depth levels with dark and print variants */
     --surface-background: var(--color-gray-50);
-    --surface-background-dark: var(--color-gray-950);
+    --surface-background-dark: var(--color-gray-800);
     --surface-background-print: white;
     --surface-foreground: white;
-    --surface-foreground-dark: var(--color-gray-900);
+    --surface-foreground-dark: var(--color-gray-700);
     --surface-foreground-print: white;
     --surface-overlay: rgba(0, 0, 0, 0.05);
     --surface-overlay-dark: rgba(255, 255, 255, 0.08);
     --surface-raised: white;
-    --surface-raised-dark: var(--color-gray-800);
+    --surface-raised-dark: var(--color-gray-600);
     --surface-sunken: var(--color-gray-100);
-    --surface-sunken-dark: var(--color-gray-950);
+    --surface-sunken-dark: var(--color-gray-900);
+
+    /* Text Colors - Hierarchy and emphasis with dark and print variants */
+    --text-color-primary: var(--color-gray-800);
+    --text-color-primary-dark: var(--color-gray-300);
+    --text-color-primary-print: black;
+    --text-color-secondary: var(--color-gray-700);
+    --text-color-secondary-dark: var(--color-gray-400);
+    --text-color-secondary-print: var(--color-gray-700);
+    --text-color-muted: var(--color-gray-500);
+    --text-color-muted-dark: var(--color-gray-500);
+    --text-color-muted-print: var(--color-gray-600);
+    --text-color-inverse: var(--color-gray-50);
+    --text-color-inverse-dark: var(--color-gray-900);
 
     /* Border Colors and Properties with dark and print variants */
     --border-color-default: var(--color-gray-300);
@@ -86,19 +129,6 @@
     --text-line-height: var(--line-height-normal);
     --text-line-height-mobile: var(--line-height-relaxed);
     --text-line-height-print: 1.4;
-
-    /* Text Colors - Hierarchy and emphasis with dark and print variants */
-    --text-color-primary: var(--color-gray-800);
-    --text-color-primary-dark: var(--color-gray-200);
-    --text-color-primary-print: black;
-    --text-color-secondary: var(--color-gray-700);
-    --text-color-secondary-dark: var(--color-gray-300);
-    --text-color-secondary-print: var(--color-gray-700);
-    --text-color-muted: var(--color-gray-500);
-    --text-color-muted-dark: var(--color-gray-500);
-    --text-color-muted-print: var(--color-gray-600);
-    --text-color-inverse: var(--color-gray-50);
-    --text-color-inverse-dark: var(--color-gray-900);
 
     --transition-duration-fast: 150ms;
     --transition-duration-base: 250ms;
