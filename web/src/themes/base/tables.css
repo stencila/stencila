@@ -153,6 +153,9 @@
 stencila-table {
     display: block;
 
+    /* Enable horizontal scrolling for wide tables */
+    overflow-x: auto;
+
     /* Vertical spacing */
     margin-top: var(--table-spacing-top);
     margin-bottom: var(--table-spacing-bottom);

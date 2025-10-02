@@ -20,6 +20,10 @@
     min-height: 100vh;
     margin: 0 auto;
 
+    /* Overflow handling - Prevents long unbreakable strings (URLs, identifiers, etc.)
+     * from overflowing the container width. Breaks words only when necessary. */
+    overflow-wrap: break-word;
+
     /* Layout */
     max-width: var(--root-max-width);
     padding: var(--root-padding);

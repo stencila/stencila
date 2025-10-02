@@ -150,6 +150,9 @@
 stencila-datatable {
     display: block;
 
+    /* Enable horizontal scrolling for wide tables */
+    overflow-x: auto;
+
     /* Vertical spacing */
     margin-top: var(--datatable-spacing-top);
     margin-bottom: var(--datatable-spacing-bottom);
