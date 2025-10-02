@@ -37,8 +37,8 @@
     --caption-color: var(--text-color);
     --caption-color-dark: var(--text-color-dark);
 
-    --caption-line-height: var(--line-height-sm);
-    --caption-line-height-print: var(--line-height-xs);
+    --caption-line-height: var(--line-height-normal);
+    --caption-line-height-print: var(--line-height-tight);
 
     --caption-alignment: left;
     --caption-max-width: 100%;

@@ -83,8 +83,8 @@
     --text-font-size-tablet: var(--font-size-sm);
     --text-font-size-mobile: var(--font-size-sm);
     --text-font-size-print: 10pt;
-    --text-line-height: var(--line-height-sm);
-    --text-line-height-mobile: var(--line-height-md);
+    --text-line-height: var(--line-height-normal);
+    --text-line-height-mobile: var(--line-height-relaxed);
     --text-line-height-print: 1.4;
 
     /* Text Colors - Hierarchy and emphasis with dark and print variants */

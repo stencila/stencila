@@ -82,7 +82,7 @@
     --table-notes-font-size: calc(var(--text-font-size) * 0.80);
     --table-notes-color: var(--text-color-secondary);
     --table-notes-spacing-top: calc(var(--content-spacing) * 0.5);
-    --table-notes-line-height: var(--line-height-sm);
+    --table-notes-line-height: var(--line-height-normal);
     --table-notes-alignment: left;
 
     /* Table borders - granular control for theme authors */
@@ -118,9 +118,9 @@
     /* Cell styling */
     --table-cell-font-family: var(--text-font-family);
     --table-cell-font-size: calc(var(--text-font-size) * 0.75);
-    --table-cell-line-height: var(--line-height-sm);
-    --table-cell-line-height-mobile: var(--line-height-xs);
-    --table-cell-line-height-print: var(--line-height-xs);
+    --table-cell-line-height: var(--line-height-normal);
+    --table-cell-line-height-mobile: var(--line-height-tight);
+    --table-cell-line-height-print: var(--line-height-tight);
     --table-cell-padding: var(--space-2);
     --table-cell-padding-mobile: var(--space-1);
     --table-cell-padding-print: var(--space-xs);

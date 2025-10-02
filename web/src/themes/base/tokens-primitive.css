@@ -123,17 +123,38 @@
     --font-size-4xl: clamp(2.4rem, 2rem + 1.75vw, 2.8rem);
     --font-size-5xl: clamp(3.2rem, 2.6rem + 2.5vw, 3.8rem);
 
-    /* Font Weights - For emphasis and hierarchy */
+    /* Font Weights - Based on Tailwind's font-weight scale for consistency with common practice
+     * Tailwind reference: https://tailwindcss.com/docs/font-weight
+     * - thin: Very light weight for decorative text
+     * - extralight: Extra light weight for subtle text
+     * - light: Light weight for secondary content
+     * - normal: Default weight for body text
+     * - medium: Medium weight for slight emphasis
+     * - semibold: Semi-bold weight for strong emphasis
+     * - bold: Bold weight for headings and important text
+     * - extrabold: Extra bold weight for maximum emphasis */
+    --font-weight-thin: 100;
+    --font-weight-extralight: 200;
+    --font-weight-light: 300;
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
 
-    /* Line Heights - Consistent scale for different text contexts */
-    --line-height-xs: 1.25;
-    --line-height-sm: 1.5;
-    --line-height-md: 1.75;
-    --line-height-lg: 2;
+    /* Line Heights - Based on Tailwind's leading scale
+     * - none: Removes extra spacing (use for icons, badges)
+     * - tight: Compact spacing for large display text and headings
+     * - snug: Slightly relaxed for subheadings
+     * - normal: Default comfortable spacing for body text
+     * - relaxed: Extra spacing for improved readability
+     * - loose: Maximum spacing for special cases */
+    --line-height-none: 1;
+    --line-height-tight: 1.25;
+    --line-height-snug: 1.375;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
 
     /* Spacing Scale - Consistent spacing based on 4px baseline */
     --space-0: 0;

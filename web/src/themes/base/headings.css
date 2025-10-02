@@ -49,7 +49,7 @@
     --heading-font-weight: var(--font-weight-bold);
     --heading-font-weight-decrement: 50;
 
-    --heading-line-height: var(--line-height-xs);
+    --heading-line-height: var(--line-height-tight);
     --heading-letter-spacing: -0.025em;
 
     --heading-color: var(--text-color-primary);
