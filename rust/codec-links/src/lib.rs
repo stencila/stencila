@@ -280,6 +280,26 @@ fn fold_text_inlines(inlines: Vec<Inline>) -> Vec<Inline> {
     for inline in inlines {
         if let (Some(Inline::Text(last)), Inline::Text(text)) = (folded.last_mut(), &inline) {
             last.value.push_str(&text.value);
+        } else if let (Some(Inline::Text(last)), Inline::Link(link)) = (folded.last_mut(), &inline)
+        {
+            // Links must have have whitespace or punctuation before them. If
+            // they don't merge their text into the previous text
+            if last.value.chars().last().map_or_else(
+                || false,
+                |c: char| !c.is_whitespace() && !c.is_ascii_punctuation(),
+            ) {
+                // This should always be truthy
+                if let Some(text) = link.content.first().and_then(|inline| match inline {
+                    Inline::Text(text) => Some(&text.value),
+                    _ => None,
+                }) {
+                    last.value.push_str(text);
+                } else {
+                    folded.push(inline);
+                }
+            } else {
+                folded.push(inline);
+            }
         } else {
             folded.push(inline);
         }
@@ -678,6 +698,10 @@ mod tests {
         } else {
             panic!("Expected Link");
         }
+
+        // Test that NO links are parsed out of this
+        let result = text_with_links(&mut "Configure 1A to obtain suitable 2B for urlhttp://example.com")?;
+        assert_eq!(result, vec![t("Configure 1A to obtain suitable 2B for urlhttp://example.com")]);
 
         Ok(())
     }
