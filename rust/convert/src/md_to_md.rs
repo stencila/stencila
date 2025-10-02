@@ -9,6 +9,7 @@ use regex::Regex;
 pub fn clean_md(md: &str) -> String {
     let md = remove_line_numbers(md);
     let md = remove_extra_blank_lines(&md);
+    let md = fix_hard_wrapped_table_rows(&md);
     let md = remove_heading_formatting(&md);
     let md = fix_superscript_subscript(&md);
     let md = remove_unnecessary_inline_math(&md);
@@ -122,6 +123,78 @@ fn remove_extra_blank_lines(md: &str) -> String {
         } else {
             consecutive_blank_lines = 0;
             result.push(line);
+        }
+    }
+
+    result.join("\n")
+}
+
+/// Fix hard-wrapped table rows
+///
+/// OCR sometimes creates markdown tables where long cell content is hard-wrapped
+/// across multiple lines, breaking the table syntax. For example:
+///
+/// ```text
+/// | Cell | Long content that wraps
+/// to next line |
+/// ```
+///
+/// This function detects such cases and joins them back into valid single-line rows.
+/// Only joins when:
+/// - A line starts with `|` but doesn't end with `|` (incomplete row)
+/// - AND following line(s) don't start with `|` and eventually end with `|` (continuation)
+fn fix_hard_wrapped_table_rows(md: &str) -> String {
+    let lines: Vec<&str> = md.lines().collect();
+    let mut result = Vec::new();
+    let mut skip_until = 0;
+
+    for (index, line) in lines.iter().enumerate() {
+        // Skip lines that were already consumed as continuations
+        if index < skip_until {
+            continue;
+        }
+
+        let trimmed = line.trim();
+
+        // Check if this is an incomplete table row (starts with | but doesn't end with |)
+        if trimmed.starts_with('|') && !trimmed.ends_with('|') {
+            let mut joined = line.to_string();
+            let mut current_index = index + 1;
+            let mut found_completion = false;
+
+            // Look ahead for continuation lines
+            while current_index < lines.len() {
+                let next_line = lines[current_index];
+                let next_trimmed = next_line.trim();
+
+                // Stop if we hit an empty line or a new table row
+                if next_trimmed.is_empty() || next_trimmed.starts_with('|') {
+                    break;
+                }
+
+                // This is a continuation line, append it
+                joined.push(' ');
+                joined.push_str(next_trimmed);
+                current_index += 1;
+
+                // Check if this completes the row
+                if next_trimmed.ends_with('|') {
+                    found_completion = true;
+                    break;
+                }
+            }
+
+            // Only use the joined version if we found a valid completion
+            if found_completion {
+                result.push(joined);
+                skip_until = current_index;
+            } else {
+                // No valid completion found, keep original line
+                result.push(line.to_string());
+            }
+        } else {
+            // Complete row or non-table line, keep as-is
+            result.push(line.to_string());
         }
     }
 
@@ -857,6 +930,172 @@ mod tests {
         ## Subheader
         
         Content
+        ");
+    }
+
+    #[test]
+    fn test_fix_hard_wrapped_table_rows() {
+        // Basic case: single wrapped row (the HeLa example)
+        let input = r"|  Cell line source(s) | HeLa cells were obtained from the UC Berkeley Cell Culture Facility, and were used only for purification of endogenous
+human Pol II and not for any functional experiments.  |
+| --- | --- |
+|  Authentication | HeLa cells were authenticated by the UC Berkeley Cell Culture Facility using a GenePrint 10 kit (Promega) for short tandem
+repeat processing.  |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        |  Cell line source(s) | HeLa cells were obtained from the UC Berkeley Cell Culture Facility, and were used only for purification of endogenous human Pol II and not for any functional experiments.  |
+        | --- | --- |
+        |  Authentication | HeLa cells were authenticated by the UC Berkeley Cell Culture Facility using a GenePrint 10 kit (Promega) for short tandem repeat processing.  |
+        ");
+
+        // Complete row (separator) should not be affected
+        let input = r"| --- | --- |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"| --- | --- |");
+
+        // Complete rows should not be affected
+        let input = r"| Cell | Value |
+| --- | --- |
+| Data | 123 |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        | Cell | Value |
+        | --- | --- |
+        | Data | 123 |
+        ");
+
+        // Mixed: some complete, some wrapped
+        let input = r"| Name | Description |
+| --- | --- |
+| Item 1 | A short description |
+| Item 2 | A very long description that wraps
+to the next line |
+| Item 3 | Another short one |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        | Name | Description |
+        | --- | --- |
+        | Item 1 | A short description |
+        | Item 2 | A very long description that wraps to the next line |
+        | Item 3 | Another short one |
+        ");
+
+        // Multiple wrapped rows
+        let input = r"| Col1 | Col2 |
+| First row that
+wraps here |
+| Second row that also
+wraps |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        | Col1 | Col2 |
+        | First row that wraps here |
+        | Second row that also wraps |
+        ");
+
+        // Row wrapped across 3 lines
+        let input = r"| Name | A very long
+description that spans
+multiple lines here |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"| Name | A very long description that spans multiple lines here |");
+
+        // False positive prevention: incomplete row with no valid continuation
+        let input = r"| Incomplete row without pipe
+This is not a continuation
+Regular paragraph";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        | Incomplete row without pipe
+        This is not a continuation
+        Regular paragraph
+        ");
+
+        // Blank line breaks the joining
+        let input = r"| Cell | Content
+
+that continues |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        | Cell | Content
+
+        that continues |
+        ");
+
+        // Empty cells should be preserved
+        let input = r"| | Empty first cell |
+| --- | --- |
+| Non-empty | |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        | | Empty first cell |
+        | --- | --- |
+        | Non-empty | |
+        ");
+
+        // Non-table content should be unchanged
+        let input = r"This is a paragraph.
+
+Another paragraph.
+
+Not a table at all.";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        This is a paragraph.
+
+        Another paragraph.
+
+        Not a table at all.
+        ");
+
+        // Mixed table and non-table content
+        let input = r"Before table
+
+| Header | Value |
+| --- | --- |
+| Data | Some long text
+that wraps |
+
+After table";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        Before table
+
+        | Header | Value |
+        | --- | --- |
+        | Data | Some long text that wraps |
+
+        After table
+        ");
+
+        // Table at start of document
+        let input = r"| First | Row that
+wraps |
+| Second | Complete |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        | First | Row that wraps |
+        | Second | Complete |
+        ");
+
+        // Table at end of document
+        let input = r"Some text
+
+| Last | Row
+wraps |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        Some text
+
+        | Last | Row wraps |
+        ");
+
+        // Empty string
+        let input = r"";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"");
+
+        // Full example with all cell types from user's input
+        let input = r"|  Cell line source(s) | HeLa cells were obtained from the UC Berkeley Cell Culture Facility, and were used only for purification of endogenous
+human Pol II and not for any functional experiments.  |
+| --- | --- |
+|  Authentication | HeLa cells were authenticated by the UC Berkeley Cell Culture Facility using a GenePrint 10 kit (Promega) for short tandem
+repeat processing.  |
+|  Mycoplasma contamination | HeLa cells were tested for mycoplasma by the UC Berkeley Cell Culture Facility and were negative.  |
+|  Commonly misidentified lines
+(See ICLAC register) | No commonly misidentified cell lines were used in this study.  |";
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"
+        |  Cell line source(s) | HeLa cells were obtained from the UC Berkeley Cell Culture Facility, and were used only for purification of endogenous human Pol II and not for any functional experiments.  |
+        | --- | --- |
+        |  Authentication | HeLa cells were authenticated by the UC Berkeley Cell Culture Facility using a GenePrint 10 kit (Promega) for short tandem repeat processing.  |
+        |  Mycoplasma contamination | HeLa cells were tested for mycoplasma by the UC Berkeley Cell Culture Facility and were negative.  |
+        |  Commonly misidentified lines (See ICLAC register) | No commonly misidentified cell lines were used in this study.  |
         ");
     }
 
