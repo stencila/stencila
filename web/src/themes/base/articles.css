@@ -6,6 +6,17 @@
  *
  * DOM Structure:
  * <stencila-article id=xxx depth=0 ancestors='' repository='...' path='...' commit=xxx root>
+ *     <section slot=title>
+ *         <h1>
+ *             <stencila-text id=xxx depth=2 ancestors=Article>Article title...</stencila-text>
+ *         </h1>
+ *     </section>
+ *     <section slot=authors>
+ *         ...
+ *     </section>
+ *     <section slot=abstract>
+ *         ...
+ *     </section>
  *     <section slot=content>
  *         <stencila-paragraph id=xxx depth=1 ancestors=Article>
  *             <p slot=content>
@@ -13,6 +24,9 @@
  *             </p>
  *         </stencila-paragraph>
  *         <!-- More content blocks... -->
+ *     </section>
+ *     <section slot=references>
+ *         ...
  *     </section>
  * </stencila-article>
  *
@@ -24,6 +38,7 @@
  * - title: Optional article title
  * - authors: Optional author information
  * - abstract: Optional article abstract
+ * - references: Optional article references
  *
  * Notes:
  * - Articles serve as the main document container
@@ -35,15 +50,28 @@
  */
 
 :root {
+    /* Article Content */
+    --article-content-max-width: var(--content-width);
+    --article-content-max-width-mobile: var(--content-width-mobile);
 
-    /* Article Title */
+    /* Article Title - Typography optimized for large display text */
     --article-title-font-family: var(--heading-font-family);
-    --article-font-size: calc(var(--text-font-size) * 2.5);
-    --article-font-size-print: calc(var(--text-font-size-print) * 2.0);
+    --article-title-font-size: calc(var(--text-font-size) * 2.5);
+    --article-title-font-size-print: calc(var(--text-font-size-print) * 2.0);
     --article-title-font-weight: var(--font-weight-bold);
     --article-title-color: var(--text-color-primary);
     --article-title-text-align: center;
     --article-title-margin-bottom: var(--space-8);
+
+    /* Article Title - Line height (tighter than body text for large display typography) */
+    --article-title-line-height: var(--line-height-tight);
+    --article-title-line-height-mobile: var(--line-height-tight);
+
+    /* Article Title - Layout */
+    --article-title-max-width: calc(var(--article-content-max-width) * 0.9);
+
+    /* Article Title - Fine-tuning (subtle negative tracking for large text) */
+    --article-title-letter-spacing: -0.02em;
 
     /* Article Authors */
     --article-authors-font-size: var(--text-font-size);
@@ -55,10 +83,6 @@
     --article-abstract-color: var(--text-color);
     --article-abstract-background: var(--surface-background);
     --article-abstract-margin-bottom: var(--space-6);
-
-    /* Article Content */
-    --article-content-max-width: var(--content-width);
-    --article-content-max-width-mobile: var(--content-width-mobile);
 }
 
 stencila-article {
@@ -70,12 +94,23 @@ stencila-article {
     }
 
     >[slot="title"] {
-        font-family: var(--article-title-font-family);
-        font-size: var(--article-title-font-size);
-        font-weight: var(--article-title-font-weight);
-        color: var(--article-title-color);
-        text-align: var(--article-title-text-align);
+        /* Layout */
+        max-width: var(--article-title-max-width);
         margin-bottom: var(--article-title-margin-bottom);
+
+        h1 {
+            /* Browser reset */
+            margin: 0;
+
+            /* Typography - Optimized for large display text */
+            font-family: var(--article-title-font-family);
+            font-size: var(--article-title-font-size);
+            font-weight: var(--article-title-font-weight);
+            line-height: var(--article-title-line-height);
+            letter-spacing: var(--article-title-letter-spacing);
+            color: var(--article-title-color);
+            text-align: var(--article-title-text-align);
+        }
     }
 
     >[slot="authors"] {
@@ -85,16 +120,17 @@ stencila-article {
     }
 }
 
-/* Responsive Application */
+/* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
         --article-content-max-width: var(--article-content-max-width-mobile);
+        --article-title-line-height: var(--article-title-line-height-mobile);
     }
 }
 
 @media print {
     :root {
-        --article-font-size: var(--article-font-size-print);
+        --article-title-font-size: var(--article-title-font-size-print);
     }
 
     stencila-article {
