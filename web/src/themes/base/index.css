@@ -1,3 +1,14 @@
+/* Base Theme Entry Point
+ *
+ * This file imports all base theme modules in the correct dependency order.
+ *
+ * Import order:
+ * 1. Token layers (primitive → semantic → specialized)
+ * 2. Root styles (browser normalization, document setup)
+ * 3. Shared components (labels, captions)
+ * 4. Content components (alphabetically organized, mostly)
+ */
+
 @import url("./tokens-primitive.css");
 @import url("./tokens-semantic.css");
 @import url("./tokens-ua.css");
