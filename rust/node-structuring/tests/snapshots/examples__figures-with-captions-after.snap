@@ -59,6 +59,105 @@ expression: node
           }
         }
       ]
+    },
+    {
+      "type": "Figure",
+      "id": "fig-s1",
+      "label": "S1",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Additional visualization from supplementary materials."
+              }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "supp-image.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Supplementary data"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "id": "fig-s3",
+      "label": "S3",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Supporting information figure with colon separator."
+              }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "si-image.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "SI data"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "id": "fig-s2",
+      "label": "S2",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Common pattern in scientific publications."
+              }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "extended-image.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Extended data visualization"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

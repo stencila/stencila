@@ -959,17 +959,23 @@ fn is_primary_section_type(section_type: &SectionType) -> bool {
 /// or text that starts with an uppercase letter. This distinguishes actual captions
 /// from references (e.g., "Figure 2. Plot shows..." vs "Figure 2 shows that...").
 fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
-    // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2", "Figure 2A" etc.
+    // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2", "Figure 2A", "Supplementary Figure 1", "SI Figure 2", etc.
     static FIGURE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+[A-Z]?|\d+[A-Z])[.:\-\|\s]*")
+        Regex::new(r"(?i)^((?:Supplementary|Supporting Information|SI|Extended Data|Appendix|Data Supplement|Supplement)\s+)?(?:Figure|Fig\.?)\s*([A-Z]?\d+[A-Z]?|\d+[A-Z])[.:\-\|\s]*")
             .expect("invalid regex")
     });
 
     let text = to_text(inlines);
 
     if let Some(captures) = FIGURE_CAPTION_REGEX.captures(&text) {
-        let figure_label = captures[1].to_string();
+        let has_prefix = captures.get(1).map_or(false, |m| !m.as_str().is_empty());
+        let mut figure_label = captures[2].to_string();
         let matched_text = captures.get(0)?.as_str();
+
+        // If caption has a supplementary prefix and label doesn't start with a letter, prefix with "S"
+        if has_prefix && !figure_label.chars().next()?.is_ascii_alphabetic() {
+            figure_label.insert(0, 'S');
+        }
 
         let caption = text.replace(matched_text, "").trim().to_string();
 
@@ -992,16 +998,22 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
 /// that starts with an uppercase letter. This distinguishes actual captions
 /// from references (e.g., "Table 2. Summary of..." vs "Table 2 shows that...").
 fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
-    // Detect table captions like "Table 1.", "Table 2:", "Table 12 -", , "Table B3" etc.
+    // Detect table captions like "Table 1.", "Table 2:", "Table 12 -", "Table B3", "Supplementary Table 1", "SI Table 2", etc.
     static TABLE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^(?:Table)\s*([A-Z]?\d+)[.:\-\|\s]*").expect("invalid regex")
+        Regex::new(r"(?i)^((?:Supplementary|Supporting Information|SI|Extended Data|Appendix|Data Supplement|Supplement)\s+)?(?:Table)\s*([A-Z]?\d+)[.:\-\|\s]*").expect("invalid regex")
     });
 
     let text = to_text(inlines);
 
     if let Some(captures) = TABLE_CAPTION_REGEX.captures(&text) {
-        let table_label = captures[1].to_string();
+        let has_prefix = captures.get(1).map_or(false, |m| !m.as_str().is_empty());
+        let mut table_label = captures[2].to_string();
         let matched_text = captures.get(0)?.as_str();
+
+        // If caption has a supplementary prefix and label doesn't start with a letter, prefix with "S"
+        if has_prefix && !table_label.chars().next()?.is_ascii_alphabetic() {
+            table_label.insert(0, 'S');
+        }
 
         let caption = text.replace(matched_text, "").trim().to_string();
 
