@@ -961,7 +961,7 @@ fn is_primary_section_type(section_type: &SectionType) -> bool {
 fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2", "Figure 2A" etc.
     static FIGURE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+[A-Z]?|\d+[A-Z])[.:\-\s]*")
+        Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+[A-Z]?|\d+[A-Z])[.:\-\|\s]*")
             .expect("invalid regex")
     });
 
@@ -994,7 +994,7 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
 fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect table captions like "Table 1.", "Table 2:", "Table 12 -", , "Table B3" etc.
     static TABLE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^(?:Table)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex")
+        Regex::new(r"(?i)^(?:Table)\s*([A-Z]?\d+)[.:\-\|\s]*").expect("invalid regex")
     });
 
     let text = to_text(inlines);
