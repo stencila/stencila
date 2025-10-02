@@ -13,6 +13,7 @@ pub fn clean_md(md: &str) -> String {
     let md = fix_superscript_subscript(&md);
     let md = remove_unnecessary_inline_math(&md);
     let md = ensure_isolated_blocks(&md);
+    let md = remove_uninformative_image_alt_text(&md);
     ensure_isolated_references(&md)
 }
 
@@ -505,6 +506,52 @@ fn ensure_isolated_blocks(md: &str) -> String {
     }
 
     result.join("\n")
+}
+
+/// Remove uninformative image alt text from standalone images
+///
+/// OCR often generates image syntax like `![img-1.jpeg](img-1.jpeg)` where the alt text
+/// just duplicates the filename. This removes such uninformative alt text, converting to `![](img-1.jpeg)`.
+///
+/// This function only processes standalone images (images on their own line), which have already
+/// been isolated by `ensure_isolated_blocks`.
+fn remove_uninformative_image_alt_text(md: &str) -> String {
+    static IMAGE_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^!\[([^\]]*)\]\(([^\)]+)\)\s*$").expect("invalid regex"));
+
+    md.lines()
+        .map(|line| {
+            if let Some(captures) = IMAGE_REGEX.captures(line) {
+                let alt_text = &captures[1];
+                let url = &captures[2];
+
+                // Extract filename from URL (handle paths like "images/img-1.jpeg")
+                let filename = url.rsplit('/').next().unwrap_or(url);
+
+                // Remove extension from filename for comparison
+                let filename_stem = filename
+                    .rsplit_once('.')
+                    .map(|(stem, _)| stem)
+                    .unwrap_or(filename);
+
+                // Check if alt text is uninformative:
+                // - Matches the full filename
+                // - Matches the filename without extension
+                // - Is empty or whitespace only
+                let is_uninformative =
+                    alt_text.trim().is_empty() || alt_text == filename || alt_text == filename_stem;
+
+                if is_uninformative {
+                    format!("![]({})", url)
+                } else {
+                    line.to_string()
+                }
+            } else {
+                line.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 /// Ensure that references are isolated from one another
@@ -1515,5 +1562,109 @@ Regular content";
         // Other escaped characters shouldn't affect behavior
         let input = r"Test \_ and x^{2} and \_test";
         assert_snapshot!(fix_superscript_subscript(input), @r"Test \_ and x^2^ and \_test");
+    }
+
+    #[test]
+    fn test_remove_uninformative_image_alt_text() {
+        // Basic case: alt text matches filename exactly
+        let input = r"![img-1.jpeg](img-1.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+
+        // Alt text matches filename without extension
+        let input = r"![img-1](img-1.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+
+        // Alt text already empty
+        let input = r"![](img-1.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+
+        // Alt text is just whitespace
+        let input = r"![   ](img-1.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+
+        // Informative alt text should be kept
+        let input = r"![Diagram of cells](img-1.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![Diagram of cells](img-1.jpeg)");
+
+        // Informative alt text with descriptive content
+        let input = r"![Figure showing the experimental setup](figure-1.png)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![Figure showing the experimental setup](figure-1.png)");
+
+        // URL with path - alt text matches filename
+        let input = r"![img-1.jpeg](images/img-1.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](images/img-1.jpeg)");
+
+        // URL with path - alt text matches filename without extension
+        let input = r"![img-1](assets/images/img-1.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](assets/images/img-1.jpeg)");
+
+        // Multiple images, some informative, some not
+        let input = r"![img-1.jpeg](img-1.jpeg)
+![Experiment diagram](img-2.png)
+![img-3](img-3.jpeg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"
+        ![](img-1.jpeg)
+        ![Experiment diagram](img-2.png)
+        ![](img-3.jpeg)
+        ");
+
+        // Different file extensions
+        let input = r"![photo.png](photo.png)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](photo.png)");
+
+        let input = r"![diagram.svg](diagram.svg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](diagram.svg)");
+
+        let input = r"![chart.webp](chart.webp)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](chart.webp)");
+
+        // Filename without extension
+        let input = r"![image](image)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](image)");
+
+        // Complex path
+        let input = r"![figure-1.png](../assets/images/figures/figure-1.png)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](../assets/images/figures/figure-1.png)");
+
+        // Non-image lines should be unchanged
+        let input = r"This is regular text
+![img.jpg](img.jpg)
+More text here";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"
+        This is regular text
+        ![](img.jpg)
+        More text here
+        ");
+
+        // Inline images (not on standalone line) should be unchanged
+        let input = r"Text before ![img.jpg](img.jpg) text after";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"Text before ![img.jpg](img.jpg) text after");
+
+        // Image with title attribute - alt text won't be removed because URL contains title
+        // This is safe behavior as the regex captures the title as part of the URL
+        let input = r"![img.jpg](img.jpg 'title')";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![img.jpg](img.jpg 'title')");
+
+        // Numbers in filenames
+        let input = r"![image-123](image-123.png)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](image-123.png)");
+
+        // Hyphens and underscores
+        let input = r"![my_image_file](my_image_file.jpg)";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](my_image_file.jpg)");
+
+        // Empty string
+        let input = r"";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"");
+
+        // No images
+        let input = r"Just some text
+With multiple lines
+No images here";
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"
+        Just some text
+        With multiple lines
+        No images here
+        ");
     }
 }
