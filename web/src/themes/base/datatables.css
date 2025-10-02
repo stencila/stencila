@@ -1,29 +1,289 @@
-/* DataTable styles
+/* Datatable styles
  *
- * Schema: [Datatable](../../schema/Datatable.yaml)
- * Purpose: Interactive data tables with sorting, filtering, and pagination capabilities.
+ * Schema: [`Datatable`](../../schema/Datatable.yaml)
+ * Purpose: A table of data with typed columns and optional validation.
  *
  * DOM Structure:
- * <stencila-datatable id=xxx depth=N ancestors=Parent>
- *     <table slot=content>
- *         [table rows and cells]
+ * <stencila-datatable id=xxx depth=N ancestors=Parent label=X label-automatically=false>
+ *     <table slot=columns>
+ *         <caption>
+ *             <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.Datatable>
+ *                 <p slot=content>
+ *                     <span class=datatable-label>Table X</span>: Caption text.
+ *                 </p>
+ *             </stencila-paragraph>
+ *         </caption>
+ *         <thead>
+ *             <tr>
+ *                 <th>
+ *                     <stencila-datatable-column id=xxx depth=N+1 ancestors=Parent name=ColumnName validator='...'>
+ *                         Column Name
+ *                     </stencila-datatable-column>
+ *                 </th>
+ *             </tr>
+ *         </thead>
+ *         <tbody>
+ *             <tr>
+ *                 <td>Cell content</td>
+ *             </tr>
+ *         </tbody>
  *     </table>
+ *     <aside slot=notes>
+ *         <stencila-paragraph id=xxx depth=N+1 ancestors=Parent.Datatable>
+ *             <p slot=content>Notes text.</p>
+ *         </stencila-paragraph>
+ *     </aside>
  * </stencila-datatable>
  *
  * Key Attributes:
- * - data-* attributes: Various data attributes for interactive functionality
+ * - label: Datatable number (e.g., "3")
+ * - label-automatically: Boolean indicating if label was auto-generated
  *
  * Slots:
- * - content: Contains the HTML table element
+ * - columns: The table element containing column definitions and data
+ * - notes: Optional aside with additional notes or annotations
  *
  * Notes:
- * - DataTables are enhanced versions of regular tables with JavaScript functionality
- * - Inherits base table styling but may have additional interactive elements
- * - Often includes search, sort, and pagination controls
+ * - Data tables use semantic HTML with proper thead/tbody structure
+ * - Headers contain stencila-datatable-column elements with column names as text content
+ * - Body cells contain raw text, with inline styles applied as needed (e.g., text-align)
+ * - Caption structure matches stencila-table (inside table element)
+ * - By default, all datatable tokens reference table tokens for consistent styling
+ * - Theme authors can override datatable tokens to style datatables differently from tables
+ *
+ * Examples: examples/conversion/datatable/datatable.html
+ * Documentation: docs/themes/datatables.smd
  */
 
+:root {
+    /* Vertical spacing tokens - default to table spacing */
+    --datatable-spacing-top: var(--table-spacing-top);
+    --datatable-spacing-bottom: var(--table-spacing-bottom);
+
+    /* Caption typography - defaults to table caption tokens */
+    --datatable-caption-font-family: var(--table-caption-font-family);
+    --datatable-caption-font-size: var(--table-caption-font-size);
+    --datatable-caption-color: var(--table-caption-color);
+    --datatable-caption-spacing-bottom: var(--table-caption-spacing-bottom);
+    --datatable-caption-line-height: var(--table-caption-line-height);
+    --datatable-caption-alignment: var(--table-caption-alignment);
+    --datatable-caption-max-width: var(--table-caption-max-width);
+
+    /* Label styling - defaults to table label tokens */
+    --datatable-label-font-weight: var(--table-label-font-weight);
+    --datatable-label-font-style: var(--table-label-font-style);
+    --datatable-label-color: var(--table-label-color);
+
+    /* Notes typography - defaults to table notes tokens */
+    --datatable-notes-font-family: var(--table-notes-font-family);
+    --datatable-notes-font-size: var(--table-notes-font-size);
+    --datatable-notes-color: var(--table-notes-color);
+    --datatable-notes-spacing-top: var(--table-notes-spacing-top);
+    --datatable-notes-line-height: var(--table-notes-line-height);
+    --datatable-notes-alignment: var(--table-notes-alignment);
+
+    /* Table borders - defaults to table border tokens */
+    --datatable-border-radius: var(--table-border-radius);
+    --datatable-border-width: var(--table-border-width);
+    --datatable-border-width-print: var(--table-border-width-print);
+    --datatable-border-color: var(--table-border-color);
+    --datatable-border-style: var(--table-border-style);
+
+    --datatable-row-border-width: var(--table-row-border-width);
+    --datatable-row-border-width-print: var(--table-row-border-width-print);
+    --datatable-row-border-color: var(--table-row-border-color);
+    --datatable-row-border-style: var(--table-row-border-style);
+
+    --datatable-column-border-width: var(--table-column-border-width);
+    --datatable-column-border-width-print: var(--table-column-border-width-print);
+    --datatable-column-border-color: var(--table-column-border-color);
+    --datatable-column-border-style: var(--table-column-border-style);
+
+    /* Header styling - defaults to table header tokens */
+    --datatable-header-background: var(--table-header-background);
+    --datatable-header-background-dark: var(--table-header-background-dark);
+    --datatable-header-background-print: var(--table-header-background-print);
+    --datatable-header-font-weight: var(--table-header-font-weight);
+
+    /* Row styling - defaults to table row tokens */
+    --datatable-row-hover: var(--table-row-hover);
+    --datatable-row-hover-dark: var(--table-row-hover-dark);
+    --datatable-row-striped: var(--table-row-striped);
+    --datatable-row-striped-dark: var(--table-row-striped-dark);
+    --datatable-row-striped-print: var(--table-row-striped-print);
+
+    /* Cell styling - defaults to table cell tokens */
+    --datatable-cell-font-family: var(--table-cell-font-family);
+    --datatable-cell-font-size: var(--table-cell-font-size);
+    --datatable-cell-line-height: var(--table-cell-line-height);
+    --datatable-cell-line-height-mobile: var(--table-cell-line-height-mobile);
+    --datatable-cell-line-height-print: var(--table-cell-line-height-print);
+    --datatable-cell-padding: var(--table-cell-padding);
+    --datatable-cell-padding-mobile: var(--table-cell-padding-mobile);
+    --datatable-cell-padding-print: var(--table-cell-padding-print);
+}
+
+/* Dark Mode Application - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --datatable-header-background: var(--datatable-header-background-dark);
+        --datatable-row-hover: var(--datatable-row-hover-dark);
+        --datatable-row-striped: var(--datatable-row-striped-dark);
+    }
+}
+
+/* Dark Mode Application - Explicit User Choice */
+:root[data-color-scheme="dark"] {
+    --datatable-header-background: var(--datatable-header-background-dark);
+    --datatable-row-hover: var(--datatable-row-hover-dark);
+    --datatable-row-striped: var(--datatable-row-striped-dark);
+}
+
+/* Responsive Application - Mobile Breakpoint (640px) */
+@media (max-width: 640px) {
+    :root {
+        --datatable-cell-line-height: var(--datatable-cell-line-height-mobile);
+        --datatable-cell-padding: var(--datatable-cell-padding-mobile);
+    }
+}
+
 stencila-datatable {
+    display: block;
+
+    /* Vertical spacing */
+    margin-top: var(--datatable-spacing-top);
+    margin-bottom: var(--datatable-spacing-bottom);
+
+    /* Table element styling */
     table {
-        font-family: var(--data-font-family);
+        width: 100%;
+        border-collapse: collapse;
+        border: var(--datatable-border-width) var(--datatable-border-style) var(--datatable-border-color);
+        border-radius: var(--datatable-border-radius);
+    }
+
+    /* Caption styling */
+    caption {
+        margin-bottom: var(--datatable-caption-spacing-bottom);
+        max-width: var(--datatable-caption-max-width);
+
+        stencila-paragraph p {
+            /* Browser normalization */
+            max-width: none;
+            margin: 0;
+
+            /* Caption typography */
+            font-family: var(--datatable-caption-font-family);
+            font-size: var(--datatable-caption-font-size);
+            color: var(--datatable-caption-color);
+            line-height: var(--datatable-caption-line-height);
+            text-align: var(--datatable-caption-alignment);
+        }
+
+        /* Paragraph spacing: first paragraph aligns with caption,
+         * subsequent paragraphs use caption spacing to maintain visual hierarchy */
+        stencila-paragraph:first-child {
+            margin-top: 0;
+        }
+
+        stencila-paragraph:not(:first-child) {
+            margin-top: var(--datatable-caption-spacing-bottom);
+        }
+
+        /* Label styling within caption */
+        .datatable-label {
+            font-weight: var(--datatable-label-font-weight);
+            font-style: var(--datatable-label-font-style);
+            color: var(--datatable-label-color);
+        }
+    }
+
+    /* Header styling - targets th within thead */
+    thead th {
+        background-color: var(--datatable-header-background);
+
+        padding: var(--datatable-cell-padding);
+        text-align: left;
+        border-bottom: var(--datatable-row-border-width) var(--datatable-row-border-style) var(--datatable-row-border-color);
+
+        font-family: var(--datatable-cell-font-family);
+        font-weight: var(--datatable-header-font-weight);
+        font-size: var(--datatable-cell-font-size);
+        line-height: var(--datatable-cell-line-height);
+
+        /* Handle stencila-datatable-column wrapper */
+        stencila-datatable-column {
+            display: block;
+        }
+    }
+
+    thead th:not(:first-child) {
+        border-left: var(--datatable-column-border-width) var(--datatable-column-border-style) var(--datatable-column-border-color);
+    }
+
+    /* Body cell styling */
+    tbody td {
+        padding: var(--datatable-cell-padding);
+        text-align: left;
+        border-bottom: var(--datatable-row-border-width) var(--datatable-row-border-style) var(--datatable-row-border-color);
+
+        font-family: var(--datatable-cell-font-family);
+        font-size: var(--datatable-cell-font-size);
+        line-height: var(--datatable-cell-line-height);
+    }
+
+    tbody td:not(:first-child) {
+        border-left: var(--datatable-column-border-width) var(--datatable-column-border-style) var(--datatable-column-border-color);
+    }
+
+    /* Row hover effect */
+    tbody tr:hover {
+        background-color: var(--datatable-row-hover);
+    }
+
+    /* Striped rows */
+    tbody tr:nth-child(even) {
+        background-color: var(--datatable-row-striped);
+    }
+
+    /* Notes styling */
+    [slot='notes'] {
+        margin-top: var(--datatable-notes-spacing-top);
+
+        stencila-paragraph p {
+            font-family: var(--datatable-notes-font-family);
+            font-size: var(--datatable-notes-font-size);
+            color: var(--datatable-notes-color);
+            line-height: var(--datatable-notes-line-height);
+            text-align: var(--datatable-notes-alignment);
+        }
+
+        /* Paragraph spacing within notes */
+        stencila-paragraph:first-child {
+            margin-top: 0;
+        }
+
+        stencila-paragraph:not(:first-child) {
+            margin-top: var(--datatable-notes-spacing-top);
+        }
+    }
+}
+
+/* Print Media Optimization */
+@media print {
+    :root {
+        --datatable-border-width: var(--datatable-border-width-print);
+        --datatable-row-border-width: var(--datatable-row-border-width-print);
+        --datatable-column-border-width: var(--datatable-column-border-width-print);
+        --datatable-header-background: var(--datatable-header-background-print);
+        --datatable-row-striped: var(--datatable-row-striped-print);
+        --datatable-cell-line-height: var(--datatable-cell-line-height-print);
+        --datatable-cell-padding: var(--datatable-cell-padding-print);
+    }
+
+    stencila-datatable {
+        /* Prevent datatable (including caption, rows, and notes) from breaking across pages */
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 }

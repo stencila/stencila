@@ -12,7 +12,6 @@
 @import url("./articles.css");
 @import url("./citations.css");
 @import url("./code.css");
-@import url("./datatables.css");
 @import url("./diagrams.css");
 @import url("./figures.css");
 @import url("./headings.css");
@@ -26,3 +25,4 @@
 @import url("./rules.css");
 @import url("./sections.css");
 @import url("./tables.css");
+@import url("./datatables.css");

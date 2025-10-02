@@ -4,6 +4,10 @@ description: |
   Design tokens and examples for customizing tables, captions, and notes in Stencila themes.
 ---
 
+# Introduction
+
+Tables provide presentation-focused layout for tabular data in documents. For typed data with column validation and structured datasets, see [datatables](./datatables.smd) which offer specialized styling and features for data-oriented use cases.
+
 # Tokens
 
 ## Spacing Tokens
@@ -143,9 +147,9 @@ Tables integrate with the design system's token architecture:
 
 ## Customization Patterns
 
-**Compact tables**: Reduce cell padding and spacing for tables with many rows. Optionally enable row striping in theme files.
-
 **Scholarly tables**: Increase spacing, use justified captions, add enhanced typography for formal academic documents.
+
+**Typed data tables**: For structured datasets with column types and validation, see [datatables](./datatables.smd) which offer specialized tokens and styling.
 
 **Styled tables**: Adjust borders, spacing, and cell padding. For header backgrounds and striping patterns, define these in theme CSS files where dark mode variants will work properly.
 
@@ -203,34 +207,6 @@ Summary of experimental results showing treatment effects across three independe
 | Drug B    | 15.4±2.6 | 16.2±2.4 | 15.8±2.9 | < 0.01  |
 
 :::
-
-:::
-
-## Compact Tables
-
-Compact layout with reduced spacing for tables with many rows:
-
-```css
-:root {
-  --table-spacing-top: var(--space-4);
-  --table-spacing-bottom: var(--space-4);
-  --table-cell-padding: var(--space-2);
-  --table-caption-spacing-bottom: var(--space-2);
-}
-```
-
-::: style --table-spacing-top: var(--space-4); --table-spacing-bottom: var(--space-4); --table-cell-padding: var(--space-2); --table-caption-spacing-bottom: var(--space-2);
-
-|   ID | Timestamp | Event  | User    | Status  |
-| ---: | --------: | :----- | :------ | :------ |
-| 1001 |  09:15:23 | Login  | alice   | Success |
-| 1002 |  09:16:45 | Upload | bob     | Success |
-| 1003 |  09:17:12 | Delete | alice   | Failed  |
-| 1004 |  09:18:03 | Export | charlie | Success |
-| 1005 |  09:19:34 | Login  | diana   | Success |
-| 1006 |  09:20:11 | Update | bob     | Success |
-| 1007 |  09:21:47 | Delete | alice   | Success |
-| 1008 |  09:22:15 | Login  | eva     | Success |
 
 :::
 
