@@ -1,0 +1,115 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.1126/science.2025.789012",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0006-7890-1234",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Institute of Neuroscience, Tokyo University",
+          "ror": "05gxs7b42"
+        }
+      ],
+      "familyNames": [
+        "Nakamura"
+      ],
+      "givenNames": [
+        "Kenji"
+      ],
+      "emails": [
+        "kenji.nakamura@example.com"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0007-8901-2345",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Center for Developmental Biology, University of Lisbon",
+          "ror": "04z8k7n28"
+        }
+      ],
+      "familyNames": [
+        "Santos"
+      ],
+      "givenNames": [
+        "Maria"
+      ],
+      "emails": [
+        "maria.santos@example.com"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2025-06-15"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Epigenetic Regulation in Neural Development"
+      }
+    }
+  ],
+  "frontmatter": "type: Article\ndoi: 10.1126/science.2025.789012\ntitle: Epigenetic Regulation in Neural Development\nauthors:\n- type: Person\n  givenNames:\n  - Kenji\n  familyNames:\n  - Nakamura\n  orcid: 0000-0006-7890-1234\n  email: kenji.nakamura@example.com\n  affiliations:\n  - type: Organization\n    name: Institute of Neuroscience, Tokyo University\n    ror: 05gxs7b42\n- type: Person\n  givenNames:\n  - Maria\n  familyNames:\n  - Santos\n  orcid: 0000-0007-8901-2345\n  email: maria.santos@example.com\n  affiliations:\n  - type: Organization\n    name: Center for Developmental Biology, University of Lisbon\n    ror: 04z8k7n28\ndateReceived: 2025-02-10\ndateAccepted: 2025-05-22\ndatePublished: 2025-06-15\nkeywords:\n- epigenetics\n- neural development\n- chromatin remodeling\n- gene expression\n- histone modification\nisPartOf:\n  type: Periodical\n  name: Science\n  publisher:\n    type: Organization\n    name: American Association for the Advancement of Science\n    ror: 03e8mv210\nlicenses:\n- Creative Commons Attribution 4.0 International License",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Epigenetic mechanisms play crucial roles in regulating gene expression during neural development. This study investigates the role of chromatin remodeling complexes in neuronal differentiation."
+          }
+        }
+      ]
+    }
+  ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2025-02-10"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-05-22"
+  },
+  "keywords": [
+    "epigenetics",
+    "neural development",
+    "chromatin remodeling",
+    "gene expression",
+    "histone modification"
+  ],
+  "isPartOf": {
+    "type": "Periodical",
+    "name": "Science",
+    "publisher": {
+      "type": "Organization",
+      "name": "American Association for the Advancement of Science",
+      "ror": "03e8mv210"
+    }
+  },
+  "licenses": [
+    "Creative Commons Attribution 4.0 International License"
+  ]
+}

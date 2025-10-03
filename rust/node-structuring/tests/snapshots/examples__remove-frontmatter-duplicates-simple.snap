@@ -1,0 +1,107 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.1038/s41467-025-12345-6",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0001-2345-6789",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Molecular Biology, University of Barcelona",
+          "ror": "03yjgw361"
+        }
+      ],
+      "familyNames": [
+        "Rodriguez"
+      ],
+      "givenNames": [
+        "Elena"
+      ],
+      "emails": [
+        "elena.rodriguez@example.org"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-3456-7890",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Institute for Cell Biology Research",
+          "ror": "04xfq0f34"
+        }
+      ],
+      "familyNames": [
+        "Chen"
+      ],
+      "givenNames": [
+        "Marcus"
+      ],
+      "emails": [
+        "marcus.chen@example.org"
+      ]
+    }
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Understanding Molecular Mechanisms of Cell Division in Yeast"
+      }
+    }
+  ],
+  "frontmatter": "type: Article\ntitle: Understanding Molecular Mechanisms of Cell Division in Yeast\ndoi: 10.1038/s41467-025-12345-6\nauthors:\n- type: Person\n  givenNames:\n  - Elena\n  familyNames:\n  - Rodriguez\n  orcid: 0000-0001-2345-6789\n  email: elena.rodriguez@example.org\n  affiliations:\n  - type: Organization\n    name: Department of Molecular Biology, University of Barcelona\n    ror: 03yjgw361\n- type: Person\n  givenNames:\n  - Marcus\n  familyNames:\n  - Chen\n  orcid: 0000-0002-3456-7890\n  email: marcus.chen@example.org\n  affiliations:\n  - type: Organization\n    name: Institute for Cell Biology Research\n    ror: 04xfq0f34",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cell division is a fundamental process in all living organisms. This paper explores the molecular mechanisms underlying mitosis in Saccharomyces cerevisiae."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "We used fluorescence microscopy to observe cell division in real time."
+          }
+        }
+      ]
+    }
+  ]
+}

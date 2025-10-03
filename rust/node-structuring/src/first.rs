@@ -6,7 +6,7 @@ use itertools::Itertools;
 use regex::Regex;
 
 use stencila_codec::stencila_format::Format;
-use stencila_codec::{CitationStyle, StructuringOperation::*, StructuringOptions};
+use stencila_codec::{CitationStyle, NodeType, StructuringOperation::*, StructuringOptions};
 use stencila_codec_biblio::decode::{
     bracketed_numeric_citation, parenthetic_numeric_citation, superscripted_numeric_citation,
     text_to_reference, text_with_author_year_citations, text_with_bracketed_numeric_citations,
@@ -15,10 +15,10 @@ use stencila_codec_biblio::decode::{
 use stencila_codec_text_trait::to_text;
 use stencila_models::{ModelTask, perform_task};
 use stencila_schema::{
-    Admonition, Article, Block, Datatable, Figure, ForBlock, Heading, IfBlockClause, ImageObject,
-    IncludeBlock, Inline, InstructionMessage, ListItem, ListOrder, MathInline, MessagePart,
-    ModelParameters, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock,
-    TableCell, TableRow, Text, VisitorAsync, WalkControl,
+    Admonition, Article, Author, Block, Datatable, Figure, ForBlock, Heading, IfBlockClause,
+    ImageObject, IncludeBlock, Inline, InstructionMessage, ListItem, ListOrder, MathInline,
+    MessagePart, ModelParameters, Node, NodeId, Paragraph, Reference, Section, SectionType,
+    StyledBlock, TableCell, TableRow, Text, VisitorAsync, WalkControl,
     shortcuts::{p, t},
 };
 use stencila_schema::{Cord, MathBlock, Table, WalkthroughStep};
@@ -73,6 +73,9 @@ pub(super) struct FirstWalk {
     /// The extracted keywords
     pub keywords: Option<Vec<String>>,
 
+    /// Text representations of article frontmatter for duplicate detection
+    frontmatter_texts: Vec<String>,
+
     /// Replacements for inline nodes for detected citations of various styles
     pub citations: HashMap<NodeId, (CitationStyle, Vec<Inline>)>,
 
@@ -98,23 +101,22 @@ pub(super) struct FirstWalk {
 
 impl VisitorAsync for FirstWalk {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
-        if let Node::Article(Article {
-            title,
-            content,
-            references,
-            ..
-        }) = node
-        {
-            self.has_title = title.is_some();
+        if let Node::Article(article) = node {
+            self.has_title = article.title.is_some();
             self.in_frontmatter = true;
 
-            if let Some(references) = references {
+            if let Some(references) = &article.references {
                 // Copy references so that they can be used for LinksToCitations
                 // operation if turned on
                 self.references = Some(references.clone());
             }
 
-            self.visit_blocks(content);
+            // Extract metadata text representations for RemoveFrontMatter operation
+            if self.options.should_perform(RemoveFrontmatterDuplicates) {
+                self.extract_frontmatter(article);
+            }
+
+            self.visit_blocks(&mut article.content);
         }
 
         Ok(WalkControl::Continue)
@@ -230,6 +232,7 @@ impl FirstWalk {
         Self {
             options,
             is_first_content_block: true,
+            frontmatter_texts: Vec::new(),
             ..Default::default()
         }
     }
@@ -440,6 +443,14 @@ impl FirstWalk {
         // Extract numbering and determine depth
         let (numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
 
+        // Check if this heading is likely frontmatter
+        if self.options.should_perform(RemoveFrontmatterDuplicates)
+            && self.in_frontmatter
+            && self.is_frontmatter(&cleaned_text)
+        {
+            return block_to_remove(block);
+        }
+
         // Mark empty heading for removal
         if self.options.should_perform(RemoveEmptyHeadings) && cleaned_text.is_empty() {
             return block_to_remove(block);
@@ -574,6 +585,25 @@ impl FirstWalk {
         let Block::Paragraph(paragraph) = block else {
             return WalkControl::Continue;
         };
+
+        // Check if this paragraph is likely frontmatter
+        if self.options.should_perform(RemoveFrontmatterDuplicates) && self.in_frontmatter {
+            let inlines: Vec<_> = paragraph
+                .content
+                .iter()
+                .filter(|inline| {
+                    !matches!(
+                        inline.node_type(),
+                        NodeType::Superscript | NodeType::Subscript
+                    )
+                })
+                .cloned()
+                .collect();
+            let text = to_text(&inlines);
+            if self.is_frontmatter(&text) {
+                return block_to_remove(block);
+            }
+        }
 
         // Convert paragraphs to headings if they exhibit heading-like characteristics
         if self.options.should_perform(ParagraphsToHeadings)
@@ -926,6 +956,226 @@ impl FirstWalk {
             Some(CitationStyle::AuthorYear)
         };
     }
+
+    /// Extract text representations of article metadata for duplicate detection
+    #[tracing::instrument(skip(self, article))]
+    fn extract_frontmatter(&mut self, article: &Article) {
+        // Title
+        if let Some(title) = &article.title {
+            let text = to_text(title).trim().to_string();
+            if !text.is_empty() {
+                self.frontmatter_texts.push(text);
+            }
+        }
+
+        // DOI
+        if let Some(doi) = &article.doi {
+            let doi = doi.trim();
+            self.frontmatter_texts.extend([
+                format!("DOI: {doi}"),
+                format!("DOI {doi}"),
+                doi.to_string(),
+            ]);
+        }
+
+        // Authors
+        if let Some(authors) = &article.authors {
+            let author_names: Vec<String> = authors.iter().map(|author| author.name()).collect();
+            if !author_names.is_empty() {
+                let mut formats = vec![
+                    author_names.join(", "), // Comma-separated
+                    author_names.join("; "), // Semicolon-separated
+                ];
+
+                // Add "and" separated for last two
+                if author_names.len() > 1 {
+                    let mut and_separated = author_names.clone();
+                    let last = and_separated.pop().unwrap_or_default();
+                    formats.extend([
+                        format!("{} and {}", and_separated.join(", "), last),
+                        format!("{} & {}", and_separated.join(", "), last),
+                    ]);
+                }
+
+                self.frontmatter_texts.extend(formats);
+            }
+
+            for author in authors {
+                let Author::Person(person) = author else {
+                    continue;
+                };
+                let Some(email) = person.options.emails.iter().flatten().next() else {
+                    continue;
+                };
+                let name = person.name();
+                self.frontmatter_texts.extend([
+                    format!("Correspondence to: {name} {email}"),
+                    format!("Correspondence to: {name}"),
+                    format!("Correspondence: {name}"),
+                    format!("Corresponding author: {name}"),
+                    format!("Correspondence: {email}"),
+                    format!("Corresponding author: {email}"),
+                    format!("Email: {email}"),
+                    format!("{name} {email}"),
+                ]);
+            }
+        }
+
+        // Affiliations - extract from Person authors
+        if let Some(authors) = &article.authors {
+            let mut all_affiliations = Vec::new();
+            for author in authors {
+                if let Author::Person(person) = author
+                    && let Some(affiliations) = &person.affiliations
+                {
+                    for affiliation in affiliations {
+                        if let Some(name) = &affiliation.name {
+                            all_affiliations.push(name.clone());
+                        }
+                    }
+                }
+            }
+            if !all_affiliations.is_empty() {
+                self.frontmatter_texts
+                    .extend([all_affiliations.join(", "), all_affiliations.join("; ")]);
+            }
+        }
+
+        // Keywords
+        if let Some(keywords) = &article.options.keywords {
+            let joined = keywords.join(", ");
+            self.frontmatter_texts.extend([
+                keywords.join(", "),
+                keywords.join("; "),
+                format!("Keywords: {joined}"),
+                format!("Key words: {joined}"),
+            ]);
+        }
+
+        // Abstract
+        if let Some(abstract_) = &article.r#abstract {
+            let text = to_text(abstract_).trim().to_string();
+            if !text.is_empty() {
+                self.frontmatter_texts.push(text);
+            }
+        }
+
+        // Date published
+        if let Some(date) = &article.date_published {
+            let text = date.value.trim().to_string();
+            self.frontmatter_texts.extend([
+                format!("Published: {text}"),
+                format!("Published online: {text}"),
+                text,
+            ]);
+        }
+
+        // Date received
+        if let Some(date) = &article.options.date_received {
+            let text = date.value.trim().to_string();
+            self.frontmatter_texts
+                .extend([format!("Received: {text}"), text]);
+        }
+
+        // Date accepted
+        if let Some(date) = &article.options.date_accepted {
+            let text = date.value.trim().to_string();
+            self.frontmatter_texts
+                .extend([format!("Accepted: {text}"), text]);
+        }
+
+        // Publisher
+        if let Some(publisher) = &article.options.publisher {
+            let text = to_text(publisher).trim().to_string();
+            if !text.is_empty() {
+                self.frontmatter_texts.push(text);
+            }
+        }
+
+        // Raw, probably YAML, frontmatter
+        if let Some(frontmatter) = &article.frontmatter {
+            let lines = frontmatter.lines().filter_map(|line| {
+                let trimmed = line.trim();
+                if trimmed.is_empty()
+                    || trimmed.starts_with("- type:")
+                    || trimmed.starts_with("type:")
+                    || trimmed.ends_with(":")
+                {
+                    None
+                } else {
+                    Some(trimmed.to_string())
+                }
+            });
+            self.frontmatter_texts.extend(lines);
+        }
+
+        tracing::info!(
+            "Frontmatter text extracted from article:{:#?}",
+            self.frontmatter_texts
+        );
+
+        // Other static frontmatter commonly found in published articles
+        self.frontmatter_texts.extend([
+            // General
+            "Check for updates".to_string(),
+            // Article types
+            "Article".to_string(),
+            "Research Article".to_string(),
+            "Original Article".to_string(),
+            "Review Article".to_string(),
+            "Brief Report".to_string(),
+            "Case Report".to_string(),
+            // Access & licensing
+            "Open access".to_string(),
+            "Open Access".to_string(),
+            "All rights reserved".to_string(),
+            "© ".to_string(),
+            "Copyright".to_string(),
+            "Creative Commons".to_string(),
+            "CC BY".to_string(),
+            "CC-BY".to_string(),
+            // Other
+            "Check for updates".to_string(),
+        ]);
+    }
+
+    /// Check if the given text should be considered frontmatter
+    ///
+    /// Uses normalized Damerau-Levenshtein distance to compare texts.
+    /// Returns true if any metadata text has similarity >= threshold.
+    fn is_frontmatter(&self, text: &str) -> bool {
+        const SIMILARITY_THRESHOLD: f64 = 0.7;
+
+        if self.frontmatter_texts.is_empty() {
+            return false;
+        }
+
+        let text_lower = text.trim().to_lowercase();
+
+        for metadata_text in &self.frontmatter_texts {
+            let metadata_lower = metadata_text.trim().to_lowercase();
+
+            // Skip empty comparisons
+            if text_lower.is_empty() || metadata_lower.is_empty() {
+                continue;
+            }
+
+            // Calculate normalized Damerau-Levenshtein distance
+            let similarity = strsim::normalized_damerau_levenshtein(&text_lower, &metadata_lower);
+
+            if similarity >= SIMILARITY_THRESHOLD {
+                tracing::debug!(
+                    "Found frontmatter (similarity: {:.2}): '{}' matches '{}'",
+                    similarity,
+                    text.chars().take(50).collect::<String>(),
+                    metadata_text.chars().take(50).collect::<String>()
+                );
+                return true;
+            }
+        }
+
+        false
+    }
 }
 
 /// Check if a section type should always be forced to level 1 (top-level sections)
@@ -975,7 +1225,7 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
     let text = to_text(inlines);
 
     if let Some(captures) = FIGURE_CAPTION_REGEX.captures(&text) {
-        let has_prefix = captures.get(1).map_or(false, |m| !m.as_str().is_empty());
+        let has_prefix = captures.get(1).is_some_and(|m| !m.as_str().is_empty());
         let mut figure_label = captures[2].to_string();
         let matched_text = captures.get(0)?.as_str();
 
@@ -1013,7 +1263,7 @@ fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)>
     let text = to_text(inlines);
 
     if let Some(captures) = TABLE_CAPTION_REGEX.captures(&text) {
-        let has_prefix = captures.get(1).map_or(false, |m| !m.as_str().is_empty());
+        let has_prefix = captures.get(1).is_some_and(|m| !m.as_str().is_empty());
         let mut table_label = captures[2].to_string();
         let matched_text = captures.get(0)?.as_str();
 

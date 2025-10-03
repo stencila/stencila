@@ -1,0 +1,108 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.1016/j.cell.2025.03.015",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0003-4567-8901",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Computational Biology Lab, Stanford University",
+          "ror": "00f54p054"
+        }
+      ],
+      "familyNames": [
+        "Yamamoto"
+      ],
+      "givenNames": [
+        "Sophia"
+      ],
+      "emails": [
+        "sophia.yamamoto@example.com"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0004-5678-9012",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Biochemistry, Harvard Medical School",
+          "ror": "03vek6s52"
+        }
+      ],
+      "familyNames": [
+        "O'Brien"
+      ],
+      "givenNames": [
+        "David"
+      ],
+      "emails": [
+        "david.obrien@example.com"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0005-6789-0123",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Max Planck Institute for Biophysics",
+          "ror": "02e1wjd14"
+        }
+      ],
+      "familyNames": [
+        "Petrov"
+      ],
+      "givenNames": [
+        "Anya"
+      ],
+      "emails": [
+        "anya.petrov@example.com"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2025-03-15"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Novel Approaches to Protein Folding Prediction"
+      }
+    }
+  ],
+  "frontmatter": "type: Article\ntitle: Novel Approaches to Protein Folding Prediction\ndoi: 10.1016/j.cell.2025.03.015\nauthors:\n- type: Person\n  givenNames:\n  - Sophia\n  familyNames:\n  - Yamamoto\n  orcid: 0000-0003-4567-8901\n  email: sophia.yamamoto@example.com\n  affiliations:\n  - type: Organization\n    name: Computational Biology Lab, Stanford University\n    ror: 00f54p054\n- type: Person\n  givenNames:\n  - David\n  familyNames:\n  - O'Brien\n  orcid: 0000-0004-5678-9012\n  email: david.obrien@example.com\n  affiliations:\n  - type: Organization\n    name: Department of Biochemistry, Harvard Medical School\n    ror: 03vek6s52\n- type: Person\n  givenNames:\n  - Anya\n  familyNames:\n  - Petrov\n  orcid: 0000-0005-6789-0123\n  email: anya.petrov@example.com\n  affiliations:\n  - type: Organization\n    name: Max Planck Institute for Biophysics\n    ror: 02e1wjd14\ndatePublished: 2025-03-15",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Abstract"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This study presents new computational methods for predicting protein folding patterns using machine learning techniques."
+          }
+        }
+      ]
+    }
+  ]
+}

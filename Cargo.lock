@@ -9780,6 +9780,7 @@ dependencies = [
  "stencila-schema-json",
  "tempfile",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -10935,6 +10936,7 @@ dependencies = [
  "stencila-models",
  "stencila-schema",
  "stencila-schema-json",
+ "strsim",
  "tokio",
  "tracing",
 ]

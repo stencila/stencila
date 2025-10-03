@@ -1039,6 +1039,16 @@ pub enum StructuringOperation {
     /// will be removed.
     RemovePrePrimary,
 
+    /// Remove front matter that duplicates article metadata
+    ///
+    /// Uses edit distance to identify headings and paragraphs that duplicate
+    /// metadata already collected (title, DOI, authors, affiliations, keywords, etc.).
+    /// More precise than RemovePrePrimary as it only removes actual duplicates
+    /// rather than all content before first primary section. Uses normalized
+    /// Damerau-Levenshtein distance with a threshold of 0.7 (70% similarity) to
+    /// detect duplicates while allowing for minor OCR errors or formatting differences.
+    RemoveFrontmatterDuplicates,
+
     /// Remove empty headings
     ///
     /// A heading is considered empty if it has no content after any numbering

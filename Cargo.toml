@@ -47,6 +47,7 @@ serde_yaml = "0.9.34"
 sha2 = "0.10"
 similar = { version = "2.7.0", features = ["serde", "unicode"] }
 smart-default = "0.7.1"
+strsim = "0.11.1"
 smol_str = "0.2.2"
 strum = { version = "0.27.2", features = ["derive"] }
 syn = "2.0.106"
