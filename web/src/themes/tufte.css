@@ -6,7 +6,7 @@
  * Inspired by https://edwardtufte.github.io/tufte-css/
  */
 
-@import url('./base.css');
+@import url('./base/index.css');
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&family=Source+Code+Pro:wght@400;500&display=swap');
 
 :root {
