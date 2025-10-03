@@ -1,0 +1,154 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document tests unwrapping different media types."
+          }
+        }
+      ]
+    },
+    {
+      "type": "ImageObject",
+      "contentUrl": "image.png",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Image only"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Some text between media."
+          }
+        }
+      ]
+    },
+    {
+      "type": "AudioObject",
+      "contentUrl": "audio.mp3",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Audio only"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "More text content."
+          }
+        }
+      ]
+    },
+    {
+      "type": "VideoObject",
+      "contentUrl": "video.mp4",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Video only"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph has "
+          }
+        },
+        {
+          "type": "ImageObject",
+          "contentUrl": "embedded.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "embedded image"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " with text so it should not be unwrapped."
+          }
+        }
+      ]
+    },
+    {
+      "type": "ImageObject",
+      "contentUrl": "image.png",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Image"
+          }
+        }
+      ]
+    },
+    {
+      "type": "AudioObject",
+      "contentUrl": "audio.mp3",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Audio"
+          }
+        }
+      ]
+    },
+    {
+      "type": "VideoObject",
+      "contentUrl": "video.mp4",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Video"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Final paragraph with text."
+          }
+        }
+      ]
+    }
+  ]
+}

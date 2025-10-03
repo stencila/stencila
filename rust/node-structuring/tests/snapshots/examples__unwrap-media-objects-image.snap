@@ -1,0 +1,96 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph contains regular text and should not be unwrapped."
+          }
+        }
+      ]
+    },
+    {
+      "type": "ImageObject",
+      "contentUrl": "example.png",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Single image"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paragraph should remain as a paragraph since it has both text and an image: "
+          }
+        },
+        {
+          "type": "ImageObject",
+          "contentUrl": "mixed.png",
+          "caption": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "inline image"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " with more text."
+          }
+        }
+      ]
+    },
+    {
+      "type": "ImageObject",
+      "contentUrl": "image1.png",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "First image"
+          }
+        }
+      ]
+    },
+    {
+      "type": "ImageObject",
+      "contentUrl": "image2.png",
+      "caption": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Second image"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regular paragraph text after the images."
+          }
+        }
+      ]
+    }
+  ]
+}

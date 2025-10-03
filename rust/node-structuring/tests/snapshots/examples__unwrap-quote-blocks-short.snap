@@ -1,0 +1,112 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document tests quote blocks that should NOT be unwrapped."
+          }
+        }
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This is a single paragraph quote block. Since it has only one block, it should remain as a quote block."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regular paragraph between quotes."
+          }
+        }
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "First paragraph of a two-block quote."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Second paragraph of a two-block quote. This should also remain as a quote block since it has exactly two blocks, not more than two."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Another regular paragraph."
+          }
+        }
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Final single-paragraph quote that should remain wrapped."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "End of document."
+          }
+        }
+      ]
+    }
+  ]
+}

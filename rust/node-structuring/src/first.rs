@@ -21,7 +21,7 @@ use stencila_schema::{
     StyledBlock, TableCell, TableRow, Text, VisitorAsync, WalkControl,
     shortcuts::{p, t},
 };
-use stencila_schema::{Cord, MathBlock, Table, WalkthroughStep};
+use stencila_schema::{Cord, CreativeWorkVariant, MathBlock, QuoteBlock, Table, WalkthroughStep};
 use stencila_schema_json::{JsonSchemaVariant, json_schema};
 
 use crate::{block_to_remove, inline_to_remove};
@@ -166,6 +166,18 @@ impl VisitorAsync for FirstWalk {
                 WalkControl::Continue
             }
 
+            // Visit the work of supplementary articles. Do this using a new `FirstWalk` instance so that
+            // there are no unexpected consequences for things like the main article metadata or reference list
+            Block::Supplement(supplement) => {
+                if let Some(CreativeWorkVariant::Article(Article { content, .. })) =
+                    &mut supplement.options.work
+                {
+                    let mut walker = FirstWalk::new(self.options.clone());
+                    walker.visit_blocks(content);
+                }
+                WalkControl::Continue
+            }
+
             _ => WalkControl::Continue,
         };
 
@@ -249,7 +261,42 @@ impl FirstWalk {
     /// is more performant).
     fn visit_blocks(&mut self, blocks: &mut Vec<Block>) -> WalkControl {
         let mut index = 0;
-        while index < blocks.len().saturating_sub(1) {
+        while index < blocks.len() {
+            // Check for paragraph with only media objects
+            if self.options.should_perform(UnwrapMediaObjects)
+                && let Some(Block::Paragraph(Paragraph { content, .. })) = blocks.get(index)
+            {
+                if content.iter().all(|inline| {
+                    matches!(
+                        inline,
+                        Inline::ImageObject(..) | Inline::AudioObject(..) | Inline::VideoObject(..)
+                    )
+                }) {
+                    let media_blocks = content
+                        .clone()
+                        .into_iter()
+                        .filter_map(|inline| match inline {
+                            Inline::ImageObject(image) => Some(Block::ImageObject(image)),
+                            Inline::AudioObject(audio) => Some(Block::AudioObject(audio)),
+                            Inline::VideoObject(video) => Some(Block::VideoObject(video)),
+                            _ => None,
+                        })
+                        .collect_vec();
+
+                    if !media_blocks.is_empty() {
+                        // Splice in blocks over the current paragraph
+                        blocks.splice(index..=index, media_blocks);
+                    }
+                }
+            } else if self.options.should_perform(UnwrapQuoteBlocks)
+                && let Some(Block::QuoteBlock(QuoteBlock { content, .. })) = blocks.get(index)
+            {
+                if content.len() > 2 {
+                    // Splice in blocks over the current quote
+                    blocks.splice(index..=index, content.clone());
+                }
+            }
+
             // Check for ImageObject followed by figure caption
             if let (
                 Some(Block::ImageObject(..)),

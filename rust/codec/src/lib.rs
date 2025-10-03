@@ -978,6 +978,25 @@ pub enum StructuringOperation {
     /// structured tabular data while preserving complex tables as-is.
     TablesToDatatables,
 
+    /// Unwrap media objects from paragraphs to block level
+    ///
+    /// Documents decoded from word processors can have paragraphs containing
+    /// only media objects (image, audio, or video), typically due to complex
+    /// layouts in DOCX files. This operation extracts those media objects from
+    /// their containing paragraph, promoting them to block-level elements and
+    /// removing the now-empty paragraph.
+    UnwrapMediaObjects,
+
+    /// Unwrap quote blocks containing more than two child blocks
+    ///
+    /// Long `QuoteBlock` nodes are often created when decoding word processor
+    /// documents because Pandoc treats indented text as block quotes. This
+    /// operation unwraps quote blocks that contain more than two blocks,
+    /// promoting their child blocks to the parent level and removing the
+    /// quote block wrapper. This helps normalize documents where indentation
+    /// was used for layout rather than quotation semantics.
+    UnwrapQuoteBlocks,
+
     /// Convert text to structured citations
     ///
     /// Detects citation patterns like "(Smith 2023)" or "[1]" in text and
