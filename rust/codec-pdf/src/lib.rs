@@ -79,6 +79,7 @@ impl Codec for PdfCodec {
             .unwrap_or_default();
 
         // Read PDF
+        tracing::trace!("Reading PDF");
         let pdf_bytes = read(path).await?;
 
         // Load PDF to get page count
@@ -94,6 +95,7 @@ impl Codec for PdfCodec {
             temp_dir.path().to_path_buf()
         } else {
             // Use artifacts directory for caching using PDF hash digest as key
+            tracing::trace!("Hashing PDF");
             let digest = seahash::hash(&pdf_bytes);
             let key = format!("pdfmd-{digest:x}");
             closest_artifacts_for(&current_dir()?, &key).await?
@@ -212,13 +214,16 @@ impl Codec for PdfCodec {
         };
 
         // Clean and write cleaned Markdown
+        tracing::trace!("Cleaning Markdown");
         let clean_md = clean_md(&ocr_md);
         write(&clean_md_path, &clean_md).await?;
 
         // Decode the Markdown file to a node
+        tracing::trace!("Decoding Markdown");
         let (mut node, orig, info) = MarkdownCodec.from_path(&clean_md_path, options).await?;
 
         // Embed any image files
+        tracing::trace!("Embedding media");
         embed_media(&mut node, Some(&clean_md_path))?;
 
         // Set source information, so that it refers to the PDF, not the temporary Markdown file

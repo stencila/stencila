@@ -18,6 +18,7 @@ stencila-node-media = { path = "../node-media" }
 stencila-schema-json = { path = "../schema-json" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
+tracing = { workspace = true }
 
 [lints]
 workspace = true
