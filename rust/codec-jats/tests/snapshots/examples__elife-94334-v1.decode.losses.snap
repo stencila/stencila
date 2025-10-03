@@ -3,7 +3,15 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 //article/back/ack/@id: 1
-//article/back/app-group: 1
+//article/back/app-group/app/@id: 1
+//article/back/app-group/app/table-wrap/@position: 1
+//article/back/app-group/app/table-wrap/table/tbody/tr/td/@char: 7
+//article/back/app-group/app/table-wrap/table/tbody/tr/td/break: 31
+//article/back/app-group/app/table-wrap/table/tbody/tr/td/ext-link/@ext-link-type: 3
+//article/back/app-group/app/table-wrap/table/tbody/tr/td/italic/break: 14
+//article/back/app-group/app/table-wrap/table/tbody/tr/td/named-content: 36
+//article/back/app-group/app/table-wrap/table/tbody/tr/td/named-content/@content-type: 18
+//article/back/app-group/app/table-wrap/table/tbody/tr/td/xref: 12
 //article/back/sec/@id: 3
 //article/back/sec/fn-group: 2
 //article/back/sec/p/element-citation: 1

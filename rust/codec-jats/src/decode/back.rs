@@ -30,8 +30,12 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
                 let section = decode_ack(&child_path, &child, losses);
                 article.content.push(section);
             }
-            "ref-list" => decode_ref_list(&child_path, &child, article, losses),
+            "app-group" => {
+                let sections = decode_app_group(&child_path, &child, losses);
+                article.content.extend(sections);
+            }
             "notes" => decode_notes(&child_path, &child, article, losses),
+            "ref-list" => decode_ref_list(&child_path, &child, article, losses),
             "sec" => {
                 let mut blocks = decode_sec(&child_path, &child, losses, 1);
                 article.content.append(&mut blocks);
@@ -49,6 +53,40 @@ fn decode_ack(path: &str, node: &Node, losses: &mut Losses) -> Block {
 
     Block::Section(Section {
         section_type: Some(SectionType::Acknowledgements),
+        content,
+        ..Default::default()
+    })
+}
+
+/// Decode an `<app-group>` (appendix group)
+fn decode_app_group(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut secs = Vec::new();
+
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        let child_path = extend_path(path, tag);
+        match tag {
+            "app" | "sec" => {
+                let block = decode_app(&child_path, &child, losses);
+                secs.push(block);
+            }
+            _ => record_node_lost(path, &child, losses),
+        };
+    }
+
+    secs
+}
+
+/// Decode an `<app>` (appendix) or a `<sec>` in  an `<app-group>`
+fn decode_app(path: &str, node: &Node, losses: &mut Losses) -> Block {
+    record_attrs_lost(path, node, [], losses);
+
+    let content = decode_blocks(path, node.children(), losses, 1);
+
+    Block::Section(Section {
+        section_type: Some(SectionType::Appendix),
         content,
         ..Default::default()
     })
