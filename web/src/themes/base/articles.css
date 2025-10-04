@@ -57,6 +57,7 @@
     /* Article Title - Typography optimized for large display text */
     --article-title-font-family: var(--heading-font-family);
     --article-title-font-size: calc(var(--text-font-size) * 2.5);
+    --article-title-font-size-mobile: calc(var(--text-font-size-print) * 2.0);
     --article-title-font-size-print: calc(var(--text-font-size-print) * 2.0);
     --article-title-font-weight: var(--font-weight-bold);
     --article-title-color: var(--text-color-primary);
@@ -118,12 +119,18 @@ stencila-article {
         color: var(--article-authors-color);
         margin-bottom: var(--article-authors-margin-bottom);
     }
+
+    >[slot="headings"] {
+        /* Temporarily hidden until pull styled */
+        display: none;
+    }
 }
 
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
         --article-content-max-width: var(--article-content-max-width-mobile);
+        --article-title-font-size: var(--article-title-font-size-mobile);
         --article-title-line-height: var(--article-title-line-height-mobile);
     }
 }

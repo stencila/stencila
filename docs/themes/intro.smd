@@ -12,15 +12,34 @@ Stencila themes provide a comprehensive design system for academic documents, su
 
 The theme system is built with a modular architecture that allows you to choose exactly what you need:
 
-### Core Module (`base/core.css`)
+### Base Theme Entry Point (`base/index.css`)
 
-Contains everything needed for screen rendering:
+The base theme entry point imports a collection of focused, self-contained modules for screen rendering:
 
-- **Design Tokens** - All CSS custom properties defining the design system
-- **CSS Reset & Normalization** - Browser default overrides for consistency
-- **Typography & Layout** - Screen-optimized styles for headings, paragraphs, lists, etc.
-- **Components** - Tables, figures, code blocks, admonitions, and custom elements
-- **Dark Mode** - Automatic system preference detection with manual override
+#### Foundation Modules
+- **`tokens.css`** - All CSS custom properties (primitive, semantic, component tokens) and dark mode
+- **`reset.css`** - Global browser normalization and modern CSS reset
+- **`document.css`** - Document-level layout, responsive containers, and scrollbar styling
+
+#### Typography Modules
+- **`links.css`** - Link reset, styling, focus states, and accessibility
+- **`headings.css`** - Complete heading system with reset, h1-h6 styles, and mobile adjustments
+- **`paragraphs.css`** - Paragraph styling including lead paragraphs and mobile optimizations
+- **`lists.css`** - List reset, ul/ol/li styling, nesting, and mobile adjustments
+
+#### Content Modules
+- **`code.css`** - Inline and block code styling with mobile adjustments
+- **`tables.css`** - Table reset, styling, Stencila table components, and mobile scrolling
+- **`figures.css`** - Figure and figcaption styling for Stencila figure components
+- **`images.css`** - Image element normalization and responsive behavior
+- **`quotes.css`** - Blockquote styling with mobile adjustments
+- **`math.css`** - Mathematical content font styling
+- **`rules.css`** - Horizontal rule styling
+
+#### Stencila Components
+- **`admonitions.css`** - Stencila admonition component styling
+- **`datatables.css`** - Stencila datatable component styling
+- **`diagrams.css`** - Diagram styling (primarily handled via JavaScript integration)
 
 ### Print Module (`base/print.css`)
 
@@ -38,7 +57,7 @@ Optional module for print and PDF output:
 For web-only themes that don't need print support:
 
 ```css
-@import url("./base/core.css");
+@import url("./base/index.css");
 
 :root {
   --text-font-family: "Your Font", serif;
@@ -51,7 +70,7 @@ For web-only themes that don't need print support:
 For themes that support both screen and print output:
 
 ```css
-@import url("./base/core.css");
+@import url("./base/index.css");
 @import url("./base/print.css");
 
 :root {
@@ -72,4 +91,29 @@ For themes that want everything included automatically:
 }
 ```
 
-The `base.css` file automatically imports both `core.css` and `print.css` for backward compatibility.
+The `base.css` file automatically imports both `index.css` and `print.css`.
+
+### Selective Imports (Advanced)
+
+For advanced users who need fine-grained control, individual modules can be imported selectively:
+
+```css
+/* Import only what you need */
+@import url("./base/tokens.css");
+@import url("./base/reset.css");
+@import url("./base/document.css");
+@import url("./base/headings.css");
+@import url("./base/paragraphs.css");
+
+:root {
+  --text-font-family: "Your Font", serif;
+}
+```
+
+This approach allows you to:
+- Minimize CSS payload for specific use cases
+- Override individual modules with custom implementations
+- Build specialized themes that only style certain elements
+- Debug styling issues by isolating specific modules
+
+**Note**: Each module is self-contained with its own reset, styling, and mobile adjustments co-located for maintainability.
