@@ -1,4 +1,59 @@
+import { css } from '@twind/core'
 import { html } from 'lit'
+
+import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
+
+/**
+ * Convert plot tokens to Plotly template
+ */
+function toPlotlyTemplate(t: PlotTokens): Partial<any> {
+  const axisBase = {
+    color: t.textColor,
+    title: {
+      font: { family: t.fontFamily, size: t.axisTitleSize, color: t.axis.titleColor },
+    },
+    gridcolor: t.axis.gridColor,
+    griddash: t.axis.gridDash > 0 ? 'dash' : 'solid',
+    gridwidth: t.axis.gridWidth,
+    linecolor: t.axis.lineColor,
+    linewidth: t.axis.lineWidth,
+    tickcolor: t.axis.tickColor,
+    ticklen: t.axis.tickSize,
+    tickwidth: t.axis.tickWidth,
+    zerolinecolor: t.zero,
+  }
+
+  return {
+    layout: {
+      colorway: t.palette,
+      paper_bgcolor: t.background,
+      plot_bgcolor: t.panel,
+      font: { family: t.fontFamily, size: t.fontSize, color: t.textColor },
+      margin: {
+        // Using padding tokens makes margins too narrow
+        //t: t.padding.top,
+        //r: t.padding.right,
+        //b: t.padding.bottom,
+        //l: t.padding.left,
+      },
+      xaxis: axisBase,
+      yaxis: axisBase,
+      legend: {
+        bgcolor: t.legend.background,
+        bordercolor: t.legend.borderColor,
+        borderwidth: t.legend.borderWidth,
+        font: { family: t.fontFamily, size: t.legendSize, color: t.legend.textColor },
+        itemwidth: t.legend.markerSize + 10,
+      },
+      hoverlabel: {
+        bgcolor: t.tooltip.background,
+        bordercolor: t.tooltip.borderColor,
+        font: { family: t.fontFamily, size: t.fontSize, color: t.tooltip.textColor },
+        align: 'left',
+      },
+    },
+  }
+}
 
 /**
  * Compile and render a Plotly chart
@@ -14,6 +69,43 @@ export async function compilePlotly(
   const spec = JSON.parse(contentUrl)
 
   try {
+    // Build theme from CSS variables
+    const theme = buildPlotTheme(container)
+    const template = toPlotlyTemplate(theme)
+
+    // Merge template with user layout
+    const layout = { ...template.layout, ...spec.layout }
+
+    // Apply palette colors to traces if not specified
+    const data = spec.data.map((trace: any, i: number) => {
+      const color = theme.palette[i % theme.palette.length]
+
+      // Special handling for heatmaps: inject ramp colorscale if not specified
+      if (trace.type === 'heatmap' && !trace.colorscale) {
+        return {
+          ...trace,
+          colorscale: [
+            [0, theme.ramp.start],
+            [1, theme.ramp.end],
+          ],
+        }
+      }
+
+      return {
+        ...trace,
+        marker: {
+          ...trace.marker,
+          color: trace.marker?.color ?? color,
+        },
+        line: {
+          ...trace.line,
+          color: trace.line?.color ?? color,
+          width: trace.line?.width ?? theme.mark.lineWidth,
+          dash: theme.mark.lineDash > 0 ? 'dash' : 'solid',
+        },
+      }
+    })
+
     // Configure for static mode if enabled
     const config = isStaticMode
       ? {
@@ -25,9 +117,9 @@ export async function compilePlotly(
           showTips: false,
           dragMode: false,
         }
-      : spec.config
+      : { displayModeBar: false, ...spec.config }
 
-    await Plotly.react(container, spec.data, spec.layout, config)
+    await Plotly.react(container, data, layout, config)
 
     // find plotly.js dynamically generated style tags
     const styleTags = Array.from(
@@ -59,10 +151,15 @@ export async function compilePlotly(
  * Render Plotly container
  */
 export function renderPlotlyContainer() {
+  const containerStyles = css`
+    & {
+      width: 100%;
+    }
+  `
   return html`
     <style id="plotly-css"></style>
-    <div slot="content" class="overflow-x-auto">
-      <div id="stencila-plotly-container" class="w-full"></div>
+    <div slot="content">
+      <div class=${containerStyles} id="stencila-plotly-container"></div>
     </div>
   `
 }

@@ -1,13 +1,12 @@
-import { html } from 'lit'
 import { css } from '@twind/core'
+import { html } from 'lit'
+
 import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 
 /**
  * Convert plot tokens to ECharts option base
  */
 function toEchartsOptionsBase(t: PlotTokens): any {
-  //console.log(JSON.stringify(t, null, "  "))
-
   const axisBase = {
     axisLabel: { color: t.textColor, fontSize: t.fontSize, fontFamily: t.fontFamily },
     axisLine: {
@@ -29,9 +28,13 @@ function toEchartsOptionsBase(t: PlotTokens): any {
 
   return {
     color: t.palette,
-    backgroundColor: t.panel,
+    backgroundColor: t.background,
     textStyle: { color: t.textColor, fontFamily: t.fontFamily, fontSize: t.fontSize },
     grid: {
+      // Must be true for background to render
+      show: true,
+      backgroundColor: t.panel,
+      // Using padding tokens makes margins too narrow
       left: t.padding.left,
       right: t.padding.right,
       top: t.padding.top,
