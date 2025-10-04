@@ -54,13 +54,13 @@ Core editor appearance and behavior:
 | `--code-selection-match-background`    | Search match highlight         | `var(--color-blue-100)`              |
 | `--code-focused-background`            | Editor background when focused | `var(--code-background)`             |
 | `--code-cursor-line-background`        | Active line background         | `rgba(0, 0, 0, 0.02)`                |
-| `--code-line-numbers`                  | Show/hide line numbers         | `visible`                            |
-| `--code-fold-gutter`                   | Show/hide code folding gutter  | `visible`                            |
+| `--code-line-numbers`                  | Show/hide line numbers         | `hidden`                             |
+| `--code-fold-gutter`                   | Show/hide code folding gutter  | `hidden`                             |
 | `--code-gutter-background`             | Gutter background color        | `var(--code-background)`             |
 | `--code-gutter-color`                  | Line number color              | `var(--text-color-muted)`            |
 | `--code-gutter-border-color`           | Gutter border color            | `var(--border-color-muted)`          |
 | `--code-gutter-border-width`           | Gutter border width            | `var(--border-width-default)`        |
-| `--code-gutter-padding`                | Gutter padding                 | `var(--space-3)`                     |
+| `--code-gutter-padding`                | Gutter padding                 | `var(--space-0)`                     |
 | `--code-gutter-min-width`              | Minimum gutter width           | `2.5rem`                             |
 | `--code-gutter-active-line-background` | Active line gutter background  | `var(--code-cursor-line-background)` |
 | `--code-gutter-active-line-color`      | Active line number color       | `var(--text-color-secondary)`        |
@@ -72,49 +72,49 @@ Core editor appearance and behavior:
 
 Colors for different code elements:
 
-| Token                            | Description             | Default Value               |
-| -------------------------------- | ----------------------- | --------------------------- |
-| `--syntax-comment`               | Comments                | `var(--color-green-600)`    |
-| `--syntax-comment-block`         | Block comments          | `var(--syntax-comment)`     |
-| `--syntax-comment-line`          | Line comments           | `var(--syntax-comment)`     |
-| `--syntax-comment-doc`           | Documentation comments  | `var(--color-green-700)`    |
-| `--syntax-keyword`               | Keywords                | `var(--color-blue-700)`     |
-| `--syntax-keyword-control`       | Control flow keywords   | `var(--syntax-keyword)`     |
-| `--syntax-keyword-operator`      | Operator keywords       | `var(--color-gray-600)`     |
-| `--syntax-keyword-modifier`      | Modifier keywords       | `var(--syntax-keyword)`     |
-| `--syntax-keyword-definition`    | Definition keywords     | `var(--syntax-keyword)`     |
-| `--syntax-string`                | Strings                 | `var(--color-red-600)`      |
-| `--syntax-string-special`        | Special strings         | `var(--color-red-700)`      |
-| `--syntax-string-regex`          | Regular expressions     | `var(--color-red-600)`      |
-| `--syntax-string-escape`         | String escape sequences | `var(--color-red-600)`      |
-| `--syntax-number`                | Numbers                 | `var(--color-green-700)`    |
-| `--syntax-number-integer`        | Integer numbers         | `var(--syntax-number)`      |
-| `--syntax-number-float`          | Floating point numbers  | `var(--syntax-number)`      |
-| `--syntax-boolean`               | Boolean values          | `var(--color-blue-700)`     |
-| `--syntax-constant`              | Constants               | `var(--color-blue-700)`     |
-| `--syntax-constant-builtin`      | Built-in constants      | `var(--syntax-constant)`    |
-| `--syntax-variable`              | Variables               | `var(--color-blue-600)`     |
-| `--syntax-variable-builtin`      | Built-in variables      | `var(--color-blue-600)`     |
-| `--syntax-variable-special`      | Special variables       | `var(--color-red-700)`      |
-| `--syntax-function`              | Functions               | `var(--color-amber-700)`    |
-| `--syntax-function-builtin`      | Built-in functions      | `var(--color-amber-700)`    |
-| `--syntax-function-method`       | Methods                 | `var(--syntax-function)`    |
-| `--syntax-class`                 | Classes                 | `var(--color-amber-700)`    |
-| `--syntax-class-builtin`         | Built-in classes        | `var(--syntax-class)`       |
-| `--syntax-type`                  | Types                   | `var(--color-blue-300)`     |
-| `--syntax-type-builtin`          | Built-in types          | `var(--syntax-type)`        |
-| `--syntax-namespace`             | Namespaces              | `var(--color-gray-600)`     |
-| `--syntax-property`              | Properties              | `var(--color-blue-600)`     |
-| `--syntax-attribute`             | Attributes              | `var(--color-amber-600)`    |
-| `--syntax-tag`                   | Tags (HTML/XML)         | `var(--color-green-600)`    |
-| `--syntax-tag-angle`             | Tag angle brackets      | `var(--color-gray-600)`     |
-| `--syntax-operator`              | Operators               | `var(--color-gray-600)`     |
-| `--syntax-punctuation`           | Punctuation             | `var(--color-gray-600)`     |
-| `--syntax-punctuation-bracket`   | Brackets                | `var(--syntax-punctuation)` |
-| `--syntax-punctuation-delimiter` | Delimiters              | `var(--syntax-punctuation)` |
-| `--syntax-meta`                  | Meta information        | `var(--color-gray-500)`     |
-| `--syntax-invalid`               | Invalid code            | `var(--color-red-600)`      |
-| `--syntax-invalid-deprecated`    | Deprecated code         | `var(--color-amber-700)`    |
+| Token                          | Description             | Default Value             |
+| ------------------------------ | ----------------------- | ------------------------- |
+| `--code-comment`               | Comments                | `var(--color-green-600)`  |
+| `--code-comment-block`         | Block comments          | `var(--code-comment)`     |
+| `--code-comment-line`          | Line comments           | `var(--code-comment)`     |
+| `--code-comment-doc`           | Documentation comments  | `var(--color-green-700)`  |
+| `--code-keyword`               | Keywords                | `var(--color-blue-700)`   |
+| `--code-keyword-control`       | Control flow keywords   | `var(--code-keyword)`     |
+| `--code-keyword-operator`      | Operator keywords       | `var(--color-gray-600)`   |
+| `--code-keyword-modifier`      | Modifier keywords       | `var(--code-keyword)`     |
+| `--code-keyword-definition`    | Definition keywords     | `var(--code-keyword)`     |
+| `--code-string`                | Strings                 | `var(--color-red-600)`    |
+| `--code-string-special`        | Special strings         | `var(--color-red-700)`    |
+| `--code-string-regex`          | Regular expressions     | `var(--color-red-600)`    |
+| `--code-string-escape`         | String escape sequences | `var(--code-red-600)`     |
+| `--code-number`                | Numbers                 | `var(--color-green-700)`  |
+| `--code-number-integer`        | Integer numbers         | `var(--code-number)`      |
+| `--code-number-float`          | Floating point numbers  | `var(--code-number)`      |
+| `--code-boolean`               | Boolean values          | `var(--color-blue-700)`   |
+| `--code-constant`              | Constants               | `var(--color-blue-700)`   |
+| `--code-constant-builtin`      | Built-in constants      | `var(--code-constant)`    |
+| `--code-variable`              | Variables               | `var(--color-blue-600)`   |
+| `--code-variable-builtin`      | Built-in variables      | `var(--color-blue-600)`   |
+| `--code-variable-special`      | Special variables       | `var(--color-red-700)`    |
+| `--code-function`              | Functions               | `var(--color-amber-700)`  |
+| `--code-function-builtin`      | Built-in functions      | `var(--color-amber-700)`  |
+| `--code-function-method`       | Methods                 | `var(--code-function)`    |
+| `--code-class`                 | Classes                 | `var(--color-amber-700)`  |
+| `--code-class-builtin`         | Built-in classes        | `var(--code-class)`       |
+| `--code-type`                  | Types                   | `var(--color-blue-700)`   |
+| `--code-type-builtin`          | Built-in types          | `var(--code-type)`        |
+| `--code-namespace`             | Namespaces              | `var(--color-gray-600)`   |
+| `--code-property`              | Properties              | `var(--color-blue-600)`   |
+| `--code-attribute`             | Attributes              | `var(--color-amber-600)`  |
+| `--code-tag`                   | Tags (HTML/XML)         | `var(--color-green-600)`  |
+| `--code-tag-angle`             | Tag angle brackets      | `var(--color-gray-600)`   |
+| `--code-operator`              | Operators               | `var(--color-gray-600)`   |
+| `--code-punctuation`           | Punctuation             | `var(--color-gray-600)`   |
+| `--code-punctuation-bracket`   | Brackets                | `var(--code-punctuation)` |
+| `--code-punctuation-delimiter` | Delimiters              | `var(--code-punctuation)` |
+| `--code-meta`                  | Meta information        | `var(--color-gray-500)`   |
+| `--code-invalid`               | Invalid code            | `var(--color-red-600)`    |
+| `--code-invalid-deprecated`    | Deprecated code         | `var(--color-amber-700)`  |
 
 # Usage
 
@@ -147,12 +147,12 @@ Colors for different code elements:
 **Gutter and syntax tokens** provide fine-grained control:
 
 - **Gutter tokens** (`--code-gutter-*`) control line numbers and margins
-- **Syntax tokens** (`--syntax-*`) control code highlighting colors
+- **Syntax tokens** (`--code-*`) control code highlighting colors
 - All tokens support CSS variables and adapt to theme changes automatically
 
 # Examples
 
-These examples of code blocks in popular languages allow you to preview how the `--code-` and `--syntax-` tokens work. Remember that both these sets of tokens are applied to static `CodeBlock` and executable `CodeChunk` nodes, even when they are not editable.
+These examples of code blocks in popular languages allow you to preview how the `--code-*` tokens work. Remember that these tokens are applied to both static `CodeBlock` and executable `CodeChunk` nodes, even when they are not editable.
 
 ## Python
 
@@ -226,7 +226,44 @@ GROUP BY p.patient_id, t.treatment_type
 HAVING COUNT(*) >= 3;                        -- Minimum measurement threshold
 ```
 
-# Patterns
+## Default Code
+
+Standard code styling with syntax highlighting and readable typography:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+### Inline Code
+
+This paragraph contains `inline code` that demonstrates the default styling with appropriate background highlighting and font selection for readability.
+
+### Code Blocks
+
+```python
+def fibonacci(n):
+    """Generate Fibonacci sequence up to n."""
+    if n <= 0:
+        return []
+    elif n == 1:
+        return [0]
+
+    sequence = [0, 1]
+    while len(sequence) < n:
+        next_val = sequence[-1] + sequence[-2]
+        sequence.append(next_val)
+
+    return sequence
+
+# Example usage
+result = fibonacci(10)
+print(f"First 10 Fibonacci numbers: {result}")
+```
+:::
 
 ## Technical Documentation
 
@@ -239,9 +276,9 @@ Clean, readable styling for technical content:
   --code-border-radius: var(--radius-sm);
   --code-padding-inline: var(--space-xs);
   --code-padding-block: var(--space-4);
-  --syntax-keyword: var(--color-blue-600);
-  --syntax-string: var(--color-green-700);
-  --syntax-comment-line: var(--color-gray-500);
+  --code-keyword: var(--color-blue-600);
+  --code-string: var(--color-green-700);
+  --code-comment-line: var(--color-gray-500);
 }
 ```
 
@@ -253,9 +290,9 @@ Clean, readable styling for technical content:
   --code-border-radius: var(--radius-sm);
   --code-padding-inline: var(--space-xs);
   --code-padding-block: var(--space-4);
-  --syntax-keyword: var(--color-blue-600);
-  --syntax-string: var(--color-green-700);
-  --syntax-comment-line: var(--color-gray-500);
+  --code-keyword: var(--color-blue-600);
+  --code-string: var(--color-green-700);
+  --code-comment-line: var(--color-gray-500);
 "
 >
   <p>
@@ -326,10 +363,10 @@ Bold, prominent styling for tutorials and learning materials:
   --code-font-size-block: var(--font-size-md);
   --code-padding-inline: var(--space-2);
   --code-line-numbers: none;
-  --syntax-keyword: var(--color-red-400);
-  --syntax-string: var(--color-green-400);
-  --syntax-comment-line: var(--color-gray-400);
-  --syntax-function: var(--color-amber-500);
+  --code-keyword: var(--color-red-400);
+  --code-string: var(--color-green-400);
+  --code-comment-line: var(--color-gray-400);
+  --code-function: var(--color-amber-500);
 }
 ```
 
@@ -341,10 +378,10 @@ Bold, prominent styling for tutorials and learning materials:
   --code-padding-inline: var(--space-2);
   --code-line-numbers: none;
   --code-fold-gutter: none;
-  --syntax-keyword: var(--color-red-400);
-  --syntax-string: var(--color-green-400);
-  --syntax-comment-line: var(--color-gray-400);
-  --syntax-function: var(--color-amber-500);
+  --code-keyword: var(--color-red-400);
+  --code-string: var(--color-green-400);
+  --code-comment-line: var(--color-gray-400);
+  --code-function: var(--color-amber-500);
 "
 >
   <p>
@@ -379,7 +416,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 **Gutter styling**: Use muted colors like `--color-gray-400` for `--code-gutter-color` and darker backgrounds like `--color-gray-800` for high contrast themes.
 
-**Syntax color balance**: Keywords (`--syntax-keyword`) should use strong colors like `--color-blue-600`, while comments (`--syntax-comment`) work best with muted grays like `--color-gray-500`.
+**Syntax color balance**: Keywords (`--code-keyword`) should use strong colors like `--color-blue-600`, while comments (`--code-comment`) work best with muted grays like `--color-gray-500`.
 
 **Background coordination**: Keep `--code-background-inline` and `--code-background-block` consistent, typically using `--color-gray-100` or similar light backgrounds.
 
