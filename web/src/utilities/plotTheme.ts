@@ -42,6 +42,8 @@ export interface PlotTokens {
   // Surfaces and backgrounds
   background: string
   panel: string
+  panelBorderColor: string
+  panelBorderWidth: number
   muted: string
   grid: string
   contrastGrid: string
@@ -68,7 +70,6 @@ export interface PlotTokens {
     x: number
     y: number
   }
-  radius: number
   strokeWidth: number
 
   // Axes and grid
@@ -136,7 +137,7 @@ export interface PlotTokens {
     hoverOpacity: number
     focusOutlineColor: string
     focusOutlineWidth: number
-    selectionBg: string
+    selectionBackground: string
     selectionStroke: string
   }
 
@@ -234,6 +235,8 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
     // Surfaces
     background: colorToHex(getVar('--plot-background')) || '#ffffff',
     panel: colorToHex(getVar('--plot-panel')) || '#ffffff',
+    panelBorderColor: colorToHex(getVar('--plot-panel-border-color')) || '#e5e5e5',
+    panelBorderWidth: parseNum(getVar('--plot-panel-border-width'), 1, rootElement),
     muted: colorToHex(getVar('--plot-muted')) || '#666666',
     grid: colorToHex(getVar('--plot-grid')) || '#e5e5e5',
     contrastGrid: colorToHex(getVar('--plot-contrast-grid')) || '#cccccc',
@@ -329,8 +332,8 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
       hoverOpacity: parseNum(getVar('--plot-hover-opacity'), 0.7, rootElement),
       focusOutlineColor: colorToHex(getVar('--plot-focus-outline-color')) || '#3b82f6',
       focusOutlineWidth: parseNum(getVar('--plot-focus-outline-width'), 2, rootElement),
-      selectionBg:
-        colorToHex(getVar('--plot-selection-bg')) || 'rgba(59,130,246,0.15)',
+      selectionBackground:
+        colorToHex(getVar('--plot-selection-background')) || 'rgba(59,130,246,0.15)',
       selectionStroke: colorToHex(getVar('--plot-selection-stroke')) || '#3b82f6',
     },
 

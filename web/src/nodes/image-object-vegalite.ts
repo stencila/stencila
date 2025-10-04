@@ -37,7 +37,13 @@ function toVegaLiteConfig(t: PlotTokens): any {
       padding: t.legend.gap,
     },
     title: { color: t.textColor, fontSize: t.titleSize },
-    view: { fill: t.panel, stroke: t.grid, cornerRadius: t.radius },
+    view: {
+      fill: t.panel,
+      stroke: t.panelBorderColor,
+      // Vega-Lite renders SVG strokes centered on paths, causing anti-aliasing blur
+      // at integer widths. Halving the width produces crisp 1px borders.
+      strokeWidth: t.panelBorderWidth * 0.5,
+    },
     range: {
       category: t.palette,
       heatmap: [t.mark.heatMin, t.mark.heatMax],

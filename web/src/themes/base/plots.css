@@ -76,17 +76,23 @@
     --plot-background: var(--surface-background);
     --plot-background-dark: var(--surface-background-dark);
 
-    --plot-panel: var(--surface-foreground);
-    --plot-panel-dark: var(--surface-foreground-dark);
+    /* Panel background. Defaults to surface background for panels that appear transparent */
+    --plot-panel: var(--surface-background);
+    --plot-panel-dark: var(--surface-background-dark);
+
+    --plot-panel-border-color: var(--plot-grid);
+    --plot-panel-border-color-dark: var(--plot-grid-dark);
+
+    --plot-panel-border-width: var(--border-width-default);
 
     --plot-muted: var(--text-color-secondary);
     --plot-muted-dark: var(--text-color-secondary-dark);
 
-    --plot-grid: color-mix(in srgb, var(--text-color-primary) 15%, var(--surface-foreground));
-    --plot-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--surface-foreground-dark));
+    --plot-grid: color-mix(in srgb, var(--text-color-primary) 15%, var(--plot-panel));
+    --plot-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--plot-panel-dark));
 
-    --plot-contrast-grid: color-mix(in srgb, var(--text-color-primary) 35%, var(--surface-foreground));
-    --plot-contrast-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 35%, var(--surface-foreground-dark));
+    --plot-contrast-grid: color-mix(in srgb, var(--text-color-primary) 35%, var(--plot-panel));
+    --plot-contrast-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 35%, var(--plot-panel-dark));
 
     /* Typography - Font families and scale tokens */
     --plot-text-color: var(--text-color-primary);
@@ -101,7 +107,7 @@
     --plot-legend-size: calc(var(--text-font-size) * 0.85);
     --plot-axis-title-size: calc(var(--text-font-size) * 0.85);
 
-    /* Layout & Radius - Paddings, gaps, corner radii, stroke width */
+    /* Layout - Paddings, gaps, stroke width */
     --plot-padding-top: var(--space-6);
     --plot-padding-bottom: var(--space-12);
     --plot-padding-right: var(--space-4);
@@ -110,18 +116,15 @@
     --plot-gap-x: var(--space-4);
     --plot-gap-y: var(--space-4);
 
-    --plot-radius: var(--radius-md);
     --plot-stroke-width: var(--border-width-thick);
 
     /* Axes & Grid - Structure and reference cues */
-    --plot-axis-line-color: var(--plot-grid);
-    --plot-axis-line-color-dark: var(--plot-grid-dark);
-
+    --plot-axis-line-color: var(--plot-text-color);
+    --plot-axis-line-color-dark: var(--plot-text-color-dark);
     --plot-axis-line-width: var(--border-width-default);
 
-    --plot-tick-color: var(--plot-muted);
-    --plot-tick-color-dark: var(--plot-muted-dark);
-
+    --plot-tick-color: var(--plot-text-color);
+    --plot-tick-color-dark: var(--plot-text-color-dark);
     --plot-tick-width: var(--border-width-default);
     --plot-tick-size: var(--space-1);
 
@@ -130,7 +133,6 @@
 
     --plot-grid-color: var(--plot-grid);
     --plot-grid-color-dark: var(--plot-grid-dark);
-
     --plot-grid-width: var(--border-width-default);
     --plot-grid-dash: 0;
 
@@ -186,16 +188,13 @@
 
     --plot-candle-up: var(--plot-positive);
     --plot-candle-up-dark: var(--plot-positive-dark);
-
     --plot-candle-down: var(--plot-negative);
     --plot-candle-down-dark: var(--plot-negative-dark);
-
     --plot-candle-wick: var(--plot-muted);
     --plot-candle-wick-dark: var(--plot-muted-dark);
 
     --plot-heatmap-min: var(--plot-ramp-start);
     --plot-heatmap-min-dark: var(--plot-ramp-start-dark);
-
     --plot-heatmap-max: var(--plot-ramp-end);
     --plot-heatmap-max-dark: var(--plot-ramp-end-dark);
 
@@ -210,12 +209,10 @@
 
     --plot-focus-outline-color: var(--color-accent);
     --plot-focus-outline-color-dark: var(--color-accent-dark);
-
     --plot-focus-outline-width: var(--border-width-thick);
 
-    --plot-selection-bg: color-mix(in srgb, var(--color-accent) 15%, transparent);
-    --plot-selection-bg-dark: color-mix(in srgb, var(--color-accent-dark) 15%, transparent);
-
+    --plot-selection-background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+    --plot-selection-background-dark: color-mix(in srgb, var(--color-accent-dark) 15%, transparent);
     --plot-selection-stroke: var(--color-accent);
     --plot-selection-stroke-dark: var(--color-accent-dark);
 
@@ -246,6 +243,7 @@
         --plot-warning: var(--plot-warning-dark);
         --plot-background: var(--plot-background-dark);
         --plot-panel: var(--plot-panel-dark);
+        --plot-panel-border-color: var(--plot-panel-border-color-dark);
         --plot-text-color: var(--plot-text-color-dark);
         --plot-muted: var(--plot-muted-dark);
         --plot-grid: var(--plot-grid-dark);
@@ -267,7 +265,7 @@
         --plot-heatmap-max: var(--plot-heatmap-max-dark);
         --plot-crosshair-color: var(--plot-crosshair-color-dark);
         --plot-focus-outline-color: var(--plot-focus-outline-color-dark);
-        --plot-selection-bg: var(--plot-selection-bg-dark);
+        --plot-selection-background: var(--plot-selection-background-dark);
         --plot-selection-stroke: var(--plot-selection-stroke-dark);
     }
 }
@@ -292,6 +290,7 @@
     --plot-warning: var(--plot-warning-dark);
     --plot-background: var(--plot-background-dark);
     --plot-panel: var(--plot-panel-dark);
+    --plot-panel-border-color: var(--plot-panel-border-color-dark);
     --plot-text-color: var(--plot-text-color-dark);
     --plot-muted: var(--plot-muted-dark);
     --plot-grid: var(--plot-grid-dark);
@@ -313,6 +312,6 @@
     --plot-heatmap-max: var(--plot-heatmap-max-dark);
     --plot-crosshair-color: var(--plot-crosshair-color-dark);
     --plot-focus-outline-color: var(--plot-focus-outline-color-dark);
-    --plot-selection-bg: var(--plot-selection-bg-dark);
+    --plot-selection-background: var(--plot-selection-background-dark);
     --plot-selection-stroke: var(--plot-selection-stroke-dark);
 }

@@ -12,11 +12,18 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
     title: {
       font: { family: t.fontFamily, size: t.axisTitleSize, color: t.axis.titleColor },
     },
+    // Note: In Plotly, linecolor/linewidth control both the axis line and the mirrored
+    // panel border (via mirror: true). There's no separate styling for panel borders,
+    // so we use axis tokens instead of panelBorderColor/panelBorderWidth.
+    linecolor: t.axis.lineColor,
+    linewidth: t.axis.lineWidth,
+    showline: true,
+    // Mirror axes to simulate panel borders if specified (will be same width and color as axes)
+    mirror: t.panelBorderWidth > 0 ? true : false,
+    showgrid: t.axis.gridWidth > 0,
     gridcolor: t.axis.gridColor,
     griddash: t.axis.gridDash > 0 ? 'dash' : 'solid',
     gridwidth: t.axis.gridWidth,
-    linecolor: t.axis.lineColor,
-    linewidth: t.axis.lineWidth,
     tickcolor: t.axis.tickColor,
     ticklen: t.axis.tickSize,
     tickwidth: t.axis.tickWidth,
@@ -73,8 +80,19 @@ export async function compilePlotly(
     const theme = buildPlotTheme(container)
     const template = toPlotlyTemplate(theme)
 
-    // Merge template with user layout
-    const layout = { ...template.layout, ...spec.layout }
+    // Deep merge axes to preserve theme styling when user provides axis config
+    const mergeAxis = (themeAxis: any, userAxis: any) => {
+      if (!userAxis) return themeAxis
+      return { ...themeAxis, ...userAxis }
+    }
+
+    // Merge template with user layout, preserving axis styling
+    const layout = {
+      ...template.layout,
+      ...spec.layout,
+      xaxis: mergeAxis(template.layout.xaxis, spec.layout?.xaxis),
+      yaxis: mergeAxis(template.layout.yaxis, spec.layout?.yaxis),
+    }
 
     // Apply palette colors to traces if not specified
     const data = spec.data.map((trace: any, i: number) => {

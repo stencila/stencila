@@ -10,6 +10,7 @@ function toEchartsOptionsBase(t: PlotTokens): any {
   const axisBase = {
     axisLabel: { color: t.textColor, fontSize: t.fontSize, fontFamily: t.fontFamily },
     axisLine: {
+      show: true,
       lineStyle: { color: t.axis.lineColor, width: t.axis.lineWidth },
     },
     axisTick: {
@@ -17,7 +18,7 @@ function toEchartsOptionsBase(t: PlotTokens): any {
       lineStyle: { color: t.axis.tickColor, width: t.axis.tickWidth },
     },
     splitLine: {
-      show: true,
+      show: t.axis.gridWidth > 0,
       lineStyle: {
         color: t.axis.gridColor,
         width: t.axis.gridWidth,
@@ -34,6 +35,8 @@ function toEchartsOptionsBase(t: PlotTokens): any {
       // Must be true for background to render
       show: true,
       backgroundColor: t.panel,
+      borderColor: t.panelBorderColor,
+      borderWidth: t.panelBorderWidth,
       // Using padding tokens makes margins too narrow
       left: t.padding.left,
       right: t.padding.right,
