@@ -88,6 +88,23 @@ export class ImageObject extends MediaObject {
     return Object.values(ImageObject.MEDIA_TYPES).includes(this.mediaType)
   }
 
+  /**
+   * Setup code chunk error handling if this image is in a code chunk
+   * @returns The code chunk element if found, undefined otherwise
+   */
+  private setupCodeChunkErrorHandling(): HTMLElement | undefined {
+    if (this.parentNodeIs('CodeChunk')) {
+      const codeChunk = this.closestGlobally('stencila-code-chunk')
+      this.clearCodeChunkMessages(codeChunk)
+      return codeChunk
+    }
+    return undefined
+  }
+
+  /**
+   * Clear all existing messages from a code chunk
+   * @param codeChunk The code chunk element to clear messages from
+   */
   private clearCodeChunkMessages(codeChunk: HTMLElement) {
     // Clear any existing messages
     const messages = codeChunk.querySelector('div[slot=messages]')
@@ -98,6 +115,12 @@ export class ImageObject extends MediaObject {
     }
   }
 
+  /**
+   * Set error attributes on an execution message element
+   * @param element The execution message element to configure
+   * @param message The error message text
+   * @param codeLocation Optional code location array [startLine, startCol, endLine, endCol]
+   */
   private addCodeChunkErrorMessage(
     element: HTMLElement,
     message: string,
@@ -110,6 +133,55 @@ export class ImageObject extends MediaObject {
     if (codeLocation) {
       element.setAttribute('code-location', `[${codeLocation.join(',')}]`)
     }
+  }
+
+  /**
+   * Get or create the messages slot div for a code chunk
+   * @param codeChunk The code chunk element
+   * @returns The messages div element
+   */
+  private getOrCreateMessagesSlot(codeChunk: HTMLElement): Element {
+    let messages = codeChunk.querySelector('div[slot=messages]')
+    if (!messages) {
+      messages = document.createElement('div')
+      messages.setAttribute('slot', 'execution-messages')
+      codeChunk.appendChild(messages)
+    }
+    return messages
+  }
+
+  /**
+   * Add an error message to a code chunk
+   * @param codeChunk The code chunk element
+   * @param errorString The error message string
+   * @param codeLocation Optional code location array [startLine, startCol, endLine, endCol]
+   */
+  private addErrorMessage(
+    codeChunk: HTMLElement,
+    errorString: string,
+    codeLocation?: number[]
+  ): void {
+    const messages = this.getOrCreateMessagesSlot(codeChunk)
+    const message = document.createElement(
+      'stencila-execution-message'
+    ) as ExecutionMessage
+
+    this.addCodeChunkErrorMessage(message, errorString, codeLocation)
+    messages.appendChild(message)
+  }
+
+  /**
+   * Format an error object to a readable string
+   * @param error The error object
+   * @returns Formatted error string
+   */
+  private formatErrorString(error: Error | { message?: string; toString: () => string }): string {
+    let str = error.message ?? error.toString()
+    const lastCaret = str.lastIndexOf('-^\n')
+    if (lastCaret !== -1) {
+      str = str.slice(lastCaret).trim()
+    }
+    return str
   }
 
   private onResize = () => {
@@ -184,7 +256,6 @@ export class ImageObject extends MediaObject {
     const container = this.shadowRoot.querySelector(
       'div#stencila-cytoscape-container'
     ) as HTMLElement
-
     const isStaticMode = window.STENCILA_STATIC_MODE === true
 
     this.cytoscape = await compileCytoscape(
@@ -198,15 +269,9 @@ export class ImageObject extends MediaObject {
     const container = this.shadowRoot.getElementById(
       'stencila-echarts-container'
     )
-
-    // Setup code chunk error handling if in a code chunk
-    let codeChunk: HTMLElement | undefined
-    if (this.parentNodeIs('CodeChunk')) {
-      codeChunk = this.closestGlobally('stencila-code-chunk')
-      this.clearCodeChunkMessages(codeChunk)
-    }
-
+    const codeChunk = this.setupCodeChunkErrorHandling()
     const isStaticMode = window.STENCILA_STATIC_MODE === true
+
     this.echarts = await compileECharts(
       this.contentUrl,
       container,
@@ -214,22 +279,7 @@ export class ImageObject extends MediaObject {
       isStaticMode,
       (error) => {
         if (codeChunk) {
-          let messages = codeChunk.querySelector('div[slot=messages]')
-          if (!messages) {
-            messages = document.createElement('div')
-            messages.setAttribute('slot', 'execution-messages')
-            codeChunk.appendChild(messages)
-          }
-
-          const message = document.createElement(
-            'stencila-execution-message'
-          ) as ExecutionMessage
-
-          let str = error.message ?? error.toString()
-          str = str.slice(str.lastIndexOf('-^\n')).trim()
-
-          this.addCodeChunkErrorMessage(message, str)
-          messages.appendChild(message)
+          this.addErrorMessage(codeChunk, this.formatErrorString(error))
         } else {
           this.error = error.message ?? error.toString()
         }
@@ -238,12 +288,7 @@ export class ImageObject extends MediaObject {
   }
 
   private async compileLeaflet() {
-    // Setup code chunk error handling if in a code chunk
-    let codeChunk: HTMLElement | undefined
-    if (this.parentNodeIs('CodeChunk')) {
-      codeChunk = this.closestGlobally('stencila-code-chunk')
-      this.clearCodeChunkMessages(codeChunk)
-    }
+    const codeChunk = this.setupCodeChunkErrorHandling()
 
     await compileLeaflet(
       this.contentUrl,
@@ -253,19 +298,7 @@ export class ImageObject extends MediaObject {
       },
       (error) => {
         if (codeChunk) {
-          let messages = codeChunk.querySelector('div[slot=messages]')
-          if (!messages) {
-            messages = document.createElement('div')
-            messages.setAttribute('slot', 'execution-messages')
-            codeChunk.appendChild(messages)
-          }
-
-          const message = document.createElement(
-            'stencila-execution-message'
-          ) as ExecutionMessage
-
-          this.addCodeChunkErrorMessage(message, error)
-          messages.appendChild(message)
+          this.addErrorMessage(codeChunk, error)
         } else {
           this.error = error
         }
@@ -274,14 +307,8 @@ export class ImageObject extends MediaObject {
   }
 
   private async compileMermaid() {
-    // Setup code chunk error handling if in a code chunk
-    let codeChunk: HTMLElement | undefined
-    if (this.parentNodeIs('CodeChunk')) {
-      codeChunk = this.closestGlobally('stencila-code-chunk')
-      this.clearCodeChunkMessages(codeChunk)
-    }
+    const codeChunk = this.setupCodeChunkErrorHandling()
 
-    // Compile with theme
     await compileMermaid(
       this.contentUrl,
       this,
@@ -290,26 +317,12 @@ export class ImageObject extends MediaObject {
       },
       (error) => {
         if (codeChunk) {
-          // Get the messages slot, adding one if necessary
-          let messages = codeChunk.querySelector('div[slot=messages]')
-          if (!messages) {
-            messages = document.createElement('div')
-            messages.setAttribute('slot', 'execution-messages')
-            codeChunk.appendChild(messages)
-          }
-
-          // Add the message
-          const message = document.createElement(
-            'stencila-execution-message'
-          ) as ExecutionMessage
-
           const expected = error.hash?.expected
           let str: string
           if (expected) {
             str = `expected ${expected.join(', ')}`
           } else {
-            str = error.message ?? error.toString()
-            str = str.slice(str.lastIndexOf('-^\n')).trim()
+            str = this.formatErrorString(error)
           }
 
           const loc = error.hash?.loc
@@ -321,10 +334,9 @@ export class ImageObject extends MediaObject {
             const endCol = (loc.last_column ?? 0) + 1
             codeLocation = [startLine, startCol, endLine, endCol]
           }
-          this.addCodeChunkErrorMessage(message, str, codeLocation)
-          messages.appendChild(message)
+
+          this.addErrorMessage(codeChunk, str, codeLocation)
         } else {
-          // Otherwise, render a <pre> element with error
           this.error = error.message ?? error.toString()
         }
       }
@@ -335,15 +347,9 @@ export class ImageObject extends MediaObject {
     const container = this.shadowRoot.getElementById(
       'stencila-plotly-container'
     )
-
-    // Setup code chunk error handling if in a code chunk
-    let codeChunk: HTMLElement | undefined
-    if (this.parentNodeIs('CodeChunk')) {
-      codeChunk = this.closestGlobally('stencila-code-chunk')
-      this.clearCodeChunkMessages(codeChunk)
-    }
-
+    const codeChunk = this.setupCodeChunkErrorHandling()
     const isStaticMode = window.STENCILA_STATIC_MODE === true
+
     await compilePlotly(
       this.contentUrl,
       container,
@@ -351,22 +357,7 @@ export class ImageObject extends MediaObject {
       isStaticMode,
       (error) => {
         if (codeChunk) {
-          let messages = codeChunk.querySelector('div[slot=messages]')
-          if (!messages) {
-            messages = document.createElement('div')
-            messages.setAttribute('slot', 'execution-messages')
-            codeChunk.appendChild(messages)
-          }
-
-          const message = document.createElement(
-            'stencila-execution-message'
-          ) as ExecutionMessage
-
-          let str = error.message ?? error.toString()
-          str = str.slice(str.lastIndexOf('-^\n')).trim()
-
-          this.addCodeChunkErrorMessage(message, str)
-          messages.appendChild(message)
+          this.addErrorMessage(codeChunk, this.formatErrorString(error))
         }
       }
     )
@@ -376,37 +367,15 @@ export class ImageObject extends MediaObject {
     const container = this.shadowRoot.querySelector(
       'div#stencila-vega-container'
     ) as HTMLElement
-
-    // Setup code chunk error handling if in a code chunk
-    let codeChunk: HTMLElement | undefined
-    if (this.parentNodeIs('CodeChunk')) {
-      codeChunk = this.closestGlobally('stencila-code-chunk')
-      this.clearCodeChunkMessages(codeChunk)
-    }
-
+    const codeChunk = this.setupCodeChunkErrorHandling()
     const isStaticMode = window.STENCILA_STATIC_MODE === true
+
     await compileVegaLite(this.contentUrl, container, isStaticMode, (error) => {
       if (codeChunk) {
-        let messages = codeChunk.querySelector('div[slot=messages]')
-        if (!messages) {
-          messages = document.createElement('div')
-          messages.setAttribute('slot', 'execution-messages')
-          codeChunk.appendChild(messages)
-        }
-
-        const message = document.createElement(
-          'stencila-execution-message'
-        ) as ExecutionMessage
-
-        let str = error.message ?? error.toString()
-        str = str.slice(str.lastIndexOf('-^\n')).trim()
-
-        this.addCodeChunkErrorMessage(message, str)
-        messages.appendChild(message)
+        this.addErrorMessage(codeChunk, this.formatErrorString(error))
       }
     })
   }
-
 
   override renderMediaElem() {
     const spanStyles = css`
