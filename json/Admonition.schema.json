@@ -7,7 +7,11 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A admonition within a document.",
+  "description": "An admonition within a document.",
+  "$comment": "Highlight important ideas or signal content that’s supplemental or only relevant in certain situations.\n",
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "aside"
   },

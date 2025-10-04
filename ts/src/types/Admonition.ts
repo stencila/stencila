@@ -8,7 +8,7 @@ import { Inline } from "./Inline.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
- * A admonition within a document.
+ * An admonition within a document.
  */
 export class Admonition extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

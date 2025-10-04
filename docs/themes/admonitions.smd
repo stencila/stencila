@@ -1,0 +1,389 @@
+---
+title: Admonitions
+description: |
+  Design tokens and examples for customizing admonitions (callouts) including borders, backgrounds, icons, and collapsible behavior in Stencila themes.
+---
+
+# Tokens
+
+## Layout & Spacing Tokens
+
+Controls for spacing, padding, and gaps within admonitions.
+
+| Token                    | Description                                 | Default Value            |
+| ------------------------ | ------------------------------------------- | ------------------------ |
+| `--admonition-spacing`   | Top margin between admonitions (responsive) | `var(--content-spacing)` |
+| `--admonition-padding`   | Padding inside title and content areas      | `var(--space-4)`         |
+| `--admonition-gap`       | Gap between icon, title, and chevron        | `var(--space-3)`         |
+
+## Border & Visual Tokens
+
+Visual structure controls for borders, corners, and shadows.
+
+| Token                              | Description                            | Default Value                       |
+| ---------------------------------- | -------------------------------------- | ----------------------------------- |
+| `--admonition-border-width`        | Main border thickness                  | `var(--border-width-default)`       |
+| `--admonition-border-radius`       | Corner rounding                        | `var(--border-radius-default)`      |
+| `--admonition-accent-border-width` | Left accent border width               | `var(--border-width-default)`       |
+
+## Typography Tokens
+
+Font controls for admonition titles/headers.
+
+| Token                              | Description                | Default Value                  |
+| ---------------------------------- | -------------------------- | ------------------------------ |
+| `--admonition-title-font-family`   | Title font family          | `var(--font-family-sans)`      |
+| `--admonition-title-font-size`     | Title font size            | `var(--font-size-md)`          |
+| `--admonition-title-font-weight`   | Title font weight          | `var(--font-weight-semibold)`  |
+| `--admonition-title-line-height`   | Title line height          | `var(--line-height-tight)`     |
+
+## Icon & Toggle Tokens
+
+Controls for type-specific icons and collapsible chevron toggles.
+
+| Token                              | Description                           | Default Value                              |
+| ---------------------------------- | ------------------------------------- | ------------------------------------------ |
+| `--admonition-icon-size`           | Size of type icon (via ::before)      | `1.25em`                                   |
+| `--admonition-icon-gap`            | Space after icon                      | `var(--space-3)`                           |
+| `--admonition-chevron-size`        | Size of chevron toggle (via ::after)  | `0.875em`                                  |
+| `--admonition-chevron-transition`  | Animation timing for chevron rotation | `transform var(--transition-duration-base)`|
+| `--admonition-chevron-rotation`    | Rotation angle when expanded          | `90deg`                                    |
+
+## Color Derivation Tokens
+
+Controls how base colors are transformed for borders, title text, and backgrounds using CSS `color-mix()`.
+
+| Token                                    | Description                                              | Default Value |
+| ---------------------------------------- | -------------------------------------------------------- | ------------- |
+| `--admonition-border-opacity`            | Opacity of borders (higher = more opaque)                | `40%`         |
+| `--admonition-title-color-weight`        | Amount of base color mixed with black for title text    | `95%`         |
+| `--admonition-title-background-tint`     | Opacity/tint of base color for title background         | `12.5%`       |
+| `--admonition-content-background-tint`   | Opacity/tint of base color for content background       | `0%`          |
+
+## Type-Specific Color Tokens
+
+Base colors for each admonition type. Icons, accent borders, and backgrounds derive from these colors automatically.
+
+| Token                                | Description                              | Default Value            | Dark Mode Default        |
+| ------------------------------------ | ---------------------------------------- | ------------------------ | ------------------------ |
+| `--admonition-note-color`            | Base color for Note admonitions          | `var(--color-gray-600)`  | `var(--color-gray-400)`  |
+| `--admonition-info-color`            | Base color for Info admonitions          | `var(--color-blue-600)`  | `var(--color-blue-400)`  |
+| `--admonition-tip-color`             | Base color for Tip admonitions           | `var(--color-yellow-600)`| `var(--color-yellow-400)`|
+| `--admonition-important-color`       | Base color for Important admonitions     | `var(--color-purple-600)`| `var(--color-purple-400)`|
+| `--admonition-success-color`         | Base color for Success admonitions       | `var(--color-green-600)` | `var(--color-green-400)` |
+| `--admonition-failure-color`         | Base color for Failure admonitions       | `var(--color-red-600)`   | `var(--color-red-400)`   |
+| `--admonition-warning-color`         | Base color for Warning admonitions       | `var(--color-amber-600)` | `var(--color-amber-400)` |
+| `--admonition-danger-color`          | Base color for Danger admonitions        | `var(--color-orange-600)`| `var(--color-orange-400)`|
+| `--admonition-error-color`           | Base color for Error admonitions         | `var(--color-red-600)`   | `var(--color-red-400)`   |
+
+# Usage
+
+## Admonition Types
+
+Stencila supports nine admonition types, each with semantic meaning:
+
+- **Note**: Neutral information or side notes
+- **Info**: Informational content
+- **Tip**: Helpful suggestions or best practices
+- **Important**: Critical information requiring attention
+- **Success**: Positive outcomes or completion states
+- **Failure**: Negative outcomes or error states
+- **Warning**: Cautionary information
+- **Danger**: Critical warnings about potentially harmful actions
+- **Error**: Error messages or problematic states
+
+Each type receives a distinct icon via CSS `::before` pseudo-element using [Bootstrap Icons](https://icons.getbootstrap.com/):
+
+- **Note**: Pencil icon - implies note-taking and annotation
+- **Info**: Info-circle icon - standard information symbol
+- **Tip**: Fire icon - implies "hot tip" and useful insights
+- **Important**: Megaphone icon - conveys announcement and urgency
+- **Success**: Check-circle icon - indicates completion and positive outcome
+- **Failure**: X-circle icon - indicates failure and negative outcome
+- **Warning**: Exclamation-triangle icon - universal warning symbol
+- **Danger**: Exclamation-diamond icon - diamond/rotated square with exclamation mark
+- **Error**: X-octagon icon - stop sign shape with strong error signal
+
+Icons can be customized by overriding the icon size or by replacing the icon content entirely in custom themes.
+
+## Collapsible Behavior
+
+Admonitions support optional collapsible behavior using native HTML `<details>` and `<summary>` elements:
+
+- **Non-collapsible**: Default behavior, always visible
+- **Collapsible**: When `is-folded` attribute is present
+  - `is-folded="true"`: Initially collapsed
+  - `is-folded="false"`: Initially expanded, but user can collapse
+
+The chevron toggle icon appears automatically on collapsible admonitions via CSS `::after` pseudo-element and rotates on open/close. This is pure CSS with no JavaScript required.
+
+## Integration with Semantic Tokens
+
+Admonitions leverage the design system's semantic tokens for automatic theming:
+
+- **Automatic responsive behavior**: Spacing uses `--content-spacing` which provides desktop (2rem), tablet (1.5rem), mobile (1rem), and print (0.5rem) variants without manual media queries
+- **Border consistency**: Border color references `--border-color-default` with automatic dark mode support
+- **Typography inheritance**: Font sizes and weights reference semantic typography tokens for system-wide consistency
+- **Mobile optimization**: Horizontal padding automatically reduces on mobile devices
+
+## Icon Customization
+
+Icons are rendered via CSS `::before` pseudo-elements using SVG mask-image technique with [Bootstrap Icons](https://icons.getbootstrap.com/). This allows flexible color control through a single token.
+
+**Size control**: Use `--admonition-icon-size` to scale icons proportionally to the title text. The default `1.25em` makes icons slightly larger than the surrounding text.
+
+**Spacing control**: Use `--admonition-icon-gap` to adjust space between the icon and title text.
+
+**Color control**: Icons derive their color from type-specific color tokens (e.g., `--admonition-warning-color`). Change one token to update icon, border, and background colors together.
+
+**Custom icons**: Replace icons by overriding the `mask-image` property for specific admonition types. Use URL-encoded SVG data URIs for the icon content. All Bootstrap Icons are available from [icons.getbootstrap.com](https://icons.getbootstrap.com/).
+
+## Color Derivation
+
+The design uses a **single base color per type** to derive all visual elements:
+
+- **Icon color**: Uses base color directly via CSS mask-image
+- **Border**: All borders (top, right, bottom, left) mixed with transparent at 40% opacity (controlled by `--admonition-border-opacity`) for softer, lighter appearance
+- **Title text**: Base color mixed with black at 95% (controlled by `--admonition-title-color-weight`)
+- **Title background**: Base color tinted with transparency at 12.5% (controlled by `--admonition-title-background-tint`) using `color-mix()`
+- **Content background**: Base color tinted with transparency at 0% by default (controlled by `--admonition-content-background-tint`), allowing theme authors to opt-in to tinted content backgrounds
+- **Title bottom border**: Uses same border opacity for visual separation
+
+This approach ensures visual consistency and minimal token overhead. Changing `--admonition-warning-color` updates the icon, borders, title text, and backgrounds automatically. The opacity-based border derivation creates lighter, softer borders in both light and dark modes by making them semi-transparent rather than darkening them.
+
+**Example:**
+```css
+:root {
+  /* Change all Warning visual elements with one token */
+  --admonition-warning-color: var(--color-orange-600);
+}
+```
+
+## Mobile Optimization
+
+Mobile devices automatically receive optimized spacing:
+
+- All spacing scales automatically through `--content-spacing` calculation
+- Chevron toggle remains fully functional on touch devices
+
+# Examples
+
+## Default Admonitions
+
+All nine admonition types with default styling:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+> [!note]
+> This example demonstrates all nine admonition types using default styling with no token overrides. Each type displays its unique icon and color scheme.
+
+> [!info]
+> Notice how each admonition type uses a distinct base color that automatically controls the icon, border, and subtle background tints.
+
+> [!tip]
+> The spacing between admonitions inherits from `--content-spacing`, providing automatic responsive behavior on mobile and tablet devices.
+
+> [!important]
+> Icons are rendered via CSS `::before` pseudo-elements using Bootstrap Icons, allowing flexible color control through design tokens.
+
+> [!success]
+> Dark mode variants are defined for all color tokens and applied automatically based on system preference or explicit user choice.
+
+> [!failure]
+> Border colors use 40% opacity mixing with transparent for softer, more subtle borders in both light and dark modes.
+
+> [!warning]
+> Title text uses 95% of the base color mixed with black, while title backgrounds use 12.5% tinting for subtle emphasis.
+
+> [!danger]
+> Content backgrounds default to 0% tinting (no background), but theme authors can increase `--admonition-content-background-tint` for colored backgrounds.
+
+> [!error]
+> Each admonition type follows consistent spacing, typography, and visual hierarchy controlled by centralized design tokens.
+
+:::
+
+## Admonitions with Titles
+
+Admonitions can include custom titles:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+> [!tip] Custom Title
+> This example demonstrates how admonitions can include custom titles in addition to the type indicator. The title appears in the `<summary>` element alongside the type icon.
+
+> [!warning] Title Typography
+> Title font family, size, weight, and line height are controlled by the `--admonition-title-*` design tokens, allowing customization independent of body content.
+
+:::
+
+## Collapsible Admonitions
+
+Foldable admonitions using native `<details>` elements:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+> [!note]- Initially Expanded
+> This example demonstrates collapsible admonitions using native HTML `<details>` elements. The chevron toggle appears via CSS `::after` pseudo-element and rotates smoothly when opened or closed—no JavaScript required.
+
+> [!tip]+ Initially Collapsed
+> Click to reveal this content. The collapsible behavior is controlled by the `is-folded` attribute. Chevron size and rotation timing are customizable via `--admonition-chevron-*` design tokens.
+
+:::
+
+## Custom Spacing
+
+Adjust spacing for different document contexts:
+
+```css
+:root {
+  --admonition-spacing: var(--space-12);
+  --admonition-padding: var(--space-6);
+}
+```
+
+::: style --admonition-spacing: var(--space-12); --admonition-padding: var(--space-6);
+
+> [!info] Increased Spacing
+> This example uses `--admonition-spacing: var(--space-12)` for larger vertical margins and `--admonition-padding: var(--space-6)` for more generous internal padding, creating an open, airy layout.
+
+:::
+
+## Custom Typography
+
+Customize title typography for different emphasis:
+
+```css
+:root {
+  --admonition-title-font-family: var(--font-family-serif);
+  --admonition-title-font-size: var(--font-size-lg);
+  --admonition-title-font-weight: 700;
+}
+```
+
+::: style --admonition-title-font-family: var(--font-family-serif); --admonition-title-font-size: var(--font-size-lg); --admonition-title-font-weight: 700;
+
+> [!important] Typography Customization
+> This example demonstrates title typography customization using serif font family (`--admonition-title-font-family`), larger font size (`--admonition-title-font-size: var(--font-size-lg)`), and bolder weight (`--admonition-title-font-weight: 700`).
+
+:::
+
+## Custom Colors
+
+Customize admonition colors using type-specific color tokens. Each token controls icon, border, and background colors together:
+
+```css
+:root {
+  --admonition-warning-color: var(--color-orange-700);
+  --admonition-tip-color: var(--color-cyan-600);
+}
+```
+
+::: style --admonition-tip-color: var(--color-cyan-600);
+
+> [!tip] Color Customization
+> This example demonstrates color customization by setting `--admonition-tip-color: var(--color-cyan-600)`. A single token change updates the icon, border, title text color, and background tint automatically through CSS `color-mix()` derivation.
+
+:::
+
+## Compact Admonitions
+
+Reduce spacing for dense layouts:
+
+```css
+:root {
+  --admonition-padding: var(--space-2);
+  --admonition-gap: var(--space-2);
+}
+```
+
+::: style --admonition-padding: var(--space-2); --admonition-gap: var(--space-2);
+
+> [!note] Compact Spacing
+> This example demonstrates reduced spacing, creating a tighter, more condensed layout suitable for space-constrained designs.
+
+:::
+
+## Blocky Admonitions
+
+Create vibrant, high-impact admonitions with solid colored backgrounds:
+
+```css
+:root {
+  --admonition-title-background-tint: 30%;
+  --admonition-content-background-tint: 30%;
+  --admonition-border-radius: 0;
+  --admonition-border-width: 0;
+  --admonition-accent-border-width: 4px;
+}
+```
+
+::: style --admonition-title-background-tint: 30%; --admonition-content-background-tint: 30%; --admonition-border-radius: 0; --admonition-border-width: 0; --admonition-accent-border-width: 4px;
+
+> [!info] Bold Styling
+> This example demonstrates vibrant, high-impact styling using 30% background tints for both title and content, no border radius, no main borders, and a thick 4px accent border.
+
+:::
+
+## Subtle Admonitions
+
+Minimal visual emphasis with subtle backgrounds and reduced opacity for discrete callouts:
+
+```css
+:root {
+  --admonition-title-background-tint: 8%;
+  --admonition-content-background-tint: 4%;
+  --admonition-border-opacity: 50%;
+  --admonition-border-width: 0;
+  --admonition-accent-border-width: 3px;
+  --surface-background: #1a1a1a;
+  --text-color-primary: #e0e0e0;
+}
+```
+
+::: style --admonition-title-background-tint: 8%; --admonition-content-background-tint: 4%; --admonition-border-opacity: 50%; --admonition-border-width: 0; --admonition-accent-border-width: 3px; --surface-background: #1a1a1a; --text-color-primary: #e0e0e0;
+
+> [!important] Subtle Styling
+> This example demonstrates minimal visual emphasis using reduced background tints (8% title, 4% content), lighter borders (50% opacity), no main border, a 3px accent border, and a dark color scheme. Perfect for discrete callouts that don't dominate the page.
+
+:::
+
+# Tips
+
+**Leverage semantic types**: Choose admonition types based on semantic meaning (Note, Warning, Error) rather than desired visual appearance. This ensures proper communication for screen readers and other assistive technologies.
+
+**Use spacing tokens**: Customize spacing through `--admonition-spacing` and `--admonition-padding` rather than overriding semantic tokens like `--content-spacing`, which affects the entire document.
+
+**Prefer semantic integration**: Admonition spacing inherits from `--content-spacing` by default, providing automatic responsive behavior. Override only when specific adjustments are needed.
+
+**Color customization made simple**: Change type-specific color tokens (e.g., `--admonition-warning-color`) to update icon, border, and background colors simultaneously. Dark mode variants are applied automatically.
+
+**Icon customization**: Adjust icon size via `--admonition-icon-size` for visual hierarchy. Larger icons (1.5em+) work well for critical warnings, while smaller icons (1em) suit subtle notes.
+
+**Collapsible for optional content**: Use collapsible admonitions (`is-folded` attribute) for supplementary information that readers may want to skip. Keep critical warnings always visible.
+
+**Test dark mode**: The design system automatically handles dark mode for type-specific colors. Custom colors should use primitive color tokens (e.g., `var(--color-blue-600)`) which have built-in dark variants.
+
+**Avoid heavy nesting**: While admonitions support nesting, limit depth to 2-3 levels maximum for readability. Deep nesting can confuse readers and create visual clutter.
+
+**Typography hierarchy**: Use `--admonition-title-font-size` and `--admonition-title-font-weight` to establish visual hierarchy. Important warnings benefit from bolder, larger titles.
+
+**Mobile considerations**: Test admonitions on mobile devices to ensure touch targets for collapsible toggles are adequately sized and spacing remains readable at smaller screen widths.

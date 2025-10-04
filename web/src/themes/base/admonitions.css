@@ -4,58 +4,450 @@
  * Purpose: Highlights important ideas or signals content that's supplemental or
  * only relevant in certain situations.
  *
+ * Icons: Uses Bootstrap Icons (https://icons.getbootstrap.com/)
+ * License: https://github.com/twbs/icons/blob/main/LICENSE (MIT License)
+ *
  * DOM Structure:
  * <stencila-admonition id=xxx depth=1 ancestors=Parent admonition-type=Type is-folded=true>
- *     <p slot=title>
- *        <stencila-text id=xxx depth=2 ancestors=Parent.Admonition>Folded with a title</stencila-text>
- *     </p>
- *     <aside slot=content>
- *         <stencila-paragraph id=xxx depth=2 ancestors=Parent.Admonition>
- *             <p slot=content>
- *                  <stencila-text id=xxx depth=3 ancestors=Parent.Admonition.Paragraph>Foldable</stencila-text>
- *             </p>
- *         </stencila-paragraph>
- *     </aside>
+ *     <details> <!-- open attribute if is-folded="false" or missing -->
+ *         <summary>
+ *             <!-- Type icon rendered via CSS ::before -->
+ *             <slot name=title>
+ *                 <stencila-text id=xxx depth=2 ancestors=Parent.Admonition>Title</stencila-text>
+ *             </slot>
+ *             <!-- Chevron toggle rendered via CSS ::after -->
+ *         </summary>
+ *         <div slot=content>
+ *             <stencila-paragraph id=xxx depth=2 ancestors=Parent.Admonition>
+ *                 <p slot=content>
+ *                     <stencila-text id=xxx depth=3 ancestors=Parent.Admonition.Paragraph>Content</stencila-text>
+ *                 </p>
+ *             </stencila-paragraph>
+ *         </div>
+ *     </details>
  * </stencila-admonition>
  *
  * Key Attributes:
  * - admonition-type: Type from [AdmonitionType](../../schema/AdmonitionType.yaml)
  *   (Note, Info, Tip, Important, Success, Failure, Warning, Danger, Error)
- * - is-folded: true/false - When present, content can be toggled; true = initially folded
+ * - is-folded: When present, enables collapsible behavior via native <details>
+ *   - true = initially collapsed (no [open] on details)
+ *   - false = initially expanded ([open] on details)
  *
  * Slots:
- * - title: Optional title/heading for the admonition
- * - content: Required body content wrapped in <aside>
+ * - title: Optional title/heading for the admonition (inside <summary>)
+ * - content: Required body content (inside <div> after summary)
  *
  * Notes:
- * - Foldable admonitions should include interactive toggle controls
- * - Different admonition types typically use distinct colors/icons
- * - Content maintains its own internal structure and spacing
+ * - Uses native HTML <details>/<summary> for collapsible behavior (works without JS)
+ * - Non-foldable admonitions (no is-folded attribute) use <details> but disable toggle
+ * - Type-specific icons rendered via CSS ::before pseudo-element
+ * - Chevron toggle rendered via CSS ::after pseudo-element
+ * - All styling controlled by CSS design tokens for maximum theme flexibility
  *
  * Examples: examples/conversion/admonition/admonition.dom.html
  */
 
 :root {
-    --admonition-margin-vertical: var(--space-6);
-    --admonition-padding: var(--space-2);
+    /* Layout & Spacing */
+    --admonition-spacing: var(--content-spacing);
+    --admonition-padding: var(--space-4);
+    --admonition-gap: var(--space-3);
+
+    /* Borders & Visual Structure */
     --admonition-border-width: var(--border-width-default);
-    --admonition-border-radius: var(--radius-md);
-    --admonition-icon-size: var(--space-6);
+    --admonition-border-radius: var(--border-radius-default);
+    --admonition-accent-border-width: var(--border-width-default);
+
+    /* Typography */
+    --admonition-title-font-family: var(--font-family-sans);
+    --admonition-title-font-size: var(--font-size-md);
+    --admonition-title-font-weight: var(--font-weight-semibold);
+    --admonition-title-line-height: var(--line-height-tight);
+
+    /* Icons (via ::before pseudo-element) */
+    --admonition-icon-size: 1.25em;
+    --admonition-icon-gap: var(--space-3);
+
+    /* Chevron Toggle (via ::after pseudo-element) */
+    --admonition-chevron-size: 0.875em;
+    --admonition-chevron-transition: transform var(--transition-duration-base);
+    --admonition-chevron-rotation: 90deg;
+
+    /* Color Derivation */
+    --admonition-border-opacity: 40%;
+    --admonition-title-color-weight: 95%;
+    --admonition-title-background-tint: 12.5%;
+    --admonition-content-background-tint: 0%;
+
+    /* Type-Specific Colors - Base colors for icons, borders, and backgrounds */
+    --admonition-note-color: var(--color-gray-600);
+    --admonition-note-color-dark: var(--color-gray-400);
+
+    --admonition-info-color: var(--color-blue-600);
+    --admonition-info-color-dark: var(--color-blue-400);
+
+    --admonition-tip-color: var(--color-yellow-600);
+    --admonition-tip-color-dark: var(--color-yellow-400);
+
+    --admonition-important-color: var(--color-purple-600);
+    --admonition-important-color-dark: var(--color-purple-400);
+
+    --admonition-success-color: var(--color-green-600);
+    --admonition-success-color-dark: var(--color-green-400);
+
+    --admonition-failure-color: var(--color-red-600);
+    --admonition-failure-color-dark: var(--color-red-400);
+
+    --admonition-warning-color: var(--color-amber-600);
+    --admonition-warning-color-dark: var(--color-amber-400);
+
+    --admonition-danger-color: var(--color-orange-600);
+    --admonition-danger-color-dark: var(--color-orange-400);
+
+    --admonition-error-color: var(--color-red-600);
+    --admonition-error-color-dark: var(--color-red-400);
 }
 
+/* Dark Mode Application */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --admonition-note-color: var(--admonition-note-color-dark);
+        --admonition-info-color: var(--admonition-info-color-dark);
+        --admonition-tip-color: var(--admonition-tip-color-dark);
+        --admonition-important-color: var(--admonition-important-color-dark);
+        --admonition-success-color: var(--admonition-success-color-dark);
+        --admonition-failure-color: var(--admonition-failure-color-dark);
+        --admonition-warning-color: var(--admonition-warning-color-dark);
+        --admonition-danger-color: var(--admonition-danger-color-dark);
+        --admonition-error-color: var(--admonition-error-color-dark);
+    }
+}
+
+:root[data-color-scheme="dark"] {
+    --admonition-note-color: var(--admonition-note-color-dark);
+    --admonition-info-color: var(--admonition-info-color-dark);
+    --admonition-tip-color: var(--admonition-tip-color-dark);
+    --admonition-important-color: var(--admonition-important-color-dark);
+    --admonition-success-color: var(--admonition-success-color-dark);
+    --admonition-failure-color: var(--admonition-failure-color-dark);
+    --admonition-warning-color: var(--admonition-warning-color-dark);
+    --admonition-danger-color: var(--admonition-danger-color-dark);
+    --admonition-error-color: var(--admonition-error-color-dark);
+}
+
+
+/* Base admonition structure */
 stencila-admonition {
     display: block;
+    margin-top: var(--admonition-spacing);
+}
 
-    p[slot='title'] {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
+stencila-admonition details {
+    border-width: var(--admonition-border-width);
+    border-style: solid;
+    border-left-width: var(--admonition-accent-border-width);
+    border-radius: var(--admonition-border-radius);
+    overflow: hidden;
+}
 
-    [slot='content'] {
-        stencila-paragraph:first-child {
-            p {
-                margin-top: 0;
-            }
-        }
-    }
+/* Summary/Header styling */
+stencila-admonition summary {
+    display: flex;
+    align-items: center;
+    gap: var(--admonition-gap);
+    padding: var(--admonition-padding);
+
+    font-family: var(--admonition-title-font-family);
+    font-size: var(--admonition-title-font-size);
+    font-weight: var(--admonition-title-font-weight);
+    line-height: var(--admonition-title-line-height);
+
+    cursor: pointer;
+    list-style: none;
+    /* Hide default disclosure marker */
+    user-select: none;
+}
+
+/* Hide default disclosure markers across browsers */
+stencila-admonition summary::marker,
+stencila-admonition summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Type-specific icon via ::before pseudo-element using mask-image */
+stencila-admonition summary::before {
+    content: "";
+    display: inline-block;
+    width: var(--admonition-icon-size);
+    height: var(--admonition-icon-size);
+    flex-shrink: 0;
+    margin-right: var(--admonition-icon-gap);
+
+    /* SVG icon will be set via mask-image on type-specific selectors */
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+/* Icon SVGs and colors for each admonition type */
+
+/* Note - pencil icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Note"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325'/%3E%3C/svg%3E");
+    background-color: var(--admonition-note-color);
+}
+
+/* Info - info-circle icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Info"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16'/%3E%3Cpath d='m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/%3E%3C/svg%3E");
+    background-color: var(--admonition-info-color);
+}
+
+/* Tip - fire icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Tip"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15'/%3E%3C/svg%3E");
+    background-color: var(--admonition-tip-color);
+}
+
+/* Important - megaphone icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Important"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0v-.214c-2.162-1.241-4.49-1.843-6.912-2.083l.405 2.712A1 1 0 0 1 5.51 15.1h-.548a1 1 0 0 1-.916-.599l-1.85-3.49-.202-.003A2.014 2.014 0 0 1 0 9V7a2.02 2.02 0 0 1 1.992-2.013 75 75 0 0 0 2.483-.075c3.043-.154 6.148-.849 8.525-2.199zm1 0v11a.5.5 0 0 0 1 0v-11a.5.5 0 0 0-1 0m-1 1.35c-2.344 1.205-5.209 1.842-8 2.033v4.233q.27.015.537.036c2.568.189 5.093.744 7.463 1.993zm-9 6.215v-4.13a95 95 0 0 1-1.992.052A1.02 1.02 0 0 0 1 7v2c0 .55.448 1.002 1.006 1.009A61 61 0 0 1 4 10.065m-.657.975 1.609 3.037.01.024h.548l-.002-.014-.443-2.966a68 68 0 0 0-1.722-.082z'/%3E%3C/svg%3E");
+    background-color: var(--admonition-important-color);
+}
+
+/* Success - check-circle icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Success"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16'/%3E%3Cpath d='m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05'/%3E%3C/svg%3E");
+    background-color: var(--admonition-success-color);
+}
+
+/* Failure - x-circle icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Failure"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16'/%3E%3Cpath d='M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
+    background-color: var(--admonition-failure-color);
+}
+
+/* Warning - exclamation-triangle icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Warning"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z'/%3E%3Cpath d='M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z'/%3E%3C/svg%3E");
+    background-color: var(--admonition-warning-color);
+}
+
+/* Danger - exclamation-diamond icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Danger"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.48 1.48 0 0 1 0-2.098zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134z'/%3E%3Cpath d='M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z'/%3E%3C/svg%3E");
+    background-color: var(--admonition-danger-color);
+}
+
+/* Error - x-octagon icon (Bootstrap Icons) */
+stencila-admonition[admonition-type="Error"] summary::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1z'/%3E%3Cpath d='M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
+    background-color: var(--admonition-error-color);
+}
+
+/* Title content area */
+stencila-admonition summary [slot="title"] {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Type-specific border and background colors */
+
+stencila-admonition[admonition-type="Note"] details {
+    border-color: color-mix(in srgb, var(--admonition-note-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Note"] summary {
+    color: color-mix(in srgb, var(--admonition-note-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-note-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Note"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-note-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Note"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-note-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Info"] details {
+    border-color: color-mix(in srgb, var(--admonition-info-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Info"] summary {
+    color: color-mix(in srgb, var(--admonition-info-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-info-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Info"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-info-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Info"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-info-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Tip"] details {
+    border-color: color-mix(in srgb, var(--admonition-tip-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Tip"] summary {
+    color: color-mix(in srgb, var(--admonition-tip-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-tip-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Tip"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-tip-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Tip"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-tip-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Important"] details {
+    border-color: color-mix(in srgb, var(--admonition-important-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Important"] summary {
+    color: color-mix(in srgb, var(--admonition-important-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-important-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Important"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-important-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Important"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-important-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Success"] details {
+    border-color: color-mix(in srgb, var(--admonition-success-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Success"] summary {
+    color: color-mix(in srgb, var(--admonition-success-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-success-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Success"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-success-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Success"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-success-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Failure"] details {
+    border-color: color-mix(in srgb, var(--admonition-failure-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Failure"] summary {
+    color: color-mix(in srgb, var(--admonition-failure-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-failure-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Failure"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-failure-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Failure"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-failure-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Warning"] details {
+    border-color: color-mix(in srgb, var(--admonition-warning-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Warning"] summary {
+    color: color-mix(in srgb, var(--admonition-warning-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-warning-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Warning"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-warning-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Warning"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-warning-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Danger"] details {
+    border-color: color-mix(in srgb, var(--admonition-danger-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Danger"] summary {
+    color: color-mix(in srgb, var(--admonition-danger-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-danger-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Danger"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-danger-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Danger"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-danger-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Error"] details {
+    border-color: color-mix(in srgb, var(--admonition-error-color) var(--admonition-border-opacity), transparent);
+}
+
+stencila-admonition[admonition-type="Error"] summary {
+    color: color-mix(in srgb, var(--admonition-error-color) var(--admonition-title-color-weight), black);
+    background-color: color-mix(in srgb, var(--admonition-error-color) var(--admonition-title-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Error"] > details > [slot="content"] {
+    background-color: color-mix(in srgb, var(--admonition-error-color) var(--admonition-content-background-tint), transparent);
+}
+
+stencila-admonition[admonition-type="Error"] details[open] summary {
+    border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-error-color) var(--admonition-border-opacity), transparent);
+}
+
+/* Chevron toggle via ::after pseudo-element (for foldable admonitions) */
+stencila-admonition[is-folded] summary::after {
+    content: "";
+    display: inline-block;
+    width: var(--admonition-chevron-size);
+    height: var(--admonition-chevron-size);
+    margin-left: auto;
+    flex-shrink: 0;
+
+    /* SVG chevron-down icon */
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: currentColor;
+
+    transform: rotate(-90deg);
+    transition: var(--admonition-chevron-transition);
+}
+
+/* Rotate chevron when details is open */
+stencila-admonition[is-folded] details[open] summary::after {
+    transform: rotate(0deg);
+}
+
+/* Non-foldable admonitions (no is-folded attribute) */
+stencila-admonition:not([is-folded]) summary {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Body content */
+stencila-admonition [slot="content"] {
+    padding: var(--admonition-padding);
+}
+
+/* Remove spacing on first/last elements inside body to avoid double spacing */
+stencila-admonition [slot="content"]> :first-child {
+    margin-top: 0;
+}
+
+stencila-admonition [slot="content"]> :last-child {
+    margin-bottom: 0;
 }

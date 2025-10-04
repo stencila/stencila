@@ -37,8 +37,8 @@
      * - Recommended text: #E0E0E0 to #D0D0D0 (not pure white)
      *
      * Our Approach:
-     * We use gray-800 (#262626) for background and gray-300 (#d4d4d4) for primary text.
-     * This provides ~7.5:1 contrast ratio - exceeding WCAG AAA (7:1) while being
+     * We use #1E1E1E for background and gray-300 (#d4d4d4) for primary text.
+     * This provides contrast ratio exceeding WCAG AAA (7:1) while being
      * significantly more comfortable than pure black/white for long-form content.
      *
      * WCAG Contrast Requirements:
@@ -57,7 +57,7 @@
 
     /* Surface Colors - Background colors for different depth levels with dark and print variants */
     --surface-background: var(--color-gray-50);
-    --surface-background-dark: var(--color-gray-800);
+    --surface-background-dark: #1E1E1E;
     --surface-background-print: white;
     --surface-foreground: white;
     --surface-foreground-dark: var(--color-gray-700);
@@ -99,24 +99,6 @@
     --color-accent-dark: var(--color-blue-400);
     --color-accent-muted: var(--color-blue-100);
     --color-accent-muted-dark: var(--color-blue-950);
-
-    /* Semantic Colors - For specific admonitions etc with dark variants */
-    --color-info: var(--color-blue-500);
-    --color-info-dark: var(--color-blue-400);
-    --color-info-muted: var(--color-blue-50);
-    --color-info-muted-dark: var(--color-blue-950);
-    --color-success: var(--color-green-600);
-    --color-success-dark: var(--color-green-500);
-    --color-success-muted: var(--color-green-50);
-    --color-success-muted-dark: var(--color-green-950);
-    --color-warning: var(--color-amber-500);
-    --color-warning-dark: var(--color-amber-400);
-    --color-warning-muted: var(--color-amber-50);
-    --color-warning-muted-dark: var(--color-amber-950);
-    --color-error: var(--color-red-600);
-    --color-error-dark: var(--color-red-500);
-    --color-error-muted: var(--color-red-50);
-    --color-error-muted-dark: var(--color-red-950);
 
     /* Main Document Font */
     --text-font-family: var(--font-family-serif);

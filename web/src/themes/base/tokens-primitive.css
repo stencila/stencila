@@ -28,32 +28,6 @@
     --color-gray-900: #171717;
     --color-gray-950: #0a0a0a;
 
-    /* Color Palette - Blue for primary brand and interactive elements */
-    --color-blue-50: #eff6ff;
-    --color-blue-100: #dbeafe;
-    --color-blue-200: #bfdbfe;
-    --color-blue-300: #93c5fd;
-    --color-blue-400: #60a5fa;
-    --color-blue-500: #3b82f6;
-    --color-blue-600: #2563eb;
-    --color-blue-700: #1d4ed8;
-    --color-blue-800: #1e40af;
-    --color-blue-900: #1e3a8a;
-    --color-blue-950: #172554;
-
-    /* Color Palette - Green for success states and positive feedback */
-    --color-green-50: #f0fdf4;
-    --color-green-100: #dcfce7;
-    --color-green-200: #bbf7d0;
-    --color-green-300: #86efac;
-    --color-green-400: #4ade80;
-    --color-green-500: #22c55e;
-    --color-green-600: #16a34a;
-    --color-green-700: #15803d;
-    --color-green-800: #166534;
-    --color-green-900: #14532d;
-    --color-green-950: #052e16;
-
     /* Color Palette - Red for error states and destructive actions */
     --color-red-50: #fef2f2;
     --color-red-100: #fee2e2;
@@ -66,6 +40,19 @@
     --color-red-800: #991b1b;
     --color-red-900: #7f1d1d;
     --color-red-950: #450a0a;
+
+    /* Color Palette - Orange for danger states and critical warnings */
+    --color-orange-50: #fff7ed;
+    --color-orange-100: #ffedd5;
+    --color-orange-200: #fed7aa;
+    --color-orange-300: #fdba74;
+    --color-orange-400: #fb923c;
+    --color-orange-500: #f97316;
+    --color-orange-600: #ea580c;
+    --color-orange-700: #c2410c;
+    --color-orange-800: #9a3412;
+    --color-orange-900: #7c2d12;
+    --color-orange-950: #431407;
 
     /* Color Palette - Amber for warning states and cautionary elements */
     --color-amber-50: #fffbeb;
@@ -80,6 +67,32 @@
     --color-amber-900: #78350f;
     --color-amber-950: #451a03;
 
+    /* Color Palette - Yellow for tips and highlights */
+    --color-yellow-50: #fefce8;
+    --color-yellow-100: #fef9c3;
+    --color-yellow-200: #fef08a;
+    --color-yellow-300: #fde047;
+    --color-yellow-400: #facc15;
+    --color-yellow-500: #eab308;
+    --color-yellow-600: #ca8a04;
+    --color-yellow-700: #a16207;
+    --color-yellow-800: #854d0e;
+    --color-yellow-900: #713f12;
+    --color-yellow-950: #422006;
+
+    /* Color Palette - Green for success states and positive feedback */
+    --color-green-50: #f0fdf4;
+    --color-green-100: #dcfce7;
+    --color-green-200: #bbf7d0;
+    --color-green-300: #86efac;
+    --color-green-400: #4ade80;
+    --color-green-500: #22c55e;
+    --color-green-600: #16a34a;
+    --color-green-700: #15803d;
+    --color-green-800: #166534;
+    --color-green-900: #14532d;
+    --color-green-950: #052e16;
+
     /* Color Palette - Cyan for info states and informational elements */
     --color-cyan-50: #ecfeff;
     --color-cyan-100: #cffafe;
@@ -92,6 +105,19 @@
     --color-cyan-800: #155e75;
     --color-cyan-900: #164e63;
     --color-cyan-950: #083344;
+
+    /* Color Palette - Blue for primary brand and interactive elements */
+    --color-blue-50: #eff6ff;
+    --color-blue-100: #dbeafe;
+    --color-blue-200: #bfdbfe;
+    --color-blue-300: #93c5fd;
+    --color-blue-400: #60a5fa;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+    --color-blue-800: #1e40af;
+    --color-blue-900: #1e3a8a;
+    --color-blue-950: #172554;
 
     /* Color Palette - Purple for visited links and secondary interactive elements */
     --color-purple-50: #faf5ff;

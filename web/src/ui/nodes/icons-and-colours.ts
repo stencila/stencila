@@ -1,5 +1,4 @@
 import {
-  type AdmonitionType,
   type MessageLevel,
   type NodeType,
 } from '@stencila/types'
@@ -147,51 +146,29 @@ export const getProvenanceOpacity = (level: ProvenanceOpacityLevel) => {
 
 // ---------------------------------------------------------
 
-// Admonition UI -------------------------------------------
+// Execution Messages --------------------------------------
 
-type AdmonitionTypeUI = {
+type MessageTypeUI = {
   baseColour: string
   borderColour: string
   textColour: string
   icon: IconName
 }
 
-const admonitionColours = (name: string) => ({
+const messageColours = (name: string) => ({
   baseColour: colours[name][50],
   borderColour: colours[name][400],
   textColour: colours[name][800],
 })
 
 /* eslint-disable */
-const admonitionUiMap: Record<AdmonitionType, AdmonitionTypeUI> = {
-  Note:      { ...admonitionColours('blue'),     icon: 'infoCircle' },
-  Info:      { ...admonitionColours('blue'),     icon: 'infoCircle' },
-  Tip:       { ...admonitionColours('green'),    icon: 'lightbulb' },
-  Important: { ...admonitionColours('blue'),     icon: 'exclamationCircle' },
-  Success:   { ...admonitionColours('green'),    icon: 'checkCircle' },
-  Failure:   { ...admonitionColours('red'),      icon: 'xCircle' },
-  Warning:   { ...admonitionColours('yellow'),   icon: 'exclamationTriangle' },
-  Danger:    { ...admonitionColours('red'),      icon: 'exclamationCircle' },
-  Error:     { ...admonitionColours('red'),      icon: 'xCircle' },
-}
-/* eslint-enable */
-
-export const admonitionUi = (type: AdmonitionType) => {
-  return admonitionUiMap[type]
-}
-
-// ---------------------------------------------------------
-
-// Execution Messages --------------------------------------
-
-/* eslint-disable */
-const executionMessagesUiMap: Record<MessageLevel, AdmonitionTypeUI> = {
-  'Exception': { ...admonitionColours('red'),      icon: 'xCircle' },
-  'Error':     { ...admonitionColours('red'),      icon: 'xCircle' },
-  'Warning':   { ...admonitionColours('yellow'),   icon: 'exclamationTriangle' },
-  'Info':      { ...admonitionColours('blue'),     icon: 'infoCircle' },
-  'Debug':     { ...admonitionColours('blue'),     icon: 'questionCircle' },
-  'Trace':     { ...admonitionColours('purple'),   icon: 'slashCircle' }
+const executionMessagesUiMap: Record<MessageLevel, MessageTypeUI> = {
+  'Exception': { ...messageColours('red'),      icon: 'xCircle' },
+  'Error':     { ...messageColours('red'),      icon: 'xCircle' },
+  'Warning':   { ...messageColours('yellow'),   icon: 'exclamationTriangle' },
+  'Info':      { ...messageColours('blue'),     icon: 'infoCircle' },
+  'Debug':     { ...messageColours('blue'),     icon: 'questionCircle' },
+  'Trace':     { ...messageColours('purple'),   icon: 'slashCircle' }
 }
 /* eslint-enable */
 
@@ -201,7 +178,7 @@ const executionMessagesUiMap: Record<MessageLevel, AdmonitionTypeUI> = {
 export const executionMessageUI = (level: MessageLevel) => {
   return (
     executionMessagesUiMap[level] ?? {
-      ...admonitionColours('blue'),
+      ...messageColours('blue'),
       icon: 'infoCircle',
     }
   )

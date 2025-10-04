@@ -12,7 +12,7 @@
       "@id": "stencila:Admonition",
       "@type": "rdfs:Class",
       "rdfs:label": "Admonition",
-      "rdfs:comment": "A admonition within a document.",
+      "rdfs:comment": "An admonition within a document.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

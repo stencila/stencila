@@ -2,6 +2,41 @@ use stencila_codec_info::lost_options;
 
 use crate::{Admonition, AdmonitionType, prelude::*};
 
+impl DomCodec for Admonition {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        let admonition_type = self.admonition_type.to_string();
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_attr("admonition-type", &admonition_type);
+
+        if let Some(is_folded) = self.is_folded {
+            context.push_attr("is-folded", &is_folded.to_string());
+        }
+
+        context.enter_elem("details");
+
+        if !matches!(self.is_folded, Some(true)) {
+            context.push_attr_boolean("open");
+        }
+
+        context
+            .enter_elem("summary")
+            .push_slot_fn("span", "title", |context| match &self.title {
+                Some(title) => {
+                    title.to_dom(context);
+                }
+                None => {
+                    context.push_html(&admonition_type);
+                }
+            })
+            .exit_elem()
+            .push_slot_fn("div", "content", |context| self.content.to_dom(context))
+            .exit_elem()
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for Admonition {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

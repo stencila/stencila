@@ -1098,7 +1098,7 @@ class Suggestion(Entity):
 @dataclass(kw_only=True, repr=False)
 class Admonition(Entity):
     """
-    A admonition within a document.
+    An admonition within a document.
     """
 
     type: Literal["Admonition"] = "Admonition"
