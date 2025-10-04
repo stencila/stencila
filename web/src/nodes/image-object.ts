@@ -29,6 +29,7 @@ export class ImageObject extends MediaObject {
     mermaid: 'text/vnd.mermaid',
     plotly: 'application/vnd.plotly.v1+json',
     vegaLite: 'application/vnd.vegalite.v5+json',
+    echarts: 'application/vnd.apache.echarts+json',
     htmlMap: 'text/html',
   } as const
 
@@ -56,6 +57,14 @@ export class ImageObject extends MediaObject {
    * accidental bloat of the bundle if cytoscape is statically imported.
    */
   private cytoscape?: { resize: () => void }
+
+  /**
+   * The ECharts instance (if relevant)
+   *
+   * Rather than import echarts types just stub out what we need. This avoids
+   * accidental bloat of the bundle if echarts is statically imported.
+   */
+  private echarts?: { resize: () => void; dispose: () => void }
 
   /**
    * Cached Mermaid theme to avoid repeated CSS variable reads
@@ -104,6 +113,8 @@ export class ImageObject extends MediaObject {
   private onResize = () => {
     // If this component is resized then resize the Cytoscape instance, if any
     this.cytoscape?.resize()
+    // Resize the ECharts instance, if any
+    this.echarts?.resize()
   }
 
   private onThemeChange = async () => {
@@ -139,6 +150,10 @@ export class ImageObject extends MediaObject {
       this.onThemeChange
     )
     window.removeEventListener('stencila-theme-changed', this.onThemeChange)
+    // Dispose of ECharts instance if it exists
+    if (this.echarts) {
+      this.echarts.dispose()
+    }
     super.disconnectedCallback()
   }
 
@@ -158,6 +173,8 @@ export class ImageObject extends MediaObject {
         await this.compilePlotly()
       } else if (this.mediaType == ImageObject.MEDIA_TYPES.vegaLite) {
         await this.compileVegaLite()
+      } else if (this.mediaType == ImageObject.MEDIA_TYPES.echarts) {
+        await this.compileECharts()
       } else if (this.mediaType == ImageObject.MEDIA_TYPES.htmlMap) {
         await this.compileHtmlMap()
       } else if (this.contentUrl.startsWith('data:')) {
@@ -714,6 +731,73 @@ export class ImageObject extends MediaObject {
     })
   }
 
+  private async compileECharts() {
+    const echarts = await import('echarts')
+    const spec = JSON.parse(this.contentUrl)
+
+    // Dispose of any existing chart instance
+    if (this.echarts) {
+      this.echarts.dispose()
+    }
+
+    const container = this.shadowRoot.getElementById(
+      'stencila-echarts-container'
+    )
+
+    let codeChunk
+    if (this.parentNodeIs('CodeChunk')) {
+      codeChunk = this.closestGlobally('stencila-code-chunk')
+      this.clearCodeChunkMessages(codeChunk)
+    }
+
+    try {
+      // Initialize the chart
+      const chartInstance = echarts.init(container)
+
+      // Configure for static mode if enabled
+      const isStaticMode = window.STENCILA_STATIC_MODE === true
+      if (isStaticMode) {
+        // Disable interactions in static mode
+        if (!spec.toolbox) {
+          spec.toolbox = {}
+        }
+        spec.toolbox.show = false
+
+        // Disable zoom and data zoom
+        if (spec.dataZoom) {
+          spec.dataZoom = spec.dataZoom.map((dz: any) => ({ ...dz, disabled: true }))
+        }
+      }
+
+      // Set the chart options
+      chartInstance.setOption(spec)
+
+      // Store the instance for resize/cleanup
+      this.echarts = chartInstance
+    } catch (error) {
+      if (codeChunk) {
+        let messages = codeChunk.querySelector('div[slot=messages]')
+        if (!messages) {
+          messages = document.createElement('div')
+          messages.setAttribute('slot', 'execution-messages')
+          codeChunk.appendChild(messages)
+        }
+
+        const message = document.createElement(
+          'stencila-execution-message'
+        ) as ExecutionMessage
+
+        let str = error.message ?? error.toString()
+        str = str.slice(str.lastIndexOf('-^\n')).trim()
+
+        this.addCodeChunkErrorMessage(message, str)
+        messages.appendChild(message)
+      } else {
+        this.error = error.message ?? error.toString()
+      }
+    }
+  }
+
   private async compileHtmlMap() {
     let codeChunk: HTMLElement
 
@@ -785,6 +869,10 @@ export class ImageObject extends MediaObject {
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.vegaLite) {
       return this.renderVega()
+    }
+
+    if (this.mediaType === ImageObject.MEDIA_TYPES.echarts) {
+      return this.renderECharts()
     }
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.htmlMap) {
@@ -901,6 +989,20 @@ export class ImageObject extends MediaObject {
       <style id="plotly-css"></style>
       <div slot="content" class="overflow-x-auto">
         <div id="stencila-plotly-container" class="w-full"></div>
+      </div>
+    `
+  }
+
+  private renderECharts() {
+    const containerStyles = css`
+      & {
+        width: 100%;
+        height: 400px;
+      }
+    `
+    return html`
+      <div slot="content" class="overflow-x-auto">
+        <div class=${containerStyles} id="stencila-echarts-container"></div>
       </div>
     `
   }

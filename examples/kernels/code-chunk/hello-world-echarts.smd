@@ -1,0 +1,23 @@
+```js exec
+var plot = {
+  xAxis: {
+    type: "category",
+    data: ["Hello", "World"],
+  },
+  yAxis: {
+    type: "value",
+  },
+  series: [
+    {
+      data: [3, 5],
+      type: "bar",
+    },
+  ],
+};
+
+console.log({
+  type: "ImageObject",
+  mediaType: "application/vnd.apache.echarts+json",
+  contentUrl: JSON.stringify(plot),
+});
+```
