@@ -232,7 +232,7 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
     warning: colorToHex(getVar('--plot-warning')) || '#eab308',
 
     // Surfaces
-    background: colorToHex(getVar('--plot-bg')) || '#ffffff',
+    background: colorToHex(getVar('--plot-background')) || '#ffffff',
     panel: colorToHex(getVar('--plot-panel')) || '#ffffff',
     muted: colorToHex(getVar('--plot-muted')) || '#666666',
     grid: colorToHex(getVar('--plot-grid')) || '#e5e5e5',

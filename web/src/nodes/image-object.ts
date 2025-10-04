@@ -202,8 +202,14 @@ export class ImageObject extends MediaObject {
     // Re-compile if necessary
     if (this.cytoscape && this.contentUrl) {
       await this.compileCytoscape()
+    } else if (this.echarts && this.contentUrl) {
+      await this.compileECharts()
     } else if (this.mermaid && this.contentUrl) {
       await this.compileMermaid()
+    } else if (this.mediaType === ImageObject.MEDIA_TYPES.plotly && this.contentUrl) {
+      await this.compilePlotly()
+    } else if (this.vegaLite && this.contentUrl) {
+      await this.compileVegaLite()
     }
 
     // Trigger Lit re-render
