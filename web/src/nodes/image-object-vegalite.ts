@@ -8,7 +8,7 @@ export async function compileVegaLite(
   container: HTMLElement,
   isStaticMode: boolean,
   onError: (error: Error) => void
-): Promise<void> {
+): Promise<{ finalize: () => void } | undefined> {
   const { default: vegaEmbed } = await import('vega-embed')
   const spec = JSON.parse(contentUrl)
 
@@ -26,9 +26,13 @@ export async function compileVegaLite(
     }),
   }
 
-  vegaEmbed(container, spec, embedOptions).catch((error) => {
+  try {
+    const result = await vegaEmbed(container, spec, embedOptions)
+    return result
+  } catch (error) {
     onError(error)
-  })
+    return undefined
+  }
 }
 
 /**

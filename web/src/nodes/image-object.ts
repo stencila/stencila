@@ -59,7 +59,7 @@ export class ImageObject extends MediaObject {
    * accidental bloat of the bundle if cytoscape is statically imported.
    */
   @state()
-  private cytoscape?: { resize: () => void }
+  private cytoscape?: { resize: () => void; destroy: () => void }
 
   /**
    * The ECharts instance
@@ -82,6 +82,14 @@ export class ImageObject extends MediaObject {
   @state()
   private mermaid?: string
 
+  /**
+   * The Vega-Lite embed result
+   *
+   * Rather than import vega-embed types just stub out what we need. This avoids
+   * accidental bloat of the bundle if vega-embed is statically imported.
+   */
+  @state()
+  private vegaLite?: { finalize: () => void }
 
   override needsCompiling(): boolean {
     // @ts-expect-error re media type
@@ -217,9 +225,17 @@ export class ImageObject extends MediaObject {
     )
     window.removeEventListener('stencila-theme-changed', this.onThemeChange)
 
-    // Dispose of instances
+    // Dispose of visualization library instances
+    if (this.cytoscape) {
+      this.cytoscape.destroy()
+    }
+
     if (this.echarts) {
       this.echarts.dispose()
+    }
+
+    if (this.vegaLite) {
+      this.vegaLite.finalize()
     }
 
     super.disconnectedCallback()
@@ -292,8 +308,8 @@ export class ImageObject extends MediaObject {
 
     await compileLeaflet(
       this.contentUrl,
-      (htmlContent) => {
-        this.leaflet = htmlContent
+      (html) => {
+        this.leaflet = html
         this.error = undefined
       },
       (error) => {
@@ -314,6 +330,7 @@ export class ImageObject extends MediaObject {
       this,
       (svg) => {
         this.mermaid = svg
+        this.error = undefined
       },
       (error) => {
         if (codeChunk) {
@@ -370,7 +387,7 @@ export class ImageObject extends MediaObject {
     const codeChunk = this.setupCodeChunkErrorHandling()
     const isStaticMode = window.STENCILA_STATIC_MODE === true
 
-    await compileVegaLite(this.contentUrl, container, isStaticMode, (error) => {
+    this.vegaLite = await compileVegaLite(this.contentUrl, container, isStaticMode, (error) => {
       if (codeChunk) {
         this.addErrorMessage(codeChunk, this.formatErrorString(error))
       }
