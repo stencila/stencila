@@ -1,0 +1,63 @@
+/* Thematic break styles
+ *
+ * Schema: [ThematicBreak](../../schema/ThematicBreak.yaml)
+ * Purpose: Visual separator representing a thematic break or transition between sections.
+ *
+ * DOM Structure:
+ * <stencila-thematic-break id=xxx depth=N ancestors=Parent>
+ *     <hr>
+ * </stencila-thematic-break>
+ *
+ * Notes:
+ * - Thematic breaks use semantic HTML <hr> element
+ * - Represents a thematic break or transition (not just a visual divider)
+ * - Commonly used to separate scenes in prose or topic shifts in documents
+ * - Spacing automatically scales with document rhythm through --content-spacing
+ *
+ * Examples: examples/conversion/thematic-break/thematic-break.dom.html
+ * Documentation: docs/themes/breaks.smd
+ */
+
+:root {
+    /* Vertical spacing - inherits automatic responsive behavior */
+    --thematic-break-spacing-top: var(--content-spacing);
+    --thematic-break-spacing-bottom: var(--content-spacing);
+
+    /* Border styling */
+    --thematic-break-border-width: var(--border-width-default);
+    --thematic-break-border-width-print: var(--border-width-default);
+    --thematic-break-border-color: var(--border-color-default);
+    --thematic-break-border-style: solid;
+
+    /* Sizing and positioning */
+    --thematic-break-width: 100%;
+    --thematic-break-margin-left: 0;
+    --thematic-break-margin-right: 0;
+}
+
+stencila-thematic-break {
+    display: block;
+
+    /* Vertical spacing */
+    margin-top: var(--thematic-break-spacing-top);
+    margin-bottom: var(--thematic-break-spacing-bottom);
+
+    hr {
+        /* Browser normalization */
+        margin: 0;
+        border: none;
+
+        /* Apply design tokens */
+        width: var(--thematic-break-width);
+        margin-left: var(--thematic-break-margin-left);
+        margin-right: var(--thematic-break-margin-right);
+        border-top: var(--thematic-break-border-width) var(--thematic-break-border-style) var(--thematic-break-border-color);
+    }
+}
+
+/* Print Media Optimization */
+@media print {
+    :root {
+        --thematic-break-border-width: var(--thematic-break-border-width-print);
+    }
+}

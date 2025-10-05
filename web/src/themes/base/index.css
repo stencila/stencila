@@ -21,6 +21,7 @@
 
 @import url("./admonitions.css");
 @import url("./articles.css");
+@import url("./breaks.css");
 @import url("./citations.css");
 @import url("./code.css");
 @import url("./diagrams.css");
@@ -34,6 +35,5 @@
 @import url("./plots.css");
 @import url("./quotes.css");
 @import url("./references.css");
-@import url("./rules.css");
 @import url("./tables.css");
 @import url("./datatables.css");

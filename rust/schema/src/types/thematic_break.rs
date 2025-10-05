@@ -12,6 +12,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display("ThematicBreak")]
+#[dom(elem = "hr")]
 #[html(elem = "hr")]
 #[jats(elem = "hr")]
 #[markdown(template = "***\n\n")]
