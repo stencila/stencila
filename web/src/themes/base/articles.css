@@ -77,12 +77,15 @@
     /* Article Authors */
     --article-authors-font-size: var(--text-font-size);
     --article-authors-color: var(--text-color);
+    --article-authors-text-align: left;
     --article-authors-margin-bottom: var(--space-6);
 
     /* Article Abstract */
     --article-abstract-font-size: var(--text-font-size);
     --article-abstract-color: var(--text-color);
     --article-abstract-background: var(--surface-background);
+    --article-abstract-text-align: left;
+    --article-abstract-max-width: var(--article-content-max-width);
     --article-abstract-margin-bottom: var(--space-6);
 }
 
@@ -117,7 +120,22 @@ stencila-article {
     >[slot="authors"] {
         font-size: var(--article-authors-font-size);
         color: var(--article-authors-color);
+        text-align: var(--article-authors-text-align);
         margin-bottom: var(--article-authors-margin-bottom);
+    }
+
+    >[slot="abstract"] {
+        font-size: var(--article-abstract-font-size);
+        color: var(--article-abstract-color);
+        background: var(--article-abstract-background);
+        max-width: var(--article-abstract-max-width);
+        margin-bottom: var(--article-abstract-margin-bottom);
+
+        /* Apply text-align to nested "Abstract" heading and paragraph content */
+        stencila-heading h1,
+        stencila-paragraph p {
+            text-align: var(--article-abstract-text-align);
+        }
     }
 
     >[slot="headings"] {
