@@ -31,7 +31,7 @@ Layout and typography styling for table captions (inherits from caption and labe
 | `--table-caption-font-size`   | Font size for captions                        | `var(--caption-font-size)`   |
 | `--table-caption-color`       | Text color (automatic dark mode)              | `var(--caption-color)`       |
 | `--table-caption-line-height` | Line height for caption text                  | `var(--line-height-sm)`      |
-| `--table-caption-alignment`  | Text alignment (left, center, right, justify) | `left`                       |
+| `--table-caption-alignment`   | Text alignment (left, center, right, justify) | `left`                       |
 | `--table-caption-max-width`   | Maximum width for caption text                | `100%`                       |
 | `--table-label-font-weight`   | Font weight for table labels                  | `var(--label-font-weight)`   |
 | `--table-label-font-style`    | Font style for table labels                   | `var(--label-font-style)`    |
@@ -62,65 +62,65 @@ Granular control over table borders enables classic typographic patterns like Tu
 
 Foundation tokens that other border tokens inherit from:
 
-| Token                       | Description                        | Default Value                  |
-| --------------------------- | ---------------------------------- | ------------------------------ |
-| `--table-border-width`      | Base width for outer borders       | `var(--border-width-default)`  |
-| `--table-border-width-print`| Base width for print media         | `0`                            |
-| `--table-border-color`      | Base color for outer borders       | `var(--border-color-default)`  |
-| `--table-border-style`      | Base style for outer borders       | `solid`                        |
+| Token                        | Description                  | Default Value                 |
+| ---------------------------- | ---------------------------- | ----------------------------- |
+| `--table-border-width`       | Base width for outer borders | `var(--border-width-default)` |
+| `--table-border-width-print` | Base width for print media   | `0`                           |
+| `--table-border-color`       | Base color for outer borders | `var(--border-color-default)` |
+| `--table-border-style`       | Base style for outer borders | `solid`                       |
 
 ### Outer Border Edge Tokens
 
 Individual control for each edge of the table's outer border:
 
-| Token                           | Description                  | Default Value                    |
-| ------------------------------- | ---------------------------- | -------------------------------- |
-| `--table-border-top-width`      | Top edge border width        | `var(--table-border-width)`      |
-| `--table-border-top-width-print`| Top edge width for print     | `var(--table-border-width-print)`|
-| `--table-border-top-color`      | Top edge border color        | `var(--table-border-color)`      |
-| `--table-border-top-style`      | Top edge border style        | `var(--table-border-style)`      |
-| `--table-border-bottom-width`   | Bottom edge border width     | `var(--table-border-width)`      |
-| `--table-border-bottom-width-print`| Bottom edge width for print | `var(--table-border-width-print)`|
-| `--table-border-bottom-color`   | Bottom edge border color     | `var(--table-border-color)`      |
-| `--table-border-bottom-style`   | Bottom edge border style     | `var(--table-border-style)`      |
-| `--table-border-left-width`     | Left edge border width       | `var(--table-border-width)`      |
-| `--table-border-left-width-print`| Left edge width for print   | `var(--table-border-width-print)`|
-| `--table-border-left-color`     | Left edge border color       | `var(--table-border-color)`      |
-| `--table-border-left-style`     | Left edge border style       | `var(--table-border-style)`      |
-| `--table-border-right-width`    | Right edge border width      | `var(--table-border-width)`      |
-| `--table-border-right-width-print`| Right edge width for print | `var(--table-border-width-print)`|
-| `--table-border-right-color`    | Right edge border color      | `var(--table-border-color)`      |
-| `--table-border-right-style`    | Right edge border style      | `var(--table-border-style)`      |
+| Token                               | Description                 | Default Value                     |
+| ----------------------------------- | --------------------------- | --------------------------------- |
+| `--table-border-top-width`          | Top edge border width       | `var(--table-border-width)`       |
+| `--table-border-top-width-print`    | Top edge width for print    | `var(--table-border-width-print)` |
+| `--table-border-top-color`          | Top edge border color       | `var(--table-border-color)`       |
+| `--table-border-top-style`          | Top edge border style       | `var(--table-border-style)`       |
+| `--table-border-bottom-width`       | Bottom edge border width    | `var(--table-border-width)`       |
+| `--table-border-bottom-width-print` | Bottom edge width for print | `var(--table-border-width-print)` |
+| `--table-border-bottom-color`       | Bottom edge border color    | `var(--table-border-color)`       |
+| `--table-border-bottom-style`       | Bottom edge border style    | `var(--table-border-style)`       |
+| `--table-border-left-width`         | Left edge border width      | `var(--table-border-width)`       |
+| `--table-border-left-width-print`   | Left edge width for print   | `var(--table-border-width-print)` |
+| `--table-border-left-color`         | Left edge border color      | `var(--table-border-color)`       |
+| `--table-border-left-style`         | Left edge border style      | `var(--table-border-style)`       |
+| `--table-border-right-width`        | Right edge border width     | `var(--table-border-width)`       |
+| `--table-border-right-width-print`  | Right edge width for print  | `var(--table-border-width-print)` |
+| `--table-border-right-color`        | Right edge border color     | `var(--table-border-color)`       |
+| `--table-border-right-style`        | Right edge border style     | `var(--table-border-style)`       |
 
 ### Row Border Tokens
 
 Control borders between rows and after headers:
 
-| Token                                  | Description                          | Default Value                       |
-| -------------------------------------- | ------------------------------------ | ----------------------------------- |
-| `--table-row-border-width`             | Base width for row borders           | `var(--border-width-default)`       |
-| `--table-row-border-width-print`       | Base width for print media           | `var(--border-width-default)`       |
-| `--table-row-border-color`             | Base color for row borders           | `var(--border-color-default)`       |
-| `--table-row-border-style`             | Base style for row borders           | `solid`                             |
-| `--table-header-border-bottom-width`   | Border below header row              | `var(--table-row-border-width)`     |
-| `--table-header-border-bottom-width-print`| Header border width for print     | `var(--table-row-border-width-print)`|
-| `--table-header-border-bottom-color`   | Border color below header            | `var(--table-row-border-color)`     |
-| `--table-header-border-bottom-style`   | Border style below header            | `var(--table-row-border-style)`     |
-| `--table-body-row-border-width`        | Border between body rows             | `var(--table-row-border-width)`     |
-| `--table-body-row-border-width-print`  | Body row border width for print      | `var(--table-row-border-width-print)`|
-| `--table-body-row-border-color`        | Border color between body rows       | `var(--table-row-border-color)`     |
-| `--table-body-row-border-style`        | Border style between body rows       | `var(--table-row-border-style)`     |
+| Token                                      | Description                     | Default Value                         |
+| ------------------------------------------ | ------------------------------- | ------------------------------------- |
+| `--table-row-border-width`                 | Base width for row borders      | `var(--border-width-default)`         |
+| `--table-row-border-width-print`           | Base width for print media      | `var(--border-width-default)`         |
+| `--table-row-border-color`                 | Base color for row borders      | `var(--border-color-default)`         |
+| `--table-row-border-style`                 | Base style for row borders      | `solid`                               |
+| `--table-header-border-bottom-width`       | Border below header row         | `var(--table-row-border-width)`       |
+| `--table-header-border-bottom-width-print` | Header border width for print   | `var(--table-row-border-width-print)` |
+| `--table-header-border-bottom-color`       | Border color below header       | `var(--table-row-border-color)`       |
+| `--table-header-border-bottom-style`       | Border style below header       | `var(--table-row-border-style)`       |
+| `--table-body-row-border-width`            | Border between body rows        | `var(--table-row-border-width)`       |
+| `--table-body-row-border-width-print`      | Body row border width for print | `var(--table-row-border-width-print)` |
+| `--table-body-row-border-color`            | Border color between body rows  | `var(--table-row-border-color)`       |
+| `--table-body-row-border-style`            | Border style between body rows  | `var(--table-row-border-style)`       |
 
 ### Column Border Tokens
 
 Control vertical borders between columns:
 
-| Token                              | Description                      | Default Value                  |
-| ---------------------------------- | -------------------------------- | ------------------------------ |
-| `--table-column-border-width`      | Vertical borders between columns | `0`                            |
-| `--table-column-border-width-print`| Column border width for print    | `0`                            |
-| `--table-column-border-color`      | Vertical border color            | `var(--border-color-default)`  |
-| `--table-column-border-style`      | Vertical border style            | `solid`                        |
+| Token                               | Description                      | Default Value                 |
+| ----------------------------------- | -------------------------------- | ----------------------------- |
+| `--table-column-border-width`       | Vertical borders between columns | `0`                           |
+| `--table-column-border-width-print` | Column border width for print    | `0`                           |
+| `--table-column-border-color`       | Vertical border color            | `var(--border-color-default)` |
+| `--table-column-border-style`       | Vertical border style            | `solid`                       |
 
 ## Header Styling Tokens
 
@@ -149,12 +149,12 @@ Interactive and striping behavior for table rows.
 
 Typography and spacing for table cells.
 
-| Token                        | Description               | Default Value             |
-| ---------------------------- | ------------------------- | ------------------------- |
-| `--table-cell-font-family`   | Font family for cell text | `var(--text-font-family)` |
-| `--table-cell-font-size`     | Font size for cell text   | `var(--font-size-xs)`     |
-| `--table-cell-padding`       | Cell padding              | `var(--space-3)`          |
-| `--table-cell-padding-print` | Reduced padding for print | `var(--space-2)`          |
+| Token                        | Description               | Default Value                       |
+| ---------------------------- | ------------------------- | ----------------------------------- |
+| `--table-cell-font-family`   | Font family for cell text | `var(--text-font-family)`           |
+| `--table-cell-font-size`     | Font size for cell text   | `calc(var(--text-font-size) * 0.85)` |
+| `--table-cell-padding`       | Cell padding              | `var(--space-3)`                    |
+| `--table-cell-padding-print` | Reduced padding for print | `var(--space-2)`                    |
 
 # Usage
 
@@ -367,11 +367,11 @@ Classic horizontal rules only (top and bottom borders, separator under header, n
 
 ::: style --table-border-top-width: 1px; --table-border-bottom-width: 1px; --table-border-left-width: 0; --table-border-right-width: 0; --table-header-border-bottom-width: 1px; --table-body-row-border-width: 0; --table-column-border-width: 0; --table-header-background: transparent; --table-row-hover: transparent; --table-cell-padding: var(--space-3);
 
-| Measure     |  Mean |   SD | Range    |
-| :---------- | ----: | ---: | :------- |
-| Temperature |  22.4 |  1.8 | 18.2-26.1|
-| Humidity    |  65.3 |  8.2 | 52.1-78.5|
-| Pressure    | 101.3 |  0.7 | 100.1-102.5|
+| Measure     |  Mean |  SD | Range       |
+| :---------- | ----: | --: | :---------- |
+| Temperature |  22.4 | 1.8 | 18.2-26.1   |
+| Humidity    |  65.3 | 8.2 | 52.1-78.5   |
+| Pressure    | 101.3 | 0.7 | 100.1-102.5 |
 
 :::
 

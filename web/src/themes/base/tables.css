@@ -141,7 +141,7 @@
 
     /* Header styling */
     --table-header-background: var(--surface-sunken);
-    --table-header-background-dark: #2d2d2d;
+    --table-header-background-dark: var(--surface-sunken-dark);
     --table-header-background-print: transparent;
     --table-header-font-weight: var(--font-weight-semibold);
 
@@ -154,7 +154,7 @@
 
     /* Cell styling */
     --table-cell-font-family: var(--text-font-family);
-    --table-cell-font-size: calc(var(--text-font-size) * 0.75);
+    --table-cell-font-size: calc(var(--text-font-size) * 0.85);
     --table-cell-line-height: var(--line-height-normal);
     --table-cell-line-height-mobile: var(--line-height-tight);
     --table-cell-line-height-print: var(--line-height-tight);
