@@ -44,6 +44,12 @@
     --list-marker-gap: var(--space-2);
     --list-marker-color: var(--text-color-muted);
     --list-marker-color-dark: var(--text-color-muted-dark);
+
+    /* Custom marker content - when set, overrides list-style-type */
+    --list-marker-content: normal;  /* normal = use list-style-type */
+    --list-marker-nested-content: normal;
+
+    /* Keyword-based markers - used when content is 'normal' */
     --list-marker-unordered: disc;
     --list-marker-ordered: decimal;
     --list-marker-nested-unordered: circle;
@@ -70,6 +76,10 @@ stencila-list {
 
     ul {
         list-style-type: var(--list-marker-unordered);
+
+        li::marker {
+            content: var(--list-marker-content);
+        }
     }
 
     ol {
@@ -97,6 +107,10 @@ stencila-list {
 
             ul {
                 list-style-type: var(--list-marker-nested-unordered);
+
+                li::marker {
+                    content: var(--list-marker-nested-content);
+                }
             }
 
             ol {
