@@ -111,6 +111,7 @@
     --text-line-height: var(--line-height-normal);
     --text-line-height-mobile: var(--line-height-relaxed);
     --text-line-height-print: 1.4;
+    --text-letter-spacing: 0;
 
     --transition-duration-fast: 150ms;
     --transition-duration-base: 250ms;

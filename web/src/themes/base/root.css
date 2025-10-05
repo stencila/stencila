@@ -33,6 +33,7 @@
     font-family: var(--text-font-family);
     font-size: var(--text-font-size);
     line-height: var(--text-line-height);
+    letter-spacing: var(--text-letter-spacing);
     color: var(--text-color-primary);
 }
 
