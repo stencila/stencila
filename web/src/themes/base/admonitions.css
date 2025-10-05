@@ -51,7 +51,7 @@
 :root {
     /* Layout & Spacing */
     --admonition-spacing: var(--content-spacing);
-    --admonition-padding: var(--space-4);
+    --admonition-padding: var(--space-3);
     --admonition-gap: var(--space-3);
 
     /* Borders & Visual Structure */
@@ -252,6 +252,51 @@ stencila-admonition summary [slot="title"] {
     min-width: 0;
 }
 
+/* Chevron toggle via ::after pseudo-element (for foldable admonitions) */
+stencila-admonition[is-folded] summary::after {
+    content: "";
+    display: inline-block;
+    width: var(--admonition-chevron-size);
+    height: var(--admonition-chevron-size);
+    margin-left: auto;
+    flex-shrink: 0;
+
+    /* SVG chevron-down icon */
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: currentColor;
+
+    transform: rotate(-90deg);
+    transition: var(--admonition-chevron-transition);
+}
+
+/* Rotate chevron when details is open */
+stencila-admonition[is-folded] details[open] summary::after {
+    transform: rotate(0deg);
+}
+
+/* Non-foldable admonitions (no is-folded attribute) */
+stencila-admonition:not([is-folded]) summary {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Body content */
+stencila-admonition > details > [slot="content"] {
+    padding: var(--admonition-padding);
+}
+
+/* Remove spacing on first/last elements inside body to avoid double spacing */
+stencila-admonition [slot="content"]> :first-child {
+    margin-top: 0;
+}
+
+stencila-admonition [slot="content"]> :last-child {
+    margin-bottom: 0;
+}
+
 /* Type-specific border and background colors */
 
 stencila-admonition[admonition-type="Note"] details {
@@ -405,49 +450,4 @@ stencila-admonition[admonition-type="Error"] > details > [slot="content"] {
 
 stencila-admonition[admonition-type="Error"] details[open] summary {
     border-bottom: var(--admonition-border-width) solid color-mix(in srgb, var(--admonition-error-color) var(--admonition-border-opacity), transparent);
-}
-
-/* Chevron toggle via ::after pseudo-element (for foldable admonitions) */
-stencila-admonition[is-folded] summary::after {
-    content: "";
-    display: inline-block;
-    width: var(--admonition-chevron-size);
-    height: var(--admonition-chevron-size);
-    margin-left: auto;
-    flex-shrink: 0;
-
-    /* SVG chevron-down icon */
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    background-color: currentColor;
-
-    transform: rotate(-90deg);
-    transition: var(--admonition-chevron-transition);
-}
-
-/* Rotate chevron when details is open */
-stencila-admonition[is-folded] details[open] summary::after {
-    transform: rotate(0deg);
-}
-
-/* Non-foldable admonitions (no is-folded attribute) */
-stencila-admonition:not([is-folded]) summary {
-    cursor: default;
-    pointer-events: none;
-}
-
-/* Body content */
-stencila-admonition [slot="content"] {
-    padding: var(--admonition-padding);
-}
-
-/* Remove spacing on first/last elements inside body to avoid double spacing */
-stencila-admonition [slot="content"]> :first-child {
-    margin-top: 0;
-}
-
-stencila-admonition [slot="content"]> :last-child {
-    margin-bottom: 0;
 }
