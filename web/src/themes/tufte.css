@@ -3,18 +3,269 @@
  *
  * A theme inspired by Edward Tufte's books and handouts.
  *
- * Inspired by https://edwardtufte.github.io/tufte-css/
+ * Inspired by 
+ *
+ * https://edwardtufte.github.io/tufte-css/
+ * https://github.com/ninivert/matplotlib_tufte/blob/7247f2cca514fbab8a82ef2c5d54d776790e2fc5/src/matplotlib_tufte/tufte.mplstyle
+ * https://github.com/jrnold/ggthemes/blob/ca38c6250b17acc138b5cd5ccc45ab9e07234f3a/R/tufte.R
  */
 
 @import url('./base/index.css');
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&family=Source+Code+Pro:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=Source+Code+Pro:wght@400;500&display=swap');
 
 :root {
-    --font-family-serif: 'Crimson Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-mono: 'Source Code Pro', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    /* Fonts
+     *
+     * Crimson Pro is a Bembo-like typeface (Tufte's books use Bembo). For the
+     * most authentic implementation, consider self-hosting ET Book
+     * (https://edwardtufte.github.io/et-book/). Palatino also appears in
+     * Tufte's work. Gill Sans is Tufte's preferred sans-serif. Consolas is
+     * prioritized for monospace following Tufte-CSS conventions. */
+    --font-family-serif: 'Crimson Pro', 'Palatino Linotype', Palatino, ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-family-sans: 'Gill Sans', 'Gill Sans MT', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-mono: 'Source Code Pro', Consolas, ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', 'Courier New', monospace;
 
-    --color-accent: var(--color-amber-600);
-    --color-accent-dark: var(--color-amber-400);
-    --color-accent-muted: var(--color-amber-100);
-    --color-accent-muted-dark: var(--color-amber-950);
+    /* Typography
+     *
+     * Tufte style uses refined typography with careful attention to spacing
+     * and readability. Larger font size accommodates Crimson Pro's smaller
+     * x-height and supports comfortable long-form reading. Slightly tighter
+     * line-height (1.4) and subtle letter spacing create an elegant, scholarly
+     * appearance. Narrower content width (55ch) ensures optimal reading comfort. */
+    --text-font-size: var(--font-size-lg);
+    --text-line-height: 1.4;
+    --text-letter-spacing: 0.01em;
+    --content-width: 55ch;
+
+    /* Accent colors
+     *
+     * Tufte advocates using color sparingly, "reserving color for specific,
+     * careful use in figures and images". Greyscale accents align with the
+     * "maximum data, minimum ink" philosophy - functional rather than
+     * decorative. */
+    --color-accent: var(--color-gray-700);
+    --color-accent-dark: var(--color-gray-500);
+    --color-accent-muted: var(--color-gray-100);
+    --color-accent-muted-dark: var(--color-gray-900);
+
+    /* Headings
+     *
+     * Tufte uses subtle hierarchies - smaller size differences and consistent
+     * weight create a more refined, scholarly appearance. Remove modern
+     * negative letter-spacing for a classical typographic approach.
+     * Following classical book design, h4-h6 use italic instead of bold. */
+    --heading-font-size: calc(var(--text-font-size) * 1.5);
+    --heading-font-size-ratio: 0.9;
+    --heading-letter-spacing: 0;
+    --heading-font-weight-decrement: 0;
+    --heading-spacing-top: var(--content-spacing);
+    --heading-lower-font-style: italic;
+    --heading-h4-font-weight: 400;
+    --heading-h5-font-weight: 400;
+    --heading-h6-font-weight: 400;
+
+    /* Paragraphs
+     *
+     * While Tufte's printed works use first-line indentation without vertical
+     * spacing, web reading conventions favor vertical spacing for better
+     * scannability and comprehension on screens. Moderate spacing maintains
+     * the refined aesthetic while accommodating digital reading patterns. */
+    --paragraph-spacing: calc(var(--content-spacing) * 0.5);
+
+    /* Tables
+     *
+     * Following Tufte's table design: horizontal rules only (top and bottom),
+     * no vertical lines, no backgrounds, no hover effects. Clean typography
+     * with ample spacing allows the data to speak for itself. */
+
+    /* Outer borders - top and bottom only */
+    --table-border-top-width: 1px;
+    --table-border-bottom-width: 1px;
+    --table-border-left-width: 0;
+    --table-border-right-width: 0;
+
+    /* Header separator - single rule below header */
+    --table-header-border-bottom-width: 1px;
+
+    /* Body rows - no interior borders */
+    --table-body-row-border-width: 0;
+    --table-column-border-width: 0;
+
+    /* Minimal styling */
+    --table-header-background: transparent;
+    --table-header-background-print: transparent;
+    --table-row-hover: transparent;
+    --table-row-striped: transparent;
+    --table-row-striped-print: transparent;
+    --table-cell-padding: var(--space-3);
+
+    /* Lists
+     *
+     * Minimal list styling with simple markers and reduced spacing.
+     * En-dash markers provide a clean, understated aesthetic. */
+    --list-marker-content: '– ';
+    --list-marker-nested-content: '– ';
+    --list-marker-color: var(--text-color-muted);
+    --list-indent: calc(var(--content-spacing) * 0.5);
+    --list-item-spacing: calc(var(--content-spacing) * 0.15);
+
+    /* Block Quotes
+     *
+     * Simple left border with italic text, no background or decorative
+     * elements. Traditional scholarly quotation style. The italic styling
+     * provides visual distinction without decorative backgrounds. */
+    --quote-background: transparent;
+    --quote-background-dark: transparent;
+    --quote-border-width: 2px;
+    --quote-border-color: var(--color-gray-400);
+    --quote-border-color-dark: var(--color-gray-600);
+    --quote-border-radius: 0;
+    --quote-font-style: italic;
+    --quote-font-size: var(--text-font-size);
+    --quote-padding: calc(var(--content-spacing) * 0.5);
+
+    /* Figures & Captions
+     *
+     * Minimal figure styling with sans-serif captions for contrast.
+     * No borders or backgrounds - let the content stand alone. */
+    --figure-border-width: 0;
+    --figure-background: transparent;
+    --figure-caption-font-family: var(--font-family-sans);
+    --figure-caption-font-size: calc(var(--text-font-size) * 0.80);
+    --figure-caption-alignment: left;
+    --caption-font-family: var(--font-family-sans);
+    --caption-font-size: calc(var(--text-font-size) * 0.80);
+    --caption-alignment: left;
+
+    /* Links
+     *
+     * Grayscale links with traditional underline. Scholarly and understated. */
+    --link-color: var(--color-gray-700);
+    --link-color-dark: var(--color-gray-400);
+    --link-color-visited: var(--color-gray-600);
+    --link-color-visited-dark: var(--color-gray-500);
+    --link-color-hover: var(--color-gray-900);
+    --link-color-hover-dark: var(--color-gray-200);
+    --link-decoration: underline;
+    --link-decoration-hover: underline;
+
+    /* Code
+     *
+     * Subtle code styling with minimal backgrounds and borders.
+     * Maintains readability while reducing visual weight. Reduced padding
+     * creates a more compact, refined appearance. */
+    --code-background: var(--color-gray-50);
+    --code-background-dark: var(--color-gray-900);
+    --code-background-inline: var(--color-gray-50);
+    --code-background-inline-dark: var(--color-gray-900);
+    --code-border-width: 0;
+    --code-border-color: transparent;
+    --code-font-size-inline: calc(var(--text-font-size) * 0.85);
+    --code-font-size-block: calc(var(--text-font-size) * 0.85);
+    --code-padding-inline: var(--space-2);
+    --code-padding-block: var(--space-1);
+
+    /* Admonitions
+     *
+     * Grayscale admonitions with minimal styling. Left border only,
+     * no colored backgrounds - maintains document consistency. Slightly
+     * increased padding provides comfortable breathing room. */
+    --admonition-border-width: 0;
+    --admonition-accent-border-width: 2px;
+    --admonition-border-radius: 0;
+    --admonition-padding: var(--space-4);
+    --admonition-title-background-tint: 0%;
+    --admonition-content-background-tint: 0%;
+    --admonition-note-color: var(--color-gray-600);
+    --admonition-note-color-dark: var(--color-gray-400);
+    --admonition-info-color: var(--color-gray-600);
+    --admonition-info-color-dark: var(--color-gray-400);
+    --admonition-tip-color: var(--color-gray-600);
+    --admonition-tip-color-dark: var(--color-gray-400);
+    --admonition-important-color: var(--color-gray-700);
+    --admonition-important-color-dark: var(--color-gray-300);
+    --admonition-success-color: var(--color-gray-600);
+    --admonition-success-color-dark: var(--color-gray-400);
+    --admonition-failure-color: var(--color-gray-700);
+    --admonition-failure-color-dark: var(--color-gray-300);
+    --admonition-warning-color: var(--color-gray-700);
+    --admonition-warning-color-dark: var(--color-gray-300);
+    --admonition-danger-color: var(--color-gray-800);
+    --admonition-danger-color-dark: var(--color-gray-200);
+    --admonition-error-color: var(--color-gray-800);
+    --admonition-error-color-dark: var(--color-gray-200);
+
+    /* Thematic breaks */
+    --thematic-break-border-width: 0.5px;
+    --thematic-break-border-color: var(--color-gray-300);
+
+    /* Diagrams
+     *
+     * Grayscale diagram styling consistent with overall theme minimalism. */
+    --diagram-base-color: var(--color-gray-700);
+    --diagram-base-color-dark: var(--color-gray-400);
+    --diagram-node-border-width: 1px;
+    --diagram-edge-width: 1px;
+
+    /* Plots
+     *
+     * Following Tufte's "data-ink ratio" principle: maximize data,
+     * minimize decorative elements. Remove grids, borders, and backgrounds
+     * to focus attention on the data itself. Transparent background ensures
+     * plots integrate seamlessly with the document. */
+
+    /* Color Palette - Start with darker grayscale for better contrast,
+     * then muted categorical colors that don't overpower the data */
+    --plot-color-1: hsl(0 0% 10%);        /* Darker gray for primary series */
+    --plot-color-1-dark: hsl(0 0% 90%);
+    --plot-color-2: hsl(210 70% 50%);     /* Muted blue */
+    --plot-color-2-dark: hsl(210 60% 60%);
+    --plot-color-3: hsl(25 85% 55%);      /* Muted orange */
+    --plot-color-3-dark: hsl(25 75% 65%);
+    --plot-color-4: hsl(135 55% 40%);     /* Muted green */
+    --plot-color-4-dark: hsl(135 50% 50%);
+    --plot-color-5: hsl(0 65% 50%);       /* Muted red */
+    --plot-color-5-dark: hsl(0 60% 60%);
+
+    /* Structure - Remove all non-data elements */
+    --plot-panel-border-width: 0;
+
+    /* Grid - Completely removed per Tufte principles */
+    --plot-grid-width: 0;
+
+    /* Axes - Minimal presentation, could be set to 0 for range-frames */
+    --plot-axis-line-width: 0.5px;
+    --plot-tick-width: 0.5px;
+    --plot-tick-size: var(--space-1);
+
+    /* Legend - No borders or backgrounds */
+    --plot-legend-border-width: 0;
+
+    /* Lines - Thinner, more refined */
+    --plot-line-width: 1.5px;
+    --plot-stroke-width: 1.5px;
+
+    /* Typography - Serif for plot text with increased sizes for clarity */
+    --plot-font-family: var(--font-family-serif);
+}
+
+/* Root Element Refinements */
+
+/* Oldstyle Numerals
+ *
+ * Oldstyle (or "text") numerals have varying heights and descenders,
+ * blending more naturally with text than "lining" numerals. This creates
+ * a more refined, classical typographic appearance typical of quality
+ * book design and Tufte's aesthetic. */
+[root] {
+    font-variant-numeric: oldstyle-nums;
+}
+
+/* Strong and Emphasis Elements
+ *
+ * Tufte prefers subtlety over bold emphasis. Reduce strong weight to
+ * semibold (600) instead of bold (700) for a more refined appearance.
+ * This approach favors italic emphasis over heavy bold weights. */
+[root] strong {
+    font-weight: 600;
 }
