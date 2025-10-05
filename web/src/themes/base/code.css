@@ -317,6 +317,11 @@ stencila-code-inline {
         background: var(--code-background-inline);
         padding: var(--code-padding-inline);
         border-radius: var(--code-border-radius);
+
+        /* Prevents background/border overlap when wrapping across lines.
+         * Creates separate boxes for each line fragment. */
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
     }
 }
 
