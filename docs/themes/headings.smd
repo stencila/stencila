@@ -16,13 +16,39 @@ Design tokens for headings use a modular scale system with base values and ratio
 | `--heading-font-weight`             | Font weight for `<h1>`                                 | `var(--font-weight-bold)`            |
 | `--heading-font-weight-decrement`   | Amount to reduce font weight per level                 | `50`                                 |
 | `--heading-line-height`             | Line height for all headings                           | `var(--line-height-xs)`              |
-| `--heading-letter-spacing`          | Letter spacing for all headings                        | `-0.025em`                           |
+| `--heading-letter-spacing`          | Base letter spacing (can be overridden per level)      | `-0.025em`                           |
 | `--heading-spacing-top`             | Top spacing for `<h1>` - scales with content rhythm    | `calc(var(--content-spacing) * 1.5)` |
 | `--heading-spacing-bottom`          | Bottom spacing for `<h1>` - scales with content rhythm | `calc(var(--content-spacing) * 0.5)` |
 | `--heading-spacing-ratio`           | Ratio for scaling spacing between levels               | `0.8`                                |
 | `--heading-color`                   | Text color for all headings                            | `var(--text-color-primary)`          |
 | `--heading-color-dark`              | Text color for headings in dark mode                   | `var(--text-color-primary)`          |
 | `--heading-color-opacity-decrement` | Amount to reduce opacity per level (0 = no change)     | `0`                                  |
+| `--heading-upper-font-style`        | Font style for h1-h3 (zone-based helper)               | `normal`                             |
+| `--heading-lower-font-style`        | Font style for h4-h6 (zone-based helper)               | `normal`                             |
+| `--heading-h1-font-style`           | Font style override for h1                             | `var(--heading-upper-font-style)`    |
+| `--heading-h2-font-style`           | Font style override for h2                             | `var(--heading-upper-font-style)`    |
+| `--heading-h3-font-style`           | Font style override for h3                             | `var(--heading-upper-font-style)`    |
+| `--heading-h4-font-style`           | Font style override for h4                             | `var(--heading-lower-font-style)`    |
+| `--heading-h5-font-style`           | Font style override for h5                             | `var(--heading-lower-font-style)`    |
+| `--heading-h6-font-style`           | Font style override for h6                             | `var(--heading-lower-font-style)`    |
+| `--heading-h1-font-variant`         | Font variant for h1 (normal, small-caps, etc.)         | `normal`                             |
+| `--heading-h2-font-variant`         | Font variant for h2 (normal, small-caps, etc.)         | `normal`                             |
+| `--heading-h3-font-variant`         | Font variant for h3 (normal, small-caps, etc.)         | `normal`                             |
+| `--heading-h4-font-variant`         | Font variant for h4 (normal, small-caps, etc.)         | `normal`                             |
+| `--heading-h5-font-variant`         | Font variant for h5 (normal, small-caps, etc.)         | `normal`                             |
+| `--heading-h6-font-variant`         | Font variant for h6 (normal, small-caps, etc.)         | `normal`                             |
+| `--heading-h1-letter-spacing`       | Letter spacing override for h1                         | `var(--heading-letter-spacing)`      |
+| `--heading-h2-letter-spacing`       | Letter spacing override for h2                         | `var(--heading-letter-spacing)`      |
+| `--heading-h3-letter-spacing`       | Letter spacing override for h3                         | `var(--heading-letter-spacing)`      |
+| `--heading-h4-letter-spacing`       | Letter spacing override for h4                         | `var(--heading-letter-spacing)`      |
+| `--heading-h5-letter-spacing`       | Letter spacing override for h5                         | `var(--heading-letter-spacing)`      |
+| `--heading-h6-letter-spacing`       | Letter spacing override for h6                         | `var(--heading-letter-spacing)`      |
+| `--heading-h1-font-weight`          | Font weight override for h1                            | `var(--heading-font-weight)`         |
+| `--heading-h2-font-weight`          | Font weight override for h2                            | Calculated from decrement            |
+| `--heading-h3-font-weight`          | Font weight override for h3                            | Calculated from decrement            |
+| `--heading-h4-font-weight`          | Font weight override for h4                            | Calculated from decrement            |
+| `--heading-h5-font-weight`          | Font weight override for h5                            | Calculated from decrement            |
+| `--heading-h6-font-weight`          | Font weight override for h6                            | Calculated from decrement            |
 
 # Usage
 
@@ -47,6 +73,16 @@ The heading system uses three key token types to automatically calculate all hea
 - h3 = `600` (650 - 50)
 
 **Semantic Integration**: Spacing tokens automatically scale with document spacing through `--content-spacing`. When content spacing changes for different screen sizes, heading spacing adjusts proportionally without explicit responsive tokens.
+
+**Per-level overrides** provide fine-grained control for classical typography patterns:
+
+- **Zone-based**: Use `--heading-upper-font-style` (h1-h3) and `--heading-lower-font-style` (h4-h6) for simple customization
+- **Per-level**: Override individual levels with `--heading-h1-font-style` through `--heading-h6-font-style` for advanced control
+- **Font variant**: Apply small-caps or other variants to specific levels (e.g., `--heading-h2-font-variant: small-caps`)
+- **Letter-spacing**: Adjust tracking per level (larger headings often need tighter spacing)
+- **Font-weight**: Override calculated weights (useful when combining italic style with lighter weight)
+
+The per-level tokens default to zone helpers, which default to sensible base values, maintaining full backward compatibility while enabling classical book typography patterns.
 
 For quick customization, focus on these tokens:
 
@@ -240,6 +276,46 @@ High contrast for landing pages and marketing materials:
 
 :::
 
+## Classical Book Typography
+
+Traditional book design with italic lower-level headings and small-caps:
+
+```css
+:root {
+  /* h1-h2: Bold roman */
+  --heading-h1-font-style: normal;
+  --heading-h2-font-style: normal;
+  --heading-h2-font-variant: small-caps;
+  --heading-h2-letter-spacing: 0.05em; /* Small-caps need extra tracking */
+
+  /* h3: Bold roman */
+  --heading-h3-font-style: normal;
+
+  /* h4-h6: Italic with normal weight */
+  --heading-lower-font-style: italic;
+  --heading-h4-font-weight: 400;
+  --heading-h5-font-weight: 400;
+  --heading-h6-font-weight: 400;
+
+  /* Typography settings */
+  --heading-font-family: 'Crimson Pro', Georgia, serif;
+  --heading-font-size: 2rem;
+  --heading-font-size-ratio: 0.85;
+  --heading-color: var(--color-gray-900);
+}
+```
+
+::: style --heading-h1-font-style: normal; --heading-h2-font-style: normal; --heading-h2-font-variant: small-caps; --heading-h2-letter-spacing: 0.05em; --heading-h3-font-style: normal; --heading-lower-font-style: italic; --heading-h4-font-weight: 400; --heading-h5-font-weight: 400; --heading-h6-font-weight: 400; --heading-font-family: 'Crimson Pro', Georgia, serif; --heading-font-size: 2rem; --heading-font-size-ratio: 0.85; --heading-color: var(--color-gray-900);
+
+# Heading One
+## Heading Two
+### Heading Three
+#### Heading Four
+##### Heading Five
+###### Heading Six
+
+:::
+
 # Tips
 
 **Choose appropriate ratios**: Larger ratios (0.87-0.9) create subtle hierarchy for dense content, while smaller ratios (0.6-0.75) create dramatic contrast for marketing or presentation materials.
@@ -261,3 +337,11 @@ High contrast for landing pages and marketing materials:
 ```css
 --heading-font-size: clamp(2rem, 4vw, 3rem);
 ```
+
+**Zone-based customization**: For simple patterns affecting groups of headings, use zone helpers (`--heading-upper-font-style` for h1-h3, `--heading-lower-font-style` for h4-h6). This is cleaner than setting six individual tokens when you want the same style applied to a group.
+
+**Per-level precision**: Override individual heading levels when you need specific treatments (e.g., `--heading-h2-font-variant: small-caps` for h2 only). Per-level tokens always take precedence over zone helpers.
+
+**Italic headings and weight**: When using italic for lower headings (`--heading-lower-font-style: italic`), typically reduce font-weight to normal (400) for those levels. Bold italic is rarely appropriate for body text-sized headings. Override calculated weights with `--heading-h4-font-weight`, `--heading-h5-font-weight`, and `--heading-h6-font-weight`.
+
+**Small-caps tracking**: When using `font-variant: small-caps`, increase `letter-spacing` slightly (0.03em-0.05em) for better readability. Small-caps characters appear crowded with default tracking.

@@ -55,6 +55,42 @@
     --heading-color: var(--text-color-primary);
     --heading-color-dark: var(--text-color-primary);
     --heading-color-opacity-decrement: 0;
+
+    /* Zone-based style helpers - convenient for applying styles to upper (h1-h3) or lower (h4-h6) heading groups */
+    --heading-upper-font-style: normal;
+    --heading-lower-font-style: normal;
+
+    /* Per-level font style overrides - enables classical typography patterns like italic h4-h6 */
+    --heading-h1-font-style: var(--heading-upper-font-style);
+    --heading-h2-font-style: var(--heading-upper-font-style);
+    --heading-h3-font-style: var(--heading-upper-font-style);
+    --heading-h4-font-style: var(--heading-lower-font-style);
+    --heading-h5-font-style: var(--heading-lower-font-style);
+    --heading-h6-font-style: var(--heading-lower-font-style);
+
+    /* Per-level font variant - for small-caps and other variants */
+    --heading-h1-font-variant: normal;
+    --heading-h2-font-variant: normal;
+    --heading-h3-font-variant: normal;
+    --heading-h4-font-variant: normal;
+    --heading-h5-font-variant: normal;
+    --heading-h6-font-variant: normal;
+
+    /* Per-level letter-spacing overrides - larger headings often need tighter tracking */
+    --heading-h1-letter-spacing: var(--heading-letter-spacing);
+    --heading-h2-letter-spacing: var(--heading-letter-spacing);
+    --heading-h3-letter-spacing: var(--heading-letter-spacing);
+    --heading-h4-letter-spacing: var(--heading-letter-spacing);
+    --heading-h5-letter-spacing: var(--heading-letter-spacing);
+    --heading-h6-letter-spacing: var(--heading-letter-spacing);
+
+    /* Per-level font-weight overrides - useful when using italic (which typically uses normal weight) */
+    --heading-h1-font-weight: var(--heading-font-weight);
+    --heading-h2-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement));
+    --heading-h3-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 2);
+    --heading-h4-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
+    --heading-h5-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
+    --heading-h6-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
 }
 
 /* Spacing applied at outer element level based on heading level */
@@ -139,47 +175,64 @@ stencila-heading {
 
         font-family: var(--heading-font-family);
         line-height: var(--heading-line-height);
-        letter-spacing: var(--heading-letter-spacing);
         color: var(--heading-color);
         margin-bottom: var(--heading-spacing-bottom);
     }
 
     h1 {
         font-size: var(--heading-font-size);
-        font-weight: var(--heading-font-weight);
+        font-weight: var(--heading-h1-font-weight);
+        font-style: var(--heading-h1-font-style);
+        font-variant: var(--heading-h1-font-variant);
+        letter-spacing: var(--heading-h1-letter-spacing);
     }
 
     h2 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio));
-        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement));
+        font-weight: var(--heading-h2-font-weight);
+        font-style: var(--heading-h2-font-style);
+        font-variant: var(--heading-h2-font-variant);
+        letter-spacing: var(--heading-h2-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 1);
     }
 
     h3 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
-        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 2);
+        font-weight: var(--heading-h3-font-weight);
+        font-style: var(--heading-h3-font-style);
+        font-variant: var(--heading-h3-font-variant);
+        letter-spacing: var(--heading-h3-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 2);
     }
 
     h4 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
-        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
+        font-weight: var(--heading-h4-font-weight);
+        font-style: var(--heading-h4-font-style);
+        font-variant: var(--heading-h4-font-variant);
+        letter-spacing: var(--heading-h4-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 3);
     }
 
     h5 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
-        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
+        font-weight: var(--heading-h5-font-weight);
+        font-style: var(--heading-h5-font-style);
+        font-variant: var(--heading-h5-font-variant);
+        letter-spacing: var(--heading-h5-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 4);
     }
 
     h6 {
         font-size: calc(var(--heading-font-size) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio) * var(--heading-font-size-ratio));
-        font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
+        font-weight: var(--heading-h6-font-weight);
+        font-style: var(--heading-h6-font-style);
+        font-variant: var(--heading-h6-font-variant);
+        letter-spacing: var(--heading-h6-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 5);
     }
