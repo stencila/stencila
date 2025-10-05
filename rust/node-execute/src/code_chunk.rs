@@ -87,7 +87,7 @@ impl Executable for CodeChunk {
             && !matches!(execution_required, ExecutionRequired::No)
             && matches!(
                 lang.trim().to_lowercase().as_str(),
-                "dot" | "graphviz" | "mermaid"
+                "dot" | "graphviz" | "mermaid" | "cytoscape" | "echarts" | "plotly" | "vegalite"
             )
         {
             // Need to set execution status to pending so avoid early return from

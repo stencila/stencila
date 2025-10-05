@@ -1,23 +1,17 @@
-```js exec
-var plot = {
-  xAxis: {
-    type: "category",
-    data: ["Hello", "World"],
+```echarts exec
+{
+  "xAxis": {
+    "type": "category",
+    "data": ["Hello", "World"]
   },
-  yAxis: {
-    type: "value",
+  "yAxis": {
+    "type": "value"
   },
-  series: [
+  "series": [
     {
-      data: [3, 5],
-      type: "bar",
-    },
-  ],
-};
-
-console.log({
-  type: "ImageObject",
-  mediaType: "application/vnd.apache.echarts+json",
-  contentUrl: JSON.stringify(plot),
-});
+      "data": [3, 5],
+      "type": "bar"
+    }
+  ]
+}
 ```

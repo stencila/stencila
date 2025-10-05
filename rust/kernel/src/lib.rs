@@ -105,6 +105,7 @@ pub enum KernelType {
     Database,
     Templating,
     Diagrams,
+    Visualization,
     Math,
     Styling,
 }
@@ -280,6 +281,34 @@ pub trait KernelInstance: Sync + Send {
     /// Evaluate a code expression, without side effects, in the kernel instance
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
         let (nodes, messages) = self.execute(code).await?;
+        Ok((
+            nodes
+                .first()
+                .map_or_else(|| Node::Null(Null), |node| node.clone()),
+            messages,
+        ))
+    }
+
+    /// Execute code, in a specific language, in the kernel instance
+    ///
+    /// Kernels that support multiple languages should override this default
+    /// implementation which ignores the language (suitable for most kernels
+    /// which only handle a single language)
+    async fn execute_language(
+        &mut self,
+        code: &str,
+        language: Option<&str>,
+    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
+        self.execute(code).await
+    }
+
+    /// Execute code, in a specific language, in the kernel instance
+    async fn evaluate_language(
+        &mut self,
+        code: &str,
+        language: Option<&str>,
+    ) -> Result<(Node, Vec<ExecutionMessage>)> {
+        let (nodes, messages) = self.execute_language(code, language).await?;
         Ok((
             nodes
                 .first()

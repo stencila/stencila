@@ -1,0 +1,14 @@
+```plotly exec
+{
+  "data": [
+    {
+      "x": ["Hello", "World"],
+      "y": [3, 5],
+      "type": "bar"
+    }
+  ],
+  "layout": {
+    "title": "A simple bar chart"
+  }
+}
+```

@@ -20,6 +20,7 @@ use stencila_kernel_docsdb::{
 use stencila_kernel_docsql::{DocsQLKernel, DocsQLKernelInstance};
 use stencila_kernel_graphviz::GraphvizKernel;
 use stencila_kernel_jinja::JinjaKernel;
+use stencila_kernel_jviz::JvizKernel;
 use stencila_kernel_kuzu::KuzuKernel;
 use stencila_kernel_mermaid::MermaidKernel;
 use stencila_kernel_nodejs::NodeJsKernel;
@@ -57,6 +58,8 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         // Diagrams
         Box::<MermaidKernel>::default(),
         Box::<GraphvizKernel>::default(),
+        // Visualization
+        Box::<JvizKernel>::default(),
         // Templating
         Box::<JinjaKernel>::default(),
         // Math
@@ -445,7 +448,7 @@ impl Kernels {
         };
 
         let mut instance = instance.lock().await;
-        let (nodes, messages) = instance.execute(code).await?;
+        let (nodes, messages) = instance.execute_language(code, language).await?;
         let id = instance.id().to_string();
 
         Ok((nodes, messages, id))
@@ -466,7 +469,7 @@ impl Kernels {
         };
 
         let mut instance = instance.lock().await;
-        let (node, messages) = instance.evaluate(code).await?;
+        let (node, messages) = instance.evaluate_language(code, language).await?;
         let id = instance.id().to_string();
 
         Ok((node, messages, id))

@@ -132,6 +132,7 @@ impl List {
                     KernelType::Database => Cell::new("database").fg(Color::DarkCyan),
                     KernelType::Styling => Cell::new("styling").fg(Color::Magenta),
                     KernelType::Templating => Cell::new("templating").fg(Color::Cyan),
+                    KernelType::Visualization => Cell::new("visualization").fg(Color::DarkYellow),
                 },
                 match provider {
                     KernelProvider::Builtin => Cell::new("builtin").fg(Color::Green),

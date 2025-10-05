@@ -10236,6 +10236,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-kernel-jviz"
+version = "0.0.0"
+dependencies = [
+ "pretty_assertions",
+ "stencila-kernel",
+ "stencila-kernel-jinja",
+ "stencila-version",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "stencila-kernel-kuzu"
 version = "0.0.0"
 dependencies = [
@@ -10387,6 +10399,7 @@ dependencies = [
  "stencila-kernel-docsql",
  "stencila-kernel-graphviz",
  "stencila-kernel-jinja",
+ "stencila-kernel-jviz",
  "stencila-kernel-kuzu",
  "stencila-kernel-mermaid",
  "stencila-kernel-nodejs",

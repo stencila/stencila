@@ -264,6 +264,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                 KernelType::Database => CompletionItemKind::VARIABLE,
                 KernelType::Math => CompletionItemKind::OPERATOR,
                 KernelType::Diagrams => CompletionItemKind::INTERFACE,
+                KernelType::Visualization => CompletionItemKind::COLOR,
                 KernelType::Templating => CompletionItemKind::KEYWORD,
                 KernelType::Styling => {
                     return None;
@@ -280,6 +281,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                 KernelType::Programming
                     | KernelType::Database
                     | KernelType::Diagrams
+                    | KernelType::Visualization
                     | KernelType::Templating
             ) {
                 label.push_str(" exec");
@@ -315,6 +317,9 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                 .concat(),
                 KernelType::Diagrams => {
                     ["Create a diagram with ", lang.as_deref().unwrap_or("code")].concat()
+                }
+                KernelType::Visualization => {
+                    ["Create a plot with ", lang.as_deref().unwrap_or("JSON")].concat()
                 }
                 KernelType::Templating => [
                     "Generate text using ",

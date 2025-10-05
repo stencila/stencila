@@ -1,0 +1,17 @@
+[package]
+name = "stencila-kernel-jviz"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+stencila-kernel = { path = "../kernel" }
+stencila-kernel-jinja = { path = "../kernel-jinja" }
+stencila-version = { path = "../version" }
+tracing = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true }
+
+[lints]
+workspace = true

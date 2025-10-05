@@ -1,0 +1,17 @@
+```vegalite exec
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "A simple bar chart",
+  "data": {
+    "values": [
+      {"category": "Hello", "value": 3},
+      {"category": "World", "value": 5}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "category", "type": "nominal"},
+    "y": {"field": "value", "type": "quantitative"}
+  }
+}
+```
