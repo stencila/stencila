@@ -19,8 +19,10 @@
      * Crimson Pro is a Bembo-like typeface (Tufte's books use Bembo). For the
      * most authentic implementation, consider self-hosting ET Book
      * (https://edwardtufte.github.io/et-book/). Palatino also appears in
-     * Tufte's work. Gill Sans is Tufte's preferred sans-serif. Consolas is
-     * prioritized for monospace following Tufte-CSS conventions. */
+     * Tufte's work. Gill Sans is Tufte's preferred sans-serif. For monospace,
+     * Source Code Pro provides an elegant, cross-platform option via Google
+     * Fonts. While Tufte-CSS prioritizes Consolas (Windows-only), Source Code
+     * Pro offers similar refinement with broader compatibility. */
     --font-family-serif: 'Crimson Pro', 'Palatino Linotype', Palatino, ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-family-sans: 'Gill Sans', 'Gill Sans MT', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-family-mono: 'Source Code Pro', Consolas, ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', 'Courier New', monospace;
@@ -37,6 +39,16 @@
     --text-letter-spacing: 0.01em;
     --content-width: 55ch;
 
+    /* Surface backgrounds
+     *
+     * Following the reference Tufte CSS implementation, use #fffff8 - a subtle
+     * warm off-white that evokes quality paper while reducing harsh contrast.
+     * This creates a book-like appearance appropriate for scholarly documents.
+     * As noted in the original: "nearly indistinguishable from pure white, but
+     * dials down the harsh contrast." */
+    --surface-background: #fffff8;
+    --surface-background-dark: #111111;
+
     /* Accent colors
      *
      * Tufte advocates using color sparingly, "reserving color for specific,
@@ -48,6 +60,16 @@
     --color-accent-muted: var(--color-gray-100);
     --color-accent-muted-dark: var(--color-gray-900);
 
+    /* Content Spacing
+     *
+     * While Tufte's printed works use first-line indentation without vertical
+     * spacing, web reading conventions favor vertical spacing for better
+     * scannability and comprehension on screens. Moderate spacing maintains
+     * the refined aesthetic while accommodating digital reading patterns.
+     * This spacing applies to all content elements (paragraphs, lists, tables,
+     * code blocks, etc.) for consistent vertical rhythm. */
+    --content-spacing: var(--space-4);
+
     /* Headings
      *
      * Tufte uses subtle hierarchies - smaller size differences and consistent
@@ -58,19 +80,10 @@
     --heading-font-size-ratio: 0.9;
     --heading-letter-spacing: 0;
     --heading-font-weight-decrement: 0;
-    --heading-spacing-top: var(--content-spacing);
     --heading-lower-font-style: italic;
     --heading-h4-font-weight: 400;
     --heading-h5-font-weight: 400;
     --heading-h6-font-weight: 400;
-
-    /* Paragraphs
-     *
-     * While Tufte's printed works use first-line indentation without vertical
-     * spacing, web reading conventions favor vertical spacing for better
-     * scannability and comprehension on screens. Moderate spacing maintains
-     * the refined aesthetic while accommodating digital reading patterns. */
-    --paragraph-spacing: calc(var(--content-spacing) * 0.5);
 
     /* Tables
      *
@@ -106,8 +119,7 @@
     --list-marker-content: '– ';
     --list-marker-nested-content: '– ';
     --list-marker-color: var(--text-color-muted);
-    --list-indent: calc(var(--content-spacing) * 0.5);
-    --list-item-spacing: calc(var(--content-spacing) * 0.15);
+    --list-item-spacing: calc(var(--content-spacing) * 0.3);
 
     /* Block Quotes
      *
@@ -122,7 +134,6 @@
     --quote-border-radius: 0;
     --quote-font-style: italic;
     --quote-font-size: var(--text-font-size);
-    --quote-padding: calc(var(--content-spacing) * 0.5);
 
     /* Figures & Captions
      *
@@ -137,6 +148,16 @@
     --caption-font-size: calc(var(--text-font-size) * 0.80);
     --caption-alignment: left;
 
+    /* Code
+     *
+     * Minimal code styling with no borders. Font size reduced slightly for
+     * a more refined appearance. Background tinting is handled by the base
+     * theme which automatically darkens the parchment surface color. */
+    --code-border-width: 0;
+    --code-border-color: transparent;
+    --code-font-size-inline: calc(var(--text-font-size) * 0.85);
+    --code-font-size-block: calc(var(--text-font-size) * 0.85);
+
     /* Links
      *
      * Grayscale links with traditional underline. Scholarly and understated. */
@@ -148,22 +169,6 @@
     --link-color-hover-dark: var(--color-gray-200);
     --link-decoration: underline;
     --link-decoration-hover: underline;
-
-    /* Code
-     *
-     * Subtle code styling with minimal backgrounds and borders.
-     * Maintains readability while reducing visual weight. Reduced padding
-     * creates a more compact, refined appearance. */
-    --code-background: var(--color-gray-50);
-    --code-background-dark: var(--color-gray-900);
-    --code-background-inline: var(--color-gray-50);
-    --code-background-inline-dark: var(--color-gray-900);
-    --code-border-width: 0;
-    --code-border-color: transparent;
-    --code-font-size-inline: calc(var(--text-font-size) * 0.85);
-    --code-font-size-block: calc(var(--text-font-size) * 0.85);
-    --code-padding-inline: var(--space-2);
-    --code-padding-block: var(--space-1);
 
     /* Admonitions
      *
@@ -201,11 +206,37 @@
 
     /* Diagrams
      *
-     * Grayscale diagram styling consistent with overall theme minimalism. */
+     * Grayscale diagram styling consistent with overall theme minimalism.
+     * Uses parchment background, serif typography, and subtle visual weight
+     * to integrate seamlessly with the scholarly document aesthetic.
+     *
+     * Node backgrounds use very light fills (5%/10%/15% instead of the default
+     * 15%/25%/35%) to reduce visual weight while maintaining readability.
+     * A "full-Tufte" approach would use transparent backgrounds with borders
+     * only, but this can reduce readability in complex diagrams with many
+     * overlapping elements. The light fills strike a balance between Tufte's
+     * "minimal ink" principle and practical diagram clarity. */
     --diagram-base-color: var(--color-gray-700);
     --diagram-base-color-dark: var(--color-gray-400);
-    --diagram-node-border-width: 1px;
-    --diagram-edge-width: 1px;
+
+    /* Use parchment background for seamless document integration */
+    --diagram-background: var(--surface-background);
+    --diagram-background-dark: var(--surface-background-dark);
+
+    /* Serif typography consistent with body text */
+    --diagram-font-family: var(--font-family-serif);
+
+    /* Refined visual weight - thinner borders and edges */
+    --diagram-node-border-width: 0.5px;
+    --diagram-edge-width: 0.5px;
+
+    /* Very subtle node fills - much lighter than defaults for refined appearance */
+    --diagram-node-background: color-mix(in srgb, var(--diagram-base-color) 5%, var(--diagram-background));
+    --diagram-node-background-dark: color-mix(in srgb, var(--diagram-base-color-dark) 5%, var(--diagram-background-dark));
+    --diagram-node-background-secondary: color-mix(in srgb, var(--diagram-base-color) 10%, var(--diagram-background));
+    --diagram-node-background-secondary-dark: color-mix(in srgb, var(--diagram-base-color-dark) 10%, var(--diagram-background-dark));
+    --diagram-node-background-tertiary: color-mix(in srgb, var(--diagram-base-color) 15%, var(--diagram-background));
+    --diagram-node-background-tertiary-dark: color-mix(in srgb, var(--diagram-base-color-dark) 15%, var(--diagram-background-dark));
 
     /* Plots
      *
