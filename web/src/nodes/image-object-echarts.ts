@@ -9,6 +9,7 @@ import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 function toEchartsOptionsBase(t: PlotTokens): any {
   const axisBase = {
     axisLabel: { color: t.textColor, fontSize: t.fontSize, fontFamily: t.fontFamily },
+    nameTextStyle: { color: t.axis.titleColor, fontSize: t.axisTitleSize, fontFamily: t.fontFamily },
     axisLine: {
       show: true,
       lineStyle: { color: t.axis.lineColor, width: t.axis.lineWidth },
@@ -24,6 +25,10 @@ function toEchartsOptionsBase(t: PlotTokens): any {
     color: t.palette,
     backgroundColor: t.background,
     textStyle: { color: t.textColor, fontFamily: t.fontFamily, fontSize: t.fontSize },
+    title: {
+      textStyle: { color: t.textColor, fontSize: t.titleSize, fontFamily: t.fontFamily },
+      subtextStyle: { color: t.textColor, fontSize: t.subtitleSize, fontFamily: t.fontFamily },
+    },
     grid: {
       // Must be true for background to render
       show: true,

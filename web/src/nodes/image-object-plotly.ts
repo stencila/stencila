@@ -32,6 +32,9 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
       paper_bgcolor: t.background,
       plot_bgcolor: t.panel,
       font: { family: t.fontFamily, size: t.fontSize, color: t.textColor },
+      title: {
+        font: { family: t.fontFamily, size: t.titleSize, color: t.textColor },
+      },
       margin: {
         // Using padding tokens makes margins too narrow
         //t: t.padding.top,
