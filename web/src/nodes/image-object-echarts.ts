@@ -17,14 +17,6 @@ function toEchartsOptionsBase(t: PlotTokens): any {
       length: t.axis.tickSize,
       lineStyle: { color: t.axis.tickColor, width: t.axis.tickWidth },
     },
-    splitLine: {
-      show: t.axis.gridWidth > 0,
-      lineStyle: {
-        color: t.axis.gridColor,
-        width: t.axis.gridWidth,
-        type: t.axis.gridDash > 0 ? 'dashed' : 'solid',
-      },
-    },
   }
 
   return {
@@ -44,18 +36,35 @@ function toEchartsOptionsBase(t: PlotTokens): any {
       bottom: t.padding.bottom,
       containLabel: true,
     },
-    xAxis: axisBase,
-    yAxis: axisBase,
+    xAxis: {
+      ...axisBase,
+      splitLine: {
+        show: t.axis.gridXWidth > 0,
+        lineStyle: {
+          color: t.axis.gridColor,
+          width: t.axis.gridXWidth,
+          type: t.axis.gridDash > 0 ? 'dashed' : 'solid',
+        },
+      },
+    },
+    yAxis: {
+      ...axisBase,
+      splitLine: {
+        show: t.axis.gridYWidth > 0,
+        lineStyle: {
+          color: t.axis.gridColor,
+          width: t.axis.gridYWidth,
+          type: t.axis.gridDash > 0 ? 'dashed' : 'solid',
+        },
+      },
+    },
     legend: {
       backgroundColor: t.legend.background,
       textStyle: { color: t.legend.textColor, fontSize: t.legendSize },
       itemWidth: t.legend.markerSize,
       itemHeight: t.legend.markerSize,
       borderColor: t.legend.borderColor,
-      // Do not set border properties because otherwise get a small box at
-      // bottom of chart even when legend is empty. Instead, if users want
-      // a border they need to specify it in their spec
-      // borderWidth: t.legend.borderWidth,
+      borderWidth: t.legend.borderWidth,
     },
     tooltip: {
       trigger: 'item',

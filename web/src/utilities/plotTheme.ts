@@ -82,6 +82,8 @@ export interface PlotTokens {
     titleColor: string
     gridColor: string
     gridWidth: number
+    gridXWidth: number
+    gridYWidth: number
     gridDash: number
   }
 
@@ -263,7 +265,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
       x: parseNum(getVar('--plot-gap-x'), 16, rootElement),
       y: parseNum(getVar('--plot-gap-y'), 16, rootElement),
     },
-    radius: parseNum(getVar('--plot-radius'), 4, rootElement),
     strokeWidth: parseNum(getVar('--plot-stroke-width'), 2, rootElement),
 
     // Axes
@@ -276,6 +277,8 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
       titleColor: colorToHex(getVar('--plot-axis-title-color')) || '#000000',
       gridColor: colorToHex(getVar('--plot-grid-color')) || '#e5e5e5',
       gridWidth: parseNum(getVar('--plot-grid-width'), 1, rootElement),
+      gridXWidth: parseNum(getVar('--plot-grid-x-width'), 1, rootElement),
+      gridYWidth: parseNum(getVar('--plot-grid-y-width'), 1, rootElement),
       gridDash: parseDash(getVar('--plot-grid-dash', '0')),
     },
 

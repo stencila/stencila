@@ -10,23 +10,31 @@ function toVegaLiteConfig(t: PlotTokens): any {
   // Parse grid dash from string like "4 2" to array [4, 2]
   const gridDash = t.axis.gridDash > 0 ? [t.axis.gridDash, t.axis.gridDash / 2] : []
 
+  const axisBase = {
+    labelColor: t.textColor,
+    labelFontSize: t.fontSize,
+    titleColor: t.axis.titleColor,
+    titleFontSize: t.axisTitleSize,
+    domainColor: t.axis.lineColor,
+    domainWidth: t.axis.lineWidth,
+    tickColor: t.axis.tickColor,
+    tickSize: t.axis.tickSize,
+    tickWidth: t.axis.tickWidth,
+    gridColor: t.axis.gridColor,
+    gridDash: gridDash,
+    labelLimit: 100,
+  }
+
   return {
     background: t.background,
     font: t.fontFamily,
-    axis: {
-      labelColor: t.textColor,
-      labelFontSize: t.fontSize,
-      titleColor: t.axis.titleColor,
-      titleFontSize: t.axisTitleSize,
-      domainColor: t.axis.lineColor,
-      domainWidth: t.axis.lineWidth,
-      tickColor: t.axis.tickColor,
-      tickSize: t.axis.tickSize,
-      tickWidth: t.axis.tickWidth,
-      gridColor: t.axis.gridColor,
-      gridDash: gridDash,
-      gridWidth: t.axis.gridWidth,
-      labelLimit: 100,
+    axisX: {
+      ...axisBase,
+      gridWidth: t.axis.gridXWidth,
+    },
+    axisY: {
+      ...axisBase,
+      gridWidth: t.axis.gridYWidth,
     },
     legend: {
       labelColor: t.legend.textColor,
@@ -35,6 +43,8 @@ function toVegaLiteConfig(t: PlotTokens): any {
       titleFontSize: t.legendSize + 1,
       gradientStrokeColor: t.axis.gridColor,
       padding: t.legend.gap,
+      // Note: Vega-Lite doesn't support legend box borders (borderColor/borderWidth).
+      // The gradientStrokeColor property above only affects gradient legend outlines.
     },
     title: { color: t.textColor, fontSize: t.titleSize },
     view: {

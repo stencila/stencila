@@ -20,10 +20,6 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
     showline: true,
     // Mirror axes to simulate panel borders if specified (will be same width and color as axes)
     mirror: t.panelBorderWidth > 0 ? true : false,
-    showgrid: t.axis.gridWidth > 0,
-    gridcolor: t.axis.gridColor,
-    griddash: t.axis.gridDash > 0 ? 'dash' : 'solid',
-    gridwidth: t.axis.gridWidth,
     tickcolor: t.axis.tickColor,
     ticklen: t.axis.tickSize,
     tickwidth: t.axis.tickWidth,
@@ -43,8 +39,20 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
         //b: t.padding.bottom,
         //l: t.padding.left,
       },
-      xaxis: axisBase,
-      yaxis: axisBase,
+      xaxis: {
+        ...axisBase,
+        showgrid: t.axis.gridXWidth > 0,
+        gridcolor: t.axis.gridColor,
+        griddash: t.axis.gridDash > 0 ? 'dash' : 'solid',
+        gridwidth: t.axis.gridXWidth,
+      },
+      yaxis: {
+        ...axisBase,
+        showgrid: t.axis.gridYWidth > 0,
+        gridcolor: t.axis.gridColor,
+        griddash: t.axis.gridDash > 0 ? 'dash' : 'solid',
+        gridwidth: t.axis.gridYWidth,
+      },
       legend: {
         bgcolor: t.legend.background,
         bordercolor: t.legend.borderColor,

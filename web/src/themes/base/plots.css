@@ -134,6 +134,8 @@
     --plot-grid-color: var(--plot-grid);
     --plot-grid-color-dark: var(--plot-grid-dark);
     --plot-grid-width: var(--border-width-default);
+    --plot-grid-x-width: var(--plot-grid-width);
+    --plot-grid-y-width: var(--plot-grid-width);
     --plot-grid-dash: 0;
 
     --plot-zero-line-color: var(--plot-contrast-grid);
