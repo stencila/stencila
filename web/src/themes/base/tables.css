@@ -87,16 +87,53 @@
 
     /* Table borders - granular control for theme authors */
     --table-border-radius: var(--border-radius-default);
+
+    /* Outer border - base tokens */
     --table-border-width: var(--border-width-default);
     --table-border-width-print: 0;
     --table-border-color: var(--border-color-default);
     --table-border-style: solid;
 
+    /* Outer border - individual edges (for granular control) */
+    --table-border-top-width: var(--table-border-width);
+    --table-border-top-width-print: var(--table-border-width-print);
+    --table-border-top-color: var(--table-border-color);
+    --table-border-top-style: var(--table-border-style);
+
+    --table-border-bottom-width: var(--table-border-width);
+    --table-border-bottom-width-print: var(--table-border-width-print);
+    --table-border-bottom-color: var(--table-border-color);
+    --table-border-bottom-style: var(--table-border-style);
+
+    --table-border-left-width: var(--table-border-width);
+    --table-border-left-width-print: var(--table-border-width-print);
+    --table-border-left-color: var(--table-border-color);
+    --table-border-left-style: var(--table-border-style);
+
+    --table-border-right-width: var(--table-border-width);
+    --table-border-right-width-print: var(--table-border-width-print);
+    --table-border-right-color: var(--table-border-color);
+    --table-border-right-style: var(--table-border-style);
+
+    /* Row borders - base tokens */
     --table-row-border-width: var(--border-width-default);
     --table-row-border-width-print: var(--border-width-default);
     --table-row-border-color: var(--border-color-default);
     --table-row-border-style: solid;
 
+    /* Header separator (below thead) */
+    --table-header-border-bottom-width: var(--table-row-border-width);
+    --table-header-border-bottom-width-print: var(--table-row-border-width-print);
+    --table-header-border-bottom-color: var(--table-row-border-color);
+    --table-header-border-bottom-style: var(--table-row-border-style);
+
+    /* Body row separators */
+    --table-body-row-border-width: var(--table-row-border-width);
+    --table-body-row-border-width-print: var(--table-row-border-width-print);
+    --table-body-row-border-color: var(--table-row-border-color);
+    --table-body-row-border-style: var(--table-row-border-style);
+
+    /* Column borders */
     --table-column-border-width: 0;
     --table-column-border-width-print: 0;
     --table-column-border-color: var(--border-color-default);
@@ -164,7 +201,10 @@ stencila-table {
     table {
         width: 100%;
         border-collapse: collapse;
-        border: var(--table-border-width) var(--table-border-style) var(--table-border-color);
+        border-top: var(--table-border-top-width) var(--table-border-top-style) var(--table-border-top-color);
+        border-bottom: var(--table-border-bottom-width) var(--table-border-bottom-style) var(--table-border-bottom-color);
+        border-left: var(--table-border-left-width) var(--table-border-left-style) var(--table-border-left-color);
+        border-right: var(--table-border-right-width) var(--table-border-right-style) var(--table-border-right-color);
         border-radius: var(--table-border-radius);
     }
 
@@ -210,7 +250,7 @@ stencila-table {
 
         padding: var(--table-cell-padding);
         text-align: left;
-        border-bottom: var(--table-row-border-width) var(--table-row-border-style) var(--table-row-border-color);
+        border-bottom: var(--table-header-border-bottom-width) var(--table-header-border-bottom-style) var(--table-header-border-bottom-color);
 
         font-family: var(--table-cell-font-family);
         font-weight: var(--table-header-font-weight);
@@ -226,7 +266,7 @@ stencila-table {
     td {
         padding: var(--table-cell-padding);
         text-align: left;
-        border-bottom: var(--table-row-border-width) var(--table-row-border-style) var(--table-row-border-color);
+        border-bottom: var(--table-body-row-border-width) var(--table-body-row-border-style) var(--table-body-row-border-color);
 
         font-family: var(--table-cell-font-family);
         font-size: var(--table-cell-font-size);
@@ -273,9 +313,22 @@ stencila-table {
 /* Print Media Optimization */
 @media print {
     :root {
+        /* Base border tokens */
         --table-border-width: var(--table-border-width-print);
         --table-row-border-width: var(--table-row-border-width-print);
         --table-column-border-width: var(--table-column-border-width-print);
+
+        /* Individual edge tokens */
+        --table-border-top-width: var(--table-border-top-width-print);
+        --table-border-bottom-width: var(--table-border-bottom-width-print);
+        --table-border-left-width: var(--table-border-left-width-print);
+        --table-border-right-width: var(--table-border-right-width-print);
+
+        /* Header and body border tokens */
+        --table-header-border-bottom-width: var(--table-header-border-bottom-width-print);
+        --table-body-row-border-width: var(--table-body-row-border-width-print);
+
+        /* Other print optimizations */
         --table-header-background: var(--table-header-background-print);
         --table-row-striped: var(--table-row-striped-print);
         --table-cell-line-height: var(--table-cell-line-height-print);
