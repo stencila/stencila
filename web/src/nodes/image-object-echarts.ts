@@ -14,6 +14,7 @@ function toEchartsOptionsBase(t: PlotTokens): any {
       lineStyle: { color: t.axis.lineColor, width: t.axis.lineWidth },
     },
     axisTick: {
+      show: true,
       length: t.axis.tickSize,
       lineStyle: { color: t.axis.tickColor, width: t.axis.tickWidth },
     },
@@ -134,14 +135,20 @@ export async function compileECharts(
           ...themeAxis,
           ...axis,
           axisLabel: { ...themeAxis.axisLabel, ...axis.axisLabel },
+          axisLine: { ...themeAxis.axisLine, ...axis.axisLine },
+          axisTick: { ...themeAxis.axisTick, ...axis.axisTick },
+          splitLine: { ...themeAxis.splitLine, ...axis.splitLine },
         }))
       }
 
-      // Single axis - deep merge axisLabel
+      // Single axis - deep merge axis components
       return {
         ...themeAxis,
         ...userAxis,
         axisLabel: { ...themeAxis.axisLabel, ...userAxis.axisLabel },
+        axisLine: { ...themeAxis.axisLine, ...userAxis.axisLine },
+        axisTick: { ...themeAxis.axisTick, ...userAxis.axisTick },
+        splitLine: { ...themeAxis.splitLine, ...userAxis.splitLine },
       }
     }
 
