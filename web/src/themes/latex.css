@@ -1,21 +1,314 @@
 /*
  * LaTeX Theme
  *
- * A LaTeX-inspired theme that recreates the classic Computer Modern LaTeX
- * aesthetic.
- * 
- * Inspired by https://latex.now.sh/
+ * A LaTeX-inspired theme that recreates the classic aesthetic of a LaTeX document.
+ *
+ * Inspired by
+ *
+ * https://latex.vercel.app
+ * https://github.com/vincentdoerig/latex-css/blob/74383e1e4fba37750cff0e78580376ce98a56b44/style.css
  */
 
 @import url('./base/index.css');
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inconsolata:wght@200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&family=Roboto:wght@400;500&family=Roboto+Mono:wght@400;500&display=swap');
 
 :root {
-    --font-family-serif: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-mono: 'Inconsolata', ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    /* Fonts
+     *
+     * LaTeX traditionally uses Computer Modern, but it's not widely available as a
+     * web font. We use Crimson Text as the primary serif (similar proportions and
+     * feel to Computer Modern), with fallbacks to system serif fonts. Latin Modern
+     * would be ideal if self-hosted. Roboto provides clean sans-serif for UI
+     * elements, and Roboto Mono for code blocks with clear character distinction. */
+    --font-family-serif: 'Crimson Text', 'Latin Modern Roman', 'Computer Modern', 'Palatino Linotype', Palatino, ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-family-sans: Roboto, 'Latin Modern Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-mono: 'Roboto Mono', 'Latin Modern Mono', Consolas, ui-monospace, SFMono-Regular, 'SF Mono', Monaco, 'Courier New', monospace;
 
-    --color-accent: var(--color-red-600);
-    --color-accent-dark: var(--color-red-400);
-    --color-accent-muted: var(--color-red-100);
-    --color-accent-muted-dark: var(--color-red-950);
+    /* Typography
+     *
+     * LaTeX uses precise typography with comfortable line height (1.8) and
+     * justified text. The content width of 80ch matches latex-css's default
+     * text column width. No letter spacing maintains classical typesetting. */
+    --text-font-size: var(--font-size-md);
+    --text-line-height: 1.8;
+    --text-letter-spacing: 0;
+    --content-width: 80ch;
+
+    /* Surface backgrounds
+     *
+     * Uses hsl(210, 20%, 98%) - a very subtle blue-tinted off-white matching
+     * latex-css that provides the classic paper appearance while being slightly
+     * softer than pure white. Dark mode uses hsl(0, 0%, 16%) for comfortable
+     * low-light reading. */
+    --surface-background: hsl(210, 20%, 98%);
+    --surface-background-dark: hsl(0, 0%, 16%);
+
+    /* Accent colors
+     *
+     * LaTeX hyperref package traditionally uses dark blue for links. We maintain
+     * this classic academic style with blue-700 for links and minimal use of
+     * color elsewhere - LaTeX documents are primarily monochrome with color
+     * reserved for hyperlinks and occasionally figures. */
+    --color-accent: var(--color-blue-700);
+    --color-accent-dark: var(--color-blue-400);
+    --color-accent-muted: var(--color-blue-50);
+    --color-accent-muted-dark: var(--color-blue-950);
+
+    /* Content Spacing
+     *
+     * LaTeX uses first-line paragraph indentation without vertical spacing
+     * between paragraphs (except after headings). Using 1rem (space-4) matching
+     * latex-css's p { margin-top: 1rem }, combined with paragraph indentation
+     * for the classic LaTeX appearance. */
+    --content-spacing: var(--space-4);
+
+    /* Article Metadata
+     *
+     * LaTeX article class centers the title, author, and abstract at the top
+     * of the document. The abstract is narrower than the main content (75%
+     * of content width) to visually distinguish it as introductory material
+     * while remaining responsive on smaller screens. */
+    --article-authors-text-align: center;
+    --article-abstract-text-align: center;
+    --article-abstract-max-width: calc(var(--content-width) * 0.75);
+
+    /* Headings
+     *
+     * LaTeX heading hierarchy from latex-css: h1: 2.5rem, h2: 1.7rem,
+     * h3: 1.4rem, h4: 1.2rem, h5/h6: 1rem. H6 uses italic + normal weight
+     * for distinction. Ratio of 0.68 gives: h2=1.7rem, h3=1.156rem,
+     * h4=0.786rem (we'll adjust). */
+    --heading-font-size: 2.5rem;
+    --heading-font-size-ratio: 0.68;
+    --heading-letter-spacing: 0;
+    --heading-font-weight-decrement: 0;
+    --heading-lower-font-style: normal;
+    --heading-h4-font-weight: 700;
+    --heading-h5-font-weight: 700;
+    --heading-h6-font-weight: 400;
+
+    /* Tables
+     *
+     * LaTeX booktabs package defines the gold standard for table design:
+     * horizontal rules only (top, mid, bottom), no vertical lines, no
+     * backgrounds. Using exact latex-css values: 2.27px for thick borders
+     * (toprule/bottomrule), 1.36px for thin borders (midrule). Borders are
+     * black (or near-black) for strong, clear table structure. */
+
+    /* Border colors - black for strong definition */
+    --table-border-color: var(--text-color-primary);
+    --table-row-border-color: var(--text-color-primary);
+
+    /* Outer borders - top and bottom rules (toprule/bottomrule) */
+    --table-border-top-width: 2.27px;
+    --table-border-bottom-width: 2.27px;
+    --table-border-left-width: 0;
+    --table-border-right-width: 0;
+
+    /* Header separator - midrule */
+    --table-header-border-bottom-width: 1.36px;
+
+    /* Body rows - no interior borders */
+    --table-body-row-border-width: 0;
+    --table-column-border-width: 0;
+
+    /* Minimal styling - data speaks for itself */
+    --table-header-background: transparent;
+    --table-header-background-print: transparent;
+    --table-row-hover: transparent;
+    --table-row-striped: transparent;
+    --table-row-striped-print: transparent;
+    --table-cell-padding: var(--space-3);
+
+    /* Lists
+     *
+     * LaTeX lists are compact with minimal spacing and simple markers.
+     * Numbered lists use periods after numbers, bulleted lists use simple
+     * bullets. Nested lists maintain consistent styling. */
+    --list-marker-content: '• ';
+    --list-marker-nested-content: '◦ ';
+    --list-marker-color: var(--text-color-primary);
+    --list-item-spacing: calc(var(--content-spacing) * 0.5);
+
+    /* Block Quotes
+     *
+     * LaTeX quote environment uses indentation from both margins without
+     * borders or backgrounds. Simple, elegant, scholarly. We use subtle
+     * left border for web convention while maintaining minimal styling. */
+    --quote-background: transparent;
+    --quote-background-dark: transparent;
+    --quote-border-width: 0;
+    --quote-border-color: transparent;
+    --quote-border-color-dark: transparent;
+    --quote-border-radius: 0;
+    --quote-font-style: normal;
+    --quote-font-size: var(--text-font-size);
+
+    /* Captions
+     *
+     * LaTeX captions use "Figure X:" or "Table X:" prefixes with slightly
+     * smaller serif font and centered alignment, following traditional LaTeX
+     * document conventions. These tokens are inherited by both figures and
+     * tables for consistent caption styling. Spacing matches content-spacing
+     * for clear visual separation. */
+    --caption-font-family: var(--font-family-serif);
+    --caption-font-size: calc(var(--text-font-size) * 0.9);
+    --caption-alignment: center;
+    --caption-spacing: var(--content-spacing);
+
+    /* Figures
+     *
+     * LaTeX figures are centered with captions below (or above).
+     * No borders or backgrounds - clean and minimal. */
+    --figure-border-width: 0;
+    --figure-background: transparent;
+
+    /* Code
+     *
+     * LaTeX verbatim and listings use monospace font with minimal decoration.
+     * Using latex-css's 85% font size for both inline and block code.
+     * Background color hsl(210, 28%, 93%) provides subtle distinction. */
+    --code-border-width: 0;
+    --code-border-color: transparent;
+    --code-font-size-inline: 85%;
+    --code-font-size-block: 85%;
+
+    /* Links
+     *
+     * Latex-css uses hsl(0, 100%, 33%) - a dark red for all links (both visited
+     * and unvisited), matching traditional LaTeX hyperref styling. For dark mode,
+     * uses hsl(196, 80%, 77%) - a light cyan. Unlike typical web conventions,
+     * visited and unvisited links use the same color in LaTeX documents. */
+    --link-color: hsl(0, 100%, 33%);
+    --link-color-dark: hsl(196, 80%, 77%);
+    --link-color-visited: hsl(0, 100%, 33%);
+    --link-color-visited-dark: hsl(196, 80%, 77%);
+    --link-color-hover: hsl(0, 100%, 25%);
+    --link-color-hover-dark: hsl(196, 80%, 85%);
+    --link-decoration: none;
+    --link-decoration-hover: underline;
+
+    /* Citations
+     *
+     * Citations in LaTeX documents use the same color as hyperlinks since they
+     * are references to bibliography entries. This maintains consistency with
+     * the hyperref package styling. */
+    --citation-color: hsl(0, 100%, 33%);
+    --citation-color-dark: hsl(196, 80%, 77%);
+
+    /* Admonitions
+     *
+     * LaTeX theorem environments (theorem, lemma, proof, etc.) use bold
+     * labels and italic content, often with minimal borders or backgrounds.
+     * We maintain this scholarly style with subtle left accent borders and
+     * grayscale colors for different types. */
+    --admonition-border-width: 0;
+    --admonition-accent-border-width: 3px;
+    --admonition-border-radius: 0;
+    --admonition-padding: var(--space-4);
+    --admonition-title-background-tint: 0%;
+    --admonition-content-background-tint: 0%;
+    --admonition-note-color: var(--color-gray-700);
+    --admonition-note-color-dark: var(--color-gray-400);
+    --admonition-info-color: var(--color-blue-700);
+    --admonition-info-color-dark: var(--color-blue-400);
+    --admonition-tip-color: var(--color-green-700);
+    --admonition-tip-color-dark: var(--color-green-400);
+    --admonition-important-color: var(--color-purple-700);
+    --admonition-important-color-dark: var(--color-purple-400);
+    --admonition-success-color: var(--color-green-700);
+    --admonition-success-color-dark: var(--color-green-400);
+    --admonition-failure-color: var(--color-red-700);
+    --admonition-failure-color-dark: var(--color-red-400);
+    --admonition-warning-color: var(--color-amber-700);
+    --admonition-warning-color-dark: var(--color-amber-400);
+    --admonition-danger-color: var(--color-orange-700);
+    --admonition-danger-color-dark: var(--color-orange-400);
+    --admonition-error-color: var(--color-red-800);
+    --admonition-error-color-dark: var(--color-red-300);
+
+    /* Thematic breaks */
+    --thematic-break-border-width: 1px;
+    --thematic-break-border-color: var(--color-gray-400);
+
+    /* Diagrams
+     *
+     * LaTeX diagrams (TikZ, etc.) are typically black and white with minimal
+     * decoration. We maintain this scholarly aesthetic with grayscale colors
+     * and clean lines. */
+    --diagram-base-color: var(--color-gray-900);
+    --diagram-base-color-dark: var(--color-gray-200);
+    --diagram-background: var(--surface-background);
+    --diagram-background-dark: var(--surface-background-dark);
+    --diagram-font-family: var(--font-family-serif);
+    --diagram-node-border-width: 1px;
+    --diagram-edge-width: 1px;
+    --diagram-node-background: color-mix(in srgb, var(--diagram-base-color) 5%, var(--diagram-background));
+    --diagram-node-background-dark: color-mix(in srgb, var(--diagram-base-color-dark) 5%, var(--diagram-background-dark));
+    --diagram-node-background-secondary: color-mix(in srgb, var(--diagram-base-color) 10%, var(--diagram-background));
+    --diagram-node-background-secondary-dark: color-mix(in srgb, var(--diagram-base-color-dark) 10%, var(--diagram-background-dark));
+    --diagram-node-background-tertiary: color-mix(in srgb, var(--diagram-base-color) 15%, var(--diagram-background));
+    --diagram-node-background-tertiary-dark: color-mix(in srgb, var(--diagram-base-color-dark) 15%, var(--diagram-background-dark));
+
+    /* Plots
+     *
+     * LaTeX plots (pgfplots, matplotlib, etc.) traditionally use grayscale
+     * for primary data with optional color for multi-series. We provide a
+     * balanced palette starting with darker grays for better contrast. */
+    --plot-color-1: hsl(0 0% 20%);
+    --plot-color-1-dark: hsl(0 0% 80%);
+    --plot-color-2: hsl(210 90% 50%);
+    --plot-color-2-dark: hsl(210 80% 60%);
+    --plot-color-3: hsl(0 75% 50%);
+    --plot-color-3-dark: hsl(0 70% 60%);
+    --plot-color-4: hsl(135 60% 35%);
+    --plot-color-4-dark: hsl(135 55% 55%);
+    --plot-color-5: hsl(280 60% 50%);
+    --plot-color-5-dark: hsl(280 55% 60%);
+
+    /* Structure - minimal borders */
+    --plot-panel-border-width: 1px;
+
+    /* Grid - subtle grid lines common in LaTeX plots */
+    --plot-grid-width: 0.5px;
+
+    /* Axes - standard LaTeX plot style */
+    --plot-axis-line-width: 1px;
+    --plot-tick-width: 1px;
+    --plot-tick-size: var(--space-1);
+
+    /* Legend - minimal styling */
+    --plot-legend-border-width: 1px;
+
+    /* Lines - standard weight */
+    --plot-line-width: 2px;
+    --plot-stroke-width: 2px;
+
+    /* Typography - serif for plot text matching document */
+    --plot-font-family: var(--font-family-serif);
+}
+
+/* Paragraph Refinements */
+
+/* First Paragraph After Heading
+ *
+ * In LaTeX, the first paragraph after a heading has no indentation.
+ * This helps visually connect the heading to its content. */
+[root] h1 + p,
+[root] h2 + p,
+[root] h3 + p,
+[root] h4 + p,
+[root] h5 + p,
+[root] h6 + p {
+    text-indent: 0;
+}
+
+/* Standard Paragraphs
+ *
+ * LaTeX's distinctive first-line indentation using latex-css's precise value
+ * of 1.463rem, which represents the LaTeX \parindent of ~17.625pt converted
+ * to web units: 17.625 * (72/72.27) / 12 = 1.463rem. */
+[root] p + p {
+    text-indent: 1.463rem;
+    margin-top: 0;
 }
