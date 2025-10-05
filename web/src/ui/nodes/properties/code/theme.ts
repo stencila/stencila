@@ -11,11 +11,7 @@ export function createTheme(): Extension {
   // Base editor theme - layout, colors, and UI elements
   const editorTheme = EditorView.theme({
     '&': {
-      color: 'var(--code-color)',
       backgroundColor: 'var(--code-background)',
-      fontFamily: 'var(--code-font-family)',
-      fontSize: 'var(--code-font-size-block)',
-      lineHeight: 'var(--code-line-height)',
       border: 'var(--code-border-width) solid var(--code-border-color)',
     },
     '&.cm-focused': {
@@ -23,6 +19,10 @@ export function createTheme(): Extension {
     },
     '.cm-content': {
       padding: 'var(--code-padding-block)',
+      color: 'var(--code-color)',
+      fontFamily: 'var(--code-font-family)',
+      fontSize: 'var(--code-font-size-block)',
+      lineHeight: 'var(--code-line-height)',
       caretColor: 'var(--code-caret-color)',
     },
     '.cm-scroller': {

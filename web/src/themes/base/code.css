@@ -42,13 +42,16 @@
     --code-font-family: var(--font-family-mono);
     --code-font-size-inline: var(--font-size-sm);
     --code-font-size-block: var(--font-size-sm);
-    --code-line-height: var(--line-height-normal);
+    --code-line-height: 1;
 
-    /* Visual Style */
-    --code-background: var(--color-gray-100);
-    --code-background-dark: #2a2a2a;
+    /* Visual Style
+     *
+     * Backgrounds use a subtle darkening of the surface background (5% black/white mix)
+     * to create a tinted effect that harmonizes with any theme's background color. */
+    --code-background: color-mix(in srgb, black 5%, var(--surface-background));
+    --code-background-dark: color-mix(in srgb, white 5%, var(--surface-background-dark));
     --code-background-inline: var(--code-background);
-    --code-background-inline-dark: #2a2a2a;
+    --code-background-inline-dark: var(--code-background-dark);
     --code-background-block: var(--code-background);
     --code-border-color: var(--border-color-muted);
     --code-border-color-dark: #404040;
@@ -57,7 +60,7 @@
 
     /* Spacing */
     --code-spacing: var(--content-spacing);
-    --code-padding-inline: var(--space-xs);
+    --code-padding-inline: 0.05em 0.25em;
     --code-padding-block: var(--space-4);
 
     /* CodeMirror Editor */
@@ -340,20 +343,16 @@ stencila-code-block {
         white-space: pre-wrap;
 
         code {
-            /* Browser normalization */
-            background: none;
-            border: none;
-            padding: 0;
-            font-size: inherit;
-        }
+            display: block;
 
-        font-family: var(--code-font-family);
-        font-size: var(--code-font-size-block);
-        line-height: var(--code-line-height);
-        color: var(--code-color);
-        background-color: var(--code-background-block);
-        border: var(--code-border-width) solid var(--code-border-color);
-        border-radius: var(--code-border-radius);
-        padding: var(--code-padding-block);
+            font-family: var(--code-font-family);
+            font-size: var(--code-font-size-block);
+            line-height: var(--code-line-height);
+            color: var(--code-color);
+            background-color: var(--code-background-block);
+            border: var(--code-border-width) solid var(--code-border-color);
+            border-radius: var(--code-border-radius);
+            padding: var(--code-padding-block);
+        }
     }
 }
