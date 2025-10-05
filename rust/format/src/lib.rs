@@ -65,6 +65,11 @@ pub enum Format {
     // Diagramming languages
     Dot,
     Mermaid,
+    // Visualization JSON specs and languages
+    Cytoscape,
+    Echarts,
+    Plotly,
+    VegaLite,
     // Styling languages
     Tailwind,
     Css,
@@ -145,12 +150,14 @@ impl Format {
             Css => "CSS",
             Csv => "CSV",
             Cypher => "Cypher",
+            Cytoscape => "Cytoscape",
             Debug => "Debug",
             Directory => "Directory",
             DocsQL => "Stencila DocsQL",
             Docx => "Microsoft Word",
             Dom => "DOM HTML",
             Dot => "Graphviz DOT",
+            Echarts => "ECharts",
             Flac => "FLAC",
             GDocx => "Google Docs (DOCX)",
             Gif => "GIF",
@@ -184,6 +191,7 @@ impl Format {
             Parquet => "Apache Parquet",
             Pdf => "PDF",
             PmcOa => "PubMed Central OA Package",
+            Plotly => "Plotly",
             Png => "PNG",
             Python => "Python",
             Qmd => "Quarto Markdown",
@@ -200,6 +208,7 @@ impl Format {
             Text => "Plain text",
             Toml => "TOML",
             Tsv => "TSV",
+            VegaLite => "Vega-Lite",
             Wav => "WAV",
             WebM => "WebM",
             WebP => "WebP",
@@ -300,7 +309,18 @@ impl Format {
     /// Is this format a flavor of JSON?
     pub fn is_json_flavor(&self) -> bool {
         use Format::*;
-        matches!(self, Json | Json5 | JsonLd | Ipynb | Lexical | Koenig)
+        matches!(
+            self,
+            Json | Json5
+                | JsonLd
+                | Ipynb
+                | Lexical
+                | Koenig
+                | Cytoscape
+                | Echarts
+                | Plotly
+                | VegaLite
+        )
     }
 
     /// Is this format a flavor of Markdown?
@@ -335,12 +355,14 @@ impl Format {
             "css" => Css,
             "csv" => Csv,
             "cypher" | "cyp" | "cql" => Cypher,
+            "cytoscape" => Cytoscape,
             "debug" => Debug,
             "directory" | "dir" => Directory,
             "docsql" => DocsQL,
             "docx" => Docx,
             "dom" | "dom.html" => Dom,
             "dot" => Dot,
+            "echarts" => Echarts,
             "flac" => Flac,
             "gdocx" => GDocx,
             "gif" => Gif,
@@ -373,6 +395,7 @@ impl Format {
             "pandoc" => Pandoc,
             "parquet" => Parquet,
             "pdf" => Pdf,
+            "plotly" => Plotly,
             "pmcoa" => PmcOa,
             "png" => Png,
             "python" | "py" => Python,
@@ -391,6 +414,7 @@ impl Format {
             "toml" => Toml,
             "tsv" | "tab" => Tsv,
             "unknown" => Unknown,
+            "vegalite" | "vega-lite" => VegaLite,
             "wav" => Wav,
             "webm" => WebM,
             "webp" => WebP,
@@ -454,7 +478,11 @@ impl Format {
             "application/cbor+zstd" => Ok(CborZstd),
             "application/json+zip" => Ok(JsonZip),
             "application/ld+json" => Ok(JsonLd),
+            "application/vnd.apache.echarts+json" => Ok(Echarts),
             "application/vnd.citationstyles.csl+json" => Ok(Csl),
+            "application/vnd.cytoscape.v3+json" => Ok(Cytoscape),
+            "application/vnd.plotly.v1+json" => Ok(Plotly),
+            "application/vnd.vegalite.v5+json" => Ok(VegaLite),
             "application/vnd.ms-excel" => Ok(Xls),
             "application/vnd.oasis.opendocument.spreadsheet" => Ok(Ods),
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => Ok(Xlsx),
@@ -506,6 +534,10 @@ impl Format {
             Jats => "text/jats+xml".to_string(),
             Markdown => "text/markdown".to_string(),
             Text => "text/plain".to_string(),
+            Cytoscape => "application/vnd.cytoscape.v3+json".to_string(),
+            Echarts => "application/vnd.apache.echarts+json".to_string(),
+            Plotly => "application/vnd.plotly.v1+json".to_string(),
+            VegaLite => "application/vnd.vegalite.v5+json".to_string(),
             _ => {
                 if self.is_audio() {
                     format!("audio/{}", self.extension())
@@ -557,12 +589,14 @@ impl Display for Format {
             Css => "css",
             Csv => "csv",
             Cypher => "cypher",
+            Cytoscape => "cytoscape",
             Debug => "debug",
             Directory => "directory",
             DocsQL => "docsql",
             Docx => "docx",
             Dom => "dom.html",
             Dot => "dot",
+            Echarts => "echarts",
             Flac => "flac",
             GDocx => "gdocx",
             Gif => "gif",
@@ -595,6 +629,7 @@ impl Display for Format {
             Pandoc => "pandoc",
             Parquet => "parquet",
             Pdf => "pdf",
+            Plotly => "plotly",
             PmcOa => "pmcoa",
             Png => "png",
             Python => "python",
@@ -612,6 +647,7 @@ impl Display for Format {
             Text => "text",
             Toml => "toml",
             Tsv => "tsv",
+            VegaLite => "vegalite",
             Wav => "wav",
             WebM => "webm",
             WebP => "webp",
