@@ -33,6 +33,9 @@
     --figure-spacing-top: calc(var(--content-spacing) * 2);
     --figure-spacing-bottom: calc(var(--content-spacing) * 2);
 
+    /* Admonitions: sans serif title */
+    --admonition-title-font-family: var(--font-family-sans);
+
     /* References: more compact layout and justified */
     --reference-spacing: calc(var(--content-spacing) * 0.5);
     --reference-text-indent: -1.25em;

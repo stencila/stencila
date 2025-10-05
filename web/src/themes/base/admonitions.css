@@ -60,8 +60,8 @@
     --admonition-accent-border-width: var(--border-width-default);
 
     /* Typography */
-    --admonition-title-font-family: var(--font-family-sans);
-    --admonition-title-font-size: var(--font-size-md);
+    --admonition-title-font-family: var(--text-font-family);
+    --admonition-title-font-size: var(--text-font-size);
     --admonition-title-font-weight: var(--font-weight-semibold);
     --admonition-title-line-height: var(--line-height-tight);
 
