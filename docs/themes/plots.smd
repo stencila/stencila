@@ -1,0 +1,498 @@
+# Examples
+
+## Line Plot
+
+### Echarts
+
+```echarts exec
+{
+  "series": [
+    {
+      "name": "Sales",
+      "data": [120, 200, 150, 80, 70, 110, 130],
+      "type": "line",
+      "smooth": true
+    },
+    {
+      "name": "Costs",
+      "data": [80, 120, 100, 60, 50, 80, 90],
+      "type": "line",
+      "smooth": true
+    }
+  ],
+  "xAxis": {
+    "type": "category",
+    "data": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  },
+  "yAxis": {
+    "type": "value"
+  }
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "name": "Sales",
+      "x": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      "y": [120, 200, 150, 80, 70, 110, 130],
+      "type": "scatter",
+      "mode": "lines+markers",
+      "line": {
+        "shape": "spline"
+      }
+    },
+    {
+      "name": "Costs",
+      "x": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      "y": [80, 120, 100, 60, 50, 80, 90],
+      "type": "scatter",
+      "mode": "lines+markers",
+      "line": {
+        "shape": "spline"
+      }
+    }
+  ],
+  "layout": {
+    "xaxis": {
+      "title": ""
+    },
+    "yaxis": {
+      "title": ""
+    }
+  }
+}
+```
+
+### Vega-Lite
+
+```vegalite exec
+{
+  "data": {
+    "values": [
+      {"day": "Mon", "series": "Sales", "value": 120},
+      {"day": "Tue", "series": "Sales", "value": 200},
+      {"day": "Wed", "series": "Sales", "value": 150},
+      {"day": "Thu", "series": "Sales", "value": 80},
+      {"day": "Fri", "series": "Sales", "value": 70},
+      {"day": "Sat", "series": "Sales", "value": 110},
+      {"day": "Sun", "series": "Sales", "value": 130},
+      {"day": "Mon", "series": "Costs", "value": 80},
+      {"day": "Tue", "series": "Costs", "value": 120},
+      {"day": "Wed", "series": "Costs", "value": 100},
+      {"day": "Thu", "series": "Costs", "value": 60},
+      {"day": "Fri", "series": "Costs", "value": 50},
+      {"day": "Sat", "series": "Costs", "value": 80},
+      {"day": "Sun", "series": "Costs", "value": 90}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "interpolate": "monotone",
+    "point": true
+  },
+  "encoding": {
+    "x": {
+      "field": "day",
+      "type": "ordinal",
+      "sort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    },
+    "y": {
+      "field": "value",
+      "type": "quantitative"
+    },
+    "color": {
+      "field": "series",
+      "type": "nominal"
+    }
+  }
+}
+```
+
+## Scatter Plot
+
+### Echarts
+
+```echarts exec
+{
+  "xAxis": {
+    "type": "value"
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "name": "Group A",
+      "symbolSize": 10,
+      "data": [
+        [10.0, 8.04],
+        [8.07, 6.95],
+        [13.0, 7.58],
+        [9.05, 8.81],
+        [11.0, 8.33],
+        [14.0, 7.66],
+        [13.4, 6.81]
+      ],
+      "type": "scatter"
+    },
+    {
+      "name": "Group B",
+      "symbolSize": 10,
+      "data": [
+        [10.0, 9.14],
+        [8.07, 8.14],
+        [13.0, 8.74],
+        [9.05, 8.77],
+        [11.0, 9.26],
+        [14.0, 8.10],
+        [13.4, 7.04]
+      ],
+      "type": "scatter"
+    }
+  ]
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "x": [10.0, 8.07, 13.0, 9.05, 11.0, 14.0, 13.4],
+      "y": [8.04, 6.95, 7.58, 8.81, 8.33, 7.66, 6.81],
+      "type": "scatter",
+      "mode": "markers",
+      "name": "Group A",
+      "marker": {
+        "size": 10
+      }
+    },
+    {
+      "x": [10.0, 8.07, 13.0, 9.05, 11.0, 14.0, 13.4],
+      "y": [9.14, 8.14, 8.74, 8.77, 9.26, 8.10, 7.04],
+      "type": "scatter",
+      "mode": "markers",
+      "name": "Group B",
+      "marker": {
+        "size": 10
+      }
+    }
+  ]
+}
+```
+
+### Vega-Lite
+
+```vegalite exec
+{
+  "data": {
+    "values": [
+      {"x": 10.0, "y": 8.04, "group": "Group A"},
+      {"x": 8.07, "y": 6.95, "group": "Group A"},
+      {"x": 13.0, "y": 7.58, "group": "Group A"},
+      {"x": 9.05, "y": 8.81, "group": "Group A"},
+      {"x": 11.0, "y": 8.33, "group": "Group A"},
+      {"x": 14.0, "y": 7.66, "group": "Group A"},
+      {"x": 13.4, "y": 6.81, "group": "Group A"},
+      {"x": 10.0, "y": 9.14, "group": "Group B"},
+      {"x": 8.07, "y": 8.14, "group": "Group B"},
+      {"x": 13.0, "y": 8.74, "group": "Group B"},
+      {"x": 9.05, "y": 8.77, "group": "Group B"},
+      {"x": 11.0, "y": 9.26, "group": "Group B"},
+      {"x": 14.0, "y": 8.10, "group": "Group B"},
+      {"x": 13.4, "y": 7.04, "group": "Group B"}
+    ]
+  },
+  "mark": {
+    "type": "point",
+    "size": 100
+  },
+  "encoding": {
+    "x": {
+      "field": "x",
+      "type": "quantitative"
+    },
+    "y": {
+      "field": "y",
+      "type": "quantitative"
+    },
+    "color": {
+      "field": "group",
+      "type": "nominal"
+    }
+  }
+}
+```
+
+## Bar Chart
+
+### Echarts
+
+```echarts exec
+{
+  "xAxis": {
+    "type": "category",
+    "data": ["Q1", "Q2", "Q3", "Q4"]
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "name": "Revenue",
+      "data": [320, 450, 390, 520],
+      "type": "bar"
+    },
+    {
+      "name": "Profit",
+      "data": [120, 180, 150, 220],
+      "type": "bar"
+    }
+  ]
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "x": ["Q1", "Q2", "Q3", "Q4"],
+      "y": [320, 450, 390, 520],
+      "type": "bar",
+      "name": "Revenue"
+    },
+    {
+      "x": ["Q1", "Q2", "Q3", "Q4"],
+      "y": [120, 180, 150, 220],
+      "type": "bar",
+      "name": "Profit"
+    }
+  ]
+}
+```
+
+### Vega-Lite
+
+```vegalite exec
+{
+  "data": {
+    "values": [
+      {"quarter": "Q1", "series": "Revenue", "value": 320},
+      {"quarter": "Q2", "series": "Revenue", "value": 450},
+      {"quarter": "Q3", "series": "Revenue", "value": 390},
+      {"quarter": "Q4", "series": "Revenue", "value": 520},
+      {"quarter": "Q1", "series": "Profit", "value": 120},
+      {"quarter": "Q2", "series": "Profit", "value": 180},
+      {"quarter": "Q3", "series": "Profit", "value": 150},
+      {"quarter": "Q4", "series": "Profit", "value": 220}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "quarter",
+      "type": "ordinal"
+    },
+    "y": {
+      "field": "value",
+      "type": "quantitative"
+    },
+    "color": {
+      "field": "series",
+      "type": "nominal"
+    },
+    "xOffset": {
+      "field": "series"
+    }
+  }
+}
+```
+
+## Heatmap
+
+### Echart
+
+```echarts exec
+{
+  "xAxis": {
+    "type": "category",
+    "data": ["Mon", "Tue", "Wed", "Thu", "Fri"]
+  },
+  "yAxis": {
+    "type": "category",
+    "data": ["Morning", "Afternoon", "Evening"]
+  },
+  "visualMap": {
+    "min": 0,
+    "max": 10,
+    "calculable": true,
+    "orient": "horizontal",
+    "left": "center",
+    "bottom": "0%"
+  },
+  "series": [
+    {
+      "name": "Activity",
+      "type": "heatmap",
+      "data": [
+        [0, 0, 5],
+        [0, 1, 7],
+        [0, 2, 3],
+        [1, 0, 8],
+        [1, 1, 9],
+        [1, 2, 6],
+        [2, 0, 4],
+        [2, 1, 8],
+        [2, 2, 7],
+        [3, 0, 6],
+        [3, 1, 9],
+        [3, 2, 5],
+        [4, 0, 3],
+        [4, 1, 7],
+        [4, 2, 8]
+      ],
+      "label": {
+        "show": true
+      }
+    }
+  ]
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "x": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+      "y": ["Morning", "Afternoon", "Evening"],
+      "z": [
+        [5, 8, 4, 6, 3],
+        [7, 9, 8, 9, 7],
+        [3, 6, 7, 5, 8]
+      ],
+      "type": "heatmap",
+      "showscale": true
+    }
+  ]
+}
+```
+
+### Vega-Lite
+
+```vegalite exec
+{
+  "data": {
+    "values": [
+      {"day": "Mon", "period": "Morning", "value": 5},
+      {"day": "Tue", "period": "Morning", "value": 8},
+      {"day": "Wed", "period": "Morning", "value": 4},
+      {"day": "Thu", "period": "Morning", "value": 6},
+      {"day": "Fri", "period": "Morning", "value": 3},
+      {"day": "Mon", "period": "Afternoon", "value": 7},
+      {"day": "Tue", "period": "Afternoon", "value": 9},
+      {"day": "Wed", "period": "Afternoon", "value": 8},
+      {"day": "Thu", "period": "Afternoon", "value": 9},
+      {"day": "Fri", "period": "Afternoon", "value": 7},
+      {"day": "Mon", "period": "Evening", "value": 3},
+      {"day": "Tue", "period": "Evening", "value": 6},
+      {"day": "Wed", "period": "Evening", "value": 7},
+      {"day": "Thu", "period": "Evening", "value": 5},
+      {"day": "Fri", "period": "Evening", "value": 8}
+    ]
+  },
+  "mark": "rect",
+  "encoding": {
+    "x": {
+      "field": "day",
+      "type": "ordinal",
+      "sort": ["Mon", "Tue", "Wed", "Thu", "Fri"]
+    },
+    "y": {
+      "field": "period",
+      "type": "ordinal",
+      "sort": ["Morning", "Afternoon", "Evening"]
+    },
+    "color": {
+      "field": "value",
+      "type": "quantitative"
+    }
+  }
+}
+```
+
+## Pie Chart
+
+### Echarts
+
+```echarts exec
+{
+  "series": [
+    {
+      "name": "Distribution",
+      "type": "pie",
+      "radius": "50%",
+      "data": [
+        { "value": 335, "name": "Category A" },
+        { "value": 234, "name": "Category B" },
+        { "value": 154, "name": "Category C" },
+        { "value": 135, "name": "Category D" },
+        { "value": 148, "name": "Category E" }
+      ]
+    }
+  ]
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "values": [335, 234, 154, 135, 148],
+      "labels": ["Category A", "Category B", "Category C", "Category D", "Category E"],
+      "type": "pie",
+      "name": "Distribution"
+    }
+  ]
+}
+```
+
+### Vega-Lite
+
+```vegalite exec
+{
+  "data": {
+    "values": [
+      {"category": "Category A", "value": 335},
+      {"category": "Category B", "value": 234},
+      {"category": "Category C", "value": 154},
+      {"category": "Category D", "value": 135},
+      {"category": "Category E", "value": 148}
+    ]
+  },
+  "mark": {
+    "type": "arc",
+    "innerRadius": 0
+  },
+  "encoding": {
+    "theta": {
+      "field": "value",
+      "type": "quantitative"
+    },
+    "color": {
+      "field": "category",
+      "type": "nominal"
+    }
+  }
+}
+```
