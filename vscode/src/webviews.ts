@@ -347,21 +347,44 @@ export async function initializeWebViewPanel(
   //    for messages from the `vscode` API
   // 2. Instantiate the `vscode` API early so it is ready to ready to
   //    receive `postMessage` messages from here as soon as possible
-
+  //
+  // Keep this consistent with the HTML generated with rust/codec-dom/src/lib.rs
+  //
+  // NOTE: VSCode color scheme integration attempt
+  // We attempted to sync Stencila's theming with VSCode's color scheme by:
+  // 1. Reading `data-vscode-theme-kind` from body (set by VSCode)
+  // 2. Mapping it to Stencila's `data-color-scheme` attribute on documentElement
+  // 3. Using MutationObserver to persist the attribute when VSCode stripped it
+  //
+  // Issues encountered:
+  // - VSCode appears to strip custom attributes from documentElement in webviews
+  // - While setAttribute() succeeds, the attribute doesn't persist in the DOM
+  // - A delayed setAttribute (after 1s) worked, suggesting timing/interference issues
+  // - MutationObserver approach added complexity for uncertain benefit
+  // - conflict between setting using the document menu and all of the above
+  //
+  // For now, users can manually toggle color scheme via the document menu, and
+  // their preference is saved in localStorage. A future approach might involve:
+  // - Setting the attribute on body instead (would require CSS changes)
+  // - Using CSS custom properties instead of data attributes
+  // - Communicating theme changes via postMessage from extension to webview
   panel.webview.html = `
-    <!DOCTYPE html>
+    <!doctype html>
     <html lang="en">
       <head>
         <title>Stencila: Document Preview</title>
-        <meta charset="UTF-8">
+        <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="Content-Security-Policy" content="${csp}">
+        
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-        <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
+        
         <link rel="stylesheet" type="text/css" href="${viewCss}">
         <script async type="text/javascript" src="${viewJs}"></script>
+        <link data-theme-link rel="stylesheet" type="text/css" href="${themeCss}">
+        
         <script>
           const vscode = acquireVsCodeApi()
         </script>
@@ -378,7 +401,7 @@ export async function initializeWebViewPanel(
           }
         </style>
       </head>
-      <body style="background: white;">    
+      <body>
         <stencila-vscode-view theme="${themeName}" workspace="${workspaceUri}" hidden>
           ${viewHtml}
         </stencila-vscode-view>

@@ -130,7 +130,7 @@ pub async fn subscribe(
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?
         .theme
-        .unwrap_or_else(|| "default".into());
+        .unwrap_or_else(|| "stencila".into());
 
     // Start the DOM syncing task and the initial HTML content
     let html = doc
