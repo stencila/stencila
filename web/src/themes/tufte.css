@@ -90,7 +90,7 @@
      * Slightly smaller sans-serif for contrast. */
     --caption-font-family: var(--font-family-sans);
     --caption-font-size: calc(var(--text-font-size) * 0.80);
-    --caption-alignment: left;
+    --caption-align: left;
 
     /* Tables
      *
@@ -126,7 +126,7 @@
     --figure-border-width: 0;
     --figure-background: transparent;
     --figure-caption-font-family: var(--font-family-sans);
-    --figure-caption-alignment: left;
+    --figure-caption-align: left;
 
     /* Lists
      *

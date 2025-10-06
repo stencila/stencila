@@ -33,7 +33,7 @@ Layout and typography styling for datatable captions (inherits from caption and 
 | `--datatable-caption-font-size`  | Font size for captions                        | `var(--table-caption-font-size)`     |
 | `--datatable-caption-color`      | Text color (automatic dark mode)              | `var(--table-caption-color)`         |
 | `--datatable-caption-line-height` | Line height for caption text                 | `var(--table-caption-line-height)`   |
-| `--datatable-caption-alignment`  | Text alignment (left, center, right, justify) | `var(--table-caption-alignment)`     |
+| `--datatable-caption-align`  | Text alignment (left, center, right, justify) | `var(--table-caption-align)`     |
 | `--datatable-caption-max-width`  | Maximum width for caption text                | `var(--table-caption-max-width)`     |
 | `--datatable-label-font-weight`  | Font weight for datatable labels              | `var(--table-label-font-weight)`     |
 | `--datatable-label-font-style`   | Font style for datatable labels               | `var(--table-label-font-style)`      |
@@ -218,12 +218,12 @@ Enhanced spacing and typography for research data with numerical precision:
   --datatable-spacing-top: calc(var(--content-spacing) * 2);
   --datatable-spacing-bottom: calc(var(--content-spacing) * 2);
   --datatable-caption-spacing-bottom: var(--content-spacing);
-  --datatable-caption-alignment: justify;
+  --datatable-caption-align: justify;
   --datatable-caption-line-height: var(--line-height-md);
 }
 ```
 
-::: style --datatable-spacing-top: calc(var(--content-spacing) \* 2); --datatable-spacing-bottom: calc(var(--content-spacing) \* 2); --datatable-caption-spacing-bottom: var(--content-spacing); --datatable-caption-alignment: justify; --datatable-caption-line-height: var(--line-height-md);
+::: style --datatable-spacing-top: calc(var(--content-spacing) \* 2); --datatable-spacing-bottom: calc(var(--content-spacing) \* 2); --datatable-caption-spacing-bottom: var(--content-spacing); --datatable-caption-align: justify; --datatable-caption-line-height: var(--line-height-md);
 
 ::: table 1
 

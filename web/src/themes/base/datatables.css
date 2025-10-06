@@ -66,7 +66,7 @@
     --datatable-caption-color: var(--table-caption-color);
     --datatable-caption-spacing-bottom: var(--table-caption-spacing-bottom);
     --datatable-caption-line-height: var(--table-caption-line-height);
-    --datatable-caption-alignment: var(--table-caption-alignment);
+    --datatable-caption-align: var(--table-caption-align);
     --datatable-caption-max-width: var(--table-caption-max-width);
 
     /* Label styling - defaults to table label tokens */
@@ -80,7 +80,7 @@
     --datatable-notes-color: var(--table-notes-color);
     --datatable-notes-spacing-top: var(--table-notes-spacing-top);
     --datatable-notes-line-height: var(--table-notes-line-height);
-    --datatable-notes-alignment: var(--table-notes-alignment);
+    --datatable-notes-align: var(--table-notes-align);
 
     /* Table borders - defaults to table border tokens */
     --datatable-border-radius: var(--table-border-radius);
@@ -180,7 +180,7 @@ stencila-datatable {
             font-size: var(--datatable-caption-font-size);
             color: var(--datatable-caption-color);
             line-height: var(--datatable-caption-line-height);
-            text-align: var(--datatable-caption-alignment);
+            text-align: var(--datatable-caption-align);
         }
 
         /* Paragraph spacing: first paragraph aligns with caption,
@@ -258,7 +258,7 @@ stencila-datatable {
             font-size: var(--datatable-notes-font-size);
             color: var(--datatable-notes-color);
             line-height: var(--datatable-notes-line-height);
-            text-align: var(--datatable-notes-alignment);
+            text-align: var(--datatable-notes-align);
         }
 
         /* Paragraph spacing within notes */

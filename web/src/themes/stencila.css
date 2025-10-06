@@ -20,12 +20,12 @@
 
     /* Captions: typography */
     --caption-font-family: var(--font-family-sans);
-    --caption-alignment: justify;
+    --caption-align: justify;
 
     /* Tables: typography */
     --table-cell-font-family: var(--font-family-sans);
     --table-notes-font-family: var(--font-family-sans);
-    --table-notes-alignment: justify;
+    --table-notes-align: justify;
 
     /* Tables and figures: greater vertical separation from surrounding content */
     --table-spacing-top: calc(var(--content-spacing) * 2);

@@ -96,7 +96,7 @@
      * for clear visual separation. */
     --caption-font-family: var(--font-family-serif);
     --caption-font-size: calc(var(--text-font-size) * 0.9);
-    --caption-alignment: center;
+    --caption-align: center;
     --caption-spacing: var(--content-spacing);
 
     /* Tables

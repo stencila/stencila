@@ -35,7 +35,7 @@
     --image-title-font-size: var(--caption-font-size);
     --image-title-color: var(--caption-color);
     --image-title-line-height: var(--caption-line-height);
-    --image-title-alignment: center;
+    --image-title-align: center;
     --image-title-spacing-bottom: var(--caption-spacing);
 
     /* Caption typography - inherits from caption tokens */
@@ -43,7 +43,7 @@
     --image-caption-font-size: var(--caption-font-size);
     --image-caption-color: var(--caption-color);
     --image-caption-line-height: var(--caption-line-height);
-    --image-caption-alignment: center;
+    --image-caption-align: center;
     --image-caption-spacing-top: var(--caption-spacing);
 }
 
@@ -73,7 +73,7 @@ stencila-image-object {
         font-size: var(--image-title-font-size);
         color: var(--image-title-color);
         line-height: var(--image-title-line-height);
-        text-align: var(--image-title-alignment);
+        text-align: var(--image-title-align);
     }
 
     /* Caption styling */
@@ -85,7 +85,7 @@ stencila-image-object {
         font-size: var(--image-caption-font-size);
         color: var(--image-caption-color);
         line-height: var(--image-caption-line-height);
-        text-align: var(--image-caption-alignment);
+        text-align: var(--image-caption-align);
     }
 }
 

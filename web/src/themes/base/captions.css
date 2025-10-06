@@ -40,7 +40,7 @@
     --caption-line-height: var(--line-height-normal);
     --caption-line-height-print: var(--line-height-tight);
 
-    --caption-alignment: left;
+    --caption-align: left;
     --caption-max-width: 100%;
 }
 

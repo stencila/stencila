@@ -66,7 +66,7 @@
     --figure-caption-color: var(--caption-color);
     --figure-caption-spacing-top: var(--caption-spacing);
     --figure-caption-line-height: var(--caption-line-height);
-    --figure-caption-alignment: var(--caption-alignment);
+    --figure-caption-align: var(--caption-align);
     --figure-caption-max-width: var(--caption-max-width);
 
     /* Label styling - inherits from semantic label tokens */
@@ -124,7 +124,7 @@ stencila-figure {
             font-size: var(--figure-caption-font-size);
             color: var(--figure-caption-color);
             line-height: var(--figure-caption-line-height);
-            text-align: var(--figure-caption-alignment);
+            text-align: var(--figure-caption-align);
         }
 
         /* Paragraph spacing: first paragraph aligns with figcaption,

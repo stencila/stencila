@@ -69,7 +69,7 @@
     --table-caption-color: var(--caption-color);
     --table-caption-spacing-bottom: var(--caption-spacing);
     --table-caption-line-height: var(--caption-line-height);
-    --table-caption-alignment: var(--caption-alignment);
+    --table-caption-align: var(--caption-align);
     --table-caption-max-width: var(--caption-max-width);
 
     /* Label styling - inherits from semantic label tokens */
@@ -83,7 +83,7 @@
     --table-notes-color: var(--text-color-secondary);
     --table-notes-spacing-top: calc(var(--content-spacing) * 0.5);
     --table-notes-line-height: var(--line-height-normal);
-    --table-notes-alignment: left;
+    --table-notes-align: left;
 
     /* Table borders - granular control for theme authors */
     --table-border-radius: var(--border-radius-default);
@@ -223,7 +223,7 @@ stencila-table {
             font-size: var(--table-caption-font-size);
             color: var(--table-caption-color);
             line-height: var(--table-caption-line-height);
-            text-align: var(--table-caption-alignment);
+            text-align: var(--table-caption-align);
         }
 
         /* Paragraph spacing: first paragraph aligns with caption,
@@ -296,7 +296,7 @@ stencila-table {
             font-size: var(--table-notes-font-size);
             color: var(--table-notes-color);
             line-height: var(--table-notes-line-height);
-            text-align: var(--table-notes-alignment);
+            text-align: var(--table-notes-align);
         }
 
         /* Paragraph spacing within notes */
