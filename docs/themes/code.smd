@@ -120,17 +120,17 @@ Colors for different code elements:
 
 ## Token Application
 
-**Inline code** (`<code>`) uses:
+**Inline code** (`<code>`) uses tokens with the `-inline` suffix e.g
 
-- `--code-font-size-inline` - compact size for inline context
-- `--code-background-inline` - subtle background highlighting
-- `--code-padding-inline` for horizontal padding with minimal vertical padding
+- `--code-font-size-inline`
+- `--code-background-inline`
+- `--code-padding-inline`
 
-**Code blocks** (`<pre><code>`) use:
+**Code blocks** (`<pre><code>`) use tokens with the `--block` suffix e.g.:
 
-- `--code-font-size-block` - larger size for better readability
-- `--code-background-block` - consistent with inline background
-- `--code-padding-inline` for horizontal and `--code-padding-block` for generous vertical padding
+- `--code-font-size-block`
+- `--code-background-block`
+- `--code-padding-block`
 
 **CodeMirror integration** is used for all code display in Stencila documents:
 
