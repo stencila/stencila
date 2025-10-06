@@ -1,75 +1,112 @@
 <stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
     <stencila-admonition id=xxx depth=1 ancestors=Article admonition-type=Note>
-      <aside slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>A note</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </aside>
+      <details open>
+        <summary>
+          <span slot=title>Note</span>
+        </summary>
+        <div slot=content>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
+            <p slot=content>
+              <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>A note</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </div>
+      </details>
     </stencila-admonition>
     <stencila-admonition id=xxx depth=1 ancestors=Article admonition-type=Warning>
-      <p slot=title>
-        <stencila-text id=xxx depth=2 ancestors=Article.Admonition>With a title</stencila-text>
-      </p>
-      <aside slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>A warning</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </aside>
+      <details open>
+        <summary>
+          <span slot=title>
+            <stencila-text id=xxx depth=2 ancestors=Article.Admonition>With a title</stencila-text>
+          </span>
+        </summary>
+        <div slot=content>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
+            <p slot=content>
+              <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>A warning</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </div>
+      </details>
     </stencila-admonition>
     <stencila-admonition id=xxx depth=1 ancestors=Article admonition-type=Success is-folded=false>
-      <aside slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>Foldable, but unfolded</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </aside>
+      <details open>
+        <summary>
+          <span slot=title>Success</span>
+        </summary>
+        <div slot=content>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
+            <p slot=content>
+              <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>Foldable, but unfolded</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </div>
+      </details>
     </stencila-admonition>
     <stencila-admonition id=xxx depth=1 ancestors=Article admonition-type=Danger is-folded=true>
-      <p slot=title>
-        <stencila-text id=xxx depth=2 ancestors=Article.Admonition>Folded with a title</stencila-text>
-      </p>
-      <aside slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>Foldable</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </aside>
+      <details>
+        <summary>
+          <span slot=title>
+            <stencila-text id=xxx depth=2 ancestors=Article.Admonition>Folded with a title</stencila-text>
+          </span>
+        </summary>
+        <div slot=content>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Admonition>
+            <p slot=content>
+              <stencila-text id=xxx depth=3 ancestors=Article.Admonition.Paragraph>Foldable</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </div>
+      </details>
     </stencila-admonition>
     <stencila-admonition id=xxx depth=1 ancestors=Article admonition-type=Tip>
-      <p slot=title>
-        <stencila-text id=xxx depth=2 ancestors=Article.Admonition>Nested admonitions</stencila-text>
-      </p>
-      <aside slot=content>
-        <stencila-admonition id=xxx depth=2 ancestors=Article.Admonition admonition-type=Info>
-          <aside slot=content>
-            <stencila-admonition id=xxx depth=3 ancestors=Article.Admonition.Admonition admonition-type=Success>
-              <aside slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Admonition.Admonition.Admonition>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Admonition.Admonition.Admonition.Paragraph>This is the first inner-inner admonition</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </aside>
-            </stencila-admonition>
-            <stencila-admonition id=xxx depth=3 ancestors=Article.Admonition.Admonition admonition-type=Error>
-              <aside slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Admonition.Admonition.Admonition>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Admonition.Admonition.Admonition.Paragraph>This is the second inner-inner admonition</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </aside>
-            </stencila-admonition>
-          </aside>
-        </stencila-admonition>
-      </aside>
+      <details open>
+        <summary>
+          <span slot=title>
+            <stencila-text id=xxx depth=2 ancestors=Article.Admonition>Nested admonitions</stencila-text>
+          </span>
+        </summary>
+        <div slot=content>
+          <stencila-admonition id=xxx depth=2 ancestors=Article.Admonition admonition-type=Info>
+            <details open>
+              <summary>
+                <span slot=title>Info</span>
+              </summary>
+              <div slot=content>
+                <stencila-admonition id=xxx depth=3 ancestors=Article.Admonition.Admonition admonition-type=Success>
+                  <details open>
+                    <summary>
+                      <span slot=title>Success</span>
+                    </summary>
+                    <div slot=content>
+                      <stencila-paragraph id=xxx depth=4 ancestors=Article.Admonition.Admonition.Admonition>
+                        <p slot=content>
+                          <stencila-text id=xxx depth=5 ancestors=Article.Admonition.Admonition.Admonition.Paragraph>This is the first inner-inner admonition</stencila-text>
+                        </p>
+                      </stencila-paragraph>
+                    </div>
+                  </details>
+                </stencila-admonition>
+                <stencila-admonition id=xxx depth=3 ancestors=Article.Admonition.Admonition admonition-type=Error>
+                  <details open>
+                    <summary>
+                      <span slot=title>Error</span>
+                    </summary>
+                    <div slot=content>
+                      <stencila-paragraph id=xxx depth=4 ancestors=Article.Admonition.Admonition.Admonition>
+                        <p slot=content>
+                          <stencila-text id=xxx depth=5 ancestors=Article.Admonition.Admonition.Admonition.Paragraph>This is the second inner-inner admonition</stencila-text>
+                        </p>
+                      </stencila-paragraph>
+                    </div>
+                  </details>
+                </stencila-admonition>
+              </div>
+            </details>
+          </stencila-admonition>
+        </div>
+      </details>
     </stencila-admonition>
   </section>
 </stencila-article>

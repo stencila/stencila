@@ -134,6 +134,7 @@
           cells: [
             {
               type: "TableCell",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",
@@ -148,6 +149,7 @@
             },
             {
               type: "TableCell",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",
@@ -162,6 +164,7 @@
             },
             {
               type: "TableCell",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",

@@ -10,6 +10,7 @@ content:
   - type: TableRow
     cells:
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -17,6 +18,7 @@ content:
           value:
             string: A
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -24,6 +26,7 @@ content:
           value:
             string: B
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -87,6 +90,7 @@ content:
   - type: TableRow
     cells:
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -94,6 +98,7 @@ content:
           value:
             string: D
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -141,6 +146,7 @@ content:
   - type: TableRow
     cells:
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -148,6 +154,7 @@ content:
           value:
             string: A
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:

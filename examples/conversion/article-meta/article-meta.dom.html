@@ -1,17 +1,19 @@
 <stencila-article id=xxx depth=0 ancestors='' date-created='{"type":"Date","value":"2001-01-01"}' date-accepted='{"type":"Date","value":"2011-11-11"}' date-published='{"type":"Date","value":"2022-02-22"}' root>
+  <style>:root{--document-title:"Adding metadata to articles in Stencila";--document-authors:"Anderson et al.";--document-date:"2022-02-22"}</style>
   <section slot=title>
     <h1>
       <stencila-text id=xxx depth=1 ancestors=Article>Adding metadata to articles in Stencila</stencila-text>
     </h1>
   </section>
-  <div slot=authors>
-    <stencila-person id=xxx depth=1 ancestors=Article family-names='["Anderson"]' given-names='["Anne"]' honorific-prefix=Dr.>
+  <section slot=authors>
+    <stencila-person id=xxx depth=1 ancestors=Article>
+      <span slot=name>Anne Anderson</span>
+    </stencila-person>,<stencila-organization id=xxx depth=1 ancestors=Article>
+      <span slot=name>Acme Inc</span>
+    </stencila-organization>,<stencila-person id=xxx depth=1 ancestors=Article>
+      <span slot=name>Andrews</span>
     </stencila-person>
-    <stencila-organization id=xxx depth=1 ancestors=Article name='Acme Inc'>
-    </stencila-organization>
-    <stencila-person id=xxx depth=1 ancestors=Article family-names='["Andrews"]'>
-    </stencila-person>
-  </div>
+  </section>
   <section slot=content>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>

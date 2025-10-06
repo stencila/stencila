@@ -24,6 +24,7 @@
           "stencila:cells": [
             {
               "@type": "stencila:TableCell",
+              "stencila:cellType": "HeaderCell",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -40,6 +41,7 @@
             },
             {
               "@type": "stencila:TableCell",
+              "stencila:cellType": "HeaderCell",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -56,6 +58,7 @@
             },
             {
               "@type": "stencila:TableCell",
+              "stencila:cellType": "HeaderCell",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -200,6 +203,7 @@
           "stencila:cells": [
             {
               "@type": "stencila:TableCell",
+              "stencila:cellType": "HeaderCell",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -216,6 +220,7 @@
             },
             {
               "@type": "stencila:TableCell",
+              "stencila:cellType": "HeaderCell",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -319,6 +324,7 @@
           "stencila:cells": [
             {
               "@type": "stencila:TableCell",
+              "stencila:cellType": "HeaderCell",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",
@@ -335,6 +341,7 @@
             },
             {
               "@type": "stencila:TableCell",
+              "stencila:cellType": "HeaderCell",
               "stencila:content": [
                 {
                   "@type": "stencila:Paragraph",

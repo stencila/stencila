@@ -81,6 +81,7 @@ content:
   - type: TableRow
     cells:
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -88,6 +89,7 @@ content:
           value:
             string: Species
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -95,6 +97,7 @@ content:
           value:
             string: Average Length (cm)
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:

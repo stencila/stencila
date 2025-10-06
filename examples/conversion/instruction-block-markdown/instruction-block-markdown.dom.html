@@ -154,13 +154,18 @@
       </div>
       <div slot=content>
         <stencila-admonition id=xxx depth=2 ancestors=Article.InstructionBlock admonition-type=Warning>
-          <aside slot=content>
-            <stencila-paragraph id=xxx depth=3 ancestors=Article.InstructionBlock.Admonition>
-              <p slot=content>
-                <stencila-text id=xxx depth=4 ancestors=Article.InstructionBlock.Admonition.Paragraph>This is a warning</stencila-text>
-              </p>
-            </stencila-paragraph>
-          </aside>
+          <details open>
+            <summary>
+              <span slot=title>Warning</span>
+            </summary>
+            <div slot=content>
+              <stencila-paragraph id=xxx depth=3 ancestors=Article.InstructionBlock.Admonition>
+                <p slot=content>
+                  <stencila-text id=xxx depth=4 ancestors=Article.InstructionBlock.Admonition.Paragraph>This is a warning</stencila-text>
+                </p>
+              </stencila-paragraph>
+            </div>
+          </details>
         </stencila-admonition>
       </div>
     </stencila-instruction-block>

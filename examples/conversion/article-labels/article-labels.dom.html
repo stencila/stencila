@@ -31,14 +31,14 @@
         <stencila-image-object id=xxx depth=2 ancestors=Article.Figure content-url='https://placehold.co/300x200/orange/white'>
           <img src='https://placehold.co/300x200/orange/white'/>
         </stencila-image-object>
+        <figcaption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Some white text on orange an background.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
       </figure>
-      <figcaption slot=caption>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
-          <p slot=content>
-            <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Some white text on orange an background.</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </figcaption>
     </stencila-figure>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
@@ -60,29 +60,29 @@
       </p>
     </stencila-paragraph>
     <stencila-table id=xxx depth=1 ancestors=Article>
-      <div slot=caption>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Table>
-          <p slot=content>
-            <span class=table-label>Table</span>:<stencila-text id=xxx depth=3 ancestors=Article.Table.Paragraph>A little table about fish.</stencila-text>
-          </p>
-        </stencila-paragraph>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Table>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Table.Paragraph>This caption has two paragraphs.</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </div>
       <table slot=rows>
+        <caption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Table>
+            <p slot=content>
+              <span class=table-label>Table</span>:<stencila-text id=xxx depth=3 ancestors=Article.Table.Paragraph>A little table about fish.</stencila-text>
+            </p>
+          </stencila-paragraph>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Table>
+            <p slot=content>
+              <stencila-text id=xxx depth=3 ancestors=Article.Table.Paragraph>This caption has two paragraphs.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </caption>
         <tr id=xxx depth=2 ancestors=Article.Table>
-          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+          <th id=xxx depth=3 ancestors=Article.Table.TableRow>
             <stencila-text id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>Species</stencila-text>
-          </td>
-          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+          </th>
+          <th id=xxx depth=3 ancestors=Article.Table.TableRow>
             <stencila-text id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>Average Length (cm)</stencila-text>
-          </td>
-          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+          </th>
+          <th id=xxx depth=3 ancestors=Article.Table.TableRow>
             <stencila-text id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>Average Weight (kg)</stencila-text>
-          </td>
+          </th>
         </tr>
         <tr id=xxx depth=2 ancestors=Article.Table>
           <td id=xxx depth=3 ancestors=Article.Table.TableRow>

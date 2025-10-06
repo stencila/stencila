@@ -10,6 +10,7 @@ content:
   - type: TableRow
     cells:
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -19,6 +20,7 @@ content:
             value:
               string: Emphasized header
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -96,6 +98,7 @@ content:
   - type: TableRow
     cells:
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -104,6 +107,7 @@ content:
             string: Left
       horizontalAlignment: AlignLeft
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
@@ -112,6 +116,7 @@ content:
             string: Center
       horizontalAlignment: AlignCenter
     - type: TableCell
+      cellType: HeaderCell
       content:
       - type: Paragraph
         content:
