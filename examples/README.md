@@ -33,3 +33,7 @@ When adding new conversion examples, or updating existing ones, to updated deriv
 ```console
 make examples -C codecs
 ```
+
+## `rendering`
+
+For testing rendering to HTML and other formats. Rendering differs from conversion because it involves compilation, linking and execution of the document, and focusses on encoding content to the target format.

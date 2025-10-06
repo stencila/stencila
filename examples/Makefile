@@ -16,6 +16,15 @@ conversion:
 	UPDATE_EXAMPLES=true cargo test -p stencila-codecs --test examples
 .PHONY: conversion
 
+# Render a rendering example
+rendering/%.html: rendering/%.smd
+	cargo run --bin stencila --quiet render --pretty --not-standalone $< $@
+
+# Render all rendering examples
+rendering: $(patsubst %.smd,%.html,$(filter-out %README.md,$(wildcard rendering/**/*.smd)))
+.PHONY: rendering
+
+
 # Execute a particular kernel example and save as JSON
 kernels/%.json: kernels/%.md
 	cargo run --bin stencila --quiet execute $< $@
