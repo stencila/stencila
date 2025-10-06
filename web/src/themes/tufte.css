@@ -85,6 +85,13 @@
     --heading-h5-font-weight: 400;
     --heading-h6-font-weight: 400;
 
+    /* Captions
+     *
+     * Slightly smaller sans-serif for contrast. */
+    --caption-font-family: var(--font-family-sans);
+    --caption-font-size: calc(var(--text-font-size) * 0.80);
+    --caption-alignment: left;
+
     /* Tables
      *
      * Following Tufte's table design: horizontal rules only (top and bottom),
@@ -112,6 +119,15 @@
     --table-row-striped-print: transparent;
     --table-cell-padding: var(--space-3);
 
+    /* Figures
+     *
+     * Minimal figure styling.
+     * No borders or backgrounds - let the content stand alone. */
+    --figure-border-width: 0;
+    --figure-background: transparent;
+    --figure-caption-font-family: var(--font-family-sans);
+    --figure-caption-alignment: left;
+
     /* Lists
      *
      * Minimal list styling with simple markers and reduced spacing.
@@ -134,19 +150,6 @@
     --quote-border-radius: 0;
     --quote-font-style: italic;
     --quote-font-size: var(--text-font-size);
-
-    /* Figures & Captions
-     *
-     * Minimal figure styling with sans-serif captions for contrast.
-     * No borders or backgrounds - let the content stand alone. */
-    --figure-border-width: 0;
-    --figure-background: transparent;
-    --figure-caption-font-family: var(--font-family-sans);
-    --figure-caption-font-size: calc(var(--text-font-size) * 0.80);
-    --figure-caption-alignment: left;
-    --caption-font-family: var(--font-family-sans);
-    --caption-font-size: calc(var(--text-font-size) * 0.80);
-    --caption-alignment: left;
 
     /* Code
      *
@@ -199,6 +202,18 @@
     --admonition-danger-color-dark: var(--color-gray-200);
     --admonition-error-color: var(--color-gray-800);
     --admonition-error-color-dark: var(--color-gray-200);
+
+    /* References
+     *
+     * Tufte's approach to references emphasizes readability and minimalism
+     * over formal academic conventions. Smaller font size (similar to
+     * sidenotes), left-aligned for easy scanning, compact spacing, and no
+     * hanging indent for a cleaner, simpler presentation. */
+    --reference-font-size: calc(var(--text-font-size) * 0.8);
+    --reference-spacing: calc(var(--content-spacing) * 0.6);
+    --reference-text-align: left;
+    --reference-text-indent: 0;
+    --reference-padding-left: 0;
 
     /* Thematic breaks */
     --thematic-break-border-width: 0.5px;
@@ -278,6 +293,16 @@
 
     /* Typography - Serif for plot text with increased sizes for clarity */
     --plot-font-family: var(--font-family-serif);
+
+    /* Page Headers and Footers
+     *
+     * Following Tufte's understated approach: simple centered page numbers in
+     * footer using serif font at slightly reduced size for subtlety. First page
+     * (typically title page) has no page number. */
+    --page-margin-font-family: var(--font-family-serif);
+    --page-margin-font-size: calc(var(--text-font-size) * 0.9);
+    --page-bottom-center-content: counter(page);
+    --page1-bottom-center-content: '';
 }
 
 /* Root Element Refinements */
@@ -299,4 +324,30 @@
  * This approach favors italic emphasis over heavy bold weights. */
 [root] strong {
     font-weight: 600;
+}
+
+/* Print-specific overrides for authentic Tufte typography
+ *
+ * As noted in the content spacing comment above, Tufte's printed works use
+ * first-line indentation without vertical spacing for a refined, book-like
+ * appearance. For print, we restore these traditional typographic conventions
+ * while keeping the web version readable with vertical spacing. */
+@media print {
+    :root {
+        /* Paragraphs - Classic Tufte style with first-line indent, no spacing */
+        --paragraph-spacing: 0;
+        --paragraph-text-indent: 1.5em;
+        --paragraph-text-align: justify;
+        --paragraph-hyphens: auto;
+
+        /* First paragraph after headings - no indent per book design convention */
+        --paragraph-lead-text-indent: 0;
+
+        /* Lists - Slightly more compact for print while maintaining elegance */
+        --list-spacing: calc(var(--content-spacing) * 0.85);
+        --list-item-spacing: calc(var(--content-spacing) * 0.25);
+
+        /* Captions - Reduced for print economy */
+        --caption-font-size: calc(var(--text-font-size) * 0.7);
+    }
 }

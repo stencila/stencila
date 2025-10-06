@@ -87,6 +87,18 @@
     --heading-h5-font-weight: 700;
     --heading-h6-font-weight: 400;
 
+    /* Captions
+     *
+     * LaTeX captions use "Figure X:" or "Table X:" prefixes with slightly
+     * smaller serif font and centered alignment, following traditional LaTeX
+     * document conventions. These tokens are inherited by both figures and
+     * tables for consistent caption styling. Spacing matches content-spacing
+     * for clear visual separation. */
+    --caption-font-family: var(--font-family-serif);
+    --caption-font-size: calc(var(--text-font-size) * 0.9);
+    --caption-alignment: center;
+    --caption-spacing: var(--content-spacing);
+
     /* Tables
      *
      * LaTeX booktabs package defines the gold standard for table design:
@@ -118,7 +130,14 @@
     --table-row-hover: transparent;
     --table-row-striped: transparent;
     --table-row-striped-print: transparent;
-    --table-cell-padding: var(--space-3);
+    --table-cell-padding: var(--space-2);
+
+    /* Figures
+     *
+     * LaTeX figures are centered with captions below (or above).
+     * No borders or backgrounds - clean and minimal. */
+    --figure-border-width: 0;
+    --figure-background: transparent;
 
     /* Lists
      *
@@ -143,25 +162,6 @@
     --quote-border-radius: 0;
     --quote-font-style: normal;
     --quote-font-size: var(--text-font-size);
-
-    /* Captions
-     *
-     * LaTeX captions use "Figure X:" or "Table X:" prefixes with slightly
-     * smaller serif font and centered alignment, following traditional LaTeX
-     * document conventions. These tokens are inherited by both figures and
-     * tables for consistent caption styling. Spacing matches content-spacing
-     * for clear visual separation. */
-    --caption-font-family: var(--font-family-serif);
-    --caption-font-size: calc(var(--text-font-size) * 0.9);
-    --caption-alignment: center;
-    --caption-spacing: var(--content-spacing);
-
-    /* Figures
-     *
-     * LaTeX figures are centered with captions below (or above).
-     * No borders or backgrounds - clean and minimal. */
-    --figure-border-width: 0;
-    --figure-background: transparent;
 
     /* Code
      *
@@ -198,10 +198,7 @@
 
     /* Admonitions
      *
-     * LaTeX theorem environments (theorem, lemma, proof, etc.) use bold
-     * labels and italic content, often with minimal borders or backgrounds.
-     * We maintain this scholarly style with subtle left accent borders and
-     * grayscale colors for different types. */
+     * Maintain scholarly style with subtle left accent borders for different types. */
     --admonition-border-width: 0;
     --admonition-accent-border-width: 3px;
     --admonition-border-radius: 0;
@@ -226,6 +223,18 @@
     --admonition-danger-color-dark: var(--color-orange-400);
     --admonition-error-color: var(--color-red-800);
     --admonition-error-color-dark: var(--color-red-300);
+
+    /* References
+     *
+     * LaTeX bibliographies use hanging indent format where the citation label
+     * or first line extends to the left and subsequent lines are indented.
+     * Font size is typically slightly smaller than body text (90-95%) with
+     * compact spacing between entries for efficient use of space. */
+    --reference-font-size: calc(var(--text-font-size) * 0.92);
+    --reference-spacing: calc(var(--content-spacing) * 0.75);
+    --reference-text-indent: -2em;
+    --reference-padding-left: 2em;
+    --reference-hyphens: auto;
 
     /* Thematic breaks */
     --thematic-break-border-width: 1px;
@@ -286,29 +295,42 @@
 
     /* Typography - serif for plot text matching document */
     --plot-font-family: var(--font-family-serif);
+
+    /* Page Headers and Footers
+     *
+     * LaTeX article class convention: no headers, centered page number in
+     * footer. First page (title page) has no page number. Page numbers use
+     * serif font matching body text at full body text size. */
+    --page-margin-font-family: var(--font-family-serif);
+    --page-margin-font-size: var(--text-font-size);
+    --page-bottom-center-content: counter(page);
+    --page1-bottom-center-content: '';
 }
 
-/* Paragraph Refinements */
-
-/* First Paragraph After Heading
+/* Print-specific overrides for authentic LaTeX typography
  *
- * In LaTeX, the first paragraph after a heading has no indentation.
- * This helps visually connect the heading to its content. */
-[root] h1 + p,
-[root] h2 + p,
-[root] h3 + p,
-[root] h4 + p,
-[root] h5 + p,
-[root] h6 + p {
-    text-indent: 0;
-}
+ * Web compromises (spacing between paragraphs, no justification) are reversed
+ * for print to achieve traditional LaTeX document appearance with first-line
+ * indentation, full justification, and compact spacing. */
+@media print {
+    :root {
+        /* Paragraphs - Classic LaTeX style with first-line indent, no spacing */
+        --paragraph-spacing: 0;
+        --paragraph-text-indent: 1.5em;
+        --paragraph-text-align: justify;
+        --paragraph-hyphens: auto;
 
-/* Standard Paragraphs
- *
- * LaTeX's distinctive first-line indentation using latex-css's precise value
- * of 1.463rem, which represents the LaTeX \parindent of ~17.625pt converted
- * to web units: 17.625 * (72/72.27) / 12 = 1.463rem. */
-[root] p + p {
-    text-indent: 1.463rem;
-    margin-top: 0;
+        /* First paragraph after headings - no indent per LaTeX convention */
+        --paragraph-lead-text-indent: 0;
+
+        /* Lists - More compact spacing for print */
+        --list-spacing: calc(var(--content-spacing) * 0.75);
+        --list-item-spacing: calc(var(--content-spacing) * 0.15);
+
+        /* Tables - Tighter spacing to fit more data */
+        --table-cell-padding-print: var(--space-xs);
+
+        /* References - Even more compact for bibliography */
+        --reference-spacing: calc(var(--content-spacing) * 0.5);
+    }
 }
