@@ -303,18 +303,16 @@ pub trait KernelInstance: Sync + Send {
     }
 
     /// Execute code, in a specific language, in the kernel instance
+    ///
+    /// Kernels that support multiple languages should override this default
+    /// implementation which ignores the language (suitable for most kernels
+    /// which only handle a single language)
     async fn evaluate_language(
         &mut self,
         code: &str,
         language: Option<&str>,
     ) -> Result<(Node, Vec<ExecutionMessage>)> {
-        let (nodes, messages) = self.execute_language(code, language).await?;
-        Ok((
-            nodes
-                .first()
-                .map_or_else(|| Node::Null(Null), |node| node.clone()),
-            messages,
-        ))
+        self.evaluate(code).await
     }
 
     /// Get runtime information about the kernel instance

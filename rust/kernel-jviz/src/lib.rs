@@ -5,7 +5,8 @@ use stencila_kernel::{
     generate_id,
     stencila_format::Format,
     stencila_schema::{
-        ExecutionBounds, ExecutionMessage, ImageObject, Node, SoftwareApplication, StringOrNumber,
+        ExecutionBounds, ExecutionMessage, ImageObject, Node, Null, SoftwareApplication,
+        StringOrNumber,
     },
 };
 use stencila_kernel_jinja::JinjaKernelInstance;
@@ -89,6 +90,10 @@ impl KernelInstance for JvizKernelInstance {
         self.execute_language(code, None).await
     }
 
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
+        self.evaluate_language(code, None).await
+    }
+
     async fn execute_language(
         &mut self,
         code: &str,
@@ -129,6 +134,20 @@ impl KernelInstance for JvizKernelInstance {
         });
 
         Ok((vec![image], messages))
+    }
+
+    async fn evaluate_language(
+        &mut self,
+        code: &str,
+        language: Option<&str>,
+    ) -> Result<(Node, Vec<ExecutionMessage>)> {
+        let (nodes, messages) = self.execute_language(code, language).await?;
+        Ok((
+            nodes
+                .first()
+                .map_or_else(|| Node::Null(Null), |node| node.clone()),
+            messages,
+        ))
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
