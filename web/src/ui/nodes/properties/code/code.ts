@@ -257,6 +257,8 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'json',
+      // JSON visualization specs rendered by the Jviz kernel
+      alias: ['cytoscape', 'echarts', 'plotly', 'vegalite'],
       load: async () => {
         return import('@codemirror/lang-json').then((obj) => obj.json())
       },

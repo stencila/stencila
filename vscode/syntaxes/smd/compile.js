@@ -32,6 +32,13 @@ const langs = [
     include: "source.js",
     chunks: true,
   },
+  {
+    name: "json",
+    // JSON visualization specs rendered by the Jviz kernel
+    aliases: "json|cytoscape|echarts|plotly|vegalite",
+    include: "source.json",
+    chunks: true,
+  },
   { name: "html", aliases: "html", include: "text.html.basic", chunks: false },
   {
     name: "python",
