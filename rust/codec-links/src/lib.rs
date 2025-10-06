@@ -700,8 +700,14 @@ mod tests {
         }
 
         // Test that NO links are parsed out of this
-        let result = text_with_links(&mut "Configure 1A to obtain suitable 2B for urlhttp://example.com")?;
-        assert_eq!(result, vec![t("Configure 1A to obtain suitable 2B for urlhttp://example.com")]);
+        let result =
+            text_with_links(&mut "Configure 1A to obtain suitable 2B for urlhttp://example.com")?;
+        assert_eq!(
+            result,
+            vec![t(
+                "Configure 1A to obtain suitable 2B for urlhttp://example.com"
+            )]
+        );
 
         Ok(())
     }

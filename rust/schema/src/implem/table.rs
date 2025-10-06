@@ -134,13 +134,7 @@ impl DomCodec for Table {
                 // of the custom element (in this case, <stencila-table>). For those reasons, the caption is not
                 // assigned to a slot
                 context.enter_elem("caption");
-                caption_to_dom(
-                    context,
-                    "table-label",
-                    "Table",
-                    &self.label,
-                    &self.caption,
-                );
+                caption_to_dom(context, "table-label", "Table", &self.label, &self.caption);
                 context.exit_elem();
             }
 

@@ -156,6 +156,7 @@ fn creative_work_type(source_type: Option<&str>) -> Option<CreativeWorkType> {
         "journal" => Some(CreativeWorkType::Periodical),
         "repository" => Some(CreativeWorkType::Collection),
         "conference" => Some(CreativeWorkType::Collection),
-        "ebook platform" | "book series" | "metadata" | "other" | _ => None,
+        "ebook platform" | "book series" | "metadata" | "other" => None,
+        _ => None,
     })
 }

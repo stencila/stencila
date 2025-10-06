@@ -290,11 +290,10 @@ impl FirstWalk {
                 }
             } else if self.options.should_perform(UnwrapQuoteBlocks)
                 && let Some(Block::QuoteBlock(QuoteBlock { content, .. })) = blocks.get(index)
+                && content.len() > 2
             {
-                if content.len() > 2 {
-                    // Splice in blocks over the current quote
-                    blocks.splice(index..=index, content.clone());
-                }
+                // Splice in blocks over the current quote
+                blocks.splice(index..=index, content.clone());
             }
 
             // Check for ImageObject followed by figure caption

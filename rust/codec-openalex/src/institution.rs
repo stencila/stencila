@@ -161,7 +161,7 @@ impl From<DehydratedInstitution> for Organization {
 
         let identifiers = institution
             .id
-            .and_then(|id| id_to_identifiers("openalex".into(), id.into()));
+            .and_then(|id| id_to_identifiers("openalex", id));
 
         Self {
             ror,
