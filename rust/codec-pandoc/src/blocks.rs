@@ -523,7 +523,7 @@ fn table_row_from_pandoc(
     let cells = row
         .cells
         .into_iter()
-        .map(|cell| table_cell_from_pandoc(cell, context))
+        .map(|cell| table_cell_from_pandoc(cell, &row_type, context))
         .collect();
 
     TableRow {
@@ -533,8 +533,17 @@ fn table_row_from_pandoc(
     }
 }
 
-fn table_cell_from_pandoc(cell: pandoc::Cell, context: &mut PandocDecodeContext) -> TableCell {
+fn table_cell_from_pandoc(
+    cell: pandoc::Cell,
+    row_type: &Option<TableRowType>,
+    context: &mut PandocDecodeContext,
+) -> TableCell {
     let content = blocks_from_pandoc(cell.content, context);
+
+    let cell_type = match row_type {
+        Some(TableRowType::HeaderRow) => Some(TableCellType::HeaderCell),
+        _ => None,
+    };
 
     let horizontal_alignment = match cell.align {
         pandoc::Alignment::AlignLeft => Some(HorizontalAlignment::AlignLeft),
@@ -554,6 +563,7 @@ fn table_cell_from_pandoc(cell: pandoc::Cell, context: &mut PandocDecodeContext)
 
     TableCell {
         content,
+        cell_type,
         options: Box::new(TableCellOptions {
             row_span,
             column_span,

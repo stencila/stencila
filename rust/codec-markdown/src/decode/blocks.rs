@@ -25,7 +25,7 @@ use stencila_codec::{
         InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
         Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
         StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableCellOptions,
-        TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        TableCellType, TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -1935,15 +1935,18 @@ fn mds_to_table_rows(
         .into_iter()
         .filter_map(|mdast_row| {
             if let mdast::Node::TableRow(mdast::TableRow { children, position }) = mdast_row {
-                let row_type = if first {
+                let (row_type, cell_type) = if first {
                     first = false;
-                    Some(TableRowType::HeaderRow)
+                    (
+                        Some(TableRowType::HeaderRow),
+                        Some(TableCellType::HeaderCell),
+                    )
                 } else {
-                    None
+                    (None, None)
                 };
 
                 let node = TableRow {
-                    cells: mds_to_table_cells(children, &column_alignments, context),
+                    cells: mds_to_table_cells(children, cell_type, &column_alignments, context),
                     row_type,
                     ..Default::default()
                 };
@@ -1960,6 +1963,7 @@ fn mds_to_table_rows(
 
 fn mds_to_table_cells(
     mdast_cells: Vec<mdast::Node>,
+    cell_type: Option<TableCellType>,
     column_alignments: &[AlignKind],
     context: &mut Context,
 ) -> Vec<TableCell> {
@@ -1988,6 +1992,7 @@ fn mds_to_table_cells(
 
                 let node = TableCell {
                     content,
+                    cell_type,
                     options: Box::new(TableCellOptions {
                         horizontal_alignment,
                         ..Default::default()
