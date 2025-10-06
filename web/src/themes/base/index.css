@@ -11,13 +11,13 @@
 
 @import url("./tokens-primitive.css");
 @import url("./tokens-semantic.css");
-@import url("./tokens-ua.css");
-@import url("./tokens-page.css");
 
 @import url("./root.css");
+@import url("./browsers.css");
+@import url("./pages.css");
 
-@import url("./labels.css");
 @import url("./captions.css");
+@import url("./labels.css");
 
 @import url("./admonitions.css");
 @import url("./articles.css");

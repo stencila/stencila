@@ -1,7 +1,7 @@
-/* Page Design Tokens
+/* Page styling
  *
- * Page layout semantic tokens for paged media (@page rules).
- * Component print variants are handled in tokens-semantic.css.
+ * Page layout semantic tokens for paged media (@page rules). Note that
+ * component print variants are handled separately by `-print` variants.
  */
 
 :root {
