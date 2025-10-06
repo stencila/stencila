@@ -10,66 +10,66 @@ description: |
 
 The foundation token from which all diagram colors are calculated.
 
-| Token                     | Description                                           | Default Value         |
-| ------------------------- | ----------------------------------------------------- | --------------------- |
-| `--diagram-base-color`    | Base color for all diagram color calculations         | `var(--color-accent)` |
-| `--diagram-base-color-dark` | Base color for dark mode                            | `var(--color-accent-dark)` |
+| Token                       | Description                                   | Default Value              |
+| --------------------------- | --------------------------------------------- | -------------------------- |
+| `--diagram-base-color`      | Base color for all diagram color calculations | `var(--color-accent)`      |
+| `--diagram-base-color-dark` | Base color for dark mode                      | `var(--color-accent-dark)` |
 
 ## Core Diagram Tokens
 
 Base styling tokens that apply to all diagram types.
 
-| Token                   | Description                   | Default Value               |
-| ----------------------- | ----------------------------- | --------------------------- |
-| `--diagram-background`  | Background color for diagrams | `var(--surface-foreground)` |
-| `--diagram-font-family` | Font family for diagram text  | `var(--font-family-sans)`   |
-| `--diagram-font-size`   | Font size for diagram text    | `var(--font-size-sm)`       |
+| Token                   | Description                   | Default Value                                                                  |
+| ----------------------- | ----------------------------- | ------------------------------------------------------------------------------ |
+| `--diagram-background`  | Background color for diagrams | `var(--surface-foreground)`                                                    |
+| `--diagram-font-family` | Font family for diagram text  | `var(--font-family-sans)`                                                      |
+| `--diagram-font-size`   | Font size for diagram text    | `var(--font-size-sm)`                                                          |
 | `--diagram-text-color`  | Primary text color            | `color-mix(in srgb, var(--diagram-base-color) 95%, var(--diagram-background))` |
 
 ## Node and Shape Tokens
 
 Colors and styling for diagram nodes, shapes, and containers. All colors calculated from `--diagram-base-color` mixed with `--diagram-background`.
 
-| Token                                 | Description                          | Calculation |
-| ------------------------------------- | ------------------------------------ | ----------- |
+| Token                                 | Description                          | Calculation                                                                    |
+| ------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------ |
 | `--diagram-node-background`           | Primary node/shape fill color        | `color-mix(in srgb, var(--diagram-base-color) 15%, var(--diagram-background))` |
 | `--diagram-node-background-secondary` | Secondary node background            | `color-mix(in srgb, var(--diagram-base-color) 25%, var(--diagram-background))` |
 | `--diagram-node-background-tertiary`  | Tertiary node background (3+ states) | `color-mix(in srgb, var(--diagram-base-color) 35%, var(--diagram-background))` |
 | `--diagram-node-border-color`         | Node border color                    | `color-mix(in srgb, var(--diagram-base-color) 35%, var(--diagram-background))` |
-| `--diagram-node-border-width`         | Node border width                    | `var(--border-width-thick)` |
-| `--diagram-node-text-color`           | Text color inside nodes              | `var(--diagram-text-color)` |
+| `--diagram-node-border-width`         | Node border width                    | `var(--border-width-thick)`                                                    |
+| `--diagram-node-text-color`           | Text color inside nodes              | `var(--diagram-text-color)`                                                    |
 
 ## Edge and Connection Tokens
 
 Styling for lines, arrows, and connections between diagram nodes.
 
-| Token                             | Description           | Calculation |
-| --------------------------------- | --------------------- | ----------- |
-| `--diagram-edge-color`            | Line/edge color       | `color-mix(in srgb, var(--diagram-base-color) 60%, var(--diagram-background))` |
-| `--diagram-edge-width`            | Line/edge width       | `var(--border-width-default)` |
-| `--diagram-edge-text-color`       | Edge label text color | `var(--diagram-text-color)` |
+| Token                       | Description           | Calculation                                                                    |
+| --------------------------- | --------------------- | ------------------------------------------------------------------------------ |
+| `--diagram-edge-color`      | Line/edge color       | `color-mix(in srgb, var(--diagram-base-color) 60%, var(--diagram-background))` |
+| `--diagram-edge-width`      | Line/edge width       | `var(--border-width-default)`                                                  |
+| `--diagram-edge-text-color` | Edge label text color | `var(--diagram-text-color)`                                                    |
 
 ## State Tokens
 
 Generic state tokens applicable across diagram types (Gantt tasks, state diagrams, etc.).
 
-| Token                              | Description                          | Default Value |
-| ---------------------------------- | ------------------------------------ | ------------- |
-| `--diagram-active-background`      | Background for active states         | `var(--diagram-node-background-tertiary)` |
-| `--diagram-active-border-color`    | Border for active states             | `var(--diagram-node-border-color)` |
-| `--diagram-inactive-background`    | Background for inactive/default states | `var(--diagram-node-background)` |
-| `--diagram-inactive-border-color`  | Border for inactive/default states   | `var(--diagram-node-border-color)` |
-| `--diagram-complete-background`    | Background for completed states      | `var(--diagram-node-background-secondary)` |
-| `--diagram-complete-border-color`  | Border for completed states          | `var(--diagram-node-border-color)` |
+| Token                             | Description                            | Default Value                              |
+| --------------------------------- | -------------------------------------- | ------------------------------------------ |
+| `--diagram-active-background`     | Background for active states           | `var(--diagram-node-background-tertiary)`  |
+| `--diagram-active-border-color`   | Border for active states               | `var(--diagram-node-border-color)`         |
+| `--diagram-inactive-background`   | Background for inactive/default states | `var(--diagram-node-background)`           |
+| `--diagram-inactive-border-color` | Border for inactive/default states     | `var(--diagram-node-border-color)`         |
+| `--diagram-complete-background`   | Background for completed states        | `var(--diagram-node-background-secondary)` |
+| `--diagram-complete-border-color` | Border for completed states            | `var(--diagram-node-border-color)`         |
 
 ## Structure Tokens
 
 Tokens for structural diagram elements like grids, sections, and groupings.
 
-| Token                          | Description                          | Calculation |
-| ------------------------------ | ------------------------------------ | ----------- |
-| `--diagram-grid-color`         | Grid line color                      | `var(--diagram-base-color)` |
-| `--diagram-section-background` | Section/cluster/subgraph background  | `color-mix(in srgb, var(--diagram-base-color) 10%, var(--diagram-background))` |
+| Token                          | Description                         | Calculation                                                                    |
+| ------------------------------ | ----------------------------------- | ------------------------------------------------------------------------------ |
+| `--diagram-grid-color`         | Grid line color                     | `var(--diagram-base-color)`                                                    |
+| `--diagram-section-background` | Section/cluster/subgraph background | `color-mix(in srgb, var(--diagram-base-color) 10%, var(--diagram-background))` |
 
 # Usage
 
@@ -78,29 +78,33 @@ Tokens for structural diagram elements like grids, sections, and groupings.
 All diagram colors derive from a single base color for automatic theme integration:
 
 **`--diagram-base-color`** is the foundation:
+
 - Defaults to `var(--color-accent)` - diagrams automatically match your theme's accent color
 - All node, edge, and text colors are calculated from this base using `color-mix()`
 - Change one token to restyle entire diagrams
 
 **Quick theme changes**:
+
 ```css
 /* Override base color for all diagrams */
 :root {
-  --diagram-base-color: var(--color-success);  /* Green diagrams */
+  --diagram-base-color: var(--color-success); /* Green diagrams */
 }
 ```
 
 **Fine-grained control**:
+
 ```css
 /* Override specific calculated values */
 :root {
   --diagram-base-color: var(--color-purple-600);
-  --diagram-node-background: var(--color-purple-50);  /* Override calculation */
-  --diagram-edge-color: var(--color-purple-800);      /* Different from base */
+  --diagram-node-background: var(--color-purple-50); /* Override calculation */
+  --diagram-edge-color: var(--color-purple-800); /* Different from base */
 }
 ```
 
 **Color calculations**: All colors are calculated using consistent percentages in both light and dark modes by mixing `--diagram-base-color` with `--diagram-background`:
+
 - Text: 95% base color
 - Node backgrounds: 15%, 25%, 35% base color (primary, secondary, tertiary)
 - Node borders: 35% base color
@@ -108,6 +112,7 @@ All diagram colors derive from a single base color for automatic theme integrati
 - Sections/clusters: 10% base color
 
 **State tokens**: Provide semantic control over different element states:
+
 - Inactive (default): Uses primary node background
 - Active: Uses tertiary node background (most saturated)
 - Complete: Uses secondary node background (middle saturation)
@@ -248,40 +253,62 @@ gantt
 
 Tests node styling, edge styling, and state selectors (selected nodes use active colors).
 
-```js exec
-var graph = {
-  elements: {
-    nodes: [
-      { data: { id: "data", label: "Data Collection" } },
-      { data: { id: "check", label: "Quality Check" } },
-      { data: { id: "clean", label: "Data Cleaning" } },
-      { data: { id: "analysis", label: "Analysis" } },
-      { data: { id: "results", label: "Results" } },
+```cytoscape exec
+{
+  "elements": {
+    "nodes": [
+      { "data": { "id": "data", "label": "Data Collection" } },
+      { "data": { "id": "check", "label": "Quality Check" } },
+      { "data": { "id": "clean", "label": "Data Cleaning" } },
+      { "data": { "id": "analysis", "label": "Analysis" } },
+      { "data": { "id": "results", "label": "Results" } }
     ],
-    edges: [
-      { data: { id: "e1", source: "data", target: "check", label: "submit" } },
-      { data: { id: "e2", source: "check", target: "analysis", label: "pass" } },
-      { data: { id: "e3", source: "check", target: "clean", label: "fail" } },
-      { data: { id: "e5", source: "analysis", target: "results", label: "complete" } },
-    ],
+    "edges": [
+      {
+        "data": {
+          "id": "e1",
+          "source": "data",
+          "target": "check",
+          "label": "submit"
+        }
+      },
+      {
+        "data": {
+          "id": "e2",
+          "source": "check",
+          "target": "analysis",
+          "label": "pass"
+        }
+      },
+      {
+        "data": {
+          "id": "e3",
+          "source": "check",
+          "target": "clean",
+          "label": "fail"
+        }
+      },
+      {
+        "data": {
+          "id": "e5",
+          "source": "analysis",
+          "target": "results",
+          "label": "complete"
+        }
+      }
+    ]
   },
-  style: [
+  "style": [
     {
-      selector: "node",
-      style: { label: "data(label)" },
+      "selector": "node",
+      "style": { "label": "data(label)" }
     },
     {
-      selector: "edge",
-      style: { label: "data(label)" },
-    },
-  ],
-};
-
-console.log({
-  type: "ImageObject",
-  mediaType: "application/vnd.cytoscape.v3+json",
-  contentUrl: JSON.stringify(graph),
-});
+      "selector": "edge",
+      "sty1le": { "label": "data(label)" }
+    }
+  ]
+}
 ```
 
 # Tips
