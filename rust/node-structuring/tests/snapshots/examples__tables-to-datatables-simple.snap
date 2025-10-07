@@ -85,6 +85,7 @@ expression: node
           "cells": [
             {
               "type": "TableCell",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
@@ -101,6 +102,7 @@ expression: node
             },
             {
               "type": "TableCell",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",

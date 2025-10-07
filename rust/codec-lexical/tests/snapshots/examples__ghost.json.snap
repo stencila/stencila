@@ -1,7 +1,6 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: article
-snapshot_kind: text
 ---
 {
   "type": "Article",
@@ -413,6 +412,7 @@ snapshot_kind: text
           "cells": [
             {
               "type": "TableCell",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
@@ -429,6 +429,7 @@ snapshot_kind: text
             },
             {
               "type": "TableCell",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
