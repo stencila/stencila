@@ -5,7 +5,7 @@ use std::{
     sync::LazyLock,
 };
 
-use eyre::{Result, bail};
+use eyre::{Result, bail, eyre};
 use lightningcss::{
     printer::Printer,
     properties::{Property, custom::CustomPropertyName},
@@ -13,8 +13,15 @@ use lightningcss::{
     stylesheet::{ParserOptions, PrinterOptions, StyleSheet},
     traits::ToCss,
 };
+use notify::{
+    Event, RecursiveMode, Watcher,
+    event::{EventKind, ModifyKind},
+};
 use pathdiff::diff_paths;
-use tokio::fs::{read_to_string, remove_file, write};
+use tokio::{
+    fs::{read_to_string, remove_file, write},
+    sync::mpsc,
+};
 
 use stencila_dirs::{DirType, get_app_dir};
 use stencila_web_dist::Web;
@@ -222,7 +229,7 @@ pub async fn list(base_path: Option<&Path>) -> Result<Vec<Theme>> {
     let mut current = base_path
         .map(|p| p.to_path_buf())
         .or_else(|| current_dir().ok())
-        .ok_or_else(|| eyre::eyre!("Failed to determine base path"))?;
+        .ok_or_else(|| eyre!("Failed to determine base path"))?;
     loop {
         let theme_path = current.join("theme.css");
         if theme_path.exists() {
@@ -330,7 +337,7 @@ pub async fn get(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<
     let mut current = base_path
         .map(|p| p.to_path_buf())
         .or_else(|| current_dir().ok())
-        .ok_or_else(|| eyre::eyre!("Failed to determine base path"))?;
+        .ok_or_else(|| eyre!("Failed to determine base path"))?;
     loop {
         let theme_path = current.join("theme.css");
         if theme_path.exists() {
@@ -460,4 +467,89 @@ pub async fn remove(name: &str, force: bool) -> Result<()> {
     remove_file(&theme_path).await?;
 
     Ok(())
+}
+
+/// Watch a theme for changes and receive updates through a channel
+///
+/// # Arguments
+/// * `name` - Optional theme name. If None, watches workspace theme (theme.css)
+/// * `base_path` - Optional base path for searching workspace themes. If None, uses current directory.
+///
+/// # Returns
+/// A receiver that will receive theme updates when the file changes.
+/// The watcher stops when the receiver is dropped.
+///
+/// # Errors
+/// Returns an error if the theme cannot be found or the file watcher cannot be created.
+pub async fn watch_theme(
+    name: Option<&str>,
+    base_path: Option<&Path>,
+) -> Result<mpsc::Receiver<Result<Theme>>> {
+    // First, get the theme to find its location
+    let theme = get(name, base_path)
+        .await?
+        .ok_or_else(|| eyre!("Theme not found"))?;
+
+    let Some(location) = theme.location.clone() else {
+        bail!("Theme has no file location and cannot be watched");
+    };
+
+    let (sender, receiver) = mpsc::channel(100);
+    let base_path_owned = base_path.map(|path| path.to_path_buf());
+    let name_owned = name.map(String::from);
+
+    // Spawn a background task to watch the file
+    tokio::task::spawn(async move {
+        let (file_sender, mut file_receiver) = mpsc::channel(100);
+
+        let mut watcher = match notify::recommended_watcher(
+            move |res: std::result::Result<Event, notify::Error>| {
+                if let Ok(event) = res {
+                    // Only react to modify events
+                    if matches!(event.kind, EventKind::Modify(ModifyKind::Data(_))) {
+                        let _ = file_sender.blocking_send(());
+                    }
+                }
+            },
+        ) {
+            Ok(w) => w,
+            Err(error) => {
+                let _ = sender
+                    .send(Err(eyre!("Failed to create file watcher: {error}")))
+                    .await;
+                return;
+            }
+        };
+
+        if let Err(error) = watcher.watch(Path::new(&location), RecursiveMode::NonRecursive) {
+            let _ = sender
+                .send(Err(eyre!("Failed to watch theme file: {error}")))
+                .await;
+            return;
+        }
+
+        // Listen for file changes and send updates
+        while let Some(()) = file_receiver.recv().await {
+            // Re-read and reload the theme
+            match get(name_owned.as_deref(), base_path_owned.as_deref()).await {
+                Ok(Some(updated)) => {
+                    if sender.send(Ok(updated)).await.is_err() {
+                        // Receiver dropped, stop watching
+                        break;
+                    }
+                }
+                Ok(None) => {
+                    // Theme no longer exists
+                    let _ = sender.send(Err(eyre!("Theme no longer found"))).await;
+                    break;
+                }
+                Err(e) => {
+                    let _ = sender.send(Err(e)).await;
+                    break;
+                }
+            }
+        }
+    });
+
+    Ok(receiver)
 }

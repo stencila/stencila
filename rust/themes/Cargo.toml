@@ -7,6 +7,7 @@ edition = "2024"
 clap = { workspace = true }
 eyre = { workspace = true }
 lightningcss = { workspace = true }
+notify = { workspace = true }
 pathdiff = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }

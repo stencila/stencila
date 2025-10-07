@@ -31,7 +31,7 @@ pub(crate) use stencila_version::STENCILA_VERSION;
 use crate::{
     auth,
     documents::{self, Documents},
-    login, statics,
+    login, statics, themes,
 };
 
 /// Server state available from all routes
@@ -213,6 +213,11 @@ pub async fn serve(
         .nest(
             "/~documents",
             documents::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
+        )
+        .route(
+            "/~themes/websocket",
+            get(themes::websocket_handler)
+                .route_layer(middleware_fn(state.clone(), auth_middleware)),
         )
         .route(
             "/{*path}",

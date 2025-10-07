@@ -11,6 +11,7 @@ eyre = { workspace = true }
 futures = { workspace = true }
 itertools = { workspace = true }
 mime_guess = { workspace = true }
+notify = { workspace = true }
 rand = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
