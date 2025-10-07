@@ -34,6 +34,7 @@ old:
         - type: TableRow
           cells:
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -51,6 +52,7 @@ old:
                       characterCount: 4
                       characterPercent: 100
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -68,6 +70,7 @@ old:
                       characterCount: 10
                       characterPercent: 100
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -199,6 +202,7 @@ new:
         - type: TableRow
           cells:
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -206,6 +210,7 @@ new:
                       value:
                         string: Age
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -213,6 +218,7 @@ new:
                       value:
                         string: Name
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -318,6 +324,7 @@ merged:
         - type: TableRow
           cells:
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -335,6 +342,7 @@ merged:
                       characterCount: 3
                       characterPercent: 100
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
@@ -352,6 +360,7 @@ merged:
                       characterCount: 4
                       characterPercent: 100
             - type: TableCell
+              cellType: HeaderCell
               content:
                 - type: Paragraph
                   content:
