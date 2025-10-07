@@ -374,7 +374,6 @@ pub async fn standalone_html(
                 ));
 
                 // Also inject the custom theme CSS (takes precedence when active)
-                let normalized = normalize_css(theme_data);
                 let theme_type_str = match theme_type {
                     ThemeType::Workspace => "workspace",
                     ThemeType::User => "user",
@@ -382,7 +381,7 @@ pub async fn standalone_html(
                 };
                 html.push_str(&format!(
                     r#"
-    <style data-theme-style data-theme-type="{theme_type_str}">{normalized}</style>"#
+    <style data-theme-style data-theme-type="{theme_type_str}">{theme_data}</style>"#
                 ));
             }
         }
