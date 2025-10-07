@@ -16,7 +16,7 @@ impl ReadNode for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
         for MapRangeItem { key, .. } in store.map_range(obj_id, ..) {
-            let node = Primitive::load_prop(store, obj_id, key.into())?;
+            let node = Primitive::load_prop(store, obj_id, key.clone().into())?;
             map.insert(key.to_string(), node);
         }
 

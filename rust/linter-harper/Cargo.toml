@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-harper-core = { version = "0.65.0", features = ["concurrent"] }
+harper-core = { version = "0.67.0", features = ["concurrent"] }
 itertools = { workspace = true }
 stencila-linter = { path = "../linter" }
 tokio = { workspace = true }

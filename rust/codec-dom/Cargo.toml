@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 itertools = { workspace = true }
-lightningcss = "1.0.0-alpha.67"
+lightningcss = "1.0.0-alpha.68"
 quick-xml = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-dom-trait = { path = "../codec-dom-trait" }

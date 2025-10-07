@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 itertools = { workspace = true }
 quick-xml = { workspace = true }
-roxmltree = "0.20.0"
+roxmltree = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-jats-trait = { path = "../codec-jats-trait" }

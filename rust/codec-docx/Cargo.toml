@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 indexmap = { workspace = true }
 regex = { workspace = true }
-roxmltree = "0.20.0"
+roxmltree = { workspace = true }
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
 serde_json = { workspace = true }
 stencila-codec = { path = "../codec" }

@@ -11,7 +11,7 @@ where
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
         for MapRangeItem { key, .. } in store.map_range(obj_id, ..) {
-            let node = T::load_prop(store, obj_id, key.into())?;
+            let node = T::load_prop(store, obj_id, key.clone().into())?;
             map.insert(key.to_string(), node);
         }
 
@@ -33,7 +33,7 @@ where
 
         // Update values for keys that are in both map and store
         for (key, node) in self.iter() {
-            node.put_prop(store, obj_id, key.into())?;
+            node.put_prop(store, obj_id, key.clone().into())?;
             keys.remove(key);
         }
 
