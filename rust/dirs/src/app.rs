@@ -12,11 +12,19 @@ use strum::{Display, EnumString};
 pub enum DirType {
     #[default]
     Config,
-    Cache,
+
+    /// A config subdirectory for `.css` files defining Stencila themes
+    /// which can be used across workspaces on the current machine
+    Themes,
+
     Prompts,
+    
     Kernels,
+
+    Cache,
     Templates,
     Models,
+
     /// A cache subdirectory for `.csl` files downloaded from
     /// https://raw.githubusercontent.com/citation-style-language/styles
     Csl,
@@ -30,7 +38,8 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
     let dir = {
         match dir_type {
             DirType::Config => dirs.config_dir().to_path_buf(),
-            DirType::Cache => dirs.cache_dir().to_path_buf(),
+            DirType::Themes => dirs.config_dir().join("themes"),
+
             DirType::Prompts => {
                 if let Ok(dir) = env::var("STENCILA_PROMPTS_DIR") {
                     ensure = false;
@@ -39,7 +48,10 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
                     dirs.config_dir().join("prompts")
                 }
             }
+
             DirType::Kernels => dirs.config_dir().join("kernels"),
+
+            DirType::Cache => dirs.cache_dir().to_path_buf(),
             DirType::Templates => dirs.cache_dir().join("templates"),
             DirType::Models => dirs.cache_dir().join("models"),
             DirType::Csl => dirs.cache_dir().join("csl"),

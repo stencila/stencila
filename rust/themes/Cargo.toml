@@ -1,0 +1,17 @@
+[package]
+name = "stencila-themes"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+clap = { workspace = true }
+eyre = { workspace = true }
+pathdiff = { workspace = true }
+stencila-ask = { path = "../ask" }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-dirs = { path = "../dirs" }
+stencila-web-dist = { path = "../web-dist" }
+tokio = { workspace = true }
+
+[lints]
+workspace = true

@@ -9156,6 +9156,7 @@ dependencies = [
  "stencila-schema",
  "stencila-secrets",
  "stencila-server",
+ "stencila-themes",
  "stencila-tools",
  "stencila-version",
  "strum 0.27.2",
@@ -11345,6 +11346,20 @@ dependencies = [
  "tower-http",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "stencila-themes"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "pathdiff",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-dirs",
+ "stencila-web-dist",
+ "tokio",
 ]
 
 [[package]]

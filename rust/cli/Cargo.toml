@@ -44,6 +44,7 @@ stencila-publish = { path = "../publish" }
 stencila-schema = { path = "../schema" }
 stencila-secrets = { path = "../secrets" }
 stencila-server = { path = "../server" }
+stencila-themes = { path = "../themes" }
 stencila-tools = { path = "../tools" }
 stencila-version = { path = "../version" }
 strum = { workspace = true }
