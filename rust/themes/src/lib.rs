@@ -7,16 +7,17 @@ use std::{
 
 use eyre::{Result, bail};
 use lightningcss::{
-    properties::Property,
+    printer::Printer,
+    properties::{Property, custom::CustomPropertyName},
     rules::CssRule,
     stylesheet::{ParserOptions, PrinterOptions, StyleSheet},
     traits::ToCss,
 };
 use pathdiff::diff_paths;
+use tokio::fs::{read_to_string, remove_file, write};
 
 use stencila_dirs::{DirType, get_app_dir};
 use stencila_web_dist::Web;
-use tokio::fs::{read_to_string, remove_file, write};
 
 pub mod cli;
 
@@ -65,11 +66,132 @@ pub struct Theme {
 }
 
 impl Theme {
+    /// Create a new theme from CSS content
+    ///
+    /// # Arguments
+    /// * `r#type` - The type of theme
+    /// * `name` - Optional name for the theme
+    /// * `location` - Optional file path location
+    /// * `css` - Raw CSS content
+    /// * `normalize` - Whether to normalize and minify the CSS
+    pub fn new(
+        r#type: ThemeType,
+        name: Option<String>,
+        location: Option<String>,
+        css: String,
+        normalize: bool,
+    ) -> Self {
+        let content = if normalize {
+            Self::normalize_css(&css)
+        } else {
+            css
+        };
+        let variables = Self::merge_css_variables(&content);
+
+        Self {
+            r#type,
+            name,
+            location,
+            content,
+            variables,
+        }
+    }
+
+    /// Normalize and minify CSS
+    ///
+    /// Parses CSS and outputs a minified version. Returns the original CSS
+    /// if parsing or printing fails.
+    pub fn normalize_css(css: &str) -> String {
+        StyleSheet::parse(css, ParserOptions::default())
+            .map(|stylesheet| {
+                stylesheet
+                    .to_css(PrinterOptions {
+                        minify: true,
+                        ..Default::default()
+                    })
+                    .map(|result| result.code)
+                    .unwrap_or_else(|_| css.to_string())
+            })
+            .unwrap_or_else(|_| css.to_string())
+    }
+
     /// Get a CSS variable value by name
     ///
     /// The name should not include the `--` prefix.
     pub fn variable(&self, name: &str) -> Option<&str> {
         self.variables.get(name).map(|s| s.as_str())
+    }
+
+    /// Parse CSS and extract all :root custom properties
+    ///
+    /// Only collects top-level :root declarations, not those nested
+    /// in @media, @supports, or other at-rules.
+    /// Variable names have the `--` prefix stripped.
+    fn parse_css_variables(css: &str) -> BTreeMap<String, String> {
+        let mut map = BTreeMap::new();
+
+        let parser_opts = ParserOptions::default();
+
+        let Ok(sheet) = StyleSheet::parse(css, parser_opts) else {
+            return map;
+        };
+
+        for rule in &sheet.rules.0 {
+            if let CssRule::Style(style) = rule {
+                // Only consider top-level style rules that include a bare `:root`
+                let Ok(selector_list) = style.selectors.to_css_string(PrinterOptions::default())
+                else {
+                    continue;
+                };
+
+                // Check if any comma-separated selector is exactly ":root"
+                if !selector_list.split(',').any(|s| s.trim() == ":root") {
+                    continue;
+                }
+
+                // Iterate over all declarations in the rule
+                for (property, _) in style.declarations.iter() {
+                    if let Property::Custom(custom_prop) = property {
+                        // Only handle custom properties (starting with --), not unknown properties
+                        if let CustomPropertyName::Custom(dashed_ident) = &custom_prop.name {
+                            // Get the name and strip the -- prefix
+                            let name = dashed_ident.0.as_ref().trim_start_matches("--").to_string();
+
+                            // Convert the entire property to CSS, then extract the value
+                            let mut prop_string = String::new();
+                            if property
+                                .to_css(
+                                    &mut Printer::new(&mut prop_string, PrinterOptions::default()),
+                                    false,
+                                )
+                                .is_ok()
+                            {
+                                // The property will be in format "--name: value"
+                                // Extract just the value after the colon
+                                if let Some(colon_pos) = prop_string.find(':') {
+                                    let value = prop_string[colon_pos + 1..].trim().to_string();
+                                    // "last one wins" if :root declares the same var multiple times
+                                    map.insert(name, value);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // All other rule kinds (including @media/@supports/@layer blocks) are skipped
+        }
+
+        map
+    }
+
+    /// Merge base theme variables with theme-specific CSS variables
+    ///
+    /// Parses the CSS and extracts custom properties, then merges them with
+    /// the base theme variables (theme variables override base).
+    fn merge_css_variables(css: &str) -> BTreeMap<String, String> {
+        let mut variables = BASE_THEME_VARS.clone();
+        variables.extend(Self::parse_css_variables(css));
+        variables
     }
 }
 
@@ -79,91 +201,15 @@ fn relative_path(path: &Path) -> Option<String> {
     diff_paths(path, &current).map(|p| p.display().to_string())
 }
 
-/// Parse CSS and extract all :root custom properties
-///
-/// Only collects top-level :root declarations, not those nested
-/// in @media, @supports, or other at-rules.
-/// Variable names have the `--` prefix stripped.
-fn parse_css_variables(css: &str) -> BTreeMap<String, String> {
-    use lightningcss::properties::custom::CustomPropertyName;
-
-    let mut map = BTreeMap::new();
-
-    let parser_opts = ParserOptions::default();
-
-    let Ok(sheet) = StyleSheet::parse(css, parser_opts) else {
-        return map;
-    };
-
-    for rule in &sheet.rules.0 {
-        if let CssRule::Style(style) = rule {
-            // Only consider top-level style rules that include a bare `:root`
-            let Ok(selector_list) = style.selectors.to_css_string(PrinterOptions::default()) else {
-                continue;
-            };
-
-            // Check if any comma-separated selector is exactly ":root"
-            if !selector_list.split(',').any(|s| s.trim() == ":root") {
-                continue;
-            }
-
-            // Iterate over all declarations in the rule
-            for (property, _) in style.declarations.iter() {
-                if let Property::Custom(custom_prop) = property {
-                    // Only handle custom properties (starting with --), not unknown properties
-                    if let CustomPropertyName::Custom(dashed_ident) = &custom_prop.name {
-                        // Get the name and strip the -- prefix
-                        let name = dashed_ident.0.as_ref().trim_start_matches("--").to_string();
-
-                        // Convert the entire property to CSS, then extract the value
-                        let mut prop_string = String::new();
-                        if property
-                            .to_css(
-                                &mut lightningcss::printer::Printer::new(
-                                    &mut prop_string,
-                                    PrinterOptions::default(),
-                                ),
-                                false,
-                            )
-                            .is_ok()
-                        {
-                            // The property will be in format "--name: value"
-                            // Extract just the value after the colon
-                            if let Some(colon_pos) = prop_string.find(':') {
-                                let value = prop_string[colon_pos + 1..].trim().to_string();
-                                // "last one wins" if :root declares the same var multiple times
-                                map.insert(name, value);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // All other rule kinds (including @media/@supports/@layer blocks) are skipped
-    }
-
-    map
-}
-
 /// Lazy-loaded base theme variables parsed from base.css
 static BASE_THEME_VARS: LazyLock<BTreeMap<String, String>> = LazyLock::new(|| {
     if let Some(file) = Web::get("themes/base.css") {
         let css = String::from_utf8_lossy(&file.data);
-        parse_css_variables(&css)
+        Theme::parse_css_variables(&css)
     } else {
         BTreeMap::new()
     }
 });
-
-/// Merge base theme variables with theme-specific CSS variables
-///
-/// Parses the CSS and extracts custom properties, then merges them with
-/// the base theme variables (theme variables override base).
-fn merge_css_variables(css: &str) -> BTreeMap<String, String> {
-    let mut variables = BASE_THEME_VARS.clone();
-    variables.extend(parse_css_variables(css));
-    variables
-}
 
 /// Get a list of available themes
 ///
@@ -180,15 +226,11 @@ pub async fn list(base_path: Option<&Path>) -> Result<Vec<Theme>> {
     loop {
         let theme_path = current.join("theme.css");
         if theme_path.exists() {
+            let location = relative_path(&theme_path);
             let css = read_to_string(&theme_path).await?;
 
-            themes.push(Theme {
-                r#type: ThemeType::Workspace,
-                name: None,
-                location: relative_path(&theme_path),
-                content: css.clone(),
-                variables: merge_css_variables(&css),
-            });
+            themes.push(Theme::new(ThemeType::Workspace, None, location, css, true));
+
             break;
         }
 
@@ -208,15 +250,10 @@ pub async fn list(base_path: Option<&Path>) -> Result<Vec<Theme>> {
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("css") {
                 let name = path.file_stem().and_then(|s| s.to_str()).map(String::from);
-                let content = read_to_string(&path).await.unwrap_or_default();
+                let location = Some(path.display().to_string());
+                let css = read_to_string(&path).await.unwrap_or_default();
 
-                themes.push(Theme {
-                    r#type: ThemeType::User,
-                    name,
-                    location: Some(path.display().to_string()),
-                    content: content.clone(),
-                    variables: merge_css_variables(&content),
-                });
+                themes.push(Theme::new(ThemeType::User, name, location, css, true));
             }
         }
     }
@@ -233,16 +270,9 @@ pub async fn list(base_path: Option<&Path>) -> Result<Vec<Theme>> {
                 .trim_start_matches("themes/")
                 .trim_end_matches(".css")
                 .to_string();
+            let css = String::from_utf8_lossy(&file.data).to_string();
 
-            let css = String::from_utf8_lossy(&file.data);
-
-            themes.push(Theme {
-                r#type: ThemeType::Builtin,
-                name: Some(name),
-                location: None,
-                content: css.to_string(),
-                variables: merge_css_variables(&css),
-            });
+            themes.push(Theme::new(ThemeType::Builtin, Some(name), None, css, false));
         }
     }
 
@@ -273,30 +303,21 @@ pub async fn get(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<
         if let Ok(themes_dir) = get_app_dir(DirType::Themes, false) {
             let theme_path = themes_dir.join(format!("{}.css", name));
             if theme_path.exists() {
+                let name = Some(name.to_string());
+                let location = Some(theme_path.display().to_string());
                 let css = read_to_string(&theme_path).await?;
 
-                return Ok(Some(Theme {
-                    r#type: ThemeType::User,
-                    name: Some(name.to_string()),
-                    location: Some(theme_path.display().to_string()),
-                    content: css.clone(),
-                    variables: merge_css_variables(&css),
-                }));
+                return Ok(Some(Theme::new(ThemeType::User, name, location, css, true)));
             }
         }
 
         // Check builtin themes
         let filename = format!("themes/{}.css", name);
         if let Some(file) = Web::get(&filename) {
-            let css = String::from_utf8_lossy(&file.data);
+            let name = Some(name.to_string());
+            let css = String::from_utf8_lossy(&file.data).to_string();
 
-            return Ok(Some(Theme {
-                r#type: ThemeType::Builtin,
-                name: Some(name.to_string()),
-                location: None,
-                content: css.to_string(),
-                variables: merge_css_variables(&css),
-            }));
+            return Ok(Some(Theme::new(ThemeType::Builtin, name, None, css, false)));
         }
 
         // Not found
@@ -313,15 +334,16 @@ pub async fn get(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<
     loop {
         let theme_path = current.join("theme.css");
         if theme_path.exists() {
+            let location = relative_path(&theme_path);
             let css = read_to_string(&theme_path).await?;
 
-            return Ok(Some(Theme {
-                r#type: ThemeType::Workspace,
-                name: None,
-                location: relative_path(&theme_path),
-                content: css.clone(),
-                variables: merge_css_variables(&css),
-            }));
+            return Ok(Some(Theme::new(
+                ThemeType::Workspace,
+                None,
+                location,
+                css,
+                true,
+            )));
         }
 
         if let Some(parent) = current.parent() {
@@ -335,29 +357,20 @@ pub async fn get(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<
     if let Ok(themes_dir) = get_app_dir(DirType::Themes, false) {
         let default_path = themes_dir.join("default.css");
         if default_path.exists() {
+            let name = Some("default".to_string());
+            let location = Some(default_path.display().to_string());
             let css = read_to_string(&default_path).await?;
 
-            return Ok(Some(Theme {
-                r#type: ThemeType::User,
-                name: Some("default".to_string()),
-                location: Some(default_path.display().to_string()),
-                content: css.clone(),
-                variables: merge_css_variables(&css),
-            }));
+            return Ok(Some(Theme::new(ThemeType::User, name, location, css, true)));
         }
     }
 
     // 3. Use builtin stencila.css
     if let Some(file) = Web::get("themes/stencila.css") {
-        let css = String::from_utf8_lossy(&file.data);
+        let name = Some("stencila".to_string());
+        let css = String::from_utf8_lossy(&file.data).to_string();
 
-        return Ok(Some(Theme {
-            r#type: ThemeType::Builtin,
-            name: Some("stencila".to_string()),
-            location: None,
-            content: css.to_string(),
-            variables: merge_css_variables(&css),
-        }));
+        return Ok(Some(Theme::new(ThemeType::Builtin, name, None, css, false)));
     }
 
     // Shouldn't happen since stencila.css is embedded
