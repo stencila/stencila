@@ -29,6 +29,7 @@ lru = "0.16.1"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 monostate = "1.0.1"
+notify = { version = "8.2.0", default-features = false, features = ["macos_kqueue"] }
 ntest = "0.9.3"
 pathdiff = "0.2.3"
 pretty_assertions = "1.4.1"

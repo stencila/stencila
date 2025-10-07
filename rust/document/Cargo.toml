@@ -13,7 +13,7 @@ glob = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 json-patch = "1.2.0"
-notify = { version = "8.2.0", default-features = false, features = ["macos_kqueue"] }
+notify = { workspace = true }
 rand = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
