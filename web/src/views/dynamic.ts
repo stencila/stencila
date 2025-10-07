@@ -2,6 +2,7 @@ import { NodeType } from '@stencila/types'
 import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
+import { ThemeClient } from '../clients/themes'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import { DocumentView } from './document'
@@ -56,12 +57,28 @@ export class DynamicView extends DocumentView {
   private nodesClient: CommandsClient
 
   /**
+   * A client for live theme reloading (workspace/user themes only)
+   */
+  // @ts-expect-error "theme client is set, not read"
+  private themeClient: ThemeClient | null = null
+
+  /**
    * Override to pass the render root to the clients
    */
   protected override createRenderRoot(): this {
     const renderRoot = super.createRenderRoot()
 
     this.domClient = new DomClient(this.doc, renderRoot as HTMLElement)
+
+    // Initialize theme client for workspace/user themes
+    const themeType = document.querySelector('meta[name="stencila-initial-theme-type"]')?.getAttribute('content')
+    if (themeType === 'workspace' || themeType === 'user') {
+      const themeName = document.querySelector('meta[name="stencila-initial-theme-name"]')?.getAttribute('content')
+      this.themeClient = new ThemeClient(
+        themeType,
+        themeType === 'user' ? themeName ?? undefined : undefined
+      )
+    }
 
     return renderRoot
   }

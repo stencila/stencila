@@ -66,7 +66,7 @@ export abstract class Client {
     const clientType = this.constructor.name.toLowerCase()
 
     this.ws.onopen = () => {
-      console.debug(`${clientType} websocket open`)
+      console.debug(`🔌 ${this.constructor.name} connected`)
 
       const classList = document.body.classList
       classList.add(`${clientType}-connected`)
@@ -84,7 +84,7 @@ export abstract class Client {
     }
 
     this.ws.onclose = () => {
-      console.debug(`${clientType} websocket closed`)
+      console.debug(`🔌 ${this.constructor.name} disconnected`)
 
       document.body.classList.add(`${clientType}-disconnected`)
 
