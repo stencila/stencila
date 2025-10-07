@@ -72,7 +72,7 @@ async fn handle_theme_socket(mut socket: WebSocket, params: ThemeParams, dir: st
     };
 
     // Start watching the theme
-    let mut rx = match stencila_themes::watch_theme(theme_name, Some(&dir)).await {
+    let mut theme_receiver = match stencila_themes::watch(theme_name, Some(&dir)).await {
         Ok(rx) => rx,
         Err(e) => {
             tracing::error!("Failed to watch theme: {e}");
@@ -89,7 +89,7 @@ async fn handle_theme_socket(mut socket: WebSocket, params: ThemeParams, dir: st
     tracing::debug!("Watching theme: {:?}", theme_name);
 
     // Listen for theme updates and forward to WebSocket
-    while let Some(theme_result) = rx.recv().await {
+    while let Some(theme_result) = theme_receiver.recv().await {
         match theme_result {
             Ok(updated) => {
                 tracing::debug!("Theme updated, sending to client");

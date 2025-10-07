@@ -13,10 +13,7 @@ use lightningcss::{
     stylesheet::{ParserOptions, PrinterOptions, StyleSheet},
     traits::ToCss,
 };
-use notify::{
-    Event, RecursiveMode, Watcher,
-    event::{EventKind, ModifyKind},
-};
+use notify::{Event, RecursiveMode, Watcher, event::EventKind};
 use pathdiff::diff_paths;
 use tokio::{
     fs::{read_to_string, remove_file, write},
@@ -481,7 +478,7 @@ pub async fn remove(name: &str, force: bool) -> Result<()> {
 ///
 /// # Errors
 /// Returns an error if the theme cannot be found or the file watcher cannot be created.
-pub async fn watch_theme(
+pub async fn watch(
     name: Option<&str>,
     base_path: Option<&Path>,
 ) -> Result<mpsc::Receiver<Result<Theme>>> {
@@ -494,6 +491,17 @@ pub async fn watch_theme(
         bail!("Theme has no file location and cannot be watched");
     };
 
+    // Watch the parent directory to handle atomic writes (remove + rename)
+    let watched_path = PathBuf::from(&location);
+    let watched_dir = match watched_path.parent() {
+        Some(parent) => parent.to_path_buf(),
+        None => bail!("Cannot determine parent directory of theme file"),
+    };
+    let watched_filename = watched_path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .map(String::from);
+
     let (sender, receiver) = mpsc::channel(100);
     let base_path_owned = base_path.map(|path| path.to_path_buf());
     let name_owned = name.map(String::from);
@@ -505,8 +513,22 @@ pub async fn watch_theme(
         let mut watcher = match notify::recommended_watcher(
             move |res: std::result::Result<Event, notify::Error>| {
                 if let Ok(event) = res {
-                    // Only react to modify events
-                    if matches!(event.kind, EventKind::Modify(ModifyKind::Data(_))) {
+                    // Check if event affects our specific file
+                    let affects_target = event.paths.iter().any(|path| {
+                        path.file_name()
+                            .and_then(|name| name.to_str())
+                            .and_then(|name| {
+                                watched_filename.as_ref().map(|watched| name == watched)
+                            })
+                            .unwrap_or(false)
+                    });
+
+                    if affects_target
+                        && matches!(
+                            event.kind,
+                            EventKind::Modify(_) | EventKind::Create(_) | EventKind::Remove(_)
+                        )
+                    {
                         let _ = file_sender.blocking_send(());
                     }
                 }
@@ -521,9 +543,9 @@ pub async fn watch_theme(
             }
         };
 
-        if let Err(error) = watcher.watch(Path::new(&location), RecursiveMode::NonRecursive) {
+        if let Err(error) = watcher.watch(&watched_dir, RecursiveMode::NonRecursive) {
             let _ = sender
-                .send(Err(eyre!("Failed to watch theme file: {error}")))
+                .send(Err(eyre!("Failed to watch theme directory: {error}")))
                 .await;
             return;
         }
