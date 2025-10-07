@@ -1155,7 +1155,7 @@ impl FirstWalk {
             self.frontmatter_texts.extend(lines);
         }
 
-        tracing::info!(
+        tracing::debug!(
             "Frontmatter text extracted from article:{:#?}",
             self.frontmatter_texts
         );
