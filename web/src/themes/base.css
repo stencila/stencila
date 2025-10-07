@@ -1,0 +1,9 @@
+/*
+ * Base Theme
+ *
+ * Entry point for the Stencila base theme that provides foundational styles
+ * for all other themes. This file is always loaded in standalone HTML documents
+ * before any specific theme CSS.
+ */
+
+@import url('./base/index.css');

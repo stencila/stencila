@@ -236,17 +236,8 @@ pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
     Ok(None)
 }
 
-/// Template for new themes with import to base theme
-const THEME_TEMPLATE: &str = r#"/*
- * Custom Theme
- *
- * A custom theme based on the Stencila base theme.
- * Customize by overriding CSS variables below.
- */
-
-@import url('./base/index.css');
-
-:root {
+/// Template for new themes
+const THEME_TEMPLATE: &str = r#":root {
     /* Add your custom CSS variable overrides here */
     /* Example:
     --text-font-size: 18px;

@@ -292,6 +292,15 @@ pub fn standalone_html(
         ))
     }
 
+    // Base theme CSS (always loaded unless theme is "none")
+    // This provides foundational styles that all themes build upon
+    if theme != "none" {
+        html.push_str(&format!(
+            r#"
+    <link rel="stylesheet" type="text/css" href="{web_base}/themes/base.css">"#
+        ));
+    }
+
     // Theme CSS (the data-theme-link is needed for theme switching)
     if theme != "none" {
         html.push_str(&format!(

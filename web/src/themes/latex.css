@@ -9,7 +9,6 @@
  * https://github.com/vincentdoerig/latex-css/blob/74383e1e4fba37750cff0e78580376ce98a56b44/style.css
  */
 
-@import url('./base/index.css');
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&family=Roboto:wght@400;500&family=Roboto+Mono:wght@400;500&display=swap');
 
 :root {

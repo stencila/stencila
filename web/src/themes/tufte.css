@@ -3,14 +3,13 @@
  *
  * A theme inspired by Edward Tufte's books and handouts.
  *
- * Inspired by 
+ * Inspired by
  *
  * https://edwardtufte.github.io/tufte-css/
  * https://github.com/ninivert/matplotlib_tufte/blob/7247f2cca514fbab8a82ef2c5d54d776790e2fc5/src/matplotlib_tufte/tufte.mplstyle
  * https://github.com/jrnold/ggthemes/blob/ca38c6250b17acc138b5cd5ccc45ab9e07234f3a/R/tufte.R
  */
 
-@import url('./base/index.css');
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=Source+Code+Pro:wght@400;500&display=swap');
 
 :root {

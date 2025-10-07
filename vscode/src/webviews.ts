@@ -296,6 +296,9 @@ export async function initializeWebViewPanel(
 
   // Folder containing bundled JS and other assets for the web view
   const webDist = vscode.Uri.joinPath(context.extensionUri, 'out', 'web')
+  const baseCss = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(webDist, 'themes', `base.css`)
+  )
   const themeCss = panel.webview.asWebviewUri(
     vscode.Uri.joinPath(webDist, 'themes', `${themeName}.css`)
   )
@@ -383,6 +386,8 @@ export async function initializeWebViewPanel(
         
         <link rel="stylesheet" type="text/css" href="${viewCss}">
         <script async type="text/javascript" src="${viewJs}"></script>
+
+        <link rel="stylesheet" type="text/css" href="${baseCss}">
         <link data-theme-link rel="stylesheet" type="text/css" href="${themeCss}">
         
         <script>
