@@ -13350,6 +13350,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-6",
               "code": {
                 "string": ""
               },
@@ -13485,6 +13486,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-7",
               "code": {
                 "string": ""
               },
@@ -13666,6 +13668,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-8",
               "code": {
                 "string": ""
               },
@@ -13984,6 +13987,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-9",
               "code": {
                 "string": ""
               },
@@ -14187,6 +14191,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-10",
               "code": {
                 "string": ""
               },
@@ -14481,6 +14486,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-11",
               "code": {
                 "string": ""
               },
@@ -14605,6 +14611,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-12",
               "code": {
                 "string": ""
               },
@@ -14645,6 +14652,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-13",
               "code": {
                 "string": ""
               },
@@ -14668,6 +14676,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-14",
               "code": {
                 "string": ""
               },
@@ -14691,6 +14700,7 @@ expression: article
             },
             {
               "type": "MathBlock",
+              "id": "disp-formula-15",
               "code": {
                 "string": ""
               },
@@ -15153,6 +15163,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "DC1",
           "label": "Modelling supplemental text",
           "labelAutomatically": false,
           "target": "supplements/630838_file02.docx"

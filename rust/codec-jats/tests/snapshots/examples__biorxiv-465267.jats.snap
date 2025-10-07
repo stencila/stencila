@@ -402,7 +402,7 @@ expression: jats
     </sec>
     <sec sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
-      <supplementary-material href="supplements/465267_file02.pdf">
+      <supplementary-material id="DC1" href="supplements/465267_file02.pdf">
         <label>material</label>
       </supplementary-material>
     </sec>

@@ -18519,6 +18519,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "DC1",
           "label": "material",
           "labelAutomatically": false,
           "target": "supplements/465267_file02.pdf"

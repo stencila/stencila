@@ -7927,6 +7927,7 @@ expression: article
         },
         {
           "type": "Supplement",
+          "id": "DC1",
           "workType": "Table",
           "label": "1",
           "labelAutomatically": false,

@@ -404,31 +404,31 @@ expression: jats
           </italic>), and turnover frequency (<italic>k<sub>p</sub>
           </italic>) of the protein potentially vary with position<italic>x</italic>in the bleb, measured from the neck of the bleb. In the material balances, we also need to account for the geometry of the bleb; its length,<italic>L</italic>(set to 45 μm), and position-dependent width,<italic>w(x)</italic>(see below), were estimated from mean measurements. Flux (<italic>N<sub>p</sub>
           </italic>) and steady-state material balance equations for the protein may thus be written as&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-6">
         </disp-formula>
         <p>&#10;The spatial dimension<italic>x</italic>is defined as the distance from the neck of the bleb (μm);<italic>x= L</italic>is at the tip of the bleb.</p>
         <p>
           <italic>N<sub>p</sub>
           </italic>and<italic>v<sub>p</sub>
           </italic>point in the direction of<italic>x</italic>by convention, and therefore a positive/negative value indicates net flux or flow towards the tip/neck. Zero net flux at the tip dictates the boundary condition,&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-7">
         </disp-formula>
         <p>&#10;The calculated protein density profiles are presented on a normalized scale, and therefore the second boundary condition is arbitrary.</p>
         <p>
           <italic>Protein advection velocity, diffusivity, and turnover:</italic>To further define the aforementioned<italic>v<sub>p</sub>(x)</italic>and<italic>k<sub>p</sub>(x)</italic>, it was necessary to consider the material balance of the bulk membrane. Defining<italic>v<sub>m</sub>(x)</italic>and<italic>k<sub>m</sub>(x)</italic>as the flow velocity and turnover frequency of bulk membrane, respectively, and with the ansatz that the total mass density is constant throughout the bleb (confirmed by experiment),&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-8">
         </disp-formula>
         <p>&#10;If the bleb has a constant shape, it implies that there is zero flow at the tip (<italic>v<sub>m</sub>(L) = 0</italic>). This boundary condition dictates that<italic>v<sub>m</sub>(x) c,0</italic>; membrane flow is towards the tip of the bleb. For the calculations presented here, we took<italic>k<sub>m</sub>(x)</italic>= constant and set its value to 0.003 s<sup>-</sup>
           <sup>&#10;<xref ref-type="bibr" rid="c1">1</xref>&#10;</sup>, thus approximately matching the estimated bulk flow velocity of<italic>v<sub>m</sub>
           </italic>≈ 0.1 μm/s measured at<italic>x</italic>≈ 10 μm. Relative to the calculated<italic>v<sub>m</sub>(x)</italic>, we consider that<italic>v<sub>p</sub>(x)</italic>is potentially influenced by two distinct, protein-corralling effects: restriction of free protein mobility, and physical interaction with the F-actin retrograde flow. Defining<italic>v<sub>F</sub>(x)</italic>as the local velocity of the F-actin, we take&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-9">
         </disp-formula>
         <p>&#10;where<italic>E<sub>1</sub>(x)</italic>are<italic>E<sub>2</sub>(x)</italic>are variables, each ranging between 0 and 1, which we refer to as<italic>corralling efficiencies</italic>.</p>
         <p>Their values reflect the ‘strengths’ of protein mobility restriction and interaction with flowing F-actin, respectively. The function,<italic>v<sub>F</sub>
           </italic>(<italic>x</italic>) = -0.10 + 0.08<italic>e</italic>
           <sup>-0.2<italic>x</italic>
           </sup>(μm/s), was used to approximate the experimentally estimated profile from PIV analysis. Regarding the protein diffusivity, it is reduced by the corralling effects as well, and so we likewise take&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-10">
         </disp-formula>
         <p>&#10;where<italic>v<sub>pO</sub>
           </italic>is the diffusivity value in the absence of corralling; for each scenario, the value of<italic>v<sub>pO</sub>
@@ -437,22 +437,22 @@ expression: jats
           </italic>, and another parameter,<italic>ε<sub>i</sub>
           </italic>
           <sub>,0</sub>, the length scale of its gradient:&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-11">
         </disp-formula>
         <p>&#10;In the limit of λ<sub>i</sub>→ ∞,<italic>ε<sub>i</sub>
           </italic>(<italic>x</italic>) =<italic>ε<sub>i</sub>
           </italic>
           <sub>,0</sub>(constant). Finally, to model protein turnover frequency in the simplest manner, consistent with observations, we equated it to that of the bulk membrane.&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-12">
         </disp-formula>
         <p>&#10;<italic>Solution scheme:</italic>The scheme for solving the model equations was to transform them into a set of coupled, first-order differential equations:&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-13">
         </disp-formula>
         <p>&#10;where&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-14">
         </disp-formula>
         <p>&#10;The latter equation, was fit to the mean of 17 representative width profiles (μm). This scheme permitted forward integration, with boundary conditions&#10;</p>
-        <disp-formula code="">
+        <disp-formula code="" id="disp-formula-15">
         </disp-formula>
         <p>&#10;The domain was discretized with a spatial step size of<italic>0.001</italic>, and the initial value problem was solved using the improved Euler method/Heun’s method, implemented in Excel for rapid evaluation of the model output and analysis of numerical accuracy and stability. Once the solution for each scenario was obtained, the<italic>1(x)</italic>profile was normalized by the maximum value for presentation in figures.<ext-link xlink:href="#fig5">Figure 5a</ext-link>, EGFR density (P) with changes in<italic>E<sub>1</sub>(x)</italic>which reflect the ‘strengths’ of protein mobility restriction. It was set to 0.1, 0.3, 0.5, 0.7 and 0.9 while<italic>E<sub>2</sub>(x)</italic>which reflect the interaction with flowing F-actin was set constant to 0.1 (weak interaction). The actin retrograde flow velocity was set to<italic>v<sub>F</sub>
           </italic>(<italic>x</italic>) = -0.10 + 0.08<italic>e</italic>
@@ -472,7 +472,7 @@ expression: jats
     </sec>
     <sec sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
-      <supplementary-material href="supplements/630838_file02.docx">
+      <supplementary-material id="DC1" href="supplements/630838_file02.docx">
         <label>Modelling supplemental text</label>
       </supplementary-material>
     </sec>
