@@ -22,6 +22,7 @@ stencila-codec-text = { path = "../codec-text" }
 stencila-codecs = { path = "../codecs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }
+stencila-themes = { path = "../themes" }
 stencila-version = { path = "../version" }
 stencila-web-dist = { path = "../web-dist" }
 tokio = { workspace = true }

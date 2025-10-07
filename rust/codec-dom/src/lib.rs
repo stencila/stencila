@@ -16,6 +16,7 @@ use stencila_codec_dom_trait::{
 };
 use stencila_codec_text_trait::to_text;
 use stencila_node_media::{embed_media, extract_media};
+use stencila_themes::ThemeType;
 use stencila_version::STENCILA_VERSION;
 
 /// A codec for DOM HTML
@@ -53,7 +54,7 @@ impl Codec for DomCodec {
                 options.as_ref().and_then(|opts| opts.to_path.as_deref()),
                 media,
             )?;
-            encode(&copy, options)
+            encode(&copy, options).await
         } else if options
             .as_ref()
             .and_then(|opts| opts.embed_media)
@@ -64,9 +65,9 @@ impl Codec for DomCodec {
                 &mut copy,
                 options.as_ref().and_then(|opts| opts.from_path.as_deref()),
             )?;
-            encode(&copy, options)
+            encode(&copy, options).await
         } else {
-            encode(node, options)
+            encode(node, options).await
         }
     }
 
@@ -97,7 +98,7 @@ impl Codec for DomCodec {
 }
 
 /// Encode a node to DOM HTML with options
-fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
+async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     // Encode to DOM HTML
     let mut context = DomEncodeContext::new();
     node.to_dom(&mut context);
@@ -174,10 +175,16 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
         //#[cfg(debug_assertions)]
         //let web_base = format!("http://localhost:9000/~static/dev");
 
-        let theme = options
+        // Get theme name from options
+        let theme_name = options
             .as_ref()
-            .and_then(|options| options.theme.as_deref())
-            .unwrap_or("stencila");
+            .and_then(|options| options.theme.as_deref());
+
+        // Get base path for theme resolution from options
+        let theme_base_path = options
+            .as_ref()
+            .and_then(|opts| opts.from_path.as_ref())
+            .and_then(|path| path.parent());
 
         let view = options
             .as_ref()
@@ -192,9 +199,11 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
             extra_head,
             node_html,
             web_base,
-            theme,
+            theme_name,
+            theme_base_path,
             view,
         )
+        .await
     };
 
     let compact = options
@@ -213,8 +222,13 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
 ///
 /// This is exposed as a public function for user by the `stencila-server` crate
 /// so that there is a single, optimized implementation.
+///
+/// # Theme parameter
+/// - `None`: Use default resolution (workspace theme → default.css → stencila.css)
+/// - `Some("none")`: Skip theme entirely
+/// - `Some(name)`: Use specific theme by name
 #[allow(clippy::too_many_arguments)]
-pub fn standalone_html(
+pub async fn standalone_html(
     doc_id: String,
     node_type: NodeType,
     node_title: Option<String>,
@@ -222,13 +236,46 @@ pub fn standalone_html(
     extra_head: Option<String>,
     node_html: String,
     web_base: String,
-    theme: &str,
+    theme_name: Option<&str>,
+    theme_base_path: Option<&Path>,
     view: &str,
 ) -> String {
     let title = node_title.as_ref().map_or_else(
         || "Stencila Document".to_string(),
         |title| encode_safe(&title).to_string(),
     );
+
+    // Resolve theme to (type, content/name, display_name)
+    // - None means use default resolution (workspace theme → default.css → stencila.css)
+    // - Some("none") means skip theme entirely
+    // - Some(name) means use that specific theme
+    // Tuple elements: (ThemeType, String, Option<String>)
+    //   - String: For builtin it's the theme name, for user/workspace it's the CSS content
+    //   - Option<String>: Display name (for user themes, the actual theme name)
+    let theme = if theme_name != Some("none") {
+        // Resolve theme using stencila_themes
+        if let Ok(Some(resolved)) = stencila_themes::get(theme_name, theme_base_path).await {
+            match resolved.r#type {
+                ThemeType::Builtin => {
+                    // For builtin themes, pass the name
+                    resolved.name.map(|n| (ThemeType::Builtin, n, None))
+                }
+                ThemeType::User => {
+                    // For user themes, pass the CSS content and the display name
+                    Some((ThemeType::User, resolved.content, resolved.name))
+                }
+                ThemeType::Workspace => {
+                    // For workspace themes, pass the CSS content (no display name)
+                    Some((ThemeType::Workspace, resolved.content, None))
+                }
+            }
+        } else {
+            // If resolution fails, default to builtin stencila theme
+            Some((ThemeType::Builtin, "stencila".to_string(), None))
+        }
+    } else {
+        None
+    };
 
     let mut html = format!(
         r#"<!doctype html>
@@ -277,7 +324,7 @@ pub fn standalone_html(
     }
 
     // View CSS
-    if view != "none" && theme != "none" {
+    if view != "none" && theme.is_some() {
         html.push_str(&format!(
             r#"
     <link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#
@@ -292,20 +339,73 @@ pub fn standalone_html(
         ))
     }
 
-    // Base theme CSS (always loaded unless theme is "none")
+    // Base theme CSS (always loaded unless theme is None)
     // This provides foundational styles that all themes build upon
-    if theme != "none" {
+    if theme.is_some() {
         html.push_str(&format!(
             r#"
     <link rel="stylesheet" type="text/css" href="{web_base}/themes/base.css">"#
         ));
     }
 
-    // Theme CSS (the data-theme-link is needed for theme switching)
-    if theme != "none" {
+    // Theme CSS
+    // Always include a theme link (for client-side theme switching)
+    // For user/workspace themes, also inject a style tag that takes precedence
+    if let Some((theme_type, theme_data, _display_name)) = &theme {
+        match theme_type {
+            ThemeType::Builtin => {
+                // Use link tag for builtin themes (data-theme-link enables client-side switching)
+                html.push_str(&format!(
+                    r#"
+    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/themes/{theme_data}.css">"#
+                ));
+            }
+            ThemeType::User | ThemeType::Workspace => {
+                // For user/workspace themes: include link to default builtin theme
+                // (enables switching to builtin themes from client)
+                html.push_str(&format!(
+                    r#"
+    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/themes/stencila.css" disabled>"#
+                ));
+
+                // Also inject the custom theme CSS (takes precedence when active)
+                let normalized = normalize_css(theme_data);
+                let theme_type_str = match theme_type {
+                    ThemeType::Workspace => "workspace",
+                    ThemeType::User => "user",
+                    _ => "custom",
+                };
+                html.push_str(&format!(
+                    r#"
+    <style data-theme-style data-theme-type="{theme_type_str}">{normalized}</style>"#
+                ));
+            }
+        }
+    }
+
+    // Add meta tags with theme information for client-side theme switching
+    if let Some((theme_type, theme_data, display_name)) = &theme {
+        let theme_type_str = match theme_type {
+            ThemeType::Builtin => "builtin",
+            ThemeType::Workspace => "workspace",
+            ThemeType::User => "user",
+        };
         html.push_str(&format!(
             r#"
-    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/themes/{theme}.css">"#
+    <meta name="stencila-initial-theme-type" content="{theme_type_str}">"#
+        ));
+
+        // For builtin themes, use theme_data (the name)
+        // For user themes, use display_name if available
+        // For workspace themes, use "workspace"
+        let theme_name = match theme_type {
+            ThemeType::Builtin => theme_data.as_str(),
+            ThemeType::User => display_name.as_deref().unwrap_or("user"),
+            ThemeType::Workspace => "workspace",
+        };
+        html.push_str(&format!(
+            r#"
+    <meta name="stencila-initial-theme-name" content="{theme_name}">"#
         ));
     }
 

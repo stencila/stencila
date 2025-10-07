@@ -255,13 +255,13 @@ pub async fn serve_path(
         .get("~view")
         .map_or("dynamic", |value: &String| value.as_ref());
 
-    let theme = query
+    // Get theme name from query or config
+    let theme_name = query
         .get("~theme")
         .map(|value: &String| value.as_str())
-        .or(config.theme.as_deref())
-        .unwrap_or("stencila");
+        .or(config.theme.as_deref());
 
-    // Generate the HTML
+    // Generate the HTML (theme resolution happens inside standalone_html)
     let html = standalone_html(
         doc_id,
         node_type,
@@ -270,9 +270,11 @@ pub async fn serve_path(
         None,
         node_html,
         web,
-        theme,
+        theme_name,
+        Some(doc.directory()),
         view,
-    );
+    )
+    .await;
 
     // Build the response
     let response = (|| -> eyre::Result<Response> {

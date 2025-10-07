@@ -434,7 +434,7 @@ pub async fn remove(name: &str, force: bool) -> Result<()> {
     // Confirm deletion unless force is set
     if !force {
         let answer = stencila_ask::ask(&format!(
-            "Are you sure you want to remove the theme `{}`?",
+            "Are you sure you want to remove the user theme `{}`?",
             name
         ))
         .await?;

@@ -24,7 +24,7 @@ type ColorScheme = 'system' | 'light' | 'dark'
 /**
  * Available CSS themes for the document
  */
-type Theme = 'stencila' | 'tufte' | 'latex'
+type Theme = 'stencila' | 'tufte' | 'latex' | 'workspace' | 'user'
 
 /**
  * Utility functions for color scheme management
@@ -81,8 +81,28 @@ class ColorSchemeManager {
 class ThemeManager {
   static loadThemePreference(): Theme {
     try {
+      // First check if there's a saved preference
       const saved = localStorage.getItem('stencila-theme-preference') as Theme
-      return saved && ['stencila', 'tufte', 'latex'].includes(saved) ? saved : 'stencila'
+      if (saved && ['stencila', 'tufte', 'latex', 'workspace', 'user'].includes(saved)) {
+        return saved
+      }
+
+      // Otherwise, check the initial theme type from server-rendered meta tag
+      const initialThemeType = document.querySelector('meta[name="stencila-initial-theme-type"]')?.getAttribute('content')
+
+      if (initialThemeType === 'user') {
+        return 'user'
+      } else if (initialThemeType === 'workspace') {
+        return 'workspace'
+      } else if (initialThemeType === 'builtin') {
+        // For builtin themes, get the actual theme name
+        const themeName = document.querySelector('meta[name="stencila-initial-theme-name"]')?.getAttribute('content')
+        if (themeName && ['stencila', 'tufte', 'latex'].includes(themeName)) {
+          return themeName as Theme
+        }
+      }
+
+      return 'stencila'
     } catch {
       return 'stencila'
     }
@@ -90,15 +110,42 @@ class ThemeManager {
 
   static applyTheme(theme: Theme) {
     const themeLink = document.querySelector('link[data-theme-link]') as HTMLLinkElement
+    const themeStyle = document.querySelector('style[data-theme-style]') as HTMLStyleElement
+
     if (!themeLink) {
       console.warn('Theme link element not found')
       return false
     }
 
+    // Handle custom themes (workspace/user)
+    if (theme === 'workspace' || theme === 'user') {
+      if (!themeStyle) {
+        console.warn('Custom theme style element not found')
+        return false
+      }
+
+      // Enable the custom style tag, disable the link
+      themeStyle.disabled = false
+      themeLink.disabled = true
+
+      // Dispatch event
+      window.dispatchEvent(new CustomEvent('stencila-theme-changed'))
+      return true
+    }
+
+    // Handle builtin themes
     const currentHref = themeLink.href
     const lastSlashIndex = currentHref.lastIndexOf('/')
     const baseUrl = currentHref.substring(0, lastSlashIndex + 1)
     const newHref = `${baseUrl}${theme}.css`
+
+    // Disable custom style if present
+    if (themeStyle) {
+      themeStyle.disabled = true
+    }
+
+    // Enable the link
+    themeLink.disabled = false
 
     // Store current href as fallback
     const fallbackHref = currentHref
@@ -179,6 +226,29 @@ export class DocumentMenu extends LitElement {
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
     return this.colorScheme
+  }
+
+  /**
+   * Get the custom theme info if one is available (workspace or user)
+   */
+  private getCustomThemeInfo(): { type: 'workspace' | 'user', name: string } | null {
+    const themeStyle = document.querySelector('style[data-theme-style]')
+    if (!themeStyle) {
+      return null
+    }
+
+    const themeType = themeStyle.getAttribute('data-theme-type')
+    if (themeType !== 'workspace' && themeType !== 'user') {
+      return null
+    }
+
+    // Get the theme name from meta tag
+    const themeName = document.querySelector('meta[name="stencila-initial-theme-name"]')?.getAttribute('content')
+
+    return {
+      type: themeType,
+      name: themeName || themeType
+    }
   }
 
   /**
@@ -375,6 +445,26 @@ export class DocumentMenu extends LitElement {
         <sl-menu-label>
           <div class="flex items-center gap-2 ml-4 text-xs text-gray-600">Theme</div>
         </sl-menu-label>
+        ${(() => {
+          const customTheme = this.getCustomThemeInfo()
+          if (customTheme) {
+            const iconName = customTheme.type === 'user' ? 'person' : 'gear'
+            const displayName = customTheme.name.charAt(0).toUpperCase() + customTheme.name.slice(1)
+
+            return html`
+              <sl-menu-item
+                type="checkbox"
+                ?checked=${this.theme === customTheme.type}
+                @click=${() => this.changeTheme(customTheme.type)}
+                class="ml-2"
+              >
+                <stencila-ui-icon name="${iconName}" slot="prefix"></stencila-ui-icon>
+                <span class="text-sm">${displayName}</span>
+              </sl-menu-item>
+            `
+          }
+          return ''
+        })()}
         <sl-menu-item
           type="checkbox"
           ?checked=${this.theme === 'stencila'}

@@ -9418,6 +9418,7 @@ dependencies = [
  "stencila-codec-dom-trait",
  "stencila-codec-text-trait",
  "stencila-node-media",
+ "stencila-themes",
  "stencila-version",
  "tokio",
 ]
@@ -11339,6 +11340,7 @@ dependencies = [
  "stencila-codecs",
  "stencila-document",
  "stencila-format",
+ "stencila-themes",
  "stencila-version",
  "stencila-web-dist",
  "tokio",
