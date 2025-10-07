@@ -104,7 +104,9 @@
     "plotly.js-dist-min": "3.1.1",
     "pretty-ms": "9.3.0",
     "tailwindcss": "4.1.14",
-    "vega-embed": "7.0.2"
+    "vega": "5.33.0",
+    "vega-embed": "6.29.0",
+    "vega-lite": "5.23.0"
   },
   "devDependencies": {
     "@argos-ci/playwright": "6.1.8",
