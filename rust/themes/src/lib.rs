@@ -166,11 +166,17 @@ fn merge_css_variables(css: &str) -> BTreeMap<String, String> {
 }
 
 /// Get a list of available themes
-pub async fn list() -> Result<Vec<Theme>> {
+///
+/// # Arguments
+/// * `base_path` - Optional base path for searching workspace themes. If None, uses current directory.
+pub async fn list(base_path: Option<&Path>) -> Result<Vec<Theme>> {
     let mut themes = Vec::new();
 
     // Walk up directory tree looking for theme.css and stop at the first found
-    let mut current = current_dir()?;
+    let mut current = base_path
+        .map(|p| p.to_path_buf())
+        .or_else(|| current_dir().ok())
+        .ok_or_else(|| eyre::eyre!("Failed to determine base path"))?;
     loop {
         let theme_path = current.join("theme.css");
         if theme_path.exists() {
@@ -247,6 +253,7 @@ pub async fn list() -> Result<Vec<Theme>> {
 ///
 /// # Arguments
 /// * `name` - Optional theme name to look for
+/// * `base_path` - Optional base path for searching workspace themes. If None, uses current directory.
 ///
 /// # Resolution logic
 /// If `name` is provided:
@@ -258,7 +265,7 @@ pub async fn list() -> Result<Vec<Theme>> {
 /// - Walk up directory tree for `theme.css` (workspace theme)
 /// - If not found, look for `default.css` in user themes
 /// - If not found, return builtin `stencila.css`
-pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
+pub async fn get(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<Theme>> {
     if let Some(name) = name {
         // Named theme: search user themes first, then builtins
 
@@ -299,7 +306,10 @@ pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
     // Default theme resolution: workspace -> default.css -> stencila.css
 
     // 1. Look for workspace theme.css
-    let mut current = current_dir()?;
+    let mut current = base_path
+        .map(|p| p.to_path_buf())
+        .or_else(|| current_dir().ok())
+        .ok_or_else(|| eyre::eyre!("Failed to determine base path"))?;
     loop {
         let theme_path = current.join("theme.css");
         if theme_path.exists() {

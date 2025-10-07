@@ -70,7 +70,7 @@ struct List;
 
 impl List {
     async fn run(self) -> Result<()> {
-        let themes = list().await?;
+        let themes = list(None).await?;
 
         let mut table = Tabulated::new();
         table.set_header(["Name", "Type", "Location"]);
@@ -120,7 +120,7 @@ struct Show {
 
 impl Show {
     async fn run(self) -> Result<()> {
-        match get(self.name.as_deref()).await? {
+        match get(self.name.as_deref(), None).await? {
             Some(theme) => {
                 Code::new(Format::Css, &theme.content).to_stdout();
 
