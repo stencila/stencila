@@ -16,7 +16,7 @@ use stencila_codec_dom_trait::{
 };
 use stencila_codec_text_trait::to_text;
 use stencila_node_media::{embed_media, extract_media};
-use stencila_themes::ThemeType;
+use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
 
 /// A codec for DOM HTML
@@ -186,6 +186,16 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             .and_then(|opts| opts.from_path.as_ref())
             .and_then(|path| path.parent());
 
+        // Resolve theme if theme_name is not "none"
+        let theme = if theme_name != Some("none") {
+            stencila_themes::get(theme_name, theme_base_path)
+                .await
+                .ok()
+                .flatten()
+        } else {
+            None
+        };
+
         let view = options
             .as_ref()
             .and_then(|options| options.view.as_deref())
@@ -199,8 +209,7 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             extra_head,
             node_html,
             web_base,
-            theme_name,
-            theme_base_path,
+            theme.as_ref(),
             view,
         )
         .await
@@ -224,9 +233,8 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
 /// so that there is a single, optimized implementation.
 ///
 /// # Theme parameter
-/// - `None`: Use default resolution (workspace theme → default.css → stencila.css)
-/// - `Some("none")`: Skip theme entirely
-/// - `Some(name)`: Use specific theme by name
+/// - `None`: Skip theme entirely
+/// - `Some(theme)`: Use the resolved theme
 #[allow(clippy::too_many_arguments)]
 pub async fn standalone_html(
     doc_id: String,
@@ -236,8 +244,7 @@ pub async fn standalone_html(
     extra_head: Option<String>,
     node_html: String,
     web_base: String,
-    theme_name: Option<&str>,
-    theme_base_path: Option<&Path>,
+    theme: Option<&Theme>,
     view: &str,
 ) -> String {
     let title = node_title.as_ref().map_or_else(
@@ -245,37 +252,35 @@ pub async fn standalone_html(
         |title| encode_safe(&title).to_string(),
     );
 
-    // Resolve theme to (type, content/name, display_name)
-    // - None means use default resolution (workspace theme → default.css → stencila.css)
-    // - Some("none") means skip theme entirely
-    // - Some(name) means use that specific theme
+    // Convert theme to (type, content/name, display_name)
     // Tuple elements: (ThemeType, String, Option<String>)
     //   - String: For builtin it's the theme name, for user/workspace it's the CSS content
     //   - Option<String>: Display name (for user themes, the actual theme name)
-    let theme = if theme_name != Some("none") {
-        // Resolve theme using stencila_themes
-        if let Ok(Some(resolved)) = stencila_themes::get(theme_name, theme_base_path).await {
-            match resolved.r#type {
-                ThemeType::Builtin => {
-                    // For builtin themes, pass the name
-                    resolved.name.map(|n| (ThemeType::Builtin, n, None))
-                }
-                ThemeType::User => {
-                    // For user themes, pass the CSS content and the display name
-                    Some((ThemeType::User, resolved.content, resolved.name))
-                }
-                ThemeType::Workspace => {
-                    // For workspace themes, pass the CSS content (no display name)
-                    Some((ThemeType::Workspace, resolved.content, None))
-                }
-            }
-        } else {
-            // If resolution fails, default to builtin stencila theme
-            Some((ThemeType::Builtin, "stencila".to_string(), None))
+    let theme = theme.map(|resolved| match resolved.r#type {
+        ThemeType::Builtin => {
+            // For builtin themes, pass the name
+            (
+                ThemeType::Builtin,
+                resolved
+                    .name
+                    .clone()
+                    .unwrap_or_else(|| "stencila".to_string()),
+                None,
+            )
         }
-    } else {
-        None
-    };
+        ThemeType::User => {
+            // For user themes, pass the CSS content and the display name
+            (
+                ThemeType::User,
+                resolved.content.clone(),
+                resolved.name.clone(),
+            )
+        }
+        ThemeType::Workspace => {
+            // For workspace themes, pass the CSS content (no display name)
+            (ThemeType::Workspace, resolved.content.clone(), None)
+        }
+    });
 
     let mut html = format!(
         r#"<!doctype html>

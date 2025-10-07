@@ -261,7 +261,17 @@ pub async fn serve_path(
         .map(|value: &String| value.as_str())
         .or(config.theme.as_deref());
 
-    // Generate the HTML (theme resolution happens inside standalone_html)
+    // Resolve theme if theme_name is not "none"
+    let theme = if theme_name != Some("none") {
+        stencila_themes::get(theme_name, Some(doc.directory()))
+            .await
+            .ok()
+            .flatten()
+    } else {
+        None
+    };
+
+    // Generate the HTML
     let html = standalone_html(
         doc_id,
         node_type,
@@ -270,8 +280,7 @@ pub async fn serve_path(
         None,
         node_html,
         web,
-        theme_name,
-        Some(doc.directory()),
+        theme.as_ref(),
         view,
     )
     .await;
