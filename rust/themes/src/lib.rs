@@ -1,9 +1,17 @@
 use std::{
+    collections::BTreeMap,
     env::current_dir,
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 
 use eyre::{Result, bail};
+use lightningcss::{
+    properties::Property,
+    rules::CssRule,
+    stylesheet::{ParserOptions, PrinterOptions, StyleSheet},
+    traits::ToCss,
+};
 use pathdiff::diff_paths;
 
 use stencila_dirs::{DirType, get_app_dir};
@@ -48,12 +56,113 @@ pub struct Theme {
 
     /// The CSS content of the theme
     pub content: String,
+
+    /// CSS variables defined in the theme
+    ///
+    /// Includes variables from base.css merged with theme-specific variables.
+    /// Variable names have the `--` prefix stripped.
+    pub variables: BTreeMap<String, String>,
+}
+
+impl Theme {
+    /// Get a CSS variable value by name
+    ///
+    /// The name should not include the `--` prefix.
+    pub fn variable(&self, name: &str) -> Option<&str> {
+        self.variables.get(name).map(|s| s.as_str())
+    }
 }
 
 /// Get the relative path from current directory (using .. if needed)
 fn relative_path(path: &Path) -> Option<String> {
     let current = current_dir().ok()?;
     diff_paths(path, &current).map(|p| p.display().to_string())
+}
+
+/// Parse CSS and extract all :root custom properties
+///
+/// Only collects top-level :root declarations, not those nested
+/// in @media, @supports, or other at-rules.
+/// Variable names have the `--` prefix stripped.
+fn parse_css_variables(css: &str) -> BTreeMap<String, String> {
+    use lightningcss::properties::custom::CustomPropertyName;
+
+    let mut map = BTreeMap::new();
+
+    let parser_opts = ParserOptions::default();
+
+    let Ok(sheet) = StyleSheet::parse(css, parser_opts) else {
+        return map;
+    };
+
+    for rule in &sheet.rules.0 {
+        if let CssRule::Style(style) = rule {
+            // Only consider top-level style rules that include a bare `:root`
+            let Ok(selector_list) = style.selectors.to_css_string(PrinterOptions::default()) else {
+                continue;
+            };
+
+            // Check if any comma-separated selector is exactly ":root"
+            if !selector_list.split(',').any(|s| s.trim() == ":root") {
+                continue;
+            }
+
+            // Iterate over all declarations in the rule
+            for (property, _) in style.declarations.iter() {
+                if let Property::Custom(custom_prop) = property {
+                    // Only handle custom properties (starting with --), not unknown properties
+                    if let CustomPropertyName::Custom(dashed_ident) = &custom_prop.name {
+                        // Get the name and strip the -- prefix
+                        let name = dashed_ident.0.as_ref().trim_start_matches("--").to_string();
+
+                        // Convert the entire property to CSS, then extract the value
+                        let mut prop_string = String::new();
+                        if property
+                            .to_css(
+                                &mut lightningcss::printer::Printer::new(
+                                    &mut prop_string,
+                                    PrinterOptions::default(),
+                                ),
+                                false,
+                            )
+                            .is_ok()
+                        {
+                            // The property will be in format "--name: value"
+                            // Extract just the value after the colon
+                            if let Some(colon_pos) = prop_string.find(':') {
+                                let value = prop_string[colon_pos + 1..].trim().to_string();
+                                // "last one wins" if :root declares the same var multiple times
+                                map.insert(name, value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // All other rule kinds (including @media/@supports/@layer blocks) are skipped
+    }
+
+    map
+}
+
+/// Lazy-loaded base theme variables parsed from base.css
+static BASE_THEME_VARS: LazyLock<BTreeMap<String, String>> = LazyLock::new(|| {
+    if let Some(file) = Web::get("themes/base.css") {
+        let css = String::from_utf8_lossy(&file.data);
+        parse_css_variables(&css)
+    } else {
+        BTreeMap::new()
+    }
+});
+
+/// Merge base theme variables with theme-specific CSS variables
+///
+/// Parses the CSS and extracts custom properties, then merges them with
+/// the base theme variables (theme variables override base).
+fn merge_css_variables(css: &str) -> BTreeMap<String, String> {
+    let mut variables = BASE_THEME_VARS.clone();
+    variables.extend(parse_css_variables(css));
+    variables
 }
 
 /// Get a list of available themes
@@ -71,7 +180,8 @@ pub async fn list() -> Result<Vec<Theme>> {
                 r#type: ThemeType::Workspace,
                 name: None,
                 location: relative_path(&theme_path),
-                content: css,
+                content: css.clone(),
+                variables: merge_css_variables(&css),
             });
             break;
         }
@@ -98,7 +208,8 @@ pub async fn list() -> Result<Vec<Theme>> {
                     r#type: ThemeType::User,
                     name,
                     location: Some(path.display().to_string()),
-                    content,
+                    content: content.clone(),
+                    variables: merge_css_variables(&content),
                 });
             }
         }
@@ -109,6 +220,7 @@ pub async fn list() -> Result<Vec<Theme>> {
         if filename.starts_with("themes/")
             && filename.ends_with(".css")
             && !filename.contains("/base/")
+            && filename != "themes/base.css"
             && let Some(file) = Web::get(&filename)
         {
             let name = filename
@@ -123,6 +235,7 @@ pub async fn list() -> Result<Vec<Theme>> {
                 name: Some(name),
                 location: None,
                 content: css.to_string(),
+                variables: merge_css_variables(&css),
             });
         }
     }
@@ -159,7 +272,8 @@ pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
                     r#type: ThemeType::User,
                     name: Some(name.to_string()),
                     location: Some(theme_path.display().to_string()),
-                    content: css,
+                    content: css.clone(),
+                    variables: merge_css_variables(&css),
                 }));
             }
         }
@@ -174,6 +288,7 @@ pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
                 name: Some(name.to_string()),
                 location: None,
                 content: css.to_string(),
+                variables: merge_css_variables(&css),
             }));
         }
 
@@ -194,7 +309,8 @@ pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
                 r#type: ThemeType::Workspace,
                 name: None,
                 location: relative_path(&theme_path),
-                content: css,
+                content: css.clone(),
+                variables: merge_css_variables(&css),
             }));
         }
 
@@ -215,7 +331,8 @@ pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
                 r#type: ThemeType::User,
                 name: Some("default".to_string()),
                 location: Some(default_path.display().to_string()),
-                content: css,
+                content: css.clone(),
+                variables: merge_css_variables(&css),
             }));
         }
     }
@@ -229,6 +346,7 @@ pub async fn get(name: Option<&str>) -> Result<Option<Theme>> {
             name: Some("stencila".to_string()),
             location: None,
             content: css.to_string(),
+            variables: merge_css_variables(&css),
         }));
     }
 

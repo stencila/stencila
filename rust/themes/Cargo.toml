@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 clap = { workspace = true }
 eyre = { workspace = true }
+lightningcss = { workspace = true }
 pathdiff = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }

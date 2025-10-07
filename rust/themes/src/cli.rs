@@ -112,6 +112,10 @@ struct Show {
     /// If not provided, shows the default resolved theme following the
     /// resolution order: workspace theme.css → user default.css → builtin stencila.css
     name: Option<String>,
+
+    /// Show resolved CSS variables
+    #[arg(long, short)]
+    verbose: bool,
 }
 
 impl Show {
@@ -119,6 +123,15 @@ impl Show {
         match get(self.name.as_deref()).await? {
             Some(theme) => {
                 Code::new(Format::Css, &theme.content).to_stdout();
+
+                if self.verbose {
+                    let mut vars = "/* Resolved CSS variables */\n\n".to_string();
+                    for (name, value) in &theme.variables {
+                        vars.push_str(&format!("--{} = {}\n", name, value));
+                    }
+                    Code::new(Format::Css, &vars).to_stdout();
+                }
+
                 Ok(())
             }
             None => {
@@ -140,6 +153,9 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Show a user theme</dim>
   <b>stencila themes show</b> <g>my-theme</g>
+
+  <dim># Show theme with resolved CSS variables</dim>
+  <b>stencila themes show</b> <g>stencila</g> <c>--verbose</c>
 "
 );
 
