@@ -1,5 +1,6 @@
-import { html } from 'lit'
 import { css } from '@twind/core'
+import { html } from 'lit'
+
 import { colorToHex } from '../utilities/colorUtils'
 import { getCSSVariables } from '../utilities/cssVariables'
 

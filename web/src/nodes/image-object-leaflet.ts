@@ -1,5 +1,5 @@
-import { html } from 'lit'
 import { css } from '@twind/core'
+import { html } from 'lit'
 
 /**
  * Compile Leaflet HTML map content

@@ -88,8 +88,8 @@ export async function compileVegaLite(
   const themedSpec = {
     ...spec,
     config: { ...themeConfig, ...(spec.config ?? {}) },
-    width: "container",
-    autosize: { type: "fit-x", contains: "padding" },
+    width: 'container',
+    autosize: { type: 'fit-x', contains: 'padding' },
     padding: {
       top: theme.padding.top,
       right: theme.padding.right,

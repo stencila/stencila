@@ -5,8 +5,6 @@ import { customElement, state } from 'lit/decorators.js'
 import { withTwind } from '../twind'
 
 import { ExecutionMessage } from './execution-message'
-import { MediaObject } from './media-object'
-
 import {
   compileCytoscape,
   renderCytoscapeContainer,
@@ -31,6 +29,7 @@ import {
   compileVegaLite,
   renderVegaLiteContainer,
 } from './image-object-vegalite'
+import { MediaObject } from './media-object'
 
 /**
  * Web component representing a Stencila Schema `ImageObject` node
@@ -255,7 +254,7 @@ export class ImageObject extends MediaObject {
         return
       }
 
-      switch(this.mediaType) {
+      switch (this.mediaType) {
         case ImageObject.MEDIA_TYPES.cytoscape:
           return await this.compileCytoscape()
         case ImageObject.MEDIA_TYPES.echarts:

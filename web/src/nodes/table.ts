@@ -18,10 +18,10 @@ import '../ui/nodes/properties/provenance'
 @withTwind()
 export class Table extends Entity {
   @property()
-  label?: string;
+  label?: string
 
   @property()
-  labelAutomatically?: string;
+  labelAutomatically?: string
 
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
