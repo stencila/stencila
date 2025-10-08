@@ -1,9 +1,30 @@
 import { Extension } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 
+import { abcdefTheme } from './abcdef'
+import { abyssTheme } from './abyss'
+import { androidStudioTheme } from './android-studio'
+import { andromedaTheme } from './andromeda'
 import { basicDarkTheme } from './basic-dark'
 import { basicLightTheme } from './basic-light'
 import { customTheme } from './custom'
+import { forestTheme } from './forest'
+import { githubDarkTheme } from './github-dark'
+import { githubLightTheme } from './github-light'
+import { gruvboxDarkTheme } from './gruvbox-dark'
+import { gruvboxLightTheme } from './gruvbox-light'
+import { materialDarkTheme } from './material-dark'
+import { materialLightTheme } from './material-light'
+import { monokaiTheme } from './monokai'
+import { nordTheme } from './nord'
+import { palenightTheme } from './palenight'
+import { solarizedDarkTheme } from './solarized-dark'
+import { solarizedLightTheme } from './solarized-light'
+import { tokyoNightDayTheme } from './tokyo-night-day'
+import { tokyoNightStormTheme } from './tokyo-night-storm'
+import { volcanoTheme } from './volcano'
+import { vsCodeDarkTheme } from './vscode-dark'
+import { vsCodeLightTheme } from './vscode-light'
 
 /**
  * Get the value of a CSS variable from the document root
@@ -106,7 +127,7 @@ function createEditorTheme(): Extension {
  * or reads from Stencila CSS variables when set to 'custom'.
  */
 export function createTheme(): Extension {
-  const themeName = getCSSVariable('--code-theme') || 'basic-light'
+  const themeName = getCSSVariable('--code-theme') || 'custom'
 
   // Editor theme is always included
   const editorTheme = createEditorTheme()
@@ -114,13 +135,55 @@ export function createTheme(): Extension {
   // Select syntax highlighting theme
   const syntaxTheme = (() => {
     switch (themeName) {
-      case 'custom':
-        return customTheme()
+      case 'abcdef':
+        return abcdefTheme()
+      case 'abyss':
+        return abyssTheme()
+      case 'android-studio':
+        return androidStudioTheme()
+      case 'andromeda':
+        return andromedaTheme()
       case 'basic-dark':
         return basicDarkTheme()
       case 'basic-light':
-      default:
         return basicLightTheme()
+      case 'forest':
+        return forestTheme()
+      case 'github-dark':
+        return githubDarkTheme()
+      case 'github-light':
+        return githubLightTheme()
+      case 'gruvbox-dark':
+        return gruvboxDarkTheme()
+      case 'gruvbox-light':
+        return gruvboxLightTheme()
+      case 'material-dark':
+        return materialDarkTheme()
+      case 'material-light':
+        return materialLightTheme()
+      case 'monokai':
+        return monokaiTheme()
+      case 'nord':
+        return nordTheme()
+      case 'palenight':
+        return palenightTheme()
+      case 'solarized-dark':
+        return solarizedDarkTheme()
+      case 'solarized-light':
+        return solarizedLightTheme()
+      case 'tokyo-night-day':
+        return tokyoNightDayTheme()
+      case 'tokyo-night-storm':
+        return tokyoNightStormTheme()
+      case 'volcano':
+        return volcanoTheme()
+      case 'vscode-dark':
+        return vsCodeDarkTheme()
+      case 'vscode-light':
+        return vsCodeLightTheme()
+      case 'custom':
+      default:
+        return customTheme()
     }
   })()
 

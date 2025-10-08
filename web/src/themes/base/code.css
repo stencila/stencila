@@ -95,9 +95,10 @@
      * Set --code-theme to use a named theme or 'custom' to apply the CSS variables defined below.
      *
      * Available named themes:
-     * - custom: Use CSS variables for full customization
-     * - basic-light: Light theme with good contrast (default)
-     * - basic-dark: Dark theme
+     *
+     * Custom: Use CSS variables for full customization
+     * Light: basic-light, github-light, gruvbox-light, material-light, solarized-light, tokyo-night-day, vscode-light
+     * Dark: abcdef, abyss, android-studio, andromeda, basic-dark, forest, github-dark, gruvbox-dark, material-dark, monokai, nord, palenight, solarized-dark, tokyo-night-storm, volcano, vscode-dark
      *
      * To add more themes, see: web/src/ui/nodes/properties/code/themes/README.md
      */

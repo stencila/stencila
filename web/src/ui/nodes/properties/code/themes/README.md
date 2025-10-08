@@ -34,9 +34,36 @@ Themes are selected via the `--code-theme` CSS variable:
 ## Available Themes
 
 Currently implemented:
+
+**Customizable:**
 - `custom` - CSS variable-based theme (default fallback)
-- `basic-light` - Light theme with good contrast
-- `basic-dark` - Dark theme
+
+**Light themes:**
+- `basic-light` - Light theme with good contrast (default)
+- `github-light` - GitHub Light theme
+- `gruvbox-light` - Gruvbox Light theme with warm retro colors
+- `material-light` - Material Design Light theme
+- `solarized-light` - Solarized Light theme with precision colors
+- `tokyo-night-day` - Tokyo Night Day theme variant
+- `vscode-light` - VS Code Light theme
+
+**Dark themes:**
+- `abcdef` - Abcdef theme with signature blue colors
+- `abyss` - Abyss theme with deep ocean-inspired colors
+- `android-studio` - Android Studio/IntelliJ IDEA dark theme
+- `andromeda` - Andromeda theme with vibrant purple and teal accents
+- `basic-dark` - Basic dark theme
+- `forest` - Forest theme with natural green and earth tones
+- `github-dark` - GitHub Dark theme
+- `gruvbox-dark` - Gruvbox Dark theme with muted warm colors
+- `material-dark` - Material Design Dark theme
+- `monokai` - Monokai theme with classic colors
+- `nord` - Nord theme with arctic, north-bluish color palette
+- `palenight` - Palenight theme with soft purple and blue tones
+- `solarized-dark` - Solarized Dark theme with precision colors
+- `tokyo-night-storm` - Tokyo Night Storm theme variant
+- `volcano` - Volcano theme with red and fire-like colors
+- `vscode-dark` - VS Code Dark theme
 
 ## Adding New Themes
 
@@ -85,6 +112,7 @@ case 'monokai':
 ### 3. Update CSS documentation
 
 In `web/src/themes/base/code.css`, add to the available themes list:
+
 ```css
 /* Available named themes:
  * Light: basic-light, ...
