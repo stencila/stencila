@@ -120,6 +120,8 @@ export class UINodeCode extends LitElement {
 
   private viewAuthorship: Compartment
 
+  private themeCompartment: Compartment
+
   private authorshipExtensions: Extension | Extension[] = []
 
   /**
@@ -376,6 +378,7 @@ export class UINodeCode extends LitElement {
     this.viewEditable = new Compartment()
     this.viewReadOnly = new Compartment()
     this.viewAuthorship = new Compartment()
+    this.themeCompartment = new Compartment()
 
     const singleLineEditor = EditorState.transactionFilter.of((tr) =>
       tr.newDoc.lines > 1 ? [] : tr
@@ -402,7 +405,7 @@ export class UINodeCode extends LitElement {
       keymap.of(filteredKeyMap),
       keymap.of(historyKeymap),
       keymap.of(clipBoardKeyBindings),
-      createTheme(),
+      this.themeCompartment.of(createTheme()),
       keymap.of([
         {
           key: 'Ctrl-Enter',
@@ -468,6 +471,33 @@ export class UINodeCode extends LitElement {
    * the `messages` slot changes
    */
   private messagesObserver: MutationObserver
+
+  /**
+   * Event handler for theme changes
+   */
+  private onThemeChange = () => {
+    if (this.editorView && this.themeCompartment) {
+      this.editorView.dispatch({
+        effects: this.themeCompartment.reconfigure(createTheme()),
+      })
+    }
+  }
+
+  /**
+   * Set up event listeners when component is added to the DOM
+   */
+  override connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('stencila-theme-changed', this.onThemeChange)
+  }
+
+  /**
+   * Clean up event listeners when component is removed from the DOM
+   */
+  override disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('stencila-theme-changed', this.onThemeChange)
+  }
 
   /**
    * Handle a change, including on initial load, of the `messages` slot
