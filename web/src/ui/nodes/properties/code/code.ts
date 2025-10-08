@@ -23,7 +23,7 @@ import { withTwind } from '../../../../twind'
 import { isCSSFeatureVisible } from '../../../../utilities/cssVariables'
 import '../../../buttons/chevron'
 
-import { createTheme } from './theme'
+import { createTheme } from './themes'
 import { AuthorshipRun, AuthorshipMarker as AuthorshipMarker } from './types'
 import {
   createProvenanceDecorations,

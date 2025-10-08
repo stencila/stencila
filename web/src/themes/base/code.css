@@ -90,6 +90,20 @@
     --code-line-numbers: hidden;
     --code-fold-gutter: hidden;
 
+    /* Theme Selection
+     *
+     * Set --code-theme to use a named theme or 'custom' to apply the CSS variables defined below.
+     *
+     * Available named themes:
+     * - custom: Use CSS variables for full customization
+     * - basic-light: Light theme with good contrast (default)
+     * - basic-dark: Dark theme
+     *
+     * To add more themes, see: web/src/ui/nodes/properties/code/themes/README.md
+     */
+    --code-theme: basic-light;
+    --code-theme-dark: basic-dark;
+
     /* Syntax Highlighting - Comments */
     --code-comment: var(--color-green-600);
     --code-comment-dark: var(--color-green-500);
@@ -193,6 +207,7 @@
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
+        --code-theme: var(--code-theme-dark);
         --code-color: var(--code-color-dark);
         --code-background: var(--code-background-dark);
         --code-background-inline: var(--code-background-inline-dark);
@@ -253,6 +268,7 @@
 }
 
 :root[data-color-scheme="dark"] {
+    --code-theme: var(--code-theme-dark);
     --code-color: var(--code-color-dark);
     --code-background: var(--code-background-dark);
     --code-background-inline: var(--code-background-inline-dark);

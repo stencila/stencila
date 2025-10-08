@@ -1,93 +1,15 @@
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { Extension } from '@codemirror/state'
-import { EditorView } from '@codemirror/view'
 import { tags as t } from '@lezer/highlight'
 
 /**
- * Create a dynamic CodeMirror theme that reads from Stencila CSS variables.
- * This allows the editor to automatically adapt to theme changes.
+ * Custom theme for CodeMirror
+ *
+ * This uses CSS variables for full customization.
+ * Set --code-theme: 'custom' to use this theme and customize
+ * all syntax highlighting colors via CSS variables.
  */
-export function createTheme(): Extension {
-  // Base editor theme - layout, colors, and UI elements
-  const editorTheme = EditorView.theme({
-    '&': {
-      backgroundColor: 'var(--code-background)',
-      border: 'var(--code-border-width) solid var(--code-border-color)',
-    },
-    '&.cm-focused': {
-      backgroundColor: 'var(--code-focused-background)',
-    },
-    '.cm-content': {
-      padding: 'var(--code-padding-block)',
-      color: 'var(--code-color)',
-      fontFamily: 'var(--code-font-family)',
-      fontSize: 'var(--code-font-size-block)',
-      lineHeight: 'var(--code-line-height)',
-      caretColor: 'var(--code-caret-color)',
-    },
-    '.cm-scroller': {
-      overflowX: 'auto',
-    },
-    '.cm-focused .cm-cursor': {
-      borderLeftColor: 'var(--code-caret-color)',
-    },
-    '.cm-selectionBackground, ::selection': {
-      backgroundColor: 'var(--code-selection-background)',
-    },
-    '.cm-selectionMatch': {
-      backgroundColor: 'var(--code-selection-match-background)',
-    },
-    '.cm-activeLine': {
-      backgroundColor: 'var(--code-cursor-line-background)',
-    },
-    '.cm-gutters': {
-      backgroundColor: 'var(--code-gutter-background)',
-      color: 'var(--code-gutter-color)',
-      border: 'none',
-      borderRight: 'var(--code-gutter-border-width) solid var(--code-gutter-border-color)',
-      paddingLeft: 'var(--code-gutter-padding)',
-      paddingRight: 'var(--code-gutter-padding)',
-      minWidth: 'var(--code-gutter-min-width)',
-    },
-    '.cm-activeLineGutter': {
-      backgroundColor: 'var(--code-gutter-active-line-background)',
-      color: 'var(--code-gutter-active-line-color)',
-    },
-    '.cm-lineNumbers .cm-gutterElement': {
-      color: 'var(--code-gutter-color)',
-      fontSize: 'var(--code-font-size-block)',
-      fontFamily: 'var(--code-font-family)',
-    },
-    // Diagnostic styles (for error messages, tooltips, etc.)
-    '.cm-diagnostic': {
-      paddingLeft: '16px',
-      paddingRight: '16px',
-      borderBottom: '1px solid var(--border-color-muted)',
-    },
-    '.cm-diagnostic:last-child': {
-      borderBottom: '0px',
-    },
-    // Tooltip styles
-    '.cm-tooltip:has(> .cm-provenance-tooltip)': {
-      minWidth: '30px',
-      border: 'none',
-      color: '#ffffff',
-      backgroundColor: 'var(--sl-tooltip-background-color)',
-      fontFamily: 'var(--sl-tooltip-font-family)',
-      borderRadius: 'var(--sl-tooltip-border-radius)',
-      fontSize: 'var(--sl-tooltip-font-size)',
-      fontWeight: 'var(--sl-tooltip-font-weight)',
-      lineHeight: 'var(--sl-tooltip-line-height)',
-      padding: 'var(--sl-tooltip-padding)',
-    },
-    'div.cm-tooltip-arrow::after': {
-      borderBottomColor: `var(--sl-tooltip-background-color) !important`,
-    },
-    'div.cm-tooltip-arrow::before': {
-      borderBottomColor: `var(--sl-tooltip-background-color) !important`,
-    },
-  })
-
+export function customTheme(): Extension {
   // Syntax highlighting theme - maps @lezer/highlight tags to CSS variables
   const syntaxHighlightStyle = HighlightStyle.define([
     // Comments
@@ -168,5 +90,5 @@ export function createTheme(): Extension {
     { tag: t.strikethrough, textDecoration: 'line-through' },
   ])
 
-  return [editorTheme, syntaxHighlighting(syntaxHighlightStyle)]
+  return syntaxHighlighting(syntaxHighlightStyle)
 }
