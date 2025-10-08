@@ -35,6 +35,10 @@
     /* Admonitions: sans serif title */
     --admonition-title-font-family: var(--font-family-sans);
 
+    /* Code: syntax highlighting */
+    --code-theme: vscode-light;
+    --code-theme-dark: vscode-dark;
+
     /* References: more compact layout and justified */
     --reference-spacing: calc(var(--content-spacing) * 0.5);
     --reference-text-indent: -1.25em;
