@@ -68,9 +68,50 @@ Core editor appearance and behavior:
 > [!note]
 > The `--code-gutter-*` tokens have no effect if both `--code-line-numbers` and `--code-fold-gutter` are `none` or `hidden`.
 
+## Syntax Highlighting Theme Selection Tokens
+
+Configure syntax highlighting theme presets or use custom CSS variables:
+
+| Token               | Description                               | Default Value     |
+| ------------------- | ----------------------------------------- | ----------------- |
+| `--code-theme`      | Theme name for light mode or `custom`     | `basic-light`     |
+| `--code-theme-dark` | Theme name for dark mode or `custom`      | `basic-dark`      |
+
+Set `--code-theme` to use a named theme preset or `custom` to apply the syntax highlighting CSS variables defined below.
+
+**Available Light Themes:**
+- `basic-light`
+- `github-light`
+- `gruvbox-light`
+- `material-light`
+- `solarized-light`
+- `tokyo-night-day`
+- `vscode-light`
+
+**Available Dark Themes:**
+- `abcdef`
+- `abyss`
+- `android-studio`
+- `andromeda`
+- `basic-dark`
+- `forest`
+- `github-dark`
+- `gruvbox-dark`
+- `material-dark`
+- `monokai`
+- `nord`
+- `palenight`
+- `solarized-dark`
+- `tokyo-night-storm`
+- `volcano`
+- `vscode-dark`
+
+> [!note]
+> To add more themes, see: `web/src/ui/nodes/properties/code/themes/README.md`
+
 ## Syntax Highlighting Tokens
 
-Colors for different code elements:
+Colors for different code elements when using `--code-theme: custom`:
 
 | Token                          | Description             | Default Value             |
 | ------------------------------ | ----------------------- | ------------------------- |
@@ -407,6 +448,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 ```
 
 # Tips
+
+**Theme presets**: Use `--code-theme` and `--code-theme-dark` with named theme presets (like `github-light`, `nord`, or `monokai`) for quick, consistent syntax highlighting. Set to `custom` only when you need full control over individual syntax highlighting tokens.
 
 **Size tokens**: Use `--font-size-sm` for both `--code-font-size-inline` and `--code-font-size-block` to maintain consistency with the design system.
 
