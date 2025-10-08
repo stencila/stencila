@@ -7,27 +7,33 @@ use directories::ProjectDirs;
 use eyre::{OptionExt, Result};
 use strum::{Display, EnumString};
 
-#[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
+#[derive(Debug, Display, Clone, Copy, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase")]
 pub enum DirType {
-    #[default]
+    // Application configuration
     Config,
 
-    /// A config subdirectory for `.css` files defining Stencila themes
+    /// Config subdirectory for `.css` files defining Stencila themes
     /// which can be used across workspaces on the current machine
     Themes,
 
     Prompts,
     
-    Kernels,
-
+    /// Application cache
     Cache,
-    Templates,
-    Models,
 
-    /// A cache subdirectory for `.csl` files downloaded from
+    /// Cache subdirectory for `.csl` files downloaded from
     /// https://raw.githubusercontent.com/citation-style-language/styles
     Csl,
+
+    /// Cache subdirectory for microkernel scripts
+    Kernels,
+
+    /// Cache subdirectory for embedding, and other, models
+    Models,
+
+    /// Cache subdirectory for template files (e.g. for Pandoc)
+    Templates,
 }
 
 /// Get an application directory
@@ -49,12 +55,11 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
                 }
             }
 
-            DirType::Kernels => dirs.config_dir().join("kernels"),
-
             DirType::Cache => dirs.cache_dir().to_path_buf(),
-            DirType::Templates => dirs.cache_dir().join("templates"),
-            DirType::Models => dirs.cache_dir().join("models"),
             DirType::Csl => dirs.cache_dir().join("csl"),
+            DirType::Kernels => dirs.cache_dir().join("kernels"),
+            DirType::Models => dirs.cache_dir().join("models"),
+            DirType::Templates => dirs.cache_dir().join("templates"),
         }
     };
 
