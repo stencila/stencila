@@ -9,6 +9,8 @@ eyre = { workspace = true }
 lightningcss = { workspace = true }
 notify = { workspace = true }
 pathdiff = { workspace = true }
+regex = { workspace = true }
+serde_json = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-dirs = { path = "../dirs" }

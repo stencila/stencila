@@ -15,6 +15,8 @@ use lightningcss::{
 };
 use notify::{Event, RecursiveMode, Watcher, event::EventKind};
 use pathdiff::diff_paths;
+use regex::Regex;
+use serde_json::{Value, json};
 use tokio::{
     fs::{read_to_string, remove_file, write},
     sync::mpsc,
@@ -124,6 +126,127 @@ impl Theme {
     /// The name should not include the `--` prefix.
     pub fn variable(&self, name: &str) -> Option<&str> {
         self.variables.get(name).map(|s| s.as_str())
+    }
+
+    /// Compute variables with resolved references and typed JSON values
+    ///
+    /// Resolves var() references, evaluates calc() and color-mix() using lightningcss,
+    /// and returns typed JSON values suitable for kernels (Python matplotlib, R ggplot2, etc.)
+    pub fn compute_variables(&self) -> BTreeMap<String, Value> {
+        let mut computed = BTreeMap::new();
+
+        for (name, value) in &self.variables {
+            let resolved = self.resolve_var_references(value, 0);
+            let evaluated = Self::evaluate_css_value(&resolved);
+            let typed = Self::to_json_value(&evaluated);
+
+            computed.insert(name.clone(), typed);
+        }
+
+        computed
+    }
+
+    /// Recursively resolve var() references in a CSS value
+    ///
+    /// Depth limit prevents infinite recursion from circular references
+    fn resolve_var_references(&self, value: &str, depth: u8) -> String {
+        const MAX_DEPTH: u8 = 10;
+
+        if depth >= MAX_DEPTH {
+            return value.to_string();
+        }
+
+        // Regex pattern: var(--name) or var(--name, fallback)
+        static REGEX: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"var\(\s*--([\w-]+)\s*(?:,\s*([^)]+))?\s*\)").expect("var() regex is valid")
+        });
+
+        REGEX
+            .replace_all(value, |caps: &regex::Captures| {
+                let var_name = &caps[1];
+                if let Some(var_value) = self.variables.get(var_name) {
+                    // Recurse immediately to resolve nested references
+                    self.resolve_var_references(var_value, depth + 1)
+                } else if let Some(fallback) = caps.get(2) {
+                    fallback.as_str().to_string()
+                } else {
+                    caps[0].to_string() // keep original if not found
+                }
+            })
+            .to_string()
+    }
+
+    /// Evaluate calc() and color-mix() using lightningcss minification
+    fn evaluate_css_value(value: &str) -> String {
+        // lightningcss evaluates calc() and color-mix() in actual properties, not custom properties
+        // So we use a real property like 'width' for evaluation, then extract the value
+        let test_css = format!(".temp {{ width: {}; }}", value);
+
+        let Ok(sheet) = StyleSheet::parse(&test_css, ParserOptions::default()) else {
+            return value.to_string();
+        };
+
+        // Minify with calc/color-mix evaluation
+        let Ok(result) = sheet.to_css(PrinterOptions {
+            minify: true,
+            ..Default::default()
+        }) else {
+            return value.to_string();
+        };
+
+        // Extract value from ".temp{width:VALUE}"
+        result
+            .code
+            .strip_prefix(".temp{width:")
+            .and_then(|s| s.strip_suffix('}'))
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| value.to_string())
+    }
+
+    /// Convert CSS value to typed JSON value
+    fn to_json_value(value: &str) -> Value {
+        let normalized = value.trim();
+
+        // Strip units: ".25s" -> 0.25, "10px" -> 10
+        if let Some(num_str) = normalized
+            .strip_suffix('s')
+            .or_else(|| normalized.strip_suffix("px"))
+            .or_else(|| normalized.strip_suffix("em"))
+            .or_else(|| normalized.strip_suffix("rem"))
+            && let Ok(num) = num_str.parse::<f64>()
+        {
+            return json!(num);
+        }
+
+        // Unquote: '.25' -> 0.25, "'string'" -> "string"
+        if let Some(unquoted) = normalized
+            .strip_prefix('\'')
+            .and_then(|s| s.strip_suffix('\''))
+            .or_else(|| {
+                normalized
+                    .strip_prefix('"')
+                    .and_then(|s| s.strip_suffix('"'))
+            })
+        {
+            // Try as number first
+            if let Ok(num) = unquoted.parse::<f64>() {
+                return json!(num);
+            }
+            return json!(unquoted);
+        }
+
+        // Try as number
+        if let Ok(num) = normalized.parse::<f64>() {
+            return json!(num);
+        }
+
+        // Try as JSON (for arrays/objects if any)
+        if let Ok(json) = serde_json::from_str(normalized) {
+            return json;
+        }
+
+        // Fallback to string
+        json!(normalized)
     }
 
     /// Parse CSS and extract all :root custom properties
@@ -574,4 +697,149 @@ pub async fn watch(
     });
 
     Ok(receiver)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compute_variables_simple_number() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --size: 16; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("size"), Some(&json!(16.0)));
+    }
+
+    #[test]
+    fn test_compute_variables_strip_units() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --width: 10px; --time: .25s; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("width"), Some(&json!(10.0)));
+        assert_eq!(computed.get("time"), Some(&json!(0.25)));
+    }
+
+    #[test]
+    fn test_compute_variables_unquote() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            r#":root { --num: '.25'; --str: 'hello'; }"#.into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("num"), Some(&json!(0.25)));
+        assert_eq!(computed.get("str"), Some(&json!("hello")));
+    }
+
+    #[test]
+    fn test_compute_variables_var_resolution() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --base: 10; --double: var(--base); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("double"), Some(&json!(10.0)));
+    }
+
+    #[test]
+    fn test_compute_variables_calc_simple() {
+        // Note: lightningcss may not evaluate unitless calc(), so we use px
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --result: calc(10px + 5px); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        // lightningcss should evaluate to "15px", then we strip units
+        assert_eq!(computed.get("result"), Some(&json!(15.0)));
+    }
+
+    #[test]
+    fn test_compute_variables_calc_with_var() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --base: 10px; --double: calc(var(--base) * 2); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        // Should resolve var, calc, and strip units
+        assert_eq!(computed.get("double"), Some(&json!(20.0)));
+    }
+
+    #[test]
+    fn test_compute_variables_nested_var() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --a: 5; --b: var(--a); --c: var(--b); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("c"), Some(&json!(5.0)));
+    }
+
+    #[test]
+    fn test_compute_variables_var_with_fallback() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --value: var(--missing, 42); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("value"), Some(&json!(42.0)));
+    }
+
+    #[test]
+    fn test_compute_variables_color_mix() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --color: color-mix(in srgb, red 50%, blue); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("color"), Some(&json!("purple")));
+    }
+
+    #[test]
+    fn test_resolve_var_references_circular() {
+        // Test that circular references don't cause infinite recursion
+        let mut vars = BTreeMap::new();
+        vars.insert("a".to_string(), "var(--b)".to_string());
+        vars.insert("b".to_string(), "var(--a)".to_string());
+
+        let theme = Theme {
+            r#type: ThemeType::Builtin,
+            name: Some("test".into()),
+            location: None,
+            content: String::new(),
+            variables: vars,
+        };
+        let computed = theme.compute_variables();
+        assert_eq!(computed.get("a"), Some(&json!("var(--b)")));
+    }
 }
