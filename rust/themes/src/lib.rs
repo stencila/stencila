@@ -46,6 +46,18 @@ impl ThemeType {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LengthConversion {
+    /// Convert CSS lengths to points (for plot libraries like matplotlib, ggplot2)
+    Points,
+    /// Convert CSS lengths to pixels
+    Pixels,
+    /// Strip units and return raw number
+    Number,
+    /// Keep original CSS value as string with units
+    KeepUnits,
+}
+
 pub struct Theme {
     /// The type of theme
     pub r#type: ThemeType,
@@ -132,27 +144,19 @@ impl Theme {
     /// Compute variables with resolved references and typed JSON values
     ///
     /// Resolves var() references, evaluates calc() and color-mix() using lightningcss,
-    /// normalizes colors to hex and lengths to points, and returns typed JSON values
-    /// suitable for kernels (Python matplotlib, R ggplot2, etc.)
-    pub fn compute_variables(&self) -> BTreeMap<String, Value> {
+    /// normalizes colors to hex, and converts lengths according to the specified conversion.
+    /// Returns typed JSON values suitable for kernels (Python matplotlib, R ggplot2, etc.)
+    pub fn compute_variables(
+        &self,
+        length_conversion: LengthConversion,
+    ) -> BTreeMap<String, Value> {
         let mut computed = BTreeMap::new();
 
         for (name, value) in &self.variables {
             let resolved = self.resolve_var_references(value, 0);
             let evaluated = Self::evaluate_css_value(&resolved);
-
-            let normalized = if Self::should_normalize_length_to_points(name) {
-                if let Some(points) = Self::normalize_length_to_points(&evaluated) {
-                    computed.insert(name.clone(), json!(points));
-                    continue;
-                }
-                evaluated
-            } else {
-                evaluated
-            };
-
-            let typed = Self::to_json_value(&normalized);
-            computed.insert(name.clone(), typed);
+            let converted = Self::convert_css_value(&evaluated, length_conversion);
+            computed.insert(name.clone(), converted);
         }
 
         computed
@@ -288,80 +292,69 @@ impl Theme {
         }
     }
 
-    /// Check if a variable should be normalized as a length (to points) based on its name
+    /// Convert a CSS value to typed JSON based on the specified length conversion
     ///
-    /// Only normalizes plot-* variables to avoid affecting other theme variables
-    fn should_normalize_length_to_points(name: &str) -> bool {
-        name.contains("plot")
-            && (name.contains("size")
-                || name.contains("width")
-                || name.contains("height")
-                || name.contains("spacing")
-                || name.contains("padding")
-                || name.contains("margin")
-                || name.contains("gap")
-                || name.contains("radius")
-                || name.contains("tick"))
-    }
-
-    /// Normalize a CSS length value to points (pt)
+    /// # Arguments
+    /// * `value` - The CSS value to convert
+    /// * `conversion` - How to handle length values
     ///
-    /// Conversions:
-    /// - rem → pt: value × 16 × 0.75 (assuming 16px root font size, 0.75 for px→pt)
-    /// - px → pt: value × 0.75
-    /// - pt → pt: unchanged
-    /// - Unitless values are returned as-is
-    fn normalize_length_to_points(value: &str) -> Option<f64> {
-        let normalized = value.trim();
+    /// # Conversion strategy
+    /// - Points: rem/px/em → points (for matplotlib/ggplot2)
+    ///   - rem → pt: value × 16 × 0.75
+    ///   - px → pt: value × 0.75
+    ///   - em → pt: value × 16 × 0.75
+    /// - Pixels: rem/em → pixels
+    ///   - rem → px: value × 16
+    ///   - em → px: value × 16
+    /// - Number: Strip all units
+    /// - KeepUnits: Return as string with units preserved
+    fn convert_css_value(value: &str, conversion: LengthConversion) -> Value {
+        let trimmed = value.trim();
 
-        // Try pt (already in points)
-        if let Some(num_str) = normalized.strip_suffix("pt") {
-            return num_str.trim().parse::<f64>().ok();
+        // Try to parse as length and convert based on strategy
+        if let Some((num, unit)) = Self::parse_length(trimmed) {
+            match conversion {
+                LengthConversion::Points => {
+                    let points = match unit {
+                        "pt" => num,
+                        "px" => num * 0.75,
+                        "rem" => num * 16.0 * 0.75,
+                        "em" => num * 16.0 * 0.75,
+                        _ => num, // Unknown unit, return as-is
+                    };
+                    return json!(points);
+                }
+                LengthConversion::Pixels => {
+                    let pixels = match unit {
+                        "px" => num,
+                        "pt" => num / 0.75,
+                        "rem" => num * 16.0,
+                        "em" => num * 16.0,
+                        _ => num,
+                    };
+                    return json!(pixels);
+                }
+                LengthConversion::Number => {
+                    return json!(num);
+                }
+                LengthConversion::KeepUnits => {
+                    // Fall through to string handling below
+                }
+            }
         }
 
-        // Try rem (convert to points: rem × 16 × 0.75)
-        if let Some(num_str) = normalized.strip_suffix("rem") {
-            return num_str.trim().parse::<f64>().ok().map(|n| n * 16.0 * 0.75);
-        }
-
-        // Try px (convert to points: px × 0.75)
-        if let Some(num_str) = normalized.strip_suffix("px") {
-            return num_str.trim().parse::<f64>().ok().map(|n| n * 0.75);
-        }
-
-        // Try em (treat as rem for now)
-        if let Some(num_str) = normalized.strip_suffix("em") {
-            return num_str.trim().parse::<f64>().ok().map(|n| n * 16.0 * 0.75);
-        }
-
-        // Try as unitless number
-        normalized.parse::<f64>().ok()
-    }
-
-    /// Convert CSS value to typed JSON value
-    fn to_json_value(value: &str) -> Value {
-        let normalized = value.trim();
-
-        // Strip units: ".25s" -> 0.25, "10px" -> 10
-        if let Some(num_str) = normalized
-            .strip_suffix('s')
-            .or_else(|| normalized.strip_suffix("px"))
-            .or_else(|| normalized.strip_suffix("em"))
-            .or_else(|| normalized.strip_suffix("rem"))
+        // Strip time units: ".25s" -> 0.25
+        if let Some(num_str) = trimmed.strip_suffix('s')
             && let Ok(num) = num_str.parse::<f64>()
         {
             return json!(num);
         }
 
         // Unquote: '.25' -> 0.25, "'string'" -> "string"
-        if let Some(unquoted) = normalized
+        if let Some(unquoted) = trimmed
             .strip_prefix('\'')
             .and_then(|s| s.strip_suffix('\''))
-            .or_else(|| {
-                normalized
-                    .strip_prefix('"')
-                    .and_then(|s| s.strip_suffix('"'))
-            })
+            .or_else(|| trimmed.strip_prefix('"').and_then(|s| s.strip_suffix('"')))
         {
             // Try as number first
             if let Ok(num) = unquoted.parse::<f64>() {
@@ -371,17 +364,34 @@ impl Theme {
         }
 
         // Try as number
-        if let Ok(num) = normalized.parse::<f64>() {
+        if let Ok(num) = trimmed.parse::<f64>() {
             return json!(num);
         }
 
         // Try as JSON (for arrays/objects if any)
-        if let Ok(json) = serde_json::from_str(normalized) {
-            return json;
+        if let Ok(json_value) = serde_json::from_str(trimmed) {
+            return json_value;
         }
 
         // Fallback to string
-        json!(normalized)
+        json!(trimmed)
+    }
+
+    /// Parse a CSS length value into number and unit
+    ///
+    /// Returns Some((number, unit)) if it's a valid length, None otherwise
+    fn parse_length(value: &str) -> Option<(f64, &str)> {
+        let value = value.trim();
+
+        for unit in ["rem", "em", "px", "pt"] {
+            if let Some(num_str) = value.strip_suffix(unit)
+                && let Ok(num) = num_str.trim().parse::<f64>()
+            {
+                return Some((num, unit));
+            }
+        }
+
+        None
     }
 
     /// Parse CSS and extract all :root custom properties
@@ -845,7 +855,7 @@ mod tests {
             color: color-mix(in srgb, red 50%, blue);
             width: calc(10px + 5px)
         }";
-        let mut sheet = StyleSheet::parse(&css, ParserOptions::default())?;
+        let mut sheet = StyleSheet::parse(css, ParserOptions::default())?;
 
         let targets = Targets {
             include: Features::all(),
@@ -874,7 +884,7 @@ mod tests {
             ":root { --size: 16; }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("size"), Some(&json!(16.0)));
     }
 
@@ -887,7 +897,7 @@ mod tests {
             ":root { --width: 10px; --time: .25s; }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("width"), Some(&json!(10.0)));
         assert_eq!(computed.get("time"), Some(&json!(0.25)));
     }
@@ -901,7 +911,7 @@ mod tests {
             r#":root { --num: '.25'; --str: 'hello'; }"#.into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("num"), Some(&json!(0.25)));
         assert_eq!(computed.get("str"), Some(&json!("hello")));
     }
@@ -915,7 +925,7 @@ mod tests {
             ":root { --base: 10; --double: var(--base); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("double"), Some(&json!(10.0)));
     }
 
@@ -929,7 +939,7 @@ mod tests {
             ":root { --result: calc(10px + 5px); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         // lightningcss should evaluate to "15px", then we strip units
         assert_eq!(computed.get("result"), Some(&json!(15.0)));
     }
@@ -943,7 +953,7 @@ mod tests {
             ":root { --base: 10px; --double: calc(var(--base) * 2); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         // Should resolve var, calc, and strip units
         assert_eq!(computed.get("double"), Some(&json!(20.0)));
     }
@@ -957,7 +967,7 @@ mod tests {
             ":root { --a: 5; --b: var(--a); --c: var(--b); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("c"), Some(&json!(5.0)));
     }
 
@@ -970,7 +980,7 @@ mod tests {
             ":root { --value: var(--missing, 42); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("value"), Some(&json!(42.0)));
     }
 
@@ -983,7 +993,7 @@ mod tests {
             ":root { --plot-color-1: color-mix(in srgb, red 50%, blue); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::KeepUnits);
         // color-mix should be normalized to hex
         let color = computed.get("plot-color-1").and_then(|v| v.as_str());
         assert_eq!(color.unwrap_or_default(), "#800080");
@@ -998,7 +1008,7 @@ mod tests {
             ":root { --plot-color-1: hsl(217 91% 60%); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::KeepUnits);
         let color = computed.get("plot-color-1").and_then(|v| v.as_str());
         assert_eq!(color.unwrap_or_default(), "#3c83f6");
     }
@@ -1012,7 +1022,7 @@ mod tests {
             ":root { --plot-background: oklch(55% 0.2 210); }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::KeepUnits);
         let color = computed.get("plot-background").and_then(|v| v.as_str());
         assert_eq!(color.unwrap_or_default(), "#008192");
     }
@@ -1026,7 +1036,7 @@ mod tests {
             ":root { --plot-font-size: 1rem; }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Points);
         // 1rem = 16px = 12pt (16 * 0.75)
         assert_eq!(computed.get("plot-font-size"), Some(&json!(12.0)));
     }
@@ -1040,7 +1050,7 @@ mod tests {
             ":root { --plot-line-width: 2px; }".into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Points);
         // 2px = 1.5pt (2 * 0.75)
         assert_eq!(computed.get("plot-line-width"), Some(&json!(1.5)));
     }
@@ -1051,12 +1061,20 @@ mod tests {
             ThemeType::Builtin,
             Some("test".into()),
             None,
-            ":root { --base: 16px; --plot-font-size: calc(var(--base) * 0.85); }".into(),
+            ":root {
+                --base: 1rem;
+                --plot-font-size: calc(var(--base)*0.85);
+                --plot-axis-title-size: calc(clamp(1rem,var(--base),1.1rem))
+            }"
+            .into(),
             false,
         );
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Points);
+
         // calc(16px * 0.85) = 13.6px = 10.2pt (13.6 * 0.75)
         assert_eq!(computed.get("plot-font-size"), Some(&json!(10.2)));
+
+        assert_eq!(computed.get("plot-axis-title-size"), Some(&json!(12.0)));
     }
 
     #[test]
@@ -1073,7 +1091,7 @@ mod tests {
             content: String::new(),
             variables: vars,
         };
-        let computed = theme.compute_variables();
+        let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("a"), Some(&json!("var(--b)")));
     }
 }
