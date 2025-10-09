@@ -10,7 +10,8 @@ use lightningcss::{
     printer::Printer,
     properties::{Property, custom::CustomPropertyName},
     rules::CssRule,
-    stylesheet::{ParserOptions, PrinterOptions, StyleSheet},
+    stylesheet::{MinifyOptions, ParserOptions, PrinterOptions, StyleSheet},
+    targets::{Features, Targets},
     traits::ToCss,
 };
 use notify::{Event, RecursiveMode, Watcher, event::EventKind};
@@ -131,15 +132,26 @@ impl Theme {
     /// Compute variables with resolved references and typed JSON values
     ///
     /// Resolves var() references, evaluates calc() and color-mix() using lightningcss,
-    /// and returns typed JSON values suitable for kernels (Python matplotlib, R ggplot2, etc.)
+    /// normalizes colors to hex and lengths to points, and returns typed JSON values
+    /// suitable for kernels (Python matplotlib, R ggplot2, etc.)
     pub fn compute_variables(&self) -> BTreeMap<String, Value> {
         let mut computed = BTreeMap::new();
 
         for (name, value) in &self.variables {
             let resolved = self.resolve_var_references(value, 0);
             let evaluated = Self::evaluate_css_value(&resolved);
-            let typed = Self::to_json_value(&evaluated);
 
+            let normalized = if Self::should_normalize_length_to_points(name) {
+                if let Some(points) = Self::normalize_length_to_points(&evaluated) {
+                    computed.insert(name.clone(), json!(points));
+                    continue;
+                }
+                evaluated
+            } else {
+                evaluated
+            };
+
+            let typed = Self::to_json_value(&normalized);
             computed.insert(name.clone(), typed);
         }
 
@@ -177,16 +189,47 @@ impl Theme {
     }
 
     /// Evaluate calc() and color-mix() using lightningcss minification
+    ///
+    /// For color values (detected by variable name or color functions in value),
+    /// uses the `color:` property with browser targets to ensure transpilation to hex.
+    /// For other values, uses the `width:` property for calc() evaluation.
     fn evaluate_css_value(value: &str) -> String {
-        // lightningcss evaluates calc() and color-mix() in actual properties, not custom properties
-        // So we use a real property like 'width' for evaluation, then extract the value
-        let test_css = format!(".temp {{ width: {}; }}", value);
+        let property = if value.contains("color-mix(")
+            || value.contains("oklch(")
+            || value.contains("oklab(")
+            || value.contains("lch(")
+            || value.contains("lab(")
+            || value.contains("hsl(")
+            || value.contains("hsla(")
+            || value.contains("rgb(")
+            || value.contains("rgba(")
+            || value.starts_with('#')
+        {
+            "color"
+        } else {
+            "width"
+        };
 
-        let Ok(sheet) = StyleSheet::parse(&test_css, ParserOptions::default()) else {
+        let prefix = [".temp{", property, ":"].concat();
+        let css = [&prefix, value, "}"].concat();
+        let Ok(mut sheet) = StyleSheet::parse(&css, ParserOptions::default()) else {
             return value.to_string();
         };
 
-        // Minify with calc/color-mix evaluation
+        // Minify (i.e. compile) all features
+        let targets = Targets {
+            // Features that should always be compiled
+            include: Features::all(),
+            ..Default::default()
+        };
+        sheet
+            .minify(MinifyOptions {
+                targets,
+                ..Default::default()
+            })
+            .ok();
+
+        // Print to minified CSS
         let Ok(result) = sheet.to_css(PrinterOptions {
             minify: true,
             ..Default::default()
@@ -194,13 +237,105 @@ impl Theme {
             return value.to_string();
         };
 
-        // Extract value from ".temp{width:VALUE}"
-        result
-            .code
-            .strip_prefix(".temp{width:")
-            .and_then(|s| s.strip_suffix('}'))
-            .map(|s| s.to_string())
-            .unwrap_or_else(|| value.to_string())
+        // Extract value
+        let value = result.code.trim_start_matches(&prefix);
+        if let Some(end) = value.find(";").or_else(|| value.find("}")) {
+            Self::hexify_color_name(&value[..end]).to_string()
+        } else {
+            result.code.to_string()
+        }
+    }
+
+    /// Convert a color name to its hex value
+    ///
+    /// LightningCss has a `short_color_name` which is always calls as part of
+    /// its minification (ie it can not be turned off). This reverses that so
+    /// that we always get hex values for colors.
+    fn hexify_color_name(value: &str) -> &str {
+        match value {
+            "navy" => "#000080",
+            "green" => "#008000",
+            "teal" => "#008080",
+            "indigo" => "#4b0082",
+            "maroon" => "#800000",
+            "purple" => "#800080",
+            "olive" => "#808000",
+            "gray" => "#808080",
+            "sienna" => "#a0522d",
+            "brown" => "#a52a2a",
+            "silver" => "#c0c0c0",
+            "peru" => "#cd853f",
+            "tan" => "#d2b48c",
+            "orchid" => "#da70d6",
+            "plum" => "#dda0dd",
+            "violet" => "#ee82ee",
+            "khaki" => "#f0e68c",
+            "azure" => "#f0ffff",
+            "wheat" => "#f5deb3",
+            "beige" => "#f5f5dc",
+            "salmon" => "#fa8072",
+            "linen" => "#faf0e6",
+            "red" => "#ff0000",
+            "tomato" => "#ff6347",
+            "coral" => "#ff7f50",
+            "orange" => "#ffa500",
+            "pink" => "#ffc0cb",
+            "gold" => "#ffd700",
+            "bisque" => "#ffe4c4",
+            "snow" => "#fffafa",
+            "ivory" => "#fffff0",
+            _ => value,
+        }
+    }
+
+    /// Check if a variable should be normalized as a length (to points) based on its name
+    ///
+    /// Only normalizes plot-* variables to avoid affecting other theme variables
+    fn should_normalize_length_to_points(name: &str) -> bool {
+        name.contains("plot")
+            && (name.contains("size")
+                || name.contains("width")
+                || name.contains("height")
+                || name.contains("spacing")
+                || name.contains("padding")
+                || name.contains("margin")
+                || name.contains("gap")
+                || name.contains("radius")
+                || name.contains("tick"))
+    }
+
+    /// Normalize a CSS length value to points (pt)
+    ///
+    /// Conversions:
+    /// - rem → pt: value × 16 × 0.75 (assuming 16px root font size, 0.75 for px→pt)
+    /// - px → pt: value × 0.75
+    /// - pt → pt: unchanged
+    /// - Unitless values are returned as-is
+    fn normalize_length_to_points(value: &str) -> Option<f64> {
+        let normalized = value.trim();
+
+        // Try pt (already in points)
+        if let Some(num_str) = normalized.strip_suffix("pt") {
+            return num_str.trim().parse::<f64>().ok();
+        }
+
+        // Try rem (convert to points: rem × 16 × 0.75)
+        if let Some(num_str) = normalized.strip_suffix("rem") {
+            return num_str.trim().parse::<f64>().ok().map(|n| n * 16.0 * 0.75);
+        }
+
+        // Try px (convert to points: px × 0.75)
+        if let Some(num_str) = normalized.strip_suffix("px") {
+            return num_str.trim().parse::<f64>().ok().map(|n| n * 0.75);
+        }
+
+        // Try em (treat as rem for now)
+        if let Some(num_str) = normalized.strip_suffix("em") {
+            return num_str.trim().parse::<f64>().ok().map(|n| n * 16.0 * 0.75);
+        }
+
+        // Try as unitless number
+        normalized.parse::<f64>().ok()
     }
 
     /// Convert CSS value to typed JSON value
@@ -703,6 +838,33 @@ pub async fn watch(
 mod tests {
     use super::*;
 
+    // A test of using the lightningcss API directly so we can see what it generates
+    #[test]
+    fn test_lightningcss() -> Result<()> {
+        let css = r".temp{
+            color: color-mix(in srgb, red 50%, blue);
+            width: calc(10px + 5px)
+        }";
+        let mut sheet = StyleSheet::parse(&css, ParserOptions::default())?;
+
+        let targets = Targets {
+            include: Features::all(),
+            ..Default::default()
+        };
+        sheet.minify(MinifyOptions {
+            targets,
+            ..Default::default()
+        })?;
+
+        let result = sheet.to_css(PrinterOptions {
+            minify: true,
+            ..Default::default()
+        })?;
+        assert_eq!(&result.code, ".temp{color:purple;width:15px}");
+
+        Ok(())
+    }
+
     #[test]
     fn test_compute_variables_simple_number() {
         let theme = Theme::new(
@@ -818,11 +980,83 @@ mod tests {
             ThemeType::Builtin,
             Some("test".into()),
             None,
-            ":root { --color: color-mix(in srgb, red 50%, blue); }".into(),
+            ":root { --plot-color-1: color-mix(in srgb, red 50%, blue); }".into(),
             false,
         );
         let computed = theme.compute_variables();
-        assert_eq!(computed.get("color"), Some(&json!("purple")));
+        // color-mix should be normalized to hex
+        let color = computed.get("plot-color-1").and_then(|v| v.as_str());
+        assert_eq!(color.unwrap_or_default(), "#800080");
+    }
+
+    #[test]
+    fn test_normalize_color_hsl_to_hex() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-color-1: hsl(217 91% 60%); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        let color = computed.get("plot-color-1").and_then(|v| v.as_str());
+        assert_eq!(color.unwrap_or_default(), "#3c83f6");
+    }
+
+    #[test]
+    fn test_normalize_color_oklch_to_hex() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-background: oklch(55% 0.2 210); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        let color = computed.get("plot-background").and_then(|v| v.as_str());
+        assert_eq!(color.unwrap_or_default(), "#008192");
+    }
+
+    #[test]
+    fn test_normalize_length_rem_to_points() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-font-size: 1rem; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        // 1rem = 16px = 12pt (16 * 0.75)
+        assert_eq!(computed.get("plot-font-size"), Some(&json!(12.0)));
+    }
+
+    #[test]
+    fn test_normalize_length_px_to_points() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-line-width: 2px; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        // 2px = 1.5pt (2 * 0.75)
+        assert_eq!(computed.get("plot-line-width"), Some(&json!(1.5)));
+    }
+
+    #[test]
+    fn test_normalize_length_calc_to_points() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --base: 16px; --plot-font-size: calc(var(--base) * 0.85); }".into(),
+            false,
+        );
+        let computed = theme.compute_variables();
+        // calc(16px * 0.85) = 13.6px = 10.2pt (13.6 * 0.75)
+        assert_eq!(computed.get("plot-font-size"), Some(&json!(10.2)));
     }
 
     #[test]

@@ -26,7 +26,7 @@ indexmap = { version = "2.11.4", features = ["serde"] }
 image = { version = "0.25.8", default-features = false, features = ["png", "jpeg", "gif", "tiff"] }
 insta = { version = "1.43.2", features = ["json", "yaml", "redactions"] }
 itertools = "0.14.0"
-lightningcss = { version = "1.0.0-alpha.68", features = ["browserslist"] }
+lightningcss = "1.0.0-alpha.68"
 lru = "0.16.1"
 mime = "0.3.17"
 mime_guess = "2.0.5"
