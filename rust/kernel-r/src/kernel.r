@@ -10,6 +10,7 @@ EXEC = ifelse(DEV_MODE, "EXEC", "\U0010B522")
 EVAL = ifelse(DEV_MODE, "EVAL", "\U001010CC")
 FORK = ifelse(DEV_MODE, "FORK", "\U0010DE70")
 BOX = ifelse(DEV_MODE, "BOX", "\U0010B0C5")
+THEME = ifelse(DEV_MODE, "THEME", "\U0010DEC0")
 INFO = ifelse(DEV_MODE, "INFO", "\U0010EE15")
 PKGS = ifelse(DEV_MODE, "PKGS", "\U0010BEC4")
 LIST = ifelse(DEV_MODE, "LIST", "\U0010C155")
@@ -313,6 +314,7 @@ plot_to_image_object <- function(value, width = 480, height = 480) {
     filename,
     width = if (!is.na(width)) width else getOption('repr.plot.width', 480),
     height = if (!is.na(height)) height else getOption('repr.plot.height', 480),
+    bg = getOption("stencila.plot.background", "white")
   )
   base::print(value)
   grDevices::dev.off()
@@ -422,14 +424,15 @@ execute <- function(lines) {
     exception(compiled, "SyntaxError")
   } else {
     # Set a default graphics device to avoid window popping up or a `Rplot.pdf`
-    # polluting local directory. 
+    # polluting local directory.
     # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
     # which arises because X11 can not be used in a forked environment.
     # The tempdir `check` is needed when forking.
     file <- tempfile(tmpdir = tempdir(check = TRUE))
+    bg <- getOption("stencila.plot.background", "white")
     tryCatch(
-      Cairo::CairoPNG(file),
-      error = function(cond) png(file, type = "cairo")
+      Cairo::CairoPNG(file, bg = bg),
+      error = function(cond) png(file, type = "cairo", bg = bg)
     )
     # Device control must be enabled for recordPlot() to work
     dev.control("enable")
@@ -742,6 +745,7 @@ while (!is.null(stdin)) {
     else if (task_type == REMOVE) remove_variable(lines[2])
     else if (task_type == FORK) fork(lines[2:length(lines)])
     else if (task_type == BOX) box_()
+    else if (task_type == THEME) theme_(lines[2])
     else exception(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
   },
   warning = warning,
