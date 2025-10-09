@@ -138,16 +138,25 @@
     --font-family-mono: ui-monospace, 'Cascadia Code', SFMono-Regular, 'SF Mono', Menlo, Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
     --font-family-math: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', 'Times New Roman', serif;
 
-    /* Typography Scale - Fluid sizes using clamp() for responsive design */
-    --font-size-xs: clamp(0.8rem, 0.75rem + 0.25vw, 0.85rem);
-    --font-size-sm: clamp(0.9rem, 0.85rem + 0.375vw, 0.95rem);
-    --font-size-md: clamp(1rem, 0.95rem + 0.5vw, 1.1rem);
-    --font-size-lg: clamp(1.125rem, 1.05rem + 0.625vw, 1.25rem);
-    --font-size-xl: clamp(1.3rem, 1.15rem + 0.75vw, 1.4rem);
-    --font-size-2xl: clamp(1.6rem, 1.4rem + 1vw, 1.8rem);
-    --font-size-3xl: clamp(1.95rem, 1.7rem + 1.375vw, 2.2rem);
-    --font-size-4xl: clamp(2.4rem, 2rem + 1.75vw, 2.8rem);
-    --font-size-5xl: clamp(3.2rem, 2.6rem + 2.5vw, 3.8rem);
+    /* Typography Scale
+     *
+     * Responsive sizes using media queries Desktop-first approach: starts with
+     * largest values, scales down at smaller breakpoints.
+     *
+     * Non-browser plotting libraries (e.g. ggplot2) are passed these `:root`
+     * values and get desktop-appropriate sizes. Browsers apply media queries
+     * for responsive behavior on smaller screens. Previously we used clamp()
+     * and `vw` for responsive font sizing but this does not work for
+     * non-browser contexts where `vw` is non available.*/
+    --font-size-xs: 0.85rem;
+    --font-size-sm: 0.95rem;
+    --font-size-md: 1.1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.4rem;
+    --font-size-2xl: 1.8rem;
+    --font-size-3xl: 2.2rem;
+    --font-size-4xl: 2.8rem;
+    --font-size-5xl: 3.8rem;
 
     /* Font Weights - Based on Tailwind's font-weight scale for consistency with common practice
      * Tailwind reference: https://tailwindcss.com/docs/font-weight
@@ -212,4 +221,34 @@
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Typography - Tablet screens (scale down from desktop) */
+@media (max-width: 1023px) {
+    :root {
+        --font-size-xs: 0.825rem;
+        --font-size-sm: 0.925rem;
+        --font-size-md: 1.05rem;
+        --font-size-lg: 1.1875rem;
+        --font-size-xl: 1.35rem;
+        --font-size-2xl: 1.7rem;
+        --font-size-3xl: 2.075rem;
+        --font-size-4xl: 2.6rem;
+        --font-size-5xl: 3.5rem;
+    }
+}
+
+/* Responsive Typography - Mobile screens (smallest sizes) */
+@media (max-width: 767px) {
+    :root {
+        --font-size-xs: 0.8rem;
+        --font-size-sm: 0.9rem;
+        --font-size-md: 1rem;
+        --font-size-lg: 1.125rem;
+        --font-size-xl: 1.3rem;
+        --font-size-2xl: 1.6rem;
+        --font-size-3xl: 1.95rem;
+        --font-size-4xl: 2.4rem;
+        --font-size-5xl: 3.2rem;
+    }
 }
