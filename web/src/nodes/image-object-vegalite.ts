@@ -65,6 +65,16 @@ function toVegaLiteConfig(t: PlotTokens): any {
       titleFontSize: t.titleSize,
     },
     mark: { opacity: t.mark.opacity, strokeWidth: t.mark.lineWidth },
+
+    // Set default colors for mark types when no color encoding is specified
+    point: { color: t.palette[0], filled: true },
+    circle: { color: t.palette[0] },
+    square: { color: t.palette[0] },
+    bar: { color: t.palette[0] },
+    line: { color: t.palette[0], strokeWidth: t.mark.lineWidth },
+    area: { color: t.palette[0], opacity: t.mark.areaOpacity },
+    rect: { color: t.palette[0] },
+    tick: { color: t.palette[0] },
   }
 }
 
