@@ -104,7 +104,6 @@ impl Codec for MarkdownCodec {
             [
                 Heading1ToTitle,
                 HeadingsDecrement,
-                HeadingsToTitle,
                 FiguresWithCaptions,
                 TablesWithCaptions,
                 TablesToDatatables,
