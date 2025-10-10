@@ -79,6 +79,15 @@ theme_ <- function(json) {
   # Collect parameters to set via par()
   params <- list()
 
+  # IMPORTANT: Get base font size early for use in character expansion calculations.
+  # In R's par() system, `ps` sets the base font size and `cex.*` parameters are
+  # multipliers relative to `ps`. For correct sizing, we must divide desired sizes
+  # by the base font size, not by arbitrary constants like 12.
+  base_font_size <- parse_number(get_var("plot-font-size"))
+  if (is.null(base_font_size)) {
+    base_font_size <- 12  # Default fallback for calculations
+  }
+
   # Background and foreground
 
   # Background color
@@ -159,8 +168,9 @@ theme_ <- function(json) {
   # params$pch <- NA  # No corresponding variable
 
   # Character expansion (point size)
+  # If plot-point-size=6pt and plot-font-size=10pt, then cex should be 6/10=0.6
   if (!is.null(point_size <- parse_number(get_var("plot-point-size")))) {
-    params$cex <- point_size / 6  # Convert pt to relative size (6pt ≈ 1.0 for points)
+    params$cex <- point_size / base_font_size
   }
 
   # Text properties
@@ -172,28 +182,32 @@ theme_ <- function(json) {
   }
 
   # Font size (points)
-  if (!is.null(ps <- parse_number(get_var("plot-font-size")))) {
-    params$ps <- ps
-  }
+  # NOTE: ps (pointsize) must be set at device creation time, not via par().
+  # We store it in an option so kernel.r can access it when creating PNG devices.
+  # Do NOT add ps to params - it won't work via par() and will break the calculations.
 
   # Character expansion for axis annotation
+  # Previously divided by hardcoded 12, which caused incorrect sizing
   if (!is.null(size <- parse_number(get_var("plot-font-size")))) {
-    params$cex.axis <- size / 12  # Convert pt to relative size (12pt = 1.0)
+    params$cex.axis <- size / base_font_size
   }
 
   # Character expansion for x and y labels
+  # If plot-axis-title-size=11pt and plot-font-size=10pt, then cex.lab should be 11/10=1.1
   if (!is.null(size <- parse_number(get_var("plot-axis-title-size")))) {
-    params$cex.lab <- size / 12  # Convert pt to relative size (12pt = 1.0)
+    params$cex.lab <- size / base_font_size
   }
 
   # Character expansion for main title
+  # If plot-title-size=14pt and plot-font-size=10pt, then cex.main should be 14/10=1.4
   if (!is.null(size <- parse_number(get_var("plot-title-size")))) {
-    params$cex.main <- size / 12  # Convert pt to relative size (12pt = 1.0)
+    params$cex.main <- size / base_font_size
   }
 
   # Character expansion for sub-title
+  # If plot-subtitle-size=11pt and plot-font-size=10pt, then cex.sub should be 11/10=1.1
   if (!is.null(size <- parse_number(get_var("plot-subtitle-size")))) {
-    params$cex.sub <- size / 12  # Convert pt to relative size (12pt = 1.0)
+    params$cex.sub <- size / base_font_size
   }
 
   # Font face for axis annotation
@@ -225,9 +239,10 @@ theme_ <- function(json) {
 
   # Axes and ticks
 
-  # Tick mark length (negative values are inside, positive outside)
+  # Tick mark length (negative values are outside, positive inside)
+  # tcl is measured in "lines of text", which depends on the font size
   if (!is.null(tick_size <- parse_number(get_var("plot-tick-size")))) {
-    params$tcl <- -tick_size / 12  # Convert pt to relative size and invert for inside ticks
+    params$tcl <- -(tick_size / (base_font_size * 1.2))
   }
 
   # Axis line width
