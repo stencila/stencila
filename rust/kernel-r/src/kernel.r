@@ -305,23 +305,36 @@ dataframe_from_datatable <- function(dt) {
   as.data.frame(columns)
 }
 
+# Create a PNG graphics device with options
+#
+# `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
+# which arises because X11 can not be used in a forked environment.
+# The tempdir `check` is needed when forking.
+create_png_file <- function(width = NA, height = NA) {
+  file <- tempfile(fileext = ".png", tmpdir = tempdir(check = TRUE))
+
+  width <- if (!is.na(width)) width else getOption('repr.plot.width', 480)
+  height <- if (!is.na(height)) height else getOption('repr.plot.height', 480)
+  bg <- getOption("stencila.plot.background", "white")
+  ps <- getOption("stencila.plot.font.size", 12)
+
+  tryCatch(
+    Cairo::CairoPNG(file, width = height, height = height, bg = bg, ps = ps),
+    error = function(cond) png(file, width = height, height = height, bg = bg, ps = ps)
+  )
+
+  file
+}
+
 # Convert a R plot to an `ImageObject`
 plot_to_image_object <- function(value, width = 480, height = 480) {
-  # Create a new graphics device for the format, with a temporary path.
-  # The tempdir check is needed when forking.
-  filename <- tempfile(fileext = paste0(".png"), tmpdir = tempdir(check = TRUE))
-  png(
-    filename,
-    width = if (!is.na(width)) width else getOption('repr.plot.width', 480),
-    height = if (!is.na(height)) height else getOption('repr.plot.height', 480),
-    bg = getOption("stencila.plot.background", "white")
-  )
+  file <- create_png_file(width, height)
   base::print(value)
   grDevices::dev.off()
 
   list(
     type = unbox("ImageObject"),
-    contentUrl = unbox(paste0("data:image/png;base64,", base64encode(filename)))
+    contentUrl = unbox(paste0("data:image/png;base64,", base64encode(file)))
   )
 }
 
@@ -425,15 +438,8 @@ execute <- function(lines) {
   } else {
     # Set a default graphics device to avoid window popping up or a `Rplot.pdf`
     # polluting local directory.
-    # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
-    # which arises because X11 can not be used in a forked environment.
-    # The tempdir `check` is needed when forking.
-    file <- tempfile(tmpdir = tempdir(check = TRUE))
-    bg <- getOption("stencila.plot.background", "white")
-    tryCatch(
-      Cairo::CairoPNG(file, bg = bg),
-      error = function(cond) png(file, type = "cairo", bg = bg)
-    )
+    create_png_file()
+
     # Device control must be enabled for recordPlot() to work
     dev.control("enable")
 

@@ -185,11 +185,12 @@ theme_ <- function(json) {
   # Point character
   # params$pch <- NA  # No corresponding variable
 
-  # Character expansion (point size)
-  # If plot-point-size=6pt and plot-font-size=10pt, then cex should be 6/10=0.6
-  if (!is.null(point_size <- parse_number(get_var("plot-point-size")))) {
-    params$cex <- point_size / base_font_size
-  }
+  # Point size
+  # Were were doing the following but cex scales text as well as points
+  # so was creating tiny text.
+  # if (!is.null(point_size <- parse_number(get_var("plot-point-size")))) {
+  #   params$cex <- point_size / base_font_size
+  # }
 
   # Text properties
 
@@ -200,9 +201,7 @@ theme_ <- function(json) {
   }
 
   # Font size (points)
-  # NOTE: ps (pointsize) must be set at device creation time, not via par().
-  # We store it in an option so kernel.r can access it when creating PNG devices.
-  # Do NOT add ps to params - it won't work via par() and will break the calculations.
+  params$ps <- base_font_size
 
   # Character expansion for axis annotation
   # Previously divided by hardcoded 12, which caused incorrect sizing
@@ -450,6 +449,10 @@ theme_ <- function(json) {
   } else {
     options(stencila.plot.background = "white")
   }
+
+  # Store font size in a global option so it can be accessed when creating PNG devices
+  # This is necessary because PNG device pointsize must be set at device creation time
+  options(stencila.plot.font.size = base_font_size)
 
   # Set color palette using the 12 theme colors
   colors <- c()
