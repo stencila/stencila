@@ -1,12 +1,13 @@
 import { css } from '@twind/core'
 import { html } from 'lit'
 
+import { deepMerge } from '../utilities/deepMerge'
 import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 
 /**
  * Convert plot tokens to Vega-Lite config
  */
-function toVegaLiteConfig(t: PlotTokens): any {
+function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
   // Parse grid dash from string like "4 2" to array [4, 2]
   const gridDash = t.axis.gridDash > 0 ? [t.axis.gridDash, t.axis.gridDash / 2] : []
 
@@ -94,10 +95,10 @@ export async function compileVegaLite(
   const theme = buildPlotTheme(container)
   const themeConfig = toVegaLiteConfig(theme)
 
-  // Merge theme config with user spec
+  // Merge theme config with user spec using deep merge
   const themedSpec = {
     ...spec,
-    config: { ...themeConfig, ...(spec.config ?? {}) },
+    config: deepMerge(themeConfig, spec.config),
     width: 'container',
     autosize: { type: 'fit-x', contains: 'padding' },
     padding: {
