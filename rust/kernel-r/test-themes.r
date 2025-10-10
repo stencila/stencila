@@ -99,7 +99,7 @@ create_plots <- function(output_dir) {
 
   # 6. Multiple panels
   png_file <- file.path(output_dir, "06_base_panels.png")
-  png(png_file, width = 800, height = 600, bg = bg)
+  png(png_file, width = 900, height = 600, bg = bg)
   par(mfrow = c(2, 2))
   plot(x, y1, type = "p", main = "Points", col = 1, pch = 19)
   plot(x, y1, type = "l", main = "Line", col = 2)
@@ -129,7 +129,7 @@ create_plots <- function(output_dir) {
       labs(title = "ggplot2: Scatter Plot",
            x = "X Axis",
            y = "Y Axis")
-    ggsave(png_file, p, width = 6, height = 4)
+    ggsave(png_file, p, width = 9, height = 6, dpi = 100)
 
     # 8. ggplot2 Line
     png_file <- file.path(output_dir, "08_ggplot_line.png")
@@ -144,7 +144,7 @@ create_plots <- function(output_dir) {
            x = "X Axis",
            y = "Y Axis",
            color = "Series")
-    ggsave(png_file, p, width = 6, height = 4)
+    ggsave(png_file, p, width = 9, height = 6, dpi = 100)
 
     # 9. ggplot2 Bar
     png_file <- file.path(output_dir, "09_ggplot_bar.png")
@@ -153,7 +153,7 @@ create_plots <- function(output_dir) {
       labs(title = "ggplot2: Bar Plot",
            x = "Category",
            y = "Value")
-    ggsave(png_file, p, width = 6, height = 4)
+    ggsave(png_file, p, width = 9, height = 6, dpi = 100)
 
     # 10. ggplot2 Histogram
     png_file <- file.path(output_dir, "10_ggplot_histogram.png")
@@ -162,7 +162,7 @@ create_plots <- function(output_dir) {
       labs(title = "ggplot2: Histogram",
            x = "Value",
            y = "Count")
-    ggsave(png_file, p, width = 6, height = 4)
+    ggsave(png_file, p, width = 9, height = 6, dpi = 100)
 
     # 11. ggplot2 Boxplot
     png_file <- file.path(output_dir, "11_ggplot_boxplot.png")
@@ -171,7 +171,7 @@ create_plots <- function(output_dir) {
       labs(title = "ggplot2: Box Plot",
            x = "Group",
            y = "Value")
-    ggsave(png_file, p, width = 6, height = 4)
+    ggsave(png_file, p, width = 9, height = 6, dpi = 100)
 
     # 12. ggplot2 Faceted plot
     png_file <- file.path(output_dir, "12_ggplot_facet.png")
@@ -181,7 +181,7 @@ create_plots <- function(output_dir) {
       labs(title = "ggplot2: Faceted Histogram",
            x = "Value",
            y = "Count")
-    ggsave(png_file, p, width = 8, height = 6)
+    ggsave(png_file, p, width = 9, height = 6, dpi = 100)
 
     # 13. ggplot2 with subtitle and caption
     png_file <- file.path(output_dir, "13_ggplot_annotated.png")
@@ -193,7 +193,7 @@ create_plots <- function(output_dir) {
            caption = "This is a caption to test caption styling",
            x = "X Axis",
            y = "Y Axis")
-    ggsave(png_file, p, width = 6, height = 4)
+    ggsave(png_file, p, width = 9, height = 6, dpi = 100)
   } else {
     cat("ggplot2 not available, skipping ggplot2 plots\n")
   }
@@ -222,7 +222,7 @@ themes <- list(
     "plot-color-10" = "#e0e0e0",
     "plot-color-11" = "#ebebeb",
     "plot-color-12" = "#f0f0f0",
-    "plot-font-family" = "sans-serif",
+    "plot-font-family" = "Liberation Sans",
     "plot-font-size" = 10,
     "plot-grid-color" = "#aaaaaa",
     "plot-grid-x-width" = 0,  # No vertical bars
@@ -267,7 +267,7 @@ themes <- list(
     "plot-color-10" = "#b8860b",
     "plot-color-11" = "#daa520",
     "plot-color-12" = "#cd5c5c",
-    "plot-font-family" = "serif",
+    "plot-font-family" = "Liberation Serif",
     "plot-font-size" = 11,
     "plot-grid-color" = "#a75809ff",
     "plot-grid-x-width" = 1.2,  # Thicker vertical grid lines
@@ -311,7 +311,7 @@ themes <- list(
     "plot-color-10" = "#00ff80",
     "plot-color-11" = "#80ff00",
     "plot-color-12" = "#ff00c0",
-    "plot-font-family" = "monospace",
+    "plot-font-family" = "Liberation Mono",
     "plot-font-size" = 12,
     "plot-grid-color" = "#178a1bff",
     "plot-grid-width" = 1,

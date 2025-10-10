@@ -73,6 +73,10 @@ def create_plots(output_dir):
     colors = [f"C{i}" for i in range(len(categories))]
     for bar, color in zip(bars, colors):
         bar.set_color(color)
+    # Add legend matching ggplot2 behavior
+    from matplotlib.patches import Patch
+    legend_elements = [Patch(facecolor=f"C{i}", label=cat) for i, cat in enumerate(categories)]
+    ax.legend(handles=legend_elements, title="category")
     ax.set_title("Matplotlib: Bar Plot")
     ax.set_xlabel("Category")
     ax.set_ylabel("Value")
@@ -107,7 +111,7 @@ def create_plots(output_dir):
     plt.close(fig)
 
     # 6. Multiple panels
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 6))
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(9, 6))
     ax1.scatter(x, y1, s=plt.rcParams["lines.markersize"]**2, color="C0")
     ax1.set_title("Points")
     ax2.plot(x, y1, color="C1")
@@ -162,7 +166,7 @@ themes = {
         "plot-color-10": "#e0e0e0",
         "plot-color-11": "#ebebeb",
         "plot-color-12": "#f0f0f0",
-        "plot-font-family": "sans-serif",
+        "plot-font-family": "Liberation Sans",
         "plot-font-size": 10,
         "plot-grid-color": "#aaaaaa",
         "plot-grid-x-width": 0,  # No vertical bars
@@ -206,7 +210,7 @@ themes = {
         "plot-color-10": "#b8860b",
         "plot-color-11": "#daa520",
         "plot-color-12": "#cd5c5c",
-        "plot-font-family": "serif",
+        "plot-font-family": "Liberation Serif",
         "plot-font-size": 11,
         "plot-grid-color": "#a75809ff",
         "plot-grid-x-width": 1.2,  # Thicker vertical grid lines
@@ -249,7 +253,7 @@ themes = {
         "plot-color-10": "#00ff80",
         "plot-color-11": "#80ff00",
         "plot-color-12": "#ff00c0",
-        "plot-font-family": "monospace",
+        "plot-font-family": "Liberation Mono",
         "plot-font-size": 12,
         "plot-grid-color": "#178a1bff",
         "plot-grid-width": 1,
