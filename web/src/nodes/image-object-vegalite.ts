@@ -49,7 +49,7 @@ function toVegaLiteConfig(t: PlotTokens): any {
     title: { color: t.textColor, fontSize: t.titleSize },
     view: {
       fill: t.panel,
-      stroke: t.panelBorderColor,
+      stroke: t.axis.lineColor,
       // Vega-Lite renders SVG strokes centered on paths, causing anti-aliasing blur
       // at integer widths. Halving the width produces crisp 1px borders.
       strokeWidth: t.panelBorderWidth * 0.5,

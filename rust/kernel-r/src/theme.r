@@ -543,7 +543,7 @@ theme_ <- function(json) {
   }
 
   # Panel border
-  if (!is.null(color <- get_var("plot-panel-border-color"))) {
+  if (!is.null(color <- get_var("plot-axis-line-color"))) {
     width <- parse_number(get_var("plot-panel-border-width"))
     if (!is.null(width) && width > 0) {
       theme_elements$panel.border <- ggplot2::element_rect(color = color, linewidth = pt_to_mm(width), fill = NA)

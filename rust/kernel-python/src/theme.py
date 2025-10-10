@@ -120,10 +120,10 @@ def theme(variables_json: str) -> None:
     if bg := get_var("plot-background"):
         plt.rcParams["axes.facecolor"] = bg
 
-    # Axes edge (spines)
+    # Axes edge (spines/panel border)
     if color := get_var("plot-axis-line-color"):
         plt.rcParams["axes.edgecolor"] = color
-    if width := parse_number(get_var("plot-axis-line-width")):
+    if width := parse_number(get_var("plot-panel-border-width")):
         plt.rcParams["axes.linewidth"] = width
 
     # Axes labels (axis titles)

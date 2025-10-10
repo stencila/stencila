@@ -80,9 +80,9 @@
     --plot-panel: var(--surface-background);
     --plot-panel-dark: var(--surface-background-dark);
 
-    --plot-panel-border-color: var(--plot-grid);
-    --plot-panel-border-color-dark: var(--plot-grid-dark);
-
+    /* Panel border width controls the top and right borders (completing the box around the plot area).
+     * The color comes from --plot-axis-line-color to ensure visual consistency between axis lines
+     * and panel borders. Set to 0 to disable top/right borders, >0 to show them. */
     --plot-panel-border-width: var(--border-width-default);
 
     --plot-muted: var(--text-color-secondary);
@@ -245,7 +245,6 @@
         --plot-warning: var(--plot-warning-dark);
         --plot-background: var(--plot-background-dark);
         --plot-panel: var(--plot-panel-dark);
-        --plot-panel-border-color: var(--plot-panel-border-color-dark);
         --plot-text-color: var(--plot-text-color-dark);
         --plot-muted: var(--plot-muted-dark);
         --plot-grid: var(--plot-grid-dark);
@@ -292,7 +291,6 @@
     --plot-warning: var(--plot-warning-dark);
     --plot-background: var(--plot-background-dark);
     --plot-panel: var(--plot-panel-dark);
-    --plot-panel-border-color: var(--plot-panel-border-color-dark);
     --plot-text-color: var(--plot-text-color-dark);
     --plot-muted: var(--plot-muted-dark);
     --plot-grid: var(--plot-grid-dark);
