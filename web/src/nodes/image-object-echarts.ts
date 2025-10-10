@@ -1,12 +1,13 @@
 import { css } from '@twind/core'
 import { html } from 'lit'
 
+import { deepMerge } from '../utilities/deepMerge'
 import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 
 /**
  * Convert plot tokens to ECharts option base
  */
-function toEchartsOptionsBase(t: PlotTokens): any {
+function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
   const axisBase = {
     axisLabel: { color: t.textColor, fontSize: t.fontSize, fontFamily: t.fontFamily },
     nameTextStyle: { color: t.axis.titleColor, fontSize: t.axisTitleSize, fontFamily: t.fontFamily },
@@ -123,37 +124,10 @@ export async function compileECharts(
 
       // Disable zoom and data zoom
       if (spec.dataZoom) {
-        spec.dataZoom = spec.dataZoom.map((dz: any) => ({
+        spec.dataZoom = spec.dataZoom.map((dz: Record<string, unknown>) => ({
           ...dz,
           disabled: true,
         }))
-      }
-    }
-
-    // Deep merge axes to preserve theme styling when user provides axis config
-    const mergeAxis = (themeAxis: any, userAxis: any) => {
-      if (!userAxis) return themeAxis
-
-      // Handle array of axes
-      if (Array.isArray(userAxis)) {
-        return userAxis.map((axis: any) => ({
-          ...themeAxis,
-          ...axis,
-          axisLabel: { ...themeAxis.axisLabel, ...axis.axisLabel },
-          axisLine: { ...themeAxis.axisLine, ...axis.axisLine },
-          axisTick: { ...themeAxis.axisTick, ...axis.axisTick },
-          splitLine: { ...themeAxis.splitLine, ...axis.splitLine },
-        }))
-      }
-
-      // Single axis - deep merge axis components
-      return {
-        ...themeAxis,
-        ...userAxis,
-        axisLabel: { ...themeAxis.axisLabel, ...userAxis.axisLabel },
-        axisLine: { ...themeAxis.axisLine, ...userAxis.axisLine },
-        axisTick: { ...themeAxis.axisTick, ...userAxis.axisTick },
-        splitLine: { ...themeAxis.splitLine, ...userAxis.splitLine },
       }
     }
 
@@ -170,11 +144,22 @@ export async function compileECharts(
     }
 
     // Merge theme with user spec, preserving axis styling
+    // ECharts supports arrays of axes (e.g., multiple x-axes). This helper applies
+    // the theme to each axis in the array, rather than replacing the entire array.
+    const mergeAxis = (
+      themeAxis: Record<string, unknown>,
+      userAxis: Record<string, unknown> | Record<string, unknown>[]
+    ) => {
+      if (Array.isArray(userAxis)) {
+        return userAxis.map((axis) => deepMerge(themeAxis, axis))
+      }
+      return deepMerge(themeAxis, userAxis)
+    }
     const mergedOptions = {
       ...themeOptions,
       ...spec,
-      xAxis: mergeAxis(themeOptions.xAxis, spec.xAxis),
-      yAxis: mergeAxis(themeOptions.yAxis, spec.yAxis),
+      xAxis: mergeAxis(themeOptions.xAxis as Record<string, unknown>, spec.xAxis),
+      yAxis: mergeAxis(themeOptions.yAxis as Record<string, unknown>, spec.yAxis),
       ...(visualMap && { visualMap }),
     }
 

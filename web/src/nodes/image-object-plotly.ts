@@ -1,6 +1,7 @@
 import { css } from '@twind/core'
 import { html } from 'lit'
 
+import { deepMerge } from '../utilities/deepMerge'
 import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 
 /**
@@ -91,18 +92,12 @@ export async function compilePlotly(
     const theme = buildPlotTheme(container)
     const template = toPlotlyTemplate(theme)
 
-    // Deep merge axes to preserve theme styling when user provides axis config
-    const mergeAxis = (themeAxis: any, userAxis: any) => {
-      if (!userAxis) return themeAxis
-      return { ...themeAxis, ...userAxis }
-    }
-
-    // Merge template with user layout, preserving axis styling
+    // Merge template with user layout, preserving axis styling using deep merge
     const layout = {
       ...template.layout,
       ...spec.layout,
-      xaxis: mergeAxis(template.layout.xaxis, spec.layout?.xaxis),
-      yaxis: mergeAxis(template.layout.yaxis, spec.layout?.yaxis),
+      xaxis: deepMerge(template.layout.xaxis, spec.layout?.xaxis),
+      yaxis: deepMerge(template.layout.yaxis, spec.layout?.yaxis),
     }
 
     // Apply palette colors to traces if not specified
