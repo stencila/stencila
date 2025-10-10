@@ -511,23 +511,35 @@ theme_ <- function(json) {
 
   # Panel grid
   if (!is.null(color <- get_var("plot-grid-color"))) {
-    width <- parse_number(get_var("plot-grid-width"))
-    if (!is.null(width)) {
-      theme_elements$panel.grid.major <- ggplot2::element_line(color = color, linewidth = width)
-      # theme_elements$panel.grid.major <- ggplot2::element_line(color = color, linewidth = width, linetype = ...)  # plot-grid-dash needs conversion
+    # Get axis-specific widths, falling back to general plot-grid-width
+    width_x <- parse_number(get_var("plot-grid-x-width"))
+    width_y <- parse_number(get_var("plot-grid-y-width"))
+    width_general <- parse_number(get_var("plot-grid-width"))
+
+    # Use axis-specific widths if available, otherwise use general width
+    if (is.null(width_x)) width_x <- width_general
+    if (is.null(width_y)) width_y <- width_general
+
+    # Set axis-specific major grids
+    if (!is.null(width_x)) {
+      theme_elements$panel.grid.major.x <- ggplot2::element_line(color = color, linewidth = width_x)
+      theme_elements$panel.grid.minor.x <- ggplot2::element_line(color = color, linewidth = width_x * 0.5)
+    }
+    if (!is.null(width_y)) {
+      theme_elements$panel.grid.major.y <- ggplot2::element_line(color = color, linewidth = width_y)
+      theme_elements$panel.grid.minor.y <- ggplot2::element_line(color = color, linewidth = width_y * 0.5)
+    }
+
+    # Set general grid as fallback (used when axis-specific is not available)
+    # This ensures backwards compatibility with themes that only use plot-grid-width
+    if (!is.null(width_general)) {
+      if (is.null(width_x) && is.null(width_y)) {
+        # If no axis-specific widths, set general grid
+        theme_elements$panel.grid.major <- ggplot2::element_line(color = color, linewidth = width_general)
+        theme_elements$panel.grid.minor <- ggplot2::element_line(color = color, linewidth = width_general * 0.5)
+      }
     }
   }
-
-  # Panel grid minor (use same color as major)
-  if (!is.null(color <- get_var("plot-grid-color"))) {
-    theme_elements$panel.grid.minor <- ggplot2::element_line(color = color, linewidth = 0.5)
-  }
-
-  # Panel grid axis-specific
-  # theme_elements$panel.grid.major.x <- NA  # No corresponding variable
-  # theme_elements$panel.grid.major.y <- NA  # No corresponding variable
-  # theme_elements$panel.grid.minor.x <- NA  # No corresponding variable
-  # theme_elements$panel.grid.minor.y <- NA  # No corresponding variable
 
   # Panel spacing (between facets)
   # theme_elements$panel.spacing <- NA  # plot-gap-x and plot-gap-y exist but need implementation
