@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{env::current_dir, path::Path};
 
 use clap::ValueEnum;
 use eyre::{Result, bail};
@@ -233,6 +233,16 @@ pub struct KernelVariableResponse {
 
 pub type KernelVariableResponder = broadcast::Receiver<KernelVariableResponse>;
 
+
+/// Options when starting a kernel
+pub struct KernelStartOptions<'d, 't> {
+    /// The directory to start the kernel in
+    pub directory: Option<&'d Path>,
+
+    /// The theme to use
+    pub theme: Option<&'t str>,
+}
+
 /// An instance of a kernel
 #[allow(unused)]
 #[async_trait]
@@ -267,7 +277,20 @@ pub trait KernelInstance: Sync + Send {
 
     /// Start the kernel in the current working directory
     async fn start_here(&mut self) -> Result<()> {
-        self.start(&std::env::current_dir()?).await
+        self.start(&current_dir()?).await
+    }
+
+    /// Start the kernel with options
+    ///
+    /// Microkernel instances that handle any of these options
+    /// need to override this option. This default implementation
+    /// ignores them.
+    async fn start_with<'d, 't>(&mut self, options: KernelStartOptions<'d, 't>) -> Result<()> {
+        let directory = match options.directory {
+            Some(dir) => dir,
+            None => &current_dir()?,
+        };
+        self.start(directory).await
     }
 
     /// Stop the kernel

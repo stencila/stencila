@@ -1,12 +1,14 @@
 use std::{
-    env,
+    collections::BTreeMap,
+    env::{self, current_dir},
     fs::write,
-    path::{Path, PathBuf},
+    path::PathBuf,
     process::Stdio,
 };
 
 use directories::UserDirs;
 use itertools::Itertools;
+use stencila_themes::Theme;
 use strum::Display;
 use tempfile::TempDir;
 use tokio::{
@@ -18,6 +20,8 @@ use tokio::{
 };
 use which::which;
 
+use stencila_dirs::{DirType, get_app_dir};
+
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use stencila_kernel::{
@@ -26,7 +30,7 @@ pub use stencila_kernel::{
 };
 
 use stencila_kernel::{
-    async_trait,
+    KernelStartOptions, async_trait,
     eyre::{Context, OptionExt, Result, bail, eyre},
     generate_id,
     stencila_schema::{
@@ -123,6 +127,7 @@ pub trait Microkernel: Sync + Send + Kernel {
         &self,
         kernel_name: &str,
         bounds: ExecutionBounds,
+        supports_themes: bool,
     ) -> Result<Box<dyn KernelInstance>> {
         tracing::debug!("Creating microkernel instance");
 
@@ -138,8 +143,7 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
-        let kernels_dir: PathBuf =
-            stencila_dirs::get_app_dir(stencila_dirs::DirType::Kernels, true)?;
+        let kernels_dir: PathBuf = get_app_dir(DirType::Kernels, true)?;
         let (script_name, script) = self.microkernel_script();
         let script_file = kernels_dir.join(script_name);
         write(&script_file, script)?;
@@ -167,6 +171,7 @@ pub trait Microkernel: Sync + Send + Kernel {
             id,
             kernel_name,
             bounds,
+            supports_themes,
             executable_name,
             executable_args,
             default_message_level,
@@ -198,6 +203,9 @@ pub struct MicrokernelInstance {
 
     /// The execution bounds on the instance
     bounds: ExecutionBounds,
+
+    /// Whether the kernel supports themes
+    supports_themes: bool,
 
     /// The name of the executable
     executable_name: String,
@@ -295,6 +303,8 @@ enum MicrokernelFlag {
     Fork,
     /// Sent by Rust to signal that the kernel should have restricted capabilities
     Box,
+    /// Sent by Rust to send the theme the kernel should use
+    Theme,
     /// Sent by Rust to get runtime information about the kernel
     Info,
     /// Sent by Rust to get a list of packages/libraries available to the kernel
@@ -327,6 +337,7 @@ impl MicrokernelFlag {
             Eval => "\u{1010CC}",
             Fork => "\u{10DE70}",
             Box => "\u{10B0C5}",
+            Theme => "\u{10DEC0}",
             List => "\u{10C155}",
             Get => "\u{10A51A}",
             Set => "\u{107070}",
@@ -357,7 +368,7 @@ impl KernelInstance for MicrokernelInstance {
         }
     }
 
-    async fn start(&mut self, directory: &Path) -> Result<()> {
+    async fn start_with<'d, 't>(&mut self, options: KernelStartOptions<'d, 't>) -> Result<()> {
         self.set_status(KernelStatus::Starting)?;
 
         if self.executable_name.is_empty() {
@@ -365,6 +376,10 @@ impl KernelInstance for MicrokernelInstance {
             return Ok(());
         };
 
+        let directory = match options.directory {
+            Some(dir) => dir,
+            None => &current_dir()?,
+        };
         if !directory.exists() {
             bail!(
                 "Directory to start kernel in does not exist: {}",
@@ -540,6 +555,14 @@ impl KernelInstance for MicrokernelInstance {
 
         if matches!(self.bounds, ExecutionBounds::Box) {
             self.r#box().await?;
+        }
+
+        if self.supports_themes {
+            if let Some(theme) = stencila_themes::get(None, Some(directory)).await? {
+                self.theme(theme).await?;
+            } else {
+                tracing::error!("Unable to resolve theme for `{}` kernels", self.kernel_name)
+            }
         }
 
         self.set_status(KernelStatus::Ready)?;
@@ -787,6 +810,7 @@ impl KernelInstance for MicrokernelInstance {
                 id,
                 kernel_name,
                 bounds,
+                supports_themes: self.supports_themes,
                 executable_name: Default::default(),
                 executable_args: Default::default(),
                 working_dir: None,
@@ -827,6 +851,28 @@ impl MicrokernelInstance {
     /// Send the [`MicrokernelFlag::Limit`] flag to the microkernel to limit its capabilities
     async fn r#box(&mut self) -> Result<()> {
         self.send_receive(MicrokernelFlag::Box, []).await?;
+
+        Ok(())
+    }
+
+    /// Send the [`MicrokernelFlag::Theme`] flag with the theme's variables to
+    /// the microkernel so it can setup to use it
+    async fn theme(&mut self, theme: Theme) -> Result<()> {
+        // Compute variables to resolve var() references and evaluate calc()/color-mix()
+        // Convert lengths to points for plotting libraries (matplotlib, ggplot2, etc.)
+        let computed = theme.compute_variables(stencila_themes::LengthConversion::Points);
+
+        // Filter to only plot-* variables
+        let vars: BTreeMap<_, _> = computed
+            .into_iter()
+            .filter(|(name, ..)| name.starts_with("plot-"))
+            .collect();
+
+        // eprintln!("{}", serde_json::to_string_pretty(&vars)?);
+
+        let vars = serde_json::to_string(&vars)?;
+        self.send_receive(MicrokernelFlag::Theme, [vars.as_str()])
+            .await?;
 
         Ok(())
     }

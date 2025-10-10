@@ -7,7 +7,8 @@ use std::{
 use tokio::sync::{Mutex, RwLock, broadcast, mpsc, watch};
 
 use stencila_kernel::{
-    Kernel, KernelInstance, KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
+    Kernel, KernelInstance, KernelStartOptions, KernelVariableRequest, KernelVariableRequester,
+    KernelVariableResponse,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{ExecutionBounds, ExecutionMessage, Node},
@@ -30,8 +31,8 @@ use stencila_kernel_r::RKernel;
 use stencila_kernel_style::StyleKernel;
 use stencila_kernel_tex::TexKernel;
 
-#[cfg(feature = "stencila-kernel-rhai")]
-use stencila_kernel_rhai::RhaiKernel;
+//#[cfg(feature = "stencila-kernel-rhai")]
+//use stencila_kernel_rhai::RhaiKernel;
 
 pub use stencila_kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
 
@@ -49,8 +50,8 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<QuickJsKernel>::default(),
         Box::<NodeJsKernel>::default(),
         Box::<BashKernel>::default(),
-        #[cfg(feature = "stencila-kernel-rhai")]
-        Box::<RhaiKernel>::default(),
+        //#[cfg(feature = "stencila-kernel-rhai")]
+        //Box::<RhaiKernel>::default(),
         // Database
         Box::<KuzuKernel>::default(),
         Box::<DocsDBKernel>::default(),
@@ -324,7 +325,12 @@ impl Kernels {
                 self.variable_response_sender.subscribe(),
             );
         }
-        instance.start(&self.home).await?;
+
+        let options = KernelStartOptions {
+            directory: Some(&self.home),
+            theme: None,
+        };
+        instance.start_with(options).await?;
 
         let instance = Arc::new(Mutex::new(instance));
 

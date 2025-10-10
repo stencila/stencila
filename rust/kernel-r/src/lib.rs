@@ -53,7 +53,7 @@ impl Kernel for RKernel {
     }
 
     fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME, bounds)
+        self.microkernel_create_instance(NAME, bounds, true)
     }
 }
 
@@ -63,7 +63,8 @@ impl Microkernel for RKernel {
     }
 
     fn microkernel_script(&self) -> (String, String) {
-        ("kernel.r".into(), include_str!("kernel.r").into())
+        let script = [include_str!("theme.r"), include_str!("kernel.r")].concat();
+        ("kernel.r".into(), script)
     }
 
     fn default_message_level(&self) -> MessageLevel {

@@ -51,7 +51,7 @@ impl Kernel for PythonKernel {
     }
 
     fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME, bounds)
+        self.microkernel_create_instance(NAME, bounds, true)
     }
 }
 
@@ -65,7 +65,8 @@ impl Microkernel for PythonKernel {
     }
 
     fn microkernel_script(&self) -> (String, String) {
-        ("kernel.py".into(), include_str!("kernel.py").into())
+        let script = [include_str!("theme.py"), include_str!("kernel.py")].concat();
+        ("kernel.py".into(), script)
     }
 }
 

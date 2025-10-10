@@ -9,6 +9,7 @@ itertools = { workspace = true }
 serde_json = { workspace = true }
 stencila-dirs = { path = "../dirs" }
 stencila-kernel = { path = "../kernel" }
+stencila-themes = { path = "../themes" }
 strum = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }

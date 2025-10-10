@@ -50,7 +50,7 @@ impl Kernel for NodeJsKernel {
     }
 
     fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME, bounds)
+        self.microkernel_create_instance(NAME, bounds, false)
     }
 }
 
