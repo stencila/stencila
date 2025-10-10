@@ -42,13 +42,23 @@ theme_ <- function(json) {
     )
   }
 
-  # Helper to convert points to millimeters for ggplot2 linewidth parameters
-  # ggplot2's linewidth uses mm, but our theme system uses pt
+  # Helper to convert points to millimeters for ggplot2 SIZE parameters
+  # ggplot2's size (for text) uses TRUE millimeters
   # Conversion: 1 pt = 1/72 inch = 25.4/72 mm ≈ 0.35mm
   # ggplot2::.pt constant ≈ 2.845276 (72/25.4)
   pt_to_mm <- function(pt_value) {
     if (is.null(pt_value)) return(NULL)
     pt_value / ggplot2::.pt
+  }
+
+  # Helper to convert points to ggplot2 LINEWIDTH units
+  # IMPORTANT: ggplot2's linewidth uses a DIFFERENT unit than size!
+  # Due to historical reasons, 1 ggplot2 linewidth unit ≈ 0.75mm (not 1mm)
+  # Conversion: 1 pt = 25.4/72 mm ≈ 0.353mm, then 0.353mm / 0.75mm/unit
+  # Factor: 54/25.4 ≈ 2.126 (not 72/25.4 like for size!)
+  pt_to_ggplot_linewidth <- function(pt_value) {
+    if (is.null(pt_value)) return(NULL)
+    pt_value / (54/25.4)
   }
 
   # Helper to parse CSS font stacks into a vector of font names
@@ -546,7 +556,7 @@ theme_ <- function(json) {
   if (!is.null(color <- get_var("plot-axis-line-color"))) {
     width <- parse_number(get_var("plot-panel-border-width"))
     if (!is.null(width) && width > 0) {
-      theme_elements$panel.border <- ggplot2::element_rect(color = color, linewidth = pt_to_mm(width), fill = NA)
+      theme_elements$panel.border <- ggplot2::element_rect(color = color, linewidth = pt_to_ggplot_linewidth(width), fill = NA)
     } else {
       theme_elements$panel.border <- ggplot2::element_blank()
     }
@@ -565,8 +575,8 @@ theme_ <- function(json) {
 
     # Set axis-specific major grids
     if (!is.null(width_x) && width_x > 0) {
-      theme_elements$panel.grid.major.x <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width_x))
-      theme_elements$panel.grid.minor.x <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width_x * 0.5))
+      theme_elements$panel.grid.major.x <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width_x))
+      theme_elements$panel.grid.minor.x <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width_x * 0.5))
     } else if (!is.null(width_x) && width_x == 0) {
       # Width of 0 means no grid lines
       theme_elements$panel.grid.major.x <- ggplot2::element_blank()
@@ -574,8 +584,8 @@ theme_ <- function(json) {
     }
 
     if (!is.null(width_y) && width_y > 0) {
-      theme_elements$panel.grid.major.y <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width_y))
-      theme_elements$panel.grid.minor.y <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width_y * 0.5))
+      theme_elements$panel.grid.major.y <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width_y))
+      theme_elements$panel.grid.minor.y <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width_y * 0.5))
     } else if (!is.null(width_y) && width_y == 0) {
       # Width of 0 means no grid lines
       theme_elements$panel.grid.major.y <- ggplot2::element_blank()
@@ -587,8 +597,8 @@ theme_ <- function(json) {
     if (!is.null(width_general) && width_general > 0) {
       if (is.null(width_x) && is.null(width_y)) {
         # If no axis-specific widths, set general grid
-        theme_elements$panel.grid.major <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width_general))
-        theme_elements$panel.grid.minor <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width_general * 0.5))
+        theme_elements$panel.grid.major <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width_general))
+        theme_elements$panel.grid.minor <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width_general * 0.5))
       }
     }
   }
@@ -603,11 +613,16 @@ theme_ <- function(json) {
 
   # Axes
 
-  # Axis line
-  if (!is.null(color <- get_var("plot-axis-line-color"))) {
-    width <- parse_number(get_var("plot-axis-line-width"))
-    if (!is.null(width)) {
-      theme_elements$axis.line <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width))
+  # Axis line - only set if panel borders are disabled
+  # When panel.border is enabled, it draws all 4 sides uniformly, so axis.line would
+  # cause visual inconsistency (double-drawing on left/bottom making them appear thicker)
+  panel_border_width <- parse_number(get_var("plot-panel-border-width"))
+  if (is.null(panel_border_width) || panel_border_width == 0) {
+    if (!is.null(color <- get_var("plot-axis-line-color"))) {
+      width <- parse_number(get_var("plot-axis-line-width"))
+      if (!is.null(width)) {
+        theme_elements$axis.line <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width))
+      }
     }
   }
 
@@ -644,7 +659,7 @@ theme_ <- function(json) {
     width <- parse_number(get_var("plot-tick-width"))
     tick_size <- parse_number(get_var("plot-tick-size"))
     if (!is.null(width)) {
-      theme_elements$axis.ticks <- ggplot2::element_line(color = color, linewidth = pt_to_mm(width))
+      theme_elements$axis.ticks <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width))
     }
     if (!is.null(tick_size)) {
       # tick_size is already in pt, unit() handles the conversion
@@ -728,7 +743,7 @@ theme_ <- function(json) {
       theme_elements$legend.background <- ggplot2::element_rect(
         fill = get_var("plot-legend-background"),
         color = color,
-        linewidth = pt_to_mm(width)
+        linewidth = pt_to_ggplot_linewidth(width)
       )
     }
   }
@@ -906,7 +921,14 @@ theme_ <- function(json) {
   # Note: update_geom_defaults uses lowercase geom names (e.g., "point" for geom_point)
   # Note: geom_histogram inherits from "bar" since it's just geom_bar with stat_bin
   if (!is.null(color_1 <- get_var("plot-color-1"))) {
-    ggplot2::update_geom_defaults("point", list(colour = color_1))
+    # For points, also set the size from plot-point-size if available
+    # ggplot2's point size parameter uses mm, so convert from pt
+    point_defaults <- list(colour = color_1)
+    if (!is.null(point_size <- parse_number(get_var("plot-point-size")))) {
+      point_defaults$size <- pt_to_mm(point_size)
+    }
+    ggplot2::update_geom_defaults("point", point_defaults)
+
     ggplot2::update_geom_defaults("line", list(colour = color_1))
     ggplot2::update_geom_defaults("path", list(colour = color_1))
     ggplot2::update_geom_defaults("bar", list(fill = color_1))
