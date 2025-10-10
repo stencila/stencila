@@ -64,16 +64,39 @@ def theme(variables_json: str) -> None:
     # plt.rcParams["savefig.dpi"] = <NA>
     
     # plt.rcParams["figure.autolayout"] = <NA>
-    # plt.rcParams["figure.constrained_layout.use"] = <NA>
-    # plt.rcParams["figure.constrained_layout.h_pad"] = <NA>
-    # plt.rcParams["figure.constrained_layout.w_pad"] = <NA>
+
+    # Constrained layout with padding
+    # matplotlib's constrained layout automatically prevents labels from overlapping
+    # and allows setting padding in absolute units (inches)
+    top = parse_number(get_var("plot-padding-top"))
+    bottom = parse_number(get_var("plot-padding-bottom"))
+    left = parse_number(get_var("plot-padding-left"))
+    right = parse_number(get_var("plot-padding-right"))
+
+    if top is not None or bottom is not None or left is not None or right is not None:
+        # Enable constrained layout
+        plt.rcParams["figure.constrained_layout.use"] = True
+
+        # Convert pt to inches (1 pt = 1/72 inch)
+        # h_pad controls top and bottom padding
+        # w_pad controls left and right padding
+        # Use the maximum of each pair for symmetric padding, defaulting to 0
+        h_pad_inches = max(top or 0, bottom or 0) / 72
+        w_pad_inches = max(left or 0, right or 0) / 72
+
+        plt.rcParams["figure.constrained_layout.h_pad"] = h_pad_inches
+        plt.rcParams["figure.constrained_layout.w_pad"] = w_pad_inches
+
     # plt.rcParams["figure.constrained_layout.hspace"] = <NA>
     # plt.rcParams["figure.constrained_layout.wspace"] = <NA>
 
-    # plt.rcParams["figure.subplot.left"] = ...  # plot-padding-left exists but units may differ
-    # plt.rcParams["figure.subplot.right"] = ...  # plot-padding-right exists but units may differ
-    # plt.rcParams["figure.subplot.bottom"] = ...  # plot-padding-bottom exists but units may differ
-    # plt.rcParams["figure.subplot.top"] = ...  # plot-padding-top exists but units may differ
+    # Note: figure.subplot.* parameters are NOT used because they define axes position
+    # as fractions (0-1), which doesn't translate well to absolute padding values and
+    # can interfere with matplotlib's automatic layout for titles and labels.
+    # plt.rcParams["figure.subplot.left"] = <NA>
+    # plt.rcParams["figure.subplot.right"] = <NA>
+    # plt.rcParams["figure.subplot.bottom"] = <NA>
+    # plt.rcParams["figure.subplot.top"] = <NA>
     # plt.rcParams["figure.subplot.hspace"] = <NA>
     # plt.rcParams["figure.subplot.wspace"] = <NA>
 

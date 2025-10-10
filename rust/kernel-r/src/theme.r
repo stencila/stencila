@@ -306,14 +306,28 @@ theme_ <- function(json) {
   # Margins (lines of text)
   # params$mar <- NA  # plot-padding-* exist but are in rem, need conversion
 
-  # Margins in inches
-  # params$mai <- NA  # plot-padding-* exist but are in rem, need conversion
+  # Margins in inches (inner margins - space allocated for axes, labels, titles)
+  # Note: Not using plot-padding-* here as those are outer margins
 
   # Outer margins (lines of text)
-  # params$oma <- NA  # No corresponding variable
+  # params$oma <- NA  # Could use plot-padding-* but omi is more precise
 
-  # Outer margins in inches
-  # params$omi <- NA  # No corresponding variable
+  # Outer margins in inches (additional space around entire figure)
+  top <- parse_number(get_var("plot-padding-top"))
+  right <- parse_number(get_var("plot-padding-right"))
+  bottom <- parse_number(get_var("plot-padding-bottom"))
+  left <- parse_number(get_var("plot-padding-left"))
+
+  if (!is.null(top) || !is.null(right) || !is.null(bottom) || !is.null(left)) {
+    # Convert from pt to inches (1 pt = 1/72 inch), defaulting to 0 for NULL values
+    # omi order is c(bottom, left, top, right)
+    params$omi <- c(
+      if (is.null(bottom)) 0 else bottom / 72,
+      if (is.null(left)) 0 else left / 72,
+      if (is.null(top)) 0 else top / 72,
+      if (is.null(right)) 0 else right / 72
+    )
+  }
 
   # Margin expansion factor
   # params$mex <- NA  # No corresponding variable
@@ -493,7 +507,21 @@ theme_ <- function(json) {
   }
 
   # Plot margin
-  # theme_elements$plot.margin <- NA  # plot-padding-* exist but are in rem, need conversion
+  top <- parse_number(get_var("plot-padding-top"))
+  right <- parse_number(get_var("plot-padding-right"))
+  bottom <- parse_number(get_var("plot-padding-bottom"))
+  left <- parse_number(get_var("plot-padding-left"))
+
+  if (!is.null(top) || !is.null(right) || !is.null(bottom) || !is.null(left)) {
+    # Default to 0 for NULL values
+    theme_elements$plot.margin <- ggplot2::margin(
+      if (is.null(top)) 0 else top,
+      if (is.null(right)) 0 else right,
+      if (is.null(bottom)) 0 else bottom,
+      if (is.null(left)) 0 else left,
+      unit = "pt"
+    )
+  }
 
   # Plot tag (upper-left label)
   # theme_elements$plot.tag <- NA  # No corresponding variable

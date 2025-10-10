@@ -150,6 +150,10 @@ themes = {
     # Uses axis-specific grid widths to demonstrate the feature
     "monochrome": {
         "plot-background": "#ffffff",
+        "plot-padding-top": 4,
+        "plot-padding-right": 4,
+        "plot-padding-bottom": 8,
+        "plot-padding-left": 8,
         "plot-axis-line-color": "#404040",
         "plot-axis-line-width": 0.5,
         "plot-axis-title-color": "#404040",
@@ -194,6 +198,10 @@ themes = {
     # Uses axis-specific grid widths with opposite emphasis from monochrome
     "vintage": {
         "plot-background": "#f1d8b8ff",
+        "plot-padding-top": 12,
+        "plot-padding-right": 12,
+        "plot-padding-bottom": 24,
+        "plot-padding-left": 24,
         "plot-axis-line-color": "#5a4a3a",
         "plot-axis-line-width": 1.5,
         "plot-axis-title-color": "#5a4a3a",
@@ -237,6 +245,10 @@ themes = {
     # Cyberpunk: dark background, bright colors, monospace fonts
     "cyberpunk": {
         "plot-background": "#0a0e27",
+        "plot-padding-top": 20,
+        "plot-padding-right": 20,
+        "plot-padding-bottom": 40,
+        "plot-padding-left": 40,
         "plot-axis-line-color": "#00ffff",
         "plot-axis-line-width": 2,
         "plot-axis-title-color": "#00ffff",
