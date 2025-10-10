@@ -120,6 +120,7 @@ export async function compilePlotly(
         marker: {
           ...trace.marker,
           color: trace.marker?.color ?? color,
+          size: trace.marker?.size ?? theme.mark.pointSize,
         },
         line: {
           ...trace.line,

@@ -67,10 +67,11 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     },
     mark: { opacity: t.mark.opacity, strokeWidth: t.mark.lineWidth },
 
-    // Set default colors for mark types when no color encoding is specified
-    point: { color: t.palette[0], filled: true },
-    circle: { color: t.palette[0] },
-    square: { color: t.palette[0] },
+    // Set default colors and sizes for mark types when no encoding is specified
+    // Note: size in Vega-Lite is area in square pixels, so we square the linear dimension
+    point: { color: t.palette[0], filled: true, size: t.mark.pointSize ** 2 },
+    circle: { color: t.palette[0], size: t.mark.pointSize ** 2 },
+    square: { color: t.palette[0], size: t.mark.pointSize ** 2 },
     bar: { color: t.palette[0] },
     line: { color: t.palette[0], strokeWidth: t.mark.lineWidth },
     area: { color: t.palette[0], opacity: t.mark.areaOpacity },

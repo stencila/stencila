@@ -163,6 +163,28 @@ export async function compileECharts(
       ...(visualMap && { visualMap }),
     }
 
+    // Apply default symbol size to scatter/line series if not specified
+    if (mergedOptions.series) {
+      const seriesArray = Array.isArray(mergedOptions.series)
+        ? mergedOptions.series
+        : [mergedOptions.series]
+
+      mergedOptions.series = seriesArray.map((series: Record<string, unknown>) => {
+        // Apply symbolSize to scatter charts and line charts with symbols
+        if (
+          series.type === 'scatter' ||
+          series.type === 'effectScatter' ||
+          (series.type === 'line' && series.showSymbol !== false)
+        ) {
+          return {
+            symbolSize: theme.mark.pointSize,
+            ...series,
+          }
+        }
+        return series
+      })
+    }
+
     // Set the merged options
     chartInstance.setOption(mergedOptions, true)
 
