@@ -22,8 +22,9 @@ create_plots <- function(output_dir) {
   # Create output directory
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
-  # Get background color from theme option
+  # Get background color and font size from theme options
   bg <- getOption("stencila.plot.background", "white")
+  ps <- getOption("stencila.plot.font.size", 12)
 
   # Generate sample data
   set.seed(42)
@@ -37,7 +38,7 @@ create_plots <- function(output_dir) {
 
   # 1. Scatter plot
   png_file <- file.path(output_dir, "01_base_scatter.png")
-  png(png_file, width = 900, height = 600, bg = bg)
+  png(png_file, width = 9, height = 6, units = "in", res = 100, bg = bg)
   plot(x, y1,
        main = "Base R: Scatter Plot",
        xlab = "X Axis",
@@ -47,7 +48,7 @@ create_plots <- function(output_dir) {
   
   # 2. Line plot
   png_file <- file.path(output_dir, "02_base_line.png")
-  png(png_file, width = 900, height = 600, bg = bg)
+  png(png_file, width = 9, height = 6, units = "in", res = 100, bg = bg)
   plot(x, y1, type = "l",
        main = "Base R: Line Plot",
        ylim = c(-5, 30),
@@ -61,7 +62,7 @@ create_plots <- function(output_dir) {
 
   # 3. Bar plot
   png_file <- file.path(output_dir, "03_base_bar.png")
-  png(png_file, width = 900, height = 600, bg = bg)
+  png(png_file, width = 9, height = 6, units = "in", res = 100, bg = bg)
   barplot(cat_values,
           names.arg = categories,
           main = "Base R: Bar Plot",
@@ -72,7 +73,7 @@ create_plots <- function(output_dir) {
 
   # 4. Histogram
   png_file <- file.path(output_dir, "04_base_histogram.png")
-  png(png_file, width = 900, height = 600, bg = bg)
+  png(png_file, width = 9, height = 6, units = "in", res = 100, bg = bg)
   hist(rnorm(1000),
        main = "Base R: Histogram",
        xlab = "Value",
@@ -83,7 +84,7 @@ create_plots <- function(output_dir) {
 
   # 5. Box plot
   png_file <- file.path(output_dir, "05_base_boxplot.png")
-  png(png_file, width = 900, height = 600, bg = bg)
+  png(png_file, width = 9, height = 6, units = "in", res = 100, bg = bg)
   data_list <- list(
     A = rnorm(100, mean = 5),
     B = rnorm(100, mean = 7),
@@ -99,7 +100,7 @@ create_plots <- function(output_dir) {
 
   # 6. Multiple panels
   png_file <- file.path(output_dir, "06_base_panels.png")
-  png(png_file, width = 900, height = 600, bg = bg)
+  png(png_file, width = 9, height = 6, units = "in", res = 100, bg = bg, pointsize = ps)
   par(mfrow = c(2, 2))
   plot(x, y1, type = "p", main = "Points", col = 1, pch = 19)
   plot(x, y1, type = "l", main = "Line", col = 2)
@@ -206,10 +207,10 @@ themes <- list(
   # Uses axis-specific grid widths to demonstrate the feature
   "monochrome" = list(
     "plot-background" = "#ffffff",
-    "plot-padding-top" = 4,
-    "plot-padding-right" = 4,
-    "plot-padding-bottom" = 8,
-    "plot-padding-left" = 8,
+    "plot-padding-top" = 2,
+    "plot-padding-right" = 2,
+    "plot-padding-bottom" = 2,
+    "plot-padding-left" = 2,
     "plot-axis-line-color" = "#404040",
     "plot-axis-line-width" = 0.5,
     "plot-axis-title-color" = "#404040",
@@ -254,10 +255,10 @@ themes <- list(
   # Uses axis-specific grid widths with opposite emphasis from monochrome
   "vintage" = list(
     "plot-background" = "#f1d8b8ff",
-    "plot-padding-top" = 12,
-    "plot-padding-right" = 12,
-    "plot-padding-bottom" = 24,
-    "plot-padding-left" = 24,
+    "plot-padding-top" = 10,
+    "plot-padding-right" = 20,
+    "plot-padding-bottom" = 30,
+    "plot-padding-left" = 40,
     "plot-axis-line-color" = "#5a4a3a",
     "plot-axis-line-width" = 1.5,
     "plot-axis-title-color" = "#5a4a3a",

@@ -313,28 +313,43 @@ theme_ <- function(json) {
   # Margins and layout
 
   # Margins (lines of text)
-  # params$mar <- NA  # plot-padding-* exist but are in rem, need conversion
-
-  # Margins in inches (inner margins - space allocated for axes, labels, titles)
-  # Note: Not using plot-padding-* here as those are outer margins
-
-  # Outer margins (lines of text)
-  # params$oma <- NA  # Could use plot-padding-* but omi is more precise
-
-  # Outer margins in inches (additional space around entire figure)
+  # Set mar instead of omi to be consistent with ggplot and matplotlib where
+  # padding represents total space (not additional space on top of defaults).
+  # Convert plot-padding-* from pt to lines and use sensible minimums for axes/labels.
   top <- parse_number(get_var("plot-padding-top"))
   right <- parse_number(get_var("plot-padding-right"))
   bottom <- parse_number(get_var("plot-padding-bottom"))
   left <- parse_number(get_var("plot-padding-left"))
 
   if (!is.null(top) || !is.null(right) || !is.null(bottom) || !is.null(left)) {
-    # Convert from pt to inches (1 pt = 1/72 inch), defaulting to 0 for NULL values
-    # omi order is c(bottom, left, top, right)
-    params$omi <- c(
-      if (is.null(bottom)) 0 else bottom / 72,
-      if (is.null(left)) 0 else left / 72,
-      if (is.null(top)) 0 else top / 72,
-      if (is.null(right)) 0 else right / 72
+    # Convert from pt to lines (1 line ≈ base_font_size * 1.2)
+    # Line height multiplier of 1.2 is R's default
+    pt_to_lines <- function(pt) {
+      if (is.null(pt)) return(NULL)
+      pt / (base_font_size * 1.2)
+    }
+
+    # Calculate themed padding in lines
+    top_lines <- pt_to_lines(top)
+    right_lines <- pt_to_lines(right)
+    bottom_lines <- pt_to_lines(bottom)
+    left_lines <- pt_to_lines(left)
+
+    # Set minimum margins to ensure axes and labels fit
+    # These are typical defaults that provide space for axis labels and titles
+    min_bottom <- 4  # Space for x-axis labels and title
+    min_left <- 4    # Space for y-axis labels and title
+    min_top <- 2     # Space for main title
+    min_right <- 1   # Minimal right margin
+
+    # Add themed padding to minimums (consistent with ggplot/matplotlib where
+    # padding is around the box containing axes/labels/titles)
+    # mar order is c(bottom, left, top, right)
+    params$mar <- c(
+      min_bottom + (if (is.null(bottom_lines)) 0 else bottom_lines),
+      min_left + (if (is.null(left_lines)) 0 else left_lines),
+      min_top + (if (is.null(top_lines)) 0 else top_lines),
+      min_right + (if (is.null(right_lines)) 0 else right_lines)
     )
   }
 
