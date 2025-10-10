@@ -37,7 +37,7 @@ create_plots <- function(output_dir) {
 
   # 1. Scatter plot
   png_file <- file.path(output_dir, "01_base_scatter.png")
-  png(png_file, width = 600, height = 400, bg = bg)
+  png(png_file, width = 900, height = 600, bg = bg)
   plot(x, y1,
        main = "Base R: Scatter Plot",
        xlab = "X Axis",
@@ -47,7 +47,7 @@ create_plots <- function(output_dir) {
   
   # 2. Line plot
   png_file <- file.path(output_dir, "02_base_line.png")
-  png(png_file, width = 600, height = 400, bg = bg)
+  png(png_file, width = 900, height = 600, bg = bg)
   plot(x, y1, type = "l",
        main = "Base R: Line Plot",
        ylim = c(-5, 30),
@@ -61,7 +61,7 @@ create_plots <- function(output_dir) {
 
   # 3. Bar plot
   png_file <- file.path(output_dir, "03_base_bar.png")
-  png(png_file, width = 600, height = 400, bg = bg)
+  png(png_file, width = 900, height = 600, bg = bg)
   barplot(cat_values,
           names.arg = categories,
           main = "Base R: Bar Plot",
@@ -72,7 +72,7 @@ create_plots <- function(output_dir) {
 
   # 4. Histogram
   png_file <- file.path(output_dir, "04_base_histogram.png")
-  png(png_file, width = 600, height = 400, bg = bg)
+  png(png_file, width = 900, height = 600, bg = bg)
   hist(rnorm(1000),
        main = "Base R: Histogram",
        xlab = "Value",
@@ -83,7 +83,7 @@ create_plots <- function(output_dir) {
 
   # 5. Box plot
   png_file <- file.path(output_dir, "05_base_boxplot.png")
-  png(png_file, width = 600, height = 400, bg = bg)
+  png(png_file, width = 900, height = 600, bg = bg)
   data_list <- list(
     A = rnorm(100, mean = 5),
     B = rnorm(100, mean = 7),
@@ -158,7 +158,7 @@ create_plots <- function(output_dir) {
     # 10. ggplot2 Histogram
     png_file <- file.path(output_dir, "10_ggplot_histogram.png")
     p <- ggplot(df3, aes(x = value)) +
-      geom_histogram(bins = 30, fill = "#2563eb") +
+      geom_histogram(bins = 30) +
       labs(title = "ggplot2: Histogram",
            x = "Value",
            y = "Count")
@@ -176,7 +176,7 @@ create_plots <- function(output_dir) {
     # 12. ggplot2 Faceted plot
     png_file <- file.path(output_dir, "12_ggplot_facet.png")
     p <- ggplot(df4, aes(x = value)) +
-      geom_histogram(bins = 20, fill = "#2563eb") +
+      geom_histogram(bins = 20) +
       facet_wrap(~ group, ncol = 2) +
       labs(title = "ggplot2: Faceted Histogram",
            x = "Value",
@@ -186,8 +186,8 @@ create_plots <- function(output_dir) {
     # 13. ggplot2 with subtitle and caption
     png_file <- file.path(output_dir, "13_ggplot_annotated.png")
     p <- ggplot(df1, aes(x = x, y = y1)) +
-      geom_line(color = "#2563eb", linewidth = 1) +
-      geom_point(color = "#dc2626", size = 2) +
+      geom_line() +
+      geom_point() +
       labs(title = "ggplot2: Annotated Plot",
            subtitle = "This is a subtitle to test subtitle styling",
            caption = "This is a caption to test caption styling",
@@ -203,10 +203,11 @@ create_plots <- function(output_dir) {
 # are being applied properly. No variable should be the same in all three themes.
 themes <- list(
   # Monochrome: light background, grays, sans fonts
+  # Uses axis-specific grid widths to demonstrate the feature
   "monochrome" = list(
     "plot-background" = "#ffffff",
     "plot-axis-line-color" = "#404040",
-    "plot-axis-line-width" = 1,
+    "plot-axis-line-width" = 0.5,
     "plot-axis-title-color" = "#404040",
     "plot-axis-title-size" = 11,
     "plot-color-1" = "#2c2c2c",
@@ -223,8 +224,9 @@ themes <- list(
     "plot-color-12" = "#f0f0f0",
     "plot-font-family" = "sans-serif",
     "plot-font-size" = 10,
-    "plot-grid-color" = "#e0e0e0",
-    "plot-grid-width" = 0.5,
+    "plot-grid-color" = "#aaaaaa",
+    "plot-grid-x-width" = 0,  # No vertical bars
+    "plot-grid-y-width" = 1,  # Only horizontal
     "plot-legend-background" = "#ffffff",
     "plot-legend-border-color" = "#808080",
     "plot-legend-border-width" = 1,
@@ -246,6 +248,7 @@ themes <- list(
   ),
 
   # Vintage: parchment background, muted colors, serif fonts
+  # Uses axis-specific grid widths with opposite emphasis from monochrome
   "vintage" = list(
     "plot-background" = "#f1d8b8ff",
     "plot-axis-line-color" = "#5a4a3a",
@@ -266,8 +269,9 @@ themes <- list(
     "plot-color-12" = "#cd5c5c",
     "plot-font-family" = "serif",
     "plot-font-size" = 11,
-    "plot-grid-color" = "#e8d8c8",
-    "plot-grid-width" = 0.75,
+    "plot-grid-color" = "#a75809ff",
+    "plot-grid-x-width" = 1.2,  # Thicker vertical grid lines
+    "plot-grid-y-width" = 0.4,  # Thinner horizontal grid lines
     "plot-legend-background" = "#f8efe0",
     "plot-legend-border-color" = "#8b7355",
     "plot-legend-border-width" = 1.5,
@@ -309,7 +313,7 @@ themes <- list(
     "plot-color-12" = "#ff00c0",
     "plot-font-family" = "monospace",
     "plot-font-size" = 12,
-    "plot-grid-color" = "#1a3f4f",
+    "plot-grid-color" = "#178a1bff",
     "plot-grid-width" = 1,
     "plot-legend-background" = "#151933",
     "plot-legend-border-color" = "#ff00ff",
@@ -322,13 +326,13 @@ themes <- list(
     "plot-line-width" = 2.5,
     "plot-panel-border-color" = "#ff00ff",
     "plot-panel-border-width" = 2,
-    "plot-point-size" = 4,
+    "plot-point-size" = 10,
     "plot-text-color" = "#00ffff",
     "plot-tick-color" = "#00ffff",
     "plot-tick-size" = 3,
     "plot-tick-width" = 2,
-    "plot-title-size" = 14,
-    "plot-subtitle-size" = 11
+    "plot-title-size" = 18,
+    "plot-subtitle-size" = 16
   )
 )
 
