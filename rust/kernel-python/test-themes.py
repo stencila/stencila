@@ -150,6 +150,7 @@ themes = {
     # Uses axis-specific grid widths to demonstrate the feature
     "monochrome": {
         "plot-background": "#ffffff",
+        "plot-panel": "#f5f5f5",
         "plot-padding-top": 2,
         "plot-padding-right": 2,
         "plot-padding-bottom": 2,
@@ -197,6 +198,7 @@ themes = {
     # Uses axis-specific grid widths with opposite emphasis from monochrome
     "vintage": {
         "plot-background": "#f1d8b8ff",
+        "plot-panel": "#f8efe0",
         "plot-padding-top": 10,
         "plot-padding-right": 20,
         "plot-padding-bottom": 30,
@@ -243,6 +245,7 @@ themes = {
     # Cyberpunk: dark background, bright colors, monospace fonts
     "cyberpunk": {
         "plot-background": "#0a0e27",
+        "plot-panel": "#151933",
         "plot-padding-top": 20,
         "plot-padding-right": 20,
         "plot-padding-bottom": 40,

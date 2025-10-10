@@ -72,13 +72,13 @@
     --plot-warning: var(--color-yellow-600);
     --plot-warning-dark: var(--color-yellow-400);
 
-    /* Surfaces & Text - Background/foreground layers and neutrals */
+    /* Plot background color: defaults surface background for panels that appear transparent */
     --plot-background: var(--surface-background);
     --plot-background-dark: var(--surface-background-dark);
 
-    /* Panel background. Defaults to surface background for panels that appear transparent */
-    --plot-panel: var(--surface-background);
-    --plot-panel-dark: var(--surface-background-dark);
+    /* Panel background. Defaults to plot background */
+    --plot-panel: var(--plot-background);
+    --plot-panel-dark: var(--plot-background-dark);
 
     /* Panel border width controls the top and right borders (completing the box around the plot area).
      * The color comes from --plot-axis-line-color to ensure visual consistency between axis lines

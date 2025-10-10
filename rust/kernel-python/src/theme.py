@@ -117,7 +117,7 @@ def theme(variables_json: str) -> None:
     # Axes
 
     # Axes background
-    if bg := get_var("plot-background"):
+    if bg := get_var("plot-panel"):
         plt.rcParams["axes.facecolor"] = bg
 
     # Axes edge (spines/panel border)

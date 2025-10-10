@@ -566,7 +566,7 @@ theme_ <- function(json) {
   # Panel
 
   # Panel background
-  if (!is.null(bg <- get_var("plot-background"))) {
+  if (!is.null(bg <- get_var("plot-panel"))) {
     theme_elements$panel.background <- ggplot2::element_rect(fill = bg, color = NA)
   }
 

@@ -207,6 +207,7 @@ themes <- list(
   # Uses axis-specific grid widths to demonstrate the feature
   "monochrome" = list(
     "plot-background" = "#ffffff",
+    "plot-panel" = "#f5f5f5",
     "plot-padding-top" = 2,
     "plot-padding-right" = 2,
     "plot-padding-bottom" = 2,
@@ -255,6 +256,7 @@ themes <- list(
   # Uses axis-specific grid widths with opposite emphasis from monochrome
   "vintage" = list(
     "plot-background" = "#f1d8b8ff",
+    "plot-panel" = "#f8efe0",
     "plot-padding-top" = 10,
     "plot-padding-right" = 20,
     "plot-padding-bottom" = 30,
@@ -302,6 +304,7 @@ themes <- list(
   # Cyberpunk: dark background, bright colors, monospace fonts
   "cyberpunk" = list(
     "plot-background" = "#0a0e27",
+    "plot-panel" = "#151933",
     "plot-padding-top" = 20,
     "plot-padding-right" = 20,
     "plot-padding-bottom" = 40,
