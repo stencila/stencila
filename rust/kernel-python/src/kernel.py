@@ -153,6 +153,7 @@ EXEC = "EXEC" if DEV_MODE else "\U0010b522"
 EVAL = "EVAL" if DEV_MODE else "\U001010cc"
 FORK = "FORK" if DEV_MODE else "\U0010de70"
 BOX = "BOX" if DEV_MODE else "\U0010b0c5"
+THEME = "THEME" if DEV_MODE else "\U0010DEC0"
 INFO = "INFO" if DEV_MODE else "\U0010ee15"
 PKGS = "PKGS" if DEV_MODE else "\U0010bec4"
 LIST = "LIST" if DEV_MODE else "\U0010c155"
@@ -1077,6 +1078,8 @@ def main() -> None:
                 fork(lines[1:])
             elif task_type == BOX:
                 box()
+            elif task_type == THEME:
+                theme(lines[1])
             else:
                 raise ValueError(f"Unrecognized task: {task_type}")
 
