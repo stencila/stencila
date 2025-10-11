@@ -8,6 +8,7 @@ import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
  * Convert plot tokens to ECharts option base
  */
 function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
+  // Shared axis properties (labels, lines, ticks)
   const axisBase = {
     axisLabel: { color: t.textColor, fontSize: t.fontSize, fontFamily: t.fontFamily },
     nameTextStyle: { color: t.axis.titleColor, fontSize: t.axisTitleSize, fontFamily: t.fontFamily },
@@ -20,6 +21,9 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
       length: t.axis.tickSize,
       lineStyle: { color: t.axis.tickColor, width: t.axis.tickWidth },
     },
+    // Center axis names along the axis (consistent with matplotlib, ggplot2, Plotly, Vega-Lite).
+    // ECharts defaults to 'end' which places names at top (y-axis) or right (x-axis).
+    nameLocation: 'middle',
   }
 
   return {
@@ -44,6 +48,9 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
     },
     xAxis: {
       ...axisBase,
+      // Gap between axis name and axis labels (prevents overlap with tick labels below)
+      // Note: With nameLocation:'middle', this pushes the name downward from the axis line
+      nameGap: 25,
       splitLine: {
         show: t.axis.gridXWidth > 0,
         lineStyle: {
@@ -55,6 +62,9 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
     },
     yAxis: {
       ...axisBase,
+      // Gap between axis name and axis labels (prevents overlap with tick labels on the left)
+      // Note: With nameLocation:'middle', this pushes the name leftward from the axis line.
+      nameGap: 25,
       splitLine: {
         show: t.axis.gridYWidth > 0,
         lineStyle: {
