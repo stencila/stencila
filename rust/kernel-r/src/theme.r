@@ -118,14 +118,7 @@ theme_ <- function(json) {
     params$fg <- color
   }
 
-  # Plot colors
-
-  # Default plotting color (use first color from palette)
-  if (!is.null(color <- get_var("plot-color-1"))) {
-    params$col <- color
-  }
-
-  # Color for axis annotation
+  # Color for axis tick labels
   if (!is.null(color <- get_var("plot-tick-color"))) {
     params$col.axis <- color
   }
@@ -313,6 +306,17 @@ theme_ <- function(json) {
   # Y-label bias in character-string labels
   # params$ylbias <- NA  # No corresponding variable
 
+  # Box type around plot: "o"=box, "l"=L, "7"=top+right, "c"=C, "u"=U, "n"=none
+  # Control box type based on plot-panel-border-width
+  # When border width is 0 or null, use "l" (left and bottom only) to match ggplot2 behavior
+  # where panel.border is disabled and axis.line is used
+  panel_border_width <- parse_number(get_var("plot-panel-border-width"))
+  if (is.null(panel_border_width) || panel_border_width == 0) {
+    params$bty <- "l"
+  } else {
+    params$bty <- "o"
+  }
+
   # Margins and layout
 
   # Margins (lines of text)
@@ -397,9 +401,6 @@ theme_ <- function(json) {
 
   # Clipping region: FALSE=plot, TRUE=figure, NA=device
   # params$xpd <- NA  # No corresponding variable
-
-  # Box type around plot: "o"=box, "l"=L, "7"=top+right, "c"=C, "u"=U, "n"=none
-  # params$bty <- NA  # No corresponding variable
 
   # Annotations flag (title and axis labels)
   # params$ann <- NA  # No corresponding variable
@@ -515,6 +516,8 @@ theme_ <- function(json) {
   # Register the hook to apply theme settings on each new plot
   # This ensures the settings persist across graphics device creation
   setHook("plot.new", .apply_theme_hook, action = "replace")
+
+  ###########################################################################################
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     return(invisible(NULL))
