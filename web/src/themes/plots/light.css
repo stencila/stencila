@@ -1,0 +1,59 @@
+/* Light Plot Theme Preset
+ *
+ * A clean aesthetic with reduced visual weight and subtle elements.
+ * Thinner lines, lighter grids, and minimal borders create an unobtrusive look.
+ * Ideal for data-dense visualizations, scientific papers, or when the data should speak for itself.
+ */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════
+   * Axes & Grid - Subtle reference lines for light structure
+   * ═══════════════════════════════════════════════════════════════ */
+
+  /* Lighter grid lines */
+  --plot-grid-width: calc(var(--border-width-default) * 0.5); /* 0.5px typically */
+  --plot-grid-color: color-mix(in srgb, var(--text-color-primary) 8%, var(--plot-panel));
+
+  /* Thinner axis lines for delicate framing */
+  --plot-axis-line-width: calc(var(--border-width-default) * 0.5);
+
+  /* Lighter tick marks */
+  --plot-tick-width: calc(var(--border-width-default) * 0.5);
+  --plot-tick-size: calc(var(--space-1) * 0.75); /* ~3px typically */
+
+  /* Subtle zero line */
+  --plot-zero-line-color: color-mix(in srgb, var(--text-color-primary) 20%, var(--plot-panel));
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Panel & Borders - Minimal containment
+   * ═══════════════════════════════════════════════════════════════ */
+
+  --plot-panel-border-width: 0;
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Marks - Thinner lines, smaller points, more transparent fills
+   * ═══════════════════════════════════════════════════════════════ */
+
+  /* General stroke width for light marks */
+  --plot-stroke-width: calc(var(--border-width-thick) * 0.75); /* 1.5px typically */
+
+  /* Line marks: thinner for subtlety */
+  --plot-line-width: calc(var(--border-width-thick) * 0.75);
+
+  /* Area marks: more transparent for lightness */
+  --plot-area-opacity: 0.15;
+
+  /* Point marks: smaller and borderless */
+  --plot-point-size: var(--space-1); /* ~4px typically */
+  --plot-point-border-width: 0;
+
+  /* Bar marks: no borders for clean look */
+  --plot-bar-border-width: 0;
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Legend - Light borders and spacing
+   * ═══════════════════════════════════════════════════════════════ */
+
+  --plot-legend-border-width: calc(var(--border-width-default) * 0.5);
+  --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 15%, var(--surface-foreground));
+}

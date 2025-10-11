@@ -100,12 +100,23 @@ impl Theme {
         css: String,
         normalize: bool,
     ) -> Self {
-        let content = if normalize {
+        let mut content = if normalize {
             Self::normalize_css(&css)
         } else {
             css
         };
-        let variables = Self::merge_css_variables(&content);
+
+        let mut variables = Self::merge_css_variables(&content);
+
+        if let Some(plot_theme) = Self::plot_theme(&variables) {
+            // Prepended to the theme content , allowing the preset to override plot variables
+            // in the `base.css` whilst allowing theme authors to still override values in the
+            // preset if they wish.
+            content = [plot_theme, content].concat();
+
+            // Re-parse variables so preset overrides take effect
+            variables = Self::merge_css_variables(&content);
+        }
 
         Self {
             r#type,
@@ -114,6 +125,32 @@ impl Theme {
             content,
             variables,
         }
+    }
+
+    /// Apply a plot theme preset if specified
+    ///
+    /// Checks the theme's `--plot-theme` variable. If it references a named preset
+    /// (not "none" or "custom"), loads that preset CSS from `themes/plots/{name}.css`
+    fn plot_theme(variables: &BTreeMap<String, String>) -> Option<String> {
+        // Get the plot-theme variable value
+        let plot_theme = match variables.get("plot-theme") {
+            Some(value) => value.trim(),
+            None => return None,
+        };
+
+        // Skip if it's "none" or "custom" (reserved values)
+        if plot_theme == "none" || plot_theme == "custom" {
+            return None;
+        }
+
+        // Try to load the preset from embedded files
+        let preset_path = format!("themes/plots/{plot_theme}.css");
+        if let Some(file) = Web::get(&preset_path) {
+            let preset_css = String::from_utf8_lossy(&file.data);
+            return Some(preset_css.into());
+        }
+
+        None
     }
 
     /// Normalize and minify CSS

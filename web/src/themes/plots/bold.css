@@ -1,0 +1,70 @@
+/* Bold Plot Theme Preset
+ *
+ * A high-contrast, bold aesthetic with thick lines and strong visual weight.
+ * Enhances visibility through prominent grids, thicker borders, and larger marks.
+ */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════
+   * Axes & Grid - Stronger reference lines for bold structure
+   * ═══════════════════════════════════════════════════════════════ */
+
+  /* More prominent grid lines */
+  --plot-grid-width: calc(var(--border-width-thick) * 0.75); /* 1.5px typically */
+  --plot-grid-color: color-mix(in srgb, var(--text-color-primary) 25%, var(--plot-panel));
+
+  /* Thicker axis lines for strong framing */
+  --plot-axis-line-width: var(--border-width-thick); /* 2px typically */
+
+  /* Bolder tick marks */
+  --plot-tick-width: calc(var(--border-width-thick) * 0.75);
+  --plot-tick-size: calc(var(--space-1) * 1.5); /* ~6px typically */
+
+  /* More visible zero line */
+  --plot-zero-line-color: color-mix(in srgb, var(--text-color-primary) 40%, var(--plot-panel));
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Panel & Borders - Stronger containment
+   * ═══════════════════════════════════════════════════════════════ */
+
+  --plot-panel-border-width: var(--border-width-thick);
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Typography - Bold text for emphasis
+   * ═══════════════════════════════════════════════════════════════ */
+
+  --plot-axis-title-weight: bold;
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Marks - Thicker lines, larger points, more visible fills
+   * ═══════════════════════════════════════════════════════════════ */
+
+  /* General stroke width for bold marks */
+  --plot-stroke-width: calc(var(--border-width-thick) * 1.5); /* 3px typically */
+
+  /* Line marks: thicker for visibility */
+  --plot-line-width: calc(var(--border-width-thick) * 1.5);
+
+  /* Area marks: more opaque for stronger presence */
+  --plot-area-opacity: 0.35;
+
+  /* Point marks: larger with borders */
+  --plot-point-size: var(--space-2);
+  --plot-point-border-width: var(--border-width-default);
+
+  /* Bar marks: add borders for definition */
+  --plot-bar-border-width: var(--border-width-default);
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Legend - Bold borders and spacing
+   * ═══════════════════════════════════════════════════════════════ */
+
+  --plot-legend-border-width: var(--border-width-thick);
+  --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 30%, var(--surface-foreground));
+
+  /* ═══════════════════════════════════════════════════════════════
+   * Interaction - Stronger focus and selection indicators
+   * ═══════════════════════════════════════════════════════════════ */
+
+  --plot-focus-outline-width: calc(var(--border-width-thick) * 1.5);
+}
