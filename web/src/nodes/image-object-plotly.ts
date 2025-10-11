@@ -21,7 +21,7 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
     title: {
       font: {
         family: t.fontFamily,
-        size: t.axisTitleSize,
+        size: t.axis.titleSize,
         color: t.axis.titleColor,
         weight: convertFontWeight(t.axis.titleWeight),
       },
@@ -80,7 +80,7 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
         bgcolor: t.legend.background,
         bordercolor: t.legend.borderColor,
         borderwidth: t.legend.borderWidth,
-        font: { family: t.fontFamily, size: t.legendSize, color: t.legend.textColor },
+        font: { family: t.fontFamily, size: t.legend.textSize, color: t.legend.textColor },
         itemwidth: t.legend.markerSize + 10,
       },
       hoverlabel: {

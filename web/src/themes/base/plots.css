@@ -136,7 +136,6 @@
     --plot-font-size: calc(var(--text-font-size) * 0.85);
     --plot-title-size: calc(var(--text-font-size) * 1.0);
     --plot-subtitle-size: calc(var(--text-font-size) * 0.92);
-    --plot-legend-size: calc(var(--text-font-size) * 0.85);
 
     /* Padding - Space around the entire plot including axis labels, titles, and legends
      *
@@ -203,6 +202,7 @@
 
     --plot-legend-text-color: var(--plot-text-color);
     --plot-legend-text-color-dark: var(--plot-text-color-dark);
+    --plot-legend-text-size: calc(var(--text-font-size) * 0.85);
 
     --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 20%, var(--surface-foreground));
     --plot-legend-border-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 20%, var(--surface-foreground-dark));

@@ -13,7 +13,7 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
     axisLabel: { color: t.textColor, fontSize: t.fontSize, fontFamily: t.fontFamily },
     nameTextStyle: {
       color: t.axis.titleColor,
-      fontSize: t.axisTitleSize,
+      fontSize: t.axis.titleSize,
       fontFamily: t.fontFamily,
       fontWeight: t.axis.titleWeight,
     },
@@ -81,7 +81,7 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
     },
     legend: {
       backgroundColor: t.legend.background,
-      textStyle: { color: t.legend.textColor, fontSize: t.legendSize },
+      textStyle: { color: t.legend.textColor, fontSize: t.legend.textSize },
       itemWidth: t.legend.markerSize,
       itemHeight: t.legend.markerSize,
       borderColor: t.legend.borderColor,

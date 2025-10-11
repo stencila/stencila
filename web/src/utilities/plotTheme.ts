@@ -66,8 +66,6 @@ export interface PlotTokens {
   fontSize: number
   titleSize: number
   subtitleSize: number
-  legendSize: number
-  axisTitleSize: number
 
   // Layout
   padding: {
@@ -90,6 +88,8 @@ export interface PlotTokens {
     tickWidth: number
     tickSize: number
     titleColor: string
+    titleSize: number
+    titleWeight: string
     gridColor: string
     gridWidth: number
     gridXWidth: number
@@ -101,6 +101,7 @@ export interface PlotTokens {
   legend: {
     background: string
     textColor: string
+    textSize: number
     borderColor: string
     borderWidth: number
     markerSize: number
@@ -271,8 +272,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
     fontSize: parseNum(getVar('--plot-font-size'), 12, rootElement),
     titleSize: parseNum(getVar('--plot-title-size'), 14, rootElement),
     subtitleSize: parseNum(getVar('--plot-subtitle-size'), 12, rootElement),
-    legendSize: parseNum(getVar('--plot-legend-size'), 11, rootElement),
-    axisTitleSize: parseNum(getVar('--plot-axis-title-size'), 11, rootElement),
 
     // Layout
     padding: {
@@ -295,6 +294,8 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
       tickWidth: parseNum(getVar('--plot-tick-width'), 1, rootElement),
       tickSize: parseNum(getVar('--plot-tick-size'), 4, rootElement),
       titleColor: colorToHex(getVar('--plot-axis-title-color')) || '#000000',
+      titleSize: parseNum(getVar('--plot-axis-title-size'), 11, rootElement),
+      titleWeight: getVar('--plot-axis-title-weight') || 'bold',
       gridColor: colorToHex(getVar('--plot-grid-color')) || '#e5e5e5',
       gridWidth: parseNum(getVar('--plot-grid-width'), 1, rootElement),
       gridXWidth: parseNum(getVar('--plot-grid-x-width'), 1, rootElement),
@@ -306,6 +307,7 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
     legend: {
       background: colorToHex(getVar('--plot-legend-background')) || '#ffffff',
       textColor: colorToHex(getVar('--plot-legend-text-color')) || '#000000',
+      textSize: parseNum(getVar('--plot-legend-text-size'), 11, rootElement),
       borderColor: colorToHex(getVar('--plot-legend-border-color')) || '#cccccc',
       borderWidth: parseNum(getVar('--plot-legend-border-width'), 1, rootElement),
       markerSize: parseNum(getVar('--plot-legend-marker-size'), 8, rootElement),

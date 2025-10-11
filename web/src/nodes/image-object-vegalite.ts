@@ -15,7 +15,7 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     labelColor: t.textColor,
     labelFontSize: t.fontSize,
     titleColor: t.axis.titleColor,
-    titleFontSize: t.axisTitleSize,
+    titleFontSize: t.axis.titleSize,
     titleFontWeight: t.axis.titleWeight,
     domainColor: t.axis.lineColor,
     domainWidth: t.axis.lineWidth,
@@ -40,9 +40,9 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     },
     legend: {
       labelColor: t.legend.textColor,
-      labelFontSize: t.legendSize,
+      labelFontSize: t.legend.textSize,
       titleColor: t.legend.textColor,
-      titleFontSize: t.legendSize + 1,
+      titleFontSize: t.legend.textSize + 1,
       gradientStrokeColor: t.axis.gridColor,
       padding: t.legend.gap,
       // Note: Vega-Lite doesn't support legend box borders (borderColor/borderWidth).
