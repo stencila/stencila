@@ -133,8 +133,24 @@ def theme(variables_json: str) -> None:
     # Axes edge (spines/panel border)
     if color := get_var("plot-axis-line-color"):
         plt.rcParams["axes.edgecolor"] = color
-    if width := parse_number(get_var("plot-panel-border-width")):
-        plt.rcParams["axes.linewidth"] = width
+
+    # Control spine visibility based on panel border width
+    # When border width is 0 or null, show only left and bottom spines (axes lines)
+    # to match R and ggplot2 behavior. When border width > 0, show all four spines (full border).
+    panel_border_width = parse_number(get_var("plot-panel-border-width"))
+    if panel_border_width is None or panel_border_width == 0:
+        # Show only left and bottom spines (L shape, matching R's bty="l")
+        plt.rcParams["axes.spines.left"] = True
+        plt.rcParams["axes.spines.bottom"] = True
+        plt.rcParams["axes.spines.top"] = False
+        plt.rcParams["axes.spines.right"] = False
+    else:
+        # Show all four spines (full border, matching R's bty="o")
+        plt.rcParams["axes.spines.left"] = True
+        plt.rcParams["axes.spines.bottom"] = True
+        plt.rcParams["axes.spines.top"] = True
+        plt.rcParams["axes.spines.right"] = True
+        plt.rcParams["axes.linewidth"] = panel_border_width
 
     # Axes labels (axis titles)
     if color := get_var("plot-axis-title-color"):
@@ -197,11 +213,7 @@ def theme(variables_json: str) -> None:
     # plt.rcParams["grid.linestyle"] = ...  # plot-grid-dash is "0" or "4 2", needs conversion
     # plt.rcParams["grid.alpha"] = <NA>
 
-    # Axes spines visibility
-    # plt.rcParams["axes.spines.left"] = <NA>
-    # plt.rcParams["axes.spines.bottom"] = <NA>
-    # plt.rcParams["axes.spines.top"] = <NA>
-    # plt.rcParams["axes.spines.right"] = <NA>
+    # Note: axes.spines.* visibility is controlled above based on plot-panel-border-width
 
     # Axes margins and limits
     # plt.rcParams["axes.xmargin"] = <NA>
