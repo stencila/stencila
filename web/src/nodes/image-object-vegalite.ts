@@ -101,7 +101,8 @@ export async function compileVegaLite(
     ...spec,
     config: deepMerge(themeConfig, spec.config),
     width: 'container',
-    autosize: { type: 'fit-x', contains: 'padding' },
+    height: 'container',
+    autosize: { type: 'fit', contains: 'padding' },
     padding: {
       top: theme.padding.top,
       right: theme.padding.right,
@@ -140,6 +141,9 @@ export function renderVegaLiteContainer() {
   const containerStyles = css`
     & {
       width: 100%;
+      aspect-ratio: var(--plot-aspect-ratio);
+      min-height: var(--plot-height-min);
+      max-height: var(--plot-height-max);
     }
   `
   return html`

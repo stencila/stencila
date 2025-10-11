@@ -13,6 +13,38 @@
  */
 
 :root {
+    /* Dimensions - Controls for plot sizing and aspect ratio
+     *
+     * --plot-width: Absolute width for PNG rendering. Supports in, cm, or px units.
+     *   Example: 8in (default), 20cm, 800px
+     *
+     * --plot-height: Calculated from width ÷ aspect-ratio. Override for custom ratios.
+     *   Example: calc(var(--plot-width) / var(--plot-aspect-ratio))
+     *
+     * --plot-aspect-ratio: Width/height ratio (unitless decimal). Used by both PNG
+     *   and JS-based plots for visual consistency. Matches CSS aspect-ratio convention.
+     *   Example: 1.5 (3:2 landscape), 1.0 (square), 1.777 (16:9 widescreen), 0.75 (3:4 portrait)
+     *   Note: Landscape (wider) > 1.0, Portrait (taller) < 1.0, Square = 1.0
+     *
+     * --plot-dpi: Dots per inch for PNG rendering. Higher values = sharper but larger files.
+     *   Example: 100 (default), 150 (high quality), 72 (screen)
+     *
+     * --plot-height-min: Minimum height for web display (prevents too-small plots).
+     *   Example: 300px (default), 200px (compact), 400px (spacious)
+     *
+     * --plot-height-max: Maximum height for web display (prevents too-large plots).
+     *   Example: 800px (default), 600px (compact), 1000px (spacious)
+     *
+     * Web display: PNGs and JS plots scale responsively while maintaining aspect ratio.
+     * Document overrides: Code chunks can override these for individual plots.
+     */
+    --plot-aspect-ratio: 1.5;
+    --plot-width: 8in;
+    --plot-height: calc(var(--plot-width) / var(--plot-aspect-ratio));
+    --plot-dpi: 100;
+    --plot-height-min: 300px;
+    --plot-height-max: 800px;
+
     /* Palette - Categorical colors for series/marks that need distinct hues
      * First color uses theme accent for automatic theming. Colors 2-12 are
      * sensible defaults. Custom themes should override with brand colors. */

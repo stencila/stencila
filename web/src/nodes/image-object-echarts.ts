@@ -202,7 +202,9 @@ export function renderEChartsContainer() {
   const containerStyles = css`
     & {
       width: 100%;
-      height: 400px;
+      aspect-ratio: var(--plot-aspect-ratio);
+      min-height: var(--plot-height-min);
+      max-height: var(--plot-height-max);
     }
   `
   return html`

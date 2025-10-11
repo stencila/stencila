@@ -179,6 +179,9 @@ export function renderPlotlyContainer() {
   const containerStyles = css`
     & {
       width: 100%;
+      aspect-ratio: var(--plot-aspect-ratio);
+      min-height: var(--plot-height-min);
+      max-height: var(--plot-height-max);
     }
   `
   return html`

@@ -24,6 +24,16 @@ if (typeof window !== 'undefined') {
  * Structured to match the plotting design tokens in plots.css
  */
 export interface PlotTokens {
+  // Dimensions for plot sizing and aspect ratio
+  dimensions: {
+    aspectRatio: number  // Width/height ratio (e.g., 1.5 for 3:2 landscape, 1.777 for 16:9)
+    width: string        // CSS length with units (e.g., "8in", "20cm", "800px")
+    height: string       // CSS length with units (usually calculated from width / aspectRatio)
+    dpi: number         // Dots per inch for PNG rendering (e.g., 100)
+    heightMin: string   // Minimum height for web display (e.g., "300px")
+    heightMax: string   // Maximum height for web display (e.g., "800px")
+  }
+
   // Color palette for categorical data
   palette: string[]
 
@@ -219,6 +229,16 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
 
   // Build and cache the theme
   cachedTheme = {
+    // Dimensions
+    dimensions: {
+      aspectRatio: parseNum(getVar('--plot-aspect-ratio'), 1.5, rootElement),
+      width: getVar('--plot-width', '8in'),
+      height: getVar('--plot-height', '5.33in'),
+      dpi: parseNum(getVar('--plot-dpi'), 100, rootElement),
+      heightMin: getVar('--plot-height-min', '300px'),
+      heightMax: getVar('--plot-height-max', '800px'),
+    },
+
     // Palette
     palette,
 
