@@ -36,7 +36,6 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
       backgroundColor: t.panel,
       borderColor: t.axis.lineColor,
       borderWidth: t.panelBorderWidth,
-      // Using padding tokens makes margins too narrow
       left: t.padding.left,
       right: t.padding.right,
       top: t.padding.top,

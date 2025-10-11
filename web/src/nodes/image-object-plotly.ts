@@ -37,11 +37,10 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
         font: { family: t.fontFamily, size: t.titleSize, color: t.textColor },
       },
       margin: {
-        // Using padding tokens makes margins too narrow
-        //t: t.padding.top,
-        //r: t.padding.right,
-        //b: t.padding.bottom,
-        //l: t.padding.left,
+        t: t.padding.top,
+        r: t.padding.right,
+        b: t.padding.bottom,
+        l: t.padding.left,
       },
       xaxis: {
         ...axisBase,
