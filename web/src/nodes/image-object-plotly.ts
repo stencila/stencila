@@ -25,6 +25,9 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
     ticklen: t.axis.tickSize,
     tickwidth: t.axis.tickWidth,
     zerolinecolor: t.zero,
+    // Enable automargin to let Plotly automatically calculate space for axis labels and titles.
+    // This ensures labels/titles fit without being cut off, regardless of their size.
+    automargin: true,
   }
 
   return {
@@ -36,11 +39,15 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
       title: {
         font: { family: t.fontFamily, size: t.titleSize, color: t.textColor },
       },
+      // IMPORTANT: Plotly's margin is the space allocated FOR axis labels/titles, not padding beyond them.
+      // To achieve consistent padding behavior with other plotting libraries (ECharts, Vega-Lite, matplotlib, ggplot2),
+      // we apply padding via CSS on the container element instead of using Plotly's margin.
+      // Set margins to 0 and let automargin expand them automatically as needed to fit labels/titles.
       margin: {
-        t: t.padding.top,
-        r: t.padding.right,
-        b: t.padding.bottom,
-        l: t.padding.left,
+        t: 0,
+        r: 0,
+        b: 0,
+        l: 0,
       },
       xaxis: {
         ...axisBase,
@@ -175,6 +182,17 @@ export async function compilePlotly(
  * Render Plotly container
  */
 export function renderPlotlyContainer() {
+  const padderStyles = css`
+    & {
+      /* Apply theme padding around the entire plot (including axis labels/titles).
+       * This matches the behavior of ECharts (containLabel: true), Vega-Lite (contains: 'padding'),
+       * matplotlib (constrained_layout), ggplot2 (plot.margin), and R base (mar).
+       * The background color must match --plot-background so the padding area has the correct color. */
+      padding: var(--plot-padding-top) var(--plot-padding-right) var(--plot-padding-bottom) var(--plot-padding-left);
+      background-color: var(--plot-background);
+      box-sizing: border-box;
+    }
+  `
   const containerStyles = css`
     & {
       width: 100%;
@@ -185,7 +203,7 @@ export function renderPlotlyContainer() {
   `
   return html`
     <style id="plotly-css"></style>
-    <div slot="content">
+    <div class=${padderStyles} slot="content">
       <div class=${containerStyles} id="stencila-plotly-container"></div>
     </div>
   `
