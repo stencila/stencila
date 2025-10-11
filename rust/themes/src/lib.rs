@@ -155,7 +155,7 @@ impl Theme {
         for (name, value) in &self.variables {
             let resolved = self.resolve_var_references(value, 0);
             let evaluated = Self::evaluate_css_value(&resolved);
-            let converted = Self::convert_css_value(&evaluated, length_conversion);
+            let converted = Self::convert_css_value(&evaluated, name, length_conversion);
             computed.insert(name.clone(), converted);
         }
 
@@ -292,27 +292,72 @@ impl Theme {
         }
     }
 
+    /// Check if a variable name represents a dimensionless value
+    ///
+    /// Dimensionless variables include densities (DPI), ratios, opacities, counts, etc.
+    /// These should not have length conversion applied, even if they have units.
+    fn is_dimensionless(name: &str) -> bool {
+        // Patterns for dimensionless variables
+        let patterns = [
+            "-dpi",
+            "-ppi",
+            "-density",
+            "-resolution",
+            "-ratio",
+            "-aspect-ratio",
+            "-opacity",
+            "-alpha",
+            "-steps",
+            "-count",
+            "-weight",
+            "-scale",
+            "-index",
+            "-order",
+        ];
+
+        patterns.iter().any(|pattern| name.ends_with(pattern))
+            // Gap values without units are ratios (e.g., --plot-bar-gap: 0.2)
+            || (name.ends_with("-gap") && !name.contains("-gap-"))
+    }
+
     /// Convert a CSS value to typed JSON based on the specified length conversion
     ///
     /// # Arguments
     /// * `value` - The CSS value to convert
+    /// * `var_name` - The name of the variable (without -- prefix), used to detect dimensionless values
     /// * `conversion` - How to handle length values
     ///
     /// # Conversion strategy
-    /// - Points: rem/px/em → points (for matplotlib/ggplot2)
-    ///   - rem → pt: value × 16 × 0.75
-    ///   - px → pt: value × 0.75
-    ///   - em → pt: value × 16 × 0.75
-    /// - Pixels: rem/em → pixels
-    ///   - rem → px: value × 16
-    ///   - em → px: value × 16
+    ///
+    /// CSS absolute length units are converted using standard CSS/print ratios:
+    /// - 1in = 96px = 72pt
+    /// - 1cm = 37.795px = 28.346pt
+    /// - 1mm = 3.7795px = 2.8346pt
+    /// - 1Q = 0.9449px = 0.7087pt (quarter-millimeter)
+    /// - 1pc = 16px = 12pt (pica)
+    /// - 1pt = 1.333px
+    /// - 1px = 0.75pt
+    ///
+    /// Font-relative units assume 16px root font size:
+    /// - 1rem = 16px = 12pt
+    /// - 1em = 16px = 12pt
+    ///
     /// - Number: Strip all units
     /// - KeepUnits: Return as string with units preserved
-    fn convert_css_value(value: &str, conversion: LengthConversion) -> Value {
+    ///
+    /// Dimensionless variables (detected by name patterns like -dpi, -ratio, -opacity)
+    /// always return raw numbers, regardless of conversion mode.
+    fn convert_css_value(value: &str, var_name: &str, conversion: LengthConversion) -> Value {
         let trimmed = value.trim();
 
         // Try to parse as length and convert based on strategy
         if let Some((num, unit)) = Self::parse_length(trimmed) {
+            // If this is a dimensionless variable, always return the raw number
+            // even if it has units (e.g., --plot-dpi: 100px should be 100, not 75pt)
+            if Self::is_dimensionless(var_name) {
+                return json!(num);
+            }
+
             match conversion {
                 LengthConversion::Points => {
                     let points = match unit {
@@ -320,6 +365,11 @@ impl Theme {
                         "px" => num * 0.75,
                         "rem" => num * 16.0 * 0.75,
                         "em" => num * 16.0 * 0.75,
+                        "in" => num * 72.0,
+                        "cm" => num * 28.346456693,
+                        "mm" => num * 2.8346456693,
+                        "Q" => num * 0.7086614173,
+                        "pc" => num * 12.0,
                         _ => num, // Unknown unit, return as-is
                     };
                     return json!(points);
@@ -330,6 +380,11 @@ impl Theme {
                         "pt" => num / 0.75,
                         "rem" => num * 16.0,
                         "em" => num * 16.0,
+                        "in" => num * 96.0,
+                        "cm" => num * 37.795275591,
+                        "mm" => num * 3.7795275591,
+                        "Q" => num * 0.9448818898,
+                        "pc" => num * 16.0,
                         _ => num,
                     };
                     return json!(pixels);
@@ -380,15 +435,27 @@ impl Theme {
     /// Parse a CSS length value into number and unit
     ///
     /// Returns Some((number, unit)) if it's a valid length, None otherwise
+    ///
+    /// Supports all CSS absolute length units (in, cm, mm, Q, pt, pc, px)
+    /// and font-relative units (rem, em)
     fn parse_length(value: &str) -> Option<(f64, &str)> {
         let value = value.trim();
 
-        for unit in ["rem", "em", "px", "pt"] {
+        // Order matters: check longer units first to avoid partial matches
+        // e.g., "rem" before "em", "cm" before "m"
+        for unit in ["rem", "em", "px", "pt", "pc", "in", "cm", "mm"] {
             if let Some(num_str) = value.strip_suffix(unit)
                 && let Ok(num) = num_str.trim().parse::<f64>()
             {
                 return Some((num, unit));
             }
+        }
+
+        // Check Q separately since it's single character and case-sensitive
+        if let Some(num_str) = value.strip_suffix('Q')
+            && let Ok(num) = num_str.trim().parse::<f64>()
+        {
+            return Some((num, "Q"));
         }
 
         None
@@ -1093,5 +1160,114 @@ mod tests {
         };
         let computed = theme.compute_variables(LengthConversion::Number);
         assert_eq!(computed.get("a"), Some(&json!("var(--b)")));
+    }
+
+    #[test]
+    fn test_dimensionless_dpi_unitless() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-dpi: 100; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        // DPI should remain as 100, not be converted
+        assert_eq!(computed.get("plot-dpi"), Some(&json!(100.0)));
+    }
+
+    #[test]
+    fn test_dimensionless_dpi_with_units() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-dpi: 100px; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        // DPI should strip units and return 100, not convert to 75 points
+        assert_eq!(computed.get("plot-dpi"), Some(&json!(100.0)));
+    }
+
+    #[test]
+    fn test_dimensionless_aspect_ratio() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-aspect-ratio: 1.5; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        assert_eq!(computed.get("plot-aspect-ratio"), Some(&json!(1.5)));
+    }
+
+    #[test]
+    fn test_dimensionless_opacity() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-mark-opacity: 0.75; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        assert_eq!(computed.get("plot-mark-opacity"), Some(&json!(0.75)));
+    }
+
+    #[test]
+    fn test_dimensionless_steps() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-ramp-steps: 7; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        assert_eq!(computed.get("plot-ramp-steps"), Some(&json!(7.0)));
+    }
+
+    #[test]
+    fn test_dimensionless_gap_ratio() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-bar-gap: 0.2; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        // Gap should remain as ratio, not be converted
+        assert_eq!(computed.get("plot-bar-gap"), Some(&json!(0.2)));
+    }
+
+    #[test]
+    fn test_length_still_converts() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --plot-font-size: 16px; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        // Font size SHOULD be converted to points (16px = 12pt)
+        assert_eq!(computed.get("plot-font-size"), Some(&json!(12.0)));
+    }
+
+    #[test]
+    fn test_dimensionless_weight() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --font-weight: 700; }".into(),
+            false,
+        );
+        let computed = theme.compute_variables(LengthConversion::Points);
+        // Font weight should remain as number
+        assert_eq!(computed.get("font-weight"), Some(&json!(700.0)));
     }
 }
