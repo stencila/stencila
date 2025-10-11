@@ -11,7 +11,12 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
   // Shared axis properties (labels, lines, ticks)
   const axisBase = {
     axisLabel: { color: t.textColor, fontSize: t.fontSize, fontFamily: t.fontFamily },
-    nameTextStyle: { color: t.axis.titleColor, fontSize: t.axisTitleSize, fontFamily: t.fontFamily },
+    nameTextStyle: {
+      color: t.axis.titleColor,
+      fontSize: t.axisTitleSize,
+      fontFamily: t.fontFamily,
+      fontWeight: t.axis.titleWeight,
+    },
     axisLine: {
       show: true,
       lineStyle: { color: t.axis.lineColor, width: t.axis.lineWidth },

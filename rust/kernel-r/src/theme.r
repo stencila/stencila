@@ -230,8 +230,11 @@ theme_ <- function(json) {
   # Font face for axis annotation
   # params$font.axis <- NA  # No corresponding variable
 
-  # Font face for x and y labels
-  # params$font.lab <- NA  # No corresponding variable
+  # Font face for x and y labels (axis titles)
+  if (!is.null(weight <- get_var("plot-axis-title-weight"))) {
+    # R font face codes: 1=plain, 2=bold, 3=italic, 4=bold italic
+    params$font.lab <- if (weight == "bold" || weight >= 700) 2 else 1
+  }
 
   # Font face for main title
   # params$font.main <- NA  # No corresponding variable (defaults to bold)
@@ -535,28 +538,36 @@ theme_ <- function(json) {
   }
 
   # Plot title
+  plot_title_params <- list()
   if (!is.null(color <- get_var("plot-text-color"))) {
-    size <- parse_number(get_var("plot-title-size"))
-    if (!is.null(size)) {
-      theme_elements$plot.title <- ggplot2::element_text(color = color, size = size)
-    } else {
-      theme_elements$plot.title <- ggplot2::element_text(color = color)
-    }
+    plot_title_params$color <- color
+  }
+  if (!is.null(size <- parse_number(get_var("plot-title-size")))) {
+    plot_title_params$size <- size
+  }
+  if (length(plot_title_params) > 0) {
+    theme_elements$plot.title <- do.call(ggplot2::element_text, plot_title_params)
   }
 
   # Plot subtitle
+  plot_subtitle_params <- list()
   if (!is.null(color <- get_var("plot-text-color"))) {
-    size <- parse_number(get_var("plot-subtitle-size"))
-    if (!is.null(size)) {
-      theme_elements$plot.subtitle <- ggplot2::element_text(color = color, size = size)
-    } else {
-      theme_elements$plot.subtitle <- ggplot2::element_text(color = color)
-    }
+    plot_subtitle_params$color <- color
+  }
+  if (!is.null(size <- parse_number(get_var("plot-subtitle-size")))) {
+    plot_subtitle_params$size <- size
+  }
+  if (length(plot_subtitle_params) > 0) {
+    theme_elements$plot.subtitle <- do.call(ggplot2::element_text, plot_subtitle_params)
   }
 
   # Plot caption
+  plot_caption_params <- list()
   if (!is.null(color <- get_var("plot-text-color"))) {
-    theme_elements$plot.caption <- ggplot2::element_text(color = color)
+    plot_caption_params$color <- color
+  }
+  if (length(plot_caption_params) > 0) {
+    theme_elements$plot.caption <- do.call(ggplot2::element_text, plot_caption_params)
   }
 
   # Plot margin
@@ -670,31 +681,36 @@ theme_ <- function(json) {
   }
 
   # Axis text (tick labels)
+  # Use accumulator pattern to build element_text() parameters independently
+  axis_text_params <- list()
   if (!is.null(color <- get_var("plot-tick-color"))) {
-    size <- parse_number(get_var("plot-font-size"))
-    if (!is.null(size)) {
-      theme_elements$axis.text <- ggplot2::element_text(color = color, size = size)
-      theme_elements$axis.text.x <- ggplot2::element_text(color = color, size = size)
-      theme_elements$axis.text.y <- ggplot2::element_text(color = color, size = size)
-    } else {
-      theme_elements$axis.text <- ggplot2::element_text(color = color)
-      theme_elements$axis.text.x <- ggplot2::element_text(color = color)
-      theme_elements$axis.text.y <- ggplot2::element_text(color = color)
-    }
+    axis_text_params$color <- color
+  }
+  if (!is.null(size <- parse_number(get_var("plot-font-size")))) {
+    axis_text_params$size <- size
+  }
+  if (length(axis_text_params) > 0) {
+    theme_elements$axis.text <- do.call(ggplot2::element_text, axis_text_params)
+    theme_elements$axis.text.x <- do.call(ggplot2::element_text, axis_text_params)
+    theme_elements$axis.text.y <- do.call(ggplot2::element_text, axis_text_params)
   }
 
   # Axis title
+  axis_title_params <- list()
   if (!is.null(color <- get_var("plot-axis-title-color"))) {
-    size <- parse_number(get_var("plot-axis-title-size"))
-    if (!is.null(size)) {
-      theme_elements$axis.title <- ggplot2::element_text(color = color, size = size)
-      theme_elements$axis.title.x <- ggplot2::element_text(color = color, size = size)
-      theme_elements$axis.title.y <- ggplot2::element_text(color = color, size = size)
-    } else {
-      theme_elements$axis.title <- ggplot2::element_text(color = color)
-      theme_elements$axis.title.x <- ggplot2::element_text(color = color)
-      theme_elements$axis.title.y <- ggplot2::element_text(color = color)
-    }
+    axis_title_params$color <- color
+  }
+  if (!is.null(size <- parse_number(get_var("plot-axis-title-size")))) {
+    axis_title_params$size <- size
+  }
+  if (!is.null(weight <- get_var("plot-axis-title-weight"))) {
+    # Map CSS font-weight to ggplot2 face: normal→plain, bold/700→bold
+    axis_title_params$face <- if (weight == "bold" || weight >= 700) "bold" else "plain"
+  }
+  if (length(axis_title_params) > 0) {
+    theme_elements$axis.title <- do.call(ggplot2::element_text, axis_title_params)
+    theme_elements$axis.title.x <- do.call(ggplot2::element_text, axis_title_params)
+    theme_elements$axis.title.y <- do.call(ggplot2::element_text, axis_title_params)
   }
 
   # Axis ticks
@@ -792,23 +808,29 @@ theme_ <- function(json) {
   }
 
   # Legend text
+  # Use accumulator pattern to build element_text() parameters independently
+  legend_text_params <- list()
   if (!is.null(color <- get_var("plot-legend-text-color"))) {
-    size <- parse_number(get_var("plot-legend-size"))
-    if (!is.null(size)) {
-      theme_elements$legend.text <- ggplot2::element_text(color = color, size = size)
-    } else {
-      theme_elements$legend.text <- ggplot2::element_text(color = color)
-    }
+    legend_text_params$color <- color
+  }
+  if (!is.null(size <- parse_number(get_var("plot-legend-size")))) {
+    legend_text_params$size <- size
+  }
+  if (length(legend_text_params) > 0) {
+    theme_elements$legend.text <- do.call(ggplot2::element_text, legend_text_params)
   }
 
   # Legend title
+  # Use accumulator pattern to build element_text() parameters independently
+  legend_title_params <- list()
   if (!is.null(color <- get_var("plot-legend-text-color"))) {
-    size <- parse_number(get_var("plot-legend-size"))
-    if (!is.null(size)) {
-      theme_elements$legend.title <- ggplot2::element_text(color = color, size = size)
-    } else {
-      theme_elements$legend.title <- ggplot2::element_text(color = color)
-    }
+    legend_title_params$color <- color
+  }
+  if (!is.null(size <- parse_number(get_var("plot-legend-size")))) {
+    legend_title_params$size <- size
+  }
+  if (length(legend_title_params) > 0) {
+    theme_elements$legend.title <- do.call(ggplot2::element_text, legend_title_params)
   }
 
   # Legend position

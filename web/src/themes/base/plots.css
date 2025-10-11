@@ -137,7 +137,6 @@
     --plot-title-size: calc(var(--text-font-size) * 1.0);
     --plot-subtitle-size: calc(var(--text-font-size) * 0.92);
     --plot-legend-size: calc(var(--text-font-size) * 0.85);
-    --plot-axis-title-size: calc(var(--text-font-size) * 0.85);
 
     /* Padding - Space around the entire plot including axis labels, titles, and legends
      *
@@ -183,6 +182,8 @@
     --plot-tick-width: var(--border-width-default);
     --plot-tick-size: var(--space-1);
 
+    --plot-axis-title-size: calc(var(--text-font-size) * 0.85);
+    --plot-axis-title-weight: var(--font-weight-normal);
     --plot-axis-title-color: var(--plot-text-color);
     --plot-axis-title-color-dark: var(--plot-text-color-dark);
 

@@ -8,10 +8,23 @@ import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
  * Convert plot tokens to Plotly template
  */
 function toPlotlyTemplate(t: PlotTokens): Partial<any> {
+  // Convert CSS font-weight to numeric value for Plotly (normal→400, bold→700, or pass through)
+  const convertFontWeight = (weight: string): number => {
+    if (weight === 'normal') return 400
+    if (weight === 'bold') return 700
+    const numeric = parseInt(weight, 10)
+    return isNaN(numeric) ? 700 : numeric
+  }
+
   const axisBase = {
     color: t.textColor,
     title: {
-      font: { family: t.fontFamily, size: t.axisTitleSize, color: t.axis.titleColor },
+      font: {
+        family: t.fontFamily,
+        size: t.axisTitleSize,
+        color: t.axis.titleColor,
+        weight: convertFontWeight(t.axis.titleWeight),
+      },
     },
     // Note: In Plotly, linecolor/linewidth control both the axis line and the mirrored
     // panel border (via mirror: true). There's no separate styling for panel borders,

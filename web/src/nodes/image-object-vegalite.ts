@@ -16,6 +16,7 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     labelFontSize: t.fontSize,
     titleColor: t.axis.titleColor,
     titleFontSize: t.axisTitleSize,
+    titleFontWeight: t.axis.titleWeight,
     domainColor: t.axis.lineColor,
     domainWidth: t.axis.lineWidth,
     tickColor: t.axis.tickColor,

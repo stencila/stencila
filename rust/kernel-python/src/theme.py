@@ -141,8 +141,9 @@ def theme(variables_json: str) -> None:
         plt.rcParams["axes.labelcolor"] = color
     if size := parse_number(get_var("plot-axis-title-size")):
         plt.rcParams["axes.labelsize"] = size
+    if weight := get_var("plot-axis-title-weight"):
+        plt.rcParams["axes.labelweight"] = weight
     # plt.rcParams["axes.labelpad"] = <NA>
-    # plt.rcParams["axes.labelweight"] = <NA>
 
     # Axes title
     if color := get_var("plot-text-color"):
