@@ -607,12 +607,21 @@ theme_ <- function(json) {
   }
 
   # Panel border
-  if (!is.null(color <- get_var("plot-axis-line-color"))) {
-    width <- parse_number(get_var("plot-panel-border-width"))
-    if (!is.null(width) && width > 0) {
-      theme_elements$panel.border <- ggplot2::element_rect(color = color, linewidth = pt_to_ggplot_linewidth(width), fill = NA)
-    } else {
-      theme_elements$panel.border <- ggplot2::element_blank()
+  # Check for width = 0 case first to set element_blank()
+  border_width <- parse_number(get_var("plot-panel-border-width"))
+  if (!is.null(border_width) && border_width == 0) {
+    theme_elements$panel.border <- ggplot2::element_blank()
+  } else {
+    # Build parameters for element_rect with available properties
+    panel_border_params <- list(fill = NA)
+    if (!is.null(color <- get_var("plot-axis-line-color"))) {
+      panel_border_params$color <- color
+    }
+    if (!is.null(border_width) && border_width > 0) {
+      panel_border_params$linewidth <- pt_to_ggplot_linewidth(border_width)
+    }
+    if (length(panel_border_params) > 1) {  # More than just fill = NA
+      theme_elements$panel.border <- do.call(ggplot2::element_rect, panel_border_params)
     }
   }
 
@@ -672,16 +681,19 @@ theme_ <- function(json) {
   # cause visual inconsistency (double-drawing on left/bottom making them appear thicker)
   panel_border_width <- parse_number(get_var("plot-panel-border-width"))
   if (is.null(panel_border_width) || panel_border_width == 0) {
+    axis_line_params <- list()
     if (!is.null(color <- get_var("plot-axis-line-color"))) {
-      width <- parse_number(get_var("plot-axis-line-width"))
-      if (!is.null(width)) {
-        theme_elements$axis.line <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width))
-      }
+      axis_line_params$color <- color
+    }
+    if (!is.null(width <- parse_number(get_var("plot-axis-line-width")))) {
+      axis_line_params$linewidth <- pt_to_ggplot_linewidth(width)
+    }
+    if (length(axis_line_params) > 0) {
+      theme_elements$axis.line <- do.call(ggplot2::element_line, axis_line_params)
     }
   }
 
   # Axis text (tick labels)
-  # Use accumulator pattern to build element_text() parameters independently
   axis_text_params <- list()
   if (!is.null(color <- get_var("plot-tick-color"))) {
     axis_text_params$color <- color
@@ -714,16 +726,20 @@ theme_ <- function(json) {
   }
 
   # Axis ticks
+  axis_ticks_params <- list()
   if (!is.null(color <- get_var("plot-tick-color"))) {
-    width <- parse_number(get_var("plot-tick-width"))
-    tick_size <- parse_number(get_var("plot-tick-size"))
-    if (!is.null(width)) {
-      theme_elements$axis.ticks <- ggplot2::element_line(color = color, linewidth = pt_to_ggplot_linewidth(width))
-    }
-    if (!is.null(tick_size)) {
-      # tick_size is already in pt, unit() handles the conversion
-      theme_elements$axis.ticks.length <- ggplot2::unit(tick_size, "pt")
-    }
+    axis_ticks_params$color <- color
+  }
+  if (!is.null(width <- parse_number(get_var("plot-tick-width")))) {
+    axis_ticks_params$linewidth <- pt_to_ggplot_linewidth(width)
+  }
+  if (length(axis_ticks_params) > 0) {
+    theme_elements$axis.ticks <- do.call(ggplot2::element_line, axis_ticks_params)
+  }
+  # Tick length is independent of tick line properties
+  if (!is.null(tick_size <- parse_number(get_var("plot-tick-size")))) {
+    # tick_size is already in pt, unit() handles the conversion
+    theme_elements$axis.ticks.length <- ggplot2::unit(tick_size, "pt")
   }
 
   # Axis position-specific elements
@@ -785,26 +801,29 @@ theme_ <- function(json) {
 
   # Legend
 
-  # Legend background
+  # Legend background and border
+  legend_background_params <- list()
   if (!is.null(bg <- get_var("plot-legend-background"))) {
-    theme_elements$legend.background <- ggplot2::element_rect(fill = bg, color = NA)
+    legend_background_params$fill <- bg
+  }
+  if (!is.null(border_color <- get_var("plot-legend-border-color"))) {
+    legend_background_params$color <- border_color
+  } else {
+    # If no border color specified, set to NA (no border)
+    legend_background_params$color <- NA
+  }
+  if (!is.null(border_width <- parse_number(get_var("plot-legend-border-width")))) {
+    if (border_width > 0) {
+      legend_background_params$linewidth <- pt_to_ggplot_linewidth(border_width)
+    }
+  }
+  if (length(legend_background_params) > 0) {
+    theme_elements$legend.background <- do.call(ggplot2::element_rect, legend_background_params)
   }
 
   # Legend key (background underneath legend keys)
   if (!is.null(bg <- get_var("plot-legend-background"))) {
     theme_elements$legend.key <- ggplot2::element_rect(fill = bg, color = NA)
-  }
-
-  # Legend border
-  if (!is.null(color <- get_var("plot-legend-border-color"))) {
-    width <- parse_number(get_var("plot-legend-border-width"))
-    if (!is.null(width) && width > 0) {
-      theme_elements$legend.background <- ggplot2::element_rect(
-        fill = get_var("plot-legend-background"),
-        color = color,
-        linewidth = pt_to_ggplot_linewidth(width)
-      )
-    }
   }
 
   # Legend text
