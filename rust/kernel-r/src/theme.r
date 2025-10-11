@@ -469,6 +469,31 @@ theme_ <- function(json) {
   # This is necessary because PNG device pointsize must be set at device creation time
   options(stencila.plot.font.size = base_font_size)
 
+  # Store plot dimensions and DPI in global options
+  # These values come from the theme as points and need to be converted to inches
+  # for use with PNG devices (width/height with units="in")
+  plot_width_pt <- parse_number(get_var("plot-width"))
+  plot_height_pt <- parse_number(get_var("plot-height"))
+  plot_dpi <- parse_number(get_var("plot-dpi"))
+
+  if (!is.null(plot_width_pt)) {
+    options(stencila.plot.width = plot_width_pt / 72)
+  } else {
+    options(stencila.plot.width = 8)  # Default 8 inches
+  }
+
+  if (!is.null(plot_height_pt)) {
+    options(stencila.plot.height = plot_height_pt / 72)
+  } else {
+    options(stencila.plot.height = 6)  # Default 6 inches
+  }
+
+  if (!is.null(plot_dpi)) {
+    options(stencila.plot.dpi = plot_dpi)
+  } else {
+    options(stencila.plot.dpi = 100)  # Default 100 DPI
+  }
+
   # Set color palette using the 12 theme colors
   colors <- c()
   for (i in 1:12) {

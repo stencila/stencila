@@ -57,12 +57,22 @@ def theme(variables_json: str) -> None:
         plt.rcParams["savefig.facecolor"] = bg
     # plt.rcParams["figure.edgecolor"] = <NA>
     # plt.rcParams["savefig.edgecolor"] = <NA>
-    
-    # plt.rcParams["figure.figsize"] = <NA>
-    
-    # plt.rcParams["figure.dpi"] = <NA>
-    # plt.rcParams["savefig.dpi"] = <NA>
-    
+
+    # Figure dimensions and DPI
+    # Theme provides values in points, convert to inches (1 pt = 1/72 inch)
+    plot_width_pt = parse_number(get_var("plot-width"))
+    plot_height_pt = parse_number(get_var("plot-height"))
+    plot_dpi = parse_number(get_var("plot-dpi"))
+
+    if plot_width_pt is not None and plot_height_pt is not None:
+        width_in = plot_width_pt / 72
+        height_in = plot_height_pt / 72
+        plt.rcParams["figure.figsize"] = [width_in, height_in]
+
+    if plot_dpi is not None:
+        plt.rcParams["figure.dpi"] = plot_dpi
+        plt.rcParams["savefig.dpi"] = plot_dpi
+
     # plt.rcParams["figure.autolayout"] = <NA>
 
     # Constrained layout with padding

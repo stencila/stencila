@@ -310,24 +310,28 @@ dataframe_from_datatable <- function(dt) {
 # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
 # which arises because X11 can not be used in a forked environment.
 # The tempdir `check` is needed when forking.
+#
+# Dimensions are expected in inches and will be used with units="in" parameter.
 create_png_file <- function(width = NA, height = NA) {
   file <- tempfile(fileext = ".png", tmpdir = tempdir(check = TRUE))
 
-  width <- if (!is.na(width)) width else getOption('repr.plot.width', 480)
-  height <- if (!is.na(height)) height else getOption('repr.plot.height', 480)
+  width <- if (!is.na(width)) width else getOption('stencila.plot.width', 8)
+  height <- if (!is.na(height)) height else getOption('stencila.plot.height', 6)
   bg <- getOption("stencila.plot.background", "white")
   ps <- getOption("stencila.plot.font.size", 12)
+  dpi <- getOption("stencila.plot.dpi", 100)
 
   tryCatch(
-    Cairo::CairoPNG(file, width = height, height = height, bg = bg, ps = ps),
-    error = function(cond) png(file, width = height, height = height, bg = bg, ps = ps)
+    Cairo::CairoPNG(file, width = width, height = height, units = "in", dpi = dpi, bg = bg, pointsize = ps),
+    error = function(cond) png(file, width = width, height = height, units = "in", res = dpi, bg = bg, pointsize = ps)
   )
 
   file
 }
 
 # Convert a R plot to an `ImageObject`
-plot_to_image_object <- function(value, width = 480, height = 480) {
+# Dimensions are in inches to match create_png_file expectations
+plot_to_image_object <- function(value, width = NA, height = NA) {
   file <- create_png_file(width, height)
   base::print(value)
   grDevices::dev.off()
@@ -423,12 +427,12 @@ extract_option <- function(lines, aliases) {
 #
 execute <- function(lines) {
   # Detect any graphics device settings in Knitr style comments
-  # Currently assume to be in inches
+  # Values are in inches and will be passed directly to plot_to_image_object
   current_plot_width <- NA
   current_plot_height <- NA
   if (any(grepl("^\\s*#\\|", lines, perl = TRUE))) {
-    current_plot_width <- extract_option(lines, c("fig\\.width", "fig-width", "width")) * 72
-    current_plot_height <- extract_option(lines, c("fig\\.height", "fig-height", "height")) * 72
+    current_plot_width <- extract_option(lines, c("fig\\.width", "fig-width", "width"))
+    current_plot_height <- extract_option(lines, c("fig\\.height", "fig-height", "height"))
   }
 
   code <- paste0(lines, collapse = "\n")
