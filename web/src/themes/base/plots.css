@@ -139,11 +139,34 @@
     --plot-legend-size: calc(var(--text-font-size) * 0.85);
     --plot-axis-title-size: calc(var(--text-font-size) * 0.85);
 
-    /* Layout - Paddings, gaps, stroke width */
-    --plot-padding-top: var(--space-6);
-    --plot-padding-bottom: var(--space-12);
-    --plot-padding-right: var(--space-4);
-    --plot-padding-left: var(--space-8);
+    /* Padding - Space around the entire plot including axis labels, titles, and legends
+     *
+     * These tokens control the whitespace from the container edge to the outermost elements
+     * of the plot (axis labels, titles, etc.). The padding creates breathing room and ensures
+     * plots don't touch their container edges.
+     *
+     * What's included in padding:
+     * - Axis labels (tick labels) and axis titles (e.g., "x", "y")
+     * - Plot titles and subtitles
+     * - Legends (if positioned outside the plot area)
+     * - Panel borders and grid lines
+     *
+     * Effect across plotting libraries:
+     * - ECharts: Applied via grid with containLabel:true (labels fit within padding)
+     * - Vega-Lite: Applied via spec padding with contains:'padding' (labels in padded area)
+     * - Plotly.js: Applied via CSS padding with automargin (labels auto-sized, then padded)
+     * - matplotlib: Applied via constrained_layout h_pad/w_pad (prevents label overlap)
+     * - ggplot2: Applied via plot.margin (space around complete plot)
+     * - R base: Applied via mar parameter (includes minimums for labels + extra padding)
+     *
+     * All implementations ensure consistent visual result: padding is measured from the
+     * container edge to the plot area, with labels fitting naturally within or before that space.
+     */
+    --plot-padding: var(--space-4);
+    --plot-padding-top: var(--plot-padding);
+    --plot-padding-bottom: var(--plot-padding);
+    --plot-padding-right: var(--plot-padding);
+    --plot-padding-left: var(--plot-padding);
 
     --plot-gap-x: var(--space-4);
     --plot-gap-y: var(--space-4);
