@@ -95,22 +95,28 @@ export async function compileVegaLite(
 
   // Build theme from CSS variables
   const theme = buildPlotTheme(container)
-  const themeConfig = toVegaLiteConfig(theme)
 
-  // Merge theme config with user spec using deep merge
-  const themedSpec = {
-    ...spec,
-    config: deepMerge(themeConfig, spec.config),
-    width: 'container',
-    height: 'container',
-    autosize: { type: 'fit', contains: 'padding' },
-    padding: {
-      top: theme.padding.top,
-      right: theme.padding.right,
-      bottom: theme.padding.bottom,
-      left: theme.padding.left,
-    },
-  }
+  // If theme is null (--plot-theme: none), use spec as-is with minimal defaults
+  const themedSpec = !theme
+    ? {
+        ...spec,
+        width: 'container',
+        height: 'container',
+        autosize: { type: 'fit', contains: 'padding' },
+      }
+    : {
+        ...spec,
+        config: deepMerge(toVegaLiteConfig(theme), spec.config),
+        width: 'container',
+        height: 'container',
+        autosize: { type: 'fit', contains: 'padding' },
+        padding: {
+          top: theme.padding.top,
+          right: theme.padding.right,
+          bottom: theme.padding.bottom,
+          left: theme.padding.left,
+        },
+      }
 
   // embed the figure as svg
   const embedOptions = {

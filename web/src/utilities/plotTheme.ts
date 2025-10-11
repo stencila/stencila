@@ -210,16 +210,23 @@ function parseDash(value: string): number {
 /**
  * Build plot theme from CSS custom properties (with caching)
  *
- * Reads all --plot-* CSS variables and structures them into a PlotTokens object
+ * Reads all --plot-* CSS variables and structures them into a PlotTokens object.
+ * Returns null if --plot-theme is set to 'none', allowing libraries to use their defaults.
  */
-export function buildPlotTheme(rootElement: HTMLElement): PlotTokens {
+export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
+  const getVar = (name: string, fallback: string = '') =>
+    getCSSVariable(rootElement, name, fallback)
+
+  // Check if theming is disabled
+  const plotTheme = getVar('--plot-theme', 'custom').trim()
+  if (plotTheme === 'none') {
+    return null
+  }
+
   // Return cached theme if available
   if (cachedTheme) {
     return cachedTheme
   }
-
-  const getVar = (name: string, fallback: string = '') =>
-    getCSSVariable(rootElement, name, fallback)
 
   // Build palette array from individual color variables
   const palette: string[] = []

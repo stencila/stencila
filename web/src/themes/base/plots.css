@@ -13,6 +13,13 @@
  */
 
 :root {
+    /* Theme Selection
+     *
+     * Set --plot-theme to use a named theme, `custom` to apply the CSS variables defined below,
+     * or `none` to have no theming and instead fallback to the defaults of plotting libraries.
+     */
+    --plot-theme: custom;
+
     /* Dimensions - Controls for plot sizing and aspect ratio
      *
      * --plot-width: Absolute width for PNG rendering. Supports in, cm, or px units.

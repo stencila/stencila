@@ -80,6 +80,9 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
       },
     },
     legend: {
+      orient: 'vertical',
+      right: 10,
+      top: 10,
       backgroundColor: t.legend.background,
       textStyle: { color: t.legend.textColor, fontSize: t.legend.textSize },
       itemWidth: t.legend.markerSize,
@@ -126,7 +129,6 @@ export async function compileECharts(
 
     // Build theme from CSS variables
     const theme = buildPlotTheme(container)
-    const themeOptions = toEchartsOptionsBase(theme)
 
     // Configure for static mode if enabled
     if (isStaticMode) {
@@ -144,6 +146,15 @@ export async function compileECharts(
         }))
       }
     }
+
+    // If theme is null (--plot-theme: none), use spec as-is
+    if (!theme) {
+      chartInstance.setOption(spec, true)
+      return chartInstance
+    }
+
+    // Apply theme to spec
+    const themeOptions = toEchartsOptionsBase(theme)
 
     // If visualMap exists (for heatmaps), inject ramp colors if not specified
     let visualMap = spec.visualMap

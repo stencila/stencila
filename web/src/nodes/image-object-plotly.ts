@@ -109,46 +109,61 @@ export async function compilePlotly(
   try {
     // Build theme from CSS variables
     const theme = buildPlotTheme(container)
-    const template = toPlotlyTemplate(theme)
 
-    // Merge template with user layout, preserving axis styling using deep merge
-    const layout = {
-      ...template.layout,
-      ...spec.layout,
-      xaxis: deepMerge(template.layout.xaxis, spec.layout?.xaxis),
-      yaxis: deepMerge(template.layout.yaxis, spec.layout?.yaxis),
-    }
+    // Prepare data and layout based on theme
+    let data, layout
 
-    // Apply palette colors to traces if not specified
-    const data = spec.data.map((trace: any, i: number) => {
-      const color = theme.palette[i % theme.palette.length]
+    if (!theme) {
+      // No theming: remove padder background and use spec as-is
+      const padder = container.parentElement
+      if (padder) {
+        padder.style.backgroundColor = 'transparent'
+      }
+      data = spec.data
+      layout = spec.layout
+    } else {
+      // Apply theme to spec
+      const template = toPlotlyTemplate(theme)
 
-      // Special handling for heatmaps: inject ramp colorscale if not specified
-      if (trace.type === 'heatmap' && !trace.colorscale) {
+      // Merge template with user layout, preserving axis styling using deep merge
+      layout = {
+        ...template.layout,
+        ...spec.layout,
+        xaxis: deepMerge(template.layout.xaxis, spec.layout?.xaxis),
+        yaxis: deepMerge(template.layout.yaxis, spec.layout?.yaxis),
+      }
+
+      // Apply palette colors to traces if not specified
+      data = spec.data.map((trace: any, i: number) => {
+        const color = theme.palette[i % theme.palette.length]
+
+        // Special handling for heatmaps: inject ramp colorscale if not specified
+        if (trace.type === 'heatmap' && !trace.colorscale) {
+          return {
+            ...trace,
+            colorscale: [
+              [0, theme.ramp.start],
+              [1, theme.ramp.end],
+            ],
+          }
+        }
+
         return {
           ...trace,
-          colorscale: [
-            [0, theme.ramp.start],
-            [1, theme.ramp.end],
-          ],
+          marker: {
+            ...trace.marker,
+            color: trace.marker?.color ?? color,
+            size: trace.marker?.size ?? theme.mark.pointSize,
+          },
+          line: {
+            ...trace.line,
+            color: trace.line?.color ?? color,
+            width: trace.line?.width ?? theme.mark.lineWidth,
+            dash: theme.mark.lineDash > 0 ? 'dash' : 'solid',
+          },
         }
-      }
-
-      return {
-        ...trace,
-        marker: {
-          ...trace.marker,
-          color: trace.marker?.color ?? color,
-          size: trace.marker?.size ?? theme.mark.pointSize,
-        },
-        line: {
-          ...trace.line,
-          color: trace.line?.color ?? color,
-          width: trace.line?.width ?? theme.mark.lineWidth,
-          dash: theme.mark.lineDash > 0 ? 'dash' : 'solid',
-        },
-      }
-    })
+      })
+    }
 
     // Configure for static mode if enabled
     const config = isStaticMode
@@ -163,27 +178,23 @@ export async function compilePlotly(
         }
       : { displayModeBar: false, ...spec.config }
 
+    // Render the plot
     await Plotly.react(container, data, layout, config)
 
-    // find plotly.js dynamically generated style tags
+    // Inject plotly.js styles into shadow DOM
     const styleTags = Array.from(
       document.head.getElementsByTagName('style')
-    ).filter((tag) => {
-      return tag.id.startsWith('plotly.js')
-    })
+    ).filter((tag) => tag.id.startsWith('plotly.js'))
 
     let style = ''
-    // copy rules from each style tag's `sheet` object
     styleTags.forEach((tag) => {
       const sheet = tag.sheet
       Array.from(sheet.cssRules).forEach((rule) => {
         style += rule.cssText + '\n'
       })
     })
-    // patch style rule for correct modebar display
     style += '.plotly .modebar-btn { display: inline-block; }'
 
-    // add rules to shadow dom style tag
     const shadowStyle = shadowRoot.getElementById('plotly-css')
     shadowStyle.innerText = style
   } catch (error) {
