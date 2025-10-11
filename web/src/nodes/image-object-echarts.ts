@@ -5,6 +5,26 @@ import { deepMerge } from '../utilities/deepMerge'
 import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 
 /**
+ * Map Stencila shape names to ECharts symbol names
+ *
+ * Maps the 8 cross-library compatible shapes to ECharts' open/empty variants
+ * where available. Triangle doesn't have an empty variant in ECharts.
+ */
+function mapShapeToECharts(shape: string): string {
+  const mapping: Record<string, string> = {
+    'circle': 'emptyCircle',
+    'square': 'emptyRect',
+    'triangle': 'triangle', // No empty variant available
+    'diamond': 'emptyDiamond',
+    'cross': 'cross',
+    'star': 'star',
+    'pentagon': 'pentagon',
+    'hexagon': 'hexagon',
+  }
+  return mapping[shape] || 'emptyCircle'
+}
+
+/**
  * Convert plot tokens to ECharts option base
  */
 function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
@@ -188,21 +208,23 @@ export async function compileECharts(
       ...(visualMap && { visualMap }),
     }
 
-    // Apply default symbol size to scatter/line series if not specified
+    // Apply default symbol size and shape to scatter/line series if not specified
     if (mergedOptions.series) {
       const seriesArray = Array.isArray(mergedOptions.series)
         ? mergedOptions.series
         : [mergedOptions.series]
 
-      mergedOptions.series = seriesArray.map((series: Record<string, unknown>) => {
-        // Apply symbolSize to scatter charts and line charts with symbols
+      mergedOptions.series = seriesArray.map((series: Record<string, unknown>, i: number) => {
+        // Apply symbolSize and symbol to scatter charts and line charts with symbols
         if (
           series.type === 'scatter' ||
           series.type === 'effectScatter' ||
           (series.type === 'line' && series.showSymbol !== false)
         ) {
+          const shape = theme.shapes[i % theme.shapes.length]
           return {
             symbolSize: theme.mark.pointSize,
+            symbol: mapShapeToECharts(shape),
             ...series,
           }
         }

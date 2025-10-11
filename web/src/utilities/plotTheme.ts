@@ -37,6 +37,9 @@ export interface PlotTokens {
   // Color palette for categorical data
   palette: string[]
 
+  // Shape palette for categorical data
+  shapes: string[]
+
   // Ramp endpoints for continuous/discrete scales
   ramp: {
     start: string
@@ -235,6 +238,13 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     if (color) palette.push(color)
   }
 
+  // Build shapes array from individual shape variables (8 cross-library compatible shapes)
+  const shapes: string[] = []
+  for (let i = 1; i <= 8; i++) {
+    const shape = getVar(`--plot-shape-${i}`)
+    if (shape) shapes.push(shape)
+  }
+
   // Build and cache the theme
   cachedTheme = {
     // Dimensions
@@ -249,6 +259,9 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
 
     // Palette
     palette,
+
+    // Shapes
+    shapes,
 
     // Ramp
     ramp: {

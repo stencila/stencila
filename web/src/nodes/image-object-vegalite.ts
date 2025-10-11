@@ -5,6 +5,25 @@ import { deepMerge } from '../utilities/deepMerge'
 import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 
 /**
+ * Map Stencila shape names to Vega-Lite symbol names
+ *
+ * Maps the 8 cross-library compatible shapes to Vega-Lite's symbol names.
+ */
+function mapShapeToVegaLite(shape: string): string {
+  const mapping: Record<string, string> = {
+    'circle': 'circle',
+    'square': 'square',
+    'triangle': 'triangle-up',
+    'diamond': 'diamond',
+    'cross': 'cross',
+    'star': 'triangle-down',
+    'pentagon': 'pentagon',
+    'hexagon': 'hexagon',
+  }
+  return mapping[shape] || 'circle'
+}
+
+/**
  * Convert plot tokens to Vega-Lite config
  */
 function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
@@ -58,6 +77,7 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     },
     range: {
       category: t.palette,
+      symbol: t.shapes.map(mapShapeToVegaLite),
       heatmap: [t.mark.heatMin, t.mark.heatMax],
     },
     header: {
@@ -70,7 +90,7 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
 
     // Set default colors and sizes for mark types when no encoding is specified
     // Note: size in Vega-Lite is area in square pixels, so we square the linear dimension
-    point: { color: t.palette[0], filled: true, size: t.mark.pointSize ** 2 },
+    point: { color: t.palette[0], size: t.mark.pointSize ** 2 },
     circle: { color: t.palette[0], size: t.mark.pointSize ** 2 },
     square: { color: t.palette[0], size: t.mark.pointSize ** 2 },
     bar: { color: t.palette[0] },

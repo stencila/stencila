@@ -52,7 +52,7 @@
     --plot-height-min: 300px;
     --plot-height-max: 800px;
 
-    /* Palette - Categorical colors for series/marks that need distinct hues
+    /* Color Palette - Categorical colors for series/marks that need distinct hues
      * First color uses theme accent for automatic theming. Colors 2-12 are
      * sensible defaults. Custom themes should override with brand colors. */
     --plot-color-1: var(--color-accent);
@@ -91,7 +91,7 @@
     --plot-color-12: hsl(200 50% 45%);
     --plot-color-12-dark: hsl(200 45% 55%);
 
-    /* Ramps - Endpoints for continuous or discrete scales
+    /* Color Ramp - Endpoints for continuous or discrete scales
      * Calculated from accent color. Libraries interpolate between start/end. */
     --plot-ramp-start: color-mix(in oklch, var(--color-accent) 5%, var(--plot-background));
     --plot-ramp-start-dark: color-mix(in oklch, var(--color-accent-dark) 5%, var(--plot-background-dark));
@@ -110,6 +110,34 @@
 
     --plot-warning: var(--color-yellow-600);
     --plot-warning-dark: var(--color-yellow-400);
+
+    /* Shape Palette - Categorical shapes for series/marks that need distinct symbols
+     *
+     * This palette contains 8 shapes chosen for maximum cross-library compatibility.
+     * Each shape is guaranteed to be visually distinct across all supported plotting
+     * libraries (Plotly, ECharts, Vega-Lite, matplotlib, ggplot2, R base).
+     *
+     * All shapes map to open/unfilled variants in each library for better overlap
+     * visibility and discrimination. This allows overlapping points to remain visible
+     * and makes it easier to assess data density in scatter plots.
+     *
+     * Selection rationale:
+     * - Triangle variants (triangle-down/left/right) are excluded because ECharts
+     *   only supports a single triangle shape
+     * - Plus/cross distinction cannot be maintained across all libraries (Vega-Lite
+     *   limitation), so we use cross as the primary variant
+     *
+     * The 8 shapes below provide the maximum set of visually distinct symbols that
+     * work consistently across all plotting backends, all rendered as open/unfilled.
+     */
+    --plot-shape-1: circle;
+    --plot-shape-2: square;
+    --plot-shape-3: triangle;
+    --plot-shape-4: diamond;
+    --plot-shape-5: cross;
+    --plot-shape-6: star;
+    --plot-shape-7: pentagon;
+    --plot-shape-8: hexagon;
 
     /* Plot background color: defaults surface background for panels that appear transparent */
     --plot-background: var(--surface-background);

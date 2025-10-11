@@ -1,17 +1,18 @@
 # Create a persistent environment to store theme parameters
 # This allows theme settings to persist across graphics device creation
-.stencila_theme_env <- new.env(parent = emptyenv())
-.stencila_theme_env$par_params <- list()
-.stencila_theme_env$color_palette <- NULL
+stencila_theme <- new.env(parent = emptyenv())
+stencila_theme$pars <- list()
+stencila_theme$colors <- NULL
+stencila_theme$shapes <- NULL
 
 # Hook function to apply stored theme parameters to new plots
 # This is called automatically via setHook("plot.new", ...) whenever a new plot is created
 .apply_theme_hook <- function() {
-  if (length(.stencila_theme_env$par_params) > 0) {
-    do.call(par, .stencila_theme_env$par_params)
+  if (length(stencila_theme$pars) > 0) {
+    do.call(par, stencila_theme$pars)
   }
-  if (!is.null(.stencila_theme_env$color_palette)) {
-    palette(.stencila_theme_env$color_palette)
+  if (!is.null(stencila_theme$colors)) {
+    palette(stencila_theme$colors)
   }
 }
 
@@ -90,6 +91,29 @@ theme_ <- function(json) {
     }
     # Default to sans-serif
     return("sans")
+  }
+
+  # Helper to map Stencila shape names to R pch (plotting character) codes
+  # Maps the 8 cross-library compatible shapes to R's pch values
+  # All shapes use open/unfilled variants for better overlap visibility
+  # and discrimination. This matches the behavior of other plotting libraries.
+  # See https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/points.html
+  map_shape_to_r <- function(shape) {
+    mapping <- list(
+      "circle" = 1,       # Open circle
+      "square" = 0,       # Open square
+      "triangle" = 2,     # Open triangle
+      "diamond" = 5,      # Open diamond
+      "cross" = 4,        # X/cross
+      "star" = 8,         # Asterisk/star
+      "pentagon" = 0,     # R doesn't have pentagon, use open square
+      "hexagon" = 0       # R doesn't have hexagon, use open square
+    )
+
+    if (!is.null(mapping[[shape]])) {
+      return(mapping[[shape]])
+    }
+    return(1)  # Default to open circle
   }
 
   # <NA> = No corresponding Stencila theme variable available yet
@@ -459,7 +483,7 @@ theme_ <- function(json) {
 
   # Store parameters for use by the plot.new hook
   # Instead of applying them directly, we store them so they persist across device creation
-  .stencila_theme_env$par_params <- params
+  stencila_theme$pars <- params
 
   # Store background color in a global option so kernel.r can access it when creating PNG devices
   # This is necessary because PNG device background must be set at device creation time
@@ -508,9 +532,29 @@ theme_ <- function(json) {
   }
   # Store the color palette for use by the plot.new hook
   if (length(colors) > 0) {
-    .stencila_theme_env$color_palette <- colors
+    stencila_theme$colors <- colors
   } else {
-    .stencila_theme_env$color_palette <- NULL
+    stencila_theme$colors <- NULL
+  }
+
+  # Collect shape palette using the 8 cross-library compatible theme shapes
+  shapes <- c()
+  for (i in 1:8) {
+    shape <- get_var(paste0("plot-shape-", i))
+    if (!is.null(shape)) {
+      shapes <- c(shapes, map_shape_to_r(shape))
+    }
+  }
+
+  # Store the shape palette for potential programmatic access
+  # Note: Unlike color_palette which is applied via palette() in the plot.new hook,
+  # R does not have a built-in mechanism to cycle through shapes automatically.
+  # This palette is stored for users who may want to access it programmatically
+  # (e.g., stencila_theme$shapes[1:3] to get first 3 shapes).
+  if (length(shapes) > 0) {
+    stencila_theme$shapes <- shapes
+  } else {
+    stencila_theme$shapes <- NULL
   }
 
   # Register the hook to apply theme settings on each new plot
@@ -995,6 +1039,8 @@ theme_ <- function(json) {
 
   # Set ggplot2 discrete color scale using the 12 theme colors
   # Note: Modifying ggplot2's default scales requires updating options
+  # Note: ggplot2 does NOT provide a ggplot2.discrete.shape option (unlike colour/fill).
+  # Shape defaults are handled via update_geom_defaults() below instead.
   if (length(colors) > 0) {
     options(
       ggplot2.discrete.colour = colors,
@@ -1008,11 +1054,19 @@ theme_ <- function(json) {
   # Note: update_geom_defaults uses lowercase geom names (e.g., "point" for geom_point)
   # Note: geom_histogram inherits from "bar" since it's just geom_bar with stat_bin
   if (!is.null(color_1 <- get_var("plot-color-1"))) {
-    # For points, also set the size from plot-point-size if available
+    # For points, also set the size and shape from plot-point-size and plot-shape-1 if available
     # ggplot2's point size parameter uses mm, so convert from pt
+    # Shape: plot-shape-1 is used as the default when no shape aesthetic is mapped.
+    # When users map a variable to shape (e.g., aes(shape = category)), ggplot2 will
+    # use its built-in shape scale (cycling through 6 default shapes) which we cannot
+    # override via theme variables. Users can use stencila_theme$scales() to manually
+    # apply themed color and shape scales to their plots.
     point_defaults <- list(colour = color_1)
     if (!is.null(point_size <- parse_number(get_var("plot-point-size")))) {
       point_defaults$size <- pt_to_mm(point_size)
+    }
+    if (length(shapes) > 0 && !is.null(shapes[1])) {
+      point_defaults$shape <- shapes[1]
     }
     ggplot2::update_geom_defaults("point", point_defaults)
 
@@ -1027,6 +1081,27 @@ theme_ <- function(json) {
     ggplot2::update_geom_defaults("density", list(fill = color_1))
     ggplot2::update_geom_defaults("area", list(fill = color_1))
     ggplot2::update_geom_defaults("ribbon", list(fill = color_1))
+  }
+
+  # Create a function that returns ggplot2 scales for colors and shapes
+  # Users can add these scales to their plots to apply themed colors/shapes when
+  # they map aesthetics: ggplot(...) + aes(color = category) + stencila_theme$scales()$color
+  stencila_theme$scales <- function() {
+    scales <- list()
+
+    # Add color scale if colors are available
+    if (!is.null(stencila_theme$colors) && length(stencila_theme$colors) > 0) {
+      scales$color <- ggplot2::scale_color_manual(values = stencila_theme$colors)
+      scales$colour <- scales$color  # Alias for British spelling
+      scales$fill <- ggplot2::scale_fill_manual(values = stencila_theme$colors)
+    }
+
+    # Add shape scale if shapes are available
+    if (!is.null(stencila_theme$shapes) && length(stencila_theme$shapes) > 0) {
+      scales$shape <- ggplot2::scale_shape_manual(values = stencila_theme$shapes)
+    }
+
+    scales
   }
 
   invisible(NULL)

@@ -46,7 +46,22 @@ def theme(variables_json: str) -> None:
             if font:
                 fonts.append(font)
         return fonts if fonts else None
-    
+
+    # Helper to map Stencila shape names to matplotlib marker symbols
+    # Maps the 8 cross-library compatible shapes to matplotlib's marker codes
+    def map_shape_to_matplotlib(shape: str) -> str:
+        mapping = {
+            'circle': 'o',
+            'square': 's',
+            'triangle': '^',
+            'diamond': 'D',
+            'cross': 'x',
+            'star': '*',
+            'pentagon': 'p',
+            'hexagon': 'h',
+        }
+        return mapping.get(shape, 'o')
+
     # <NA> = No corresponding Stencila theme variable available yet
 
     # Figure
@@ -169,13 +184,27 @@ def theme(variables_json: str) -> None:
     # plt.rcParams["axes.titlepad"] = <NA>
     # plt.rcParams["axes.titleweight"] = <NA>
 
-    # Color cycle
+    # Color and shape cycle
     colors = []
     for i in range(1, 13):
         if color := get_var(f"plot-color-{i}"):
             colors.append(color)
-    if colors:
+
+    shapes = []
+    for i in range(1, 9):
+        if shape := get_var(f"plot-shape-{i}"):
+            shapes.append(map_shape_to_matplotlib(shape))
+
+    # Combine colors and shapes into prop_cycle
+    # If we have both colors and shapes, cycle them together
+    # If we only have colors, use color cycle only
+    # If we only have shapes, use shape cycle only
+    if colors and shapes:
+        plt.rcParams["axes.prop_cycle"] = cycler(color=colors) + cycler(marker=shapes)
+    elif colors:
         plt.rcParams["axes.prop_cycle"] = cycler(color=colors)
+    elif shapes:
+        plt.rcParams["axes.prop_cycle"] = cycler(marker=shapes)
 
     # Axes grid
     # Grid color
@@ -261,7 +290,10 @@ def theme(variables_json: str) -> None:
 
     # Markers
 
-    # plt.rcParams["markers.fillstyle"] = <NA>
+    # Set all markers to use open/unfilled variants for better overlap visibility
+    # and discrimination. This matches the behavior of other plotting libraries
+    # (Plotly, ECharts, Vega-Lite) which also use open shapes by default.
+    plt.rcParams["markers.fillstyle"] = "none"
 
     # Patches (for bar charts, etc.)
 

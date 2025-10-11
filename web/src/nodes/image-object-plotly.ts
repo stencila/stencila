@@ -5,6 +5,26 @@ import { deepMerge } from '../utilities/deepMerge'
 import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 
 /**
+ * Map Stencila shape names to Plotly symbol names
+ *
+ * Maps the 8 cross-library compatible shapes to Plotly's open/unfilled variants
+ * for better overlap visibility and data density assessment.
+ */
+function mapShapeToPlotly(shape: string): string {
+  const mapping: Record<string, string> = {
+    'circle': 'circle-open',
+    'square': 'square-open',
+    'triangle': 'triangle-up-open',
+    'diamond': 'diamond-open',
+    'cross': 'x',
+    'star': 'star',
+    'pentagon': 'pentagon',
+    'hexagon': 'hexagon',
+  }
+  return mapping[shape] || 'circle-open'
+}
+
+/**
  * Convert plot tokens to Plotly template
  */
 function toPlotlyTemplate(t: PlotTokens): Partial<any> {
@@ -133,9 +153,10 @@ export async function compilePlotly(
         yaxis: deepMerge(template.layout.yaxis, spec.layout?.yaxis),
       }
 
-      // Apply palette colors to traces if not specified
+      // Apply palette colors and shapes to traces if not specified
       data = spec.data.map((trace: any, i: number) => {
         const color = theme.palette[i % theme.palette.length]
+        const shape = theme.shapes[i % theme.shapes.length]
 
         // Special handling for heatmaps: inject ramp colorscale if not specified
         if (trace.type === 'heatmap' && !trace.colorscale) {
@@ -154,6 +175,7 @@ export async function compilePlotly(
             ...trace.marker,
             color: trace.marker?.color ?? color,
             size: trace.marker?.size ?? theme.mark.pointSize,
+            symbol: trace.marker?.symbol ?? mapShapeToPlotly(shape),
           },
           line: {
             ...trace.line,
