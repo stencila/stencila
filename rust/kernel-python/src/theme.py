@@ -161,12 +161,15 @@ def theme(variables_json: str) -> None:
     # Axes edge (spines/panel border)
     if color := get_var("plot-axis-line-color"):
         plt.rcParams["axes.edgecolor"] = color
+    if width := parse_number(get_var("plot-axis-line-width")):
+        plt.rcParams["axes.linewidth"] = width
 
-    # Control spine visibility based on panel border width
-    # When border width is 0 or null, show only left and bottom spines (axes lines)
-    # to match R and ggplot2 behavior. When border width > 0, show all four spines (full border).
-    panel_border_width = parse_number(get_var("plot-panel-border-width"))
-    if panel_border_width is None or panel_border_width == 0:
+    # Control spine visibility based on panel border setting
+    # When false, show only left and bottom spines (axes lines)
+    # to match R and ggplot2 behavior. When true, show all four spines (full border).
+    panel_border_raw = get_var("plot-panel-border")
+    panel_border = str(panel_border_raw).lower().strip()
+    if panel_border_raw is None or panel_border in ("false", "0", "no", "off"):
         # Show only left and bottom spines (L shape, matching R's bty="l")
         plt.rcParams["axes.spines.left"] = True
         plt.rcParams["axes.spines.bottom"] = True
@@ -178,7 +181,6 @@ def theme(variables_json: str) -> None:
         plt.rcParams["axes.spines.bottom"] = True
         plt.rcParams["axes.spines.top"] = True
         plt.rcParams["axes.spines.right"] = True
-        plt.rcParams["axes.linewidth"] = panel_border_width
 
     # Axes labels (axis titles)
     if color := get_var("plot-axis-title-color"):
@@ -211,7 +213,7 @@ def theme(variables_json: str) -> None:
     # Collect line_types using the 6 cross-library compatible theme line_types
     line_types = []
     for i in range(1, 7):
-        if line_type := get_var(f"plot-line_type-{i}"):
+        if line_type := get_var(f"plot-line-type-{i}"):
             line_types.append(map_line_type_to_matplotlib(line_type))
 
     # Generate gradient colormap from ramp endpoints for continuous/sequential color scales
@@ -303,10 +305,7 @@ def theme(variables_json: str) -> None:
         plt.rcParams["axes.grid"] = True
         plt.rcParams["grid.linewidth"] = grid_width
     # plt.rcParams["axes.grid.which"] = <NA>
-    # plt.rcParams["grid.linestyle"] = ...  # plot-grid-dash is "0" or "4 2", needs conversion
     # plt.rcParams["grid.alpha"] = <NA>
-
-    # Note: axes.spines.* visibility is controlled above based on plot-panel-border-width
 
     # Axes margins and limits
     # plt.rcParams["axes.xmargin"] = <NA>
@@ -336,14 +335,6 @@ def theme(variables_json: str) -> None:
     if width := parse_number(get_var("plot-line-width")):
         plt.rcParams["lines.linewidth"] = width
     # plt.rcParams["lines.linestyle"] = ...  # plot-line-dash needs conversion
-    if cap := get_var("plot-line-cap"):
-        if cap in ["butt", "round", "projecting"]:
-            plt.rcParams["lines.solid_capstyle"] = cap
-            plt.rcParams["lines.dash_capstyle"] = cap
-    if join := get_var("plot-line-join"):
-        if join in ["miter", "round", "bevel"]:
-            plt.rcParams["lines.solid_joinstyle"] = join
-            plt.rcParams["lines.dash_joinstyle"] = join
 
     if marker_size := parse_number(get_var("plot-point-size")):
         plt.rcParams["lines.markersize"] = marker_size
@@ -386,14 +377,8 @@ def theme(variables_json: str) -> None:
 
     # X-axis ticks
 
-    if color := get_var("plot-tick-color"):
-        plt.rcParams["xtick.color"] = color
     if size := parse_number(get_var("plot-font-size")):
         plt.rcParams["xtick.labelsize"] = size
-    if tick_size := parse_number(get_var("plot-tick-size")):
-        plt.rcParams["xtick.major.size"] = tick_size
-    if width := parse_number(get_var("plot-tick-width")):
-        plt.rcParams["xtick.major.width"] = width
     # plt.rcParams["xtick.major.pad"] = <NA>
     # plt.rcParams["xtick.minor.size"] = <NA>
     # plt.rcParams["xtick.minor.width"] = <NA>
@@ -408,14 +393,8 @@ def theme(variables_json: str) -> None:
 
     # Y-axis ticks
 
-    if color := get_var("plot-tick-color"):
-        plt.rcParams["ytick.color"] = color
     if size := parse_number(get_var("plot-font-size")):
         plt.rcParams["ytick.labelsize"] = size
-    if tick_size := parse_number(get_var("plot-tick-size")):
-        plt.rcParams["ytick.major.size"] = tick_size
-    if width := parse_number(get_var("plot-tick-width")):
-        plt.rcParams["ytick.major.width"] = width
     # plt.rcParams["ytick.major.pad"] = <NA>
     # plt.rcParams["ytick.minor.size"] = <NA>
     # plt.rcParams["ytick.minor.width"] = <NA>
@@ -434,11 +413,16 @@ def theme(variables_json: str) -> None:
         plt.rcParams["legend.facecolor"] = bg
     if color := get_var("plot-legend-border-color"):
         plt.rcParams["legend.edgecolor"] = color
+
+    # Store legend border width in matplotlib's rcParams for programmatic access
+    # Note: 'legend.borderwidth' is not a standard matplotlib rcParam, but we store it
+    # so users can access it via plt.rcParams["legend.borderwidth"] and apply it manually
+    # to individual legends using legend.get_frame().set_linewidth(plt.rcParams["legend.borderwidth"])
     if width := parse_number(get_var("plot-legend-border-width")):
         if width > 0:
             plt.rcParams["legend.frameon"] = True
-        # Note: legend.linewidth is not a valid rcParam in matplotlib
-        # Border width must be set per-legend via legend.get_frame().set_linewidth()
+            # Store in a custom rcParam key for user access
+            plt.rcParams["legend.borderwidth"] = width
     if size := parse_number(get_var("plot-legend-size")):
         plt.rcParams["legend.fontsize"] = size
     if color := get_var("plot-legend-text-color"):

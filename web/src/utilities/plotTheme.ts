@@ -47,7 +47,6 @@ export interface PlotTokens {
   ramp: {
     start: string
     end: string
-    steps: number
   }
 
   // Surfaces and backgrounds
@@ -77,9 +76,6 @@ export interface PlotTokens {
   axis: {
     lineColor: string
     lineWidth: number
-    tickColor: string
-    tickWidth: number
-    tickSize: number
     titleColor: string
     titleSize: number
     titleWeight: string
@@ -87,7 +83,6 @@ export interface PlotTokens {
     gridWidth: number
     gridXWidth: number
     gridYWidth: number
-    gridDash: number
   }
 
   // Legends
@@ -97,7 +92,6 @@ export interface PlotTokens {
     textSize: number
     borderColor: string
     borderWidth: number
-    markerSize: number
     position: string
   }
 
@@ -105,26 +99,14 @@ export interface PlotTokens {
   tooltip: {
     background: string
     textColor: string
-    borderColor: string
-    borderWidth: number
-    padX: number
-    padY: number
   }
 
   // Marks
   mark: {
     pointOpacity: number
     pointSize: number
-    lineJoin: string
-    lineCap: string
     lineWidth: number
     areaOpacity: number
-  }
-
-  // Motion
-  motion: {
-    duration: number
-    ease: string
   }
 }
 
@@ -164,14 +146,6 @@ function parseNum(
 
   // For px, ms, or unitless values, return as-is
   return parsed
-}
-
-/**
- * Parse CSS dash pattern (e.g., "4 2" or "0") to number or array
- */
-function parseDash(value: string): number {
-  const parsed = parseFloat(value.split(' ')[0])
-  return isNaN(parsed) ? 0 : parsed
 }
 
 /**
@@ -241,14 +215,18 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     ramp: {
       start: colorToHex(getVar('--plot-ramp-start')) || '#000000',
       end: colorToHex(getVar('--plot-ramp-end')) || '#ffffff',
-      steps: parseNum(getVar('--plot-ramp-steps'), 7, rootElement),
     },
 
     // Surfaces
     background: colorToHex(getVar('--plot-background')) || '#ffffff',
     panel: colorToHex(getVar('--plot-panel')) || '#ffffff',
     panelBorderColor: colorToHex(getVar('--plot-panel-border-color')) || '#e5e5e5',
-    panelBorderWidth: parseNum(getVar('--plot-panel-border-width'), 1, rootElement),
+    panelBorderWidth: (() => {
+      const showBorder = getVar('--plot-panel-border', 'true').trim().toLowerCase()
+      if (showBorder === 'false' || showBorder === '0') return 0
+      // When enabled, use --border-width-default
+      return parseNum(getVar('--border-width-default'), 1, rootElement)
+    })(),
     grid: colorToHex(getVar('--plot-grid')) || '#e5e5e5',
     zero: colorToHex(getVar('--plot-zero-line-color')) || '#999999',
 
@@ -271,9 +249,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     axis: {
       lineColor: colorToHex(getVar('--plot-axis-line-color')) || '#e5e5e5',
       lineWidth: parseNum(getVar('--plot-axis-line-width'), 1, rootElement),
-      tickColor: colorToHex(getVar('--plot-tick-color')) || '#666666',
-      tickWidth: parseNum(getVar('--plot-tick-width'), 1, rootElement),
-      tickSize: parseNum(getVar('--plot-tick-size'), 4, rootElement),
       titleColor: colorToHex(getVar('--plot-axis-title-color')) || '#000000',
       titleSize: parseNum(getVar('--plot-axis-title-size'), 11, rootElement),
       titleWeight: getVar('--plot-axis-title-weight') || 'bold',
@@ -281,7 +256,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
       gridWidth: parseNum(getVar('--plot-grid-width'), 1, rootElement),
       gridXWidth: parseNum(getVar('--plot-grid-x-width'), 1, rootElement),
       gridYWidth: parseNum(getVar('--plot-grid-y-width'), 1, rootElement),
-      gridDash: parseDash(getVar('--plot-grid-dash', '0')),
     },
 
     // Legend
@@ -291,7 +265,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
       textSize: parseNum(getVar('--plot-legend-text-size'), 11, rootElement),
       borderColor: colorToHex(getVar('--plot-legend-border-color')) || '#cccccc',
       borderWidth: parseNum(getVar('--plot-legend-border-width'), 1, rootElement),
-      markerSize: parseNum(getVar('--plot-legend-marker-size'), 8, rootElement),
       position: getVar('--plot-legend-position') || 'auto',
     },
 
@@ -299,26 +272,14 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     tooltip: {
       background: colorToHex(getVar('--plot-tooltip-background')) || '#f5f5f5',
       textColor: colorToHex(getVar('--plot-tooltip-text-color')) || '#000000',
-      borderColor: colorToHex(getVar('--plot-tooltip-border-color')) || 'transparent',
-      borderWidth: parseNum(getVar('--plot-tooltip-border-width'), 0, rootElement),
-      padX: parseNum(getVar('--plot-tooltip-padding-x'), 8, rootElement),
-      padY: parseNum(getVar('--plot-tooltip-padding-y'), 6, rootElement),
     },
 
     // Marks
     mark: {
       pointOpacity: parseNum(getVar('--plot-point-opacity'), 0, rootElement),
       pointSize: parseNum(getVar('--plot-point-size'), 6, rootElement),
-      lineJoin: getVar('--plot-line-join') || 'round',
-      lineCap: getVar('--plot-line-cap') || 'round',
       lineWidth: parseNum(getVar('--plot-line-width'), 2, rootElement),
       areaOpacity: parseNum(getVar('--plot-area-opacity'), 0.25, rootElement),
-    },
-
-    // Motion
-    motion: {
-      duration: parseNum(getVar('--plot-anim-duration'), 250, rootElement),
-      ease: getVar('--plot-anim-ease') || 'cubic-bezier(.2, .8, .2, 1)',
     },
   }
 

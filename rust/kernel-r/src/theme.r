@@ -214,28 +214,6 @@ theme_ <- function(json) {
   # Line mitre limit
   # params$lmitre <- NA  # No corresponding variable
 
-  # Line end style
-  if (!is.null(cap <- get_var("plot-line-cap"))) {
-    if (cap %in% c("round", "butt", "square")) {
-      params$lend <- switch(cap,
-        "round" = 1,
-        "butt" = 0,
-        "square" = 2
-      )
-    }
-  }
-
-  # Line join style
-  if (!is.null(join <- get_var("plot-line-join"))) {
-    if (join %in% c("round", "mitre", "bevel")) {
-      params$ljoin <- switch(join,
-        "round" = 1,
-        "mitre" = 0,
-        "bevel" = 2
-      )
-    }
-  }
-
   # Point properties
 
   # Point character
@@ -315,12 +293,6 @@ theme_ <- function(json) {
 
   # Axes and ticks
 
-  # Tick mark length (negative values are outside, positive inside)
-  # tcl is measured in "lines of text", which depends on the font size
-  if (!is.null(tick_size <- parse_number(get_var("plot-tick-size")))) {
-    params$tcl <- -(tick_size / (base_font_size * 1.2))
-  }
-
   # Axis line width
   # Note: lwd.axis is not a standard par() parameter
   # if (!is.null(width <- parse_number(get_var("plot-axis-line-width")))) {
@@ -370,11 +342,11 @@ theme_ <- function(json) {
   # params$ylbias <- NA  # No corresponding variable
 
   # Box type around plot: "o"=box, "l"=L, "7"=top+right, "c"=C, "u"=U, "n"=none
-  # Control box type based on plot-panel-border-width
-  # When border width is 0 or null, use "l" (left and bottom only) to match ggplot2 behavior
+  # Control box type based on plot-panel-border
+  # When false, use "l" (left and bottom only) to match ggplot2 behavior
   # where panel.border is disabled and axis.line is used
-  panel_border_width <- parse_number(get_var("plot-panel-border-width"))
-  if (is.null(panel_border_width) || panel_border_width == 0) {
+  panel_border <- tolower(get_var("plot-panel-border"))
+  if (is.null(panel_border) || panel_border == "false" || panel_border == "0") {
     params$bty <- "l"
   } else {
     params$bty <- "o"
@@ -565,15 +537,11 @@ theme_ <- function(json) {
   # These are used for heatmaps and other plots with continuous data
   ramp_start <- get_var("plot-ramp-start")
   ramp_end <- get_var("plot-ramp-end")
-  ramp_steps <- parse_number(get_var("plot-ramp-steps"))
 
   gradient <- NULL
   if (!is.null(ramp_start) && !is.null(ramp_end)) {
-    # Use ramp_steps if available, otherwise default to 7
-    n_steps <- if (!is.null(ramp_steps)) ramp_steps else 7
-
-    # Create color ramp palette interpolating from start to end
-    gradient <- colorRampPalette(c(ramp_start, ramp_end))(n_steps)
+    # Create color ramp palette interpolating from start to end with 7 steps
+    gradient <- colorRampPalette(c(ramp_start, ramp_end))(7)
   }
 
   # Set color palette using the 12 theme colors
@@ -745,9 +713,9 @@ theme_ <- function(json) {
   }
 
   # Panel border
-  # Check for width = 0 case first to set element_blank()
-  border_width <- parse_number(get_var("plot-panel-border-width"))
-  if (!is.null(border_width) && border_width == 0) {
+  # Check if panel border is disabled
+  panel_border <- tolower(get_var("plot-panel-border"))
+  if (!is.null(panel_border) && (panel_border == "false" || panel_border == "0")) {
     theme_elements$panel.border <- ggplot2::element_blank()
   } else {
     # Build parameters for element_rect with available properties
@@ -755,10 +723,10 @@ theme_ <- function(json) {
     if (!is.null(color <- get_var("plot-axis-line-color"))) {
       panel_border_params$color <- color
     }
-    if (!is.null(border_width) && border_width > 0) {
+    if (!is.null(border_width <- parse_number(get_var("plot-axis-line-width")))) {
       panel_border_params$linewidth <- pt_to_ggplot_linewidth(border_width)
     }
-    if (length(panel_border_params) > 1) {  # More than just fill = NA
+    if (length(panel_border_params) > 0) {
       theme_elements$panel.border <- do.call(ggplot2::element_rect, panel_border_params)
     }
   }
@@ -817,8 +785,8 @@ theme_ <- function(json) {
   # Axis line - only set if panel borders are disabled
   # When panel.border is enabled, it draws all 4 sides uniformly, so axis.line would
   # cause visual inconsistency (double-drawing on left/bottom making them appear thicker)
-  panel_border_width <- parse_number(get_var("plot-panel-border-width"))
-  if (is.null(panel_border_width) || panel_border_width == 0) {
+  show_panel_border <- tolower(get_var("plot-panel-border"))
+  if (is.null(show_panel_border) || show_panel_border == "false" || show_panel_border == "0") {
     axis_line_params <- list()
     if (!is.null(color <- get_var("plot-axis-line-color"))) {
       axis_line_params$color <- color

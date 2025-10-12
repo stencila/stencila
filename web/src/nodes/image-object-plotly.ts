@@ -87,9 +87,6 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
     showline: true,
     // Mirror axes to simulate panel borders if specified (will be same width and color as axes)
     mirror: t.panelBorderWidth > 0 ? true : false,
-    tickcolor: t.axis.tickColor,
-    ticklen: t.axis.tickSize,
-    tickwidth: t.axis.tickWidth,
     zerolinecolor: t.zero,
     // Enable automargin to let Plotly automatically calculate space for axis labels and titles.
     // This ensures labels/titles fit without being cut off, regardless of their size.
@@ -119,14 +116,12 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
         ...axisBase,
         showgrid: t.axis.gridXWidth > 0,
         gridcolor: t.axis.gridColor,
-        griddash: t.axis.gridDash > 0 ? 'dash' : 'solid',
         gridwidth: t.axis.gridXWidth,
       },
       yaxis: {
         ...axisBase,
         showgrid: t.axis.gridYWidth > 0,
         gridcolor: t.axis.gridColor,
-        griddash: t.axis.gridDash > 0 ? 'dash' : 'solid',
         gridwidth: t.axis.gridYWidth,
       },
       legend: {
@@ -134,11 +129,9 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
         bordercolor: t.legend.borderColor,
         borderwidth: t.legend.borderWidth,
         font: { family: t.fontFamily, size: t.legend.textSize, color: t.legend.textColor },
-        itemwidth: t.legend.markerSize + 10,
       },
       hoverlabel: {
         bgcolor: t.tooltip.background,
-        bordercolor: t.tooltip.borderColor,
         font: { family: t.fontFamily, size: t.fontSize, color: t.tooltip.textColor },
         align: 'left',
       },

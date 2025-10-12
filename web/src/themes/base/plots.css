@@ -99,8 +99,6 @@
     --plot-ramp-end: color-mix(in oklch, var(--color-accent) 95%, var(--plot-background));
     --plot-ramp-end-dark: color-mix(in oklch, var(--color-accent-dark) 95%, var(--plot-background-dark));
 
-    --plot-ramp-steps: 7;
-
     /* Shape Palette - Categorical shapes for series/marks that need distinct symbols
      *
      * This palette contains 8 shapes chosen for maximum cross-library compatibility.
@@ -157,13 +155,11 @@
     --plot-panel: var(--plot-background);
     --plot-panel-dark: var(--plot-background-dark);
 
-    /* Panel border width controls the top and right borders (completing the box around the plot area).
+    /* Panel border controls whether to show top and right borders (completing the box around the plot area).
      * The color comes from --plot-axis-line-color to ensure visual consistency between axis lines
-     * and panel borders. Set to 0 to disable top/right borders, >0 to show them. */
-    --plot-panel-border-width: var(--border-width-default);
-
-    --plot-grid: color-mix(in srgb, var(--text-color-primary) 15%, var(--plot-panel));
-    --plot-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--plot-panel-dark));
+     * and panel borders. The width defaults to --border-width-default when enabled.
+     * Set to true to show all four borders, false to show only left/bottom (axes only). */
+    --plot-panel-border: true;
 
     /* Typography - Font families and scale tokens */
     --plot-text-color: var(--text-color-primary);
@@ -209,22 +205,18 @@
     --plot-axis-line-color-dark: var(--plot-text-color-dark);
     --plot-axis-line-width: var(--border-width-default);
 
-    --plot-tick-color: var(--plot-text-color);
-    --plot-tick-color-dark: var(--plot-text-color-dark);
-    --plot-tick-width: var(--border-width-default);
-    --plot-tick-size: var(--space-1);
-
     --plot-axis-title-size: calc(var(--text-font-size) * 0.85);
     --plot-axis-title-weight: var(--font-weight-normal);
     --plot-axis-title-color: var(--plot-text-color);
     --plot-axis-title-color-dark: var(--plot-text-color-dark);
 
+    --plot-grid: color-mix(in srgb, var(--text-color-primary) 15%, var(--plot-panel));
+    --plot-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--plot-panel-dark));
     --plot-grid-color: var(--plot-grid);
     --plot-grid-color-dark: var(--plot-grid-dark);
     --plot-grid-width: var(--border-width-default);
     --plot-grid-x-width: var(--plot-grid-width);
     --plot-grid-y-width: var(--plot-grid-width);
-    --plot-grid-dash: 0;
 
     --plot-zero-line-color: color-mix(in srgb, var(--text-color-primary) 35%, var(--plot-panel));
     --plot-zero-line-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 35%, var(--plot-panel-dark));
@@ -241,7 +233,6 @@
     --plot-legend-border-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 20%, var(--surface-foreground-dark));
 
     --plot-legend-border-width: var(--border-width-default);
-    --plot-legend-marker-size: var(--space-2);
     --plot-legend-position: auto;
 
     /* Tooltips - Transient UI with high contrast, subtle elevation */
@@ -251,11 +242,6 @@
     --plot-tooltip-text-color: var(--text-color-primary);
     --plot-tooltip-text-color-dark: var(--text-color-primary-dark);
 
-    --plot-tooltip-border-color: transparent;
-    --plot-tooltip-border-width: 0;
-    --plot-tooltip-padding-x: var(--space-2);
-    --plot-tooltip-padding-y: calc(var(--space-2) * 0.75);
-
     /* Marks - Defaults per geometry (line/area/point/bar/candlestick/heatmap) */
     /* Point fill opacity: Controls whether points are open (unfilled) or filled
      * 0 = open/unfilled points with stroke only (default for overlap visibility)
@@ -264,15 +250,9 @@
     --plot-point-opacity: 0;
     --plot-point-size: calc(var(--space-2) * 0.75);
 
-    --plot-line-join: round;
-    --plot-line-cap: round;
     --plot-line-width: var(--border-width-thick);
 
     --plot-area-opacity: 0.25;
-
-    /* Motion - Animation timing and easing */
-    --plot-anim-duration: 250ms;
-    --plot-anim-ease: cubic-bezier(.2, .8, .2, 1);
 }
 
 /* Dark Mode Application - System Preference or Explicit User Choice */
@@ -297,7 +277,6 @@
         --plot-text-color: var(--plot-text-color-dark);
         --plot-grid: var(--plot-grid-dark);
         --plot-axis-line-color: var(--plot-axis-line-color-dark);
-        --plot-tick-color: var(--plot-tick-color-dark);
         --plot-axis-title-color: var(--plot-axis-title-color-dark);
         --plot-grid-color: var(--plot-grid-color-dark);
         --plot-zero-line-color: var(--plot-zero-line-color-dark);
@@ -329,7 +308,6 @@
     --plot-text-color: var(--plot-text-color-dark);
     --plot-grid: var(--plot-grid-dark);
     --plot-axis-line-color: var(--plot-axis-line-color-dark);
-    --plot-tick-color: var(--plot-tick-color-dark);
     --plot-axis-title-color: var(--plot-axis-title-color-dark);
     --plot-grid-color: var(--plot-grid-color-dark);
     --plot-zero-line-color: var(--plot-zero-line-color-dark);

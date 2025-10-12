@@ -76,8 +76,7 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
     },
     axisTick: {
       show: true,
-      length: t.axis.tickSize,
-      lineStyle: { color: t.axis.tickColor, width: t.axis.tickWidth },
+      lineStyle: { color: t.axis.lineColor },
     },
     // Center axis names along the axis (consistent with matplotlib, ggplot2, Plotly, Vega-Lite).
     // ECharts defaults to 'end' which places names at top (y-axis) or right (x-axis).
@@ -97,7 +96,7 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
       show: true,
       backgroundColor: t.panel,
       borderColor: t.axis.lineColor,
-      borderWidth: t.panelBorderWidth,
+      borderWidth: t.axis.lineWidth,
       left: t.padding.left,
       right: t.padding.right,
       top: t.padding.top,
@@ -114,7 +113,6 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
         lineStyle: {
           color: t.axis.gridColor,
           width: t.axis.gridXWidth,
-          type: t.axis.gridDash > 0 ? 'dashed' : 'solid',
         },
       },
     },
@@ -128,7 +126,6 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
         lineStyle: {
           color: t.axis.gridColor,
           width: t.axis.gridYWidth,
-          type: t.axis.gridDash > 0 ? 'dashed' : 'solid',
         },
       },
     },
@@ -138,21 +135,14 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
       top: 10,
       backgroundColor: t.legend.background,
       textStyle: { color: t.legend.textColor, fontSize: t.legend.textSize },
-      itemWidth: t.legend.markerSize,
-      itemHeight: t.legend.markerSize,
       borderColor: t.legend.borderColor,
       borderWidth: t.legend.borderWidth,
     },
     tooltip: {
       trigger: 'item',
       backgroundColor: t.tooltip.background,
-      borderColor: t.tooltip.borderColor,
-      borderWidth: t.tooltip.borderWidth,
       textStyle: { color: t.tooltip.textColor, fontFamily: t.fontFamily, fontSize: t.fontSize },
-      padding: [t.tooltip.padY, t.tooltip.padX, t.tooltip.padY, t.tooltip.padX],
     },
-    animationDuration: t.motion.duration,
-    animationEasing: t.motion.ease,
   }
 }
 

@@ -45,9 +45,6 @@ function mapLineTypeToVegaLite(lineType: string): number[] | null {
  * Convert plot tokens to Vega-Lite config
  */
 function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
-  // Parse grid dash from string like "4 2" to array [4, 2]
-  const gridDash = t.axis.gridDash > 0 ? [t.axis.gridDash, t.axis.gridDash / 2] : []
-
   const axisBase = {
     labelColor: t.textColor,
     labelFontSize: t.fontSize,
@@ -56,11 +53,7 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     titleFontWeight: t.axis.titleWeight,
     domainColor: t.axis.lineColor,
     domainWidth: t.axis.lineWidth,
-    tickColor: t.axis.tickColor,
-    tickSize: t.axis.tickSize,
-    tickWidth: t.axis.tickWidth,
     gridColor: t.axis.gridColor,
-    gridDash: gridDash,
     labelLimit: 100,
   }
 
@@ -81,7 +74,6 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
       titleColor: t.legend.textColor,
       titleFontSize: t.legend.textSize + 1,
       gradientStrokeColor: t.axis.gridColor,
-      padding: t.legend.gap,
       // Note: Vega-Lite doesn't support legend box borders (borderColor/borderWidth).
       // The gradientStrokeColor property above only affects gradient legend outlines.
     },
@@ -89,15 +81,13 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     view: {
       fill: t.panel,
       stroke: t.axis.lineColor,
-      // Vega-Lite renders SVG strokes centered on paths, causing anti-aliasing blur
-      // at integer widths. Halving the width produces crisp 1px borders.
-      strokeWidth: t.panelBorderWidth * 0.5,
+      strokeWidth: t.axis.lineWidth,
     },
     range: {
       category: t.palette,
       symbol: t.shapes.map(mapShapeToVegaLite),
       strokeDash: t.lineTypes.map(mapLineTypeToVegaLite),
-      heatmap: [t.mark.heatMin, t.mark.heatMax],
+      heatmap: [t.ramp.start, t.ramp.end],
     },
     header: {
       labelColor: t.textColor,
