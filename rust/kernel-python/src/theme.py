@@ -214,6 +214,37 @@ def theme(variables_json: str) -> None:
         if line_type := get_var(f"plot-line_type-{i}"):
             line_types.append(map_line_type_to_matplotlib(line_type))
 
+    # Generate gradient colormap from ramp endpoints for continuous/sequential color scales
+    # These are used for heatmaps and other plots with continuous data (imshow, contourf, etc.)
+    ramp_start = get_var("plot-ramp-start")
+    ramp_end = get_var("plot-ramp-end")
+
+    if ramp_start and ramp_end:
+        try:
+            from matplotlib.colors import LinearSegmentedColormap
+
+            # Create a smooth continuous colormap with 256 colors (standard for matplotlib)
+            # This interpolates smoothly between start and end colors
+            # Note: ramp_steps is for discrete color scales, but matplotlib heatmaps need continuous
+            stencila_cmap = LinearSegmentedColormap.from_list(
+                "stencila_gradient", [ramp_start, ramp_end], N=256
+            )
+
+            # Register the colormap so it can be used by name
+            # Try newer API first (matplotlib >= 3.5), fall back to older API
+            try:
+                import matplotlib
+                matplotlib.colormaps.register(stencila_cmap, name="stencila_gradient")
+            except (AttributeError, ValueError):
+                # Fall back to older API for matplotlib < 3.5
+                import matplotlib.cm as cm
+                cm.register_cmap(name="stencila_gradient", cmap=stencila_cmap)
+
+            # Set as default colormap for image/heatmap functions
+            plt.rcParams["image.cmap"] = "stencila_gradient"
+        except (ImportError, ValueError, RuntimeError) as e:
+            pass
+
     # Get point opacity for inclusion in prop_cycle
     point_opacity = parse_number(get_var("plot-point-opacity"))
 
@@ -475,7 +506,7 @@ def theme(variables_json: str) -> None:
     # Image
 
     # plt.rcParams["image.aspect"] = <NA>
-    # plt.rcParams["image.cmap"] = <NA>
+    # plt.rcParams["image.cmap"] = ...  # Handled via plot-ramp-* variables above
     # plt.rcParams["image.interpolation"] = <NA>
     # plt.rcParams["image.interpolation_stage"] = <NA>
     # plt.rcParams["image.origin"] = <NA>

@@ -513,7 +513,7 @@ theme_ <- function(json) {
   # Muted colors: plot-muted
   # Negative/positive colors: plot-negative, plot-positive
   # Panel: plot-panel, plot-panel-border-*
-  # Ramp: plot-ramp-*
+  # Ramp: plot-ramp-* (handled via stencila_theme$gradient for programmatic access)
   # Selection: plot-selection-*
   # Stroke: plot-stroke-width
   # Tooltip: plot-tooltip-*
@@ -559,6 +559,21 @@ theme_ <- function(json) {
     options(stencila.plot.dpi = plot_dpi)
   } else {
     options(stencila.plot.dpi = 100)  # Default 100 DPI
+  }
+
+  # Generate gradient palette from ramp endpoints for continuous/sequential color scales
+  # These are used for heatmaps and other plots with continuous data
+  ramp_start <- get_var("plot-ramp-start")
+  ramp_end <- get_var("plot-ramp-end")
+  ramp_steps <- parse_number(get_var("plot-ramp-steps"))
+
+  gradient <- NULL
+  if (!is.null(ramp_start) && !is.null(ramp_end)) {
+    # Use ramp_steps if available, otherwise default to 7
+    n_steps <- if (!is.null(ramp_steps)) ramp_steps else 7
+
+    # Create color ramp palette interpolating from start to end
+    gradient <- colorRampPalette(c(ramp_start, ramp_end))(n_steps)
   }
 
   # Set color palette using the 12 theme colors
@@ -615,6 +630,15 @@ theme_ <- function(json) {
     stencila_theme$linetypes <- linetypes
   } else {
     stencila_theme$linetypes <- NULL
+  }
+
+  # Store gradient palette for continuous/sequential color scales
+  # This can be used programmatically in base R plots
+  # (e.g., image(data, col = stencila_theme$gradient) for heatmaps)
+  if (!is.null(gradient)) {
+    stencila_theme$gradient <- gradient
+  } else {
+    stencila_theme$gradient <- NULL
   }
 
   # Store point opacity for potential programmatic access
@@ -1091,7 +1115,7 @@ theme_ <- function(json) {
   # Muted colors: plot-muted
   # Negative/positive colors: plot-negative, plot-positive
   # Panel: plot-panel (handled above)
-  # Ramp: plot-ramp-*
+  # Ramp: plot-ramp-* (handled via stencila_theme$gradient and ggplot2 continuous scales)
   # Selection: plot-selection-*
   # Stroke: plot-stroke-width
   # Tooltip: plot-tooltip-*
@@ -1112,6 +1136,23 @@ theme_ <- function(json) {
     options(
       ggplot2.discrete.colour = colors,
       ggplot2.discrete.fill = colors
+    )
+  }
+
+  # Set ggplot2 continuous color scale using the gradient palette
+  # This affects geoms with continuous color/fill aesthetics (e.g., heatmaps)
+  if (!is.null(gradient) && length(gradient) > 0) {
+    # Create gradient scale functions using the themed colors
+    continuous_colour_scale <- function(...) {
+      ggplot2::scale_color_gradientn(colors = gradient, ...)
+    }
+    continuous_fill_scale <- function(...) {
+      ggplot2::scale_fill_gradientn(colors = gradient, ...)
+    }
+
+    options(
+      ggplot2.continuous.colour = continuous_colour_scale,
+      ggplot2.continuous.fill = continuous_fill_scale
     )
   }
 
