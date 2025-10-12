@@ -39,21 +39,14 @@
    * Marks - Thicker lines, larger points, more visible fills
    * ═══════════════════════════════════════════════════════════════ */
 
-  /* General stroke width for bold marks */
-  --plot-stroke-width: calc(var(--border-width-thick) * 1.5); /* 3px typically */
-
   /* Line marks: thicker for visibility */
   --plot-line-width: calc(var(--border-width-thick) * 1.5);
 
   /* Area marks: more opaque for stronger presence */
   --plot-area-opacity: 0.35;
 
-  /* Point marks: larger with borders */
+  /* Point marks: larger */
   --plot-point-size: var(--space-2);
-  --plot-point-border-width: var(--border-width-default);
-
-  /* Bar marks: add borders for definition */
-  --plot-bar-border-width: var(--border-width-default);
 
   /* ═══════════════════════════════════════════════════════════════
    * Legend - Bold borders and spacing
@@ -61,10 +54,4 @@
 
   --plot-legend-border-width: var(--border-width-thick);
   --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 30%, var(--surface-foreground));
-
-  /* ═══════════════════════════════════════════════════════════════
-   * Interaction - Stronger focus and selection indicators
-   * ═══════════════════════════════════════════════════════════════ */
-
-  --plot-focus-outline-width: calc(var(--border-width-thick) * 1.5);
 }

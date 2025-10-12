@@ -34,21 +34,14 @@
    * Marks - Thinner lines, smaller points, more transparent fills
    * ═══════════════════════════════════════════════════════════════ */
 
-  /* General stroke width for light marks */
-  --plot-stroke-width: calc(var(--border-width-thick) * 0.75); /* 1.5px typically */
-
   /* Line marks: thinner for subtlety */
   --plot-line-width: calc(var(--border-width-thick) * 0.75);
 
   /* Area marks: more transparent for lightness */
   --plot-area-opacity: 0.15;
 
-  /* Point marks: smaller and borderless */
+  /* Point marks: smaller */
   --plot-point-size: var(--space-1); /* ~4px typically */
-  --plot-point-border-width: 0;
-
-  /* Bar marks: no borders for clean look */
-  --plot-bar-border-width: 0;
 
   /* ═══════════════════════════════════════════════════════════════
    * Legend - Light borders and spacing

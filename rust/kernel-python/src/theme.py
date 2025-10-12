@@ -348,8 +348,7 @@ def theme(variables_json: str) -> None:
     if marker_size := parse_number(get_var("plot-point-size")):
         plt.rcParams["lines.markersize"] = marker_size
     # plt.rcParams["lines.marker"] = <NA>
-    if marker_width := parse_number(get_var("plot-point-border-width")):
-        plt.rcParams["lines.markeredgewidth"] = marker_width
+    # plt.rcParams["lines.markeredgewidth"] = <NA>
     # plt.rcParams["lines.antialiased"] = <NA>
 
     # Markers
@@ -364,22 +363,17 @@ def theme(variables_json: str) -> None:
 
     # Patches (for bar charts, etc.)
 
-    if width := parse_number(get_var("plot-bar-border-width")):
-        plt.rcParams["patch.linewidth"] = width
     # plt.rcParams["patch.facecolor"] = ...  # Uses color cycle
     # plt.rcParams["patch.edgecolor"] = <NA>
     # plt.rcParams["patch.force_edgecolor"] = <NA>
     # plt.rcParams["patch.antialiased"] = <NA>
+    # plt.rcParams["patch.linewidth"] = <NA>
 
     # Fonts and text
 
     if fonts := parse_fonts(get_var("plot-font-family")):
         # matplotlib expects a list of font names or generic families
         plt.rcParams["font.family"] = fonts
-
-    if mono_fonts := parse_fonts(get_var("plot-font-mono")):
-        # Set the list of monospace fonts
-        plt.rcParams["font.monospace"] = mono_fonts
 
     if size := parse_number(get_var("plot-font-size")):
         plt.rcParams["font.size"] = size

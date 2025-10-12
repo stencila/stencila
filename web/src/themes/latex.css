@@ -290,7 +290,6 @@
 
     /* Lines - standard weight */
     --plot-line-width: 2px;
-    --plot-stroke-width: 2px;
 
     /* Typography - serif for plot text matching document */
     --plot-font-family: var(--font-family-serif);

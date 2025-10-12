@@ -162,21 +162,14 @@
      * and panel borders. Set to 0 to disable top/right borders, >0 to show them. */
     --plot-panel-border-width: var(--border-width-default);
 
-    --plot-muted: var(--text-color-secondary);
-    --plot-muted-dark: var(--text-color-secondary-dark);
-
     --plot-grid: color-mix(in srgb, var(--text-color-primary) 15%, var(--plot-panel));
     --plot-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--plot-panel-dark));
-
-    --plot-contrast-grid: color-mix(in srgb, var(--text-color-primary) 35%, var(--plot-panel));
-    --plot-contrast-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 35%, var(--plot-panel-dark));
 
     /* Typography - Font families and scale tokens */
     --plot-text-color: var(--text-color-primary);
     --plot-text-color-dark: var(--text-color-primary-dark);
 
     --plot-font-family: var(--font-family-sans);
-    --plot-font-mono: var(--font-family-mono);
 
     --plot-font-size: calc(var(--text-font-size) * 0.85);
     --plot-title-size: calc(var(--text-font-size) * 1.0);
@@ -211,11 +204,6 @@
     --plot-padding-right: var(--plot-padding);
     --plot-padding-left: var(--plot-padding);
 
-    --plot-gap-x: var(--space-4);
-    --plot-gap-y: var(--space-4);
-
-    --plot-stroke-width: var(--border-width-thick);
-
     /* Axes & Grid - Structure and reference cues */
     --plot-axis-line-color: var(--plot-text-color);
     --plot-axis-line-color-dark: var(--plot-text-color-dark);
@@ -238,8 +226,8 @@
     --plot-grid-y-width: var(--plot-grid-width);
     --plot-grid-dash: 0;
 
-    --plot-zero-line-color: var(--plot-contrast-grid);
-    --plot-zero-line-color-dark: var(--plot-contrast-grid-dark);
+    --plot-zero-line-color: color-mix(in srgb, var(--text-color-primary) 35%, var(--plot-panel));
+    --plot-zero-line-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 35%, var(--plot-panel-dark));
 
     /* Legends - Box, markers, spacing */
     --plot-legend-background: var(--plot-panel);
@@ -254,7 +242,6 @@
 
     --plot-legend-border-width: var(--border-width-default);
     --plot-legend-marker-size: var(--space-2);
-    --plot-legend-gap: var(--space-2);
     --plot-legend-position: auto;
 
     /* Tooltips - Transient UI with high contrast, subtle elevation */
@@ -266,8 +253,6 @@
 
     --plot-tooltip-border-color: transparent;
     --plot-tooltip-border-width: 0;
-    --plot-tooltip-radius: var(--radius-md);
-    --plot-tooltip-shadow: var(--shadow-md);
     --plot-tooltip-padding-x: var(--space-2);
     --plot-tooltip-padding-y: calc(var(--space-2) * 0.75);
 
@@ -278,49 +263,12 @@
      * This applies to scatter plots and line charts with symbols across all libraries. */
     --plot-point-opacity: 0;
     --plot-point-size: calc(var(--space-2) * 0.75);
-    --plot-point-border-width: var(--border-width-default);
 
     --plot-line-join: round;
     --plot-line-cap: round;
     --plot-line-width: var(--border-width-thick);
-    --plot-line-dash: 0;
 
     --plot-area-opacity: 0.25;
-
-    --plot-bar-gap: 0.2;
-    --plot-bar-category-gap: 0.3;
-    --plot-bar-radius: var(--radius-sm);
-    --plot-bar-border-width: 0;
-
-    --plot-candle-up: var(--plot-positive);
-    --plot-candle-up-dark: var(--plot-positive-dark);
-    --plot-candle-down: var(--plot-negative);
-    --plot-candle-down-dark: var(--plot-negative-dark);
-    --plot-candle-wick: var(--plot-muted);
-    --plot-candle-wick-dark: var(--plot-muted-dark);
-
-    --plot-heatmap-min: var(--plot-ramp-start);
-    --plot-heatmap-min-dark: var(--plot-ramp-start-dark);
-    --plot-heatmap-max: var(--plot-ramp-end);
-    --plot-heatmap-max-dark: var(--plot-ramp-end-dark);
-
-    /* Interaction & Focus - Cursor guides, hover dimming, selections */
-    --plot-crosshair-color: color-mix(in srgb, var(--text-color-primary) 40%, transparent);
-    --plot-crosshair-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 40%, transparent);
-
-    --plot-crosshair-width: var(--border-width-default);
-    --plot-crosshair-dash: 4 2;
-
-    --plot-hover-opacity: 0.7;
-
-    --plot-focus-outline-color: var(--color-accent);
-    --plot-focus-outline-color-dark: var(--color-accent-dark);
-    --plot-focus-outline-width: var(--border-width-thick);
-
-    --plot-selection-background: color-mix(in srgb, var(--color-accent) 15%, transparent);
-    --plot-selection-background-dark: color-mix(in srgb, var(--color-accent-dark) 15%, transparent);
-    --plot-selection-stroke: var(--color-accent);
-    --plot-selection-stroke-dark: var(--color-accent-dark);
 
     /* Motion - Animation timing and easing */
     --plot-anim-duration: 250ms;
@@ -347,9 +295,7 @@
         --plot-background: var(--plot-background-dark);
         --plot-panel: var(--plot-panel-dark);
         --plot-text-color: var(--plot-text-color-dark);
-        --plot-muted: var(--plot-muted-dark);
         --plot-grid: var(--plot-grid-dark);
-        --plot-contrast-grid: var(--plot-contrast-grid-dark);
         --plot-axis-line-color: var(--plot-axis-line-color-dark);
         --plot-tick-color: var(--plot-tick-color-dark);
         --plot-axis-title-color: var(--plot-axis-title-color-dark);
@@ -360,15 +306,6 @@
         --plot-legend-border-color: var(--plot-legend-border-color-dark);
         --plot-tooltip-background: var(--plot-tooltip-background-dark);
         --plot-tooltip-text-color: var(--plot-tooltip-text-color-dark);
-        --plot-candle-up: var(--plot-candle-up-dark);
-        --plot-candle-down: var(--plot-candle-down-dark);
-        --plot-candle-wick: var(--plot-candle-wick-dark);
-        --plot-heatmap-min: var(--plot-heatmap-min-dark);
-        --plot-heatmap-max: var(--plot-heatmap-max-dark);
-        --plot-crosshair-color: var(--plot-crosshair-color-dark);
-        --plot-focus-outline-color: var(--plot-focus-outline-color-dark);
-        --plot-selection-background: var(--plot-selection-background-dark);
-        --plot-selection-stroke: var(--plot-selection-stroke-dark);
     }
 }
 
@@ -390,9 +327,7 @@
     --plot-background: var(--plot-background-dark);
     --plot-panel: var(--plot-panel-dark);
     --plot-text-color: var(--plot-text-color-dark);
-    --plot-muted: var(--plot-muted-dark);
     --plot-grid: var(--plot-grid-dark);
-    --plot-contrast-grid: var(--plot-contrast-grid-dark);
     --plot-axis-line-color: var(--plot-axis-line-color-dark);
     --plot-tick-color: var(--plot-tick-color-dark);
     --plot-axis-title-color: var(--plot-axis-title-color-dark);
@@ -403,13 +338,4 @@
     --plot-legend-border-color: var(--plot-legend-border-color-dark);
     --plot-tooltip-background: var(--plot-tooltip-background-dark);
     --plot-tooltip-text-color: var(--plot-tooltip-text-color-dark);
-    --plot-candle-up: var(--plot-candle-up-dark);
-    --plot-candle-down: var(--plot-candle-down-dark);
-    --plot-candle-wick: var(--plot-candle-wick-dark);
-    --plot-heatmap-min: var(--plot-heatmap-min-dark);
-    --plot-heatmap-max: var(--plot-heatmap-max-dark);
-    --plot-crosshair-color: var(--plot-crosshair-color-dark);
-    --plot-focus-outline-color: var(--plot-focus-outline-color-dark);
-    --plot-selection-background: var(--plot-selection-background-dark);
-    --plot-selection-stroke: var(--plot-selection-stroke-dark);
 }

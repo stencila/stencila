@@ -295,7 +295,6 @@
 
     /* Lines - Thinner, more refined */
     --plot-line-width: 1.5px;
-    --plot-stroke-width: 1.5px;
 
     /* Typography - Serif for plot text with increased sizes for clarity */
     --plot-font-family: var(--font-family-serif);

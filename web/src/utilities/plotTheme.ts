@@ -55,15 +55,12 @@ export interface PlotTokens {
   panel: string
   panelBorderColor: string
   panelBorderWidth: number
-  muted: string
   grid: string
-  contrastGrid: string
   zero: string
 
   // Typography
   textColor: string
   fontFamily: string
-  fontMono: string
   fontSize: number
   titleSize: number
   subtitleSize: number
@@ -75,11 +72,6 @@ export interface PlotTokens {
     bottom: number
     left: number
   }
-  gap: {
-    x: number
-    y: number
-  }
-  strokeWidth: number
 
   // Axes and grid
   axis: {
@@ -106,7 +98,6 @@ export interface PlotTokens {
     borderColor: string
     borderWidth: number
     markerSize: number
-    gap: number
     position: string
   }
 
@@ -116,8 +107,6 @@ export interface PlotTokens {
     textColor: string
     borderColor: string
     borderWidth: number
-    radius: number
-    shadow: string
     padX: number
     padY: number
   }
@@ -126,33 +115,10 @@ export interface PlotTokens {
   mark: {
     pointOpacity: number
     pointSize: number
-    pointBorderWidth: number
     lineJoin: string
     lineCap: string
     lineWidth: number
-    lineDash: number
     areaOpacity: number
-    barGap: number
-    barCategoryGap: number
-    barRadius: number
-    barBorderWidth: number
-    candleUp: string
-    candleDown: string
-    candleWick: string
-    heatMin: string
-    heatMax: string
-  }
-
-  // Interaction
-  interaction: {
-    crosshairColor: string
-    crosshairWidth: number
-    crosshairDash: string
-    hoverOpacity: number
-    focusOutlineColor: string
-    focusOutlineWidth: number
-    selectionBackground: string
-    selectionStroke: string
   }
 
   // Motion
@@ -283,15 +249,12 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     panel: colorToHex(getVar('--plot-panel')) || '#ffffff',
     panelBorderColor: colorToHex(getVar('--plot-panel-border-color')) || '#e5e5e5',
     panelBorderWidth: parseNum(getVar('--plot-panel-border-width'), 1, rootElement),
-    muted: colorToHex(getVar('--plot-muted')) || '#666666',
     grid: colorToHex(getVar('--plot-grid')) || '#e5e5e5',
-    contrastGrid: colorToHex(getVar('--plot-contrast-grid')) || '#cccccc',
     zero: colorToHex(getVar('--plot-zero-line-color')) || '#999999',
 
     // Typography
     textColor: colorToHex(getVar('--plot-text-color')) || '#000000',
     fontFamily: getVar('--plot-font-family') || 'sans-serif',
-    fontMono: getVar('--plot-font-mono') || 'monospace',
     fontSize: parseNum(getVar('--plot-font-size'), 12, rootElement),
     titleSize: parseNum(getVar('--plot-title-size'), 14, rootElement),
     subtitleSize: parseNum(getVar('--plot-subtitle-size'), 12, rootElement),
@@ -303,11 +266,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
       bottom: parseNum(getVar('--plot-padding-bottom'), 24, rootElement),
       left: parseNum(getVar('--plot-padding-left'), 32, rootElement),
     },
-    gap: {
-      x: parseNum(getVar('--plot-gap-x'), 16, rootElement),
-      y: parseNum(getVar('--plot-gap-y'), 16, rootElement),
-    },
-    strokeWidth: parseNum(getVar('--plot-stroke-width'), 2, rootElement),
 
     // Axes
     axis: {
@@ -334,7 +292,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
       borderColor: colorToHex(getVar('--plot-legend-border-color')) || '#cccccc',
       borderWidth: parseNum(getVar('--plot-legend-border-width'), 1, rootElement),
       markerSize: parseNum(getVar('--plot-legend-marker-size'), 8, rootElement),
-      gap: parseNum(getVar('--plot-legend-gap'), 8, rootElement),
       position: getVar('--plot-legend-position') || 'auto',
     },
 
@@ -344,8 +301,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
       textColor: colorToHex(getVar('--plot-tooltip-text-color')) || '#000000',
       borderColor: colorToHex(getVar('--plot-tooltip-border-color')) || 'transparent',
       borderWidth: parseNum(getVar('--plot-tooltip-border-width'), 0, rootElement),
-      radius: parseNum(getVar('--plot-tooltip-radius'), 4, rootElement),
-      shadow: getVar('--plot-tooltip-shadow') || '0 2px 8px rgba(0,0,0,0.15)',
       padX: parseNum(getVar('--plot-tooltip-padding-x'), 8, rootElement),
       padY: parseNum(getVar('--plot-tooltip-padding-y'), 6, rootElement),
     },
@@ -354,35 +309,10 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     mark: {
       pointOpacity: parseNum(getVar('--plot-point-opacity'), 0, rootElement),
       pointSize: parseNum(getVar('--plot-point-size'), 6, rootElement),
-      pointBorderWidth: parseNum(getVar('--plot-point-border-width'), 1, rootElement),
       lineJoin: getVar('--plot-line-join') || 'round',
       lineCap: getVar('--plot-line-cap') || 'round',
       lineWidth: parseNum(getVar('--plot-line-width'), 2, rootElement),
-      lineDash: parseDash(getVar('--plot-line-dash', '0')),
       areaOpacity: parseNum(getVar('--plot-area-opacity'), 0.25, rootElement),
-      barGap: parseNum(getVar('--plot-bar-gap'), 0.2, rootElement),
-      barCategoryGap: parseNum(getVar('--plot-bar-category-gap'), 0.3, rootElement),
-      barRadius: parseNum(getVar('--plot-bar-radius'), 2, rootElement),
-      barBorderWidth: parseNum(getVar('--plot-bar-border-width'), 0, rootElement),
-      candleUp: colorToHex(getVar('--plot-candle-up')) || '#22c55e',
-      candleDown: colorToHex(getVar('--plot-candle-down')) || '#ef4444',
-      candleWick: colorToHex(getVar('--plot-candle-wick')) || '#666666',
-      heatMin: colorToHex(getVar('--plot-heatmap-min')) || '#000000',
-      heatMax: colorToHex(getVar('--plot-heatmap-max')) || '#ffffff',
-    },
-
-    // Interaction
-    interaction: {
-      crosshairColor:
-        colorToHex(getVar('--plot-crosshair-color')) || 'rgba(0,0,0,0.4)',
-      crosshairWidth: parseNum(getVar('--plot-crosshair-width'), 1, rootElement),
-      crosshairDash: getVar('--plot-crosshair-dash') || '4 2',
-      hoverOpacity: parseNum(getVar('--plot-hover-opacity'), 0.7, rootElement),
-      focusOutlineColor: colorToHex(getVar('--plot-focus-outline-color')) || '#3b82f6',
-      focusOutlineWidth: parseNum(getVar('--plot-focus-outline-width'), 2, rootElement),
-      selectionBackground:
-        colorToHex(getVar('--plot-selection-background')) || 'rgba(59,130,246,0.15)',
-      selectionStroke: colorToHex(getVar('--plot-selection-stroke')) || '#3b82f6',
     },
 
     // Motion
