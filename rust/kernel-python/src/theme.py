@@ -195,16 +195,28 @@ def theme(variables_json: str) -> None:
         if shape := get_var(f"plot-shape-{i}"):
             shapes.append(map_shape_to_matplotlib(shape))
 
-    # Combine colors and shapes into prop_cycle
-    # If we have both colors and shapes, cycle them together
-    # If we only have colors, use color cycle only
-    # If we only have shapes, use shape cycle only
-    if colors and shapes:
-        plt.rcParams["axes.prop_cycle"] = cycler(color=colors) + cycler(marker=shapes)
-    elif colors:
-        plt.rcParams["axes.prop_cycle"] = cycler(color=colors)
-    elif shapes:
-        plt.rcParams["axes.prop_cycle"] = cycler(marker=shapes)
+    # Get point opacity for inclusion in prop_cycle
+    point_opacity = parse_number(get_var("plot-point-opacity"))
+
+    # Combine colors, shapes, and alpha into prop_cycle
+    # Note: alpha needs to be in the cycle because matplotlib doesn't have a global rcParam for it
+    cycle_parts = []
+    if colors:
+        cycle_parts.append(cycler(color=colors))
+    if shapes:
+        cycle_parts.append(cycler(marker=shapes))
+    # Only add alpha to cycle if opacity > 0 (when using filled markers)
+    if point_opacity is not None and point_opacity > 0:
+        # Repeat alpha value for each series (all series get same alpha)
+        alpha_values = [point_opacity] * max(len(colors) if colors else 1, len(shapes) if shapes else 1)
+        cycle_parts.append(cycler(alpha=alpha_values))
+
+    # Combine all cycle parts
+    if cycle_parts:
+        combined_cycle = cycle_parts[0]
+        for part in cycle_parts[1:]:
+            combined_cycle = combined_cycle + part
+        plt.rcParams["axes.prop_cycle"] = combined_cycle
 
     # Axes grid
     # Grid color
@@ -290,10 +302,13 @@ def theme(variables_json: str) -> None:
 
     # Markers
 
-    # Set all markers to use open/unfilled variants for better overlap visibility
-    # and discrimination. This matches the behavior of other plotting libraries
-    # (Plotly, ECharts, Vega-Lite) which also use open shapes by default.
-    plt.rcParams["markers.fillstyle"] = "none"
+    # Control marker fill based on plot-point-opacity:
+    # - When opacity = 0: use open/unfilled markers for better overlap visibility
+    # - When opacity > 0: use filled markers with the specified alpha (set in prop_cycle above)
+    if point_opacity is None or point_opacity == 0:
+        plt.rcParams["markers.fillstyle"] = "none"
+    else:
+        plt.rcParams["markers.fillstyle"] = "full"
 
     # Patches (for bar charts, etc.)
 

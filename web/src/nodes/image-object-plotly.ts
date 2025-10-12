@@ -7,21 +7,37 @@ import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 /**
  * Map Stencila shape names to Plotly symbol names
  *
- * Maps the 8 cross-library compatible shapes to Plotly's open/unfilled variants
- * for better overlap visibility and data density assessment.
+ * When opacity = 0, uses open/unfilled variants for better overlap visibility.
+ * When opacity > 0, uses filled variants with the specified opacity.
  */
-function mapShapeToPlotly(shape: string): string {
-  const mapping: Record<string, string> = {
-    'circle': 'circle-open',
-    'square': 'square-open',
-    'triangle': 'triangle-up-open',
-    'diamond': 'diamond-open',
+function mapShapeToPlotly(shape: string, opacity: number): string {
+  // When opacity is 0, use open variants
+  if (opacity === 0) {
+    const openMapping: Record<string, string> = {
+      'circle': 'circle-open',
+      'square': 'square-open',
+      'triangle': 'triangle-up-open',
+      'diamond': 'diamond-open',
+      'cross': 'x',
+      'star': 'star-open',
+      'pentagon': 'pentagon-open',
+      'hexagon': 'hexagon-open',
+    }
+    return openMapping[shape] || 'circle-open'
+  }
+
+  // When opacity > 0, use filled variants
+  const filledMapping: Record<string, string> = {
+    'circle': 'circle',
+    'square': 'square',
+    'triangle': 'triangle-up',
+    'diamond': 'diamond',
     'cross': 'x',
     'star': 'star',
     'pentagon': 'pentagon',
     'hexagon': 'hexagon',
   }
-  return mapping[shape] || 'circle-open'
+  return filledMapping[shape] || 'circle'
 }
 
 /**
@@ -169,13 +185,13 @@ export async function compilePlotly(
           }
         }
 
-        return {
+        const updatedTrace: any = {
           ...trace,
           marker: {
             ...trace.marker,
             color: trace.marker?.color ?? color,
             size: trace.marker?.size ?? theme.mark.pointSize,
-            symbol: trace.marker?.symbol ?? mapShapeToPlotly(shape),
+            symbol: trace.marker?.symbol ?? mapShapeToPlotly(shape, theme.mark.pointOpacity),
           },
           line: {
             ...trace.line,
@@ -184,6 +200,13 @@ export async function compilePlotly(
             dash: theme.mark.lineDash > 0 ? 'dash' : 'solid',
           },
         }
+
+        // Apply opacity to marker when pointOpacity > 0
+        if (theme.mark.pointOpacity > 0) {
+          updatedTrace.marker.opacity = theme.mark.pointOpacity
+        }
+
+        return updatedTrace
       })
     }
 

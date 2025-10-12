@@ -126,14 +126,14 @@ export interface PlotTokens {
 
   // Marks
   mark: {
-    opacity: number
+    pointOpacity: number
+    pointSize: number
+    pointBorderWidth: number
     lineJoin: string
     lineCap: string
     lineWidth: number
     lineDash: number
     areaOpacity: number
-    pointSize: number
-    pointBorderWidth: number
     barGap: number
     barCategoryGap: number
     barRadius: number
@@ -349,14 +349,14 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
 
     // Marks
     mark: {
-      opacity: parseNum(getVar('--plot-mark-opacity'), 1, rootElement),
+      pointOpacity: parseNum(getVar('--plot-point-opacity'), 0, rootElement),
+      pointSize: parseNum(getVar('--plot-point-size'), 6, rootElement),
+      pointBorderWidth: parseNum(getVar('--plot-point-border-width'), 1, rootElement),
       lineJoin: getVar('--plot-line-join') || 'round',
       lineCap: getVar('--plot-line-cap') || 'round',
       lineWidth: parseNum(getVar('--plot-line-width'), 2, rootElement),
       lineDash: parseDash(getVar('--plot-line-dash', '0')),
       areaOpacity: parseNum(getVar('--plot-area-opacity'), 0.25, rootElement),
-      pointSize: parseNum(getVar('--plot-point-size'), 6, rootElement),
-      pointBorderWidth: parseNum(getVar('--plot-point-border-width'), 1, rootElement),
       barGap: parseNum(getVar('--plot-bar-gap'), 0.2, rootElement),
       barCategoryGap: parseNum(getVar('--plot-bar-category-gap'), 0.3, rootElement),
       barRadius: parseNum(getVar('--plot-bar-radius'), 2, rootElement),

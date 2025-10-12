@@ -262,7 +262,13 @@
     --plot-tooltip-padding-y: calc(var(--space-2) * 0.75);
 
     /* Marks - Defaults per geometry (line/area/point/bar/candlestick/heatmap) */
-    --plot-mark-opacity: 1;
+    /* Point fill opacity: Controls whether points are open (unfilled) or filled
+     * 0 = open/unfilled points with stroke only (default for overlap visibility)
+     * >0 = filled points with specified opacity (e.g., 0.7 for semi-transparent, 1 for solid)
+     * This applies to scatter plots and line charts with symbols across all libraries. */
+    --plot-point-opacity: 0;
+    --plot-point-size: calc(var(--space-2) * 0.75);
+    --plot-point-border-width: var(--border-width-default);
 
     --plot-line-join: round;
     --plot-line-cap: round;
@@ -270,9 +276,6 @@
     --plot-line-dash: 0;
 
     --plot-area-opacity: 0.25;
-
-    --plot-point-size: calc(var(--space-2) * 0.75);
-    --plot-point-border-width: var(--border-width-default);
 
     --plot-bar-gap: 0.2;
     --plot-bar-category-gap: 0.3;

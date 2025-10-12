@@ -86,13 +86,30 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
       labelFontSize: t.fontSize,
       titleFontSize: t.titleSize,
     },
-    mark: { opacity: t.mark.opacity, strokeWidth: t.mark.lineWidth },
+    // Point fill control: when opacity = 0, use unfilled (stroke only); when > 0, use filled with opacity
+    mark: {
+      filled: t.mark.pointOpacity > 0,
+      fillOpacity: t.mark.pointOpacity > 0 ? t.mark.pointOpacity : undefined,
+      strokeWidth: t.mark.lineWidth,
+    },
 
     // Set default colors and sizes for mark types when no encoding is specified
     // Note: size in Vega-Lite is area in square pixels, so we square the linear dimension
-    point: { color: t.palette[0], size: t.mark.pointSize ** 2 },
-    circle: { color: t.palette[0], size: t.mark.pointSize ** 2 },
-    square: { color: t.palette[0], size: t.mark.pointSize ** 2 },
+    point: {
+      color: t.palette[0],
+      size: t.mark.pointSize ** 2,
+      filled: t.mark.pointOpacity > 0,
+    },
+    circle: {
+      color: t.palette[0],
+      size: t.mark.pointSize ** 2,
+      filled: t.mark.pointOpacity > 0,
+    },
+    square: {
+      color: t.palette[0],
+      size: t.mark.pointSize ** 2,
+      filled: t.mark.pointOpacity > 0,
+    },
     bar: { color: t.palette[0] },
     line: { color: t.palette[0], strokeWidth: t.mark.lineWidth },
     area: { color: t.palette[0], opacity: t.mark.areaOpacity },

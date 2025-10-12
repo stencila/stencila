@@ -94,26 +94,45 @@ theme_ <- function(json) {
   }
 
   # Helper to map Stencila shape names to R pch (plotting character) codes
-  # Maps the 8 cross-library compatible shapes to R's pch values
-  # All shapes use open/unfilled variants for better overlap visibility
-  # and discrimination. This matches the behavior of other plotting libraries.
+  # When opacity = 0: uses open/unfilled variants for better overlap visibility
+  # When opacity > 0: uses filled variants
   # See https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/points.html
-  map_shape_to_r <- function(shape) {
-    mapping <- list(
-      "circle" = 1,       # Open circle
-      "square" = 0,       # Open square
-      "triangle" = 2,     # Open triangle
-      "diamond" = 5,      # Open diamond
-      "cross" = 4,        # X/cross
-      "star" = 8,         # Asterisk/star
-      "pentagon" = 0,     # R doesn't have pentagon, use open square
-      "hexagon" = 0       # R doesn't have hexagon, use open square
+  map_shape_to_r <- function(shape, opacity = 0) {
+    # When opacity is 0, use open variants
+    if (is.null(opacity) || opacity == 0) {
+      open_mapping <- list(
+        "circle" = 1,       # Open circle
+        "square" = 0,       # Open square
+        "triangle" = 2,     # Open triangle (pointing up)
+        "diamond" = 5,      # Open diamond
+        "cross" = 4,        # X/cross
+        "star" = 8,         # Asterisk/star
+        "pentagon" = 0,     # R doesn't have pentagon, use open square
+        "hexagon" = 0       # R doesn't have hexagon, use open square
+      )
+
+      if (!is.null(open_mapping[[shape]])) {
+        return(open_mapping[[shape]])
+      }
+      return(1)  # Default to open circle
+    }
+
+    # When opacity > 0, use filled variants
+    filled_mapping <- list(
+      "circle" = 16,      # Filled circle
+      "square" = 15,      # Filled square
+      "triangle" = 17,    # Filled triangle (pointing up)
+      "diamond" = 18,     # Filled diamond
+      "cross" = 4,        # X/cross (no filled variant)
+      "star" = 8,         # Asterisk/star (no filled variant)
+      "pentagon" = 15,    # R doesn't have pentagon, use filled square
+      "hexagon" = 15      # R doesn't have hexagon, use filled square
     )
 
-    if (!is.null(mapping[[shape]])) {
-      return(mapping[[shape]])
+    if (!is.null(filled_mapping[[shape]])) {
+      return(filled_mapping[[shape]])
     }
-    return(1)  # Default to open circle
+    return(16)  # Default to filled circle
   }
 
   # <NA> = No corresponding Stencila theme variable available yet
@@ -538,11 +557,13 @@ theme_ <- function(json) {
   }
 
   # Collect shape palette using the 8 cross-library compatible theme shapes
+  # Pass opacity to map_shape_to_r to get filled/open variants
+  point_opacity <- parse_number(get_var("plot-point-opacity"))
   shapes <- c()
   for (i in 1:8) {
     shape <- get_var(paste0("plot-shape-", i))
     if (!is.null(shape)) {
-      shapes <- c(shapes, map_shape_to_r(shape))
+      shapes <- c(shapes, map_shape_to_r(shape, point_opacity))
     }
   }
 
@@ -555,6 +576,13 @@ theme_ <- function(json) {
     stencila_theme$shapes <- shapes
   } else {
     stencila_theme$shapes <- NULL
+  }
+
+  # Store point opacity for potential programmatic access
+  if (!is.null(point_opacity) && point_opacity > 0) {
+    stencila_theme$point_opacity <- point_opacity
+  } else {
+    stencila_theme$point_opacity <- NULL
   }
 
   # Register the hook to apply theme settings on each new plot
@@ -1067,6 +1095,10 @@ theme_ <- function(json) {
     }
     if (length(shapes) > 0 && !is.null(shapes[1])) {
       point_defaults$shape <- shapes[1]
+    }
+    # Apply alpha (opacity) when plot-point-opacity > 0
+    if (!is.null(point_opacity) && point_opacity > 0) {
+      point_defaults$alpha <- point_opacity
     }
     ggplot2::update_geom_defaults("point", point_defaults)
 

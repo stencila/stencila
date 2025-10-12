@@ -7,21 +7,37 @@ import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
 /**
  * Map Stencila shape names to ECharts symbol names
  *
- * Maps the 8 cross-library compatible shapes to ECharts' open/empty variants
- * where available. Triangle doesn't have an empty variant in ECharts.
+ * When opacity = 0, uses open/empty variants for better overlap visibility.
+ * When opacity > 0, uses filled variants with the specified opacity.
  */
-function mapShapeToECharts(shape: string): string {
-  const mapping: Record<string, string> = {
-    'circle': 'emptyCircle',
-    'square': 'emptyRect',
-    'triangle': 'triangle', // No empty variant available
-    'diamond': 'emptyDiamond',
+function mapShapeToECharts(shape: string, opacity: number): string {
+  // When opacity is 0, use open/empty variants
+  if (opacity === 0) {
+    const openMapping: Record<string, string> = {
+      'circle': 'emptyCircle',
+      'square': 'emptyRect',
+      'triangle': 'triangle',
+      'diamond': 'emptyDiamond',
+      'cross': 'cross',
+      'star': 'star',
+      'pentagon': 'pentagon',
+      'hexagon': 'hexagon',
+    }
+    return openMapping[shape] || 'emptyCircle'
+  }
+
+  // When opacity > 0, use filled variants
+  const filledMapping: Record<string, string> = {
+    'circle': 'circle',
+    'square': 'rect',
+    'triangle': 'triangle',
+    'diamond': 'diamond',
     'cross': 'cross',
     'star': 'star',
     'pentagon': 'pentagon',
     'hexagon': 'hexagon',
   }
-  return mapping[shape] || 'emptyCircle'
+  return filledMapping[shape] || 'circle'
 }
 
 /**
@@ -222,11 +238,21 @@ export async function compileECharts(
           (series.type === 'line' && series.showSymbol !== false)
         ) {
           const shape = theme.shapes[i % theme.shapes.length]
-          return {
+          const updatedSeries: Record<string, unknown> = {
             symbolSize: theme.mark.pointSize,
-            symbol: mapShapeToECharts(shape),
+            symbol: mapShapeToECharts(shape, theme.mark.pointOpacity),
             ...series,
           }
+
+          // Apply opacity to itemStyle when pointOpacity > 0
+          if (theme.mark.pointOpacity > 0) {
+            updatedSeries.itemStyle = {
+              ...((series.itemStyle as Record<string, unknown>) || {}),
+              opacity: theme.mark.pointOpacity,
+            }
+          }
+
+          return updatedSeries
         }
         return series
       })
