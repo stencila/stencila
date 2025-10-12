@@ -4,6 +4,7 @@ stencila_theme <- new.env(parent = emptyenv())
 stencila_theme$pars <- list()
 stencila_theme$colors <- NULL
 stencila_theme$shapes <- NULL
+stencila_theme$linetypes <- NULL
 
 # Hook function to apply stored theme parameters to new plots
 # This is called automatically via setHook("plot.new", ...) whenever a new plot is created
@@ -133,6 +134,25 @@ theme_ <- function(json) {
       return(filled_mapping[[shape]])
     }
     return(16)  # Default to filled circle
+  }
+
+  # Helper to map Stencila line type names to R lty (line type) codes
+  # Maps the 6 cross-library compatible line types to R's numeric lty values
+  # See https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/par.html
+  map_linetype_to_r <- function(linetype) {
+    mapping <- list(
+      "solid" = 1,      # Solid line
+      "dashed" = 2,     # Dashed line
+      "dotted" = 3,     # Dotted line
+      "dashdot" = 4,    # Dash-dot line
+      "longdash" = 5,   # Long dash line
+      "twodash" = 6     # Two-dash (dash-dot-dot) line
+    )
+
+    if (!is.null(mapping[[linetype]])) {
+      return(mapping[[linetype]])
+    }
+    return(1)  # Default to solid
   }
 
   # <NA> = No corresponding Stencila theme variable available yet
@@ -567,6 +587,15 @@ theme_ <- function(json) {
     }
   }
 
+  # Collect line type palette using the 6 cross-library compatible theme line_types
+  linetypes <- c()
+  for (i in 1:6) {
+    linetype <- get_var(paste0("plot-line-type-", i))
+    if (!is.null(linetype)) {
+      linetypes <- c(linetypes, map_linetype_to_r(linetype))
+    }
+  }
+
   # Store the shape palette for potential programmatic access
   # Note: Unlike color_palette which is applied via palette() in the plot.new hook,
   # R does not have a built-in mechanism to cycle through shapes automatically.
@@ -576,6 +605,16 @@ theme_ <- function(json) {
     stencila_theme$shapes <- shapes
   } else {
     stencila_theme$shapes <- NULL
+  }
+
+  # Store the line_type palette for potential programmatic access
+  # Note: Like shapes, R does not have a built-in mechanism to cycle through line types automatically.
+  # This palette is stored for users who may want to access it programmatically
+  # (e.g., stencila_theme$linetypes[1:3] to get first 3 line types).
+  if (length(linetypes) > 0) {
+    stencila_theme$linetypes <- linetypes
+  } else {
+    stencila_theme$linetypes <- NULL
   }
 
   # Store point opacity for potential programmatic access
@@ -1115,22 +1154,21 @@ theme_ <- function(json) {
     ggplot2::update_geom_defaults("ribbon", list(fill = color_1))
   }
 
-  # Create a function that returns ggplot2 scales for colors and shapes
-  # Users can add these scales to their plots to apply themed colors/shapes when
-  # they map aesthetics: ggplot(...) + aes(color = category) + stencila_theme$scales()$color
+  # Create a function that returns ggplot2 scales for shapes and line types
+  # Users can add these scales to their plots to apply themed colors/shapes/linetypes when
+  # they map aesthetics: ggplot(...) + aes(color = category) + stencila_theme$scales()
+  # Note: because colors are set as `ggplot2.discrete.colour` above they are not added here
   stencila_theme$scales <- function() {
     scales <- list()
-
-    # Add color scale if colors are available
-    if (!is.null(stencila_theme$colors) && length(stencila_theme$colors) > 0) {
-      scales$color <- ggplot2::scale_color_manual(values = stencila_theme$colors)
-      scales$colour <- scales$color  # Alias for British spelling
-      scales$fill <- ggplot2::scale_fill_manual(values = stencila_theme$colors)
-    }
 
     # Add shape scale if shapes are available
     if (!is.null(stencila_theme$shapes) && length(stencila_theme$shapes) > 0) {
       scales$shape <- ggplot2::scale_shape_manual(values = stencila_theme$shapes)
+    }
+
+    # Add line_type scale if line_types are available
+    if (!is.null(stencila_theme$linetypes) && length(stencila_theme$linetypes) > 0) {
+      scales$linetype <- ggplot2::scale_linetype_manual(values = stencila_theme$linetypes)
     }
 
     scales

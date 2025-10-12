@@ -41,6 +41,23 @@ function mapShapeToPlotly(shape: string, opacity: number): string {
 }
 
 /**
+ * Map Stencila lineType names to Plotly dash format
+ *
+ * Plotly supports 'solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot'
+ */
+function mapLineTypeToPlotly(lineType: string): string {
+  const mapping: Record<string, string> = {
+    'solid': 'solid',
+    'dashed': 'dash',
+    'dotted': 'dot',
+    'dashdot': 'dashdot',
+    'longdash': 'longdash',
+    'twodash': 'dashdot',  // Plotly doesn't have twodash, use dashdot as closest match
+  }
+  return mapping[lineType] || 'solid'
+}
+
+/**
  * Convert plot tokens to Plotly template
  */
 function toPlotlyTemplate(t: PlotTokens): Partial<any> {
@@ -169,10 +186,11 @@ export async function compilePlotly(
         yaxis: deepMerge(template.layout.yaxis, spec.layout?.yaxis),
       }
 
-      // Apply palette colors and shapes to traces if not specified
+      // Apply palette colors, shapes, and lineTypes to traces if not specified
       data = spec.data.map((trace: any, i: number) => {
         const color = theme.palette[i % theme.palette.length]
         const shape = theme.shapes[i % theme.shapes.length]
+        const lineType = theme.lineTypes[i % theme.lineTypes.length]
 
         // Special handling for heatmaps: inject ramp colorscale if not specified
         if (trace.type === 'heatmap' && !trace.colorscale) {
@@ -197,7 +215,7 @@ export async function compilePlotly(
             ...trace.line,
             color: trace.line?.color ?? color,
             width: trace.line?.width ?? theme.mark.lineWidth,
-            dash: theme.mark.lineDash > 0 ? 'dash' : 'solid',
+            dash: trace.line?.dash ?? mapLineTypeToPlotly(lineType),
           },
         }
 

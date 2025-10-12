@@ -62,6 +62,19 @@ def theme(variables_json: str) -> None:
         }
         return mapping.get(shape, 'o')
 
+    # Helper to map Stencila line type names to matplotlib linestyle codes
+    # Maps the 6 cross-library compatible line types to matplotlib's linestyle formats
+    def map_line_type_to_matplotlib(line_type: str) -> str | tuple:
+        mapping = {
+            'solid': '-',
+            'dashed': '--',
+            'dotted': ':',
+            'dashdot': '-.',
+            'longdash': (0, (8, 2)),
+            'twodash': (0, (4, 2, 1, 2, 1, 2)),
+        }
+        return mapping.get(line_type, '-')
+
     # <NA> = No corresponding Stencila theme variable available yet
 
     # Figure
@@ -195,16 +208,24 @@ def theme(variables_json: str) -> None:
         if shape := get_var(f"plot-shape-{i}"):
             shapes.append(map_shape_to_matplotlib(shape))
 
+    # Collect line_types using the 6 cross-library compatible theme line_types
+    line_types = []
+    for i in range(1, 7):
+        if line_type := get_var(f"plot-line_type-{i}"):
+            line_types.append(map_line_type_to_matplotlib(line_type))
+
     # Get point opacity for inclusion in prop_cycle
     point_opacity = parse_number(get_var("plot-point-opacity"))
 
-    # Combine colors, shapes, and alpha into prop_cycle
+    # Combine colors, shapes, line_types, and alpha into prop_cycle
     # Note: alpha needs to be in the cycle because matplotlib doesn't have a global rcParam for it
     cycle_parts = []
     if colors:
         cycle_parts.append(cycler(color=colors))
     if shapes:
         cycle_parts.append(cycler(marker=shapes))
+    if line_types:
+        cycle_parts.append(cycler(linestyle=line_types))
     # Only add alpha to cycle if opacity > 0 (when using filled markers)
     if point_opacity is not None and point_opacity > 0:
         # Repeat alpha value for each series (all series get same alpha)

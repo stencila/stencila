@@ -24,6 +24,24 @@ function mapShapeToVegaLite(shape: string): string {
 }
 
 /**
+ * Map Stencila line type names to Vega-Lite strokeDash arrays
+ *
+ * Vega-Lite uses strokeDash arrays [dash, gap, dash, gap, ...] where values are in pixels.
+ * An empty array [] or null means solid line.
+ */
+function mapLineTypeToVegaLite(lineType: string): number[] | null {
+  const mapping: Record<string, number[] | null> = {
+    'solid': null,  // null means solid in Vega-Lite
+    'dashed': [4, 2],
+    'dotted': [1, 1],
+    'dashdot': [4, 2, 1, 2],
+    'longdash': [8, 2],
+    'twodash': [4, 2, 1, 2, 1, 2],
+  }
+  return mapping[lineType] !== undefined ? mapping[lineType] : null
+}
+
+/**
  * Convert plot tokens to Vega-Lite config
  */
 function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
@@ -78,6 +96,7 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     range: {
       category: t.palette,
       symbol: t.shapes.map(mapShapeToVegaLite),
+      strokeDash: t.lineTypes.map(mapLineTypeToVegaLite),
       heatmap: [t.mark.heatMin, t.mark.heatMax],
     },
     header: {

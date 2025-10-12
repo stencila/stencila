@@ -41,6 +41,23 @@ function mapShapeToECharts(shape: string, opacity: number): string {
 }
 
 /**
+ * Map Stencila line type names to ECharts line type format
+ *
+ * ECharts supports 'solid', 'dashed', 'dotted', or custom dash arrays [dash, gap, dash, gap, ...]
+ */
+function mapLineTypeToECharts(lineType: string): 'solid' | 'dashed' | 'dotted' | number[] {
+  const mapping: Record<string, 'solid' | 'dashed' | 'dotted' | number[]> = {
+    'solid': 'solid',
+    'dashed': 'dashed',
+    'dotted': 'dotted',
+    'dashdot': [8, 4, 2, 4],
+    'longdash': [16, 4],
+    'twodash': [8, 4, 2, 4, 2, 4],
+  }
+  return mapping[lineType] || 'solid'
+}
+
+/**
  * Convert plot tokens to ECharts option base
  */
 function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
@@ -231,6 +248,8 @@ export async function compileECharts(
         : [mergedOptions.series]
 
       mergedOptions.series = seriesArray.map((series: Record<string, unknown>, i: number) => {
+        const updatedSeries: Record<string, unknown> = { ...series }
+
         // Apply symbolSize and symbol to scatter charts and line charts with symbols
         if (
           series.type === 'scatter' ||
@@ -238,11 +257,8 @@ export async function compileECharts(
           (series.type === 'line' && series.showSymbol !== false)
         ) {
           const shape = theme.shapes[i % theme.shapes.length]
-          const updatedSeries: Record<string, unknown> = {
-            symbolSize: theme.mark.pointSize,
-            symbol: mapShapeToECharts(shape, theme.mark.pointOpacity),
-            ...series,
-          }
+          updatedSeries.symbolSize = series.symbolSize ?? theme.mark.pointSize
+          updatedSeries.symbol = series.symbol ?? mapShapeToECharts(shape, theme.mark.pointOpacity)
 
           // Apply opacity to itemStyle when pointOpacity > 0
           if (theme.mark.pointOpacity > 0) {
@@ -251,10 +267,18 @@ export async function compileECharts(
               opacity: theme.mark.pointOpacity,
             }
           }
-
-          return updatedSeries
         }
-        return series
+
+        // Apply lineType to line charts
+        if (series.type === 'line') {
+          const lineType = theme.lineTypes[i % theme.lineTypes.length]
+          updatedSeries.lineStyle = {
+            ...((series.lineStyle as Record<string, unknown>) || {}),
+            type: (series.lineStyle as any)?.type ?? mapLineTypeToECharts(lineType),
+          }
+        }
+
+        return updatedSeries
       })
     }
 

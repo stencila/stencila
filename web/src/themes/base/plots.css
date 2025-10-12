@@ -129,6 +129,26 @@
     --plot-shape-7: pentagon;
     --plot-shape-8: hexagon;
 
+    /* Linetype Palette - Categorical line types for series that need distinct line styles
+     *
+     * This palette contains 6 line types chosen for maximum cross-library compatibility.
+     * Each line type is guaranteed to be supported across all plotting libraries
+     * (Plotly, ECharts, Vega-Lite, matplotlib, ggplot2, R base).
+     *
+     * Line types are applied to line charts with multiple series to distinguish them
+     * visually when color alone is insufficient (e.g., for colorblind accessibility
+     * or black-and-white printing).
+     *
+     * The 6 line types below provide visually distinct patterns that work consistently
+     * across all plotting backends.
+     */
+    --plot-line-type-1: solid;
+    --plot-line-type-2: dashed;
+    --plot-line-type-3: dotted;
+    --plot-line-type-4: dashdot;
+    --plot-line-type-5: longdash;
+    --plot-line-type-6: twodash;
+
     /* Plot background color: defaults surface background for panels that appear transparent */
     --plot-background: var(--surface-background);
     --plot-background-dark: var(--surface-background-dark);

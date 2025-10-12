@@ -40,6 +40,9 @@ export interface PlotTokens {
   // Shape palette for categorical data
   shapes: string[]
 
+  // Line type palette for categorical data
+  lineTypes: string[]
+
   // Ramp endpoints for continuous/discrete scales
   ramp: {
     start: string
@@ -240,6 +243,13 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     if (shape) shapes.push(shape)
   }
 
+  // Build line types array from individual line type variables (6 cross-library compatible types)
+  const lineTypes: string[] = []
+  for (let i = 1; i <= 6; i++) {
+    const lineType = getVar(`--plot-line-type-${i}`)
+    if (lineType) lineTypes.push(lineType)
+  }
+
   // Build and cache the theme
   cachedTheme = {
     // Dimensions
@@ -257,6 +267,9 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
 
     // Shapes
     shapes,
+
+    // Line types
+    lineTypes,
 
     // Ramp
     ramp: {
