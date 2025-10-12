@@ -55,7 +55,6 @@ export interface PlotTokens {
   panelBorderColor: string
   panelBorderWidth: number
   grid: string
-  zero: string
 
   // Typography
   textColor: string
@@ -228,7 +227,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
       return parseNum(getVar('--border-width-default'), 1, rootElement)
     })(),
     grid: colorToHex(getVar('--plot-grid')) || '#e5e5e5',
-    zero: colorToHex(getVar('--plot-zero-line-color')) || '#999999',
 
     // Typography
     textColor: colorToHex(getVar('--plot-text-color')) || '#000000',

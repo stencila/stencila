@@ -20,9 +20,6 @@
   --plot-tick-width: calc(var(--border-width-thick) * 0.75);
   --plot-tick-size: calc(var(--space-1) * 1.5); /* ~6px typically */
 
-  /* More visible zero line */
-  --plot-zero-line-color: color-mix(in srgb, var(--text-color-primary) 40%, var(--plot-panel));
-
   /* ═══════════════════════════════════════════════════════════════
    * Panel & Borders - Stronger containment
    * ═══════════════════════════════════════════════════════════════ */

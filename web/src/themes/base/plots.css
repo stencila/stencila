@@ -53,8 +53,16 @@
     --plot-height-max: 800px;
 
     /* Color Palette - Categorical colors for series/marks that need distinct hues
+     *
+     * Provides 12 colors for distinguishing different data series in plots.
      * First color uses theme accent for automatic theming. Colors 2-12 are
-     * sensible defaults. Custom themes should override with brand colors. */
+     * sensible defaults chosen for perceptual distinctiveness and accessibility.
+     * Custom themes should override with brand colors.
+     *
+     * Library support:
+     * - Supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2), R (base)
+     * - Applied automatically to series in order, cycling after 12 series
+     */
     --plot-color-1: var(--color-accent);
     --plot-color-1-dark: var(--color-accent-dark);
 
@@ -92,7 +100,16 @@
     --plot-color-12-dark: hsl(200 45% 55%);
 
     /* Color Ramp - Endpoints for continuous or discrete scales
-     * Calculated from accent color. Libraries interpolate between start/end. */
+     *
+     * Defines start and end colors for sequential/continuous color scales (e.g., heatmaps).
+     * Calculated from accent color by mixing with background. Libraries interpolate
+     * between start/end to create smooth gradients or discrete steps.
+     *
+     * Library support:
+     * - Supported: ECharts (heatmaps), Plotly (heatmaps), Vega-Lite (continuous scales),
+     *   Python (matplotlib colormaps), R (ggplot2 continuous scales)
+     * - Not supported: R (base plots - use stencila_theme$gradient programmatically)
+     */
     --plot-ramp-start: color-mix(in oklch, var(--color-accent) 5%, var(--plot-background));
     --plot-ramp-start-dark: color-mix(in oklch, var(--color-accent-dark) 5%, var(--plot-background-dark));
 
@@ -147,21 +164,49 @@
     --plot-line-type-5: longdash;
     --plot-line-type-6: twodash;
 
-    /* Plot background color: defaults surface background for panels that appear transparent */
+    /* Backgrounds - Plot container and panel (data region) colors
+     *
+     * --plot-background: The outer plot area including titles, legends, and padding.
+     *   Defaults to surface background for seamless document integration.
+     *
+     * --plot-panel: The inner data region (plot area) where marks/geometries are drawn.
+     *   Defaults to plot background. Override for contrast (e.g., white panel on gray plot).
+     *
+     * Library support:
+     * - Supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2), R (base)
+     */
     --plot-background: var(--surface-background);
     --plot-background-dark: var(--surface-background-dark);
 
-    /* Panel background. Defaults to plot background */
     --plot-panel: var(--plot-background);
     --plot-panel-dark: var(--plot-background-dark);
 
-    /* Panel border controls whether to show top and right borders (completing the box around the plot area).
-     * The color comes from --plot-axis-line-color to ensure visual consistency between axis lines
-     * and panel borders. The width defaults to --border-width-default when enabled.
-     * Set to true to show all four borders, false to show only left/bottom (axes only). */
+    /* Panel Border - Controls whether to show borders around the plot panel
+     *
+     * When true: Shows all four borders (complete box) around the data region
+     * When false: Shows only left and bottom borders (L-shape, axes only)
+     *
+     * The border color comes from --plot-axis-line-color for visual consistency.
+     * The border width defaults to --border-width-default when enabled.
+     *
+     * Library support:
+     * - Supported: ECharts (grid.borderWidth), Plotly (axis.mirror), Vega-Lite (view.stroke),
+     *   Python (matplotlib axes.spines), R (ggplot2 panel.border), R (base par bty)
+     */
     --plot-panel-border: true;
 
-    /* Typography - Font families and scale tokens */
+    /* Typography - Font properties and text sizing for plot elements
+     *
+     * --plot-text-color: Primary color for all text elements (titles, labels, legends)
+     * --plot-font-family: Font stack for all plot text. Defaults to document sans-serif.
+     * --plot-font-size: Base font size for tick labels and body text
+     * --plot-title-size: Font size for main plot title
+     * --plot-subtitle-size: Font size for plot subtitle
+     *
+     * Library support:
+     * - Supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2), R (base)
+     * - Note: Subtitle not supported in Python (matplotlib has no native subtitle)
+     */
     --plot-text-color: var(--text-color-primary);
     --plot-text-color-dark: var(--text-color-primary-dark);
 
@@ -200,7 +245,27 @@
     --plot-padding-right: var(--plot-padding);
     --plot-padding-left: var(--plot-padding);
 
-    /* Axes & Grid - Structure and reference cues */
+    /* Axes & Grid - Structure and reference lines for data interpretation
+     *
+     * Axis properties:
+     * --plot-axis-line-color: Color of axis lines (and panel borders when enabled)
+     * --plot-axis-line-width: Width of axis lines (typically 1px)
+     * --plot-axis-title-size: Font size for axis labels (e.g., "x", "y", "Time")
+     * --plot-axis-title-weight: Font weight for axis labels (normal or bold)
+     * --plot-axis-title-color: Color for axis labels
+     *
+     * Grid properties:
+     * --plot-grid-color: Color of gridlines. Subtle by default (15% text color mixed with panel)
+     * --plot-grid-width: Default width for both x and y gridlines
+     * --plot-grid-x-width: Width of vertical gridlines (overrides grid-width if set)
+     * --plot-grid-y-width: Width of horizontal gridlines (overrides grid-width if set)
+     * Note: Set width to 0 to hide gridlines for that axis
+     *
+     * Library support:
+     * - Supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2), R (base)
+     * - Axis-specific grid widths supported: Python, R (ggplot2)
+     * - Axis-specific grid widths partially supported: ECharts, Plotly, Vega-Lite (use max width)
+     */
     --plot-axis-line-color: var(--plot-text-color);
     --plot-axis-line-color-dark: var(--plot-text-color-dark);
     --plot-axis-line-width: var(--border-width-default);
@@ -210,18 +275,27 @@
     --plot-axis-title-color: var(--plot-text-color);
     --plot-axis-title-color-dark: var(--plot-text-color-dark);
 
-    --plot-grid: color-mix(in srgb, var(--text-color-primary) 15%, var(--plot-panel));
-    --plot-grid-dark: color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--plot-panel-dark));
-    --plot-grid-color: var(--plot-grid);
-    --plot-grid-color-dark: var(--plot-grid-dark);
+    --plot-grid-color: color-mix(in srgb, var(--text-color-primary) 15%, var(--plot-panel));
+    --plot-grid-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--plot-panel-dark));
     --plot-grid-width: var(--border-width-default);
     --plot-grid-x-width: var(--plot-grid-width);
     --plot-grid-y-width: var(--plot-grid-width);
 
-    --plot-zero-line-color: color-mix(in srgb, var(--text-color-primary) 35%, var(--plot-panel));
-    --plot-zero-line-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 35%, var(--plot-panel-dark));
-
-    /* Legends - Box, markers, spacing */
+    /* Legends - Visual guides mapping colors/shapes to data series
+     *
+     * Legend styling:
+     * --plot-legend-background: Background color of legend box. Defaults to panel color.
+     * --plot-legend-text-color: Color of legend labels
+     * --plot-legend-text-size: Font size for legend text
+     * --plot-legend-border-color: Color of legend box border
+     * --plot-legend-border-width: Width of legend box border
+     *
+     * Library support for styling:
+     * - Background supported: ECharts, Plotly, Python (matplotlib), R (ggplot2)
+     * - Border supported: ECharts, Plotly, Python (matplotlib stores as custom param), R (ggplot2)
+     * - Border not supported: Vega-Lite (no legend box borders)
+     * - Not applicable: R (base plots - legends added manually)
+     */
     --plot-legend-background: var(--plot-panel);
     --plot-legend-background-dark: var(--plot-panel-dark);
 
@@ -233,20 +307,69 @@
     --plot-legend-border-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 20%, var(--surface-foreground-dark));
 
     --plot-legend-border-width: var(--border-width-default);
+
+    /* Legend Position - Where to place the legend relative to the plot
+     *
+     * Valid values: auto, top, bottom, left, right, none
+     * - auto: Library-specific automatic positioning (typically right or best location)
+     * - top/bottom: Horizontal legend centered above/below plot
+     * - left/right: Vertical legend on left/right side
+     * - none: Hide legend
+     *
+     * Library support:
+     * - Fully supported: ECharts, Plotly, Vega-Lite
+     * - Partially supported: Python (matplotlib/seaborn) - Stored in plt.rcParams["legend.loc"]
+     *   but must be manually applied with plt.legend(loc=plt.rcParams["legend.loc"]) or
+     *   seaborn.move_legend() due to matplotlib not supporting global legend positioning via rcParams
+     * - Partially supported: R (ggplot2) - Position can be set via theme
+     * - Not supported: R (base plots) - Legends added manually
+     */
     --plot-legend-position: auto;
 
-    /* Tooltips - Transient UI with high contrast, subtle elevation */
+    /* Tooltips - Interactive hover information displays
+     *
+     * Controls the appearance of tooltips/hover labels that appear when interacting
+     * with plot elements (hovering over points, bars, etc.).
+     *
+     * --plot-tooltip-background: Background color of tooltip box. Slightly darkened for contrast.
+     * --plot-tooltip-text-color: Text color inside tooltip
+     *
+     * Library support:
+     * - Supported: ECharts (tooltip), Plotly (hoverlabel)
+     * - Not supported: Vega-Lite (uses browser defaults), Python (matplotlib has no native tooltips),
+     *   R (ggplot2 has no native tooltips), R (base has no native tooltips)
+     * - Note: Interactive tooltips only apply to web-based JS plotting libraries
+     */
     --plot-tooltip-background: color-mix(in srgb, var(--surface-background) 95%, black);
     --plot-tooltip-background-dark: color-mix(in srgb, var(--surface-background-dark) 85%, black);
 
     --plot-tooltip-text-color: var(--text-color-primary);
     --plot-tooltip-text-color-dark: var(--text-color-primary-dark);
 
-    /* Marks - Defaults per geometry (line/area/point/bar/candlestick/heatmap) */
-    /* Point fill opacity: Controls whether points are open (unfilled) or filled
-     * 0 = open/unfilled points with stroke only (default for overlap visibility)
-     * >0 = filled points with specified opacity (e.g., 0.7 for semi-transparent, 1 for solid)
-     * This applies to scatter plots and line charts with symbols across all libraries. */
+    /* Marks - Visual properties for geometric elements (points, lines, areas)
+     *
+     * Point properties:
+     * --plot-point-opacity: Fill opacity for point markers (scatter plots, line symbols)
+     *   - 0: Open/unfilled points with stroke only (default for better overlap visibility)
+     *   - 0 < x < 1: Semi-transparent filled points (e.g., 0.7 for 70% opacity)
+     *   - 1: Solid filled points
+     *   Note: Shape is determined by --plot-shape-* palette
+     * --plot-point-size: Size of point markers in pixels
+     *
+     * Line properties:
+     * --plot-line-width: Width of lines in line charts, paths, and strokes
+     *   Note: Line style is determined by --plot-line-type-* palette
+     *
+     * Area properties:
+     * --plot-area-opacity: Fill opacity for area charts and filled regions (e.g., 0.25 for 25%)
+     *
+     * Library support:
+     * - Point opacity supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2)
+     * - Point size supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2), R (base)
+     * - Line width supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2), R (base)
+     * - Area opacity supported: Plotly, Vega-Lite
+     * - Area opacity not supported: ECharts, Python (matplotlib), R (ggplot2), R (base)
+     */
     --plot-point-opacity: 0;
     --plot-point-size: calc(var(--space-2) * 0.75);
 
@@ -275,11 +398,9 @@
         --plot-background: var(--plot-background-dark);
         --plot-panel: var(--plot-panel-dark);
         --plot-text-color: var(--plot-text-color-dark);
-        --plot-grid: var(--plot-grid-dark);
         --plot-axis-line-color: var(--plot-axis-line-color-dark);
         --plot-axis-title-color: var(--plot-axis-title-color-dark);
         --plot-grid-color: var(--plot-grid-color-dark);
-        --plot-zero-line-color: var(--plot-zero-line-color-dark);
         --plot-legend-background: var(--plot-legend-background-dark);
         --plot-legend-text-color: var(--plot-legend-text-color-dark);
         --plot-legend-border-color: var(--plot-legend-border-color-dark);
@@ -306,11 +427,9 @@
     --plot-background: var(--plot-background-dark);
     --plot-panel: var(--plot-panel-dark);
     --plot-text-color: var(--plot-text-color-dark);
-    --plot-grid: var(--plot-grid-dark);
     --plot-axis-line-color: var(--plot-axis-line-color-dark);
     --plot-axis-title-color: var(--plot-axis-title-color-dark);
     --plot-grid-color: var(--plot-grid-color-dark);
-    --plot-zero-line-color: var(--plot-zero-line-color-dark);
     --plot-legend-background: var(--plot-legend-background-dark);
     --plot-legend-text-color: var(--plot-legend-text-color-dark);
     --plot-legend-border-color: var(--plot-legend-border-color-dark);
