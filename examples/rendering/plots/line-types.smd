@@ -1,0 +1,266 @@
+---
+title: Linetype scale theme variables
+---
+
+A line plot with multiple categories for testing the application of line type aesthetic mapping across plotting libraries. Each category (A-F) should be rendered with a distinct line type from the theme palette (solid, dashed, dotted, dashdot, longdash, twodash).
+
+# Python
+
+Plots generated in Python using Matplotlib, Plotly Express, and Altair.
+
+```python exec
+import pandas as pd
+import numpy as np
+
+# Create data with 6 series offset vertically for visibility
+x = np.linspace(0, 10, 50)
+df = pd.DataFrame({
+    'x': np.tile(x, 6),
+    'y': np.concatenate([
+        np.sin(x) + 0,
+        np.sin(x) + 2,
+        np.sin(x) + 4,
+        np.sin(x) + 6,
+        np.sin(x) + 8,
+        np.sin(x) + 10
+    ]),
+    'category': np.repeat(['A', 'B', 'C', 'D', 'E', 'F'], len(x))
+})
+```
+
+## matplotlib
+
+```python exec
+import matplotlib.pyplot as plt
+
+for category in df['category'].unique():
+    subset = df[df['category'] == category]
+    plt.plot(subset['x'], subset['y'], label=category)
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.legend()
+```
+
+## Seaborn
+
+```python exec
+import seaborn as sns
+
+sns.lineplot(data=df, x='x', y='y', hue='category', style='category')
+```
+
+## Plotly
+
+```python exec
+import plotly.express as px
+
+px.line(df, x='x', y='y', line_dash='category', color='category')
+```
+
+## Altair
+
+```python exec
+import altair as alt
+
+alt.Chart(df).mark_line().encode(
+    x='x:Q',
+    y='y:Q',
+    strokeDash='category:N',
+    color='category:N'
+)
+```
+
+# R
+
+Plots generated in R using base plotting and `ggplot2`.
+
+```r exec
+x <- seq(0, 10, length.out = 50)
+df <- data.frame(
+  x = rep(x, 6),
+  y = c(
+    sin(x) + 0,
+    sin(x) + 2,
+    sin(x) + 4,
+    sin(x) + 6,
+    sin(x) + 8,
+    sin(x) + 10
+  ),
+  category = factor(rep(LETTERS[1:6], each = 50))
+)
+```
+
+## Base plotting
+
+```r exec
+plot(NULL, xlim = c(0, 10), ylim = c(-2, 12), xlab = "x", ylab = "y")
+for (i in 1:6) {
+  subset <- df[df$category == levels(df$category)[i], ]
+  lines(subset$x, subset$y, lty = stencila_theme$linetypes[i], col = i)
+}
+legend("topright", legend = levels(df$category), lty = stencila_theme$linetypes[1:6], col = 1:6)
+```
+
+## ggplot
+
+```r exec
+library(ggplot2)
+
+ggplot(df, aes(x = x, y = y, linetype = category, color = category)) +
+  geom_line(linewidth = 0.8) +
+  labs(x = "x", y = "y") +
+  stencila_theme$scales()
+```
+
+# Browser
+
+Plots generated in the browser using ECharts, Plotly.js and Vega-lite.
+
+## ECharts
+
+```echarts exec
+{
+  "xAxis": {
+    "name": "x",
+    "type": "value"
+  },
+  "yAxis": {
+    "name": "y"
+  },
+  "legend": {
+    "data": ["A", "B", "C", "D", "E", "F"]
+  },
+  "series": [
+    {
+      "type": "line",
+      "name": "A",
+      "data": [[0, 0], [2, 0.9], [4, 0.7], [6, -0.3], [8, -0.9], [10, -0.5]],
+      "smooth": true,
+      "showSymbol": false
+    },
+    {
+      "type": "line",
+      "name": "B",
+      "data": [[0, 2], [2, 2.9], [4, 2.7], [6, 1.7], [8, 1.1], [10, 1.5]],
+      "smooth": true,
+      "showSymbol": false
+    },
+    {
+      "type": "line",
+      "name": "C",
+      "data": [[0, 4], [2, 4.9], [4, 4.7], [6, 3.7], [8, 3.1], [10, 3.5]],
+      "smooth": true,
+      "showSymbol": false
+    },
+    {
+      "type": "line",
+      "name": "D",
+      "data": [[0, 6], [2, 6.9], [4, 6.7], [6, 5.7], [8, 5.1], [10, 5.5]],
+      "smooth": true,
+      "showSymbol": false
+    },
+    {
+      "type": "line",
+      "name": "E",
+      "data": [[0, 8], [2, 8.9], [4, 8.7], [6, 7.7], [8, 7.1], [10, 7.5]],
+      "smooth": true,
+      "showSymbol": false
+    },
+    {
+      "type": "line",
+      "name": "F",
+      "data": [[0, 10], [2, 10.9], [4, 10.7], [6, 9.7], [8, 9.1], [10, 9.5]],
+      "smooth": true,
+      "showSymbol": false
+    }
+  ]
+}
+```
+
+## Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "type": "scatter",
+      "mode": "lines",
+      "name": "A",
+      "x": [0, 2, 4, 6, 8, 10],
+      "y": [0, 0.9, 0.7, -0.3, -0.9, -0.5],
+      "line": {"width": 3}
+    },
+    {
+      "type": "scatter",
+      "mode": "lines",
+      "name": "B",
+      "x": [0, 2, 4, 6, 8, 10],
+      "y": [2, 2.9, 2.7, 1.7, 1.1, 1.5],
+      "line": {"width": 3}
+    },
+    {
+      "type": "scatter",
+      "mode": "lines",
+      "name": "C",
+      "x": [0, 2, 4, 6, 8, 10],
+      "y": [4, 4.9, 4.7, 3.7, 3.1, 3.5],
+      "line": {"width": 3}
+    },
+    {
+      "type": "scatter",
+      "mode": "lines",
+      "name": "D",
+      "x": [0, 2, 4, 6, 8, 10],
+      "y": [6, 6.9, 6.7, 5.7, 5.1, 5.5],
+      "line": {"width": 3}
+    },
+    {
+      "type": "scatter",
+      "mode": "lines",
+      "name": "E",
+      "x": [0, 2, 4, 6, 8, 10],
+      "y": [8, 8.9, 8.7, 7.7, 7.1, 7.5],
+      "line": {"width": 3}
+    },
+    {
+      "type": "scatter",
+      "mode": "lines",
+      "name": "F",
+      "x": [0, 2, 4, 6, 8, 10],
+      "y": [10, 10.9, 10.7, 9.7, 9.1, 9.5],
+      "line": {"width": 3}
+    }
+  ],
+  "layout": {
+    "xaxis": {"title": {"text": "x"}},
+    "yaxis": {"title": {"text": "y"}},
+    "showlegend": true
+  }
+}
+```
+
+## Vega-lite
+
+```vegalite exec
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"x": 0, "y": 0, "category": "A"}, {"x": 2, "y": 0.9, "category": "A"}, {"x": 4, "y": 0.7, "category": "A"}, {"x": 6, "y": -0.3, "category": "A"}, {"x": 8, "y": -0.9, "category": "A"}, {"x": 10, "y": -0.5, "category": "A"},
+      {"x": 0, "y": 2, "category": "B"}, {"x": 2, "y": 2.9, "category": "B"}, {"x": 4, "y": 2.7, "category": "B"}, {"x": 6, "y": 1.7, "category": "B"}, {"x": 8, "y": 1.1, "category": "B"}, {"x": 10, "y": 1.5, "category": "B"},
+      {"x": 0, "y": 4, "category": "C"}, {"x": 2, "y": 4.9, "category": "C"}, {"x": 4, "y": 4.7, "category": "C"}, {"x": 6, "y": 3.7, "category": "C"}, {"x": 8, "y": 3.1, "category": "C"}, {"x": 10, "y": 3.5, "category": "C"},
+      {"x": 0, "y": 6, "category": "D"}, {"x": 2, "y": 6.9, "category": "D"}, {"x": 4, "y": 6.7, "category": "D"}, {"x": 6, "y": 5.7, "category": "D"}, {"x": 8, "y": 5.1, "category": "D"}, {"x": 10, "y": 5.5, "category": "D"},
+      {"x": 0, "y": 8, "category": "E"}, {"x": 2, "y": 8.9, "category": "E"}, {"x": 4, "y": 8.7, "category": "E"}, {"x": 6, "y": 7.7, "category": "E"}, {"x": 8, "y": 7.1, "category": "E"}, {"x": 10, "y": 7.5, "category": "E"},
+      {"x": 0, "y": 10, "category": "F"}, {"x": 2, "y": 10.9, "category": "F"}, {"x": 4, "y": 10.7, "category": "F"}, {"x": 6, "y": 9.7, "category": "F"}, {"x": 8, "y": 9.1, "category": "F"}, {"x": 10, "y": 9.5, "category": "F"}
+    ]
+  },
+  "mark": "line",
+  "encoding": {
+    "x": {"field": "x", "type": "quantitative"},
+    "y": {"field": "y", "type": "quantitative"},
+    "strokeDash": {"field": "category", "type": "nominal"},
+    "color": {"field": "category", "type": "nominal"}
+  }
+}
+```

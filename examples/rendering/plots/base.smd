@@ -1,0 +1,126 @@
+---
+title: Base plot theme variables
+---
+
+A simple scatter plot for testing the consistency of application of base theme `plot-` variables such as `plot-aspect-ratio`, `plot-background`, and `plot-padding-*` across plotting libraries.
+
+# Python
+
+Plots generated in Python using Matplotlib, Plotly Express, and Altair.
+
+```python exec
+import pandas as pd
+
+df = pd.DataFrame({
+    'x': range(1, 11),
+    'y': range(1, 11)
+})
+```
+
+## matplotlib
+
+```python exec
+import matplotlib.pyplot as plt
+
+plt.plot(df['x'], df['y'], 'o')
+plt.xlabel('x')
+plt.ylabel('y')
+```
+
+## Seaborn
+
+```python exec
+import seaborn as sns
+
+sns.scatterplot(data=df, x='x', y='y')
+```
+
+## Plotly
+
+```python exec
+import plotly.express as px
+
+px.scatter(df, x='x', y='y')
+```
+
+## Altair
+
+```python exec
+import altair as alt
+
+alt.Chart(df).mark_point().encode(x='x', y='y')
+```
+
+# R
+
+Plots generated in R using base plotting and `ggplot2`.
+
+## Base plotting
+
+```r exec
+plot(1:10, 1:10, xlab = "x", ylab = "y", col = 1)
+```
+
+## ggplot
+
+```r exec
+library(ggplot2)
+ggplot(data.frame(x = 1:10, y = 1:10), aes(x = x, y = y)) + geom_point()
+```
+
+# Browser
+
+Plots generated in the browser using ECharts, Plotly.js and Vega-lite.
+
+### ECharts
+
+```echarts exec
+{
+  "xAxis": {
+    "name": "x"
+  },
+  "yAxis": {
+    "name": "y"
+  },
+  "series": [{
+    "type": "scatter",
+    "data": [[1,1], [2,2], [3,3], [4,4], [5,5], [6,6], [7,7], [8,8], [9,9], [10,10]]
+  }]
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [{
+    "type": "scatter",
+    "mode": "markers",
+    "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  }],
+  "layout": {
+    "xaxis": {"title": {"text": "x"}},
+    "yaxis": {"title": {"text": "y"}}
+  }
+}
+```
+
+### Vega-lite
+
+```vegalite exec
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"x": 1, "y": 1}, {"x": 2, "y": 2}, {"x": 3, "y": 3}, {"x": 4, "y": 4}, {"x": 5, "y": 5},
+      {"x": 6, "y": 6}, {"x": 7, "y": 7}, {"x": 8, "y": 8}, {"x": 9, "y": 9}, {"x": 10, "y": 10}
+    ]
+  },
+  "mark": "point",
+  "encoding": {
+    "x": {"field": "x", "type": "quantitative"},
+    "y": {"field": "y", "type": "quantitative"}
+  }
+}
+```

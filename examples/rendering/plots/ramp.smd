@@ -1,0 +1,204 @@
+---
+title: Color ramp theme variables
+---
+
+A simple heatmap mainly for testing the application of the color ramp tokens (`--plot-ramp-start`, `--plot-ramp-end`, `--plot-ramp-steps`) across plotting libraries.
+
+# Python
+
+Heatmaps generated in Python using Matplotlib, Plotly Express, and Altair.
+
+```python exec
+import numpy as np
+import pandas as pd
+
+# Create a 10x10 matrix where values increase horizontally (as x increases)
+# Pattern: value = y + 10*x, where y is row (0-9) and x is column (0-9)
+data = np.array([[y + 10*x for x in range(10)] for y in range(10)])
+```
+
+## matplotlib
+
+```python exec
+import matplotlib.pyplot as plt
+
+plt.imshow(data, aspect='auto')
+plt.colorbar(label='Value')
+plt.xlabel('x')
+plt.ylabel('y')
+```
+
+## Seaborn
+
+```python exec
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.heatmap(data, cbar_kws={'label': 'Value'})
+plt.xlabel('x')
+plt.ylabel('y')
+```
+
+## Plotly
+
+```python exec
+import plotly.express as px
+
+px.imshow(data, labels=dict(x="x", y="y", color="Value"), aspect="auto")
+```
+
+## Altair
+
+```python exec
+import altair as alt
+
+# Convert matrix to long format for Altair
+df_long = pd.DataFrame([
+    {'x': j, 'y': i, 'value': data[i, j]}
+    for i in range(10) for j in range(10)
+])
+
+alt.Chart(df_long).mark_rect().encode(
+    x=alt.X('x:O', title='x'),
+    y=alt.Y('y:O', title='y'),
+    color=alt.Color('value:Q', title='Value')
+)
+```
+
+# R
+
+Heatmaps generated in R using base plotting and `ggplot2`.
+
+## Base plotting
+
+```r exec
+# Create a 10x10 matrix where values increase horizontally (as x increases)
+# Pattern: value = y + 10*x, where y is row (0-9) and x is column (0-9)
+data <- outer(0:9, 0:9, function(y, x) y + 10*x)
+image(data, xlab = "x", ylab = "y", main = "", col = stencila_theme$gradient)
+```
+
+## ggplot
+
+```r exec
+library(ggplot2)
+
+# Create data frame with pattern: value = y + 10*x
+data_df <- expand.grid(x = 0:9, y = 0:9)
+data_df$value <- data_df$y + 10 * data_df$x
+
+ggplot(data_df, aes(x = x, y = y, fill = value)) +
+  geom_tile() +
+  labs(x = "x", y = "y", fill = "Value")
+```
+
+# Browser
+
+Heatmaps generated in the browser using ECharts, Plotly.js and Vega-lite.
+
+## ECharts
+
+```echarts exec
+{
+  "xAxis": {
+    "type": "category",
+    "data": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "name": "x",
+    "splitArea": {
+      "show": true
+    }
+  },
+  "yAxis": {
+    "type": "category",
+    "data": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "name": "y",
+    "splitArea": {
+      "show": true
+    }
+  },
+  "visualMap": {
+    "min": 0,
+    "max": 100,
+    "calculable": true,
+    "orient": "vertical",
+    "right": "-25",
+    "top": "center"
+  },
+  "series": [
+    {
+      "type": "heatmap",
+      "data": [
+        [0, 0, 0], [1, 0, 10], [2, 0, 20], [3, 0, 30], [4, 0, 40], [5, 0, 50], [6, 0, 60], [7, 0, 70], [8, 0, 80], [9, 0, 90],
+        [0, 1, 1], [1, 1, 11], [2, 1, 21], [3, 1, 31], [4, 1, 41], [5, 1, 51], [6, 1, 61], [7, 1, 71], [8, 1, 81], [9, 1, 91],
+        [0, 2, 2], [1, 2, 12], [2, 2, 22], [3, 2, 32], [4, 2, 42], [5, 2, 52], [6, 2, 62], [7, 2, 72], [8, 2, 82], [9, 2, 92],
+        [0, 3, 3], [1, 3, 13], [2, 3, 23], [3, 3, 33], [4, 3, 43], [5, 3, 53], [6, 3, 63], [7, 3, 73], [8, 3, 83], [9, 3, 93],
+        [0, 4, 4], [1, 4, 14], [2, 4, 24], [3, 4, 34], [4, 4, 44], [5, 4, 54], [6, 4, 64], [7, 4, 74], [8, 4, 84], [9, 4, 94],
+        [0, 5, 5], [1, 5, 15], [2, 5, 25], [3, 5, 35], [4, 5, 45], [5, 5, 55], [6, 5, 65], [7, 5, 75], [8, 5, 85], [9, 5, 95],
+        [0, 6, 6], [1, 6, 16], [2, 6, 26], [3, 6, 36], [4, 6, 46], [5, 6, 56], [6, 6, 66], [7, 6, 76], [8, 6, 86], [9, 6, 96],
+        [0, 7, 7], [1, 7, 17], [2, 7, 27], [3, 7, 37], [4, 7, 47], [5, 7, 57], [6, 7, 67], [7, 7, 77], [8, 7, 87], [9, 7, 97],
+        [0, 8, 8], [1, 8, 18], [2, 8, 28], [3, 8, 38], [4, 8, 48], [5, 8, 58], [6, 8, 68], [7, 8, 78], [8, 8, 88], [9, 8, 98],
+        [0, 9, 9], [1, 9, 19], [2, 9, 29], [3, 9, 39], [4, 9, 49], [5, 9, 59], [6, 9, 69], [7, 9, 79], [8, 9, 89], [9, 9, 99]
+      ],
+      "label": {
+        "show": false
+      }
+    }
+  ]
+}
+```
+
+## Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "type": "heatmap",
+      "z": [
+        [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+        [1, 11, 21, 31, 41, 51, 61, 71, 81, 91],
+        [2, 12, 22, 32, 42, 52, 62, 72, 82, 92],
+        [3, 13, 23, 33, 43, 53, 63, 73, 83, 93],
+        [4, 14, 24, 34, 44, 54, 64, 74, 84, 94],
+        [5, 15, 25, 35, 45, 55, 65, 75, 85, 95],
+        [6, 16, 26, 36, 46, 56, 66, 76, 86, 96],
+        [7, 17, 27, 37, 47, 57, 67, 77, 87, 97],
+        [8, 18, 28, 38, 48, 58, 68, 78, 88, 98],
+        [9, 19, 29, 39, 49, 59, 69, 79, 89, 99]
+      ]
+    }
+  ],
+  "layout": {
+    "xaxis": {"title": {"text": "x"}},
+    "yaxis": {"title": {"text": "y"}}
+  }
+}
+```
+
+## Vega-lite
+
+```vegalite exec
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"x": 0, "y": 0, "value": 0}, {"x": 1, "y": 0, "value": 10}, {"x": 2, "y": 0, "value": 20}, {"x": 3, "y": 0, "value": 30}, {"x": 4, "y": 0, "value": 40}, {"x": 5, "y": 0, "value": 50}, {"x": 6, "y": 0, "value": 60}, {"x": 7, "y": 0, "value": 70}, {"x": 8, "y": 0, "value": 80}, {"x": 9, "y": 0, "value": 90},
+      {"x": 0, "y": 1, "value": 1}, {"x": 1, "y": 1, "value": 11}, {"x": 2, "y": 1, "value": 21}, {"x": 3, "y": 1, "value": 31}, {"x": 4, "y": 1, "value": 41}, {"x": 5, "y": 1, "value": 51}, {"x": 6, "y": 1, "value": 61}, {"x": 7, "y": 1, "value": 71}, {"x": 8, "y": 1, "value": 81}, {"x": 9, "y": 1, "value": 91},
+      {"x": 0, "y": 2, "value": 2}, {"x": 1, "y": 2, "value": 12}, {"x": 2, "y": 2, "value": 22}, {"x": 3, "y": 2, "value": 32}, {"x": 4, "y": 2, "value": 42}, {"x": 5, "y": 2, "value": 52}, {"x": 6, "y": 2, "value": 62}, {"x": 7, "y": 2, "value": 72}, {"x": 8, "y": 2, "value": 82}, {"x": 9, "y": 2, "value": 92},
+      {"x": 0, "y": 3, "value": 3}, {"x": 1, "y": 3, "value": 13}, {"x": 2, "y": 3, "value": 23}, {"x": 3, "y": 3, "value": 33}, {"x": 4, "y": 3, "value": 43}, {"x": 5, "y": 3, "value": 53}, {"x": 6, "y": 3, "value": 63}, {"x": 7, "y": 3, "value": 73}, {"x": 8, "y": 3, "value": 83}, {"x": 9, "y": 3, "value": 93},
+      {"x": 0, "y": 4, "value": 4}, {"x": 1, "y": 4, "value": 14}, {"x": 2, "y": 4, "value": 24}, {"x": 3, "y": 4, "value": 34}, {"x": 4, "y": 4, "value": 44}, {"x": 5, "y": 4, "value": 54}, {"x": 6, "y": 4, "value": 64}, {"x": 7, "y": 4, "value": 74}, {"x": 8, "y": 4, "value": 84}, {"x": 9, "y": 4, "value": 94},
+      {"x": 0, "y": 5, "value": 5}, {"x": 1, "y": 5, "value": 15}, {"x": 2, "y": 5, "value": 25}, {"x": 3, "y": 5, "value": 35}, {"x": 4, "y": 5, "value": 45}, {"x": 5, "y": 5, "value": 55}, {"x": 6, "y": 5, "value": 65}, {"x": 7, "y": 5, "value": 75}, {"x": 8, "y": 5, "value": 85}, {"x": 9, "y": 5, "value": 95},
+      {"x": 0, "y": 6, "value": 6}, {"x": 1, "y": 6, "value": 16}, {"x": 2, "y": 6, "value": 26}, {"x": 3, "y": 6, "value": 36}, {"x": 4, "y": 6, "value": 46}, {"x": 5, "y": 6, "value": 56}, {"x": 6, "y": 6, "value": 66}, {"x": 7, "y": 6, "value": 76}, {"x": 8, "y": 6, "value": 86}, {"x": 9, "y": 6, "value": 96},
+      {"x": 0, "y": 7, "value": 7}, {"x": 1, "y": 7, "value": 17}, {"x": 2, "y": 7, "value": 27}, {"x": 3, "y": 7, "value": 37}, {"x": 4, "y": 7, "value": 47}, {"x": 5, "y": 7, "value": 57}, {"x": 6, "y": 7, "value": 67}, {"x": 7, "y": 7, "value": 77}, {"x": 8, "y": 7, "value": 87}, {"x": 9, "y": 7, "value": 97},
+      {"x": 0, "y": 8, "value": 8}, {"x": 1, "y": 8, "value": 18}, {"x": 2, "y": 8, "value": 28}, {"x": 3, "y": 8, "value": 38}, {"x": 4, "y": 8, "value": 48}, {"x": 5, "y": 8, "value": 58}, {"x": 6, "y": 8, "value": 68}, {"x": 7, "y": 8, "value": 78}, {"x": 8, "y": 8, "value": 88}, {"x": 9, "y": 8, "value": 98},
+      {"x": 0, "y": 9, "value": 9}, {"x": 1, "y": 9, "value": 19}, {"x": 2, "y": 9, "value": 29}, {"x": 3, "y": 9, "value": 39}, {"x": 4, "y": 9, "value": 49}, {"x": 5, "y": 9, "value": 59}, {"x": 6, "y": 9, "value": 69}, {"x": 7, "y": 9, "value": 79}, {"x": 8, "y": 9, "value": 89}, {"x": 9, "y": 9, "value": 99}
+    ]
+  },
+  "mark": "rect",
+  "encoding": {
+    "x": {"field": "x", "type": "ordinal", "title": "x"},
+    "y": {"field": "y", "type": "ordinal", "title": "y"},
+    "color": {"field": "value", "type": "quantitative", "title": "Value"}
+  }
+}
+```

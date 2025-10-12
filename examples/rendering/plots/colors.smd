@@ -1,0 +1,197 @@
+---
+title: Color palette theme variables
+---
+
+A simple, single series, bar chart mainly for testing the application of the plotting color palette (`--plot-color-1`, `--plot-color-2`, ...) across plotting libraries.
+
+# Python
+
+Plots generated in Python using Matplotlib, Plotly Express, and Altair.
+
+```python exec
+import pandas as pd
+
+df = pd.DataFrame({
+    'x': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+    'y': list(range(1, 13))
+})
+```
+
+## matplotlib
+
+```python exec
+import matplotlib.pyplot as plt
+
+plt.bar(df['x'], df['y'], color=[f'C{i}' for i in range(12)])
+plt.xlabel('x')
+plt.ylabel('y')
+```
+
+## Seaborn
+
+```python exec
+import seaborn as sns
+
+sns.barplot(data=df, x='x', y='y', hue='x', legend=False)
+```
+
+## Plotly
+
+```python exec
+import plotly.express as px
+
+px.bar(df, x='x', y='y', color='x')
+```
+
+## Altair
+
+```python exec
+import altair as alt
+
+alt.Chart(df).mark_bar().encode(x='x', y='y', color='x')
+```
+
+# R
+
+Plots generated in R using base plotting and `ggplot2`.
+
+## Base plotting
+
+```r exec
+barplot(1:12, names.arg = LETTERS[1:12], xlab = "x", ylab = "y", col = 1:12, legend.text = LETTERS[1:12], args.legend = list(x = "topright", inset = c(-0.15, 0), xpd = TRUE))
+```
+
+## ggplot
+
+```r exec
+library(ggplot2)
+
+ggplot(data.frame(x = factor(LETTERS[1:12]), y = 1:12), aes(x = x, y = y, fill = x)) + geom_col()
+```
+
+# Browser
+
+Plots generated in the browser using ECharts, Plotly.js and Vega-lite.
+
+### ECharts
+
+```echarts exec
+{
+  "xAxis": {
+    "type": "category",
+    "data": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"],
+    "name": "x"
+  },
+  "yAxis": {
+    "name": "y"
+  },
+  "series": [
+    {
+      "type": "bar",
+      "data": [1],
+      "name": "A"
+    },
+    {
+      "type": "bar",
+      "data": [null, 2],
+      "name": "B"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, 3],
+      "name": "C"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, 4],
+      "name": "D"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, 5],
+      "name": "E"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, null, 6],
+      "name": "F"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, null, null, 7],
+      "name": "G"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, null, null, null, 8],
+      "name": "H"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, null, null, null, null, 9],
+      "name": "I"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, null, null, null, null, null, 10],
+      "name": "J"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, null, null, null, null, null, null, 11],
+      "name": "K"
+    },
+    {
+      "type": "bar",
+      "data": [null, null, null, null, null, null, null, null, null, null, null, 12],
+      "name": "L"
+    }
+  ]
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [
+    {"type": "bar", "x": ["A"], "y": [1], "name": "A"},
+    {"type": "bar", "x": ["B"], "y": [2], "name": "B"},
+    {"type": "bar", "x": ["C"], "y": [3], "name": "C"},
+    {"type": "bar", "x": ["D"], "y": [4], "name": "D"},
+    {"type": "bar", "x": ["E"], "y": [5], "name": "E"},
+    {"type": "bar", "x": ["F"], "y": [6], "name": "F"},
+    {"type": "bar", "x": ["G"], "y": [7], "name": "G"},
+    {"type": "bar", "x": ["H"], "y": [8], "name": "H"},
+    {"type": "bar", "x": ["I"], "y": [9], "name": "I"},
+    {"type": "bar", "x": ["J"], "y": [10], "name": "J"},
+    {"type": "bar", "x": ["K"], "y": [11], "name": "K"},
+    {"type": "bar", "x": ["L"], "y": [12], "name": "L"}
+  ],
+  "layout": {
+    "xaxis": {"title": {"text": "x"}},
+    "yaxis": {"title": {"text": "y"}}
+  }
+}
+```
+
+### Vega-lite
+
+```vegalite exec
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"x": "A", "y": 1}, {"x": "B", "y": 2}, {"x": "C", "y": 3}, {"x": "D", "y": 4},
+      {"x": "E", "y": 5}, {"x": "F", "y": 6}, {"x": "G", "y": 7}, {"x": "H", "y": 8},
+      {"x": "I", "y": 9}, {"x": "J", "y": 10}, {"x": "K", "y": 11}, {"x": "L", "y": 12}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "x", "type": "nominal"},
+    "y": {"field": "y", "type": "quantitative"},
+    "color": {"field": "x", "type": "nominal"}
+  }
+}
+```

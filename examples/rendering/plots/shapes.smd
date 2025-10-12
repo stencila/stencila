@@ -1,0 +1,225 @@
+---
+title: Shape scale theme variables
+---
+
+A scatter plot with multiple categories for testing the application of shape aesthetic mapping across plotting libraries. Each category (A-F) should be rendered with a distinct shape.
+
+# Python
+
+Plots generated in Python using Matplotlib, Plotly Express, and Altair.
+
+```python exec
+import pandas as pd
+
+df = pd.DataFrame({
+    'x': [1, 2, 3, 4, 5, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7, 4, 5, 6, 7, 8, 5, 6, 7, 8, 9, 6, 7, 8, 9, 10],
+    'y': [2, 3, 4, 2, 5, 6, 3, 7, 4, 2, 8, 5, 3, 6, 4, 9, 7, 2, 8, 5, 6, 4, 9, 3, 7, 8, 6, 4, 9, 5],
+    'category': ['A']*5 + ['B']*5 + ['C']*5 + ['D']*5 + ['E']*5 + ['F']*5
+})
+```
+
+## matplotlib
+
+```python exec
+import matplotlib.pyplot as plt
+
+for category in df['category'].unique():
+    subset = df[df['category'] == category]
+    plt.scatter(subset['x'], subset['y'], label=category)
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.legend()
+```
+
+## Seaborn
+
+```python exec
+import seaborn as sns
+
+sns.scatterplot(data=df, x='x', y='y', hue='category', style='category', s=100)
+```
+
+## Plotly
+
+```python exec
+import plotly.express as px
+
+px.scatter(df, x='x', y='y', symbol='category')
+```
+
+## Altair
+
+```python exec
+import altair as alt
+
+alt.Chart(df).mark_point().encode(x='x:Q', y='y:Q', shape='category:N')
+```
+
+# R
+
+Plots generated in R using base plotting and `ggplot2`.
+
+```r exec
+df <- data.frame(
+  x = c(1, 2, 3, 4, 5, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7, 4, 5, 6, 7, 8, 5, 6, 7, 8, 9, 6, 7, 8, 9, 10),
+  y = c(2, 3, 4, 2, 5, 6, 3, 7, 4, 2, 8, 5, 3, 6, 4, 9, 7, 2, 8, 5, 6, 4, 9, 3, 7, 8, 6, 4, 9, 5),
+  category = factor(rep(LETTERS[1:6], each = 5))
+)
+```
+
+## Base plotting
+
+```r exec
+plot(df$x, df$y, pch = stencila_theme$shapes[as.integer(df$category)], xlab = "x", ylab = "y")
+legend("topright", legend = levels(df$category), pch = stencila_theme$shapes[1:6])
+```
+
+## ggplot
+
+```r exec
+library(ggplot2)
+
+ggplot(df, aes(x = x, y = y, shape = category)) +
+  geom_point(size = 3) +
+  labs(x = "x", y = "y") + 
+  stencila_theme$scales()
+```
+
+# Browser
+
+Plots generated in the browser using ECharts, Plotly.js and Vega-lite.
+
+### ECharts
+
+```echarts exec
+{
+  "xAxis": {
+    "name": "x"
+  },
+  "yAxis": {
+    "name": "y"
+  },
+  "legend": {
+    "data": ["A", "B", "C", "D", "E", "F"]
+  },
+  "series": [
+    {
+      "type": "scatter",
+      "name": "A",
+      "data": [[1, 2], [2, 3], [3, 4], [4, 2], [5, 5]]
+    },
+    {
+      "type": "scatter",
+      "name": "B",
+      "data": [[2, 6], [3, 3], [4, 7], [5, 4], [6, 2]]
+    },
+    {
+      "type": "scatter",
+      "name": "C",
+      "data": [[3, 8], [4, 5], [5, 3], [6, 6], [7, 4]]
+    },
+    {
+      "type": "scatter",
+      "name": "D",
+      "data": [[4, 9], [5, 7], [6, 2], [7, 8], [8, 5]]
+    },
+    {
+      "type": "scatter",
+      "name": "E",
+      "data": [[5, 6], [6, 4], [7, 9], [8, 3], [9, 7]]
+    },
+    {
+      "type": "scatter",
+      "name": "F",
+      "data": [[6, 8], [7, 6], [8, 4], [9, 9], [10, 5]]
+    }
+  ]
+}
+```
+
+### Plotly
+
+```plotly exec
+{
+  "data": [
+    {
+      "type": "scatter",
+      "mode": "markers",
+      "name": "A",
+      "x": [1, 2, 3, 4, 5],
+      "y": [2, 3, 4, 2, 5],
+      "marker": {"size": 10}
+    },
+    {
+      "type": "scatter",
+      "mode": "markers",
+      "name": "B",
+      "x": [2, 3, 4, 5, 6],
+      "y": [6, 3, 7, 4, 2],
+      "marker": {"size": 10}
+    },
+    {
+      "type": "scatter",
+      "mode": "markers",
+      "name": "C",
+      "x": [3, 4, 5, 6, 7],
+      "y": [8, 5, 3, 6, 4],
+      "marker": {"size": 10}
+    },
+    {
+      "type": "scatter",
+      "mode": "markers",
+      "name": "D",
+      "x": [4, 5, 6, 7, 8],
+      "y": [9, 7, 2, 8, 5],
+      "marker": {"size": 10}
+    },
+    {
+      "type": "scatter",
+      "mode": "markers",
+      "name": "E",
+      "x": [5, 6, 7, 8, 9],
+      "y": [6, 4, 9, 3, 7],
+      "marker": {"size": 10}
+    },
+    {
+      "type": "scatter",
+      "mode": "markers",
+      "name": "F",
+      "x": [6, 7, 8, 9, 10],
+      "y": [8, 6, 4, 9, 5],
+      "marker": {"size": 10}
+    }
+  ],
+  "layout": {
+    "xaxis": {"title": {"text": "x"}},
+    "yaxis": {"title": {"text": "y"}},
+    "showlegend": true
+  }
+}
+```
+
+### Vega-lite
+
+```vegalite exec
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"x": 1, "y": 2, "category": "A"}, {"x": 2, "y": 3, "category": "A"}, {"x": 3, "y": 4, "category": "A"}, {"x": 4, "y": 2, "category": "A"}, {"x": 5, "y": 5, "category": "A"},
+      {"x": 2, "y": 6, "category": "B"}, {"x": 3, "y": 3, "category": "B"}, {"x": 4, "y": 7, "category": "B"}, {"x": 5, "y": 4, "category": "B"}, {"x": 6, "y": 2, "category": "B"},
+      {"x": 3, "y": 8, "category": "C"}, {"x": 4, "y": 5, "category": "C"}, {"x": 5, "y": 3, "category": "C"}, {"x": 6, "y": 6, "category": "C"}, {"x": 7, "y": 4, "category": "C"},
+      {"x": 4, "y": 9, "category": "D"}, {"x": 5, "y": 7, "category": "D"}, {"x": 6, "y": 2, "category": "D"}, {"x": 7, "y": 8, "category": "D"}, {"x": 8, "y": 5, "category": "D"},
+      {"x": 5, "y": 6, "category": "E"}, {"x": 6, "y": 4, "category": "E"}, {"x": 7, "y": 9, "category": "E"}, {"x": 8, "y": 3, "category": "E"}, {"x": 9, "y": 7, "category": "E"},
+      {"x": 6, "y": 8, "category": "F"}, {"x": 7, "y": 6, "category": "F"}, {"x": 8, "y": 4, "category": "F"}, {"x": 9, "y": 9, "category": "F"}, {"x": 10, "y": 5, "category": "F"}
+    ]
+  },
+  "mark": "point",
+  "encoding": {
+    "x": {"field": "x", "type": "quantitative"},
+    "y": {"field": "y", "type": "quantitative"},
+    "shape": {"field": "category", "type": "nominal"}
+  }
+}
+```

@@ -1,0 +1,10 @@
+[project]
+name = "stencila"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "altair>=5.5.0",
+    "pandas>=2.3.3",
+    "plotly>=6.3.1",
+    "seaborn>=0.13.2",
+]
