@@ -29,15 +29,18 @@ for category in df['category'].unique():
 
 plt.xlabel('x')
 plt.ylabel('y')
-plt.legend()
+plt.legend(loc=plt.rcParams["legend.loc"])
 ```
 
 ## Seaborn
 
 ```python exec
 import seaborn as sns
+import matplotlib.pyplot as plt
 
-sns.scatterplot(data=df, x='x', y='y', hue='category', style='category', s=100)
+ax = sns.scatterplot(data=df, x='x', y='y', hue='category', style='category', s=100)
+sns.move_legend(ax, loc=plt.rcParams["legend.loc"])
+ax
 ```
 
 ## Plotly

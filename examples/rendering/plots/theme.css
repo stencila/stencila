@@ -1,4 +1,5 @@
 :root {
     --plot-theme: light;
     --plot-font-family: sans;
+    --plot-legend-position: right;
 }

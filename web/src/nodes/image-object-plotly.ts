@@ -87,11 +87,12 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
     showline: true,
     // Mirror axes to simulate panel borders if specified (will be same width and color as axes)
     mirror: t.panelBorderWidth > 0 ? true : false,
-    zerolinecolor: t.zero,
     // Enable automargin to let Plotly automatically calculate space for axis labels and titles.
     // This ensures labels/titles fit without being cut off, regardless of their size.
     automargin: true,
   }
+
+  const legendPosition = t.legend.position.toLowerCase()
 
   return {
     layout: {
@@ -124,7 +125,26 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
         gridcolor: t.axis.gridColor,
         gridwidth: t.axis.gridYWidth,
       },
+      // Hide legend if position is 'none'
       legend: {
+        ...(() => {
+          // Map legend position to Plotly's coordinate system
+          switch (legendPosition) {
+            case 'left':
+              return { x: -0.02, y: 1, xanchor: 'right', yanchor: 'top' }
+            case 'top':
+              return { x: 0.5, y: 1.02, xanchor: 'center', yanchor: 'bottom', orientation: 'h' }
+            case 'bottom':
+              return { x: 0.5, y: -0.02, xanchor: 'center', yanchor: 'top', orientation: 'h' }
+            case 'right':
+              return { x: 1.02, y: 1, xanchor: 'left', yanchor: 'top' }
+            case 'none':
+              return { showlegend: false }
+            case 'auto':
+            default:
+              return {}
+          }
+        })(),
         bgcolor: t.legend.background,
         bordercolor: t.legend.borderColor,
         borderwidth: t.legend.borderWidth,

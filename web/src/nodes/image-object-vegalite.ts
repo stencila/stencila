@@ -69,6 +69,25 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
       gridWidth: t.axis.gridYWidth,
     },
     legend: {
+      ...(() => {
+        // Map legend position to Vega-Lite's orient property
+        const position = t.legend.position.toLowerCase()
+        switch (position) {
+          case 'left':
+            return { orient: 'left' }
+          case 'top':
+            return { orient: 'top' }
+          case 'bottom':
+            return { orient: 'bottom' }
+          case 'right':
+            return { orient: 'right' }
+          case 'none':
+            return { disable: true }
+          case 'auto':
+          default:
+            return {}
+        }
+      })(),
       labelColor: t.legend.textColor,
       labelFontSize: t.legend.textSize,
       titleColor: t.legend.textColor,

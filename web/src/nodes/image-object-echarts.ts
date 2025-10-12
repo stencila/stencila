@@ -130,13 +130,29 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
       },
     },
     legend: {
-      orient: 'vertical',
-      right: 10,
-      top: 10,
+      ...(() => {
+        // Map legend position to ECharts configuration
+        const position = t.legend.position.toLowerCase()
+        switch (position) {
+          case 'left':
+            return { orient: 'vertical', left: 10, top: 10 }
+          case 'top':
+            return { orient: 'horizontal', top: 10, left: 'center' }
+          case 'bottom':
+            return { orient: 'horizontal', bottom: 10, left: 'center' }
+          case 'right':
+            return { orient: 'vertical', right: 10, top: 10 }
+          case 'none':
+            return { show: false }
+          case 'auto':
+          default:
+            return {}
+        }
+      })(),
       backgroundColor: t.legend.background,
-      textStyle: { color: t.legend.textColor, fontSize: t.legend.textSize },
       borderColor: t.legend.borderColor,
       borderWidth: t.legend.borderWidth,
+      textStyle: { color: t.legend.textColor, fontSize: t.legend.textSize }
     },
     tooltip: {
       trigger: 'item',
@@ -228,6 +244,9 @@ export async function compileECharts(
       ...spec,
       xAxis: mergeAxis(themeOptions.xAxis as Record<string, unknown>, spec.xAxis),
       yAxis: mergeAxis(themeOptions.yAxis as Record<string, unknown>, spec.yAxis),
+      legend: spec.legend
+        ? deepMerge(themeOptions.legend as Record<string, unknown>, spec.legend)
+        : themeOptions.legend,
       ...(visualMap && { visualMap }),
     }
 

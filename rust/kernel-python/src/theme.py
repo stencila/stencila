@@ -423,11 +423,32 @@ def theme(variables_json: str) -> None:
             plt.rcParams["legend.frameon"] = True
             # Store in a custom rcParam key for user access
             plt.rcParams["legend.borderwidth"] = width
-    if size := parse_number(get_var("plot-legend-size")):
+    if size := parse_number(get_var("plot-legend-text-size")):
         plt.rcParams["legend.fontsize"] = size
     if color := get_var("plot-legend-text-color"):
         plt.rcParams["legend.labelcolor"] = color
-    # plt.rcParams["legend.loc"] = ...  # plot-legend-position is "auto", could map
+
+    # Store legend position in matplotlib's rcParams for programmatic access
+    # Note: 'legend.loc' is not a standard matplotlib/seaborn rcParam - location must be set per-legend
+    # when calling plt.legend(loc=...) or sns.move_legend(). We store it in a custom rcParam so
+    # users can access it via plt.rcParams["legend.loc"] and apply it manually:
+    # - matplotlib: plt.legend(loc=plt.rcParams["legend.loc"])
+    # - seaborn: sns.move_legend(obj, loc=plt.rcParams["legend.loc"])
+    if position := get_var("plot-legend-position"):
+        position_lower = position.lower().strip()
+        # Map Stencila position values to matplotlib's loc parameter
+        position_map = {
+            'auto': 'best',           # matplotlib's automatic positioning
+            'right': 'center right',
+            'left': 'center left',
+            'top': 'upper center',
+            'bottom': 'lower center',
+            # Note: 'none' cannot be handled via rcParams - legends must be hidden per-plot
+            # using plt.legend().set_visible(False) or by not calling plt.legend()
+        }
+        if position_lower in position_map:
+            # Store in a custom rcParam key for user access
+            plt.rcParams["legend.loc"] = position_map[position_lower]
     # plt.rcParams["legend.framealpha"] = <NA>
     # plt.rcParams["legend.shadow"] = <NA>
     # plt.rcParams["legend.numpoints"] = <NA>

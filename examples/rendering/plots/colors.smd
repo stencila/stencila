@@ -22,17 +22,21 @@ df = pd.DataFrame({
 ```python exec
 import matplotlib.pyplot as plt
 
-plt.bar(df['x'], df['y'], color=[f'C{i}' for i in range(12)])
+bars = plt.bar(df['x'], df['y'], color=[f'C{i}' for i in range(12)])
 plt.xlabel('x')
 plt.ylabel('y')
+plt.legend(bars, df['x'], loc=plt.rcParams["legend.loc"])
 ```
 
 ## Seaborn
 
 ```python exec
 import seaborn as sns
+import matplotlib.pyplot as plt
 
-sns.barplot(data=df, x='x', y='y', hue='x', legend=False)
+ax = sns.barplot(data=df, x='x', y='y', hue='x', legend='full')
+sns.move_legend(ax, loc=plt.rcParams["legend.loc"])
+ax
 ```
 
 ## Plotly

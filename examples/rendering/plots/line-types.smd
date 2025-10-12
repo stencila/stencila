@@ -39,15 +39,19 @@ for category in df['category'].unique():
 
 plt.xlabel('x')
 plt.ylabel('y')
-plt.legend()
+plt.legend(loc=plt.rcParams["legend.loc"])
+plt
 ```
 
 ## Seaborn
 
 ```python exec
 import seaborn as sns
+import matplotlib.pyplot as plt
 
-sns.lineplot(data=df, x='x', y='y', hue='category', style='category')
+ax = sns.lineplot(data=df, x='x', y='y', hue='category', style='category')
+sns.move_legend(ax, loc=plt.rcParams["legend.loc"])
+ax
 ```
 
 ## Plotly
