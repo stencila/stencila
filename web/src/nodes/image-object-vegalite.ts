@@ -105,10 +105,9 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
       labelFontSize: t.fontSize,
       titleFontSize: t.titleSize,
     },
-    // Point fill control: when opacity = 0, use unfilled (stroke only); when > 0, use filled with opacity
+    // Set default stroke width for marks
+    // Note: filled and fillOpacity are set per-mark-type below to avoid affecting line marks
     mark: {
-      filled: t.mark.pointOpacity > 0,
-      fillOpacity: t.mark.pointOpacity > 0 ? t.mark.pointOpacity : undefined,
       strokeWidth: t.mark.lineWidth,
     },
 
@@ -118,16 +117,19 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
       color: t.palette[0],
       size: t.mark.pointSize ** 2,
       filled: t.mark.pointOpacity > 0,
+      fillOpacity: t.mark.pointOpacity,
     },
     circle: {
       color: t.palette[0],
       size: t.mark.pointSize ** 2,
       filled: t.mark.pointOpacity > 0,
+      fillOpacity: t.mark.pointOpacity,
     },
     square: {
       color: t.palette[0],
       size: t.mark.pointSize ** 2,
       filled: t.mark.pointOpacity > 0,
+      fillOpacity: t.mark.pointOpacity,
     },
     bar: { color: t.palette[0] },
     line: { color: t.palette[0], strokeWidth: t.mark.lineWidth },
