@@ -47,11 +47,6 @@ export interface PlotTokens {
     steps: number
   }
 
-  // Semantic colors
-  positive: string
-  negative: string
-  warning: string
-
   // Surfaces and backgrounds
   background: string
   panel: string
@@ -269,11 +264,6 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
       end: colorToHex(getVar('--plot-ramp-end')) || '#ffffff',
       steps: parseNum(getVar('--plot-ramp-steps'), 7, rootElement),
     },
-
-    // Semantic colors
-    positive: colorToHex(getVar('--plot-positive')) || '#22c55e',
-    negative: colorToHex(getVar('--plot-negative')) || '#ef4444',
-    warning: colorToHex(getVar('--plot-warning')) || '#eab308',
 
     // Surfaces
     background: colorToHex(getVar('--plot-background')) || '#ffffff',

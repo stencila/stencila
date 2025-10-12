@@ -101,16 +101,6 @@
 
     --plot-ramp-steps: 7;
 
-    /* Semantic Colors - Conventional meanings for change/delta/alerts */
-    --plot-positive: var(--color-green-600);
-    --plot-positive-dark: var(--color-green-400);
-
-    --plot-negative: var(--color-red-600);
-    --plot-negative-dark: var(--color-red-400);
-
-    --plot-warning: var(--color-yellow-600);
-    --plot-warning-dark: var(--color-yellow-400);
-
     /* Shape Palette - Categorical shapes for series/marks that need distinct symbols
      *
      * This palette contains 8 shapes chosen for maximum cross-library compatibility.
@@ -334,9 +324,6 @@
         --plot-color-12: var(--plot-color-12-dark);
         --plot-ramp-start: var(--plot-ramp-start-dark);
         --plot-ramp-end: var(--plot-ramp-end-dark);
-        --plot-positive: var(--plot-positive-dark);
-        --plot-negative: var(--plot-negative-dark);
-        --plot-warning: var(--plot-warning-dark);
         --plot-background: var(--plot-background-dark);
         --plot-panel: var(--plot-panel-dark);
         --plot-text-color: var(--plot-text-color-dark);
@@ -380,9 +367,6 @@
     --plot-color-12: var(--plot-color-12-dark);
     --plot-ramp-start: var(--plot-ramp-start-dark);
     --plot-ramp-end: var(--plot-ramp-end-dark);
-    --plot-positive: var(--plot-positive-dark);
-    --plot-negative: var(--plot-negative-dark);
-    --plot-warning: var(--plot-warning-dark);
     --plot-background: var(--plot-background-dark);
     --plot-panel: var(--plot-panel-dark);
     --plot-text-color: var(--plot-text-color-dark);
