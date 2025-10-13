@@ -251,7 +251,7 @@ def theme(variables_json: str) -> None:
 
             # Set as default colormap for image/heatmap functions
             plt.rcParams["image.cmap"] = "stencila_gradient"
-        except (ImportError, ValueError, RuntimeError) as e:
+        except (ImportError, ValueError, RuntimeError):
             pass
 
     # Get point opacity for inclusion in prop_cycle
@@ -259,17 +259,30 @@ def theme(variables_json: str) -> None:
 
     # Combine colors, shapes, line_types, and alpha into prop_cycle
     # Note: alpha needs to be in the cycle because matplotlib doesn't have a global rcParam for it
+    # When adding cyclers, all must have equal length - use the max and repeat shorter ones
+    cycle_length = max(
+        len(colors) if colors else 0,
+        len(shapes) if shapes else 0,
+        len(line_types) if line_types else 0
+    )
+
     cycle_parts = []
-    if colors:
-        cycle_parts.append(cycler(color=colors))
-    if shapes:
-        cycle_parts.append(cycler(marker=shapes))
-    if line_types:
-        cycle_parts.append(cycler(linestyle=line_types))
+    if colors and cycle_length > 0:
+        # Repeat colors to match cycle_length (e.g., 12 colors repeated to 12)
+        repeated_colors = (colors * ((cycle_length + len(colors) - 1) // len(colors)))[:cycle_length]
+        cycle_parts.append(cycler(color=repeated_colors))
+    if shapes and cycle_length > 0:
+        # Repeat shapes to match cycle_length (e.g., 8 shapes repeated to 12)
+        repeated_shapes = (shapes * ((cycle_length + len(shapes) - 1) // len(shapes)))[:cycle_length]
+        cycle_parts.append(cycler(marker=repeated_shapes))
+    if line_types and cycle_length > 0:
+        # Repeat line_types to match cycle_length (e.g., 6 line types repeated to 12)
+        repeated_line_types = (line_types * ((cycle_length + len(line_types) - 1) // len(line_types)))[:cycle_length]
+        cycle_parts.append(cycler(linestyle=repeated_line_types))
     # Only add alpha to cycle if opacity > 0 (when using filled markers)
-    if point_opacity is not None and point_opacity > 0:
+    if point_opacity is not None and point_opacity > 0 and cycle_length > 0:
         # Repeat alpha value for each series (all series get same alpha)
-        alpha_values = [point_opacity] * max(len(colors) if colors else 1, len(shapes) if shapes else 1)
+        alpha_values = [point_opacity] * cycle_length
         cycle_parts.append(cycler(alpha=alpha_values))
 
     # Combine all cycle parts
@@ -434,14 +447,9 @@ def theme(variables_json: str) -> None:
         plt.rcParams["legend.edgecolor"] = color
 
     # Store legend border width in matplotlib's rcParams for programmatic access
-    # Note: 'legend.borderwidth' is not a standard matplotlib rcParam, but we store it
-    # so users can access it via plt.rcParams["legend.borderwidth"] and apply it manually
-    # to individual legends using legend.get_frame().set_linewidth(plt.rcParams["legend.borderwidth"])
     if width := parse_number(get_var("plot-legend-border-width")):
         if width > 0:
             plt.rcParams["legend.frameon"] = True
-            # Store in a custom rcParam key for user access
-            plt.rcParams["legend.borderwidth"] = width
     if size := parse_number(get_var("plot-legend-text-size")):
         plt.rcParams["legend.fontsize"] = size
     if color := get_var("plot-legend-text-color"):
