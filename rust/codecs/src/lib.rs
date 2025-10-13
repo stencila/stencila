@@ -69,8 +69,8 @@ use stencila_codec_xlsx::XlsxCodec;
 use stencila_codec_yaml::YamlCodec;
 use stencila_codec_zenodo::ZenodoCodec;
 
-#[cfg(feature = "stencila-codec-polars")]
-use stencila_codec_polars::PolarsCodec;
+//#[cfg(feature = "stencila-codec-polars")]
+//use stencila_codec_polars::PolarsCodec;
 
 pub mod cli;
 
@@ -99,8 +99,8 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(LexicalCodec),
         Box::new(MarkdownCodec),
         Box::new(MecaCodec),
-        #[cfg(feature = "stencila-codec-polars")]
-        Box::new(PolarsCodec),
+        //#[cfg(feature = "stencila-codec-polars")]
+        //Box::new(PolarsCodec),
         Box::new(RnwCodec),
         Box::new(OdtCodec),
         Box::new(PandocCodec),
