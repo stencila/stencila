@@ -275,7 +275,7 @@
     --plot-color-5-dark: hsl(280 55% 60%);
 
     /* Structure - minimal borders */
-    --plot-panel-border-width: 1px;
+    --plot-panel-border: true;
 
     /* Grid - subtle grid lines common in LaTeX plots */
     --plot-grid-width: 0.5px;

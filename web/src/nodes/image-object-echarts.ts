@@ -96,7 +96,8 @@ function toEchartsOptionsBase(t: PlotTokens): Record<string, unknown> {
       show: true,
       backgroundColor: t.panel,
       borderColor: t.axis.lineColor,
-      borderWidth: t.axis.lineWidth,
+      // Apply panel border if specified (will be same width and color as axes)
+      borderWidth: t.panelBorder ? t.axis.lineWidth : 0,
       left: t.padding.left,
       right: t.padding.right,
       top: t.padding.top,

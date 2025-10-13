@@ -280,7 +280,7 @@
     --plot-color-5-dark: hsl(0 60% 60%);
 
     /* Structure - Remove all non-data elements */
-    --plot-panel-border-width: 0;
+    --plot-panel-border: false;
 
     /* Grid - Completely removed per Tufte principles */
     --plot-grid-width: 0;

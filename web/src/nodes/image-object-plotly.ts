@@ -79,14 +79,11 @@ function toPlotlyTemplate(t: PlotTokens): Partial<any> {
         weight: convertFontWeight(t.axis.titleWeight),
       },
     },
-    // Note: In Plotly, linecolor/linewidth control both the axis line and the mirrored
-    // panel border (via mirror: true). There's no separate styling for panel borders,
-    // so we use axis tokens instead of panelBorderColor/panelBorderWidth.
     linecolor: t.axis.lineColor,
     linewidth: t.axis.lineWidth,
     showline: true,
     // Mirror axes to simulate panel borders if specified (will be same width and color as axes)
-    mirror: t.panelBorderWidth > 0 ? true : false,
+    mirror: t.panelBorder,
     // Enable automargin to let Plotly automatically calculate space for axis labels and titles.
     // This ensures labels/titles fit without being cut off, regardless of their size.
     automargin: true,

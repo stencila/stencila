@@ -25,7 +25,7 @@
    * Panel & Borders - Minimal containment
    * ═══════════════════════════════════════════════════════════════ */
 
-  --plot-panel-border-width: 0;
+  --plot-panel-border: true;
 
   /* ═══════════════════════════════════════════════════════════════
    * Marks - Thinner lines, smaller points, more transparent fills

@@ -52,8 +52,7 @@ export interface PlotTokens {
   // Surfaces and backgrounds
   background: string
   panel: string
-  panelBorderColor: string
-  panelBorderWidth: number
+  panelBorder: boolean
   grid: string
 
   // Typography
@@ -219,13 +218,7 @@ export function buildPlotTheme(rootElement: HTMLElement): PlotTokens | null {
     // Surfaces
     background: colorToHex(getVar('--plot-background')) || '#ffffff',
     panel: colorToHex(getVar('--plot-panel')) || '#ffffff',
-    panelBorderColor: colorToHex(getVar('--plot-panel-border-color')) || '#e5e5e5',
-    panelBorderWidth: (() => {
-      const showBorder = getVar('--plot-panel-border', 'true').trim().toLowerCase()
-      if (showBorder === 'false' || showBorder === '0') return 0
-      // When enabled, use --border-width-default
-      return parseNum(getVar('--border-width-default'), 1, rootElement)
-    })(),
+    panelBorder: !['false', '0', 'no', 'off'].includes(getVar('--plot-panel-border', 'false').trim().toLowerCase()),
     grid: colorToHex(getVar('--plot-grid')) || '#e5e5e5',
 
     // Typography

@@ -100,7 +100,8 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
     view: {
       fill: t.panel,
       stroke: t.axis.lineColor,
-      strokeWidth: t.axis.lineWidth,
+      // Apply panel border if specified (will be same width and color as axes)
+      strokeWidth: t.panelBorder ? t.axis.lineWidth : 0,
     },
     range: {
       category: t.palette,

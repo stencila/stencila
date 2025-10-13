@@ -24,7 +24,7 @@
    * Panel & Borders - Stronger containment
    * ═══════════════════════════════════════════════════════════════ */
 
-  --plot-panel-border-width: var(--border-width-thick);
+  --plot-panel-border: true;
 
   /* ═══════════════════════════════════════════════════════════════
    * Typography - Bold text for emphasis
