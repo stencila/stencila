@@ -32,7 +32,6 @@ plt.legend(bars, df['x'], loc=plt.rcParams["legend.loc"])
 
 ```python exec
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 ax = sns.barplot(data=df, x='x', y='y', hue='x', legend='full')
 sns.move_legend(ax, loc=plt.rcParams["legend.loc"])

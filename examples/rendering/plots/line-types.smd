@@ -40,7 +40,6 @@ for category in df['category'].unique():
 plt.xlabel('x')
 plt.ylabel('y')
 plt.legend(loc=plt.rcParams["legend.loc"])
-plt
 ```
 
 ## Seaborn
