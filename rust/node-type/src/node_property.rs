@@ -36,7 +36,6 @@ pub enum NodeProperty {
     CitationIntent,
     CitationMode,
     CitationPrefix,
-    CitationStyle,
     CitationSuffix,
     Cites,
     ClaimType,

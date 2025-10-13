@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+cached = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
 lightningcss = { workspace = true }

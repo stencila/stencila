@@ -3,8 +3,10 @@ use std::{
     env::current_dir,
     path::{Path, PathBuf},
     sync::LazyLock,
+    time::Duration,
 };
 
+use cached::proc_macro::cached;
 use eyre::{Result, bail, eyre};
 use lightningcss::{
     printer::Printer,
@@ -58,6 +60,7 @@ pub enum LengthConversion {
     KeepUnits,
 }
 
+#[derive(Clone)]
 pub struct Theme {
     /// The type of theme
     pub r#type: ThemeType,
@@ -655,7 +658,53 @@ pub async fn list(base_path: Option<&Path>) -> Result<Vec<Theme>> {
     Ok(themes)
 }
 
+/// Create a new workspace theme or user theme
+///
+/// # Arguments
+/// * `name` - Optional name for the theme. If None creates `theme.css` in cwd.
+/// * `force` - If true, overwrite existing files without prompting
+pub async fn new(name: Option<String>, force: bool) -> Result<Option<PathBuf>> {
+    let theme_path = if let Some(name) = name {
+        // Named theme in user theme directory
+        let themes_dir = get_app_dir(DirType::Themes, true)?;
+        let mut path = themes_dir.join(name);
+        if path.extension().is_none() {
+            path.set_extension("css");
+        }
+        path
+    } else {
+        // Default to theme.css in current directory
+        current_dir()?.join("theme.css")
+    };
+
+    // Check if file already exists
+    if theme_path.exists() && !force {
+        let answer = stencila_ask::ask(&format!(
+            "Theme file `{}` already exists. Overwrite?",
+            theme_path.display()
+        ))
+        .await?;
+
+        if answer.is_no() {
+            return Ok(None);
+        }
+    }
+
+    // Ensure parent directory exists
+    if let Some(parent) = theme_path.parent() {
+        tokio::fs::create_dir_all(parent).await?;
+    }
+
+    // Write the template
+    write(&theme_path, THEME_TEMPLATE).await?;
+
+    Ok(Some(theme_path))
+}
+
 /// Get a theme by name, or the default theme if no name provided
+///
+/// Results are cached for 30 seconds to avoid unnecessary disk searches and CSS parsing.
+/// Use [`get_uncached`] if you need fresh data from disk (e.g., when watching for changes).
 ///
 /// # Arguments
 /// * `name` - Optional theme name to look for
@@ -671,13 +720,23 @@ pub async fn list(base_path: Option<&Path>) -> Result<Vec<Theme>> {
 /// - Walk up directory tree for `theme.css` (workspace theme)
 /// - If not found, look for `default.css` in user themes
 /// - If not found, return builtin `stencila.css`
-pub async fn get(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<Theme>> {
+#[cached(time = 30, result = true)]
+pub async fn get(name: Option<String>, base_path: Option<PathBuf>) -> Result<Option<Theme>> {
+    get_uncached(name.as_deref(), base_path.as_deref()).await
+}
+
+/// Get a theme without caching
+///
+/// Bypasses the 30-second cache to always read fresh data from disk and parse CSS.
+/// Use this when watching themes for changes or when you need to ensure you have
+/// the most up-to-date content, accepting the performance cost of disk I/O and parsing
+pub async fn get_uncached(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<Theme>> {
     if let Some(name) = name {
         // Named theme: search user themes first, then builtins
 
         // Check user themes
         if let Ok(themes_dir) = get_app_dir(DirType::Themes, false) {
-            let theme_path = themes_dir.join(format!("{}.css", name));
+            let theme_path = themes_dir.join(format!("{name}.css"));
             if theme_path.exists() {
                 let name = Some(name.to_string());
                 let location = Some(theme_path.display().to_string());
@@ -688,7 +747,7 @@ pub async fn get(name: Option<&str>, base_path: Option<&Path>) -> Result<Option<
         }
 
         // Check builtin themes
-        let filename = format!("themes/{}.css", name);
+        let filename = format!("themes/{name}.css");
         if let Some(file) = Web::get(&filename) {
             let name = Some(name.to_string());
             let css = String::from_utf8_lossy(&file.data).to_string();
@@ -764,49 +823,6 @@ const THEME_TEMPLATE: &str = r#":root {
 }
 "#;
 
-/// Create a new workspace theme or user theme
-///
-/// # Arguments
-/// * `name` - Optional name for the theme. If None creates `theme.css` in cwd.
-/// * `force` - If true, overwrite existing files without prompting
-pub async fn new(name: Option<String>, force: bool) -> Result<Option<PathBuf>> {
-    let theme_path = if let Some(name) = name {
-        // Named theme in user theme directory
-        let themes_dir = get_app_dir(DirType::Themes, true)?;
-        let mut path = themes_dir.join(name);
-        if path.extension().is_none() {
-            path.set_extension("css");
-        }
-        path
-    } else {
-        // Default to theme.css in current directory
-        current_dir()?.join("theme.css")
-    };
-
-    // Check if file already exists
-    if theme_path.exists() && !force {
-        let answer = stencila_ask::ask(&format!(
-            "Theme file `{}` already exists. Overwrite?",
-            theme_path.display()
-        ))
-        .await?;
-
-        if answer.is_no() {
-            return Ok(None);
-        }
-    }
-
-    // Ensure parent directory exists
-    if let Some(parent) = theme_path.parent() {
-        tokio::fs::create_dir_all(parent).await?;
-    }
-
-    // Write the template
-    write(&theme_path, THEME_TEMPLATE).await?;
-
-    Ok(Some(theme_path))
-}
-
 /// Remove a user theme
 ///
 /// # Arguments
@@ -855,7 +871,7 @@ pub async fn watch(
     base_path: Option<&Path>,
 ) -> Result<mpsc::Receiver<Result<Theme>>> {
     // First, get the theme to find its location
-    let theme = get(name, base_path)
+    let theme = get_uncached(name, base_path)
         .await?
         .ok_or_else(|| eyre!("Theme not found"))?;
 
@@ -925,7 +941,7 @@ pub async fn watch(
         // Listen for file changes and send updates
         while let Some(()) = file_receiver.recv().await {
             // Re-read and reload the theme
-            match get(name_owned.as_deref(), base_path_owned.as_deref()).await {
+            match get_uncached(name_owned.as_deref(), base_path_owned.as_deref()).await {
                 Ok(Some(updated)) => {
                     if sender.send(Ok(updated)).await.is_err() {
                         // Receiver dropped, stop watching

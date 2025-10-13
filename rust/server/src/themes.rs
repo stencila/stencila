@@ -73,11 +73,11 @@ async fn handle_theme_socket(mut socket: WebSocket, params: ThemeParams, dir: st
 
     // Start watching the theme
     let mut theme_receiver = match stencila_themes::watch(theme_name, Some(&dir)).await {
-        Ok(rx) => rx,
-        Err(e) => {
-            tracing::error!("Failed to watch theme: {e}");
+        Ok(receiver) => receiver,
+        Err(error) => {
+            tracing::error!("Failed to watch theme: {error}");
             let msg = ThemeMessage::Error {
-                message: format!("Failed to watch theme: {e}"),
+                message: format!("Failed to watch theme: {error}"),
             };
             let _ = socket
                 .send(serde_json::to_string(&msg).unwrap_or_default().into())
@@ -86,7 +86,7 @@ async fn handle_theme_socket(mut socket: WebSocket, params: ThemeParams, dir: st
         }
     };
 
-    tracing::debug!("Watching theme: {:?}", theme_name);
+    tracing::debug!("Watching theme: {theme_name:?}");
 
     // Listen for theme updates and forward to WebSocket
     while let Some(theme_result) = theme_receiver.recv().await {
@@ -109,10 +109,10 @@ async fn handle_theme_socket(mut socket: WebSocket, params: ThemeParams, dir: st
                     tracing::error!("Failed to serialize theme message");
                 }
             }
-            Err(e) => {
-                tracing::error!("Theme watch error: {e}");
+            Err(error) => {
+                tracing::error!("Theme watch error: {error}");
                 let msg = ThemeMessage::Error {
-                    message: format!("Theme error: {e}"),
+                    message: format!("Theme error: {error}"),
                 };
                 if let Ok(json) = serde_json::to_string(&msg)
                     && socket.send(json.into()).await.is_err()

@@ -21,20 +21,6 @@
       },
       "type": "string"
     },
-    "citationStyle": {
-      "description": "The citation style for the document (e.g. \"APA\", \"Vancouver\")",
-      "$comment": "All styles listed at https://github.com/citation-style-language/styles are supported.\nCase insensitive (e.g. \"APA\" will match to \"apa\") with some aliases recognized\n(e.g. \"ama\" will all match to \"american-medical-association\").\n",
-      "aliases": [
-        "citation-style",
-        "citation_style"
-      ],
-      "patch": {
-        "formats": [
-          "all"
-        ]
-      },
-      "type": "string"
-    },
     "models": {
       "description": "The parameters used for selecting and running generative AI models",
       "patch": {

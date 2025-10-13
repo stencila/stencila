@@ -13,11 +13,6 @@ export class Config {
   theme?: string;
 
   /**
-   * The citation style for the document (e.g. "APA", "Vancouver")
-   */
-  citationStyle?: string;
-
-  /**
    * The parameters used for selecting and running generative AI models
    */
   models?: ConfigModels;

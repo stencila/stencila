@@ -9764,6 +9764,7 @@ dependencies = [
  "stencila-parsers",
  "stencila-prompts",
  "stencila-schema",
+ "stencila-themes",
  "tokio",
  "tracing",
 ]
@@ -10274,6 +10275,7 @@ dependencies = [
 name = "stencila-themes"
 version = "0.0.0"
 dependencies = [
+ "cached",
  "clap",
  "eyre",
  "lightningcss",

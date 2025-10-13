@@ -18,11 +18,6 @@ pub struct Config {
     #[patch(format = "all")]
     pub theme: Option<String>,
 
-    /// The citation style for the document (e.g. "APA", "Vancouver")
-    #[serde(alias = "citation-style", alias = "citation_style")]
-    #[patch(format = "all")]
-    pub citation_style: Option<String>,
-
     /// The parameters used for selecting and running generative AI models
     #[patch(format = "all")]
     pub models: Option<ConfigModels>,

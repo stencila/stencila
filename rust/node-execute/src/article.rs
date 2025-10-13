@@ -83,17 +83,26 @@ impl Executable for Article {
         // Render the executor's citations, using the article's citation style,
         // so that the rendered content can be applied to citations, citation groups,
         // and the article's references.
-        let citation_style = self
-            .options
-            .config
-            .as_ref()
-            .and_then(|config| config.citation_style.as_deref());
         let citations = executor
             .citations
             .iter()
             .map(|(.., (citation_group, ..))| citation_group)
             .collect_vec();
-        match render_citations(citations, citation_style).await {
+
+        // TODO: support documents using a named theme
+        let citation_style = if let Ok(Some(theme)) = stencila_themes::get(None, None).await {
+            theme
+                .variable("citation-style")
+                .map(|style| {
+                    style
+                        .trim_start_matches(['\'', '"'])
+                        .trim_end_matches(['\'', '"'])
+                })
+                .map(String::from)
+        } else {
+            None
+        };
+        match render_citations(citations, citation_style.as_deref()).await {
             Ok((citations_content, references)) => {
                 // Assign the rendered citation content to each citation or citation or citation group
                 // so they can be applied to those in the `link` phase.

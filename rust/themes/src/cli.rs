@@ -120,7 +120,7 @@ struct Show {
 
 impl Show {
     async fn run(self) -> Result<()> {
-        match get(self.name.as_deref(), None).await? {
+        match get(self.name.clone(), None).await? {
             Some(theme) => {
                 Code::new(Format::Css, &theme.content).to_stdout();
 

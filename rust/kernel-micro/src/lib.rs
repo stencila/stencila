@@ -558,7 +558,9 @@ impl KernelInstance for MicrokernelInstance {
         }
 
         if self.supports_themes {
-            if let Some(theme) = stencila_themes::get(None, Some(directory)).await? {
+            // TODO: support documents using a named theme, probably by having node-execute crate pass theme
+            // to kernels (since it need to resolve the theme for rendering citations)
+            if let Some(theme) = stencila_themes::get(None, Some(directory.to_path_buf())).await? {
                 self.theme(theme).await?;
             } else {
                 tracing::error!("Unable to resolve theme for `{}` kernels", self.kernel_name)

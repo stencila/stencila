@@ -32,6 +32,16 @@
  */
 
 :root {
+    /* Citation Style - The name of a citation style for rendering both
+     * citations and references.
+     *
+     * All styles listed at https://github.com/citation-style-language/styles
+     * are supported. Case insensitive (e.g. "APA" will match to "apa") with
+     * some aliases recognized (e.g. "ama" will all match to
+     * "american-medical-association").
+     */
+    --citation-style: apa;
+
     /* Citation Colors - Use semantic colors with dark variants */
     --citation-color: var(--color-accent);
     --citation-color-dark: var(--color-accent-dark);

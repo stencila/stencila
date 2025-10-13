@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use itertools::Itertools;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
@@ -176,18 +176,17 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
         //let web_base = format!("http://localhost:9000/~static/dev");
 
         // Get theme name from options
-        let theme_name = options
-            .as_ref()
-            .and_then(|options| options.theme.as_deref());
+        let theme_name = options.as_ref().and_then(|options| options.theme.clone());
 
         // Get base path for theme resolution from options
         let theme_base_path = options
             .as_ref()
             .and_then(|opts| opts.from_path.as_ref())
-            .and_then(|path| path.parent());
+            .and_then(|path| path.parent())
+            .map(PathBuf::from);
 
         // Resolve theme if theme_name is not "none"
-        let theme = if theme_name != Some("none") {
+        let theme = if theme_name.as_deref() != Some("none") {
             stencila_themes::get(theme_name, theme_base_path)
                 .await
                 .ok()
