@@ -688,6 +688,12 @@ def theme(variables_json: str) -> None:
         theme_point_size = parse_number(get_var("plot-point-size"))
         theme_line_width = parse_number(get_var("plot-line-width"))
 
+        # Extract ramp colors for gradient colorscales (heatmaps, etc.)
+        # These are used for continuous/sequential color scales
+        # Matches the behavior in web/src/nodes/image-object-plotly.ts
+        ramp_start = get_var("plot-ramp-start")
+        ramp_end = get_var("plot-ramp-end")
+
         # Build cycling scatter trace templates
         # When Plotly adds traces, it will cycle through these configurations
         # This matches the behavior of the browser-side theming in image-object-plotly.ts
@@ -740,6 +746,15 @@ def theme(variables_json: str) -> None:
         # Set margin to 0 to let browser-side CSS padding handle spacing
         # This matches the behavior in web/src/nodes/image-object-plotly.ts
         layout_config['margin'] = dict(l=0, r=0, t=0, b=0)
+
+        # Set default colorscale for heatmaps and other continuous color plots
+        # This matches the browser-side behavior in web/src/nodes/image-object-plotly.ts
+        if ramp_start and ramp_end:
+            # Create a simple two-color gradient colorscale
+            # Format: [[position, color], [position, color]]
+            layout_config['colorscale'] = {
+                'sequential': [[0, ramp_start], [1, ramp_end]]
+            }
 
         data_config = {}
         if scatter_templates:
