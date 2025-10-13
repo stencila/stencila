@@ -34,7 +34,7 @@ plt.ylabel('y')
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-sns.heatmap(data, cbar_kws={'label': 'Value'})
+sns.heatmap(data, cbar_kws={'label': 'Value'}, cmap="stencila_gradient")
 plt.xlabel('x')
 plt.ylabel('y')
 ```

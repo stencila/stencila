@@ -99,6 +99,8 @@
      * Library support:
      * - Supported: ECharts (heatmaps), Plotly (heatmaps), Vega-Lite (continuous scales),
      *   Python (matplotlib colormaps), R (ggplot2 continuous scales)
+     * - Partially supported: Python (seaborn) - Colormap registered as "stencila_gradient"
+     *   but must be explicitly passed to functions: sns.heatmap(data, cmap="stencila_gradient")
      * - Not supported: R (base plots - use stencila_theme$gradient programmatically)
      */
     --plot-ramp-start: color-mix(in oklch, var(--color-accent) 5%, var(--plot-background));
