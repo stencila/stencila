@@ -878,8 +878,26 @@ impl MicrokernelInstance {
         // eprintln!("{}", serde_json::to_string_pretty(&vars)?);
 
         let vars = serde_json::to_string(&vars)?;
-        self.send_receive(MicrokernelFlag::Theme, [vars.as_str()])
+        let (.., messages) = self
+            .send_receive(MicrokernelFlag::Theme, [vars.as_str()])
             .await?;
+        if !messages.is_empty() {
+            for message in messages {
+                match message.level {
+                    MessageLevel::Error => {
+                        tracing::warn!("While setting theme: {}", message.message)
+                    }
+                    MessageLevel::Warning => {
+                        tracing::warn!("While setting theme: {}", message.message)
+                    }
+                    _ => {
+                        // This could be reduce to debug if it is noisy but found warning
+                        // to be useful during development
+                        tracing::warn!("While setting theme: {}", message.message)
+                    }
+                }
+            }
+        }
 
         Ok(())
     }
