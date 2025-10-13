@@ -18,6 +18,13 @@ def theme(variables_json: str) -> None:
     except ImportError:
         return
 
+    # Try to import seaborn for additional configuration
+    try:
+        import seaborn as sns
+        has_seaborn = True
+    except ImportError:
+        has_seaborn = False
+
     variables: dict[str, str] = json.loads(variables_json)
 
     # Helper to get variable value, preferring dark mode if background is dark
@@ -272,6 +279,14 @@ def theme(variables_json: str) -> None:
             combined_cycle = combined_cycle + part
         plt.rcParams["axes.prop_cycle"] = combined_cycle
 
+    # Configure seaborn to use the same theme colors
+    # Seaborn has its own color palette system that must be set explicitly
+    if has_seaborn and colors:
+        try:
+            sns.set_palette(colors)
+        except (AttributeError, ValueError):
+            pass
+
     # Axes grid
     # Grid color
     if color := get_var("plot-grid-color"):
@@ -349,6 +364,10 @@ def theme(variables_json: str) -> None:
     # - When opacity > 0: use filled markers with the specified alpha (set in prop_cycle above)
     if point_opacity is None or point_opacity == 0:
         plt.rcParams["markers.fillstyle"] = "none"
+        # Seaborn sets markeredgewidth to 0, making unfilled markers invisible
+        # Set a visible edge width for unfilled markers
+        line_width = parse_number(get_var("plot-line-width"))
+        plt.rcParams["lines.markeredgewidth"] = line_width if line_width else 1.5
     else:
         plt.rcParams["markers.fillstyle"] = "full"
 

@@ -62,40 +62,31 @@
      * Library support:
      * - Supported: ECharts, Plotly, Vega-Lite, Python (matplotlib), R (ggplot2), R (base)
      * - Applied automatically to series in order, cycling after 12 series
+     * - Python seaborn: Colors are applied via sns.set_palette() to override seaborn's
+     *   default palette system
      */
     --plot-color-1: var(--color-accent);
     --plot-color-1-dark: var(--color-accent-dark);
-
     --plot-color-2: hsl(160 70% 45%);
     --plot-color-2-dark: hsl(160 60% 55%);
-
     --plot-color-3: hsl(35 95% 55%);
     --plot-color-3-dark: hsl(35 85% 60%);
-
     --plot-color-4: hsl(280 70% 60%);
     --plot-color-4-dark: hsl(280 65% 65%);
-
     --plot-color-5: hsl(0 70% 55%);
     --plot-color-5-dark: hsl(0 65% 60%);
-
     --plot-color-6: hsl(190 65% 45%);
     --plot-color-6-dark: hsl(190 60% 55%);
-
     --plot-color-7: hsl(330 70% 60%);
     --plot-color-7-dark: hsl(330 65% 65%);
-
     --plot-color-8: hsl(120 55% 40%);
     --plot-color-8-dark: hsl(120 50% 50%);
-
     --plot-color-9: hsl(45 85% 50%);
     --plot-color-9-dark: hsl(45 80% 60%);
-
     --plot-color-10: hsl(250 55% 55%);
     --plot-color-10-dark: hsl(250 50% 65%);
-
     --plot-color-11: hsl(15 75% 55%);
     --plot-color-11-dark: hsl(15 70% 60%);
-
     --plot-color-12: hsl(200 50% 45%);
     --plot-color-12-dark: hsl(200 45% 55%);
 
@@ -134,6 +125,10 @@
      *
      * The 8 shapes below provide the maximum set of visually distinct symbols that
      * work consistently across all plotting backends, all rendered as open/unfilled.
+     *
+     * Python seaborn limitation: Seaborn does not automatically cycle through shapes
+     * from matplotlib's prop_cycle. Users must use the style= parameter in seaborn
+     * functions (e.g., sns.lineplot(style=category)) to enable shape variation.
      */
     --plot-shape-1: circle;
     --plot-shape-2: square;
@@ -156,6 +151,10 @@
      *
      * The 6 line types below provide visually distinct patterns that work consistently
      * across all plotting backends.
+     *
+     * Python seaborn limitation: Seaborn does not automatically cycle through line types
+     * from matplotlib's prop_cycle. Users must use the style= parameter in seaborn
+     * functions (e.g., sns.lineplot(style=category)) to enable linestyle variation.
      */
     --plot-line-type-1: solid;
     --plot-line-type-2: dashed;
