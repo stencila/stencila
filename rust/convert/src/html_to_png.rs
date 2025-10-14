@@ -45,6 +45,16 @@ use itertools::Itertools;
 use stencila_version::STENCILA_VERSION;
 use stencila_web_dist::Web;
 
+/// Duration in seconds to keep browser open for inspection during development.
+/// Set to 0 for normal operation (headless mode).
+/// Set to > 0 to keep browser window open for debugging.
+const BROWSER_OPEN_SECS: u64 = 0;
+
+/// Use local development web assets instead of production CDN.
+/// Set to false for normal operation (uses production CDN).
+/// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
+const USE_LOCALHOST: bool = true;
+
 /// Converts HTML to PNG and returns as data URI
 ///
 /// # Arguments
@@ -277,9 +287,9 @@ fn create_browser() -> Result<Browser> {
     .collect_vec();
 
     let options = LaunchOptionsBuilder::default()
-        // During development, it is very useful to set headless: false to be able
-        // to inspect generated HTML and any JS errors in the console
-        .headless(true)
+        // Set headless based on BROWSER_OPEN_SECS constant
+        // If BROWSER_OPEN_SECS > 0, run in non-headless mode for debugging
+        .headless(BROWSER_OPEN_SECS == 0)
         .args(args)
         .build()
         .map_err(|error| eyre!("Failed to build browser launch options: {error}"))?;
@@ -321,15 +331,17 @@ fn ensure_browser_available() -> Result<()> {
     Ok(())
 }
 
-/// Check if HTML contains stencila-image-object elements that require JavaScript for rendering
-fn needs_dynamic_scripts(html: &str) -> bool {
-    html.contains("<stencila-")
+/// Check if HTML contains Stencila nodes that require JavaScript for rendering
+fn needs_view(html: &str) -> bool {
+    (html.contains("<stencila-image-object")
         && (html.contains("application/vnd.plotly.v1+json")
-            || html.contains("text/vnd.mermaid")
-            || html.contains("application/vnd.vegalite.v5+json")
-            || html.contains("application/vnd.vega.v5+json")
+            || html.contains("application/vnd.apache.echarts+json")
             || html.contains("application/vnd.cytoscape.v3+json")
-            || (html.contains("text/html") && html.contains("<iframe")))
+            || html.contains("application/vnd.vega.v5+json")
+            || html.contains("application/vnd.vegalite.v5+json")
+            || html.contains("text/vnd.mermaid")
+            || (html.contains("text/html") && html.contains("<iframe"))))
+        || html.contains("<stencila-code-block")
 }
 
 /// Configuration for screenshot wait strategies
@@ -730,11 +742,11 @@ impl WaitConfig {
         let has_mermaid = html.contains("text/vnd.mermaid");
         let has_vega = html.contains("vegalite") || html.contains("application/vnd.vega");
         let has_cytoscape = html.contains("application/vnd.cytoscape");
-        let has_stencila_components = html.contains("stencila-");
-        let has_datatable = html.contains("stencila-datatable");
+        let has_stencila_components = html.contains("<stencila-");
+        let has_datatable = html.contains("<stencila-datatable");
         let has_iframes = html.contains("<iframe");
         let has_images = html.contains("<img");
-        let has_dynamic_content = needs_dynamic_scripts(html);
+        let needs_view = needs_view(html);
 
         // Determine timeout based on content complexity
         let timeout = if has_iframes {
@@ -745,7 +757,7 @@ impl WaitConfig {
             Duration::from_secs(8)
         } else if has_vega || has_cytoscape {
             Duration::from_secs(6)
-        } else if has_dynamic_content {
+        } else if needs_view {
             Duration::from_secs(4)
         } else if has_datatable || has_stencila_components {
             Duration::from_secs(3)
@@ -755,7 +767,7 @@ impl WaitConfig {
 
         Self {
             // Enable network idle for dynamic content, iframes, or components that might load resources
-            network_idle: has_dynamic_content || has_iframes || has_stencila_components,
+            network_idle: needs_view || has_iframes || has_stencila_components,
 
             // Always enable animation frame - it's very fast and ensures stability
             animation_frame: true,
@@ -764,10 +776,10 @@ impl WaitConfig {
             web_components: has_stencila_components,
 
             // Enable DOM mutations for dynamic content or components that modify DOM
-            dom_mutations: has_dynamic_content || has_datatable,
+            dom_mutations: needs_view || has_datatable,
 
             // Enable images/fonts if we have images, dynamic content, or components that might load fonts
-            images_and_fonts: has_images || has_dynamic_content || has_stencila_components,
+            images_and_fonts: has_images || needs_view || has_stencila_components,
 
             // Only enable iframe detection if iframes are present
             iframe_detection: has_iframes,
@@ -981,20 +993,16 @@ fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewp
 
 /// Wraps HTML with so that any necessary CSS and Javascript is available
 fn wrap_html(html: &str) -> String {
-    // Keep any unused linting warning here so that if we turn on the line below
-    // it is harder to forget to reverse that before committing
-    let static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
+    // Use local or production web assets based on USE_LOCAL_WEB_ASSETS constant
+    let web_base = if USE_LOCALHOST {
+        "http://localhost:9000/~static/dev".to_string()
+    } else {
+        ["https://stencila.io/web/v", STENCILA_VERSION].concat()
+    };
 
-    // During development of web components uncomment the next line and run
-    // a local Stencila server with permissive CORS (so that headless
-    // browser can get use web dist):
-    //
-    // cargo run --bin stencila serve --cors permissive
-    //let static_prefix = "http://localhost:9000/~static/dev".to_string();
-
-    // Add CSS
+    // Add theme CSS
     let mut styles = String::new();
-    for path in ["themes/default.css", "views/dynamic.css"] {
+    for path in ["themes/base.css", "themes/stencila.css"] {
         if let Some(file) = Web::get(path) {
             // Inject CSS directly
             let content = String::from_utf8_lossy(&file.data);
@@ -1002,20 +1010,31 @@ fn wrap_html(html: &str) -> String {
         } else {
             // Fallback to link to CSS
             styles.push_str(&format!(
-                r#"<link rel="stylesheet" type="text/css" href="{static_prefix}/{path}">"#
+                r#"<link rel="stylesheet" type="text/css" href="{web_base}/{path}">"#
             ));
         }
     }
 
-    // Add JavaScript if necessary - only when HTML contains interactive visualizations
-    // that require dynamic module loading (Plotly, Mermaid, Vega-Lite, etc.)
-    // Due to the way that modules are dynamically, asynchronously loaded it is not
-    // possible to inject these, they must come from a server.
-    let scripts = if needs_dynamic_scripts(html) {
-        format!(r#"<script type="module" src="{static_prefix}/views/dynamic.js"></script>"#)
+    // Add static view JavaScript and CSS if necessary - only when HTML contains
+    // interactive visualizations that require dynamic module loading (Plotly,
+    // Mermaid, Vega-Lite, etc.) Due to the way that modules are dynamically,
+    // asynchronously loaded it is not possible to inject these, they must come
+    // from a server.
+    let scripts = if needs_view(html) {
+        format!(
+            r#"
+            <link rel="stylesheet" type="text/css" href="{web_base}/views/static.css">
+            <script type="module" src="{web_base}/views/static.js"></script>
+        "#
+        )
     } else {
         String::new()
     };
+
+    // Remove attributes added to top level HTML nodes to prevent node cards being
+    // shown by static view. Ideally web component cards would only open by default
+    // for [root] nodes. But for now this is best approach.
+    let html = html.replace(" depth=0 ancestors=''", "");
 
     format!(
         r#"<!doctype html>
@@ -1040,7 +1059,7 @@ fn wrap_html(html: &str) -> String {
         {scripts}
     </head>
     <body>
-        <div id="stencila-content-wrapper">
+        <div id="stencila-content-wrapper" view="static">
             {html}
         </div>
     </body>
@@ -1123,6 +1142,12 @@ fn try_png(
     // Handle console errors based on configuration
     handle_console_errors(console_errors, console_error_handling, "rendering")?;
 
+    // Keep browser open for inspection if BROWSER_OPEN_SECS > 0
+    if BROWSER_OPEN_SECS > 0 {
+        tracing::info!("Browser staying open for {BROWSER_OPEN_SECS} seconds for inspection...");
+        sleep(Duration::from_secs(BROWSER_OPEN_SECS));
+    }
+
     // Cleanup
     manager.cleanup();
 
@@ -1174,6 +1199,12 @@ fn try_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<V
     // Handle console errors based on configuration
     handle_console_errors(console_errors, console_error_handling, "PDF generation")?;
 
+    // Keep browser open for inspection if BROWSER_OPEN_SECS > 0
+    if BROWSER_OPEN_SECS > 0 {
+        tracing::info!("Browser staying open for {BROWSER_OPEN_SECS} seconds for inspection...");
+        sleep(Duration::from_secs(BROWSER_OPEN_SECS));
+    }
+
     // Cleanup
     manager.cleanup();
 
@@ -1204,10 +1235,6 @@ fn setup_tab_for_capture(
         html: html.to_string(),
     })
     .map_err(|error| eyre!("Failed to set document content: {error}"))?;
-
-    // Set global variable to enable static mode for interactive visualizations
-    tab.evaluate("window.STENCILA_STATIC_MODE = true;", false)
-        .map_err(|error| eyre!("Failed to set static mode: {error}"))?;
 
     Ok((manager, tab))
 }
@@ -1422,25 +1449,25 @@ mod tests {
     fn test_needs_dynamic_scripts() {
         // HTML without stencila-image-object should not need scripts
         let simple_html = "<p>Hello world</p>";
-        assert!(!needs_dynamic_scripts(simple_html));
+        assert!(!needs_view(simple_html));
 
         // HTML with stencila-image-object but no dynamic media types should not need scripts
         let static_html =
             r#"<stencila-image-object media-type="image/png">test</stencila-image-object>"#;
-        assert!(!needs_dynamic_scripts(static_html));
+        assert!(!needs_view(static_html));
 
         // HTML with Mermaid should need scripts
         let mermaid_html =
             r#"<stencila-image-object media-type="text/vnd.mermaid">test</stencila-image-object>"#;
-        assert!(needs_dynamic_scripts(mermaid_html));
+        assert!(needs_view(mermaid_html));
 
         // HTML with Plotly should need scripts
         let plotly_html = r#"<stencila-image-object media-type="application/vnd.plotly.v1+json">test</stencila-image-object>"#;
-        assert!(needs_dynamic_scripts(plotly_html));
+        assert!(needs_view(plotly_html));
 
         // HTML with Vega-Lite should need scripts
         let vega_html = r#"<stencila-image-object media-type="application/vnd.vegalite.v5+json">test</stencila-image-object>"#;
-        assert!(needs_dynamic_scripts(vega_html));
+        assert!(needs_view(vega_html));
     }
 
     #[ignore = "primarily for development"]
