@@ -338,17 +338,21 @@ fn ensure_browser_available() -> Result<()> {
     Ok(())
 }
 
-/// Check if HTML contains Stencila nodes that require JavaScript for rendering
-fn needs_view(html: &str) -> bool {
-    (html.contains("<stencila-image-object")
+/// Check if HTML contains a Stencila node that is a JavaScript based visualization
+fn has_js_viz(html: &str) -> bool {
+    html.contains("<stencila-image-object")
         && (html.contains("application/vnd.plotly.v1+json")
             || html.contains("application/vnd.apache.echarts+json")
             || html.contains("application/vnd.cytoscape.v3+json")
             || html.contains("application/vnd.vega.v5+json")
             || html.contains("application/vnd.vegalite.v5+json")
             || html.contains("text/vnd.mermaid")
-            || (html.contains("text/html") && html.contains("<iframe"))))
-        || html.contains("<stencila-code-block")
+            || (html.contains("text/html") && html.contains("<iframe")))
+}
+
+/// Check if HTML contains Stencila nodes that require JavaScript for rendering
+fn needs_view(html: &str) -> bool {
+    has_js_viz(html) || html.contains("<stencila-code-block")
 }
 
 /// Configuration for screenshot wait strategies
@@ -1018,7 +1022,7 @@ fn wrap_html(html: &str) -> String {
     // Custom theme, falling back to Stencila
     // Note that the resolved theme is based on the output path
     // TODO: support getting theme by name and path, will currently use cwd
-    let custom = if let Ok(Some(theme)) = stencila_themes::get_sync(None, None) {
+    let overrides = if let Ok(Some(theme)) = stencila_themes::get_sync(None, None) {
         // This uses the theme's computed CSS variables, rather than injecting the content of the theme
         // because we found that `color-mix` was not supported in headless chrome and so was breaking
         // the calculation of theme variables and rendering of Mermaid and other JS-based images.
@@ -1034,7 +1038,19 @@ fn wrap_html(html: &str) -> String {
             )
         }
     };
-    let styles = [base, custom].concat();
+    let theme = [base, overrides].concat();
+
+    // Add CSS for the wrapper element
+    let wrapper_css = if has_js_viz(html) {
+        // For JS-based visualizations we need to set a width because they
+        // expand to that. We use the current default value for `--plot-width` in plots.css
+        "display: block;
+        width: 8in;"
+    } else {
+        "display: block;
+        width: fit-content;
+        height: fit-content;"
+    };
 
     // Add static view JavaScript and CSS if necessary - only when HTML contains
     // interactive visualizations that require dynamic module loading (Plotly,
@@ -1064,7 +1080,7 @@ fn wrap_html(html: &str) -> String {
         <meta charset="utf-8"/>
         <title>Stencila Screen</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {styles}
+        {theme}
         <style>
             body {{
                 margin: 0;
@@ -1072,9 +1088,7 @@ fn wrap_html(html: &str) -> String {
                 font-family: system-ui, -apple-system, sans-serif;
             }}
             #stencila-content-wrapper {{
-                display: block;
-                width: fit-content;
-                height: fit-content;
+                {wrapper_css}
             }}
         </style>
         {scripts}
