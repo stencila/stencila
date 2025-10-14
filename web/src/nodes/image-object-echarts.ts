@@ -172,7 +172,7 @@ export async function compileECharts(
   contentUrl: string,
   container: HTMLElement,
   existingInstance: { dispose: () => void } | undefined,
-  isStaticMode: boolean,
+  isStaticView: boolean,
   onError: (error: Error) => void
 ): Promise<{ resize: () => void; dispose: () => void }> {
   const echarts = await import('echarts')
@@ -190,13 +190,19 @@ export async function compileECharts(
     // Build theme from CSS variables
     const theme = buildPlotTheme(container)
 
-    // Configure for static mode if enabled
-    if (isStaticMode) {
-      // Disable interactions in static mode
+    // Configure for static view
+    if (isStaticView) {
+      // Disable toolbox
       if (!spec.toolbox) {
         spec.toolbox = {}
       }
       spec.toolbox.show = false
+
+      // Disable tooltips
+      if (!spec.tooltip) {
+        spec.tooltip = {}
+      }
+      spec.tooltip.show = false
 
       // Disable zoom and data zoom
       if (spec.dataZoom) {
@@ -205,6 +211,33 @@ export async function compileECharts(
           disabled: true,
         }))
       }
+
+      // Disable brush (data selection tool)
+      if (spec.brush) {
+        if (Array.isArray(spec.brush)) {
+          spec.brush = spec.brush.map((b: Record<string, unknown>) => ({
+            ...b,
+            brushType: false,
+          }))
+        } else {
+          spec.brush = {
+            ...spec.brush,
+            brushType: false,
+          }
+        }
+      }
+
+      // Disable timeline
+      if (spec.timeline) {
+        spec.timeline = {
+          ...spec.timeline,
+          show: true,
+          autoPlay: false,
+        }
+      }
+
+      // Disable all animations
+      spec.animation = false
     }
 
     // If theme is null (--plot-theme: none), use spec as-is

@@ -1,15 +1,23 @@
 import { customElement } from 'lit/decorators.js'
+import { LitElement } from 'lit'
 
-import { DocumentView } from './document'
-
-import '../nodes/all'
-import '../shoelace'
+import '../nodes/code-block'
+import '../nodes/code-chunk' // For code chunks that are `echo` (ie. display code)
+import '../nodes/image-object'
 
 /**
  * Static view of a document
  *
- * Loads components for all node types but these are all uneditable and
- * do not receive updates from a server.
+ * A non-interactive, non-dynamic view of the document. Includes only the
+ * components needed to render code syntax highlighting and plots.
  */
 @customElement('stencila-static-view')
-export class StaticView extends DocumentView {}
+export class StaticView extends LitElement {
+    /**
+     * Override so that this custom element has a Light DOM to which theme
+     * styles are applied.
+     */
+    protected override createRenderRoot() {  
+      return this
+    }
+}

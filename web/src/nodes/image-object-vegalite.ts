@@ -155,7 +155,7 @@ function toVegaLiteConfig(t: PlotTokens): Record<string, unknown> {
 export async function compileVegaLite(
   contentUrl: string,
   container: HTMLElement,
-  isStaticMode: boolean,
+  isStaticView: boolean,
   onError: (error: Error) => void
 ): Promise<{ finalize: () => void } | undefined> {
   const { default: vegaEmbed } = await import('vega-embed')
@@ -191,7 +191,7 @@ export async function compileVegaLite(
     renderer: 'svg' as const,
     actions: false,
     mode: 'vega-lite' as const,
-    ...(isStaticMode && {
+    ...(isStaticView && {
       config: {
         view: { continuousWidth: 400, continuousHeight: 300 },
         axis: { domain: false, ticks: false },

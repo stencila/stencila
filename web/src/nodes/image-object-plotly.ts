@@ -163,7 +163,7 @@ export async function compilePlotly(
   contentUrl: string,
   container: HTMLElement,
   shadowRoot: ShadowRoot,
-  isStaticMode: boolean,
+  isStaticView: boolean,
   onError: (error: Error) => void
 ): Promise<void> {
   const Plotly = await import('plotly.js-dist-min')
@@ -239,7 +239,7 @@ export async function compilePlotly(
     }
 
     // Configure for static mode if enabled
-    const config = isStaticMode
+    const config = isStaticView
       ? {
           ...spec.config,
           staticPlot: true,

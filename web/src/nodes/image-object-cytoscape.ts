@@ -130,7 +130,7 @@ export function buildCytoscapeTheme(rootElement: HTMLElement): CytoscapeTheme {
 export async function compileCytoscape(
   contentUrl: string,
   container: HTMLElement,
-  isStaticMode: boolean
+  isStaticView: boolean
 ): Promise<any> {
   const { default: cytoscape } = await import('cytoscape')
 
@@ -138,7 +138,7 @@ export async function compileCytoscape(
   graph.container = container
 
   // Configure for static mode if enabled
-  if (isStaticMode) {
+  if (isStaticView) {
     graph.userZoomingEnabled = false
     graph.userPanningEnabled = false
     graph.boxSelectionEnabled = false

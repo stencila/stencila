@@ -277,12 +277,12 @@ export class ImageObject extends MediaObject {
     const container = this.shadowRoot.querySelector(
       'div#stencila-cytoscape-container'
     ) as HTMLElement
-    const isStaticMode = window.STENCILA_STATIC_MODE === true
+    const isStaticView = this.documentView() == 'static'
 
     this.cytoscape = await compileCytoscape(
       this.contentUrl,
       container,
-      isStaticMode
+      isStaticView
     )
   }
 
@@ -291,13 +291,13 @@ export class ImageObject extends MediaObject {
       'stencila-echarts-container'
     )
     const codeChunk = this.setupCodeChunkErrorHandling()
-    const isStaticMode = window.STENCILA_STATIC_MODE === true
+    const isStaticView = this.documentView() == 'static'
 
     this.echarts = await compileECharts(
       this.contentUrl,
       container,
       this.echarts,
-      isStaticMode,
+      isStaticView,
       (error) => {
         if (codeChunk) {
           this.addErrorMessage(codeChunk, this.formatErrorString(error))
@@ -370,13 +370,13 @@ export class ImageObject extends MediaObject {
       'stencila-plotly-container'
     )
     const codeChunk = this.setupCodeChunkErrorHandling()
-    const isStaticMode = window.STENCILA_STATIC_MODE === true
+    const isStaticView = this.documentView() == 'static'
 
     await compilePlotly(
       this.contentUrl,
       container,
       this.shadowRoot,
-      isStaticMode,
+      isStaticView,
       (error) => {
         if (codeChunk) {
           this.addErrorMessage(codeChunk, this.formatErrorString(error))
@@ -390,9 +390,9 @@ export class ImageObject extends MediaObject {
       'div#stencila-vega-container'
     ) as HTMLElement
     const codeChunk = this.setupCodeChunkErrorHandling()
-    const isStaticMode = window.STENCILA_STATIC_MODE === true
+    const isStaticView = this.documentView() == 'static'
 
-    this.vegaLite = await compileVegaLite(this.contentUrl, container, isStaticMode, (error) => {
+    this.vegaLite = await compileVegaLite(this.contentUrl, container, isStaticView, (error) => {
       if (codeChunk) {
         this.addErrorMessage(codeChunk, this.formatErrorString(error))
       }
