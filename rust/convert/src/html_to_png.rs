@@ -49,12 +49,14 @@ use stencila_web_dist::Web;
 /// Duration in seconds to keep browser open for inspection during development.
 /// Set to 0 for normal operation (headless mode).
 /// Set to > 0 to keep browser window open for debugging.
+#[cfg(debug_assertions)]
 const BROWSER_OPEN_SECS: u64 = 0;
 
 /// Use local development web assets instead of production CDN.
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
-const USE_LOCALHOST: bool = false;
+#[cfg(debug_assertions)]
+const USE_LOCALHOST: bool = true;
 
 /// Converts HTML to PNG and returns as data URI
 ///
@@ -290,7 +292,11 @@ fn create_browser() -> Result<Browser> {
     let options = LaunchOptionsBuilder::default()
         // Set headless based on BROWSER_OPEN_SECS constant
         // If BROWSER_OPEN_SECS > 0, run in non-headless mode for debugging
-        .headless(BROWSER_OPEN_SECS == 0)
+        .headless(if cfg!(debug_assertions) {
+            BROWSER_OPEN_SECS == 0
+        } else {
+            true
+        })
         .args(args)
         .build()
         .map_err(|error| eyre!("Failed to build browser launch options: {error}"))?;
@@ -1158,6 +1164,7 @@ fn try_png(
     handle_console_errors(console_errors, console_error_handling, "rendering")?;
 
     // Keep browser open for inspection if BROWSER_OPEN_SECS > 0
+    #[cfg(debug_assertions)]
     if BROWSER_OPEN_SECS > 0 {
         tracing::info!("Browser staying open for {BROWSER_OPEN_SECS} seconds for inspection...");
         sleep(Duration::from_secs(BROWSER_OPEN_SECS));
@@ -1215,6 +1222,7 @@ fn try_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<V
     handle_console_errors(console_errors, console_error_handling, "PDF generation")?;
 
     // Keep browser open for inspection if BROWSER_OPEN_SECS > 0
+    #[cfg(debug_assertions)]
     if BROWSER_OPEN_SECS > 0 {
         tracing::info!("Browser staying open for {BROWSER_OPEN_SECS} seconds for inspection...");
         sleep(Duration::from_secs(BROWSER_OPEN_SECS));
