@@ -280,8 +280,9 @@ impl Codec for PdfCodec {
                     Some(EncodeOptions {
                         // Standalone so that necessary JS and CSS is loaded
                         standalone: Some(true),
-                        // Ensure no view is loaded
-                        view: Some("none".into()),
+                        // Use static view in support of syntax highlighting,
+                        // visualizations etc
+                        view: Some("static".into()),
                         // Embed any media files. This is necessary because the
                         // browser will not fetch local resources when generating
                         // the PDF

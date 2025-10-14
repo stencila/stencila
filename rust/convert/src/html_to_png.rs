@@ -39,6 +39,7 @@ use eyre::{Result, bail, eyre};
 use headless_chrome::{
     Browser, LaunchOptionsBuilder, Tab,
     protocol::cdp::{Page, Runtime, types::Event},
+    types::PrintToPdfOptions,
 };
 use itertools::Itertools;
 
@@ -301,7 +302,31 @@ fn create_browser() -> Result<Browser> {
         .build()
         .map_err(|error| eyre!("Failed to build browser launch options: {error}"))?;
 
-    Browser::new(options).map_err(|error| eyre!("Failed to create browser instance: {error}"))
+    let browser = Browser::new(options)
+        .map_err(|error| eyre!("Failed to create browser instance: {error}"))?;
+
+    let version = browser
+        .get_version()
+        .map_err(|error| eyre!("Unable to get version: {error}"))?;
+    tracing::debug!("Browser version: {version:?}");
+
+    // Warn user if Chrome/Chromium version does not support all the features we
+    // use it for. See https://developer.chrome.com/release-notes
+    // Page margin boxes support was introduced in 131
+    const CHROME_MIN_VERSION: u32 = 131;
+
+    // Parse and check Chrome version
+    if let Some(version_str) = version.product.strip_prefix("Chrome/")
+        && let Some(major_version) = version_str.split('.').next()
+        && let Ok(major) = major_version.parse::<u32>()
+        && major < CHROME_MIN_VERSION
+    {
+        tracing::warn!(
+            "Chrome version {major} is below minimum required version {CHROME_MIN_VERSION}. Some features may not work correctly. Please update Chrome/Chromium."
+        );
+    }
+
+    Ok(browser)
 }
 
 /// Ensures we have a working browser and tab instance, recreating if necessary
@@ -1004,7 +1029,7 @@ fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewp
 
 /// Wraps HTML with so that any necessary CSS and Javascript is available
 fn wrap_html(html: &str) -> String {
-    // Use local or production web assets based on USE_LOCAL_WEB_ASSETS constant
+    // Use local or production web assets based on USE_LOCALHOST constant
     let web_base = if USE_LOCALHOST {
         "http://localhost:9000/~static/dev".to_string()
     } else {
@@ -1028,15 +1053,11 @@ fn wrap_html(html: &str) -> String {
         // the calculation of theme variables and rendering of Mermaid and other JS-based images.
         let content = theme.computed_css(LengthConversion::KeepUnits);
         format!(r#"<style>{content}</style>"#)
+    } else if let Some(file) = Web::get("themes/stencila.css") {
+        let content = String::from_utf8_lossy(&file.data);
+        format!(r#"<style>{content}</style>"#)
     } else {
-        if let Some(file) = Web::get("themes/stencila.css") {
-            let content = String::from_utf8_lossy(&file.data);
-            format!(r#"<style>{content}</style>"#)
-        } else {
-            format!(
-                r#"<link rel="stylesheet" type="text/css" href="{web_base}/themes/stencila.css">"#
-            )
-        }
+        format!(r#"<link rel="stylesheet" type="text/css" href="{web_base}/themes/stencila.css">"#)
     };
     let theme = [base, overrides].concat();
 
@@ -1075,7 +1096,7 @@ fn wrap_html(html: &str) -> String {
 
     format!(
         r#"<!doctype html>
-<html lang="en" data-color-scheme="light">
+<html lang="en">
     <head>
         <meta charset="utf-8"/>
         <title>Stencila Screen</title>
@@ -1225,9 +1246,13 @@ fn try_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<V
         tracing::warn!("Rendering completion detection failed: {error}. Generating PDF anyway.");
     }
 
-    // Generate PDF with default options
+    // Generate PDF
     let pdf_bytes = tab
-        .print_to_pdf(None)
+        .print_to_pdf(Some(PrintToPdfOptions {
+            // Make sure that @page rules are observed (this option is not just about page size)
+            prefer_css_page_size: Some(true),
+            ..Default::default()
+        }))
         .map_err(|error| eyre!("Failed to generate PDF: {error}"))?;
 
     tracing::debug!("PDF generated successfully");
@@ -1262,14 +1287,19 @@ fn setup_tab_for_capture(
         .ok_or_else(|| eyre!("No tab instance available"))?
         .clone();
 
+    // Ensure light color schema
+    let html = html.replace(
+        r#"<html lang="en">"#,
+        r#"<html lang="en" data-color-scheme="light">"#,
+    );
+
     // Use Page.setDocumentContent for fastest content injection
     let frame_tree = tab
         .call_method(Page::GetFrameTree(None))
         .map_err(|error| eyre!("Failed to get frame tree: {error}"))?;
-
     tab.call_method(Page::SetDocumentContent {
         frame_id: frame_tree.frame_tree.frame.id,
-        html: html.to_string(),
+        html,
     })
     .map_err(|error| eyre!("Failed to set document content: {error}"))?;
 
