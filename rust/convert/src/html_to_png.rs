@@ -42,6 +42,7 @@ use headless_chrome::{
 };
 use itertools::Itertools;
 
+use stencila_themes::LengthConversion;
 use stencila_version::STENCILA_VERSION;
 use stencila_web_dist::Web;
 
@@ -53,7 +54,7 @@ const BROWSER_OPEN_SECS: u64 = 0;
 /// Use local development web assets instead of production CDN.
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
-const USE_LOCALHOST: bool = true;
+const USE_LOCALHOST: bool = false;
 
 /// Converts HTML to PNG and returns as data URI
 ///
@@ -1001,19 +1002,33 @@ fn wrap_html(html: &str) -> String {
     };
 
     // Add theme CSS
-    let mut styles = String::new();
-    for path in ["themes/base.css", "themes/stencila.css"] {
-        if let Some(file) = Web::get(path) {
-            // Inject CSS directly
+    // Base theme is always needed for application of variables. Get from web dist, falling back to remote.
+    let base = if let Some(file) = Web::get("themes/base.css") {
+        let content = String::from_utf8_lossy(&file.data);
+        format!(r#"<style>{content}</style>"#)
+    } else {
+        format!(r#"<link rel="stylesheet" type="text/css" href="{web_base}/themes/base.css">"#)
+    };
+    // Custom theme, falling back to Stencila
+    // Note that the resolved theme is based on the output path
+    // TODO: support getting theme by name and path, will currently use cwd
+    let custom = if let Ok(Some(theme)) = stencila_themes::get_sync(None, None) {
+        // This uses the theme's computed CSS variables, rather than injecting the content of the theme
+        // because we found that `color-mix` was not supported in headless chrome and so was breaking
+        // the calculation of theme variables and rendering of Mermaid and other JS-based images.
+        let content = theme.computed_css(LengthConversion::KeepUnits);
+        format!(r#"<style>{content}</style>"#)
+    } else {
+        if let Some(file) = Web::get("themes/stencila.css") {
             let content = String::from_utf8_lossy(&file.data);
-            styles.push_str(&format!(r#"<style>{content}</style>"#));
+            format!(r#"<style>{content}</style>"#)
         } else {
-            // Fallback to link to CSS
-            styles.push_str(&format!(
-                r#"<link rel="stylesheet" type="text/css" href="{web_base}/{path}">"#
-            ));
+            format!(
+                r#"<link rel="stylesheet" type="text/css" href="{web_base}/themes/stencila.css">"#
+            )
         }
-    }
+    };
+    let styles = [base, custom].concat();
 
     // Add static view JavaScript and CSS if necessary - only when HTML contains
     // interactive visualizations that require dynamic module loading (Plotly,
@@ -1038,7 +1053,7 @@ fn wrap_html(html: &str) -> String {
 
     format!(
         r#"<!doctype html>
-<html lang="en">
+<html lang="en" data-color-scheme="light">
     <head>
         <meta charset="utf-8"/>
         <title>Stencila Screen</title>
@@ -1507,8 +1522,8 @@ mod tests {
     /// To run this test with logs printed:
     /// RUST_LOG=trace cargo test -p stencila-convert html_to_png::tests::test_rendering -- --nocapture
     #[ignore = "primarily for development"]
-    #[test_log::test]
-    fn test_rendering() -> Result<()> {
+    #[test_log::test(tokio::test(flavor = "multi_thread"))]
+    async fn test_rendering() -> Result<()> {
         let datatable_html = r#"<stencila-datatable>
             <table>
                 <thead>

@@ -22,7 +22,9 @@ use regex::Regex;
 use serde_json::{Value, json};
 use tokio::{
     fs::{read_to_string, remove_file, write},
+    runtime,
     sync::mpsc,
+    task,
 };
 
 use stencila_dirs::{DirType, get_app_dir};
@@ -181,12 +183,12 @@ impl Theme {
         self.variables.get(name).map(|s| s.as_str())
     }
 
-    /// Compute variables with resolved references and typed JSON values
+    /// Compute variables into JSON values
     ///
     /// Resolves var() references, evaluates calc() and color-mix() using lightningcss,
     /// normalizes colors to hex, and converts lengths according to the specified conversion.
     /// Returns typed JSON values suitable for kernels (Python matplotlib, R ggplot2, etc.)
-    pub fn compute_variables(
+    pub fn computed_variables(
         &self,
         length_conversion: LengthConversion,
     ) -> BTreeMap<String, Value> {
@@ -200,6 +202,24 @@ impl Theme {
         }
 
         computed
+    }
+
+    /// Compute variables into `:root` CSS
+    ///
+    /// The same as `computed_variables` but returns a CSS string with computed variables
+    /// within `:root { ... }`.
+    pub fn computed_css(&self, length_conversion: LengthConversion) -> String {
+        let mut css = ":root {\n".to_string();
+        let vars = self.computed_variables(length_conversion);
+        for (name, value) in vars {
+            let value = match value {
+                Value::String(value) => value,
+                _ => value.to_string(),
+            };
+            css.push_str(&format!("  --{name}: {value};\n"));
+        }
+        css.push_str("}\n");
+        css
     }
 
     /// Recursively resolve var() references in a CSS value
@@ -725,6 +745,13 @@ pub async fn get(name: Option<String>, base_path: Option<PathBuf>) -> Result<Opt
     get_uncached(name.as_deref(), base_path.as_deref()).await
 }
 
+/// A synchronous version of [`get`]
+pub fn get_sync(name: Option<String>, base_path: Option<PathBuf>) -> Result<Option<Theme>> {
+    task::block_in_place(|| {
+        runtime::Handle::current().block_on(async { get(name, base_path).await })
+    })
+}
+
 /// Get a theme without caching
 ///
 /// Bypasses the 30-second cache to always read fresh data from disk and parse CSS.
@@ -766,6 +793,15 @@ pub async fn get_uncached(name: Option<&str>, base_path: Option<&Path>) -> Resul
         .map(|p| p.to_path_buf())
         .or_else(|| current_dir().ok())
         .ok_or_else(|| eyre!("Failed to determine base path"))?;
+
+    // If current is a file, use its parent directory
+    if current.is_file() {
+        current = current
+            .parent()
+            .ok_or_else(|| eyre!("File path has no parent directory"))?
+            .to_path_buf();
+    }
+
     loop {
         let theme_path = current.join("theme.css");
         if theme_path.exists() {
@@ -1004,7 +1040,7 @@ mod tests {
             ":root { --size: 16; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("size"), Some(&json!(16.0)));
     }
 
@@ -1017,7 +1053,7 @@ mod tests {
             ":root { --width: 10px; --time: .25s; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("width"), Some(&json!(10.0)));
         assert_eq!(computed.get("time"), Some(&json!(0.25)));
     }
@@ -1031,7 +1067,7 @@ mod tests {
             r#":root { --num: '.25'; --str: 'hello'; }"#.into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("num"), Some(&json!(0.25)));
         assert_eq!(computed.get("str"), Some(&json!("hello")));
     }
@@ -1045,7 +1081,7 @@ mod tests {
             ":root { --base: 10; --double: var(--base); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("double"), Some(&json!(10.0)));
     }
 
@@ -1059,7 +1095,7 @@ mod tests {
             ":root { --result: calc(10px + 5px); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         // lightningcss should evaluate to "15px", then we strip units
         assert_eq!(computed.get("result"), Some(&json!(15.0)));
     }
@@ -1073,7 +1109,7 @@ mod tests {
             ":root { --base: 10px; --double: calc(var(--base) * 2); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         // Should resolve var, calc, and strip units
         assert_eq!(computed.get("double"), Some(&json!(20.0)));
     }
@@ -1087,7 +1123,7 @@ mod tests {
             ":root { --a: 5; --b: var(--a); --c: var(--b); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("c"), Some(&json!(5.0)));
     }
 
@@ -1100,7 +1136,7 @@ mod tests {
             ":root { --value: var(--missing, 42); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("value"), Some(&json!(42.0)));
     }
 
@@ -1113,7 +1149,7 @@ mod tests {
             ":root { --plot-color-1: color-mix(in srgb, red 50%, blue); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::KeepUnits);
+        let computed = theme.computed_variables(LengthConversion::KeepUnits);
         // color-mix should be normalized to hex
         let color = computed.get("plot-color-1").and_then(|v| v.as_str());
         assert_eq!(color.unwrap_or_default(), "#800080");
@@ -1128,7 +1164,7 @@ mod tests {
             ":root { --plot-color-1: hsl(217 91% 60%); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::KeepUnits);
+        let computed = theme.computed_variables(LengthConversion::KeepUnits);
         let color = computed.get("plot-color-1").and_then(|v| v.as_str());
         assert_eq!(color.unwrap_or_default(), "#3c83f6");
     }
@@ -1142,7 +1178,7 @@ mod tests {
             ":root { --plot-background: oklch(55% 0.2 210); }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::KeepUnits);
+        let computed = theme.computed_variables(LengthConversion::KeepUnits);
         let color = computed.get("plot-background").and_then(|v| v.as_str());
         assert_eq!(color.unwrap_or_default(), "#008192");
     }
@@ -1156,7 +1192,7 @@ mod tests {
             ":root { --plot-font-size: 1rem; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         // 1rem = 16px = 12pt (16 * 0.75)
         assert_eq!(computed.get("plot-font-size"), Some(&json!(12.0)));
     }
@@ -1170,7 +1206,7 @@ mod tests {
             ":root { --plot-line-width: 2px; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         // 2px = 1.5pt (2 * 0.75)
         assert_eq!(computed.get("plot-line-width"), Some(&json!(1.5)));
     }
@@ -1189,7 +1225,7 @@ mod tests {
             .into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
 
         // calc(16px * 0.85) = 13.6px = 10.2pt (13.6 * 0.75)
         assert_eq!(computed.get("plot-font-size"), Some(&json!(10.2)));
@@ -1211,7 +1247,7 @@ mod tests {
             content: String::new(),
             variables: vars,
         };
-        let computed = theme.compute_variables(LengthConversion::Number);
+        let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("a"), Some(&json!("var(--b)")));
     }
 
@@ -1224,7 +1260,7 @@ mod tests {
             ":root { --plot-dpi: 100; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         // DPI should remain as 100, not be converted
         assert_eq!(computed.get("plot-dpi"), Some(&json!(100.0)));
     }
@@ -1238,7 +1274,7 @@ mod tests {
             ":root { --plot-dpi: 100px; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         // DPI should strip units and return 100, not convert to 75 points
         assert_eq!(computed.get("plot-dpi"), Some(&json!(100.0)));
     }
@@ -1252,7 +1288,7 @@ mod tests {
             ":root { --plot-aspect-ratio: 1.5; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         assert_eq!(computed.get("plot-aspect-ratio"), Some(&json!(1.5)));
     }
 
@@ -1265,7 +1301,7 @@ mod tests {
             ":root { --plot-mark-opacity: 0.75; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         assert_eq!(computed.get("plot-mark-opacity"), Some(&json!(0.75)));
     }
 
@@ -1278,7 +1314,7 @@ mod tests {
             ":root { --plot-ramp-steps: 7; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         assert_eq!(computed.get("plot-ramp-steps"), Some(&json!(7.0)));
     }
 
@@ -1291,7 +1327,7 @@ mod tests {
             ":root { --plot-bar-gap: 0.2; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         // Gap should remain as ratio, not be converted
         assert_eq!(computed.get("plot-bar-gap"), Some(&json!(0.2)));
     }
@@ -1305,7 +1341,7 @@ mod tests {
             ":root { --plot-font-size: 16px; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         // Font size SHOULD be converted to points (16px = 12pt)
         assert_eq!(computed.get("plot-font-size"), Some(&json!(12.0)));
     }
@@ -1319,7 +1355,7 @@ mod tests {
             ":root { --font-weight: 700; }".into(),
             false,
         );
-        let computed = theme.compute_variables(LengthConversion::Points);
+        let computed = theme.computed_variables(LengthConversion::Points);
         // Font weight should remain as number
         assert_eq!(computed.get("font-weight"), Some(&json!(700.0)));
     }

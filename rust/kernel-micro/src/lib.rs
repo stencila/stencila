@@ -862,7 +862,7 @@ impl MicrokernelInstance {
     async fn theme(&mut self, theme: Theme) -> Result<()> {
         // Compute variables to resolve var() references and evaluate calc()/color-mix()
         // Convert lengths to points for plotting libraries (matplotlib, ggplot2, etc.)
-        let computed = theme.compute_variables(stencila_themes::LengthConversion::Points);
+        let computed = theme.computed_variables(stencila_themes::LengthConversion::Points);
 
         // Check if theming is disabled (--plot-theme: none)
         if let Some(name) = computed.get("plot-theme").and_then(|name| name.as_str()) {
