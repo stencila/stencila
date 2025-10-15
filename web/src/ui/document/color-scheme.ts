@@ -8,6 +8,7 @@ export type ColorScheme = 'system' | 'light' | 'dark'
  */
 export class ColorSchemeManager {
   // Set up media query listener for system color scheme changes
+  // @ts-expect-error is declared but its value is never read.
   private static mediaQueryListener = (() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => {

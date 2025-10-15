@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 import { css } from '@twind/core'
 import { html } from 'lit'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
@@ -241,7 +243,7 @@ export async function compileMermaid(
   contentUrl: string,
   element: HTMLElement,
   onSuccess: (svg: string) => void,
-  onError: (error: Error) => void
+  onError: (error: any) => void
 ): Promise<void> {
   // Import Mermaid dynamically
   // @ts-expect-error - Using ESM min build to avoid parser dependency issues

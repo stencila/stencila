@@ -283,7 +283,7 @@ export class ImageObject extends MediaObject {
       this.contentUrl,
       container,
       isStaticView
-    )
+    ) as ImageObject['cytoscape']
   }
 
   private async compileECharts() {
