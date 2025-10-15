@@ -1200,6 +1200,7 @@ fn try_png(
 
     // Keep browser open for inspection if BROWSER_OPEN_SECS > 0
     #[cfg(debug_assertions)]
+    #[allow(clippy::absurd_extreme_comparisons)]
     if BROWSER_OPEN_SECS > 0 {
         tracing::info!("Browser staying open for {BROWSER_OPEN_SECS} seconds for inspection...");
         sleep(Duration::from_secs(BROWSER_OPEN_SECS));
@@ -1262,6 +1263,7 @@ fn try_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<V
 
     // Keep browser open for inspection if BROWSER_OPEN_SECS > 0
     #[cfg(debug_assertions)]
+    #[allow(clippy::absurd_extreme_comparisons)]
     if BROWSER_OPEN_SECS > 0 {
         tracing::info!("Browser staying open for {BROWSER_OPEN_SECS} seconds for inspection...");
         sleep(Duration::from_secs(BROWSER_OPEN_SECS));
