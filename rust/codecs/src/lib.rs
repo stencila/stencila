@@ -909,7 +909,7 @@ pub async fn check_git_for_to_path(
 /// * `Ok(false)` - Completed successfully but user cancelled the calling operation
 /// * `Err(_)` - Git operations failed or user input could not be read
 #[tracing::instrument]
-#[must_use]
+#[must_use = "return boolean indicated if user cancelled the operation"]
 async fn check_git_for_merge(path: &Path, commit: &str, other: &Path, force: bool) -> Result<bool> {
     let path_ = path.display();
     let file = path
