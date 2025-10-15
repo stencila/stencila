@@ -865,10 +865,10 @@ impl MicrokernelInstance {
         let computed = theme.computed_variables(stencila_themes::LengthConversion::Points);
 
         // Check if theming is disabled (--plot-theme: none)
-        if let Some(name) = computed.get("plot-theme").and_then(|name| name.as_str()) {
-            if name.trim() == "none" {
-                return Ok(());
-            }
+        if let Some(name) = computed.get("plot-theme").and_then(|name| name.as_str())
+            && name.trim() == "none"
+        {
+            return Ok(());
         }
 
         // Filter to only plot-* variables

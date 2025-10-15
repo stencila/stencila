@@ -18,7 +18,7 @@ pub enum DirType {
     Themes,
 
     Prompts,
-    
+
     /// Application cache
     Cache,
 

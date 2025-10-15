@@ -256,10 +256,7 @@ pub async fn serve_path(
         .map_or("dynamic", |value: &String| value.as_ref());
 
     // Get theme name from query or config
-    let theme_name = query
-        .get("~theme")
-        .map(|value| value.clone())
-        .or(config.theme.clone());
+    let theme_name = query.get("~theme").cloned().or(config.theme.clone());
 
     // Resolve theme if theme_name is not "none"
     let theme = if theme_name.as_deref() != Some("none") {

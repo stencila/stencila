@@ -233,7 +233,6 @@ pub struct KernelVariableResponse {
 
 pub type KernelVariableResponder = broadcast::Receiver<KernelVariableResponse>;
 
-
 /// Options when starting a kernel
 pub struct KernelStartOptions<'d, 't> {
     /// The directory to start the kernel in
