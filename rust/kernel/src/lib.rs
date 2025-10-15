@@ -276,7 +276,11 @@ pub trait KernelInstance: Sync + Send {
 
     /// Start the kernel in the current working directory
     async fn start_here(&mut self) -> Result<()> {
-        self.start(&current_dir()?).await
+        self.start_with(KernelStartOptions {
+            directory: Some(&current_dir()?),
+            theme: None,
+        })
+        .await
     }
 
     /// Start the kernel with options
