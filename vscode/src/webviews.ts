@@ -406,7 +406,7 @@ export async function initializeWebViewPanel(
           }
         </style>
       </head>
-      <body>
+      <body style="background:white">
         <stencila-vscode-view theme="${themeName}" workspace="${workspaceUri}" hidden>
           ${viewHtml}
         </stencila-vscode-view>
