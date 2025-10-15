@@ -63,7 +63,11 @@ impl Microkernel for RKernel {
     }
 
     fn microkernel_script(&self) -> (String, String) {
-        let script = [include_str!("theme.r"), include_str!("kernel.r")].concat();
+        let kernel = include_str!("kernel.r");
+        let theme = include_str!("theme.r");
+
+        let script = kernel.replace(r#"source("theme.r")"#, theme);
+
         ("kernel.r".into(), script)
     }
 

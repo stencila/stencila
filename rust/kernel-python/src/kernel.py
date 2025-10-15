@@ -21,6 +21,9 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Optional, TypedDict, Union, get_type_hints
 
+# Include separate theme.py (this gets transcluded in build so that there is a single kernel script)
+from .theme import theme
+
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
 

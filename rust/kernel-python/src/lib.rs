@@ -65,7 +65,11 @@ impl Microkernel for PythonKernel {
     }
 
     fn microkernel_script(&self) -> (String, String) {
-        let script = [include_str!("theme.py"), include_str!("kernel.py")].concat();
+        let kernel = include_str!("kernel.py");
+        let theme = include_str!("theme.py");
+
+        let script = kernel.replace("from .theme import theme", theme);
+
         ("kernel.py".into(), script)
     }
 }

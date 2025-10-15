@@ -714,6 +714,9 @@ box_ <- function() {
   }
 }
 
+# Include separate theme.r (this gets transcluded in build so that there is a single kernel script)
+source("theme.r")
+
 # Indicate that ready
 write(READY, stdout)
 write(READY, stderr)
