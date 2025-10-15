@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 indexmap = { workspace = true }
 itertools = { workspace = true }
-kuzu = "0.11.2"
+kuzu = "0.11.3"
 regex = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
