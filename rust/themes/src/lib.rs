@@ -56,6 +56,8 @@ pub enum LengthConversion {
     Points,
     /// Convert CSS lengths to pixels
     Pixels,
+    /// Convert CSS lengths to inches (for PDF generation via Chrome DevTools Protocol)
+    Inches,
     /// Strip units and return raw number
     Number,
     /// Keep original CSS value as string with units
@@ -448,6 +450,21 @@ impl Theme {
                         _ => num,
                     };
                     return json!(pixels);
+                }
+                LengthConversion::Inches => {
+                    let inches = match unit {
+                        "in" => num,
+                        "px" => num / 96.0,
+                        "pt" => num / 72.0,
+                        "rem" => num * 16.0 / 96.0,
+                        "em" => num * 16.0 / 96.0,
+                        "cm" => num / 2.54,
+                        "mm" => num / 25.4,
+                        "Q" => num / 101.6,
+                        "pc" => num * 16.0 / 96.0,
+                        _ => num,
+                    };
+                    return json!(inches);
                 }
                 LengthConversion::Number => {
                     return json!(num);
@@ -905,14 +922,14 @@ pub async fn remove(name: &str, force: bool) -> Result<()> {
 pub async fn watch(
     name: Option<&str>,
     base_path: Option<&Path>,
-) -> Result<mpsc::Receiver<Result<Theme>>> {
+) -> Result<Option<mpsc::Receiver<Result<Theme>>>> {
     // First, get the theme to find its location
     let theme = get_uncached(name, base_path)
         .await?
         .ok_or_else(|| eyre!("Theme not found"))?;
 
     let Some(location) = theme.location.clone() else {
-        bail!("Theme has no file location and cannot be watched");
+        return Ok(None);
     };
 
     // Watch the parent directory to handle atomic writes (remove + rename)
@@ -997,7 +1014,7 @@ pub async fn watch(
         }
     });
 
-    Ok(receiver)
+    Ok(Some(receiver))
 }
 
 #[cfg(test)]
