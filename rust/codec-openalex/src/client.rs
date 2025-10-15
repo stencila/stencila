@@ -233,6 +233,7 @@ pub async fn search_works_title_year(title: &str, year: Option<i32>) -> Result<V
 }
 
 /// Search for works by general search
+#[allow(unused)]
 #[tracing::instrument]
 pub async fn search_works(text: &str) -> Result<Vec<Work>> {
     tracing::trace!("Searching works: {text}");

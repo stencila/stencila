@@ -370,6 +370,7 @@ impl Cli {
     /// Post an image and return the image `Resource`
     ///
     /// This is used when creating and updating posts or pages.
+    #[allow(unused)]
     #[tracing::instrument]
     async fn post_image(&self, image_path: &Path) -> Result<Resource> {
         let Some(ref host) = self.domain else {

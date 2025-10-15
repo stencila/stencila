@@ -304,6 +304,7 @@ pub async fn serve_path(
 }
 
 /// Open a document and return its id
+#[allow(unused)]
 #[tracing::instrument(skip(docs))]
 async fn open_document(
     State(ServerState {
