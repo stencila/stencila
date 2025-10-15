@@ -241,7 +241,7 @@ export async function compileMermaid(
   contentUrl: string,
   element: HTMLElement,
   onSuccess: (svg: string) => void,
-  onError: (error: any) => void
+  onError: (error: Error) => void
 ): Promise<void> {
   // Import Mermaid dynamically
   // @ts-expect-error - Using ESM min build to avoid parser dependency issues

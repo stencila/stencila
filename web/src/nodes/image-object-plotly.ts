@@ -60,7 +60,7 @@ function mapLineTypeToPlotly(lineType: string): string {
 /**
  * Convert plot tokens to Plotly template
  */
-function toPlotlyTemplate(t: PlotTokens): Partial<any> {
+function toPlotlyTemplate(t: PlotTokens) {
   // Convert CSS font-weight to numeric value for Plotly (normal→400, bold→700, or pass through)
   const convertFontWeight = (weight: string): number => {
     if (weight === 'normal') return 400
@@ -197,6 +197,7 @@ export async function compilePlotly(
       }
 
       // Apply palette colors, shapes, and lineTypes to traces if not specified
+      // eslint-disable-next-line
       data = spec.data.map((trace: any, i: number) => {
         const color = theme.palette[i % theme.palette.length]
         const shape = theme.shapes[i % theme.shapes.length]
@@ -213,6 +214,7 @@ export async function compilePlotly(
           }
         }
 
+        // eslint-disable-next-line
         const updatedTrace: any = {
           ...trace,
           marker: {

@@ -317,7 +317,8 @@ export async function compileECharts(
           const lineType = theme.lineTypes[i % theme.lineTypes.length]
           updatedSeries.lineStyle = {
             ...((series.lineStyle as Record<string, unknown>) || {}),
-            type: (series.lineStyle as any)?.type ?? mapLineTypeToECharts(lineType),
+            // @ts-expect-error lineStyle type unknown
+            type: series.lineStyle?.type ?? mapLineTypeToECharts(lineType),
           }
         }
 

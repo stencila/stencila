@@ -50,7 +50,7 @@ export function colorToHex(color: string): string {
         const [r, g, b] = imageData.data
         return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('')
       }
-    } catch (e) {
+    } catch {
       // Canvas conversion failed, fall through to fallback
     }
   }

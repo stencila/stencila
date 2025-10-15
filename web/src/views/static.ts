@@ -1,5 +1,5 @@
-import { customElement } from 'lit/decorators.js'
 import { LitElement } from 'lit'
+import { customElement } from 'lit/decorators.js'
 
 import '../nodes/code-block'
 import '../nodes/code-chunk' // For code chunks that are `echo` (ie. display code)
@@ -17,7 +17,7 @@ export class StaticView extends LitElement {
      * Override so that this custom element has a Light DOM to which theme
      * styles are applied.
      */
-    protected override createRenderRoot() {  
+    protected override createRenderRoot() {
       return this
     }
 }

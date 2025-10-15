@@ -131,7 +131,7 @@ export async function compileCytoscape(
   contentUrl: string,
   container: HTMLElement,
   isStaticView: boolean
-): Promise<any> {
+): Promise<unknown> {
   const { default: cytoscape } = await import('cytoscape')
 
   const graph = JSON.parse(contentUrl)
