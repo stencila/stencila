@@ -432,7 +432,7 @@ rl.on("line", (task) => {
         case FORK:
           return fork(lines.slice(1));
         case BOX:
-            return box();
+          return box();
         default:
           throw new Error(`Unrecognized task ${lines[0]}`);
       }
@@ -471,8 +471,7 @@ rl.on("line", (task) => {
           // Filter out lines related to evaluation
           if (
             !(
-              line.includes("kernels/kernel.js:") || // Linux & MacOS
-              line.includes("kernels\\kernel.js:") || // Windows
+              line.includes("kernel.js:") ||
               line.includes("node:vm:") ||
               line.includes("node:internal/readline/interface:") ||
               line.includes("node:events:")

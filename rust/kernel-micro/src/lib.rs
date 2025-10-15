@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeMap,
     env::{self, current_dir},
-    fs::write,
+    fs::{create_dir_all, write},
     path::PathBuf,
     process::Stdio,
 };
@@ -21,6 +21,7 @@ use tokio::{
 use which::which;
 
 use stencila_dirs::{DirType, get_app_dir};
+use stencila_version::STENCILA_VERSION;
 
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
@@ -129,7 +130,7 @@ pub trait Microkernel: Sync + Send + Kernel {
         bounds: ExecutionBounds,
         supports_themes: bool,
     ) -> Result<Box<dyn KernelInstance>> {
-        tracing::debug!("Creating microkernel instance");
+        tracing::debug!("Creating microkernel instance for kernel `{kernel_name}`");
 
         if !self.supports_bounds(bounds) {
             bail!("`{kernel_name}` kernel does not support `{bounds}` execution bounds")
@@ -141,12 +142,32 @@ pub trait Microkernel: Sync + Send + Kernel {
         // Get the name of the executable for this microkernel
         let executable_name = self.executable_name();
 
-        // Always write the script file, even if it already exists, to allow for changes
-        // to the microkernel's script
-        let kernels_dir: PathBuf = get_app_dir(DirType::Kernels, true)?;
+        // Write the script file to a version-specific or dev subdirectory
+        let kernels_base_dir: PathBuf = get_app_dir(DirType::Kernels, true)?;
+        let kernels_dir = if cfg!(debug_assertions) {
+            // In development, always write to the 'dev' subdirectory to pick up changes
+            kernels_base_dir.join("dev")
+        } else {
+            // In production, use a version-specific subdirectory
+            kernels_base_dir.join(STENCILA_VERSION)
+        };
+
         let (script_name, script) = self.microkernel_script();
         let script_file = kernels_dir.join(script_name);
-        write(&script_file, script)?;
+
+        // Only write the script if it doesn't exist, or if we're in development mode
+        // Note: Race condition exists with concurrent writes, but is safe because all writes
+        // are identical content and filesystem writes are typically atomic for small files
+        if cfg!(debug_assertions) || !script_file.exists() {
+            // Ensure the version/dev subdirectory exists
+            if !kernels_dir.exists() {
+                create_dir_all(&kernels_dir)?;
+            }
+            write(&script_file, script)?;
+            tracing::trace!("Wrote kernel script: {}", script_file.display());
+        } else {
+            tracing::trace!("Using existing kernel script: {}", script_file.display());
+        }
 
         // Get args to the executable and replace placeholder in args with the script path
         let executable_args: Vec<String> = self

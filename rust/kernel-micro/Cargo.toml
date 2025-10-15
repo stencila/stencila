@@ -10,6 +10,7 @@ serde_json = { workspace = true }
 stencila-dirs = { path = "../dirs" }
 stencila-kernel = { path = "../kernel" }
 stencila-themes = { path = "../themes" }
+stencila-version = { path = "../version" }
 strum = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
