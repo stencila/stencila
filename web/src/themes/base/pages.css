@@ -7,27 +7,32 @@
 :root {
     /* Page Layout */
     --page-size: a4;
-    --page-margin: 1.5cm;
+
+    /* Page margins - margin boxes around page */
+    --page-margin-vertical: 1.5cm;
+    --page-margin-horizontal: 2cm;
+    --page-margin-top: var(--page-margin-vertical);
+    --page-margin-right: var(--page-margin-horizontal);
+    --page-margin-bottom: var(--page-margin-vertical);
+    --page-margin-left: var(--page-margin-horizontal);
 
     /* Page padding - space between content and margin boxes */
-    --page-padding: var(--space-1);
+    --page-padding: 0.5cm;
     --page-padding-top: var(--page-padding);
     --page-padding-bottom: var(--page-padding);
 
-    /* Available content height for a page (in pixels) For A4 (297mm high x
-     * 210mm wide) with 20mm margins and padding top and bottom, left and right
-     * this is approximately 970px (257mm * 3.78dpm / 96dpi) and 640px. Adjust for
-     * different page sizes or margins. Used by JavaScript to scale content to
-     * fit pages. */
-    --page-content-height: 970px;
-    --page-content-width: 640px;
+    /* Available content dimensions for a page
+     * Calculated from A4 (297mm × 210mm) minus margins and padding.
+     * JavaScript reads these computed values (in pixels) to scale content to fit pages. */
+    --page-content-height: calc(297mm - var(--page-margin-top) - var(--page-margin-bottom) - var(--page-padding-top) - var(--page-padding-bottom));
+    --page-content-width: calc(210mm - var(--page-margin-left) - var(--page-margin-right));
 
     /* Page Margin Box Styling */
     --page-margin-font-family: var(--font-family-sans);
     --page-margin-font-size: 8pt;
     --page-margin-line-height: var(--line-height-tight);
     --page-margin-color: var(--text-color-secondary);
-    --page-margin-padding: var(--space-0);
+    --page-margin-padding: 0;
 
     /* Page Margin Box Content - Set these to control margin content */
     --page-top-left-content: '';
@@ -104,7 +109,12 @@
 
 @page {
     size: var(--page-size);
-    margin: var(--page-margin);
+
+    margin-top: var(--page-margin-top);
+    margin-right: var(--page-margin-right);
+    margin-bottom: var(--page-margin-bottom);
+    margin-left: var(--page-margin-left);
+
     padding-top: var(--page-padding-top);
     padding-bottom: var(--page-padding-bottom);
 
@@ -220,7 +230,12 @@
 /* First page layout with margin boxes */
 @page :first {
     size: var(--page-size);
-    margin: var(--page-margin);
+
+    margin-top: var(--page-margin-top);
+    margin-right: var(--page-margin-right);
+    margin-bottom: var(--page-margin-bottom);
+    margin-left: var(--page-margin-left);
+
     padding-top: var(--page-padding-top);
     padding-bottom: var(--page-padding-bottom);
 

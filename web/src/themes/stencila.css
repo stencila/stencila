@@ -46,13 +46,6 @@
     --reference-line-height: var(--line-height-sm);
     --reference-hyphens: auto;
 
-    /* Print: page setup; adjust content height and width based on size, margins and padding */
-    --page-size: a4;
-    --page-margin: 1.5cm 1.75cm;
-    --page-padding: var(--space-2);
-    --page-content-height: 1000px;
-    --page-content-width: 650px;
-
     /* Print: top and bottom margins with borders */
     --page-border-wide: 1px;
     --page-border-color: var(--color-blue-200);
