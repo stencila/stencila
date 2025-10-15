@@ -57,7 +57,7 @@ const BROWSER_OPEN_SECS: u64 = 0;
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
 #[cfg(debug_assertions)]
-const USE_LOCALHOST: bool = true;
+const USE_LOCALHOST: bool = false;
 
 /// Converts HTML to PNG and returns as data URI
 ///

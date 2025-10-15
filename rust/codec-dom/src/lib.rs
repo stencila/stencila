@@ -19,6 +19,12 @@ use stencila_node_media::{embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
 
+/// Use local development web assets instead of production CDN.
+/// Set to false for normal operation (uses production CDN).
+/// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
+#[cfg(debug_assertions)]
+const USE_LOCALHOST: bool = false;
+
 /// A codec for DOM HTML
 pub struct DomCodec;
 
@@ -166,14 +172,12 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
 
         let extra_head = (!extra_head.is_empty()).then_some(extra_head);
 
-        // The URL prefix for Stencila's web distribution
-        let web_base = format!("https://stencila.io/web/v{STENCILA_VERSION}");
-
-        // During development (e.g. when generating PDFs via HTML) it can be useful to
-        // use a local development version of the web assets. To do so, uncomment the
-        // next line and run `cargo run --bin stencila serve --cors permissive`
-        //#[cfg(debug_assertions)]
-        //let web_base = format!("http://localhost:9000/~static/dev");
+        // Use local or production web assets based on USE_LOCALHOST constant
+        let web_base = if USE_LOCALHOST {
+            "http://localhost:9000/~static/dev".to_string()
+        } else {
+            ["https://stencila.io/web/v", STENCILA_VERSION].concat()
+        };
 
         // Get theme name from options
         let theme_name = options.as_ref().and_then(|options| options.theme.clone());
