@@ -1,6 +1,6 @@
 import json
 
-def theme(variables_json: str) -> None:
+def theme(variables_json: str, fonts_json: str = "{}") -> None:
     """
     Apply the document theme to the kernel instance
 
@@ -10,9 +10,27 @@ def theme(variables_json: str) -> None:
 
     Color variables in the theme use hex colors and size values use numbers
     in pt units.
+
+    Fonts are registered with matplotlib if available.
     """
 
     variables: dict[str, str] = json.loads(variables_json)
+    fonts: dict[str, dict[str, str]] = json.loads(fonts_json)
+
+    # Register fonts with matplotlib if available
+    if fonts:
+        try:
+            from matplotlib import font_manager
+            for font_key, font_info in fonts.items():
+                if "path" in font_info:
+                    try:
+                        font_manager.fontManager.addfont(font_info["path"])
+                    except Exception:
+                        # Font registration may fail, just continue
+                        pass
+        except ImportError:
+            # matplotlib not available, skip font registration
+            pass
 
     # Helper to get variable value, preferring dark mode if background is dark
     def get_var(name: str, dark_suffix: str = "-dark") -> str | None:
@@ -381,10 +399,10 @@ def theme(variables_json: str) -> None:
         # plt.rcParams["patch.linewidth"] = <NA>
     
         # Fonts and text
-    
-        if fonts := parse_fonts(get_var("plot-font-family")):
+
+        if font_family := get_var("plot-font-family"):
             # matplotlib expects a list of font names or generic families
-            plt.rcParams["font.family"] = fonts
+            plt.rcParams["font.family"] = [font_family]
     
         if size := parse_number(get_var("plot-font-size")):
             plt.rcParams["font.size"] = size

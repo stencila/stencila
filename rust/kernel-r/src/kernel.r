@@ -758,7 +758,7 @@ while (!is.null(stdin)) {
     else if (task_type == REMOVE) remove_variable(lines[2])
     else if (task_type == FORK) fork(lines[2:length(lines)])
     else if (task_type == BOX) box_()
-    else if (task_type == THEME) theme_(lines[2])
+    else if (task_type == THEME) theme_(lines[2], if (length(lines) > 2) lines[3] else "{}")
     else exception(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
   },
   warning = warning,

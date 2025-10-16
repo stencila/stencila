@@ -21,7 +21,8 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Optional, TypedDict, Union, get_type_hints
 
-# Include separate theme.py (this gets transcluded in build so that there is a single kernel script)
+# Include separate theme.py (this gets transcluded in build so that there is a
+# single kernel script)
 from .theme import theme
 
 # 3.9 does not have `type` or TypeAlias.
@@ -1082,7 +1083,7 @@ def main() -> None:
             elif task_type == BOX:
                 box()
             elif task_type == THEME:
-                theme(lines[1])
+                theme(lines[1], lines[2] if len(lines) > 2 else "{}")
             else:
                 raise ValueError(f"Unrecognized task: {task_type}")
 

@@ -25,8 +25,24 @@ stencila_theme$linetypes <- NULL
 #
 # Color variables in the theme use hex colors and size values use numbers
 # in pt units.
-theme_ <- function(json) {
-  variables <- jsonlite::fromJSON(json, simplifyVector = FALSE)
+theme_ <- function(variables_json, fonts_json = "{}") {
+  variables <- jsonlite::fromJSON(variables_json, simplifyVector = FALSE)
+  fonts <- jsonlite::fromJSON(fonts_json, simplifyVector = FALSE)
+
+  # Register fonts with showtext if available
+  if (length(fonts) > 0 && requireNamespace("showtext", quietly = TRUE)) {
+    require(showtext, quietly = TRUE)
+    for (font_key in names(fonts)) {
+      font_info <- fonts[[font_key]]
+      if ("path" %in% names(font_info)) {
+        tryCatch(
+          font_add(font_info[["family"]], regular = font_info[["path"]]),
+          error = function(e) warning(e)
+        )
+      }
+    }
+    showtext_auto()
+  }
 
   # Helper to get variable value
   get_var <- function(name) {
@@ -63,35 +79,30 @@ theme_ <- function(json) {
     pt_value / (54/25.4)
   }
 
-  # Helper to parse CSS font stacks into a vector of font names
-  parse_fonts <- function(value) {
-    if (is.null(value)) return(NULL)
-    # Split on commas and clean up each font name
-    fonts <- strsplit(value, ",")[[1]]
-    fonts <- trimws(fonts)
-    fonts <- gsub("^['\"]|['\"]$", "", fonts)  # Remove quotes
-    fonts[fonts != ""]
-  }
-
-  # Helper to map CSS font names to R's supported font families
+  # Helper to map CSS font name to R's supported font families
   # R supports: "serif", "sans", "mono", "symbol"
-  map_font_family <- function(fonts) {
-    if (is.null(fonts) || length(fonts) == 0) return(NULL)
+  map_font_family <- function(font) {
+    if (is.null(font) || length(font) == 0) return(NULL)
+
+    font_lower <- tolower(font)
+    
+    # Check for generic names first
+    if (font_lower == "sans") return("sans")
+    if (font_lower == "serif") return("serif")
+    if (font_lower == "mono") return("mono")
 
     # Check each font in order and return first match
     # IMPORTANT: Check "sans" before "serif" because "sans-serif" contains both
-    for (font in fonts) {
-      font_lower <- tolower(font)
-      if (grepl("mono|courier|consolas|menlo|ubuntu mono|source code", font_lower)) {
-        return("mono")
-      } else if (grepl("sans|arial|helvetica|verdana|tahoma", font_lower)) {
-        return("sans")
-      } else if (grepl("serif|times|georgia|garamond", font_lower)) {
-        return("serif")
-      }
+    if (grepl("mono|courier|consolas|menlo|ubuntu mono|source code", font_lower)) {
+      return("mono")
+    } else if (grepl("sans|arial|helvetica|verdana|tahoma", font_lower)) {
+      return("sans")
+    } else if (grepl("serif|times|georgia|garamond", font_lower)) {
+      return("serif")
     }
+    
     # Default to sans-serif
-    return("sans")
+    "sans"
   }
 
   # Helper to map Stencila shape names to R pch (plotting character) codes
@@ -229,7 +240,7 @@ theme_ <- function(json) {
   # Text properties
 
   # Font family
-  if (!is.null(family <- map_font_family(parse_fonts(get_var("plot-font-family"))))) {
+  if (!is.null(family <- map_font_family(get_var("plot-font-family")))) {
     # R supports: "serif", "sans", "mono", "symbol"
     params$family <- family
   }
@@ -994,34 +1005,16 @@ theme_ <- function(json) {
 
   # Text (global text settings)
 
-  # Global text color and size
+  # Global text family, color and size
+  family <- get_var("plot-font-family")
   color <- get_var("plot-text-color")
   size <- parse_number(get_var("plot-font-size"))
 
-  # For ggplot2, use the first specific font name from the CSS stack
-  # ggplot2 can handle actual font names, not just generic families
-  fonts <- parse_fonts(get_var("plot-font-family"))
-  family <- NULL
-  if (!is.null(fonts) && length(fonts) > 0) {
-    # Find first specific font (not generic like "sans-serif")
-    for (font in fonts) {
-      font_lower <- tolower(font)
-      if (!font_lower %in% c("sans-serif", "serif", "monospace", "cursive", "fantasy")) {
-        family <- font
-        break
-      }
-    }
-    # If no specific font found, map generic families to R equivalents
-    if (is.null(family)) {
-      family <- map_font_family(fonts)
-    }
-  }
-
   # Build element_text with available parameters
   text_params <- list()
+  if (!is.null(family)) text_params$family <- family
   if (!is.null(color)) text_params$color <- color
   if (!is.null(size)) text_params$size <- size
-  if (!is.null(family)) text_params$family <- family
 
   if (length(text_params) > 0) {
     theme_elements$text <- do.call(ggplot2::element_text, text_params)

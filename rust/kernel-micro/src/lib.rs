@@ -893,16 +893,64 @@ impl MicrokernelInstance {
         }
 
         // Filter to only plot-* variables
-        let vars: BTreeMap<_, _> = computed
+        let mut vars: BTreeMap<_, _> = computed
             .into_iter()
             .filter(|(name, ..)| name.starts_with("plot-"))
             .collect();
 
-        // eprintln!("{}", serde_json::to_string_pretty(&vars)?);
+        // Resolve fonts for any -font-family variables and replace CSS stacks with resolved names
+        let mut fonts = BTreeMap::new();
+        for (key, value) in &mut vars {
+            if key.ends_with("-font-family")
+                && let Some(stack) = value.as_str()
+            {
+                match stencila_fonts::Font::resolve_first(stack).await {
+                    Ok(Some(font)) => {
+                        let family = font.family().to_string();
+                        fonts.insert(
+                            key.clone(),
+                            serde_json::json!({
+                                "family": family.clone(),
+                                "path": font.path().display().to_string()
+                            }),
+                        );
+                        // Replace CSS stack with resolved font family name
+                        *value = serde_json::Value::String(family.clone());
+                        tracing::debug!(
+                            "Resolved font for {}: {} at {}",
+                            key,
+                            family,
+                            font.path().display()
+                        );
+                    }
+                    Ok(None) => {
+                        // Replace with generic fallback
+                        *value = serde_json::Value::String("sans".to_string());
+                        tracing::debug!("No font found for {}, using fallback 'sans'", key);
+                    }
+                    Err(e) => {
+                        // Replace with generic fallback on error
+                        *value = serde_json::Value::String("sans".to_string());
+                        tracing::warn!(
+                            "Error resolving font for {}: {}, using fallback 'sans'",
+                            key,
+                            e
+                        );
+                    }
+                }
+            }
+        }
 
-        let vars = serde_json::to_string(&vars)?;
+        //eprintln!("{}", serde_json::to_string_pretty(&vars)?);
+        //eprintln!("{}", serde_json::to_string_pretty(&fonts)?);
+
+        let vars_json = serde_json::to_string(&vars)?;
+        let fonts_json = serde_json::to_string(&fonts)?;
         let (.., messages) = self
-            .send_receive(MicrokernelFlag::Theme, [vars.as_str()])
+            .send_receive(
+                MicrokernelFlag::Theme,
+                [vars_json.as_str(), fonts_json.as_str()],
+            )
             .await?;
         if !messages.is_empty() {
             for message in messages {

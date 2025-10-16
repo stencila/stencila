@@ -8,6 +8,7 @@ directories = { workspace = true }
 itertools = { workspace = true }
 serde_json = { workspace = true }
 stencila-dirs = { path = "../dirs" }
+stencila-fonts = { path = "../fonts" }
 stencila-kernel = { path = "../kernel" }
 stencila-themes = { path = "../themes" }
 stencila-version = { path = "../version" }
