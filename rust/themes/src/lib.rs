@@ -1393,7 +1393,13 @@ mod tests {
     fn test_plot_theme_respects_import_order() {
         // Test that plot theme CSS is inserted after @import statements
         let css = r#"@import "https://example.com/fonts.css";:root { --text-color: blue; --plot-theme: bold; }"#;
-        let theme = Theme::new(ThemeType::Builtin, Some("test".into()), None, css.into(), false);
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            css.into(),
+            false,
+        );
 
         // The content should have @import first, then plot theme :root, then original :root
         let content = &theme.content;
@@ -1401,9 +1407,16 @@ mod tests {
         let first_root_pos = content.find(":root").expect("Should have :root");
 
         // @import should come before any :root
-        assert!(import_pos < first_root_pos, "@import should come before :root blocks");
+        assert!(
+            import_pos < first_root_pos,
+            "@import should come before :root blocks"
+        );
 
         // Plot theme variables should be present
-        assert!(theme.variables.contains_key("plot-grid-width") || content.contains("bold") || !content.contains("--plot-theme"));
+        assert!(
+            theme.variables.contains_key("plot-grid-width")
+                || content.contains("bold")
+                || !content.contains("--plot-theme")
+        );
     }
 }
