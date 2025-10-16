@@ -32,13 +32,14 @@ impl Tool for Apt {
         self.path()?;
 
         let pkg = match tool.name() {
+            "chromium" => "chromium-browser",
             "convert" => "imagemagick",
-            "xelatex" => "texlive",
-            "node" => "nodejs",
-            "python" => "python3",
-            "pip" => "python3-pip",
-            "r" => "r-base",
             "make" => "build-essential",
+            "node" => "nodejs",
+            "pip" => "python3-pip",
+            "python" => "python3",
+            "r" => "r-base",
+            "xelatex" => "texlive",
             name => name,
         };
 

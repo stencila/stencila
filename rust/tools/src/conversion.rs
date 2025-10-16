@@ -28,6 +28,66 @@ impl Tool for Agg {
     }
 }
 
+pub struct Chromium;
+
+impl Tool for Chromium {
+    fn name(&self) -> &'static str {
+        "chromium"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.chromium.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Open-source browser for HTML rendering and conversion"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Conversion
+    }
+
+    fn version_required(&self) -> VersionReq {
+        VersionReq::parse(">=131").expect("invalid semver")
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Apt)]
+    }
+}
+
+pub struct Chrome;
+
+impl Tool for Chrome {
+    fn name(&self) -> &'static str {
+        "chrome"
+    }
+
+    fn executable_name(&self) -> &'static str {
+        "google-chrome"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.google.com/chrome/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Google Chrome browser for HTML rendering and conversion"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Conversion
+    }
+
+    fn version_required(&self) -> VersionReq {
+        VersionReq::parse(">=131").expect("invalid semver")
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![]
+    }
+}
+
 pub struct Convert;
 
 impl Tool for Convert {
