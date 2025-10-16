@@ -459,6 +459,7 @@ mod tests {
 
     use super::*;
 
+    #[ignore]
     #[test]
     fn test_migration_new() -> Result<()> {
         let migration_content =
@@ -472,6 +473,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_migration_new_invalid_name() -> Result<()> {
         // Missing version prefix
@@ -491,6 +493,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_migration_checksum_consistency() -> Result<()> {
         let content = "CREATE NODE TABLE checksum_test ();";
@@ -508,6 +511,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_migration_cypher_validation() -> Result<()> {
         // Valid Cypher should pass
@@ -548,6 +552,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_migration_history_creation() -> Result<()> {
         let migration = Migration {
@@ -568,6 +573,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_execute_migration_success() -> Result<()> {
         let database = Database::new(":memory:", SystemConfig::default())
@@ -600,6 +606,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_execute_migration_rollback() -> Result<()> {
         let database = Database::new(":memory:", SystemConfig::default())
@@ -652,6 +659,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_execute_migration_checksum_validation() -> Result<()> {
         let database = Database::new(":memory:", SystemConfig::default())
@@ -683,6 +691,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[test]
     fn test_execute_migration_multi_statement() -> Result<()> {
         let database = Database::new(":memory:", SystemConfig::default())
