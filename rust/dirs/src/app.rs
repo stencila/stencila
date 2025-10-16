@@ -26,6 +26,9 @@ pub enum DirType {
     /// https://raw.githubusercontent.com/citation-style-language/styles
     Csl,
 
+    /// Cache subdirectory for downloaded fonts
+    Fonts,
+
     /// Cache subdirectory for microkernel scripts
     Kernels,
 
@@ -57,6 +60,7 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
 
             DirType::Cache => dirs.cache_dir().to_path_buf(),
             DirType::Csl => dirs.cache_dir().join("csl"),
+            DirType::Fonts => dirs.cache_dir().join("fonts"),
             DirType::Kernels => dirs.cache_dir().join("kernels"),
             DirType::Models => dirs.cache_dir().join("models"),
             DirType::Templates => dirs.cache_dir().join("templates"),

@@ -34,6 +34,7 @@ monostate = "1.0.2"
 notify = { version = "8.2.0", default-features = false, features = ["macos_kqueue"] }
 ntest = "0.9.3"
 pathdiff = "0.2.3"
+percent-encoding = "2.3.2"
 pretty_assertions = "1.4.1"
 proc-macro2 = "1.0.101"
 proptest = "1.8.0"
