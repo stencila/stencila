@@ -34,6 +34,7 @@
  */
 
 import type {
+  Admonition,
   AudioObject,
   Block,
   CodeBlock,
@@ -282,13 +283,6 @@ const SKIP_FIELDS = ['type', 'compilationDigest', 'executionDigest', '$schema']
  * This mimics the Rust derive macro behavior and is easier to maintain.
  */
 const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
-  Admonition: {
-    fields: {
-      title: { element: 'p' },
-      content: { element: 'aside' },
-    },
-  },
-
   Article: {
     fields: {
       title: { element: 'h1' },
@@ -502,6 +496,39 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
 const MANUAL_ENCODERS: Partial<
   Record<NodeType, (node: Node, context: EncodeContext) => void>
 > = {
+  Admonition: (node: Admonition, context: EncodeContext) => {
+    context.enterNode('Admonition', { 'admonition-type': node.admonitionType, 'is-folded': node.isFolded })
+
+    const ancestors = [...context.ancestors, 'Admonition' as NodeType]
+
+    // Determine if details should be open
+    const isOpen = node.isFolded === undefined || node.isFolded === false
+    const detailsOpen = isOpen ? ' open' : ''
+
+    context.html += `<details${detailsOpen}>\n`
+    context.html += '<summary>\n'
+
+    // Encode title
+    if (node.title && Array.isArray(node.title) && node.title.length > 0) {
+      context.pushSlot('span', 'title', encodeInlines(node.title, ancestors))
+    } else {
+      // Use admonitionType as default title
+      const defaultTitle = node.admonitionType || 'Note'
+      context.html += `<span slot="title">${defaultTitle}</span>\n`
+    }
+
+    context.html += '</summary>\n'
+
+    // Encode content
+    if (node.content && node.content.length > 0) {
+      context.pushSlot('div', 'content', encodeBlocks(node.content, ancestors))
+    }
+
+    context.html += '</details>'
+
+    context.exitNode()
+  },
+
   AudioObject: (node: AudioObject, context: EncodeContext) => {
     context.enterNode('AudioObject', { 'content-url': node.contentUrl })
 
@@ -660,19 +687,16 @@ const MANUAL_ENCODERS: Partial<
       )
     }
 
-    context.pushSlot(
-      'figure',
-      'content',
-      encodeNodes(node.content, ancestors)
-    )
+    // Build figure content with caption inside
+    let figureContent = encodeNodes(node.content, ancestors)
 
     if (node.caption) {
-      context.pushSlot(
-        'figcaption',
-        'caption',
-        encodeCaption(node.caption, 'Figure', node.label, ancestors)
-      )
+      figureContent += '<figcaption>'
+      figureContent += encodeCaption(node.caption, 'Figure', node.label, ancestors)
+      figureContent += '</figcaption>'
     }
+
+    context.pushSlot('figure', 'content', figureContent)
 
     context.exitNode()
   },
@@ -891,15 +915,17 @@ const MANUAL_ENCODERS: Partial<
       )
     }
 
-    if (node.caption) {
-      context.pushSlot(
-        'div',
-        'caption',
-        encodeCaption(node.caption, 'Table', node.label, ancestors)
-      )
-    }
-
     if (node.rows && node.rows.length > 0) {
+      let tableContent = ''
+
+      // Add caption inside table if it exists
+      if (node.caption) {
+        tableContent += '<caption>'
+        tableContent += encodeCaption(node.caption, 'Table', node.label, ancestors)
+        tableContent += '</caption>'
+      }
+
+      // Generate rows
       const rowsContent = node.rows
         .map((row) => {
           const rowContent = row.cells
@@ -929,13 +955,17 @@ const MANUAL_ENCODERS: Partial<
                 style = ' style="text-align: right"'
               }
 
-              return `<td id="${cell.id || 'xxx'}" depth="${context.ancestors.length + 2}" ancestors="${[...ancestors, 'TableRow'].join('.')}"${style}>${cellContent}</td>`
+              // Use th for header cells, td otherwise
+              const tag = cell.cellType === 'HeaderCell' ? 'th' : 'td'
+              return `<${tag} id="${cell.id || 'xxx'}" depth="${context.ancestors.length + 2}" ancestors="${[...ancestors, 'TableRow'].join('.')}"${style}>${cellContent}</${tag}>`
             })
             .join('')
           return `<tr id="${row.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${ancestors.join('.')}">${rowContent}</tr>`
         })
         .join('')
-      context.pushSlot('table', 'rows', rowsContent)
+
+      tableContent += rowsContent
+      context.pushSlot('table', 'rows', tableContent)
     }
 
     if (node.notes) {
@@ -960,6 +990,12 @@ const MANUAL_ENCODERS: Partial<
       typeof text === 'string' ? text.trim() : String(text).trim()
     context.html += context.escapeHtml(textValue)
 
+    context.exitNode()
+  },
+
+  ThematicBreak: (_node: Node, context: EncodeContext) => {
+    context.enterNode('ThematicBreak')
+    context.html += '<hr>'
     context.exitNode()
   },
 
