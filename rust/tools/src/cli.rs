@@ -15,6 +15,7 @@ use serde_json::json;
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
+    message,
     stencila_format::Format,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
@@ -268,10 +269,9 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Show {
-    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let Some(tool) = get(&self.name) else {
-            eprintln!("🔍 No tool with name `{}`", self.name);
+            message(&format!("No tool with name `{}`", self.name), Some("🔍"));
             exit(1)
         };
 
@@ -388,64 +388,85 @@ impl Install {
         Ok(())
     }
 
-    #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
     async fn install_tool(&self, name: &str) -> Result<()> {
         let Some(tool) = get(name) else {
-            eprintln!("🔍 No known tool with name `{name}`");
+            message(&format!("No known tool with name `{name}`"), Some("🔍"));
             exit(1)
         };
 
         // Check if already installed (unless --force is used)
         if let Some(path) = tool.path_in_env() {
             if !self.force {
-                eprintln!(
-                    "👍 {} is already installed at {} (use `--force` to reinstall)",
-                    tool.name(),
-                    strip_home_dir(&path)
+                message(
+                    &format!(
+                        "`{}` is already installed at `{}` (use `--force` to reinstall)",
+                        tool.name(),
+                        strip_home_dir(&path)
+                    ),
+                    Some("👍"),
                 );
                 return Ok(());
             } else {
-                eprintln!(
-                    "🔄 {} is already installed at {}, but forcing reinstallation",
-                    tool.name(),
-                    strip_home_dir(&path)
+                message(
+                    &format!(
+                        "`{}` is already installed at `{}`, but forcing reinstallation",
+                        tool.name(),
+                        strip_home_dir(&path)
+                    ),
+                    Some("🔄"),
                 );
             }
         }
 
         // Check if installation is supported
         if !tool.is_installable() {
-            eprintln!("❌ {} does not support automated installation", tool.name());
-            eprintln!(
-                "   Please visit {} for installation instructions",
-                tool.url()
+            message(
+                &format!(
+                    "`{}` does not support automated installation. Please visit {} for installation instructions",
+                    tool.name(),
+                    tool.url()
+                ),
+                Some("❌"),
             );
             exit(1)
         }
 
-        eprintln!("📥 Installing {}...", tool.name());
+        message(&format!("Installing `{}`...", tool.name()), Some("📥"));
 
         match install_tool(tool.as_ref(), self.force, true).await {
             Ok(()) => {
                 if self.dry_run {
-                    eprintln!("📋 Would have installed {}", tool.name());
+                    message(
+                        &format!("Would have installed `{}`", tool.name()),
+                        Some("📋"),
+                    );
                     return Ok(());
                 }
 
-                eprintln!("✅ {} installed successfully", tool.name());
+                message(
+                    &format!("`{}` installed successfully", tool.name()),
+                    Some("✅"),
+                );
 
                 // Verify installation
                 if let Some(path) = tool.path_in_env() {
-                    eprintln!("   Path: {}", strip_home_dir(&path));
+                    message(&format!("   Path: `{}`", strip_home_dir(&path)), None);
                     if let Some(version) = tool.version_available_in_env() {
-                        eprintln!("   Version: {version}");
+                        message(&format!("   Version: `{version}`"), None);
                     }
                 }
             }
-            Err(e) => {
-                eprintln!("❌ Failed to install {}: {}", tool.name(), e);
-                eprintln!("   Please visit {} for manual installation", tool.url());
+            Err(error) => {
+                message(
+                    &format!(
+                        "Failed to install `{}`: `{}`. Please visit {} for manual installation",
+                        tool.name(),
+                        error,
+                        tool.url()
+                    ),
+                    Some("❌"),
+                );
                 exit(1)
             }
         }
@@ -453,7 +474,6 @@ impl Install {
         Ok(())
     }
 
-    #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
     async fn install_from_configs(&self) -> Result<()> {
         let path = if let Some(path) = &self.path {
@@ -480,15 +500,14 @@ impl Install {
         }
 
         if installed > 0 {
-            eprintln!("🎉 Installation complete!");
+            message("Installation complete!", Some("🎉"));
         } else {
-            eprintln!("⚠️  No tool configurations found");
+            message("No tool configurations found", Some("⚠️"));
         }
 
         Ok(())
     }
 
-    #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
     async fn install_environment_managers(&self, path: &Path) -> Result<u32> {
         let managers = detect_managers(path, &[ToolType::Environments]);
@@ -499,23 +518,29 @@ impl Install {
 
         for (manager, config_path) in managers {
             if self.dry_run {
-                eprintln!(
-                    "📋 Would install tools from `{}` using `{}`",
-                    strip_home_dir(&config_path),
-                    manager.name()
+                message(
+                    &format!(
+                        "Would install tools from `{}` using `{}`",
+                        strip_home_dir(&config_path),
+                        manager.name()
+                    ),
+                    Some("📋"),
                 );
                 continue;
             }
 
-            eprintln!(
-                "🔧 Installing tools from `{}` using `{}`",
-                strip_home_dir(&config_path),
-                manager.name()
+            message(
+                &format!(
+                    "Installing tools from `{}` using `{}`",
+                    strip_home_dir(&config_path),
+                    manager.name()
+                ),
+                Some("🔧"),
             );
 
             // Install the environment manager if needed
             if !is_installed(manager.as_ref()) {
-                eprintln!("📥 Installing {}", manager.name());
+                message(&format!("Installing `{}`", manager.name()), Some("📥"));
                 install_tool(manager.as_ref(), self.force, true).await?;
             }
 
@@ -539,7 +564,6 @@ impl Install {
         Ok(1)
     }
 
-    #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
     async fn install_python_dependencies(&self, path: &Path) -> Result<u32> {
         let pyproject_path = path.join("pyproject.toml");
@@ -547,11 +571,17 @@ impl Install {
 
         if pyproject_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install Python dependencies from `pyproject.toml`");
+                message(
+                    "Would install Python dependencies from `pyproject.toml`",
+                    Some("📋"),
+                );
                 return Ok(0);
             }
 
-            eprintln!("🐍 Installing dependencies from `pyproject.toml` using `uv`");
+            message(
+                "Installing dependencies from `pyproject.toml` using `uv`",
+                Some("🐍"),
+            );
 
             // Install dependencies (creates venv automatically if needed)
             let status = Uv
@@ -569,11 +599,17 @@ impl Install {
             Ok(1)
         } else if requirements_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install Python dependencies from `requirements.txt`");
+                message(
+                    "Would install Python dependencies from `requirements.txt`",
+                    Some("📋"),
+                );
                 return Ok(1);
             }
 
-            eprintln!("🐍 Installing dependencies from `requirements.txt` using `uv`");
+            message(
+                "Installing dependencies from `requirements.txt` using `uv`",
+                Some("🐍"),
+            );
 
             // Create virtual environment first (uv pip requires it)
             let status = Uv
@@ -607,7 +643,6 @@ impl Install {
         }
     }
 
-    #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
     async fn install_r_dependencies(&self, path: &Path) -> Result<u32> {
         let renv_path = path.join("renv.lock");
@@ -615,11 +650,14 @@ impl Install {
 
         if renv_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install R dependencies from `renv.lock`");
+                message("Would install R dependencies from `renv.lock`", Some("📋"));
                 return Ok(1);
             }
 
-            eprintln!("📦 Installing dependencies from `renv.lock` file using `renv`");
+            message(
+                "Installing dependencies from `renv.lock` file using `renv`",
+                Some("📦"),
+            );
 
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
@@ -639,11 +677,17 @@ impl Install {
             Ok(1)
         } else if description_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install R dependencies from `DESCRIPTION`");
+                message(
+                    "Would install R dependencies from `DESCRIPTION`",
+                    Some("📋"),
+                );
                 return Ok(1);
             }
 
-            eprintln!("📦 Installing dependencies from `DESCRIPTION` file using `renv`");
+            message(
+                "Installing dependencies from `DESCRIPTION` file using `renv`",
+                Some("📦"),
+            );
 
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
@@ -700,7 +744,6 @@ pub static ENV_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Env {
-    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         if !self.path.exists() {
             bail!("Path does not exist: {}", self.path.display());
@@ -710,9 +753,12 @@ impl Env {
         let managers = detect_managers(&path, &[ToolType::Environments, ToolType::Packages]);
 
         if managers.is_empty() {
-            eprintln!(
-                "🔍 No environment or package manager configuration found for directory {}",
-                strip_home_dir(&path)
+            message(
+                &format!(
+                    "No environment or package manager configuration found for directory `{}`",
+                    strip_home_dir(&path)
+                ),
+                Some("🔍"),
             );
             exit(1)
         };
