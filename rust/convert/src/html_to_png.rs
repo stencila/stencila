@@ -44,6 +44,7 @@ use headless_chrome::{
 use itertools::Itertools;
 
 use stencila_themes::LengthConversion;
+use stencila_tools::{install_sync, is_installable, is_installed};
 use stencila_version::STENCILA_VERSION;
 use stencila_web_dist::Web;
 
@@ -331,6 +332,16 @@ fn create_browser() -> Result<Browser> {
 
 /// Ensures we have a working browser and tab instance, recreating if necessary
 fn ensure_browser_available() -> Result<()> {
+    const CHROME: &str = "chrome";
+    const CHROMIUM: &str = "chromium";
+    if !(is_installed(CHROME)? || is_installed(CHROMIUM)?) {
+        if is_installable(CHROMIUM)? {
+            install_sync(CHROMIUM)?;
+        } else {
+            bail!("Please install either Chrome/Chromium for this functionality")
+        }
+    }
+
     let mut manager = BROWSER_MANAGER
         .lock()
         .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;

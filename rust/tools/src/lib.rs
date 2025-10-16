@@ -76,10 +76,34 @@ pub fn get(name: &str) -> Option<Box<dyn Tool>> {
 
 /// Find out if a tool is installed in the current environment
 ///
+/// Preferable to using [`Tool::is_installed`] because it uses a cache.
 /// Errors if the tool is unknown.
 pub fn is_installed(name: &str) -> Result<bool> {
     let tool = get(name).ok_or_eyre("Unknown tool")?;
     Ok(tool::is_installed(tool.as_ref()))
+}
+
+/// Find out if a tool is installable on the current machine
+///
+/// Errors if the tool is unknown.
+pub fn is_installable(name: &str) -> Result<bool> {
+    let tool = get(name).ok_or_eyre("Unknown tool")?;
+    Ok(tool.is_installable())
+}
+
+/// Install a tool
+///
+/// Usually a tool is installed implicitly, just-in-time, when a command is called on it
+/// This is for instances when is is necessary to explicitly install the tool.
+pub async fn install(name: &str) -> Result<()> {
+    let tool = get(name).ok_or_eyre("Unknown tool")?;
+    tool::install_tool(tool.as_ref(), false, false).await
+}
+
+/// Install a tool synchronously
+pub fn install_sync(name: &str) -> Result<()> {
+    use tokio::{runtime::Handle, task};
+    task::block_in_place(|| Handle::current().block_on(async { install(name).await }))
 }
 
 /// Macro to create a [`serde_json::Map`] needed within MCP tool definition
