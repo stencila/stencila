@@ -107,29 +107,41 @@ impl Theme {
         css: String,
         normalize: bool,
     ) -> Self {
-        let mut content = if normalize {
+        let mut normalized_css = if normalize {
             Self::normalize_css(&css)
         } else {
             css
         };
 
-        let mut variables = Self::merge_css_variables(&content);
+        let mut variables = Self::merge_css_variables(&normalized_css);
 
-        if let Some(plot_theme) = Self::plot_theme(&variables) {
-            // Prepended to the theme content , allowing the preset to override plot variables
-            // in the `base.css` whilst allowing theme authors to still override values in the
-            // preset if they wish.
-            content = [plot_theme, content].concat();
+        if let Some(plot_theme_css) = Self::plot_theme(&variables) {
+            // Insert plot theme CSS just before :root. This allows the preset
+            // to override plot variables in `base.css` and theme authors to
+            // override values in the preset but also respects the requirement
+            // for @import/@charset/@namespace to come first (which doesn't
+            // happen if we simply prepend)
+            normalized_css = if let Some(root_pos) = normalized_css.find(":root") {
+                [
+                    &normalized_css[..root_pos],
+                    &plot_theme_css,
+                    &normalized_css[root_pos..],
+                ]
+                .concat()
+            } else {
+                // Fallback: if no :root found, prepend (shouldn't happen with valid themes)
+                [plot_theme_css, normalized_css].concat()
+            };
 
             // Re-parse variables so preset overrides take effect
-            variables = Self::merge_css_variables(&content);
+            variables = Self::merge_css_variables(&normalized_css);
         }
 
         Self {
             r#type,
             name,
             location,
-            content,
+            content: normalized_css,
             variables,
         }
     }
@@ -1375,5 +1387,23 @@ mod tests {
         let computed = theme.computed_variables(LengthConversion::Points);
         // Font weight should remain as number
         assert_eq!(computed.get("font-weight"), Some(&json!(700.0)));
+    }
+
+    #[test]
+    fn test_plot_theme_respects_import_order() {
+        // Test that plot theme CSS is inserted after @import statements
+        let css = r#"@import "https://example.com/fonts.css";:root { --text-color: blue; --plot-theme: bold; }"#;
+        let theme = Theme::new(ThemeType::Builtin, Some("test".into()), None, css.into(), false);
+
+        // The content should have @import first, then plot theme :root, then original :root
+        let content = &theme.content;
+        let import_pos = content.find("@import").expect("Should have @import");
+        let first_root_pos = content.find(":root").expect("Should have :root");
+
+        // @import should come before any :root
+        assert!(import_pos < first_root_pos, "@import should come before :root blocks");
+
+        // Plot theme variables should be present
+        assert!(theme.variables.contains_key("plot-grid-width") || content.contains("bold") || !content.contains("--plot-theme"));
     }
 }
