@@ -92,22 +92,33 @@ impl Font {
     }
 }
 
-/// CSS generic keywords that are not concrete font families
+/// Check if a font family name is a CSS generic keyword
+///
+/// CSS generic font families are fallback keywords that should not be resolved
+/// to concrete font files. This includes:
+/// - Standard CSS generics: serif, sans-serif, monospace, cursive, fantasy
+/// - System UI families: system-ui, ui-serif, ui-sans-serif, ui-monospace
+/// - Special purpose: emoji, math, fangsong
+/// - Shorthand forms: sans, mono (commonly used by R and other systems)
+///
+/// Returns `true` if the name is a generic keyword, `false` otherwise.
 fn is_css_generic(name: &str) -> bool {
     matches!(
         name.to_ascii_lowercase().as_str(),
-        "serif"
-            | "sans-serif"
-            | "monospace"
-            | "cursive"
-            | "fantasy"
-            | "system-ui"
-            | "ui-serif"
-            | "ui-sans-serif"
-            | "ui-monospace"
+        "cursive"
             | "emoji"
-            | "math"
             | "fangsong"
+            | "fantasy"
+            | "math"
+            | "mono"
+            | "monospace"
+            | "sans"
+            | "sans-serif"
+            | "serif"
+            | "system-ui"
+            | "ui-monospace"
+            | "ui-sans-serif"
+            | "ui-serif"
     )
 }
 
@@ -241,13 +252,36 @@ mod tests {
 
     #[test]
     fn test_is_css_generic() {
+        // Standard CSS generics
         assert!(is_css_generic("serif"));
         assert!(is_css_generic("sans-serif"));
         assert!(is_css_generic("monospace"));
-        assert!(is_css_generic("ui-serif"));
+        assert!(is_css_generic("cursive"));
+        assert!(is_css_generic("fantasy"));
 
+        // Shorthand forms (used by R and other systems)
+        assert!(is_css_generic("sans"));
+        assert!(is_css_generic("mono"));
+
+        // System UI families
+        assert!(is_css_generic("system-ui"));
+        assert!(is_css_generic("ui-serif"));
+        assert!(is_css_generic("ui-sans-serif"));
+        assert!(is_css_generic("ui-monospace"));
+
+        // Special purpose
+        assert!(is_css_generic("emoji"));
+        assert!(is_css_generic("math"));
+        assert!(is_css_generic("fangsong"));
+
+        // Case insensitivity
+        assert!(is_css_generic("SERIF"));
+        assert!(is_css_generic("Sans-Serif"));
+
+        // Concrete font families should return false
         assert!(!is_css_generic("Arial"));
         assert!(!is_css_generic("Source Serif 4"));
+        assert!(!is_css_generic("Noto Sans Mono"));
     }
 
     #[test]
