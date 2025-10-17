@@ -58,6 +58,8 @@ pub enum LengthConversion {
     Pixels,
     /// Convert CSS lengths to inches (for PDF generation via Chrome DevTools Protocol)
     Inches,
+    /// Convert CSS lengths to twips (for DOCX generation, 1pt = 20 twips)
+    Twips,
     /// Strip units and return raw number
     Number,
     /// Keep original CSS value as string with units
@@ -404,17 +406,17 @@ impl Theme {
     /// # Conversion strategy
     ///
     /// CSS absolute length units are converted using standard CSS/print ratios:
-    /// - 1in = 96px = 72pt
-    /// - 1cm = 37.795px = 28.346pt
-    /// - 1mm = 3.7795px = 2.8346pt
-    /// - 1Q = 0.9449px = 0.7087pt (quarter-millimeter)
-    /// - 1pc = 16px = 12pt (pica)
-    /// - 1pt = 1.333px
-    /// - 1px = 0.75pt
+    /// - 1in = 96px = 72pt = 1440 twips
+    /// - 1cm = 37.795px = 28.346pt = 566.93 twips
+    /// - 1mm = 3.7795px = 2.8346pt = 56.69 twips
+    /// - 1Q = 0.9449px = 0.7087pt = 14.17 twips (quarter-millimeter)
+    /// - 1pc = 16px = 12pt = 240 twips (pica)
+    /// - 1pt = 1.333px = 20 twips
+    /// - 1px = 0.75pt = 15 twips
     ///
     /// Font-relative units assume 16px root font size:
-    /// - 1rem = 16px = 12pt
-    /// - 1em = 16px = 12pt
+    /// - 1rem = 16px = 12pt = 240 twips
+    /// - 1em = 16px = 12pt = 240 twips
     ///
     /// - Number: Strip all units
     /// - KeepUnits: Return as string with units preserved
@@ -477,6 +479,21 @@ impl Theme {
                         _ => num,
                     };
                     return json!(inches);
+                }
+                LengthConversion::Twips => {
+                    let twips = match unit {
+                        "pt" => num * 20.0,
+                        "px" => num * 15.0,  // 0.75pt * 20
+                        "rem" => num * 240.0,  // 16px * 0.75 * 20
+                        "em" => num * 240.0,
+                        "in" => num * 1440.0,  // 72pt * 20
+                        "cm" => num * 566.9291339,  // 28.346pt * 20
+                        "mm" => num * 56.69291339,  // 2.8346pt * 20
+                        "Q" => num * 14.17322835,  // 0.7087pt * 20
+                        "pc" => num * 240.0,  // 12pt * 20
+                        _ => num,
+                    };
+                    return json!(twips);
                 }
                 LengthConversion::Number => {
                     return json!(num);
