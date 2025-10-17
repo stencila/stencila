@@ -134,6 +134,48 @@ impl Font {
     }
 }
 
+/// Normalize a font family name for consistent matching
+///
+/// This function performs the following normalization steps:
+/// 1. Trims leading and trailing whitespace
+/// 2. Removes surrounding single or double quotes
+/// 3. Collapses multiple consecutive spaces to a single space
+/// 4. Converts to lowercase (using to_lowercase() for Unicode support)
+///
+/// This ensures that font names like " 'Arial' ", "Arial", and "ARIAL"
+/// are all normalized to "arial" for consistent matching.
+fn normalize_font_name(name: &str) -> String {
+    // Trim whitespace
+    let mut normalized = name.trim();
+
+    // Remove surrounding quotes (single or double)
+    if (normalized.starts_with('\'') && normalized.ends_with('\''))
+        || (normalized.starts_with('"') && normalized.ends_with('"'))
+    {
+        normalized = &normalized[1..normalized.len() - 1];
+        normalized = normalized.trim(); // Trim again after removing quotes
+    }
+
+    // Collapse multiple spaces to single space using a simple approach
+    let mut result = String::with_capacity(normalized.len());
+    let mut prev_was_space = false;
+
+    for ch in normalized.chars() {
+        if ch.is_whitespace() {
+            if !prev_was_space {
+                result.push(' ');
+                prev_was_space = true;
+            }
+        } else {
+            result.push(ch);
+            prev_was_space = false;
+        }
+    }
+
+    // Convert to lowercase (supports Unicode better than to_ascii_lowercase)
+    result.to_lowercase()
+}
+
 /// Check if a font family name is a CSS generic keyword
 ///
 /// CSS generic font families are fallback keywords that should not be resolved
@@ -175,11 +217,16 @@ fn is_css_generic(name: &str) -> bool {
 ///
 /// Returns `true` if the font is known to be proprietary, `false` otherwise.
 fn is_proprietary_font(name: &str) -> bool {
-    let name_lower = name.to_ascii_lowercase();
+    // CSS generic families are neither proprietary nor concrete fonts
+    if is_css_generic(name) {
+        return false;
+    }
+
+    let name_normalized = normalize_font_name(name);
 
     // Check for exact matches first
     if matches!(
-        name_lower.as_str(),
+        name_normalized.as_str(),
         // Microsoft fonts (Windows)
         "arial" | "arial black" | "arial narrow" | "arial rounded mt bold"
             | "calibri" | "calibri light" | "cambria" | "cambria math" | "candara"
@@ -187,7 +234,7 @@ fn is_proprietary_font(name: &str) -> bool {
             | "ebrima" | "franklin gothic medium" | "gabriola" | "gadugi" | "georgia"
             | "impact" | "ink free" | "javanese text" | "leelawadee ui" | "lucida console"
             | "lucida sans unicode" | "malgun gothic" | "marlett" | "microsoft himalaya"
-            | "microsoft jhengHei" | "microsoft new tai lue" | "microsoft phagspa"
+            | "microsoft jhenghei" | "microsoft new tai lue" | "microsoft phagspa"
             | "microsoft sans serif" | "microsoft tai le" | "microsoft yahei"
             | "microsoft yi baiti" | "mingliu-extb" | "mingliu_hkscs-extb" | "mongolian baiti"
             | "ms gothic" | "ms pgothic" | "ms ui gothic" | "mv boli" | "myanmar text"
@@ -210,8 +257,8 @@ fn is_proprietary_font(name: &str) -> bool {
             | "lucida grande" | "luminari" | "marker felt" | "menlo" | "mishafi"
             | "monaco" | "mshtakan" | "mukta mahee" | "muna" | "myanmar sangam mn"
             | "nadeem" | "new peninim mt" | "noteworthy" | "optima" | "palatino"
-            | "papyrus" | "phosphate" | "plantagenet cherokee" | "pt mono" | "pt sans"
-            | "pt serif" | "raanana" | "rockwell" | "sana" | "sathu" | "savoye let"
+            | "papyrus" | "phosphate" | "plantagenet cherokee" | "raanana" | "rockwell"
+            | "sana" | "sathu" | "savoye let"
             | "shree devanagari 714" | "signpainter" | "silom" | "sinhala sangam mn"
             | "skia" | "snell roundhand" | "songti sc" | "songti tc" | "sukhumvit set"
             | "superclarendon" | "thonburi" | "times" | "trattatello" | "zapfino"
@@ -220,8 +267,7 @@ fn is_proprietary_font(name: &str) -> bool {
             | "adobe garamond pro" | "adobe hebrew" | "adobe jenson" | "adobe ming std"
             | "adobe myungjo std" | "adobe song std" | "myriad pro" | "minion pro"
             // Other common proprietary fonts
-            | "bitstream charter" | "bitstream vera sans" | "bitstream vera sans mono"
-            | "bitstream vera serif" | "book antiqua" | "bookman old style" | "century"
+            | "bitstream charter" | "book antiqua" | "bookman old style" | "century"
             | "century gothic" | "century schoolbook" | "garamond" | "goudy old style"
             | "lucida" | "monotype corsiva" | "ms sans serif" | "ms serif"
     ) {
@@ -230,13 +276,16 @@ fn is_proprietary_font(name: &str) -> bool {
 
     // Check for partial matches (font family names often include variants)
     // These checks are more permissive to catch variants like "Arial Bold", "Times New Roman Italic", etc.
-    if name_lower.starts_with("arial")
-        || name_lower.starts_with("calibri")
-        || name_lower.starts_with("cambria")
-        || name_lower.starts_with("segoe")
-        || name_lower.starts_with("helvetica")
-        || name_lower.starts_with("avenir")
-        || name_lower.starts_with("gill sans")
+    if name_normalized.starts_with("arial")
+        || name_normalized.starts_with("calibri")
+        || name_normalized.starts_with("cambria")
+        || name_normalized.starts_with("segoe")
+        || name_normalized.starts_with("helvetica")
+        || name_normalized.starts_with("avenir")
+        || name_normalized.starts_with("gill sans")
+        || name_normalized.starts_with("yu gothic")
+        || name_normalized.starts_with("times new roman")
+        || name_normalized.starts_with("bodoni")
     {
         return true;
     }
@@ -254,11 +303,16 @@ fn is_proprietary_font(name: &str) -> bool {
 ///
 /// Returns `true` if the font is known to be open source, `false` otherwise.
 fn is_open_source_font(name: &str) -> bool {
-    let name_lower = name.to_ascii_lowercase();
+    // CSS generic families are neither open source nor concrete fonts
+    if is_css_generic(name) {
+        return false;
+    }
+
+    let name_normalized = normalize_font_name(name);
 
     // Check for exact matches first
     if matches!(
-        name_lower.as_str(),
+        name_normalized.as_str(),
         // Google Fonts - Open Font License (OFL)
         "inter" | "inter variable"
             | "roboto" | "roboto mono" | "roboto slab" | "roboto condensed"
@@ -282,6 +336,8 @@ fn is_open_source_font(name: &str) -> bool {
             | "atkinson hyperlegible"
         // Liberation fonts - GPL with font exception
         | "liberation sans" | "liberation serif" | "liberation mono"
+        // Bitstream Vera fonts - Free license (BSD-style)
+        | "bitstream vera sans" | "bitstream vera serif" | "bitstream vera sans mono"
         // DejaVu fonts - Free license (Bitstream Vera derivative)
         | "dejavu sans" | "dejavu serif" | "dejavu sans mono"
         // GNU FreeFont - GPL with font exception
@@ -302,13 +358,19 @@ fn is_open_source_font(name: &str) -> bool {
 
     // Check for partial matches (font families)
     // These checks catch variants like "Noto Sans Display", "Source Sans Pro Italic", etc.
-    if name_lower.starts_with("noto ")
-        || name_lower.starts_with("source ")
-        || name_lower.starts_with("ibm plex ")
-        || name_lower.starts_with("dejavu ")
-        || name_lower.starts_with("liberation ")
-        || name_lower.starts_with("red hat ")
-        || name_lower.starts_with("cascadia ")
+    if name_normalized.starts_with("noto ")
+        || name_normalized.starts_with("source ")
+        || name_normalized.starts_with("ibm plex ")
+        || name_normalized.starts_with("bitstream vera ")
+        || name_normalized.starts_with("dejavu ")
+        || name_normalized.starts_with("liberation ")
+        || name_normalized.starts_with("red hat ")
+        || name_normalized.starts_with("cascadia ")
+        || name_normalized.starts_with("libre ")
+        || name_normalized.starts_with("pt ")
+        || name_normalized.starts_with("roboto ")
+        || name_normalized.starts_with("fira ")
+        || name_normalized.starts_with("ubuntu ")
     {
         return true;
     }
@@ -445,6 +507,52 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_normalize_font_name() {
+        // Basic normalization
+        assert_eq!(normalize_font_name("Arial"), "arial");
+        assert_eq!(normalize_font_name("Times New Roman"), "times new roman");
+
+        // Whitespace trimming
+        assert_eq!(normalize_font_name("  Arial  "), "arial");
+        assert_eq!(
+            normalize_font_name("  Times New Roman  "),
+            "times new roman"
+        );
+
+        // Quote removal
+        assert_eq!(normalize_font_name("'Arial'"), "arial");
+        assert_eq!(normalize_font_name("\"Arial\""), "arial");
+        assert_eq!(normalize_font_name("'Times New Roman'"), "times new roman");
+        assert_eq!(
+            normalize_font_name("\"Times New Roman\""),
+            "times new roman"
+        );
+
+        // Quote removal with whitespace
+        assert_eq!(normalize_font_name("  'Arial'  "), "arial");
+        assert_eq!(normalize_font_name("  \"Roboto\"  "), "roboto");
+
+        // Multiple space collapsing
+        assert_eq!(normalize_font_name("Times  New  Roman"), "times new roman");
+        assert_eq!(normalize_font_name("Noto  Sans   Mono"), "noto sans mono");
+
+        // Case conversion
+        assert_eq!(normalize_font_name("ARIAL"), "arial");
+        assert_eq!(normalize_font_name("HeLvEtIcA"), "helvetica");
+        assert_eq!(normalize_font_name("Times NEW Roman"), "times new roman");
+
+        // Combined normalization
+        assert_eq!(
+            normalize_font_name("  'Times  New  Roman'  "),
+            "times new roman"
+        );
+        assert_eq!(
+            normalize_font_name("  \"INTER  Variable\"  "),
+            "inter variable"
+        );
+    }
+
+    #[test]
     fn test_is_css_generic() {
         // Standard CSS generics
         assert!(is_css_generic("serif"));
@@ -530,6 +638,31 @@ mod tests {
         assert!(is_proprietary_font("ARIAL"));
         assert!(is_proprietary_font("Times New Roman"));
 
+        // Normalization: quotes
+        assert!(is_proprietary_font("'Arial'"));
+        assert!(is_proprietary_font("\"Helvetica\""));
+        assert!(is_proprietary_font("'Times New Roman'"));
+
+        // Normalization: whitespace
+        assert!(is_proprietary_font("  Arial  "));
+        assert!(is_proprietary_font("  Calibri  "));
+
+        // Normalization: combined
+        assert!(is_proprietary_font("  'Georgia'  "));
+        assert!(is_proprietary_font("  \"Segoe UI\"  "));
+
+        // Partial matches: variants
+        assert!(is_proprietary_font("Yu Gothic UI"));
+        assert!(is_proprietary_font("Times New Roman PS"));
+        assert!(is_proprietary_font("Bodoni 72 Oldstyle"));
+        assert!(is_proprietary_font("Arial Bold"));
+        assert!(is_proprietary_font("Helvetica Now"));
+
+        // CSS generics should return false
+        assert!(!is_proprietary_font("serif"));
+        assert!(!is_proprietary_font("sans-serif"));
+        assert!(!is_proprietary_font("monospace"));
+
         // Open source fonts should return false
         assert!(!is_proprietary_font("Noto Sans"));
         assert!(!is_proprietary_font("Roboto"));
@@ -586,6 +719,31 @@ mod tests {
         // Case insensitivity
         assert!(is_open_source_font("INTER"));
         assert!(is_open_source_font("roboto mono"));
+
+        // Normalization: quotes
+        assert!(is_open_source_font("'Inter'"));
+        assert!(is_open_source_font("\"Roboto\""));
+        assert!(is_open_source_font("'Source Sans Pro'"));
+
+        // Normalization: whitespace
+        assert!(is_open_source_font("  Inter  "));
+        assert!(is_open_source_font("  Noto Sans  "));
+
+        // Normalization: combined
+        assert!(is_open_source_font("  'Liberation Sans'  "));
+        assert!(is_open_source_font("  \"IBM Plex Mono\"  "));
+
+        // Partial matches: new variants
+        assert!(is_open_source_font("Libre Caslon Display"));
+        assert!(is_open_source_font("PT Sans Caption"));
+        assert!(is_open_source_font("Roboto Flex"));
+        assert!(is_open_source_font("Fira Sans Extra Condensed"));
+        assert!(is_open_source_font("Ubuntu Condensed"));
+
+        // CSS generics should return false
+        assert!(!is_open_source_font("serif"));
+        assert!(!is_open_source_font("sans-serif"));
+        assert!(!is_open_source_font("monospace"));
 
         // Proprietary fonts should return false
         assert!(!is_open_source_font("Arial"));
