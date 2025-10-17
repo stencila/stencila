@@ -17,10 +17,22 @@ use regex::Regex;
 use reqwest::Client;
 use stencila_dirs::{DirType, get_app_dir};
 
+/// The source from which a font was resolved
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FontSource {
+    /// Font found in system fonts
+    System,
+    /// Font found in Stencila's cache directory
+    Cached,
+    /// Font downloaded from Google Fonts
+    Downloaded,
+}
+
 /// Information about a resolved font
 pub struct Font {
     family: String,
     path: PathBuf,
+    source: FontSource,
 }
 
 impl Font {
@@ -34,9 +46,30 @@ impl Font {
         &self.path
     }
 
+    /// Get the source from which this font was resolved
+    pub fn source(&self) -> FontSource {
+        self.source
+    }
+
     /// Read the font file as bytes (useful for embedding in documents)
     pub fn bytes(&self) -> Result<Vec<u8>> {
         fs::read(&self.path).context("Failed to read font file")
+    }
+
+    /// Check if this font is safe to embed in documents
+    ///
+    /// Returns `true` if:
+    /// - The font came from Google Fonts (cached or downloaded), OR
+    /// - The font is a system font that's known to be open source
+    ///
+    /// Returns `false` for system fonts that may be proprietary.
+    pub fn is_safe_to_embed(&self) -> bool {
+        match self.source {
+            // Google Fonts downloads are always safe
+            FontSource::Cached | FontSource::Downloaded => true,
+            // System fonts: only safe if they're known open source fonts
+            FontSource::System => is_open_source_font(&self.family),
+        }
     }
 
     /// Resolve the first available font from a CSS font stack
@@ -67,6 +100,7 @@ impl Font {
                 return Ok(Some(Font {
                     family: family.clone(),
                     path,
+                    source: FontSource::System,
                 }));
             }
 
@@ -75,7 +109,14 @@ impl Font {
                 return Ok(Some(Font {
                     family: family.clone(),
                     path,
+                    source: FontSource::Cached,
                 }));
+            }
+
+            if is_proprietary_font(family) {
+                // Skip known proprietary fonts to avoid wasted download attempts
+                tracing::trace!("Skipping proprietary font: {family}");
+                continue;
             }
 
             // Try downloading from Google Fonts
@@ -83,6 +124,7 @@ impl Font {
                 return Ok(Some(Font {
                     family: family.clone(),
                     path,
+                    source: FontSource::Downloaded,
                 }));
             }
         }
@@ -120,6 +162,158 @@ fn is_css_generic(name: &str) -> bool {
             | "ui-sans-serif"
             | "ui-serif"
     )
+}
+
+/// Check if a font family name is a known proprietary font
+///
+/// This function identifies common proprietary fonts from Windows, macOS, Adobe, and
+/// other vendors. These fonts should not be downloaded from Google Fonts (they won't
+/// be there) and should not be embedded in documents (license violation risk).
+///
+/// This is a blocklist approach focusing on the most commonly specified proprietary
+/// fonts to improve performance and legal safety.
+///
+/// Returns `true` if the font is known to be proprietary, `false` otherwise.
+fn is_proprietary_font(name: &str) -> bool {
+    let name_lower = name.to_ascii_lowercase();
+
+    // Check for exact matches first
+    if matches!(
+        name_lower.as_str(),
+        // Microsoft fonts (Windows)
+        "arial" | "arial black" | "arial narrow" | "arial rounded mt bold"
+            | "calibri" | "calibri light" | "cambria" | "cambria math" | "candara"
+            | "comic sans ms" | "consolas" | "constantia" | "corbel" | "courier new"
+            | "ebrima" | "franklin gothic medium" | "gabriola" | "gadugi" | "georgia"
+            | "impact" | "ink free" | "javanese text" | "leelawadee ui" | "lucida console"
+            | "lucida sans unicode" | "malgun gothic" | "marlett" | "microsoft himalaya"
+            | "microsoft jhengHei" | "microsoft new tai lue" | "microsoft phagspa"
+            | "microsoft sans serif" | "microsoft tai le" | "microsoft yahei"
+            | "microsoft yi baiti" | "mingliu-extb" | "mingliu_hkscs-extb" | "mongolian baiti"
+            | "ms gothic" | "ms pgothic" | "ms ui gothic" | "mv boli" | "myanmar text"
+            | "nirmala ui" | "palatino linotype" | "segoe mdl2 assets" | "segoe print"
+            | "segoe script" | "segoe ui" | "segoe ui emoji" | "segoe ui historic"
+            | "segoe ui symbol" | "simsun" | "simsun-extb" | "sitka" | "sylfaen"
+            | "symbol" | "tahoma" | "times new roman" | "trebuchet ms" | "verdana"
+            | "webdings" | "wingdings" | "yu gothic"
+            // Apple fonts (macOS/iOS)
+            | "american typewriter" | "andale mono" | "apple braille" | "apple color emoji"
+            | "apple sd gothic neo" | "apple symbols" | "arial hebrew" | "avenir"
+            | "avenir next" | "avenir next condensed" | "bangkok" | "baskerville"
+            | "big caslon" | "bodoni 72" | "bodoni 72 oldstyle" | "bodoni 72 smallcaps"
+            | "bradley hand" | "brush script mt" | "chalkboard" | "chalkboard se"
+            | "chalkduster" | "charter" | "cochin" | "copperplate" | "courier"
+            | "didot" | "euphemia ucas" | "futura" | "geneva" | "geeza pro" | "gill sans"
+            | "helvetica" | "helvetica neue" | "herculanum" | "hoefler text"
+            | "iowan old style" | "kefa" | "khmer sangam mn" | "kohinoor bangla"
+            | "kohinoor devanagari" | "kohinoor gujarati" | "kohinoor telugu" | "lao sangam mn"
+            | "lucida grande" | "luminari" | "marker felt" | "menlo" | "mishafi"
+            | "monaco" | "mshtakan" | "mukta mahee" | "muna" | "myanmar sangam mn"
+            | "nadeem" | "new peninim mt" | "noteworthy" | "optima" | "palatino"
+            | "papyrus" | "phosphate" | "plantagenet cherokee" | "pt mono" | "pt sans"
+            | "pt serif" | "raanana" | "rockwell" | "sana" | "sathu" | "savoye let"
+            | "shree devanagari 714" | "signpainter" | "silom" | "sinhala sangam mn"
+            | "skia" | "snell roundhand" | "songti sc" | "songti tc" | "sukhumvit set"
+            | "superclarendon" | "thonburi" | "times" | "trattatello" | "zapfino"
+            // Adobe fonts
+            | "adobe arabic" | "adobe caslon" | "adobe caslon pro" | "adobe garamond"
+            | "adobe garamond pro" | "adobe hebrew" | "adobe jenson" | "adobe ming std"
+            | "adobe myungjo std" | "adobe song std" | "myriad pro" | "minion pro"
+            // Other common proprietary fonts
+            | "bitstream charter" | "bitstream vera sans" | "bitstream vera sans mono"
+            | "bitstream vera serif" | "book antiqua" | "bookman old style" | "century"
+            | "century gothic" | "century schoolbook" | "garamond" | "goudy old style"
+            | "lucida" | "monotype corsiva" | "ms sans serif" | "ms serif"
+    ) {
+        return true;
+    }
+
+    // Check for partial matches (font family names often include variants)
+    // These checks are more permissive to catch variants like "Arial Bold", "Times New Roman Italic", etc.
+    if name_lower.starts_with("arial")
+        || name_lower.starts_with("calibri")
+        || name_lower.starts_with("cambria")
+        || name_lower.starts_with("segoe")
+        || name_lower.starts_with("helvetica")
+        || name_lower.starts_with("avenir")
+        || name_lower.starts_with("gill sans")
+    {
+        return true;
+    }
+
+    false
+}
+
+/// Check if a font family name is a known open source font
+///
+/// This function identifies fonts with permissive open source licenses (OFL, Apache,
+/// MIT, GPL with font exception, etc.) that are safe to embed in documents.
+///
+/// This is an allowlist approach focusing on popular open source fonts that users
+/// commonly install system-wide but are still safe to embed.
+///
+/// Returns `true` if the font is known to be open source, `false` otherwise.
+fn is_open_source_font(name: &str) -> bool {
+    let name_lower = name.to_ascii_lowercase();
+
+    // Check for exact matches first
+    if matches!(
+        name_lower.as_str(),
+        // Google Fonts - Open Font License (OFL)
+        "inter" | "inter variable"
+            | "roboto" | "roboto mono" | "roboto slab" | "roboto condensed"
+            | "noto sans" | "noto serif" | "noto sans mono" | "noto color emoji"
+            | "source sans pro" | "source sans 3" | "source serif pro" | "source serif 4"
+            | "source code pro"
+            | "ibm plex sans" | "ibm plex serif" | "ibm plex mono"
+            | "open sans" | "open sans condensed"
+            | "lato" | "montserrat" | "oswald" | "raleway"
+            | "pt sans" | "pt serif" | "pt mono"
+            | "merriweather" | "merriweather sans"
+            | "work sans" | "fira sans" | "fira code" | "fira mono"
+            | "jetbrains mono" | "ubuntu" | "ubuntu mono" | "ubuntu condensed"
+            | "inconsolata" | "droid sans" | "droid serif" | "droid sans mono"
+            | "nunito" | "nunito sans" | "playfair display" | "poppins"
+            | "crimson text" | "crimson pro" | "eb garamond"
+            | "libre baskerville" | "libre franklin" | "libre caslon text"
+            | "overpass" | "overpass mono"
+            | "dm sans" | "dm serif display" | "dm mono"
+            | "manrope" | "recursive" | "space grotesk" | "space mono"
+            | "atkinson hyperlegible"
+        // Liberation fonts - GPL with font exception
+        | "liberation sans" | "liberation serif" | "liberation mono"
+        // DejaVu fonts - Free license (Bitstream Vera derivative)
+        | "dejavu sans" | "dejavu serif" | "dejavu sans mono"
+        // GNU FreeFont - GPL with font exception
+        | "freesans" | "freeserif" | "freemono"
+        // Red Hat fonts - OFL
+        | "red hat display" | "red hat text" | "red hat mono"
+        // Microsoft open source fonts - OFL
+        | "cascadia code" | "cascadia mono"
+        // Adobe open source - OFL
+        | "source han sans" | "source han serif"
+        // Other popular open source
+        | "public sans" | "commissioner" | "jost"
+        | "bitter" | "exo" | "exo 2"
+        | "archivo" | "archivo narrow"
+    ) {
+        return true;
+    }
+
+    // Check for partial matches (font families)
+    // These checks catch variants like "Noto Sans Display", "Source Sans Pro Italic", etc.
+    if name_lower.starts_with("noto ")
+        || name_lower.starts_with("source ")
+        || name_lower.starts_with("ibm plex ")
+        || name_lower.starts_with("dejavu ")
+        || name_lower.starts_with("liberation ")
+        || name_lower.starts_with("red hat ")
+        || name_lower.starts_with("cascadia ")
+    {
+        return true;
+    }
+
+    false
 }
 
 /// Parse a CSS font-family stack and strip quotes
@@ -299,5 +493,105 @@ mod tests {
         assert_eq!(slugify_family("Source Serif 4"), "source-serif-4");
         assert_eq!(slugify_family("IBM Plex Mono"), "ibm-plex-mono");
         assert_eq!(slugify_family("Times New Roman"), "times-new-roman");
+    }
+
+    #[test]
+    fn test_is_proprietary_font() {
+        // Microsoft fonts
+        assert!(is_proprietary_font("Arial"));
+        assert!(is_proprietary_font("Times New Roman"));
+        assert!(is_proprietary_font("Georgia"));
+        assert!(is_proprietary_font("Calibri"));
+        assert!(is_proprietary_font("Cambria"));
+        assert!(is_proprietary_font("Consolas"));
+        assert!(is_proprietary_font("Segoe UI"));
+        assert!(is_proprietary_font("Verdana"));
+        assert!(is_proprietary_font("Tahoma"));
+
+        // Apple fonts
+        assert!(is_proprietary_font("Helvetica"));
+        assert!(is_proprietary_font("Helvetica Neue"));
+        assert!(is_proprietary_font("Iowan Old Style"));
+        assert!(is_proprietary_font("Palatino"));
+        assert!(is_proprietary_font("Avenir"));
+        assert!(is_proprietary_font("Gill Sans"));
+        assert!(is_proprietary_font("Menlo"));
+        assert!(is_proprietary_font("Monaco"));
+
+        // Adobe fonts
+        assert!(is_proprietary_font("Myriad Pro"));
+        assert!(is_proprietary_font("Minion Pro"));
+
+        // Other proprietary
+        assert!(is_proprietary_font("Bitstream Charter"));
+        assert!(is_proprietary_font("Courier New"));
+
+        // Case insensitivity
+        assert!(is_proprietary_font("ARIAL"));
+        assert!(is_proprietary_font("Times New Roman"));
+
+        // Open source fonts should return false
+        assert!(!is_proprietary_font("Noto Sans"));
+        assert!(!is_proprietary_font("Roboto"));
+        assert!(!is_proprietary_font("Source Sans Pro"));
+        assert!(!is_proprietary_font("IBM Plex Mono"));
+        assert!(!is_proprietary_font("Inter"));
+        assert!(!is_proprietary_font("Liberation Sans"));
+    }
+
+    #[test]
+    fn test_is_open_source_font() {
+        // Google Fonts (OFL)
+        assert!(is_open_source_font("Inter"));
+        assert!(is_open_source_font("Inter Variable"));
+        assert!(is_open_source_font("Roboto"));
+        assert!(is_open_source_font("Roboto Mono"));
+        assert!(is_open_source_font("Noto Sans"));
+        assert!(is_open_source_font("Noto Serif"));
+        assert!(is_open_source_font("Source Sans Pro"));
+        assert!(is_open_source_font("Source Serif 4"));
+        assert!(is_open_source_font("Source Code Pro"));
+        assert!(is_open_source_font("IBM Plex Sans"));
+        assert!(is_open_source_font("IBM Plex Mono"));
+        assert!(is_open_source_font("Open Sans"));
+        assert!(is_open_source_font("Lato"));
+        assert!(is_open_source_font("Montserrat"));
+        assert!(is_open_source_font("JetBrains Mono"));
+        assert!(is_open_source_font("Fira Code"));
+
+        // Liberation fonts
+        assert!(is_open_source_font("Liberation Sans"));
+        assert!(is_open_source_font("Liberation Serif"));
+        assert!(is_open_source_font("Liberation Mono"));
+
+        // DejaVu fonts
+        assert!(is_open_source_font("DejaVu Sans"));
+        assert!(is_open_source_font("DejaVu Serif"));
+        assert!(is_open_source_font("DejaVu Sans Mono"));
+
+        // Red Hat fonts
+        assert!(is_open_source_font("Red Hat Display"));
+        assert!(is_open_source_font("Red Hat Text"));
+        assert!(is_open_source_font("Red Hat Mono"));
+
+        // Microsoft open source
+        assert!(is_open_source_font("Cascadia Code"));
+        assert!(is_open_source_font("Cascadia Mono"));
+
+        // Family prefixes (catches variants)
+        assert!(is_open_source_font("Noto Sans Display"));
+        assert!(is_open_source_font("Source Sans Variable"));
+        assert!(is_open_source_font("IBM Plex Sans Condensed"));
+
+        // Case insensitivity
+        assert!(is_open_source_font("INTER"));
+        assert!(is_open_source_font("roboto mono"));
+
+        // Proprietary fonts should return false
+        assert!(!is_open_source_font("Arial"));
+        assert!(!is_open_source_font("Helvetica"));
+        assert!(!is_open_source_font("Times New Roman"));
+        assert!(!is_open_source_font("Georgia"));
+        assert!(!is_open_source_font("Calibri"));
     }
 }

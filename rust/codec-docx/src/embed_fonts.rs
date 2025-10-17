@@ -9,7 +9,9 @@ use uuid::Uuid;
 use crate::encode::{escape_xml, insert_override};
 
 /// Font variables that are actually used in DOCX styles.xml
+///
 /// Only these fonts will be resolved and embedded to improve performance.
+/// This needs to be updated when `encode_theme.rs` uses an additional font.
 const DOCX_FONT_VARIABLES: &[&str] = &[
     "text-font-family",
     "heading-font-family",
@@ -20,6 +22,7 @@ const DOCX_FONT_VARIABLES: &[&str] = &[
 pub(crate) struct ResolvedFont {
     /// The font family name (e.g., "Noto Serif")
     pub family: String,
+
     /// The TTF file bytes
     pub bytes: Vec<u8>,
 }
@@ -40,7 +43,6 @@ pub(crate) async fn resolve_fonts(
     let mut resolution_tasks = Vec::new();
 
     for (name, value) in variables {
-        // OPTIMIZATION 1: Whitelist - only resolve fonts used in DOCX styles
         if !DOCX_FONT_VARIABLES.contains(&name.as_str()) {
             continue;
         }
@@ -56,7 +58,7 @@ pub(crate) async fn resolve_fonts(
         }
     }
 
-    // OPTIMIZATION 3: Parallelize - resolve all fonts concurrently
+    // Resolve all fonts concurrently
     let results = join_all(resolution_tasks).await;
 
     // Process results and collect resolved fonts
@@ -66,11 +68,28 @@ pub(crate) async fn resolve_fonts(
         match result {
             Ok(Some(font)) => {
                 let family = font.family().to_string();
+
+                // Only embed fonts from safe sources (Google Fonts)
+                // Skip system fonts which may be proprietary and violate licenses when embedded
+                if !font.is_safe_to_embed() {
+                    tracing::debug!(
+                        "Skipping embedding of system font '{family}' for {name} (may be proprietary)"
+                    );
+                    // Still update the variable to use the single resolved font name
+                    // Word will find it in system fonts since we're not embedding it
+                    updated_vars.insert(name, Value::String(family));
+                    continue;
+                }
+
                 let bytes = font
                     .bytes()
                     .wrap_err_with(|| format!("Failed to read font bytes for '{family}'"))?;
 
-                tracing::debug!("Resolved font for {name}: {family} ({} bytes)", bytes.len());
+                tracing::debug!(
+                    "Resolved font for {name}: {family} ({} bytes, source: {:?})",
+                    bytes.len(),
+                    font.source()
+                );
 
                 // Check if we already have this font
                 if !resolved_fonts
