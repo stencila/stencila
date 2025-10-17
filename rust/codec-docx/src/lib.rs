@@ -21,7 +21,9 @@ use stencila_node_reconstitute::reconstitute;
 use stencila_version::STENCILA_VERSION;
 
 mod decode;
+mod embed_fonts;
 mod encode;
+mod encode_theme;
 
 #[cfg(test)]
 mod tests;
@@ -201,7 +203,7 @@ impl Codec for DocxCodec {
             options.highlight = Some(true);
         }
 
-        if options.template.is_none() {
+        let template_is_specified = if options.template.is_none() {
             if re_encoding {
                 // Use the document itself as the template so that any styling
                 // changes are maintained
@@ -224,7 +226,10 @@ impl Codec for DocxCodec {
                 }
                 options.template = Some(template);
             }
-        }
+            false
+        } else {
+            true
+        };
 
         let info = 'to_path: {
             let format = options.format.clone().unwrap_or(Format::Docx);
@@ -340,7 +345,17 @@ impl Codec for DocxCodec {
             }
         }
 
-        encode::data_and_properties(path, data, properties)?;
+        // Get theme to apply (is no template was specified)
+        let theme = if !template_is_specified {
+            let theme = options.theme;
+            let path = options.from_path.or_else(|| Some(path.to_path_buf()));
+            stencila_themes::get(theme, path).await?
+        } else {
+            None
+        };
+
+        // Apply custom data, properties and theme to the generated DOCX file
+        encode::apply(path, data, properties, theme).await?;
 
         Ok(info)
     }

@@ -6,19 +6,24 @@ use std::{
 };
 
 use regex::Regex;
+use stencila_themes::Theme;
 use uuid::Uuid;
 use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 use stencila_codec::eyre::{Context, OptionExt, Result, eyre};
 use stencila_codec_utils::move_file;
 
-/// Encode custom data and properties into a DOCX
-pub fn data_and_properties(
+use crate::embed_fonts::{embed_fonts, resolve_fonts};
+use crate::encode_theme::theme_to_styles;
+
+/// Encode custom data, properties & theme into a DOCX
+pub async fn apply(
     path: &Path,
     data: Vec<(String, String)>,
     properties: Vec<(String, String)>,
+    theme: Option<Theme>,
 ) -> Result<()> {
-    if data.is_empty() && properties.is_empty() {
+    if data.is_empty() && properties.is_empty() && theme.is_none() {
         return Ok(());
     }
 
@@ -49,7 +54,7 @@ pub fn data_and_properties(
 
     // Fetch or create docProps/custom.xml.
     const CUSTOM_PROPS: &str = "docProps/custom.xml";
-    let mut custom_xml = if let Some(bytes) = parts.get(CUSTOM_PROPS) {
+    let mut custom_props_xml = if let Some(bytes) = parts.get(CUSTOM_PROPS) {
         String::from_utf8(bytes.clone())?
     } else {
         r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -110,11 +115,35 @@ pub fn data_and_properties(
     }
 
     // Append or extend custom document properties.
-    custom_xml = add_custom_props(&custom_xml, properties)?;
+    custom_props_xml = add_custom_props(&custom_props_xml, properties)?;
+
+    // Generate word/styles.xml and embed fonts if a theme is specified
+    const STYLES: &str = "word/styles.xml";
+    if let Some(theme) = theme.as_ref() {
+        // Get computed theme variables in twips
+        let theme_variables = theme.computed_variables(stencila_themes::LengthConversion::Twips);
+
+        // Resolve fonts from CSS stacks and get resolved font bytes
+        let (resolved_fonts, resolved_variables) = resolve_fonts(&theme_variables).await?;
+
+        // Generate styles.xml using the resolved variables (with font names instead of CSS stacks)
+        let styles_xml = theme_to_styles(&resolved_variables);
+        parts.insert(STYLES.to_string(), styles_xml.into_bytes());
+
+        // Embed fonts if any were resolved
+        if !resolved_fonts.is_empty() {
+            embed_fonts(
+                &mut parts,
+                &resolved_fonts,
+                &mut content_types_xml,
+                &mut rels_xml,
+            )?;
+        }
+    }
 
     // Replace updated XML parts in the HashMap.
     parts.insert(CONTENT_TYPES.to_string(), content_types_xml.into_bytes());
-    parts.insert(CUSTOM_PROPS.to_string(), custom_xml.into_bytes());
+    parts.insert(CUSTOM_PROPS.to_string(), custom_props_xml.into_bytes());
     parts.insert(DOCUMENT_RELS.to_string(), rels_xml.into_bytes());
 
     // Re-assemble the DOCX.
@@ -249,9 +278,9 @@ pub fn add_custom_props(xml: &str, new_props: Vec<(String, String)>) -> Result<S
 /// | `>`       | `&gt;`  |
 /// | `"`       | `&quot;`|
 /// | `'`       | `&apos;`|
-pub fn escape_xml(input: &str) -> String {
+pub(crate) fn escape_xml(input: &str) -> String {
     // Pre-allocate slightly more than the input length to avoid
-    // frequent reallocations for typical “few escapables” cases.
+    // frequent reallocations for typical "few escapables" cases.
     let mut out = String::with_capacity(input.len() + 8);
 
     for ch in input.chars() {
@@ -266,4 +295,16 @@ pub fn escape_xml(input: &str) -> String {
     }
 
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_escape_xml() {
+        assert_eq!(escape_xml("Test & Co."), "Test &amp; Co.");
+        assert_eq!(escape_xml("<tag>"), "&lt;tag&gt;");
+        assert_eq!(escape_xml("'quote'"), "&apos;quote&apos;");
+    }
 }

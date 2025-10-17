@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+futures = { workspace = true }
 indexmap = { workspace = true }
 regex = { workspace = true }
 roxmltree = { workspace = true }
@@ -14,11 +15,14 @@ stencila-codec-json = { path = "../codec-json" }
 stencila-codec-pandoc = { path = "../codec-pandoc" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-dirs = { path = "../dirs" }
+stencila-fonts = { path = "../fonts" }
 stencila-node-media = { path = "../node-media" }
 stencila-node-reconstitute = { path = "../node-reconstitute" }
+stencila-themes = { path = "../themes" }
 stencila-version = { path = "../version" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
+tracing = { workspace = true }
 uuid = { workspace = true }
 zip = { workspace = true }
 

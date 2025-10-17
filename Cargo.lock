@@ -8269,6 +8269,7 @@ dependencies = [
 name = "stencila-codec-docx"
 version = "0.0.0"
 dependencies = [
+ "futures",
  "indexmap 2.11.4",
  "pretty_assertions",
  "regex",
@@ -8280,11 +8281,14 @@ dependencies = [
  "stencila-codec-pandoc",
  "stencila-codec-utils",
  "stencila-dirs",
+ "stencila-fonts",
  "stencila-node-media",
  "stencila-node-reconstitute",
+ "stencila-themes",
  "stencila-version",
  "tempfile",
  "tokio",
+ "tracing",
  "uuid",
  "zip 6.0.0",
 ]
