@@ -102,7 +102,10 @@ stencila-article {
         max-width: var(--article-title-max-width);
         margin-bottom: var(--article-title-margin-bottom);
 
-        h1 {
+        /* Target both <h1> and <p> for title. See `impl DomCodec for Article`
+        for why <p> is included */
+        h1,
+        p {
             /* Browser reset */
             margin: 0;
 

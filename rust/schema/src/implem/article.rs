@@ -184,8 +184,11 @@ impl DomCodec for Article {
             }
 
             if let Some(title) = &self.title {
-                context.push_slot_fn("section", "title", |context| {
-                    context.enter_elem("h1");
+                // We do not use <h1> or <header><p role="heading" aria-level="1"> for title
+                // because  bot result in the title being treated as a level one header
+                // when generating a PDF. Instead we use the ARIA "banner" role.
+                context.push_slot_fn("header", "title", |context| {
+                    context.push_attr("role", "banner").enter_elem("p");
                     title.to_dom(context);
                     context.exit_elem();
                 });

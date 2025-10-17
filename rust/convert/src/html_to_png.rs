@@ -1263,6 +1263,12 @@ fn try_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<V
         .print_to_pdf(Some(PrintToPdfOptions {
             // Make sure that @page rules are observed (this option is not just about page size)
             prefer_css_page_size: Some(true),
+            // Generate heading outline from headings
+            generate_document_outline: Some(true),
+            // Map DOM semantics into PDF structure tags (headings, lists,
+            // tables, links, landmarks, language, alt text) to make PDF
+            // navigable for screen readers and more compliant with a11y tooling
+            generate_tagged_pdf: Some(true),
             ..Default::default()
         }))
         .map_err(|error| eyre!("Failed to generate PDF: {error}"))?;
