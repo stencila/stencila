@@ -169,6 +169,8 @@ pub(crate) fn get_border_val(style: &str) -> &str {
 
 /// Resolve border tokens from computed theme variables
 ///
+/// Generates a border if any of the *-full, *-wide, or *-narrow tokens are defined.
+///
 /// Since CSS variables are already resolved by `computed_variables_with_overrides`,
 /// the hierarchical fallback (specific → horizontal → general) has already been
 /// applied at the CSS level. We only need to check the specific prefix.
@@ -178,15 +180,16 @@ pub(crate) fn resolve_border_tokens(
     vars: &BTreeMap<String, Value>,
     prefix: &str,
 ) -> Option<(String, String, String)> {
-    let width_token = format!("{prefix}-width");
-    let color_token = format!("{prefix}-color");
-    let style_token = format!("{prefix}-style");
-
-    if let Some(width) = get_twips(vars, &width_token) {
+    if let Some(width) = get_twips(vars, &format!("{prefix}-full"))
+        .or_else(|| get_twips(vars, &format!("{prefix}-wide")))
+        .or_else(|| get_twips(vars, &format!("{prefix}-narrow")))
+    {
         let width_num = width.parse::<f64>().unwrap_or(0.0);
         if width_num > 0.0 {
-            let color = get_color_hex(vars, &color_token).unwrap_or_else(|| "000000".to_string());
-            let style = get_var(vars, &style_token).unwrap_or_else(|| "solid".to_string());
+            let color = get_color_hex(vars, &format!("{prefix}-color"))
+                .unwrap_or_else(|| "000000".to_string());
+            let style =
+                get_var(vars, &format!("{prefix}-style")).unwrap_or_else(|| "solid".to_string());
             return Some((width, color, style));
         }
     }
