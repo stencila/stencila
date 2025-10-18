@@ -25,6 +25,7 @@ pub async fn apply(
     data: Vec<(String, String)>,
     properties: Vec<(String, String)>,
     theme: Option<Theme>,
+    document_variables: Option<BTreeMap<String, String>>,
 ) -> Result<()> {
     if data.is_empty() && properties.is_empty() && theme.is_none() {
         return Ok(());
@@ -125,7 +126,10 @@ pub async fn apply(
     const DOCUMENT: &str = "word/document.xml";
     if let Some(theme) = theme.as_ref() {
         // Get computed theme variables in twips
-        let theme_variables = theme.computed_variables(stencila_themes::LengthConversion::Twips);
+        let theme_variables = theme.computed_variables_with_overrides(
+            stencila_themes::LengthConversion::Twips,
+            document_variables.unwrap_or_default(),
+        );
 
         // Resolve fonts from CSS stacks and get resolved font bytes
         let (resolved_fonts, resolved_variables) = resolve_fonts(&theme_variables).await?;

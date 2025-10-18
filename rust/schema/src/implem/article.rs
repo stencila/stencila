@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use stencila_codec_markdown_trait::to_markdown;
 use stencila_codec_text_trait::to_text;
 
@@ -59,6 +61,52 @@ impl Article {
         } else {
             None
         }
+    }
+
+    /// Generate document-level CSS variables from article metadata
+    ///
+    /// Extracts metadata like title, authors, dates, and DOI into CSS variable
+    /// name/value pairs (without the `--` prefix). These can be used for print
+    /// headers/footers or injected into computed theme variables.
+    pub fn document_variables(&self) -> BTreeMap<String, String> {
+        let mut vars = BTreeMap::new();
+
+        if let Some(title) = &self.title {
+            let mut title = to_text(title).replace("\"", "'");
+            const MAX_LEN: usize = 120;
+            if title.len() > MAX_LEN {
+                title.truncate(MAX_LEN);
+                title.push('…');
+            }
+            vars.insert("document-title".to_string(), title);
+        }
+
+        if let Some(authors) = &self.authors {
+            let authors = match authors.len() {
+                0 => String::new(),
+                1 => authors[0].short_name(),
+                2 => [&authors[0].short_name(), " & ", &authors[1].short_name()].concat(),
+                _ => [&authors[0].short_name(), " et al."].concat(),
+            };
+            vars.insert("document-authors".to_string(), authors.replace("\"", "'"));
+        }
+
+        if let Some(date) = self
+            .date_published
+            .as_ref()
+            .or(self.options.date_modified.as_ref())
+            .or(self.options.date_accepted.as_ref())
+            .or(self.options.date_received.as_ref())
+            .or(self.options.date_created.as_ref())
+        {
+            vars.insert("document-date".to_string(), date.value.replace("\"", "'"));
+        }
+
+        if let Some(doi) = &self.doi {
+            vars.insert("document-doi".to_string(), format!("DOI: {}", doi.replace("\"", "'")));
+        }
+
+        vars
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -138,48 +186,13 @@ impl DomCodec for Article {
         self.options.commit.to_dom_attr("commit", context);
 
         if context.is_root() {
-            // Generate CSS variable for print media support
-            let mut css = String::new();
-            if let Some(title) = &self.title {
-                let mut title = to_text(title).replace("\"", "'");
-                const MAX_LEN: usize = 120;
-                if title.len() > MAX_LEN {
-                    title.truncate(MAX_LEN);
-                    title.push('…');
+            // Generate CSS variables for print media support from document metadata
+            let doc_vars = self.document_variables();
+            if !doc_vars.is_empty() {
+                let mut css = String::new();
+                for (name, value) in doc_vars {
+                    css.push_str(&format!("--{name}: \"{value}\";"));
                 }
-                css.push_str("--document-title: \"");
-                css.push_str(&title);
-                css.push_str("\";");
-            }
-            if let Some(authors) = &self.authors {
-                let authors = match authors.len() {
-                    0 => String::new(),
-                    1 => authors[0].short_name(),
-                    2 => [&authors[0].short_name(), " & ", &authors[1].short_name()].concat(),
-                    _ => [&authors[0].short_name(), " et al."].concat(),
-                };
-                css.push_str("--document-authors: \"");
-                css.push_str(&authors.replace("\"", "'"));
-                css.push_str("\";");
-            }
-            if let Some(date) = self
-                .date_published
-                .as_ref()
-                .or(self.options.date_modified.as_ref())
-                .or(self.options.date_accepted.as_ref())
-                .or(self.options.date_received.as_ref())
-                .or(self.options.date_created.as_ref())
-            {
-                css.push_str("--document-date:\"");
-                css.push_str(&date.value.replace("\"", "'"));
-                css.push_str("\";");
-            }
-            if let Some(doi) = &self.doi {
-                css.push_str("--document-doi:\"DOI: ");
-                css.push_str(&doi.replace("\"", "'"));
-                css.push_str("\";");
-            }
-            if !css.is_empty() {
                 context.push_css(&[":root {", &css, "}"].concat());
             }
 
@@ -424,5 +437,150 @@ impl MarkdownCodec for Article {
         context.append_footnotes();
 
         context.exit_node_final();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{Author, Date, Person};
+
+    #[test]
+    fn test_document_variables_empty() {
+        let article = Article::default();
+        let vars = article.document_variables();
+        assert!(vars.is_empty());
+    }
+
+    #[test]
+    fn test_document_variables_title() {
+        let article = Article {
+            title: Some(vec![t("Test Article Title")]),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        assert_eq!(vars.get("document-title"), Some(&"Test Article Title".to_string()));
+    }
+
+    #[test]
+    fn test_document_variables_title_truncation() {
+        let long_title = "a".repeat(150);
+        let article = Article {
+            title: Some(vec![t(&long_title)]),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        let title = vars.get("document-title").expect("should have title");
+        // Ellipsis is 3 bytes in UTF-8, so 120 chars + 3 byte ellipsis = 123
+        assert_eq!(title.len(), 123);
+        assert!(title.ends_with('…'));
+    }
+
+    #[test]
+    fn test_document_variables_single_author() {
+        let article = Article {
+            authors: Some(vec![Author::Person(Person {
+                given_names: Some(vec!["Jane".to_string()]),
+                family_names: Some(vec!["Doe".to_string()]),
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        assert_eq!(vars.get("document-authors"), Some(&"Doe".to_string()));
+    }
+
+    #[test]
+    fn test_document_variables_two_authors() {
+        let article = Article {
+            authors: Some(vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["Jane".to_string()]),
+                    family_names: Some(vec!["Doe".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["John".to_string()]),
+                    family_names: Some(vec!["Smith".to_string()]),
+                    ..Default::default()
+                }),
+            ]),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        assert_eq!(vars.get("document-authors"), Some(&"Doe & Smith".to_string()));
+    }
+
+    #[test]
+    fn test_document_variables_three_authors() {
+        let article = Article {
+            authors: Some(vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["Jane".to_string()]),
+                    family_names: Some(vec!["Doe".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["John".to_string()]),
+                    family_names: Some(vec!["Smith".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["Bob".to_string()]),
+                    family_names: Some(vec!["Jones".to_string()]),
+                    ..Default::default()
+                }),
+            ]),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        assert_eq!(vars.get("document-authors"), Some(&"Doe et al.".to_string()));
+    }
+
+    #[test]
+    fn test_document_variables_date() {
+        let article = Article {
+            date_published: Some(Date {
+                value: "2025-01-15".to_string(),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        assert_eq!(vars.get("document-date"), Some(&"2025-01-15".to_string()));
+    }
+
+    #[test]
+    fn test_document_variables_doi() {
+        let article = Article {
+            doi: Some("10.1234/test.2025".to_string()),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        assert_eq!(vars.get("document-doi"), Some(&"DOI: 10.1234/test.2025".to_string()));
+    }
+
+    #[test]
+    fn test_document_variables_all_fields() {
+        let article = Article {
+            title: Some(vec![t("Complete Test")]),
+            authors: Some(vec![Author::Person(Person {
+                given_names: Some(vec!["Jane".to_string()]),
+                family_names: Some(vec!["Doe".to_string()]),
+                ..Default::default()
+            })]),
+            date_published: Some(Date {
+                value: "2025-01-15".to_string(),
+                ..Default::default()
+            }),
+            doi: Some("10.1234/test".to_string()),
+            ..Default::default()
+        };
+        let vars = article.document_variables();
+        assert_eq!(vars.len(), 4);
+        assert!(vars.contains_key("document-title"));
+        assert!(vars.contains_key("document-authors"));
+        assert!(vars.contains_key("document-date"));
+        assert!(vars.contains_key("document-doi"));
     }
 }

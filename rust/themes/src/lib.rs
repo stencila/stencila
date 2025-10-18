@@ -220,6 +220,43 @@ impl Theme {
         computed
     }
 
+    /// Compute variables with runtime overrides (e.g., document metadata)
+    ///
+    /// Merges theme variables with additional runtime variables, then applies the same
+    /// resolution and conversion logic as `computed_variables()`. Override variables
+    /// take precedence over theme variables.
+    ///
+    /// # Arguments
+    /// * `length_conversion` - How to convert CSS length values
+    /// * `overrides` - Additional variables to merge (without `--` prefix)
+    ///
+    /// # Example
+    /// ```ignore
+    /// let doc_vars = article.document_variables();
+    /// let computed = theme.computed_variables_with_overrides(
+    ///     LengthConversion::Twips,
+    ///     doc_vars
+    /// );
+    /// ```
+    pub fn computed_variables_with_overrides(
+        &self,
+        length_conversion: LengthConversion,
+        overrides: BTreeMap<String, String>,
+    ) -> BTreeMap<String, Value> {
+        // Merge theme variables with overrides (overrides take precedence)
+        let mut all_variables = self.variables.clone();
+        all_variables.extend(overrides);
+
+        // Create a temporary theme-like context for resolution
+        let runtime_theme = Theme {
+            variables: all_variables,
+            ..self.clone()
+        };
+
+        // Use existing computation logic with merged variables
+        runtime_theme.computed_variables(length_conversion)
+    }
+
     /// Compute variables into `:root` CSS
     ///
     /// The same as `computed_variables` but returns a CSS string with computed variables
@@ -262,7 +299,9 @@ impl Theme {
                 } else if let Some(fallback) = caps.get(2) {
                     fallback.as_str().to_string()
                 } else {
-                    caps[0].to_string() // keep original if not found
+                    // Return empty string for undefined variables without fallback
+                    // This prevents literal "var(--name)" or "--name" from appearing in output
+                    String::new()
                 }
             })
             .to_string()
@@ -483,14 +522,14 @@ impl Theme {
                 LengthConversion::Twips => {
                     let twips = match unit {
                         "pt" => num * 20.0,
-                        "px" => num * 15.0,  // 0.75pt * 20
-                        "rem" => num * 240.0,  // 16px * 0.75 * 20
+                        "px" => num * 15.0,   // 0.75pt * 20
+                        "rem" => num * 240.0, // 16px * 0.75 * 20
                         "em" => num * 240.0,
-                        "in" => num * 1440.0,  // 72pt * 20
-                        "cm" => num * 566.9291339,  // 28.346pt * 20
-                        "mm" => num * 56.69291339,  // 2.8346pt * 20
+                        "in" => num * 1440.0,      // 72pt * 20
+                        "cm" => num * 566.9291339, // 28.346pt * 20
+                        "mm" => num * 56.69291339, // 2.8346pt * 20
                         "Q" => num * 14.17322835,  // 0.7087pt * 20
-                        "pc" => num * 240.0,  // 12pt * 20
+                        "pc" => num * 240.0,       // 12pt * 20
                         _ => num,
                     };
                     return json!(twips);
@@ -1187,6 +1226,56 @@ mod tests {
     }
 
     #[test]
+    fn test_compute_variables_var_without_fallback() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --header: var(--missing); }".into(),
+            false,
+        );
+        let computed = theme.computed_variables(LengthConversion::KeepUnits);
+        // Should resolve to empty string, not "var(--missing)" or "--missing"
+        assert_eq!(computed.get("header"), Some(&json!("")));
+    }
+
+    #[test]
+    fn test_compute_variables_multiple_undefined() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --text: var(--title) var(--author); }".into(),
+            false,
+        );
+        let computed = theme.computed_variables(LengthConversion::KeepUnits);
+        // Both should resolve to empty, and CSS processing removes the space too
+        assert_eq!(computed.get("text"), Some(&json!("")));
+    }
+
+    #[test]
+    fn test_document_variables_missing_metadata() {
+        // Test the main use case: document variables that are optional
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --page-header: var(--document-title); --page-footer: var(--document-doi); }"
+                .into(),
+            false,
+        );
+
+        // No document variables provided (simulating an article with no title/doi)
+        let overrides = BTreeMap::new();
+        let computed =
+            theme.computed_variables_with_overrides(LengthConversion::KeepUnits, overrides);
+
+        // Headers should be empty strings, not literal variable names
+        assert_eq!(computed.get("page-header"), Some(&json!("")));
+        assert_eq!(computed.get("page-footer"), Some(&json!("")));
+    }
+
+    #[test]
     fn test_compute_variables_color_mix() {
         let theme = Theme::new(
             ThemeType::Builtin,
@@ -1435,5 +1524,133 @@ mod tests {
                 || content.contains("bold")
                 || !content.contains("--plot-theme")
         );
+    }
+
+    #[test]
+    fn test_computed_variables_with_overrides_empty() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --base-color: blue; }".into(),
+            false,
+        );
+        let overrides = BTreeMap::new();
+        let computed =
+            theme.computed_variables_with_overrides(LengthConversion::KeepUnits, overrides);
+
+        // Should include base theme variables
+        assert!(computed.contains_key("base-color"));
+        assert!(computed.len() > 1); // Should have base.css variables too
+    }
+
+    #[test]
+    fn test_computed_variables_with_overrides_simple() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --color: blue; }".into(),
+            false,
+        );
+        let mut overrides = BTreeMap::new();
+        overrides.insert("document-title".to_string(), "Test Title".to_string());
+        overrides.insert("document-authors".to_string(), "Doe et al.".to_string());
+
+        let computed =
+            theme.computed_variables_with_overrides(LengthConversion::KeepUnits, overrides);
+
+        assert_eq!(computed.get("document-title"), Some(&json!("Test Title")));
+        assert_eq!(computed.get("document-authors"), Some(&json!("Doe et al.")));
+        assert_eq!(computed.get("color"), Some(&json!("blue")));
+    }
+
+    #[test]
+    fn test_computed_variables_with_overrides_precedence() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --title: 'Original'; --color: blue; }".into(),
+            false,
+        );
+        let mut overrides = BTreeMap::new();
+        overrides.insert("title".to_string(), "Override".to_string());
+
+        let computed =
+            theme.computed_variables_with_overrides(LengthConversion::KeepUnits, overrides);
+
+        // Override should win
+        assert_eq!(computed.get("title"), Some(&json!("Override")));
+        // Other theme variables should remain
+        assert_eq!(computed.get("color"), Some(&json!("blue")));
+    }
+
+    #[test]
+    fn test_computed_variables_with_overrides_var_resolution() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --main-title: var(--document-title); --color: blue; }".into(),
+            false,
+        );
+        let mut overrides = BTreeMap::new();
+        overrides.insert("document-title".to_string(), "My Document".to_string());
+
+        let computed =
+            theme.computed_variables_with_overrides(LengthConversion::KeepUnits, overrides);
+
+        // Variable reference should be resolved
+        assert_eq!(computed.get("main-title"), Some(&json!("My Document")));
+        assert_eq!(computed.get("document-title"), Some(&json!("My Document")));
+    }
+
+    #[test]
+    fn test_computed_variables_with_overrides_length_conversion() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            ":root { --base-size: 16px; }".into(),
+            false,
+        );
+        let mut overrides = BTreeMap::new();
+        overrides.insert("custom-size".to_string(), "12px".to_string());
+
+        let computed = theme.computed_variables_with_overrides(LengthConversion::Points, overrides);
+
+        // Both theme and override values should be converted
+        assert_eq!(computed.get("base-size"), Some(&json!(12.0))); // 16px = 12pt
+        assert_eq!(computed.get("custom-size"), Some(&json!(9.0))); // 12px = 9pt
+    }
+
+    #[test]
+    fn test_computed_variables_with_overrides_complex() {
+        let theme = Theme::new(
+            ThemeType::Builtin,
+            Some("test".into()),
+            None,
+            r#":root {
+                --header-text: var(--document-title);
+                --header-author: var(--document-authors);
+                --base-size: 16px;
+            }"#
+            .into(),
+            false,
+        );
+        let mut overrides = BTreeMap::new();
+        overrides.insert("document-title".to_string(), "Research Paper".to_string());
+        // Note: lightningcss minification removes spaces, so "Smith & Jones" becomes "Smith&Jones"
+        overrides.insert("document-authors".to_string(), "Smith & Jones".to_string());
+
+        let computed = theme.computed_variables_with_overrides(LengthConversion::Points, overrides);
+
+        // Variable references should resolve
+        assert_eq!(computed.get("header-text"), Some(&json!("Research Paper")));
+        // After CSS minification, spaces around & are removed
+        assert_eq!(computed.get("header-author"), Some(&json!("Smith&Jones")));
+        // Length conversion should still work
+        assert_eq!(computed.get("base-size"), Some(&json!(12.0)));
     }
 }

@@ -323,7 +323,7 @@ impl Codec for DocxCodec {
             properties.push(("encoding".into(), encoding));
         }
 
-        if let Node::Article(article) = node {
+        let document_variables = if let Node::Article(article) = node {
             if let Some(repository) = &article.options.repository {
                 properties.push(("repository".into(), repository.clone()));
             }
@@ -346,7 +346,11 @@ impl Codec for DocxCodec {
                     properties.push((name.into(), value));
                 }
             }
-        }
+
+            Some(article.document_variables())
+        } else {
+            None
+        };
 
         // Get theme to apply (is no template was specified)
         let theme = if !template_is_specified {
@@ -358,7 +362,7 @@ impl Codec for DocxCodec {
         };
 
         // Apply custom data, properties and theme to the generated DOCX file
-        encode::apply(path, data, properties, theme).await?;
+        encode::apply(path, data, properties, theme, document_variables).await?;
 
         Ok(info)
     }
