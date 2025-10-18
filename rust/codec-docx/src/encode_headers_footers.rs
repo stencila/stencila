@@ -300,13 +300,8 @@ pub(crate) async fn build_header_xml(
     // Add tab stops for left/center/right positioning
     xml.push_str(&build_tab_stops(page_width));
 
-    // Add border if defined (hierarchical: page-top-border → page-horizontal-border → page-border)
-    if let Some((width, color, style)) = resolve_border_tokens(
-        vars,
-        "page-top-border",
-        Some("page-horizontal-border"),
-        "page-border",
-    ) {
+    // Add border if defined
+    if let Some((width, color, style)) = resolve_border_tokens(vars, "page-top-border") {
         xml.push_str(&build_paragraph_border("bottom", &width, &color, &style));
     }
 
@@ -454,13 +449,8 @@ pub(crate) async fn build_footer_xml(
     // Add tab stops for left/center/right positioning
     xml.push_str(&build_tab_stops(page_width));
 
-    // Add border if defined (hierarchical: page-bottom-border → page-horizontal-border → page-border)
-    if let Some((width, color, style)) = resolve_border_tokens(
-        vars,
-        "page-bottom-border",
-        Some("page-horizontal-border"),
-        "page-border",
-    ) {
+    // Add border if defined
+    if let Some((width, color, style)) = resolve_border_tokens(vars, "page-bottom-border") {
         xml.push_str(&build_paragraph_border("top", &width, &color, &style));
     }
 
@@ -568,12 +558,7 @@ mod tests {
         vars.insert("page-top-border-color".to_string(), json!("#FF0000"));
         vars.insert("page-top-border-style".to_string(), json!("solid"));
 
-        let border = resolve_border_tokens(
-            &vars,
-            "page-top-border",
-            Some("page-horizontal-border"),
-            "page-border",
-        );
+        let border = resolve_border_tokens(&vars, "page-top-border");
 
         assert!(border.is_some());
         if let Some((width, color, style)) = border {
@@ -584,19 +569,16 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_border_tokens_hierarchical() {
+    fn test_resolve_border_tokens_pre_resolved() {
         let mut vars = BTreeMap::new();
-        // No specific top border, but horizontal border defined
-        vars.insert("page-horizontal-border-width".to_string(), json!(40.0));
-        vars.insert("page-horizontal-border-color".to_string(), json!("#00FF00"));
-        vars.insert("page-horizontal-border-style".to_string(), json!("dashed"));
+        // Simulate CSS variables already resolved via computed_variables_with_overrides
+        // If page-top-border-* wasn't explicitly set, the theme CSS would have already
+        // resolved it to the value from page-horizontal-border-* via var()
+        vars.insert("page-top-border-width".to_string(), json!(40.0));
+        vars.insert("page-top-border-color".to_string(), json!("#00FF00"));
+        vars.insert("page-top-border-style".to_string(), json!("dashed"));
 
-        let border = resolve_border_tokens(
-            &vars,
-            "page-top-border",
-            Some("page-horizontal-border"),
-            "page-border",
-        );
+        let border = resolve_border_tokens(&vars, "page-top-border");
 
         assert!(border.is_some());
         if let Some((width, color, style)) = border {

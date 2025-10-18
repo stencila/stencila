@@ -167,48 +167,30 @@ pub(crate) fn get_border_val(style: &str) -> &str {
     }
 }
 
-/// Resolve border tokens with hierarchical fallback
+/// Resolve border tokens from computed theme variables
 ///
-/// Tries tokens in order: specific → horizontal → general
+/// Since CSS variables are already resolved by `computed_variables_with_overrides`,
+/// the hierarchical fallback (specific → horizontal → general) has already been
+/// applied at the CSS level. We only need to check the specific prefix.
+///
 /// Returns (width, color, style) tuple or None if no border defined
 pub(crate) fn resolve_border_tokens(
     vars: &BTreeMap<String, Value>,
-    specific_prefix: &str,
-    horizontal_prefix: Option<&str>,
-    general_prefix: &str,
+    prefix: &str,
 ) -> Option<(String, String, String)> {
-    // Helper to try getting all three border properties from a prefix
-    let try_prefix = |prefix: &str| {
-        let width_token = format!("{prefix}-width");
-        let color_token = format!("{prefix}-color");
-        let style_token = format!("{prefix}-style");
+    let width_token = format!("{prefix}-width");
+    let color_token = format!("{prefix}-color");
+    let style_token = format!("{prefix}-style");
 
-        if let Some(width) = get_twips(vars, &width_token) {
-            let width_num = width.parse::<f64>().unwrap_or(0.0);
-            if width_num > 0.0 {
-                let color =
-                    get_color_hex(vars, &color_token).unwrap_or_else(|| "000000".to_string());
-                let style = get_var(vars, &style_token).unwrap_or_else(|| "solid".to_string());
-                return Some((width, color, style));
-            }
+    if let Some(width) = get_twips(vars, &width_token) {
+        let width_num = width.parse::<f64>().unwrap_or(0.0);
+        if width_num > 0.0 {
+            let color = get_color_hex(vars, &color_token).unwrap_or_else(|| "000000".to_string());
+            let style = get_var(vars, &style_token).unwrap_or_else(|| "solid".to_string());
+            return Some((width, color, style));
         }
-        None
-    };
-
-    // Try specific first
-    if let Some(border) = try_prefix(specific_prefix) {
-        return Some(border);
     }
-
-    // Try horizontal if provided
-    if let Some(horizontal) = horizontal_prefix
-        && let Some(border) = try_prefix(horizontal)
-    {
-        return Some(border);
-    }
-
-    // Try general
-    try_prefix(general_prefix)
+    None
 }
 
 // ============================================================================
