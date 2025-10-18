@@ -13,8 +13,11 @@ use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 use stencila_codec::eyre::{Context, OptionExt, Result, eyre};
 use stencila_codec_utils::move_file;
 
-use crate::embed_fonts::{embed_fonts, resolve_fonts};
+use crate::encode_fonts::{embed_fonts, resolve_fonts};
+use crate::encode_headers_footers::{build_footer_xml, build_header_xml};
+use crate::encode_page_layout::build_section_properties;
 use crate::encode_theme::theme_to_styles;
+use crate::encode_utils::escape_xml;
 
 /// Encode custom data, properties & theme into a DOCX
 pub async fn apply(
@@ -119,6 +122,7 @@ pub async fn apply(
 
     // Generate word/styles.xml and embed fonts if a theme is specified
     const STYLES: &str = "word/styles.xml";
+    const DOCUMENT: &str = "word/document.xml";
     if let Some(theme) = theme.as_ref() {
         // Get computed theme variables in twips
         let theme_variables = theme.computed_variables(stencila_themes::LengthConversion::Twips);
@@ -138,6 +142,132 @@ pub async fn apply(
                 &mut content_types_xml,
                 &mut rels_xml,
             )?;
+        }
+
+        // Calculate page width for header/footer tab stops
+        // Try to get from theme, otherwise default to A4 width minus margins
+        let page_width = resolved_variables
+            .get("page-content-width")
+            .and_then(|v| v.as_f64())
+            .unwrap_or(9026.0) as u32; // A4 (11906 twips) - 2*1440 margin = 9026 twips
+
+        // Generate headers if any header content is defined
+        let header1 = build_header_xml(
+            &resolved_variables,
+            "page-top-left-content",
+            "page-top-center-content",
+            "page-top-right-content",
+            page_width,
+        );
+        let header2 = build_header_xml(
+            &resolved_variables,
+            "page1-top-left-content",
+            "page1-top-center-content",
+            "page1-top-right-content",
+            page_width,
+        );
+
+        // Generate footers if any footer content is defined
+        let footer1 = build_footer_xml(
+            &resolved_variables,
+            "page-bottom-left-content",
+            "page-bottom-center-content",
+            "page-bottom-right-content",
+            page_width,
+        );
+        let footer2 = build_footer_xml(
+            &resolved_variables,
+            "page1-bottom-left-content",
+            "page1-bottom-center-content",
+            "page1-bottom-right-content",
+            page_width,
+        );
+
+        let has_header = header1.is_some();
+        let has_footer = footer1.is_some();
+        let has_first_header = header2.is_some();
+        let has_first_footer = footer2.is_some();
+
+        // Insert header XML files if they exist
+        if let Some(xml) = header1 {
+            parts.insert("word/header1.xml".to_string(), xml.into_bytes());
+            content_types_xml = insert_override(
+                &content_types_xml,
+                "/word/header1.xml",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml",
+            )?;
+            rels_xml = insert_relationship_with_id(
+                &rels_xml,
+                "rIdHeader1",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header",
+                "header1.xml",
+            )?;
+        }
+
+        if let Some(xml) = header2 {
+            parts.insert("word/header2.xml".to_string(), xml.into_bytes());
+            content_types_xml = insert_override(
+                &content_types_xml,
+                "/word/header2.xml",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml",
+            )?;
+            rels_xml = insert_relationship_with_id(
+                &rels_xml,
+                "rIdHeader2",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header",
+                "header2.xml",
+            )?;
+        }
+
+        // Insert footer XML files if they exist
+        if let Some(xml) = footer1 {
+            parts.insert("word/footer1.xml".to_string(), xml.into_bytes());
+            content_types_xml = insert_override(
+                &content_types_xml,
+                "/word/footer1.xml",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml",
+            )?;
+            rels_xml = insert_relationship_with_id(
+                &rels_xml,
+                "rIdFooter1",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer",
+                "footer1.xml",
+            )?;
+        }
+
+        if let Some(xml) = footer2 {
+            parts.insert("word/footer2.xml".to_string(), xml.into_bytes());
+            content_types_xml = insert_override(
+                &content_types_xml,
+                "/word/footer2.xml",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml",
+            )?;
+            rels_xml = insert_relationship_with_id(
+                &rels_xml,
+                "rIdFooter2",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer",
+                "footer2.xml",
+            )?;
+        }
+
+        // Update section properties in document.xml to apply page layout and reference headers/footers
+        if let Some(document_bytes) = parts.get(DOCUMENT) {
+            let mut document_xml = String::from_utf8(document_bytes.clone())?;
+
+            // Build new section properties with page layout and header/footer references
+            let new_sect_pr = build_section_properties(
+                &resolved_variables,
+                has_header,
+                has_footer,
+                has_first_header,
+                has_first_footer,
+            );
+
+            // Replace existing w:sectPr with our new one
+            // The sectPr is typically at the end of the document, inside w:body
+            document_xml = replace_section_properties(&document_xml, &new_sect_pr)?;
+
+            parts.insert(DOCUMENT.to_string(), document_xml.into_bytes());
         }
     }
 
@@ -184,7 +314,7 @@ pub fn insert_override(xml: &str, part: &str, content_type: &str) -> Result<Stri
     Ok(out)
 }
 
-/// Append a `<Relationship …/>` to `word/_rels/document.xml.rels` if it isn’t there already.
+/// Append a `<Relationship …/>` to `word/_rels/document.xml.rels` if it isn't there already.
 pub fn insert_relationship(xml: &str, target: &str) -> Result<String> {
     // Skip if a Relationship for this target already exists
     if xml.contains(&format!(r#"Target="{target}""#)) {
@@ -194,6 +324,35 @@ pub fn insert_relationship(xml: &str, target: &str) -> Result<String> {
     // Build a new relationship tag
     let id = format!("rId{}", Uuid::new_v4().simple());
     let rel_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml";
+    let rel_tag = format!(r#"<Relationship Id="{id}" Type="{rel_type}" Target="{target}"/>"#);
+
+    // Inject it just before the closing </Relationships>
+    let pos = xml
+        .rfind("</Relationships>")
+        .ok_or_eyre("word/_rels/document.xml.rels is missing </Relationships> tag")?;
+
+    let mut out = String::with_capacity(xml.len() + rel_tag.len());
+    out.push_str(&xml[..pos]);
+    out.push_str(&rel_tag);
+    out.push_str(&xml[pos..]);
+    Ok(out)
+}
+
+/// Append a `<Relationship …/>` with a specific ID to `word/_rels/document.xml.rels` if it isn't there already.
+///
+/// Similar to `insert_relationship` but allows specifying a custom relationship ID.
+/// This is needed for headers/footers which require specific IDs to be referenced from sectPr.
+pub fn insert_relationship_with_id(
+    xml: &str,
+    id: &str,
+    rel_type: &str,
+    target: &str,
+) -> Result<String> {
+    // Skip if a Relationship with this ID already exists
+    if xml.contains(&format!(r#"Id="{id}""#)) {
+        return Ok(xml.to_owned());
+    }
+
     let rel_tag = format!(r#"<Relationship Id="{id}" Type="{rel_type}" Target="{target}"/>"#);
 
     // Inject it just before the closing </Relationships>
@@ -266,45 +425,35 @@ pub fn add_custom_props(xml: &str, new_props: Vec<(String, String)>) -> Result<S
     Ok(out)
 }
 
-/// Escape XML.
+/// Replace the section properties (w:sectPr) in a Word document.xml
 ///
-/// Replaces the five XML-sensitive characters with their corresponding
-/// entity references.
+/// Finds the existing `<w:sectPr>...</w:sectPr>` element and replaces it with `new_sect_pr`.
+/// The sectPr is typically at the end of the document, inside `<w:body>`.
 ///
-/// | character | entity  |
-/// |-----------|---------|
-/// | `&`       | `&amp;` |
-/// | `<`       | `&lt;`  |
-/// | `>`       | `&gt;`  |
-/// | `"`       | `&quot;`|
-/// | `'`       | `&apos;`|
-pub(crate) fn escape_xml(input: &str) -> String {
-    // Pre-allocate slightly more than the input length to avoid
-    // frequent reallocations for typical "few escapables" cases.
-    let mut out = String::with_capacity(input.len() + 8);
+/// # Arguments
+/// * `document_xml` - The complete document.xml content
+/// * `new_sect_pr` - The new section properties XML to insert
+///
+/// # Returns
+/// Modified document.xml with replaced section properties
+fn replace_section_properties(document_xml: &str, new_sect_pr: &str) -> Result<String> {
+    // Find the start of w:sectPr
+    let sect_pr_start = document_xml
+        .rfind("<w:sectPr")
+        .ok_or_eyre("document.xml is missing <w:sectPr element")?;
 
-    for ch in input.chars() {
-        match ch {
-            '&' => out.push_str("&amp;"),
-            '<' => out.push_str("&lt;"),
-            '>' => out.push_str("&gt;"),
-            '"' => out.push_str("&quot;"),
-            '\'' => out.push_str("&apos;"),
-            _ => out.push(ch),
-        }
-    }
+    // Find the end of w:sectPr (the closing tag)
+    let sect_pr_end = document_xml[sect_pr_start..]
+        .find("</w:sectPr>")
+        .ok_or_eyre("document.xml is missing </w:sectPr> closing tag")?
+        + sect_pr_start
+        + "</w:sectPr>".len();
 
-    out
-}
+    // Build the new document with replaced sectPr
+    let mut out = String::with_capacity(document_xml.len() + new_sect_pr.len());
+    out.push_str(&document_xml[..sect_pr_start]);
+    out.push_str(new_sect_pr);
+    out.push_str(&document_xml[sect_pr_end..]);
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_escape_xml() {
-        assert_eq!(escape_xml("Test & Co."), "Test &amp; Co.");
-        assert_eq!(escape_xml("<tag>"), "&lt;tag&gt;");
-        assert_eq!(escape_xml("'quote'"), "&apos;quote&apos;");
-    }
+    Ok(out)
 }

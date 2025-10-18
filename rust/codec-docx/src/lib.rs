@@ -21,9 +21,12 @@ use stencila_node_reconstitute::reconstitute;
 use stencila_version::STENCILA_VERSION;
 
 mod decode;
-mod embed_fonts;
 mod encode;
+mod encode_fonts;
+mod encode_headers_footers;
+mod encode_page_layout;
 mod encode_theme;
+mod encode_utils;
 
 #[cfg(test)]
 mod tests;

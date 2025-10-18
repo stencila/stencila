@@ -2,6 +2,14 @@ use std::collections::BTreeMap;
 
 use serde_json::Value;
 
+use crate::encode_utils::{
+    build_cell_borders_element, build_color_element, build_font_element,
+    build_paragraph_left_border_element, build_paragraph_shading_element, build_size_elements,
+    build_spacing_element, build_table_borders_element, get_color_hex,
+    get_font_size_half_points, get_font_variant_element, get_text_align, get_twips, is_bold,
+    is_italic, twips_to_half_points,
+};
+
 /// Generate a DOCX `styles.xml` file from a Stencila [`Theme`]
 ///
 /// Generates DOCX styles that mirror Stencila's default template structure
@@ -102,6 +110,16 @@ use serde_json::Value;
 /// - ✓/✗ `lists.css` → [`build_list_style()`] - Only spacing applied; markers/indent need numbering.xml (see function docs)
 /// - ✓ `tables.css` → [`build_table_style()`]
 ///
+/// **Partially Implemented** (some features work, others pending):
+/// - ✓/✗ `pages.css` - Page layout → Section properties (w:sectPr), headers/footers (see [`encode_page_layout`], [`encode_headers_footers`])
+///   - ✓ Page size, margins, padding
+///   - ✓ Header/footer content (left/center/right positioning)
+///   - ✓ Header/footer styling (font, size, color)
+///   - ✓ Header/footer borders
+///   - ✓ First-page-specific headers/footers
+///   - ✗ Page numbering (would need field codes)
+///   - ✗ Running headers with section titles (would need field codes)
+///
 /// **Not Yet Mapped** (could be implemented in future):
 /// - ✗ `admonitions.css` - Callout/alert boxes → Custom paragraph styles with borders/shading (w:pBdr, w:shd)
 /// - ✗ `breaks.css` - Page/section breaks → Page break runs (w:br w:type="page")
@@ -109,7 +127,6 @@ use serde_json::Value;
 /// - ✗ `citations.css` - Citation formatting → Custom character/paragraph styles for bibliography
 /// - ✗ `figures.css` - Figure captions/containers → Custom paragraph styles for figure captions
 /// - ✗ `labels.css` - Figure/table label formatting → Character styles for label prefixes (e.g., "Figure 1:")
-/// - ✗ `pages.css` - Page layout/printing → Section properties (w:sectPr for margins, columns, etc.)
 /// - ✗ `references.css` - Cross-reference styling → Custom character styles for internal references
 ///
 /// **No Mapping Applicable** (not relevant for static DOCX):
@@ -172,316 +189,6 @@ pub(crate) fn theme_to_styles(variables: &BTreeMap<String, Value>) -> String {
 const KEEP_NEXT: &str = r#"<w:keepNext w:val="true"/>"#;
 const KEEP_LINES: &str = r#"<w:keepLines/>"#;
 const WIDOW_CONTROL: &str = r#"<w:widowControl/>"#;
-
-// ============================================================================
-// Helper functions for value extraction
-// ============================================================================
-
-/// Get a string value from computed theme variables
-fn get_var(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
-    vars.get(name).and_then(|v| match v {
-        Value::String(s) => Some(s.clone()),
-        Value::Number(n) => Some(n.to_string()),
-        _ => None,
-    })
-}
-
-/// Get a hex color value (strips # prefix for DOCX compatibility)
-fn get_color_hex(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
-    get_var(vars, name).map(|color| color.trim_start_matches('#').to_string())
-}
-
-/// Get font size in half-points from a twips variable
-fn get_font_size_half_points(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
-    vars.get(name)
-        .and_then(|v| v.as_f64().map(twips_to_half_points))
-}
-
-/// Get font-variant XML element based on CSS font-variant value
-fn get_font_variant_element(vars: &BTreeMap<String, Value>, name: &str) -> String {
-    get_var(vars, name)
-        .and_then(|variant| {
-            let variant = variant.trim();
-            match variant {
-                "small-caps" => Some(r#"<w:smallCaps/>"#.to_string()),
-                "all-small-caps" | "all-caps" => Some(r#"<w:caps/>"#.to_string()),
-                _ => None,
-            }
-        })
-        .unwrap_or_default()
-}
-
-/// Get spacing value in twips as a string
-fn get_twips(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
-    vars.get(name)
-        .and_then(|v| v.as_f64().map(|twips| twips.round().to_string()))
-}
-
-/// Get text alignment value for DOCX (w:jc)
-///
-/// Converts CSS text-align values to DOCX justification values.
-/// Returns "left" as default if the token is not found or has an unsupported value.
-fn get_text_align(vars: &BTreeMap<String, Value>, name: &str) -> String {
-    get_var(vars, name)
-        .and_then(|align| {
-            let align = align.trim();
-            match align {
-                "left" | "start" => Some("left".to_string()),
-                "right" | "end" => Some("right".to_string()),
-                "center" => Some("center".to_string()),
-                "justify" => Some("both".to_string()),
-                _ => None,
-            }
-        })
-        .unwrap_or_else(|| "left".to_string())
-}
-
-/// Build a single border element (e.g., w:top, w:bottom, w:left, w:right)
-///
-/// # Arguments
-/// * `width_twips` - Border width in twips
-/// * `color_hex` - Border color in hex without # prefix
-/// * `style` - CSS border style (e.g., "solid", "dashed")
-///
-/// Returns the border value for w:val attribute, or None if width is 0
-fn get_border_val(style: &str) -> &str {
-    match style {
-        "dashed" => "dashed",
-        "dotted" => "dotted",
-        "double" => "double",
-        _ => "single", // solid and others default to single
-    }
-}
-
-/// Convert twips to half-points (DOCX font size unit: 1pt = 2 half-points, 1pt = 20 twips)
-fn twips_to_half_points(twips: f64) -> String {
-    (twips / 10.0).round().to_string()
-}
-
-/// Convert border width from twips to eighths of a point for DOCX w:sz attribute
-///
-/// DOCX border sizes use eighths of a point, while our theme uses twips.
-/// Conversion: 1 twip = 0.4 eighths of a point
-fn twips_to_border_size(twips: &str) -> u32 {
-    twips
-        .parse::<f64>()
-        .map(|t| (t * 0.4).round() as u32)
-        .unwrap_or(0)
-}
-
-/// Check if font weight indicates bold (>= 600)
-fn is_bold(vars: &BTreeMap<String, Value>, name: &str) -> bool {
-    vars.get(name)
-        .and_then(|v| v.as_f64())
-        .map(|weight| weight >= 600.0)
-        .unwrap_or(false)
-}
-
-/// Check if font style is italic
-fn is_italic(vars: &BTreeMap<String, Value>, name: &str) -> bool {
-    get_var(vars, name)
-        .map(|style| style.trim() == "italic")
-        .unwrap_or(false)
-}
-
-// ============================================================================
-// XML building helpers
-// ============================================================================
-
-/// Build <w:rFonts> element from font-family variable
-///
-/// The font family value should already be a resolved font name (not a CSS stack)
-/// since fonts are resolved earlier in the `theme_to_styles` function.
-fn build_font_element(vars: &BTreeMap<String, Value>, var_name: &str) -> String {
-    get_var(vars, var_name)
-        .map(|family| {
-            format!(r#"<w:rFonts w:ascii="{family}" w:hAnsi="{family}" w:eastAsia="{family}" w:cs="" />"#)
-        })
-        .unwrap_or_default()
-}
-
-/// Build <w:sz> and <w:szCs> elements for font size
-fn build_size_elements(half_points: &str) -> String {
-    format!(r#"<w:sz w:val="{half_points}"/><w:szCs w:val="{half_points}"/>"#)
-}
-
-/// Build <w:color> element from hex color (without # prefix)
-fn build_color_element(hex: &str) -> String {
-    format!(r#"<w:color w:val="{hex}"/>"#)
-}
-
-/// Build <w:spacing> element with before/after attributes
-fn build_spacing_element(before_twips: Option<&str>, after_twips: Option<&str>) -> String {
-    let mut attrs = String::new();
-
-    if let Some(before) = before_twips {
-        attrs.push_str(&format!(r#" w:before="{before}""#));
-    }
-    if let Some(after) = after_twips {
-        attrs.push_str(&format!(r#" w:after="{after}""#));
-    }
-
-    if attrs.is_empty() {
-        String::new()
-    } else {
-        format!("<w:spacing{attrs}/>")
-    }
-}
-
-/// Build <w:shd> element for paragraph background color
-///
-/// Maps to CSS background-color property. Uses "clear" pattern (no overlay)
-/// with the specified fill color.
-///
-/// # Arguments
-/// * `hex` - Background color in hex format without # prefix (e.g., "F0F0F0")
-fn build_paragraph_shading_element(hex: &str) -> String {
-    format!(r#"<w:shd w:val="clear" w:color="auto" w:fill="{hex}"/>"#)
-}
-
-/// Build <w:pBdr> element with left border only
-///
-/// Maps to CSS border-left property. Commonly used for quote blocks and callouts.
-///
-/// # Arguments
-/// * `width_twips` - Border width in twips (already converted by theme processor)
-/// * `color_hex` - Border color in hex format without # prefix
-fn build_paragraph_left_border_element(width_twips: &str, color_hex: &str) -> String {
-    // Convert twips to eighths of a point for w:sz (1 twip = 0.4 eighths-pt)
-    let sz = width_twips
-        .parse::<f64>()
-        .map(|twips| (twips * 0.4).round() as u32)
-        .unwrap_or(0);
-
-    format!(
-        r#"<w:pBdr><w:left w:val="single" w:sz="{sz}" w:space="0" w:color="{color_hex}"/></w:pBdr>"#
-    )
-}
-
-/// Build table cell borders element (w:tcBorders)
-///
-/// # Arguments
-/// * `vars` - Theme variables
-/// * `top_tokens` - Optional (width, color, style) token names for top border
-/// * `bottom_tokens` - Optional (width, color, style) token names for bottom border
-/// * `left_tokens` - Optional (width, color, style) token names for left border
-/// * `right_tokens` - Optional (width, color, style) token names for right border
-fn build_cell_borders_element(
-    vars: &BTreeMap<String, Value>,
-    top_tokens: Option<(&str, &str, &str)>,
-    bottom_tokens: Option<(&str, &str, &str)>,
-    left_tokens: Option<(&str, &str, &str)>,
-    right_tokens: Option<(&str, &str, &str)>,
-) -> String {
-    let mut borders = Vec::new();
-
-    // Helper to build a single border
-    let build_border = |edge: &str, width_token: &str, color_token: &str, style_token: &str| {
-        if let Some(width) = get_twips(vars, width_token) {
-            let width_num = width.parse::<f64>().unwrap_or(0.0);
-            if width_num > 0.0 {
-                let sz = twips_to_border_size(&width);
-                let color =
-                    get_color_hex(vars, color_token).unwrap_or_else(|| "000000".to_string());
-                let style = get_var(vars, style_token).unwrap_or_else(|| "solid".to_string());
-                let val = get_border_val(&style);
-                return Some(format!(
-                    r#"<w:{edge} w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>"#
-                ));
-            }
-        }
-        None
-    };
-
-    if let Some((w, c, s)) = top_tokens
-        && let Some(border) = build_border("top", w, c, s)
-    {
-        borders.push(border);
-    }
-    if let Some((w, c, s)) = bottom_tokens
-        && let Some(border) = build_border("bottom", w, c, s)
-    {
-        borders.push(border);
-    }
-    if let Some((w, c, s)) = left_tokens
-        && let Some(border) = build_border("left", w, c, s)
-    {
-        borders.push(border);
-    }
-    if let Some((w, c, s)) = right_tokens
-        && let Some(border) = build_border("right", w, c, s)
-    {
-        borders.push(border);
-    }
-
-    if borders.is_empty() {
-        String::new()
-    } else {
-        format!("<w:tcBorders>{}</w:tcBorders>", borders.join(""))
-    }
-}
-
-/// Build table borders element (w:tblBorders) for outer table borders
-///
-/// # Arguments
-/// * `vars` - Theme variables
-/// * `top_tokens` - (width, color, style) token names for top border
-/// * `bottom_tokens` - (width, color, style) token names for bottom border
-/// * `left_tokens` - (width, color, style) token names for left border
-/// * `right_tokens` - (width, color, style) token names for right border
-fn build_table_borders_element(
-    vars: &BTreeMap<String, Value>,
-    top_tokens: (&str, &str, &str),
-    bottom_tokens: (&str, &str, &str),
-    left_tokens: (&str, &str, &str),
-    right_tokens: (&str, &str, &str),
-) -> String {
-    let mut borders = Vec::new();
-
-    // Helper to build a single border
-    let build_border = |edge: &str, width_token: &str, color_token: &str, style_token: &str| {
-        if let Some(width) = get_twips(vars, width_token) {
-            let width_num = width.parse::<f64>().unwrap_or(0.0);
-            if width_num > 0.0 {
-                let sz = twips_to_border_size(&width);
-                let color =
-                    get_color_hex(vars, color_token).unwrap_or_else(|| "000000".to_string());
-                let style = get_var(vars, style_token).unwrap_or_else(|| "solid".to_string());
-                let val = get_border_val(&style);
-                return Some(format!(
-                    r#"<w:{edge} w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>"#
-                ));
-            }
-        }
-        None
-    };
-
-    let (w, c, s) = top_tokens;
-    if let Some(border) = build_border("top", w, c, s) {
-        borders.push(border);
-    }
-
-    let (w, c, s) = bottom_tokens;
-    if let Some(border) = build_border("bottom", w, c, s) {
-        borders.push(border);
-    }
-
-    let (w, c, s) = left_tokens;
-    if let Some(border) = build_border("left", w, c, s) {
-        borders.push(border);
-    }
-
-    let (w, c, s) = right_tokens;
-    if let Some(border) = build_border("right", w, c, s) {
-        borders.push(border);
-    }
-
-    if borders.is_empty() {
-        String::new()
-    } else {
-        format!("<w:tblBorders>{}</w:tblBorders>", borders.join(""))
-    }
-}
 
 // ============================================================================
 // Style builders
@@ -1252,33 +959,5 @@ mod tests {
 
         // Verify table style exists
         assert!(styles_xml.contains(r#"w:styleId="Table""#));
-    }
-
-    #[test]
-    fn test_helper_functions() {
-        use serde_json::json;
-        let mut vars = BTreeMap::new();
-        vars.insert("test-color".to_string(), json!("#FF0000"));
-        vars.insert("test-size".to_string(), json!(240.0)); // 240 twips = 12pt = 24 half-points
-        vars.insert("test-weight".to_string(), json!(700.0));
-        vars.insert("test-style".to_string(), json!("italic"));
-
-        // Test color extraction
-        assert_eq!(
-            get_color_hex(&vars, "test-color"),
-            Some("FF0000".to_string())
-        );
-
-        // Test font size conversion
-        assert_eq!(
-            get_font_size_half_points(&vars, "test-size"),
-            Some("24".to_string())
-        );
-
-        // Test bold check
-        assert!(is_bold(&vars, "test-weight"));
-
-        // Test italic check
-        assert!(is_italic(&vars, "test-style"));
     }
 }

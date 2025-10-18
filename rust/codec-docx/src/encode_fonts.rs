@@ -6,7 +6,8 @@ use stencila_codec::eyre::{Context, OptionExt, Result};
 use stencila_fonts::Font;
 use uuid::Uuid;
 
-use crate::encode::{escape_xml, insert_override};
+use crate::encode::insert_override;
+use crate::encode_utils::escape_xml;
 
 /// Font variables that are actually used in DOCX styles.xml
 ///
@@ -16,7 +17,8 @@ const DOCX_FONT_VARIABLES: &[&str] = &[
     "text-font-family",
     "heading-font-family",
     "code-font-family",
-    "table-cell-font-family"
+    "table-cell-font-family",
+    "page-margin-font-family",
 ];
 
 /// Information about a resolved font ready for embedding
