@@ -221,6 +221,25 @@ fn get_twips(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
         .and_then(|v| v.as_f64().map(|twips| twips.round().to_string()))
 }
 
+/// Get text alignment value for DOCX (w:jc)
+///
+/// Converts CSS text-align values to DOCX justification values.
+/// Returns "left" as default if the token is not found or has an unsupported value.
+fn get_text_align(vars: &BTreeMap<String, Value>, name: &str) -> String {
+    get_var(vars, name)
+        .and_then(|align| {
+            let align = align.trim();
+            match align {
+                "left" | "start" => Some("left".to_string()),
+                "right" | "end" => Some("right".to_string()),
+                "center" => Some("center".to_string()),
+                "justify" => Some("both".to_string()),
+                _ => None,
+            }
+        })
+        .unwrap_or_else(|| "left".to_string())
+}
+
 /// Check if font weight indicates bold (>= 600)
 fn is_bold(vars: &BTreeMap<String, Value>, name: &str) -> bool {
     vars.get(name)
@@ -291,11 +310,11 @@ fn build_spacing_element(before_twips: Option<&str>, after_twips: Option<&str>) 
 /// **Tokens Applied**:
 /// - `text-font-family` → w:rFonts (default font for all runs)
 /// - `text-font-size` → w:sz/w:szCs (default font size)
+/// - `text-letter-spacing` → w:spacing w:val (character spacing in twips)
 ///
 /// **Tokens NOT Yet Applied**:
 /// - `text-color-primary` - Applied in Normal style instead
 /// - `text-line-height` - DOCX uses automatic line height at document level
-/// - `text-letter-spacing` - Would map to w:spacing w:val in rPr
 fn build_doc_defaults(vars: &BTreeMap<String, Value>) -> String {
     let mut xml = String::with_capacity(512);
 
@@ -304,6 +323,11 @@ fn build_doc_defaults(vars: &BTreeMap<String, Value>) -> String {
 
     if let Some(size) = get_font_size_half_points(vars, "text-font-size") {
         xml.push_str(&build_size_elements(&size));
+    }
+
+    // Letter spacing (character spacing in twips)
+    if let Some(spacing) = get_twips(vars, "text-letter-spacing") {
+        xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
     }
 
     xml.push_str(
@@ -329,15 +353,15 @@ fn build_latent_styles() -> String {
 /// - `text-font-family` → w:rFonts
 /// - `text-color-primary` → w:color
 /// - `text-font-size` → w:sz/w:szCs
-/// - Fixed spacing (0 before, 200 twips after) → w:spacing
+/// - `text-letter-spacing` → w:spacing w:val (character spacing in twips)
+/// - `paragraph-spacing` → w:spacing w:after (paragraph spacing after in twips, defaults to 200)
+/// - `paragraph-text-align` → w:jc (text justification, defaults to "left")
+/// - `paragraph-text-indent` → w:ind w:firstLine (first line indentation in twips)
+/// - Fixed spacing before (0 twips) → w:spacing w:before
 ///
 /// **Tokens NOT Yet Applied**:
-/// - `text-line-height` / `paragraph-line-height` - DOCX uses automatic
-/// - `text-letter-spacing` - Would map to w:spacing w:val
-/// - `paragraph-text-align` - Using fixed "left" instead
-/// - `paragraph-text-indent` - Would map to w:ind w:firstLine
-/// - `paragraph-orphans` / `paragraph-widows` - Would map to w:widowControl w:val
-/// - `paragraph-spacing` - Using fixed value instead of token
+/// - `text-line-height` / `paragraph-line-height` - DOCX uses automatic line height
+/// - `paragraph-orphans` / `paragraph-widows` - Would map to w:widowControl w:val (complex conversion)
 fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
     let mut xml = String::with_capacity(512);
 
@@ -349,10 +373,20 @@ fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
     xml.push_str(WIDOW_CONTROL);
     xml.push_str(r#"<w:suppressAutoHyphens w:val="true"/><w:bidi w:val="0"/>"#);
 
-    // Spacing (default after to 200 twips)
-    xml.push_str(&build_spacing_element(Some("0"), Some("200")));
+    // Spacing (before and after paragraph)
+    let after_spacing = get_twips(vars, "paragraph-spacing").unwrap_or_else(|| "200".to_string());
+    xml.push_str(&build_spacing_element(Some("0"), Some(&after_spacing)));
 
-    xml.push_str(r#"<w:jc w:val="left"/></w:pPr><w:rPr>"#);
+    // Text indent (first line indentation)
+    if let Some(indent) = get_twips(vars, "paragraph-text-indent")
+        && indent != "0"
+    {
+        xml.push_str(&format!(r#"<w:ind w:firstLine="{indent}"/>"#));
+    }
+
+    // Text alignment
+    let alignment = get_text_align(vars, "paragraph-text-align");
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/></w:pPr><w:rPr>"#));
 
     xml.push_str(&build_font_element(vars, "text-font-family"));
 
@@ -366,12 +400,32 @@ fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
         xml.push_str(&build_size_elements(&size));
     }
 
+    // Letter spacing (character spacing in twips)
+    if let Some(spacing) = get_twips(vars, "text-letter-spacing") {
+        xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
+    }
+
     xml.push_str(
         r#"<w:lang w:val="en-US" w:eastAsia="en-US" w:bidi="ar-SA"/>
 </w:rPr></w:style>"#,
     );
 
     xml
+}
+
+/// Build DefaultParagraphFont character style
+fn build_default_paragraph_font() -> String {
+    r#"<w:style w:type="character" w:styleId="DefaultParagraphFont" w:default="1">
+<w:name w:val="Default Paragraph Font"/><w:semiHidden/><w:unhideWhenUsed/><w:qFormat/><w:rPr></w:rPr>
+</w:style>"#.to_string()
+}
+
+/// Build BodyTextChar character style
+fn build_body_text_char_style(_vars: &BTreeMap<String, Value>) -> String {
+    r#"<w:style w:type="character" w:styleId="BodyTextChar" w:customStyle="1">
+<w:name w:val="Body Text Char"/><w:basedOn w:val="DefaultParagraphFont"/><w:qFormat/><w:rPr></w:rPr>
+</w:style>"#
+        .to_string()
 }
 
 /// Build a single heading style (Heading1-Heading9)
@@ -544,21 +598,6 @@ fn build_heading_char_styles(vars: &BTreeMap<String, Value>) -> String {
     }
 
     xml
-}
-
-/// Build DefaultParagraphFont character style
-fn build_default_paragraph_font() -> String {
-    r#"<w:style w:type="character" w:styleId="DefaultParagraphFont" w:default="1">
-<w:name w:val="Default Paragraph Font"/><w:semiHidden/><w:unhideWhenUsed/><w:qFormat/><w:rPr></w:rPr>
-</w:style>"#.to_string()
-}
-
-/// Build BodyTextChar character style
-fn build_body_text_char_style(_vars: &BTreeMap<String, Value>) -> String {
-    r#"<w:style w:type="character" w:styleId="BodyTextChar" w:customStyle="1">
-<w:name w:val="Body Text Char"/><w:basedOn w:val="DefaultParagraphFont"/><w:qFormat/><w:rPr></w:rPr>
-</w:style>"#
-        .to_string()
 }
 
 /// Build VerbatimChar character style
