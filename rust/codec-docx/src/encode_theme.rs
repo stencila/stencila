@@ -20,6 +20,7 @@ use serde_json::Value;
 /// - ✓ `Heading1-9` (paragraph) → [`build_heading_style()`] - Hierarchical heading styles
 /// - ✓ `BodyText` (paragraph) → [`build_body_text_style()`] - Standard body paragraphs
 /// - ✓ `BlockText` (paragraph) → [`build_block_text_style()`] - Block quotes
+/// - ✓ `List` (paragraph) → [`build_list_style()`] - List items (markers in numbering.xml)
 /// - ✓ `DefaultParagraphFont` (character) → [`build_default_paragraph_font()`] - Base character style
 /// - ✓ `BodyTextChar` (character) → [`build_body_text_char_style()`] - Body text character variant
 /// - ✓ `Heading1Char-9Char` (character) → [`build_heading_char_styles()`] - Heading character variants
@@ -38,7 +39,6 @@ use serde_json::Value;
 /// - ✗ `Caption` - Generic caption style
 /// - ✗ `TableCaption` / `ImageCaption` - Specific caption types
 /// - ✗ `Figure` / `CaptionedFigure` - Figure containers
-/// - ✗ `List` - List paragraphs
 /// - ✗ `FirstParagraph` - First paragraph after heading
 /// - ✗ `Compact` - Compact paragraph spacing
 /// - ✗ `Bibliography` - Bibliography entries
@@ -99,6 +99,7 @@ use serde_json::Value;
 /// - ✓ `code.css` → [`build_verbatim_char_style()`]
 /// - ✓ `links.css` → [`build_hyperlink_style()`]
 /// - ✓ `quotes.css` → [`build_block_text_style()`]
+/// - ✓/✗ `lists.css` → [`build_list_style()`] - Only spacing applied; markers/indent need numbering.xml (see function docs)
 /// - ✓ `tables.css` → [`build_table_style()`]
 ///
 /// **Not Yet Mapped** (could be implemented in future):
@@ -108,7 +109,6 @@ use serde_json::Value;
 /// - ✗ `citations.css` - Citation formatting → Custom character/paragraph styles for bibliography
 /// - ✗ `figures.css` - Figure captions/containers → Custom paragraph styles for figure captions
 /// - ✗ `labels.css` - Figure/table label formatting → Character styles for label prefixes (e.g., "Figure 1:")
-/// - ✗ `lists.css` - Ordered/unordered lists → DOCX numbering definitions (w:numPr, w:numbering.xml)
 /// - ✗ `pages.css` - Page layout/printing → Section properties (w:sectPr for margins, columns, etc.)
 /// - ✗ `references.css` - Cross-reference styling → Custom character styles for internal references
 ///
@@ -156,6 +156,7 @@ pub(crate) fn theme_to_styles(variables: &BTreeMap<String, Value>) -> String {
     // Paragraph styles
     xml.push_str(&build_body_text_style());
     xml.push_str(&build_block_text_style(variables));
+    xml.push_str(&build_list_style(variables));
 
     // Table styles
     xml.push_str(&build_table_style(variables));
@@ -292,7 +293,6 @@ fn is_italic(vars: &BTreeMap<String, Value>, name: &str) -> bool {
 /// The font family value should already be a resolved font name (not a CSS stack)
 /// since fonts are resolved earlier in the `theme_to_styles` function.
 fn build_font_element(vars: &BTreeMap<String, Value>, var_name: &str) -> String {
-    
     get_var(vars, var_name)
         .map(|family| {
             format!(r#"<w:rFonts w:ascii="{family}" w:hAnsi="{family}" w:eastAsia="{family}" w:cs="" />"#)
@@ -444,7 +444,8 @@ fn build_table_borders_element(
             let width_num = width.parse::<f64>().unwrap_or(0.0);
             if width_num > 0.0 {
                 let sz = twips_to_border_size(&width);
-                let color = get_color_hex(vars, color_token).unwrap_or_else(|| "000000".to_string());
+                let color =
+                    get_color_hex(vars, color_token).unwrap_or_else(|| "000000".to_string());
                 let style = get_var(vars, style_token).unwrap_or_else(|| "solid".to_string());
                 let val = get_border_val(&style);
                 return Some(format!(
@@ -962,6 +963,52 @@ fn build_block_text_style(vars: &BTreeMap<String, Value>) -> String {
     }
 
     xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
+/// Build List paragraph style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/lists.css`
+///
+/// **Tokens Applied**:
+/// - `list-spacing` → w:spacing w:before and w:after (spacing before/after list)
+/// - `list-item-spacing` → w:spacing w:after (spacing between list items)
+///
+/// **Tokens NOT Applied**:
+/// - `list-indent` / `list-indent-nested` - Would need to be in numbering.xml
+/// - `list-marker-*` - Would need to be in numbering.xml
+///
+/// **Why List Markers Aren't Generated**:
+///
+/// In theory, the list-marker-* tokens (marker type, color, etc.) could be applied by
+/// generating a `numbering.xml` file with DOCX numbering definitions. However, this approach
+/// has a critical limitation:
+///
+/// **Pandoc's numbering IDs are not predictable.** Each time Pandoc processes a document,
+/// it generates different `w:abstractNumId` and `w:numId` values in `numbering.xml`. Without
+/// knowing these IDs in advance, we cannot reliably reference them from our generated styles
+/// or document content. This makes it impossible to create a working connection between
+/// paragraph styles and numbering definitions.
+///
+/// As a result, this implementation only applies list spacing tokens. List markers and
+/// indentation remain controlled by Pandoc's `numbering.xml` generation.
+fn build_list_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(512);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="List">
+<w:name w:val="List"/>
+<w:basedOn w:val="BodyText"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    // Spacing before/after list
+    let before = get_twips(vars, "list-spacing");
+    let after = get_twips(vars, "list-spacing");
+    xml.push_str(&build_spacing_element(before.as_deref(), after.as_deref()));
+
+    xml.push_str(r#"</w:pPr><w:rPr></w:rPr></w:style>"#);
     xml
 }
 
