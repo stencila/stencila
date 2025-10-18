@@ -149,12 +149,12 @@ pub(crate) fn theme_to_styles(variables: &BTreeMap<String, Value>) -> String {
     // Character styles
     xml.push_str(&build_heading_char_styles(variables));
     xml.push_str(&build_default_paragraph_font());
-    xml.push_str(&build_body_text_char_style(variables));
+    xml.push_str(&build_body_text_char_style());
     xml.push_str(&build_verbatim_char_style(variables));
     xml.push_str(&build_hyperlink_style(variables));
 
     // Paragraph styles
-    xml.push_str(&build_body_text_style(variables));
+    xml.push_str(&build_body_text_style());
     xml.push_str(&build_block_text_style(variables));
 
     // Table styles
@@ -413,21 +413,6 @@ fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
     xml
 }
 
-/// Build DefaultParagraphFont character style
-fn build_default_paragraph_font() -> String {
-    r#"<w:style w:type="character" w:styleId="DefaultParagraphFont" w:default="1">
-<w:name w:val="Default Paragraph Font"/><w:semiHidden/><w:unhideWhenUsed/><w:qFormat/><w:rPr></w:rPr>
-</w:style>"#.to_string()
-}
-
-/// Build BodyTextChar character style
-fn build_body_text_char_style(_vars: &BTreeMap<String, Value>) -> String {
-    r#"<w:style w:type="character" w:styleId="BodyTextChar" w:customStyle="1">
-<w:name w:val="Body Text Char"/><w:basedOn w:val="DefaultParagraphFont"/><w:qFormat/><w:rPr></w:rPr>
-</w:style>"#
-        .to_string()
-}
-
 /// Build a single heading style (Heading1-Heading9)
 ///
 /// Note: The generic `Heading` base style is intentionally skipped.
@@ -670,29 +655,53 @@ fn build_hyperlink_style(vars: &BTreeMap<String, Value>) -> String {
 /// **CSS Tokens Source**: `web/src/themes/base/paragraphs.css`
 ///
 /// **Tokens Applied**:
-/// - `paragraph-spacing` → w:spacing w:before and w:after (if present)
+/// - None - BodyText inherits all formatting from Normal
 ///
 /// **Tokens NOT Yet Applied**:
-/// - `paragraph-line-height` - DOCX uses automatic
+/// - `paragraph-spacing` - Inherited from Normal (w:spacing w:before="0" w:after="paragraph-spacing")
+/// - `paragraph-line-height` - DOCX uses automatic line height
 /// - `paragraph-text-align` - Inherited from Normal
-/// - `paragraph-text-indent` - Would map to w:ind w:firstLine
+/// - `paragraph-text-indent` - Inherited from Normal
 /// - `paragraph-lead-*` - Lead paragraph enhancement not applicable to DOCX styles
-fn build_body_text_style(vars: &BTreeMap<String, Value>) -> String {
-    let mut xml = String::with_capacity(512);
-
-    xml.push_str(
-        r#"<w:style w:type="paragraph" w:styleId="BodyText">
+///
+/// **Design Note**:
+/// BodyText is a linked paragraph style that provides semantic distinction from Normal
+/// while maintaining identical formatting. It's used as the default style after headings
+/// (see w:next in heading styles) and can be customized independently if needed.
+/// Previously set paragraph-spacing on both before/after which caused double-spacing;
+/// now relies on inheritance from Normal to maintain consistent spacing behavior.
+fn build_body_text_style() -> String {
+    r#"<w:style w:type="paragraph" w:styleId="BodyText">
 <w:name w:val="Body Text"/>
 <w:basedOn w:val="Normal"/>
-<w:link w:val="BodyTextChar"/><w:qFormat/><w:pPr>"#,
-    );
+<w:link w:val="BodyTextChar"/><w:qFormat/><w:pPr></w:pPr><w:rPr></w:rPr></w:style>"#
+        .to_string()
+}
 
-    if let Some(spacing) = get_twips(vars, "paragraph-spacing") {
-        xml.push_str(&build_spacing_element(Some(&spacing), Some(&spacing)));
-    }
+/// Build DefaultParagraphFont character style
+fn build_default_paragraph_font() -> String {
+    r#"<w:style w:type="character" w:styleId="DefaultParagraphFont" w:default="1">
+<w:name w:val="Default Paragraph Font"/><w:semiHidden/><w:unhideWhenUsed/><w:qFormat/><w:rPr></w:rPr>
+</w:style>"#.to_string()
+}
 
-    xml.push_str("</w:pPr><w:rPr></w:rPr></w:style>");
-    xml
+/// Build BodyTextChar character style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/paragraphs.css`
+///
+/// **Tokens Applied**:
+/// - None - BodyTextChar inherits all formatting from DefaultParagraphFont
+///
+/// **Design Note**:
+/// BodyTextChar is a linked character style for BodyText (see w:link in build_body_text_style).
+/// It allows BodyText paragraph formatting to be applied at the character level within other
+/// paragraph styles. Since there are no body-text-specific character tokens defined in the theme,
+/// this style simply provides the linking mechanism without additional formatting.
+fn build_body_text_char_style() -> String {
+    r#"<w:style w:type="character" w:styleId="BodyTextChar" w:customStyle="1">
+<w:name w:val="Body Text Char"/><w:basedOn w:val="DefaultParagraphFont"/><w:qFormat/><w:rPr></w:rPr>
+</w:style>"#
+        .to_string()
 }
 
 /// Build BlockText paragraph style (for quotes)
