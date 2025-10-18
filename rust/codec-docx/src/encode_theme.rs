@@ -299,6 +299,36 @@ fn build_spacing_element(before_twips: Option<&str>, after_twips: Option<&str>) 
     }
 }
 
+/// Build <w:shd> element for paragraph background color
+///
+/// Maps to CSS background-color property. Uses "clear" pattern (no overlay)
+/// with the specified fill color.
+///
+/// # Arguments
+/// * `hex` - Background color in hex format without # prefix (e.g., "F0F0F0")
+fn build_paragraph_shading_element(hex: &str) -> String {
+    format!(r#"<w:shd w:val="clear" w:color="auto" w:fill="{hex}"/>"#)
+}
+
+/// Build <w:pBdr> element with left border only
+///
+/// Maps to CSS border-left property. Commonly used for quote blocks and callouts.
+///
+/// # Arguments
+/// * `width_twips` - Border width in twips (already converted by theme processor)
+/// * `color_hex` - Border color in hex format without # prefix
+fn build_paragraph_left_border_element(width_twips: &str, color_hex: &str) -> String {
+    // Convert twips to eighths of a point for w:sz (1 twip = 0.4 eighths-pt)
+    let sz = width_twips
+        .parse::<f64>()
+        .map(|twips| (twips * 0.4).round() as u32)
+        .unwrap_or(0);
+
+    format!(
+        r#"<w:pBdr><w:left w:val="single" w:sz="{sz}" w:space="0" w:color="{color_hex}"/></w:pBdr>"#
+    )
+}
+
 // ============================================================================
 // Style builders
 // ============================================================================
@@ -710,17 +740,21 @@ fn build_body_text_char_style() -> String {
 ///
 /// **Tokens Applied**:
 /// - `quote-font-style` → w:i/w:iCs (if "italic")
+/// - `quote-font-size` → w:sz/w:szCs (text-font-size * 1.125, i.e., 12.5% larger)
 /// - `quote-padding` → w:ind w:left and w:right (horizontal indentation)
-/// - Fixed spacing (100 twips before/after) → w:spacing
+/// - `quote-spacing` → w:spacing w:before and w:after (vertical spacing)
+/// - `quote-background` → w:shd (paragraph shading/background color)
+/// - `quote-border-width` + `quote-border-color` → w:pBdr left border
 ///
 /// **Tokens NOT Yet Applied**:
-/// - `quote-background` - Would map to w:shd (paragraph shading)
-/// - `quote-border-width` / `quote-border-color` - Would map to w:pBdr (paragraph borders)
-/// - `quote-border-radius` - Not supported in DOCX
-/// - `quote-font-size` - Would map to w:sz/w:szCs
-/// - `quote-spacing` - Using fixed values instead
+/// - `quote-border-radius` - Not supported in DOCX (paragraph borders are rectangular)
+/// - `quote-spacing-horizontal` - Not applicable (handled by document margins, not paragraph style)
+///
+/// **Design Note**:
+/// The CSS applies `border-left` only, so the DOCX style mirrors this with a left-only
+/// paragraph border. Background shading provides visual distinction similar to CSS.
 fn build_block_text_style(vars: &BTreeMap<String, Value>) -> String {
-    let mut xml = String::with_capacity(512);
+    let mut xml = String::with_capacity(1024);
 
     xml.push_str(
         r#"<w:style w:type="paragraph" w:styleId="BlockText">
@@ -731,13 +765,32 @@ fn build_block_text_style(vars: &BTreeMap<String, Value>) -> String {
 <w:unhideWhenUsed/><w:qFormat/><w:pPr>"#,
     );
 
-    // Use fixed spacing values for quotes
-    xml.push_str(&build_spacing_element(Some("100"), Some("100")));
+    // Spacing (before and after paragraph)
+    let before = get_twips(vars, "quote-spacing");
+    let after = get_twips(vars, "quote-spacing");
+    xml.push_str(&build_spacing_element(before.as_deref(), after.as_deref()));
 
-    // Add indentation (left and right)
+    // Indentation (left and right padding)
     if let Some(padding) = get_twips(vars, "quote-padding") {
         xml.push_str(&format!(
             r#"<w:ind w:hanging="0" w:left="{padding}" w:right="{padding}"/>"#
+        ));
+    }
+
+    // Background shading
+    if let Some(bg_color) = get_color_hex(vars, "quote-background") {
+        xml.push_str(&build_paragraph_shading_element(&bg_color));
+    }
+
+    // Left border (matching CSS border-left)
+    // Note: border width is already in twips from theme variable computation
+    if let (Some(border_width), Some(border_color)) = (
+        get_twips(vars, "quote-border-width"),
+        get_color_hex(vars, "quote-border-color"),
+    ) {
+        xml.push_str(&build_paragraph_left_border_element(
+            &border_width,
+            &border_color,
         ));
     }
 
@@ -746,6 +799,13 @@ fn build_block_text_style(vars: &BTreeMap<String, Value>) -> String {
     // Italic if quote-font-style is italic
     if is_italic(vars, "quote-font-style") {
         xml.push_str(r#"<w:i/><w:iCs/>"#);
+    }
+
+    // Font size: quote-font-size = text-font-size * 1.125 (12.5% larger)
+    if let Some(base_size) = vars.get("text-font-size").and_then(|v| v.as_f64()) {
+        let quote_size = base_size * 1.125;
+        let half_points = twips_to_half_points(quote_size);
+        xml.push_str(&build_size_elements(&half_points));
     }
 
     xml.push_str("</w:rPr></w:style>");
