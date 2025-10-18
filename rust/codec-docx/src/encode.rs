@@ -155,6 +155,12 @@ pub async fn apply(
         // Resolve fonts from CSS stacks and get resolved font bytes
         let (resolved_fonts, resolved_variables) = resolve_fonts(&theme_variables).await?;
 
+        // Remove template's fontTable-related files to avoid conflicts with new theme
+        // These will be recreated if fonts need to be embedded
+        parts.remove("word/fontTable.xml");
+        parts.remove("word/_rels/fontTable.xml.rels");
+        parts.retain(|path, _| !path.starts_with("word/fonts/"));
+
         // Generate styles.xml using the resolved variables (with font names instead of CSS stacks)
         let styles_xml = theme_to_styles(&resolved_variables);
         parts.insert(STYLES.to_string(), styles_xml.into_bytes());
@@ -167,6 +173,10 @@ pub async fn apply(
                 &mut content_types_xml,
                 &mut rels_xml,
             )?;
+        } else {
+            // No fonts to embed - remove any fontTable relationship from template
+            // to avoid dangling reference to non-existent fontTable.xml
+            rels_xml = remove_font_table_relationship(&rels_xml)?;
         }
 
         // Calculate page width for header/footer tab stops
@@ -481,6 +491,18 @@ pub fn insert_relationship_with_id(
     out.push_str(&rel_tag);
     out.push_str(&xml[pos..]);
     Ok(out)
+}
+
+/// Remove the fontTable relationship from document.xml.rels if present
+///
+/// This is used when no fonts are being embedded to avoid having a dangling
+/// reference to a non-existent fontTable.xml file.
+fn remove_font_table_relationship(xml: &str) -> Result<String> {
+    // Use regex to match and remove the entire Relationship tag for fontTable
+    let re = Regex::new(
+        r#"<Relationship[^>]*Type="http://schemas\.openxmlformats\.org/officeDocument/2006/relationships/fontTable"[^>]*/>"#,
+    )?;
+    Ok(re.replace(xml, "").to_string())
 }
 
 /// Add `new_props` (name‒value pairs) to the XML string from

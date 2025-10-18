@@ -109,14 +109,31 @@ pub(crate) async fn resolve_fonts(
                 updated_vars.insert(name, Value::String(family));
             }
             Ok(None) => {
-                // OPTIMIZATION 2: Reduce logging - debug instead of warn
-                tracing::debug!("No font found for {name}: {stack}, font will not be embedded");
+                // Font resolution failed - extract first concrete font name from CSS stack as fallback
+                // This ensures we have a clean, single font name (without quotes) for XML attributes
+                if let Some(fallback) = Font::extract_first(&stack) {
+                    tracing::debug!(
+                        "No font found for {name}: {stack}, using fallback '{fallback}' (font will not be embedded)"
+                    );
+                    updated_vars.insert(name, Value::String(fallback));
+                } else {
+                    tracing::debug!(
+                        "No font found for {name}: {stack}, and no concrete fallback available"
+                    );
+                }
             }
             Err(error) => {
-                // OPTIMIZATION 2: Reduce logging - debug instead of warn
-                tracing::debug!(
-                    "Error resolving font for {name}: {error}, font will not be embedded"
-                );
+                // Font resolution error - extract first concrete font name from CSS stack as fallback
+                if let Some(fallback) = Font::extract_first(&stack) {
+                    tracing::debug!(
+                        "Error resolving font for {name}: {error}, using fallback '{fallback}' (font will not be embedded)"
+                    );
+                    updated_vars.insert(name, Value::String(fallback));
+                } else {
+                    tracing::debug!(
+                        "Error resolving font for {name}: {error}, and no concrete fallback available"
+                    );
+                }
             }
         }
     }

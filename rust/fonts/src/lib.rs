@@ -72,6 +72,34 @@ impl Font {
         }
     }
 
+    /// Extract the first non-generic font name from a CSS font stack
+    ///
+    /// This is useful as a fallback when `resolve_first` returns `None`.
+    /// It parses the CSS stack and returns the first concrete font name
+    /// (skipping CSS generic keywords like "serif", "sans-serif", etc.).
+    ///
+    /// The returned font name will have quotes removed and be clean for
+    /// use in XML attributes or other contexts.
+    ///
+    /// Returns `None` if the stack contains only generic keywords.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use stencila_fonts::Font;
+    ///
+    /// let stack = "'Iowan Old Style', Palatino, serif";
+    /// assert_eq!(Font::extract_first(stack), Some("Iowan Old Style".to_string()));
+    ///
+    /// let generic_only = "serif, sans-serif";
+    /// assert_eq!(Font::extract_first(generic_only), None);
+    /// ```
+    pub fn extract_first(stack: &str) -> Option<String> {
+        parse_css_stack(stack)
+            .into_iter()
+            .find(|name| !is_css_generic(name))
+    }
+
     /// Resolve the first available font from a CSS font stack
     ///
     /// Searches for fonts in this order:
