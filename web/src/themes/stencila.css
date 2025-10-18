@@ -55,7 +55,7 @@
     --page-top-left-content: var(--document-authors);
     --page-top-right-content: var(--document-title);
     --page-bottom-left-content: var(--document-doi);
-    --page-bottom-right-content: url(https://placehold.co/60x30/white/blue?text=Stencila);
+    --page-bottom-right-content: url(https://placehold.co/60x30/white/blue/png?text=Stencila);
 
     /* Print: No top margin content or borders on first page */
     --page1-top-left-content: '';
