@@ -554,7 +554,7 @@ mod tests {
     #[test]
     fn test_resolve_border_tokens_specific() {
         let mut vars = BTreeMap::new();
-        vars.insert("page-top-border-width".to_string(), json!(60.0));
+        vars.insert("page-top-border-wide".to_string(), json!(60.0));
         vars.insert("page-top-border-color".to_string(), json!("#FF0000"));
         vars.insert("page-top-border-style".to_string(), json!("solid"));
 
@@ -574,7 +574,7 @@ mod tests {
         // Simulate CSS variables already resolved via computed_variables_with_overrides
         // If page-top-border-* wasn't explicitly set, the theme CSS would have already
         // resolved it to the value from page-horizontal-border-* via var()
-        vars.insert("page-top-border-width".to_string(), json!(40.0));
+        vars.insert("page-top-border-narrow".to_string(), json!(40.0));
         vars.insert("page-top-border-color".to_string(), json!("#00FF00"));
         vars.insert("page-top-border-style".to_string(), json!("dashed"));
 
@@ -645,7 +645,7 @@ mod tests {
     async fn test_build_footer_xml_with_border() {
         let mut vars = BTreeMap::new();
         vars.insert("page-bottom-center-content".to_string(), json!("Page"));
-        vars.insert("page-bottom-border-width".to_string(), json!(40.0));
+        vars.insert("page-bottom-border-full".to_string(), json!(40.0));
         vars.insert("page-bottom-border-color".to_string(), json!("#000000"));
         vars.insert("page-bottom-border-style".to_string(), json!("single"));
 
