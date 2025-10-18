@@ -16,21 +16,20 @@ use serde_json::Value;
 ///   cat default/word/styles.xml
 ///
 /// **Implemented DOCX Styles** (✓):
-/// - ✓ `Normal` (paragraph) → `build_normal_style()` - Base paragraph style
-/// - ✓ `Heading1-9` (paragraph) → `build_heading_style()` - Hierarchical heading styles
-/// - ✓ `BodyText` (paragraph) → `build_body_text_style()` - Standard body paragraphs
-/// - ✓ `BlockText` (paragraph) → `build_block_text_style()` - Block quotes
-/// - ✓ `DefaultParagraphFont` (character) → `build_default_paragraph_font()` - Base character style
-/// - ✓ `BodyTextChar` (character) → `build_body_text_char_style()` - Body text character variant
-/// - ✓ `Heading1Char-9Char` (character) → `build_heading_char_styles()` - Heading character variants
-/// - ✓ `VerbatimChar` (character) → `build_verbatim_char_style()` - Inline code
-/// - ✓ `Hyperlink` (character) → `build_hyperlink_style()` - Link formatting
-/// - ✓ `Table` (table) → `build_table_style()` - Default table style
+/// - ✓ `Normal` (paragraph) → [`build_normal_style()`] - Base paragraph style
+/// - ✓ `Heading1-9` (paragraph) → [`build_heading_style()`] - Hierarchical heading styles
+/// - ✓ `BodyText` (paragraph) → [`build_body_text_style()`] - Standard body paragraphs
+/// - ✓ `BlockText` (paragraph) → [`build_block_text_style()`] - Block quotes
+/// - ✓ `DefaultParagraphFont` (character) → [`build_default_paragraph_font()`] - Base character style
+/// - ✓ `BodyTextChar` (character) → [`build_body_text_char_style()`] - Body text character variant
+/// - ✓ `Heading1Char-9Char` (character) → [`build_heading_char_styles()`] - Heading character variants
+/// - ✓ `VerbatimChar` (character) → [`build_verbatim_char_style()`] - Inline code
+/// - ✓ `Hyperlink` (character) → [`build_hyperlink_style()`] - Link formatting
+/// - ✓ `Table` (table) → [`build_table_style()`] - Default table style
 ///
 /// **Not Yet Implemented** (✗):
 ///
 /// *Paragraph Styles*:
-/// - ✗ `Heading` - Generic heading style (base for custom headings)
 /// - ✗ `Title` - Document title
 /// - ✗ `Subtitle` - Document subtitle
 /// - ✗ `Author` - Author name
@@ -202,6 +201,20 @@ fn get_font_size_half_points(vars: &BTreeMap<String, Value>, name: &str) -> Opti
         .and_then(|v| v.as_f64().map(twips_to_half_points))
 }
 
+/// Get font-variant XML element based on CSS font-variant value
+fn get_font_variant_element(vars: &BTreeMap<String, Value>, name: &str) -> String {
+    get_var(vars, name)
+        .and_then(|variant| {
+            let variant = variant.trim();
+            match variant {
+                "small-caps" => Some(r#"<w:smallCaps/>"#.to_string()),
+                "all-small-caps" | "all-caps" => Some(r#"<w:caps/>"#.to_string()),
+                _ => None,
+            }
+        })
+        .unwrap_or_default()
+}
+
 /// Get spacing value in twips as a string
 fn get_twips(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
     vars.get(name)
@@ -363,6 +376,10 @@ fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
 
 /// Build a single heading style (Heading1-Heading9)
 ///
+/// Note: The generic `Heading` base style is intentionally skipped.
+/// All Heading1-9 styles inherit directly from `Normal`, which provides all necessary
+/// functionality without adding an extra layer of indirection.
+///
 /// **CSS Tokens Source**: `web/src/themes/base/headings.css`
 ///
 /// **Tokens Applied**:
@@ -371,17 +388,16 @@ fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
 /// - `heading-font-size` with `heading-font-size-ratio` → w:sz (exponential scaling)
 /// - `heading-h{N}-font-weight` → w:b/w:bCs (if >= 600)
 /// - `heading-h{N}-font-style` → w:i/w:iCs (if "italic")
+/// - `heading-h{N}-font-variant` → w:smallCaps (if "small-caps") or w:caps (if "all-caps")
+/// - `heading-h{N}-letter-spacing` → w:spacing w:val (character spacing in twips)
 /// - `heading-spacing-top-{N}` → w:spacing w:before
 /// - `heading-spacing-bottom` → w:spacing w:after
 ///
 /// **Tokens NOT Yet Applied**:
-/// - `heading-line-height` - DOCX uses automatic line height for headings
-/// - `heading-letter-spacing` - Would map to w:spacing w:val (character spacing in twips)
-/// - `heading-h{N}-letter-spacing` - Per-level character spacing
-/// - `heading-h{N}-font-variant` - Would map to w:smallCaps or w:caps
+/// - `heading-line-height` - DOCX uses automatic line height; complex conversion for unitless values
 /// - `heading-color-opacity-decrement` - Would require blending color with background
-/// - `heading-font-weight-decrement` - Could be applied but font-weight per level is already used
-/// - Page break properties (applied via KEEP_NEXT/KEEP_LINES constants instead)
+/// - `heading-font-weight-decrement` - Already effectively applied via per-level font-weight tokens
+/// - Page break properties - Applied via KEEP_NEXT/KEEP_LINES constants instead
 fn build_heading_style(vars: &BTreeMap<String, Value>, level: u8) -> String {
     let mut xml = String::with_capacity(768);
 
@@ -446,6 +462,16 @@ fn build_heading_style(vars: &BTreeMap<String, Value>, level: u8) -> String {
         xml.push_str(r#"<w:i/><w:iCs/>"#);
     }
 
+    // Font variant (small-caps, all-caps)
+    let variant_var = format!("heading-h{level}-font-variant");
+    xml.push_str(&get_font_variant_element(vars, &variant_var));
+
+    // Letter spacing (character spacing in twips)
+    let spacing_var = format!("heading-h{level}-letter-spacing");
+    if let Some(spacing) = get_twips(vars, &spacing_var) {
+        xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
+    }
+
     xml.push_str("</w:rPr></w:style>");
     xml
 }
@@ -502,6 +528,16 @@ fn build_heading_char_styles(vars: &BTreeMap<String, Value>) -> String {
         let style_var = format!("heading-h{level}-font-style");
         if is_italic(vars, &style_var) {
             xml.push_str(r#"<w:i/><w:iCs/>"#);
+        }
+
+        // Font variant (small-caps, all-caps)
+        let variant_var = format!("heading-h{level}-font-variant");
+        xml.push_str(&get_font_variant_element(vars, &variant_var));
+
+        // Letter spacing (character spacing in twips)
+        let spacing_var = format!("heading-h{level}-letter-spacing");
+        if let Some(spacing) = get_twips(vars, &spacing_var) {
+            xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
         }
 
         xml.push_str("</w:rPr></w:style>");
