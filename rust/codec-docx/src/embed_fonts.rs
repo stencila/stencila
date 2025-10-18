@@ -16,6 +16,7 @@ const DOCX_FONT_VARIABLES: &[&str] = &[
     "text-font-family",
     "heading-font-family",
     "code-font-family",
+    "table-cell-font-family"
 ];
 
 /// Information about a resolved font ready for embedding

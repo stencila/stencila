@@ -190,11 +190,6 @@ fn get_color_hex(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
     get_var(vars, name).map(|color| color.trim_start_matches('#').to_string())
 }
 
-/// Convert twips to half-points (DOCX font size unit: 1pt = 2 half-points, 1pt = 20 twips)
-fn twips_to_half_points(twips: f64) -> String {
-    (twips / 10.0).round().to_string()
-}
-
 /// Get font size in half-points from a twips variable
 fn get_font_size_half_points(vars: &BTreeMap<String, Value>, name: &str) -> Option<String> {
     vars.get(name)
@@ -240,6 +235,39 @@ fn get_text_align(vars: &BTreeMap<String, Value>, name: &str) -> String {
         .unwrap_or_else(|| "left".to_string())
 }
 
+/// Build a single border element (e.g., w:top, w:bottom, w:left, w:right)
+///
+/// # Arguments
+/// * `width_twips` - Border width in twips
+/// * `color_hex` - Border color in hex without # prefix
+/// * `style` - CSS border style (e.g., "solid", "dashed")
+///
+/// Returns the border value for w:val attribute, or None if width is 0
+fn get_border_val(style: &str) -> &str {
+    match style {
+        "dashed" => "dashed",
+        "dotted" => "dotted",
+        "double" => "double",
+        _ => "single", // solid and others default to single
+    }
+}
+
+/// Convert twips to half-points (DOCX font size unit: 1pt = 2 half-points, 1pt = 20 twips)
+fn twips_to_half_points(twips: f64) -> String {
+    (twips / 10.0).round().to_string()
+}
+
+/// Convert border width from twips to eighths of a point for DOCX w:sz attribute
+///
+/// DOCX border sizes use eighths of a point, while our theme uses twips.
+/// Conversion: 1 twip = 0.4 eighths of a point
+fn twips_to_border_size(twips: &str) -> u32 {
+    twips
+        .parse::<f64>()
+        .map(|t| (t * 0.4).round() as u32)
+        .unwrap_or(0)
+}
+
 /// Check if font weight indicates bold (>= 600)
 fn is_bold(vars: &BTreeMap<String, Value>, name: &str) -> bool {
     vars.get(name)
@@ -264,6 +292,7 @@ fn is_italic(vars: &BTreeMap<String, Value>, name: &str) -> bool {
 /// The font family value should already be a resolved font name (not a CSS stack)
 /// since fonts are resolved earlier in the `theme_to_styles` function.
 fn build_font_element(vars: &BTreeMap<String, Value>, var_name: &str) -> String {
+    
     get_var(vars, var_name)
         .map(|family| {
             format!(r#"<w:rFonts w:ascii="{family}" w:hAnsi="{family}" w:eastAsia="{family}" w:cs="" />"#)
@@ -327,6 +356,130 @@ fn build_paragraph_left_border_element(width_twips: &str, color_hex: &str) -> St
     format!(
         r#"<w:pBdr><w:left w:val="single" w:sz="{sz}" w:space="0" w:color="{color_hex}"/></w:pBdr>"#
     )
+}
+
+/// Build table cell borders element (w:tcBorders)
+///
+/// # Arguments
+/// * `vars` - Theme variables
+/// * `top_tokens` - Optional (width, color, style) token names for top border
+/// * `bottom_tokens` - Optional (width, color, style) token names for bottom border
+/// * `left_tokens` - Optional (width, color, style) token names for left border
+/// * `right_tokens` - Optional (width, color, style) token names for right border
+fn build_cell_borders_element(
+    vars: &BTreeMap<String, Value>,
+    top_tokens: Option<(&str, &str, &str)>,
+    bottom_tokens: Option<(&str, &str, &str)>,
+    left_tokens: Option<(&str, &str, &str)>,
+    right_tokens: Option<(&str, &str, &str)>,
+) -> String {
+    let mut borders = Vec::new();
+
+    // Helper to build a single border
+    let build_border = |edge: &str, width_token: &str, color_token: &str, style_token: &str| {
+        if let Some(width) = get_twips(vars, width_token) {
+            let width_num = width.parse::<f64>().unwrap_or(0.0);
+            if width_num > 0.0 {
+                let sz = twips_to_border_size(&width);
+                let color =
+                    get_color_hex(vars, color_token).unwrap_or_else(|| "000000".to_string());
+                let style = get_var(vars, style_token).unwrap_or_else(|| "solid".to_string());
+                let val = get_border_val(&style);
+                return Some(format!(
+                    r#"<w:{edge} w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>"#
+                ));
+            }
+        }
+        None
+    };
+
+    if let Some((w, c, s)) = top_tokens
+        && let Some(border) = build_border("top", w, c, s)
+    {
+        borders.push(border);
+    }
+    if let Some((w, c, s)) = bottom_tokens
+        && let Some(border) = build_border("bottom", w, c, s)
+    {
+        borders.push(border);
+    }
+    if let Some((w, c, s)) = left_tokens
+        && let Some(border) = build_border("left", w, c, s)
+    {
+        borders.push(border);
+    }
+    if let Some((w, c, s)) = right_tokens
+        && let Some(border) = build_border("right", w, c, s)
+    {
+        borders.push(border);
+    }
+
+    if borders.is_empty() {
+        String::new()
+    } else {
+        format!("<w:tcBorders>{}</w:tcBorders>", borders.join(""))
+    }
+}
+
+/// Build table borders element (w:tblBorders) for outer table borders
+///
+/// # Arguments
+/// * `vars` - Theme variables
+/// * `top_tokens` - (width, color, style) token names for top border
+/// * `bottom_tokens` - (width, color, style) token names for bottom border
+/// * `left_tokens` - (width, color, style) token names for left border
+/// * `right_tokens` - (width, color, style) token names for right border
+fn build_table_borders_element(
+    vars: &BTreeMap<String, Value>,
+    top_tokens: (&str, &str, &str),
+    bottom_tokens: (&str, &str, &str),
+    left_tokens: (&str, &str, &str),
+    right_tokens: (&str, &str, &str),
+) -> String {
+    let mut borders = Vec::new();
+
+    // Helper to build a single border
+    let build_border = |edge: &str, width_token: &str, color_token: &str, style_token: &str| {
+        if let Some(width) = get_twips(vars, width_token) {
+            let width_num = width.parse::<f64>().unwrap_or(0.0);
+            if width_num > 0.0 {
+                let sz = twips_to_border_size(&width);
+                let color = get_color_hex(vars, color_token).unwrap_or_else(|| "000000".to_string());
+                let style = get_var(vars, style_token).unwrap_or_else(|| "solid".to_string());
+                let val = get_border_val(&style);
+                return Some(format!(
+                    r#"<w:{edge} w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>"#
+                ));
+            }
+        }
+        None
+    };
+
+    let (w, c, s) = top_tokens;
+    if let Some(border) = build_border("top", w, c, s) {
+        borders.push(border);
+    }
+
+    let (w, c, s) = bottom_tokens;
+    if let Some(border) = build_border("bottom", w, c, s) {
+        borders.push(border);
+    }
+
+    let (w, c, s) = left_tokens;
+    if let Some(border) = build_border("left", w, c, s) {
+        borders.push(border);
+    }
+
+    let (w, c, s) = right_tokens;
+    if let Some(border) = build_border("right", w, c, s) {
+        borders.push(border);
+    }
+
+    if borders.is_empty() {
+        String::new()
+    } else {
+        format!("<w:tblBorders>{}</w:tblBorders>", borders.join(""))
+    }
 }
 
 // ============================================================================
@@ -817,21 +970,44 @@ fn build_block_text_style(vars: &BTreeMap<String, Value>) -> String {
 /// **CSS Tokens Source**: `web/src/themes/base/tables.css`
 ///
 /// **Tokens Applied**:
-/// - `table-cell-padding` → w:tblCellMar (cell margins in twips)
-/// - `table-header-font-weight` → w:b/w:bCs in firstRow style (if >= 600)
+/// - ✓ `table-cell-padding` → w:tblCellMar (cell margins in twips)
+/// - ✓ `table-cell-font-family` → w:rFonts in wholeTable
+/// - ✓ `table-cell-font-size` → w:sz/w:szCs in wholeTable
+/// - ✓ `table-border-top/bottom/left/right-width/color/style` → w:tblBorders (outer table borders)
+/// - ✓ `table-header-background` → w:shd in firstRow
+/// - ✓ `table-header-font-weight` → w:b/w:bCs in firstRow
+/// - ✓ `table-header-border-bottom-width/color/style` → w:tcBorders bottom in firstRow
+/// - ✓ `table-body-row-border-width/color/style` → w:tcBorders bottom in band1Horz
+/// - ✓ `table-column-border-width/color/style` → w:tcBorders left in band1Vert (if width > 0)
 ///
 /// **Tokens NOT Yet Applied**:
-/// - `table-border-*` - Would map to w:tblBorders (outer table borders)
-/// - `table-row-border-*` - Would map to w:tcBorders (cell borders)
-/// - `table-header-border-bottom-*` - Would map to w:tcBorders bottom in thead
-/// - `table-column-border-*` - Would map to w:tcBorders left/right
-/// - `table-header-background` - Would map to w:shd in firstRow
-/// - `table-row-hover` / `table-row-striped` - Not supported in static DOCX
-/// - `table-cell-font-*` - Would map to w:rPr in table style
-/// - `table-border-radius` - Not supported in DOCX
-/// - `table-spacing-top` / `table-spacing-bottom` - Margins not in table style
+/// - ✗ `table-border-radius` - Not supported in DOCX (borders are rectangular)
+/// - ✗ `table-row-hover` - Not supported in static DOCX (interactive state)
+/// - ✗ `table-row-striped` - Not supported in this implementation (could use band2Horz)
+/// - ✗ `table-spacing-top/bottom` - Block-level margins (handled at document level, not style)
+/// - ✗ `table-caption-*` / `table-notes-*` - Caption/notes are separate elements, not table style
+/// - ✗ `table-cell-line-height` - DOCX uses automatic line height
+///
+/// **Design Notes**:
+/// - Cell padding is applied horizontally (left/right) but not vertically (top/bottom = 0)
+///   to match common DOCX table styling conventions
+/// - Outer table borders provide the table frame/perimeter
+/// - Header border is applied only to bottom edge to separate header from body rows
+/// - Body row borders are applied to bottom edge for horizontal row separators
+/// - Column borders are only applied if width > 0 (many themes have column-border-width: 0)
+///
+/// **Compatibility Notes**:
+/// - **Google Docs**: Has incomplete support for DOCX table borders defined in table styles
+///   (`w:tblBorders` in `w:tblPr`). Outer table borders may not render in Google Docs even
+///   though they work correctly in Microsoft Word and LibreOffice. Google Docs appears to
+///   require borders defined at the cell level rather than the table style level. This is a
+///   known Google Docs limitation, not an issue with our implementation.
+///   See: <https://support.google.com/drive/thread/192657375/table-borders-missing-when-uploading-a-word-document>
+/// - **LibreOffice**: May have issues rendering fonts from `w:tblStylePr type="wholeTable"`
+///   when paragraph styles are present in table cells. Fonts display correctly in Google Docs
+///   and Microsoft Word.
 fn build_table_style(vars: &BTreeMap<String, Value>) -> String {
-    let mut xml = String::with_capacity(1024);
+    let mut xml = String::with_capacity(2048);
 
     xml.push_str(
         r#"<w:style w:type="table" w:default="1" w:styleId="Table">
@@ -841,24 +1017,133 @@ fn build_table_style(vars: &BTreeMap<String, Value>) -> String {
 <w:tblPr><w:tblCellMar>"#,
     );
 
-    // Cell margins (padding)
+    // Cell margins (padding) - horizontal only, vertical = 0
+    // Default to 108 twips (~0.075 inch) if not specified, matching common DOCX defaults
     let padding = get_twips(vars, "table-cell-padding").unwrap_or_else(|| "108".to_string());
     xml.push_str(&format!(
         r#"<w:top w:w="0" w:type="dxa"/><w:left w:w="{padding}" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="{padding}" w:type="dxa"/>"#
     ));
 
-    xml.push_str(
-        r#"</w:tblCellMar></w:tblPr>
-<w:tblStylePr w:type="firstRow"><w:tblPr/><w:tcPr>
-<w:tcBorders><w:bottom w:val="single"/></w:tcBorders>
-<w:vAlign w:val="bottom"/></w:tcPr>"#,
-    );
+    xml.push_str(r#"</w:tblCellMar>"#);
 
+    // Outer table borders
+    let table_borders = build_table_borders_element(
+        vars,
+        (
+            "table-border-top-width",
+            "table-border-top-color",
+            "table-border-top-style",
+        ),
+        (
+            "table-border-bottom-width",
+            "table-border-bottom-color",
+            "table-border-bottom-style",
+        ),
+        (
+            "table-border-left-width",
+            "table-border-left-color",
+            "table-border-left-style",
+        ),
+        (
+            "table-border-right-width",
+            "table-border-right-color",
+            "table-border-right-style",
+        ),
+    );
+    xml.push_str(&table_borders);
+
+    xml.push_str(r#"</w:tblPr>"#);
+
+    // Default cell formatting (applies to all cells unless overridden)
+    // Note: Character formatting must be in w:tblStylePr, not directly under w:style
+    xml.push_str(r#"<w:tblStylePr w:type="wholeTable"><w:rPr>"#);
+
+    // Cell font family
+    xml.push_str(&build_font_element(vars, "table-cell-font-family"));
+
+    // Cell font size
+    if let Some(size) = get_font_size_half_points(vars, "table-cell-font-size") {
+        xml.push_str(&build_size_elements(&size));
+    }
+
+    xml.push_str(r#"</w:rPr></w:tblStylePr>"#);
+
+    // First row (header) styling
+    xml.push_str(r#"<w:tblStylePr w:type="firstRow"><w:tblPr/><w:tcPr>"#);
+
+    // Header background color
+    if let Some(bg_color) = get_color_hex(vars, "table-header-background") {
+        xml.push_str(&format!(
+            r#"<w:shd w:val="clear" w:color="auto" w:fill="{bg_color}"/>"#
+        ));
+    }
+
+    // Header bottom border
+    let header_borders = build_cell_borders_element(
+        vars,
+        None, // no top border
+        Some((
+            "table-header-border-bottom-width",
+            "table-header-border-bottom-color",
+            "table-header-border-bottom-style",
+        )),
+        None, // no left border (handled by column borders)
+        None, // no right border (handled by column borders)
+    );
+    xml.push_str(&header_borders);
+
+    xml.push_str(r#"<w:vAlign w:val="bottom"/></w:tcPr>"#);
+
+    // Header font weight (bold)
     if is_bold(vars, "table-header-font-weight") {
         xml.push_str(r#"<w:rPr><w:b/><w:bCs/></w:rPr>"#);
     }
 
-    xml.push_str(r#"</w:tblStylePr></w:style>"#);
+    xml.push_str(r#"</w:tblStylePr>"#);
+
+    // Body row borders (horizontal separators between rows)
+    // Using band1Horz to apply to all body rows
+    xml.push_str(r#"<w:tblStylePr w:type="band1Horz"><w:tcPr>"#);
+
+    let body_borders = build_cell_borders_element(
+        vars,
+        None, // no top border
+        Some((
+            "table-body-row-border-width",
+            "table-body-row-border-color",
+            "table-body-row-border-style",
+        )),
+        None, // no left border (handled by column borders)
+        None, // no right border (handled by column borders)
+    );
+    xml.push_str(&body_borders);
+
+    xml.push_str(r#"</w:tcPr></w:tblStylePr>"#);
+
+    // Column borders (vertical separators between columns)
+    // Only add if column border width > 0
+    if let Some(col_border_width) = get_twips(vars, "table-column-border-width")
+        && col_border_width.parse::<f64>().unwrap_or(0.0) > 0.0
+    {
+        xml.push_str(r#"<w:tblStylePr w:type="band1Vert"><w:tcPr>"#);
+
+        let col_borders = build_cell_borders_element(
+            vars,
+            None, // no top border
+            None, // no bottom border
+            Some((
+                "table-column-border-width",
+                "table-column-border-color",
+                "table-column-border-style",
+            )),
+            None, // right border will be the left border of the next cell
+        );
+        xml.push_str(&col_borders);
+
+        xml.push_str(r#"</w:tcPr></w:tblStylePr>"#);
+    }
+
+    xml.push_str(r#"</w:style>"#);
 
     xml
 }
