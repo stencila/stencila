@@ -5,9 +5,8 @@ use serde_json::Value;
 use crate::encode_utils::{
     build_cell_borders_element, build_color_element, build_font_element,
     build_paragraph_left_border_element, build_paragraph_shading_element, build_size_elements,
-    build_spacing_element, build_table_borders_element, get_color_hex,
-    get_font_size_half_points, get_font_variant_element, get_text_align, get_twips, is_bold,
-    is_italic, twips_to_half_points,
+    build_spacing_element, build_table_borders_element, get_color_hex, get_font_size_half_points,
+    get_font_variant_element, get_text_align, get_twips, is_bold, is_italic, twips_to_half_points,
 };
 
 /// Generate a DOCX `styles.xml` file from a Stencila [`Theme`]

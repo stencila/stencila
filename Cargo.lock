@@ -8270,9 +8270,11 @@ name = "stencila-codec-docx"
 version = "0.0.0"
 dependencies = [
  "futures",
+ "image",
  "indexmap 2.11.4",
  "pretty_assertions",
  "regex",
+ "reqwest",
  "roxmltree 0.21.1",
  "rust-embed",
  "serde_json",

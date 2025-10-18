@@ -88,6 +88,26 @@ pub(crate) fn is_italic(vars: &BTreeMap<String, Value>, name: &str) -> bool {
         .unwrap_or(false)
 }
 
+/// Extract URL from CSS url() syntax
+///
+/// Handles various formats:
+/// - `url(https://example.com/image.png)`
+/// - `url("https://example.com/image.png")`
+/// - `url('https://example.com/image.png')`
+/// - `url( https://example.com/image.png )` (with whitespace)
+///
+/// Returns None if the value is not a valid url() expression.
+pub(crate) fn extract_url(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    if let Some(url) = trimmed.strip_prefix("url(") {
+        url.strip_suffix(')')
+            .map(|s| s.trim().trim_matches(|c| c == '"' || c == '\''))
+            .map(String::from)
+    } else {
+        None
+    }
+}
+
 // ============================================================================
 // Conversion Utilities
 // ============================================================================
@@ -556,5 +576,62 @@ mod tests {
         assert_eq!(get_text_align(&vars, "align-right"), "right");
         assert_eq!(get_text_align(&vars, "align-justify"), "both");
         assert_eq!(get_text_align(&vars, "nonexistent"), "left");
+    }
+
+    #[test]
+    fn test_extract_url_basic() {
+        assert_eq!(
+            extract_url("url(https://example.com/image.png)"),
+            Some("https://example.com/image.png".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_url_with_double_quotes() {
+        assert_eq!(
+            extract_url(r#"url("https://example.com/image.png")"#),
+            Some("https://example.com/image.png".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_url_with_single_quotes() {
+        assert_eq!(
+            extract_url("url('https://example.com/image.png')"),
+            Some("https://example.com/image.png".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_url_with_whitespace() {
+        assert_eq!(
+            extract_url("url( https://example.com/image.png )"),
+            Some("https://example.com/image.png".to_string())
+        );
+        assert_eq!(
+            extract_url("url( \"https://example.com/image.png\" )"),
+            Some("https://example.com/image.png".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_url_with_query_params() {
+        assert_eq!(
+            extract_url("url(https://placehold.co/60x30/white/blue?text=Stencila)"),
+            Some("https://placehold.co/60x30/white/blue?text=Stencila".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_url_not_url() {
+        assert_eq!(extract_url("https://example.com"), None);
+        assert_eq!(extract_url("some text"), None);
+        assert_eq!(extract_url(""), None);
+    }
+
+    #[test]
+    fn test_extract_url_malformed() {
+        assert_eq!(extract_url("url(https://example.com"), None); // Missing closing paren
+        assert_eq!(extract_url("https://example.com)"), None); // Missing url(
     }
 }

@@ -19,6 +19,27 @@ use crate::encode_page_layout::build_section_properties;
 use crate::encode_theme::theme_to_styles;
 use crate::encode_utils::escape_xml;
 
+/// Find the highest image number in existing media files
+///
+/// Scans the DOCX parts for files matching `word/media/imageN.ext` pattern
+/// and returns the highest N found, or 0 if no matching files exist.
+/// This ensures new header/footer images don't overwrite existing media.
+fn find_max_media_number(parts: &BTreeMap<String, Vec<u8>>) -> usize {
+    parts
+        .keys()
+        .filter_map(|path| {
+            // Match "word/media/imageN.ext" pattern
+            if let Some(rest) = path.strip_prefix("word/media/image") {
+                // Extract the number before the extension
+                rest.split('.').next().and_then(|n| n.parse::<usize>().ok())
+            } else {
+                None
+            }
+        })
+        .max()
+        .unwrap_or(0)
+}
+
 /// Encode custom data, properties & theme into a DOCX
 pub async fn apply(
     path: &Path,
@@ -155,6 +176,12 @@ pub async fn apply(
             .and_then(|v| v.as_f64())
             .unwrap_or(9026.0) as u32; // A4 (11906 twips) - 2*1440 margin = 9026 twips
 
+        // Find highest existing media number to avoid filename conflicts
+        let media_start_index = find_max_media_number(&parts);
+
+        // Create collection for media files embedded in headers/footers
+        let mut media_files: Vec<(String, Vec<u8>)> = Vec::new();
+
         // Generate headers if any header content is defined
         let header1 = build_header_xml(
             &resolved_variables,
@@ -162,14 +189,20 @@ pub async fn apply(
             "page-top-center-content",
             "page-top-right-content",
             page_width,
-        );
+            &mut media_files,
+            media_start_index,
+        )
+        .await;
         let header2 = build_header_xml(
             &resolved_variables,
             "page1-top-left-content",
             "page1-top-center-content",
             "page1-top-right-content",
             page_width,
-        );
+            &mut media_files,
+            media_start_index,
+        )
+        .await;
 
         // Generate footers if any footer content is defined
         let footer1 = build_footer_xml(
@@ -178,15 +211,22 @@ pub async fn apply(
             "page-bottom-center-content",
             "page-bottom-right-content",
             page_width,
-        );
+            &mut media_files,
+            media_start_index,
+        )
+        .await;
         let footer2 = build_footer_xml(
             &resolved_variables,
             "page1-bottom-left-content",
             "page1-bottom-center-content",
             "page1-bottom-right-content",
             page_width,
-        );
+            &mut media_files,
+            media_start_index,
+        )
+        .await;
 
+        // Check which headers/footers exist before consuming them
         let has_header = header1.is_some();
         let has_footer = footer1.is_some();
         let has_first_header = header2.is_some();
@@ -254,6 +294,56 @@ pub async fn apply(
             )?;
         }
 
+        // Handle media files embedded in headers/footers
+        if !media_files.is_empty() {
+            // Write media files to word/media/
+            for (filename, bytes) in &media_files {
+                parts.insert(format!("word/media/{}", filename), bytes.clone());
+
+                // Add content type for the image
+                let extension = filename.rsplit('.').next().unwrap_or("png");
+                let mime_type = match extension {
+                    "png" => "image/png",
+                    "jpg" | "jpeg" => "image/jpeg",
+                    "gif" => "image/gif",
+                    "svg" => "image/svg+xml",
+                    _ => "image/png",
+                };
+                content_types_xml = insert_default(&content_types_xml, extension, mime_type)?;
+            }
+
+            // Create relationship files for headers/footers that reference images
+            // Each header/footer gets its own _rels file if it has images
+            if has_header {
+                let rels_content = build_header_footer_rels(&media_files);
+                parts.insert(
+                    "word/_rels/header1.xml.rels".to_string(),
+                    rels_content.into_bytes(),
+                );
+            }
+            if has_first_header {
+                let rels_content = build_header_footer_rels(&media_files);
+                parts.insert(
+                    "word/_rels/header2.xml.rels".to_string(),
+                    rels_content.into_bytes(),
+                );
+            }
+            if has_footer {
+                let rels_content = build_header_footer_rels(&media_files);
+                parts.insert(
+                    "word/_rels/footer1.xml.rels".to_string(),
+                    rels_content.into_bytes(),
+                );
+            }
+            if has_first_footer {
+                let rels_content = build_header_footer_rels(&media_files);
+                parts.insert(
+                    "word/_rels/footer2.xml.rels".to_string(),
+                    rels_content.into_bytes(),
+                );
+            }
+        }
+
         // Update section properties in document.xml to apply page layout and reference headers/footers
         if let Some(document_bytes) = parts.get(DOCUMENT) {
             let mut document_xml = String::from_utf8(document_bytes.clone())?;
@@ -294,6 +384,28 @@ pub async fn apply(
     move_file(tmp.path(), path)?;
 
     Ok(())
+}
+
+/// Insert a `<Default …/>` into `[Content_Types].xml` unless one for `extension` already exists
+pub fn insert_default(xml: &str, extension: &str, content_type: &str) -> Result<String> {
+    // Return early if a Default for this extension is already present
+    if xml.contains(&format!(r#"Extension="{extension}""#)) {
+        return Ok(xml.to_owned());
+    }
+
+    // Build the tag we want to inject
+    let tag = format!(r#"<Default Extension="{extension}" ContentType="{content_type}"/>"#);
+
+    // Find the last </Types> and splice the tag in front of it
+    let pos = xml
+        .rfind("</Types>")
+        .ok_or_eyre("[Content_Types].xml is missing </Types> tag")?;
+
+    let mut out = String::with_capacity(xml.len() + tag.len());
+    out.push_str(&xml[..pos]);
+    out.push_str(&tag);
+    out.push_str(&xml[pos..]);
+    Ok(out)
 }
 
 /// Insert an `<Override …/>` into `[Content_Types].xml` unless one for `part` already exists
@@ -429,6 +541,33 @@ pub fn add_custom_props(xml: &str, new_props: Vec<(String, String)>) -> Result<S
     Ok(out)
 }
 
+/// Build relationship file for header/footer with embedded images
+///
+/// Creates a relationship XML file that maps relationship IDs to media files.
+/// Each image gets a relationship entry pointing to its location in word/media/.
+///
+/// # Arguments
+/// * `media_files` - Collection of (filename, bytes) for embedded images
+///
+/// # Returns
+/// Complete XML content for a header/footer .rels file
+fn build_header_footer_rels(media_files: &[(String, Vec<u8>)]) -> String {
+    let mut xml = String::from(
+        r#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">"#,
+    );
+
+    for (idx, (filename, _)) in media_files.iter().enumerate() {
+        let rel_id = idx + 1;
+        xml.push_str(&format!(
+            r#"<Relationship Id="rId{}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/{}"/>"#,
+            rel_id, filename
+        ));
+    }
+
+    xml.push_str("</Relationships>");
+    xml
+}
+
 /// Replace the section properties (w:sectPr) in a Word document.xml
 ///
 /// Finds the existing `<w:sectPr>...</w:sectPr>` element and replaces it with `new_sect_pr`.
@@ -460,4 +599,49 @@ fn replace_section_properties(document_xml: &str, new_sect_pr: &str) -> Result<S
     out.push_str(&document_xml[sect_pr_end..]);
 
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_find_max_media_number_empty() {
+        let parts = BTreeMap::new();
+        assert_eq!(find_max_media_number(&parts), 0);
+    }
+
+    #[test]
+    fn test_find_max_media_number_single_file() {
+        let mut parts = BTreeMap::new();
+        parts.insert("word/media/image1.png".to_string(), vec![]);
+        assert_eq!(find_max_media_number(&parts), 1);
+    }
+
+    #[test]
+    fn test_find_max_media_number_multiple_files() {
+        let mut parts = BTreeMap::new();
+        parts.insert("word/media/image1.png".to_string(), vec![]);
+        parts.insert("word/media/image3.jpg".to_string(), vec![]);
+        parts.insert("word/media/image5.svg".to_string(), vec![]);
+        assert_eq!(find_max_media_number(&parts), 5);
+    }
+
+    #[test]
+    fn test_find_max_media_number_non_matching_files() {
+        let mut parts = BTreeMap::new();
+        parts.insert("word/media/logo.png".to_string(), vec![]);
+        parts.insert("word/document.xml".to_string(), vec![]);
+        assert_eq!(find_max_media_number(&parts), 0);
+    }
+
+    #[test]
+    fn test_find_max_media_number_mixed_files() {
+        let mut parts = BTreeMap::new();
+        parts.insert("word/media/image2.png".to_string(), vec![]);
+        parts.insert("word/media/logo.png".to_string(), vec![]);
+        parts.insert("word/media/image10.jpg".to_string(), vec![]);
+        parts.insert("word/document.xml".to_string(), vec![]);
+        assert_eq!(find_max_media_number(&parts), 10);
+    }
 }
