@@ -371,9 +371,17 @@ pub(crate) async fn build_header_xml(
 
     // Tab to right
     if !right.is_empty() {
-        xml.push_str(&format!(
-            r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
-        ));
+        // If center is empty, we need 2 tabs to reach right position (skip center stop)
+        // If center is not empty, we only need 1 tab (already at center)
+        if center.is_empty() {
+            xml.push_str(&format!(
+                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/><w:tab/></w:r>"#
+            ));
+        } else {
+            xml.push_str(&format!(
+                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
+            ));
+        }
         if let Some(url) = extract_url(&right) {
             if let Some(image_xml) = build_image_run(
                 &url,
@@ -520,9 +528,17 @@ pub(crate) async fn build_footer_xml(
 
     // Tab to right
     if !right.is_empty() {
-        xml.push_str(&format!(
-            r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
-        ));
+        // If center is empty, we need 2 tabs to reach right position (skip center stop)
+        // If center is not empty, we only need 1 tab (already at center)
+        if center.is_empty() {
+            xml.push_str(&format!(
+                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/><w:tab/></w:r>"#
+            ));
+        } else {
+            xml.push_str(&format!(
+                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
+            ));
+        }
         if let Some(url) = extract_url(&right) {
             if let Some(image_xml) = build_image_run(
                 &url,
@@ -667,6 +683,64 @@ mod tests {
             assert!(xml.contains("Page"));
             assert!(xml.contains("<w:pBdr><w:top"));
             assert!(xml.contains("000000"));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_build_footer_xml_left_and_right_no_center() {
+        let mut vars = BTreeMap::new();
+        vars.insert("page-bottom-left-content".to_string(), json!("DOI"));
+        vars.insert("page-bottom-right-content".to_string(), json!("Logo"));
+        // page-bottom-center-content is intentionally not set (empty)
+
+        let mut media_files = Vec::new();
+        let xml = build_footer_xml(
+            &vars,
+            "page-bottom-left-content",
+            "page-bottom-center-content",
+            "page-bottom-right-content",
+            9000,
+            &mut media_files,
+            0,
+        )
+        .await;
+
+        assert!(xml.is_some());
+        if let Some(xml) = xml {
+            assert!(xml.contains("<w:ftr"));
+            assert!(xml.contains("DOI"));
+            assert!(xml.contains("Logo"));
+            // Should have 2 tabs before right content when center is empty
+            assert!(xml.contains("<w:tab/><w:tab/>"));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_build_header_xml_left_and_right_no_center() {
+        let mut vars = BTreeMap::new();
+        vars.insert("page-top-left-content".to_string(), json!("Authors"));
+        vars.insert("page-top-right-content".to_string(), json!("Title"));
+        // page-top-center-content is intentionally not set (empty)
+
+        let mut media_files = Vec::new();
+        let xml = build_header_xml(
+            &vars,
+            "page-top-left-content",
+            "page-top-center-content",
+            "page-top-right-content",
+            9000,
+            &mut media_files,
+            0,
+        )
+        .await;
+
+        assert!(xml.is_some());
+        if let Some(xml) = xml {
+            assert!(xml.contains("<w:hdr"));
+            assert!(xml.contains("Authors"));
+            assert!(xml.contains("Title"));
+            // Should have 2 tabs before right content when center is empty
+            assert!(xml.contains("<w:tab/><w:tab/>"));
         }
     }
 
