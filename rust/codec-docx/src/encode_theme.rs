@@ -28,9 +28,14 @@ use crate::encode_utils::{
 /// - ✓ `BodyText` (paragraph) → [`build_body_text_style()`] - Standard body paragraphs
 /// - ✓ `BlockText` (paragraph) → [`build_block_text_style()`] - Block quotes
 /// - ✓ `List` (paragraph) → [`build_list_style()`] - List items (markers in numbering.xml)
+/// - ✓ `Title` (paragraph) → [`build_title_style()`] - Document title
+/// - ✓ `Author` (paragraph) → [`build_author_style()`] - Author name
+/// - ✓ `Abstract` (paragraph) → [`build_abstract_style()`] - Abstract section
+/// - ✓ `AbstractTitle` (paragraph) → [`build_abstract_title_style()`] - Abstract heading (currently uses Heading1 tokens)
 /// - ✓ `DefaultParagraphFont` (character) → [`build_default_paragraph_font()`] - Base character style
 /// - ✓ `BodyTextChar` (character) → [`build_body_text_char_style()`] - Body text character variant
 /// - ✓ `Heading1Char-9Char` (character) → [`build_heading_char_styles()`] - Heading character variants
+/// - ✓ `TitleChar` (character) → [`build_title_char_style()`] - Title character variant
 /// - ✓ `VerbatimChar` (character) → [`build_verbatim_char_style()`] - Inline code
 /// - ✓ `Hyperlink` (character) → [`build_hyperlink_style()`] - Link formatting
 /// - ✓ `Table` (table) → [`build_table_style()`] - Default table style
@@ -38,11 +43,8 @@ use crate::encode_utils::{
 /// **Not Yet Implemented** (✗):
 ///
 /// *Paragraph Styles*:
-/// - ✗ `Title` - Document title
 /// - ✗ `Subtitle` - Document subtitle
-/// - ✗ `Author` - Author name
 /// - ✗ `Date` - Document date
-/// - ✗ `Abstract` / `AbstractTitle` - Abstract section
 /// - ✗ `Caption` - Generic caption style
 /// - ✗ `TableCaption` / `ImageCaption` - Specific caption types
 /// - ✗ `Figure` / `CaptionedFigure` - Figure containers
@@ -55,7 +57,7 @@ use crate::encode_utils::{
 /// - ✗ `TOCHeading` - Table of contents heading
 ///
 /// *Character Styles*:
-/// - ✗ `TitleChar` / `SubtitleChar` - Title/subtitle character variants
+/// - ✗ `SubtitleChar` - Subtitle character variants
 /// - ✗ `SectionNumber` - Section numbering
 /// - ✗ `FootnoteCharacters` / `FootnoteReference` - Footnote markers
 /// - ✗ `EndnoteCharacters` / `EndnoteReference` - Endnote markers
@@ -108,6 +110,7 @@ use crate::encode_utils::{
 /// - ✓ `quotes.css` → [`build_block_text_style()`]
 /// - ✓/✗ `lists.css` → [`build_list_style()`] - Only spacing applied; markers/indent need numbering.xml (see function docs)
 /// - ✓ `tables.css` → [`build_table_style()`]
+/// - ✓/✗ `articles.css` → [`build_title_style()`], [`build_author_style()`], [`build_abstract_style()`] - Title, Author, Abstract implemented; content-max-width is layout-only
 ///
 /// **Partially Implemented** (some features work, others pending):
 /// - ✓/✗ `pages.css` - Page layout → Section properties (w:sectPr), headers/footers (see [`encode_page_layout`], [`encode_headers_footers`])
@@ -129,7 +132,6 @@ use crate::encode_utils::{
 /// - ✗ `references.css` - Cross-reference styling → Custom character styles for internal references
 ///
 /// **No Mapping Applicable** (not relevant for static DOCX):
-/// - ✗ `articles.css` - Document container layout (layout-only, not applicable to DOCX body styles)
 /// - ✗ `datatables.css` - Interactive data table UI (dynamic features not in static DOCX)
 /// - ✗ `diagrams.css` - Diagram rendering (diagrams embedded as images, not styled)
 /// - ✗ `images.css` - Image display properties (images are objects in DOCX, not styled elements)
@@ -162,7 +164,14 @@ pub(crate) fn theme_to_styles(variables: &BTreeMap<String, Value>) -> String {
         xml.push_str(&build_heading_style(variables, level));
     }
 
+    // Article metadata styles
+    xml.push_str(&build_title_style(variables));
+    xml.push_str(&build_author_style(variables));
+    xml.push_str(&build_abstract_style(variables));
+    xml.push_str(&build_abstract_title_style(variables));
+
     // Character styles
+    xml.push_str(&build_title_char_style(variables));
     xml.push_str(&build_heading_char_styles(variables));
     xml.push_str(&build_default_paragraph_font());
     xml.push_str(&build_body_text_char_style());
@@ -718,6 +727,316 @@ fn build_list_style(vars: &BTreeMap<String, Value>) -> String {
     xml
 }
 
+/// Build Title paragraph style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+///
+/// **Tokens Applied**:
+/// - `article-title-font-family` → w:rFonts
+/// - `article-title-font-size-print` (with fallback to `article-title-font-size`) → w:sz/w:szCs
+/// - `article-title-font-weight` → w:b/w:bCs (if >= 600)
+/// - `article-title-color` → w:color
+/// - `article-title-text-align` → w:jc
+/// - `article-title-letter-spacing` → w:spacing w:val
+/// - `article-title-margin-bottom` → w:spacing w:after
+///
+/// **Tokens NOT Yet Applied**:
+/// - `article-title-line-height` - DOCX uses automatic line height
+/// - `article-title-max-width` - Layout constraint not applicable to paragraph styles
+///
+/// **Design Note**:
+/// Title is linked to TitleChar character style and uses keep-with-next to prevent
+/// the title from being orphaned at the bottom of a page.
+fn build_title_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(768);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="Title">
+<w:name w:val="Title"/>
+<w:basedOn w:val="Normal"/>
+<w:next w:val="BodyText"/>
+<w:link w:val="TitleChar"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    xml.push_str(KEEP_NEXT);
+
+    // Spacing (margin-bottom)
+    let after = get_twips(vars, "article-title-margin-bottom");
+    xml.push_str(&build_spacing_element(None, after.as_deref()));
+
+    // Text alignment
+    let alignment = get_text_align(vars, "article-title-text-align");
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/></w:pPr><w:rPr>"#));
+
+    // Font family
+    xml.push_str(&build_font_element(vars, "article-title-font-family"));
+
+    // Color
+    if let Some(color) = get_color_hex(vars, "article-title-color") {
+        xml.push_str(&build_color_element(&color));
+    }
+
+    // Font size - prefer print variant
+    let size = get_font_size_half_points(vars, "article-title-font-size-print")
+        .or_else(|| get_font_size_half_points(vars, "article-title-font-size"));
+    if let Some(size) = size {
+        xml.push_str(&build_size_elements(&size));
+    }
+
+    // Bold if weight >= 600
+    if is_bold(vars, "article-title-font-weight") {
+        xml.push_str(r#"<w:b/><w:bCs/>"#);
+    }
+
+    // Letter spacing
+    if let Some(spacing) = get_twips(vars, "article-title-letter-spacing") {
+        xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
+    }
+
+    xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
+/// Build TitleChar character style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+///
+/// Same tokens as `build_title_style()` but applied as character-level formatting.
+/// This linked character style allows title formatting to be applied to text runs
+/// within paragraphs without changing the paragraph style itself.
+fn build_title_char_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(512);
+
+    xml.push_str(
+        r#"<w:style w:type="character" w:styleId="TitleChar" w:customStyle="1">
+<w:name w:val="Title Char"/>
+<w:basedOn w:val="DefaultParagraphFont"/>
+<w:link w:val="Title"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:rPr>"#,
+    );
+
+    // Font family
+    xml.push_str(&build_font_element(vars, "article-title-font-family"));
+
+    // Color
+    if let Some(color) = get_color_hex(vars, "article-title-color") {
+        xml.push_str(&build_color_element(&color));
+    }
+
+    // Font size - prefer print variant
+    let size = get_font_size_half_points(vars, "article-title-font-size-print")
+        .or_else(|| get_font_size_half_points(vars, "article-title-font-size"));
+    if let Some(size) = size {
+        xml.push_str(&build_size_elements(&size));
+    }
+
+    // Bold if weight >= 600
+    if is_bold(vars, "article-title-font-weight") {
+        xml.push_str(r#"<w:b/><w:bCs/>"#);
+    }
+
+    // Letter spacing
+    if let Some(spacing) = get_twips(vars, "article-title-letter-spacing") {
+        xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
+    }
+
+    xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
+/// Build Author paragraph style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+///
+/// **Tokens Applied**:
+/// - `article-authors-font-size` → w:sz/w:szCs
+/// - `article-authors-color` → w:color
+/// - `article-authors-text-align` → w:jc
+/// - `article-authors-margin-bottom` → w:spacing w:after
+///
+/// **Design Note**:
+/// Author style is based on Normal and flows to BodyText for the next paragraph.
+fn build_author_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(512);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="Author">
+<w:name w:val="Author"/>
+<w:basedOn w:val="Normal"/>
+<w:next w:val="BodyText"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    // Spacing (margin-bottom)
+    let after = get_twips(vars, "article-authors-margin-bottom");
+    xml.push_str(&build_spacing_element(None, after.as_deref()));
+
+    // Text alignment
+    let alignment = get_text_align(vars, "article-authors-text-align");
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/></w:pPr><w:rPr>"#));
+
+    // Color
+    if let Some(color) = get_color_hex(vars, "article-authors-color") {
+        xml.push_str(&build_color_element(&color));
+    }
+
+    // Font size
+    if let Some(size) = get_font_size_half_points(vars, "article-authors-font-size") {
+        xml.push_str(&build_size_elements(&size));
+    }
+
+    xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
+/// Build Abstract paragraph style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+///
+/// **Tokens Applied**:
+/// - `article-abstract-font-size` → w:sz/w:szCs
+/// - `article-abstract-color` → w:color
+/// - `article-abstract-background` → w:shd (paragraph shading)
+/// - `article-abstract-text-align` → w:jc
+/// - `article-abstract-margin-bottom` → w:spacing w:after
+///
+/// **Tokens NOT Yet Applied**:
+/// - `article-abstract-max-width` - Layout constraint not applicable to paragraph styles
+///
+/// **Design Note**:
+/// Abstract style is based on Normal and includes optional background shading.
+fn build_abstract_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(768);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="Abstract">
+<w:name w:val="Abstract"/>
+<w:basedOn w:val="Normal"/>
+<w:next w:val="BodyText"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    // Spacing (margin-bottom)
+    let after = get_twips(vars, "article-abstract-margin-bottom");
+    xml.push_str(&build_spacing_element(None, after.as_deref()));
+
+    // Text alignment
+    let alignment = get_text_align(vars, "article-abstract-text-align");
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/>"#));
+
+    // Background shading
+    if let Some(bg_color) = get_color_hex(vars, "article-abstract-background") {
+        xml.push_str(&build_paragraph_shading_element(&bg_color));
+    }
+
+    xml.push_str("</w:pPr><w:rPr>");
+
+    // Color
+    if let Some(color) = get_color_hex(vars, "article-abstract-color") {
+        xml.push_str(&build_color_element(&color));
+    }
+
+    // Font size
+    if let Some(size) = get_font_size_half_points(vars, "article-abstract-font-size") {
+        xml.push_str(&build_size_elements(&size));
+    }
+
+    xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
+/// Build AbstractTitle paragraph style
+///
+/// **CSS Tokens Source**: None currently defined
+///
+/// **Tokens Applied**:
+/// Currently uses the same tokens as Heading1 from `web/src/themes/base/headings.css`:
+/// - `heading-font-family` → w:rFonts
+/// - `heading-color` → w:color
+/// - `heading-font-size` with `heading-font-size-ratio` → w:sz (base size, no exponential scaling)
+/// - `heading-h1-font-weight` → w:b/w:bCs (if >= 600)
+/// - `heading-h1-font-style` → w:i/w:iCs (if "italic")
+/// - `heading-h1-font-variant` → w:smallCaps or w:caps
+/// - `heading-h1-letter-spacing` → w:spacing w:val
+/// - `heading-spacing-top-1` → w:spacing w:before
+/// - `heading-spacing-bottom` → w:spacing w:after
+///
+/// **Design Note**:
+/// This style currently reuses Heading1 formatting as there are no specific
+/// `abstract-title-*` design tokens defined in the theme system yet. In the future,
+/// if abstract-specific title tokens are added to `articles.css` (e.g.,
+/// `article-abstract-title-font-size`, `article-abstract-title-color`, etc.),
+/// this function should be updated to use those tokens instead.
+///
+/// AbstractTitle is used for the "Abstract" heading that appears before abstract content.
+/// It is based on Normal and flows to Abstract for the next paragraph.
+fn build_abstract_title_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(768);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="AbstractTitle">
+<w:name w:val="Abstract Title"/>
+<w:basedOn w:val="Normal"/>
+<w:next w:val="Abstract"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    xml.push_str(KEEP_NEXT);
+    xml.push_str(KEEP_LINES);
+
+    // Spacing (reusing heading-1 spacing)
+    let before = get_twips(vars, "heading-spacing-top-1");
+    let after = get_twips(vars, "heading-spacing-bottom");
+    xml.push_str(&build_spacing_element(before.as_deref(), after.as_deref()));
+
+    xml.push_str(r#"</w:pPr><w:rPr>"#);
+
+    // Font family
+    xml.push_str(&build_font_element(vars, "heading-font-family"));
+
+    // Color
+    if let Some(color) = get_color_hex(vars, "heading-color") {
+        xml.push_str(&build_color_element(&color));
+    }
+
+    // Font size: use base heading size without ratio scaling
+    if let Some(base_size) = vars.get("heading-font-size").and_then(|v| v.as_f64()) {
+        let half_points = twips_to_half_points(base_size);
+        xml.push_str(&build_size_elements(&half_points));
+    }
+
+    // Bold/italic from h1-specific variables
+    if is_bold(vars, "heading-h1-font-weight") {
+        xml.push_str(r#"<w:b/><w:bCs/>"#);
+    }
+
+    if is_italic(vars, "heading-h1-font-style") {
+        xml.push_str(r#"<w:i/><w:iCs/>"#);
+    }
+
+    // Font variant (small-caps, all-caps)
+    xml.push_str(&get_font_variant_element(vars, "heading-h1-font-variant"));
+
+    // Letter spacing
+    if let Some(spacing) = get_twips(vars, "heading-h1-letter-spacing") {
+        xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
+    }
+
+    xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
 /// Build Table style
 ///
 /// **CSS Tokens Source**: `web/src/themes/base/tables.css`
@@ -955,6 +1274,13 @@ mod tests {
         // Verify paragraph styles exist
         assert!(styles_xml.contains(r#"w:styleId="BodyText""#));
         assert!(styles_xml.contains(r#"w:styleId="BlockText""#));
+        assert!(styles_xml.contains(r#"w:styleId="Title""#));
+        assert!(styles_xml.contains(r#"w:styleId="Author""#));
+        assert!(styles_xml.contains(r#"w:styleId="Abstract""#));
+        assert!(styles_xml.contains(r#"w:styleId="AbstractTitle""#));
+
+        // Verify article-related character styles exist
+        assert!(styles_xml.contains(r#"w:styleId="TitleChar""#));
 
         // Verify table style exists
         assert!(styles_xml.contains(r#"w:styleId="Table""#));

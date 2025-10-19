@@ -14,6 +14,7 @@ use crate::encode_utils::escape_xml;
 /// Only these fonts will be resolved and embedded to improve performance.
 /// This needs to be updated when `encode_theme.rs` uses an additional font.
 const DOCX_FONT_VARIABLES: &[&str] = &[
+    "article-title-font-family",
     "text-font-family",
     "heading-font-family",
     "code-font-family",
