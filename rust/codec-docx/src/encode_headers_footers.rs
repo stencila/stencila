@@ -10,6 +10,39 @@ use crate::encode_utils::{
 /// Maximum height for images in headers/footers (0.5 inches = 720 twips)
 const MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS: u32 = 720;
 
+/// Type of header or footer being generated
+#[derive(Debug, Clone, Copy)]
+enum HeaderFooterType {
+    Header,
+    Footer,
+}
+
+impl HeaderFooterType {
+    /// Get the XML root element name
+    fn root_element(&self) -> &'static str {
+        match self {
+            Self::Header => "w:hdr",
+            Self::Footer => "w:ftr",
+        }
+    }
+
+    /// Get the border token prefix
+    fn border_token(&self) -> &'static str {
+        match self {
+            Self::Header => "page-top-border",
+            Self::Footer => "page-bottom-border",
+        }
+    }
+
+    /// Get the border position for paragraph border
+    fn border_position(&self) -> &'static str {
+        match self {
+            Self::Header => "bottom",
+            Self::Footer => "top",
+        }
+    }
+}
+
 /// Check if bytes represent an SVG file
 ///
 /// Detects SVG by looking for XML declaration or <svg tag at the start
@@ -98,6 +131,25 @@ fn parse_svg_length(value: &str) -> Option<u32> {
     Some(pixels as u32)
 }
 
+/// Scale image dimensions to fit within maximum height while maintaining aspect ratio
+///
+/// # Arguments
+/// * `width_twips` - Original width in twips
+/// * `height_twips` - Original height in twips
+/// * `max_height_twips` - Maximum allowed height in twips
+///
+/// # Returns
+/// Tuple of (scaled_width_twips, scaled_height_twips)
+fn scale_to_max_height(width_twips: u32, height_twips: u32, max_height_twips: u32) -> (u32, u32) {
+    if height_twips > max_height_twips {
+        let scale = max_height_twips as f64 / height_twips as f64;
+        let scaled_width = (width_twips as f64 * scale) as u32;
+        (scaled_width, max_height_twips)
+    } else {
+        (width_twips, height_twips)
+    }
+}
+
 /// Fetch an image from a URL and prepare it for embedding in DOCX
 ///
 /// Downloads the image, detects format and dimensions, and scales if needed
@@ -154,18 +206,18 @@ async fn fetch_and_prepare_image(
         // Convert pixels to twips (assuming 96 DPI: 1px = 15 twips)
         const PX_TO_TWIPS: f64 = 15.0;
         let width_twips = (width_px as f64 * PX_TO_TWIPS) as u32;
-        let mut height_twips = (height_px as f64 * PX_TO_TWIPS) as u32;
+        let height_twips = (height_px as f64 * PX_TO_TWIPS) as u32;
 
         // Scale down if height exceeds maximum, maintaining aspect ratio
-        let final_width_twips = if height_twips > max_height_twips {
-            let scale = max_height_twips as f64 / height_twips as f64;
-            height_twips = max_height_twips;
-            (width_twips as f64 * scale) as u32
-        } else {
-            width_twips
-        };
+        let (final_width_twips, final_height_twips) =
+            scale_to_max_height(width_twips, height_twips, max_height_twips);
 
-        return Some((bytes, "svg".to_string(), final_width_twips, height_twips));
+        return Some((
+            bytes,
+            "svg".to_string(),
+            final_width_twips,
+            final_height_twips,
+        ));
     }
 
     // Handle raster images using the image crate
@@ -194,18 +246,81 @@ async fn fetch_and_prepare_image(
     // Convert pixels to twips (assuming 96 DPI: 1px = 15 twips)
     const PX_TO_TWIPS: f64 = 15.0;
     let width_twips = (width_px as f64 * PX_TO_TWIPS) as u32;
-    let mut height_twips = (height_px as f64 * PX_TO_TWIPS) as u32;
+    let height_twips = (height_px as f64 * PX_TO_TWIPS) as u32;
 
     // Scale down if height exceeds maximum, maintaining aspect ratio
-    let final_width_twips = if height_twips > max_height_twips {
-        let scale = max_height_twips as f64 / height_twips as f64;
-        height_twips = max_height_twips;
-        (width_twips as f64 * scale) as u32
-    } else {
-        width_twips
-    };
+    let (final_width_twips, final_height_twips) =
+        scale_to_max_height(width_twips, height_twips, max_height_twips);
 
-    Some((bytes, extension, final_width_twips, height_twips))
+    Some((bytes, extension, final_width_twips, final_height_twips))
+}
+
+/// Build character properties XML from theme variables
+///
+/// Generates XML for font family, color, and size based on page-margin-* tokens
+///
+/// # Arguments
+/// * `vars` - Pre-computed theme variables
+///
+/// # Returns
+/// XML string with character properties (w:rFonts, w:color, w:sz)
+fn build_char_props(vars: &BTreeMap<String, Value>) -> String {
+    let mut char_props = String::new();
+
+    if let Some(font) = get_var(vars, "page-margin-font-family") {
+        char_props.push_str(&format!(
+            r#"<w:rFonts w:ascii="{font}" w:hAnsi="{font}" w:eastAsia="{font}" w:cs=""/>"#
+        ));
+    }
+
+    if let Some(color) = get_color_hex(vars, "page-margin-color") {
+        char_props.push_str(&format!(r#"<w:color w:val="{color}"/>"#));
+    }
+
+    if let Some(size) = get_font_size_half_points(vars, "page-margin-font-size") {
+        char_props.push_str(&format!(
+            r#"<w:sz w:val="{size}"/><w:szCs w:val="{size}"/>"#
+        ));
+    }
+
+    char_props
+}
+
+/// Build a content run (either text or image)
+///
+/// Checks if the content is a URL and builds either an image run or text run accordingly
+///
+/// # Arguments
+/// * `content` - The content string (may be text or url())
+/// * `char_props` - Character properties XML to apply to text runs
+/// * `media_files` - Collection to track embedded media files
+/// * `base_index` - Starting index for image numbering
+/// * `max_height_twips` - Maximum height for images
+///
+/// # Returns
+/// XML string for the content run, or empty string if content is empty or image fetch fails
+async fn build_content_run(
+    content: &str,
+    char_props: &str,
+    media_files: &mut Vec<(String, Vec<u8>)>,
+    base_index: usize,
+    max_height_twips: u32,
+) -> String {
+    if content.is_empty() {
+        return String::new();
+    }
+
+    if let Some(url) = extract_url(content) {
+        // Try to build an image run
+        build_image_run(&url, media_files, base_index, max_height_twips)
+            .await
+            .unwrap_or_default()
+    } else {
+        // Build a text run
+        format!(
+            r#"<w:r><w:rPr>{char_props}</w:rPr><w:t xml:space="preserve">{content}</w:t></w:r>"#
+        )
+    }
 }
 
 /// Build a run containing an embedded image
@@ -248,7 +363,7 @@ async fn build_image_run(
     ))
 }
 
-/// Build header XML file
+/// Build header or footer XML file
 ///
 /// **CSS Tokens Source**: `web/src/themes/base/pages.css`
 ///
@@ -257,8 +372,129 @@ async fn build_image_run(
 /// - `--page-margin-font-family` → w:rFonts
 /// - `--page-margin-font-size` → w:sz/w:szCs
 /// - `--page-margin-color` → w:color
-/// - `--page-top-border-*` tokens → w:pBdr bottom border (hierarchical resolution)
+/// - Border tokens (page-top-border-* or page-bottom-border-*) → w:pBdr (hierarchical resolution)
 /// - url() values → embedded images
+///
+/// # Arguments
+/// * `header_footer_type` - Whether this is a header or footer
+/// * `vars` - Pre-computed theme variables
+/// * `left_content` - Content for left-aligned position (token name)
+/// * `center_content` - Content for center-aligned position (token name)
+/// * `right_content` - Content for right-aligned position (token name)
+/// * `page_width` - Page content width in twips for tab stop positioning
+/// * `media_files` - Collection to track embedded media files
+/// * `base_index` - Starting index for image numbering (to avoid conflicts with existing media)
+///
+/// # Returns
+/// Complete header or footer XML file content, or None if no content defined
+async fn build_header_footer_xml(
+    header_footer_type: HeaderFooterType,
+    vars: &BTreeMap<String, Value>,
+    left_content: &str,
+    center_content: &str,
+    right_content: &str,
+    page_width: u32,
+    media_files: &mut Vec<(String, Vec<u8>)>,
+    base_index: usize,
+) -> Option<String> {
+    let left = get_var(vars, left_content).unwrap_or_default();
+    let center = get_var(vars, center_content).unwrap_or_default();
+    let right = get_var(vars, right_content).unwrap_or_default();
+
+    // Skip if all content is empty
+    if left.is_empty() && center.is_empty() && right.is_empty() {
+        return None;
+    }
+
+    let mut xml = String::with_capacity(2048);
+
+    // XML declaration and root element
+    let root_element = header_footer_type.root_element();
+    xml.push_str(&format!(
+        r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<{root_element} xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+<w:p><w:pPr>"#
+    ));
+
+    // Add tab stops for left/center/right positioning
+    xml.push_str(&build_tab_stops(page_width));
+
+    // Add border if defined
+    if let Some((width, color, style)) =
+        resolve_border_tokens(vars, header_footer_type.border_token())
+    {
+        xml.push_str(&build_paragraph_border(
+            header_footer_type.border_position(),
+            &width,
+            &color,
+            &style,
+        ));
+    }
+
+    xml.push_str("</w:pPr>");
+
+    // Build character properties (font, size, color)
+    let char_props = build_char_props(vars);
+
+    // Left content
+    xml.push_str(
+        &build_content_run(
+            &left,
+            &char_props,
+            media_files,
+            base_index,
+            MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
+        )
+        .await,
+    );
+
+    // Tab to center (if center has content)
+    if !center.is_empty() {
+        xml.push_str(&format!(
+            r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
+        ));
+        xml.push_str(
+            &build_content_run(
+                &center,
+                &char_props,
+                media_files,
+                base_index,
+                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
+            )
+            .await,
+        );
+    }
+
+    // Tab to right (if right has content)
+    if !right.is_empty() {
+        // If center is empty, we need 2 tabs to reach right position (skip center stop)
+        // If center is not empty, we only need 1 tab (already at center)
+        let tabs = if center.is_empty() {
+            "<w:tab/><w:tab/>"
+        } else {
+            "<w:tab/>"
+        };
+        xml.push_str(&format!(r#"<w:r><w:rPr>{char_props}</w:rPr>{tabs}</w:r>"#));
+        xml.push_str(
+            &build_content_run(
+                &right,
+                &char_props,
+                media_files,
+                base_index,
+                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
+            )
+            .await,
+        );
+    }
+
+    xml.push_str(&format!("</w:p></{root_element}>"));
+
+    Some(xml)
+}
+
+/// Build header XML file
+///
+/// Thin wrapper around `build_header_footer_xml` for header-specific generation.
 ///
 /// # Arguments
 /// * `vars` - Pre-computed theme variables
@@ -280,142 +516,22 @@ pub(crate) async fn build_header_xml(
     media_files: &mut Vec<(String, Vec<u8>)>,
     base_index: usize,
 ) -> Option<String> {
-    let left = get_var(vars, left_content).unwrap_or_default();
-    let center = get_var(vars, center_content).unwrap_or_default();
-    let right = get_var(vars, right_content).unwrap_or_default();
-
-    // Skip if all content is empty
-    if left.is_empty() && center.is_empty() && right.is_empty() {
-        return None;
-    }
-
-    let mut xml = String::with_capacity(2048);
-
-    xml.push_str(
-        r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-<w:p><w:pPr>"#,
-    );
-
-    // Add tab stops for left/center/right positioning
-    xml.push_str(&build_tab_stops(page_width));
-
-    // Add border if defined
-    if let Some((width, color, style)) = resolve_border_tokens(vars, "page-top-border") {
-        xml.push_str(&build_paragraph_border("bottom", &width, &color, &style));
-    }
-
-    xml.push_str("</w:pPr>");
-
-    // Build character properties (font, size, color)
-    let mut char_props = String::new();
-
-    if let Some(font) = get_var(vars, "page-margin-font-family") {
-        char_props.push_str(&format!(
-            r#"<w:rFonts w:ascii="{font}" w:hAnsi="{font}" w:eastAsia="{font}" w:cs=""/>"#
-        ));
-    }
-
-    if let Some(color) = get_color_hex(vars, "page-margin-color") {
-        char_props.push_str(&format!(r#"<w:color w:val="{color}"/>"#));
-    }
-
-    if let Some(size) = get_font_size_half_points(vars, "page-margin-font-size") {
-        char_props.push_str(&format!(
-            r#"<w:sz w:val="{size}"/><w:szCs w:val="{size}"/>"#
-        ));
-    }
-
-    // Left content
-    if !left.is_empty() {
-        if let Some(url) = extract_url(&left) {
-            if let Some(image_xml) = build_image_run(
-                &url,
-                media_files,
-                base_index,
-                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
-            )
-            .await
-            {
-                xml.push_str(&image_xml);
-            }
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:t xml:space="preserve">{left}</w:t></w:r>"#
-            ));
-        }
-    }
-
-    // Tab to center
-    if !center.is_empty() {
-        xml.push_str(&format!(
-            r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
-        ));
-        if let Some(url) = extract_url(&center) {
-            if let Some(image_xml) = build_image_run(
-                &url,
-                media_files,
-                base_index,
-                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
-            )
-            .await
-            {
-                xml.push_str(&image_xml);
-            }
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:t xml:space="preserve">{center}</w:t></w:r>"#
-            ));
-        }
-    }
-
-    // Tab to right
-    if !right.is_empty() {
-        // If center is empty, we need 2 tabs to reach right position (skip center stop)
-        // If center is not empty, we only need 1 tab (already at center)
-        if center.is_empty() {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/><w:tab/></w:r>"#
-            ));
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
-            ));
-        }
-        if let Some(url) = extract_url(&right) {
-            if let Some(image_xml) = build_image_run(
-                &url,
-                media_files,
-                base_index,
-                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
-            )
-            .await
-            {
-                xml.push_str(&image_xml);
-            }
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:t xml:space="preserve">{right}</w:t></w:r>"#
-            ));
-        }
-    }
-
-    xml.push_str("</w:p></w:hdr>");
-
-    Some(xml)
+    build_header_footer_xml(
+        HeaderFooterType::Header,
+        vars,
+        left_content,
+        center_content,
+        right_content,
+        page_width,
+        media_files,
+        base_index,
+    )
+    .await
 }
 
 /// Build footer XML file
 ///
-/// **CSS Tokens Source**: `web/src/themes/base/pages.css`
-///
-/// **Tokens Applied**:
-/// - Content positioning (left/center/right via tab stops)
-/// - `--page-margin-font-family` → w:rFonts
-/// - `--page-margin-font-size` → w:sz/w:szCs
-/// - `--page-margin-color` → w:color
-/// - `--page-bottom-border-*` tokens → w:pBdr top border (hierarchical resolution)
-/// - url() values → embedded images
+/// Thin wrapper around `build_header_footer_xml` for footer-specific generation.
 ///
 /// # Arguments
 /// * `vars` - Pre-computed theme variables
@@ -437,129 +553,17 @@ pub(crate) async fn build_footer_xml(
     media_files: &mut Vec<(String, Vec<u8>)>,
     base_index: usize,
 ) -> Option<String> {
-    let left = get_var(vars, left_content).unwrap_or_default();
-    let center = get_var(vars, center_content).unwrap_or_default();
-    let right = get_var(vars, right_content).unwrap_or_default();
-
-    // Skip if all content is empty
-    if left.is_empty() && center.is_empty() && right.is_empty() {
-        return None;
-    }
-
-    let mut xml = String::with_capacity(2048);
-
-    xml.push_str(
-        r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-<w:p><w:pPr>"#,
-    );
-
-    // Add tab stops for left/center/right positioning
-    xml.push_str(&build_tab_stops(page_width));
-
-    // Add border if defined
-    if let Some((width, color, style)) = resolve_border_tokens(vars, "page-bottom-border") {
-        xml.push_str(&build_paragraph_border("top", &width, &color, &style));
-    }
-
-    xml.push_str("</w:pPr>");
-
-    // Build character properties (font, size, color)
-    let mut char_props = String::new();
-
-    if let Some(font) = get_var(vars, "page-margin-font-family") {
-        char_props.push_str(&format!(
-            r#"<w:rFonts w:ascii="{font}" w:hAnsi="{font}" w:eastAsia="{font}" w:cs=""/>"#
-        ));
-    }
-
-    if let Some(color) = get_color_hex(vars, "page-margin-color") {
-        char_props.push_str(&format!(r#"<w:color w:val="{color}"/>"#));
-    }
-
-    if let Some(size) = get_font_size_half_points(vars, "page-margin-font-size") {
-        char_props.push_str(&format!(
-            r#"<w:sz w:val="{size}"/><w:szCs w:val="{size}"/>"#
-        ));
-    }
-
-    // Left content
-    if !left.is_empty() {
-        if let Some(url) = extract_url(&left) {
-            if let Some(image_xml) = build_image_run(
-                &url,
-                media_files,
-                base_index,
-                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
-            )
-            .await
-            {
-                xml.push_str(&image_xml);
-            }
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:t xml:space="preserve">{left}</w:t></w:r>"#
-            ));
-        }
-    }
-
-    // Tab to center
-    if !center.is_empty() {
-        xml.push_str(&format!(
-            r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
-        ));
-        if let Some(url) = extract_url(&center) {
-            if let Some(image_xml) = build_image_run(
-                &url,
-                media_files,
-                base_index,
-                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
-            )
-            .await
-            {
-                xml.push_str(&image_xml);
-            }
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:t xml:space="preserve">{center}</w:t></w:r>"#
-            ));
-        }
-    }
-
-    // Tab to right
-    if !right.is_empty() {
-        // If center is empty, we need 2 tabs to reach right position (skip center stop)
-        // If center is not empty, we only need 1 tab (already at center)
-        if center.is_empty() {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/><w:tab/></w:r>"#
-            ));
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
-            ));
-        }
-        if let Some(url) = extract_url(&right) {
-            if let Some(image_xml) = build_image_run(
-                &url,
-                media_files,
-                base_index,
-                MAX_HEADER_FOOTER_IMAGE_HEIGHT_TWIPS,
-            )
-            .await
-            {
-                xml.push_str(&image_xml);
-            }
-        } else {
-            xml.push_str(&format!(
-                r#"<w:r><w:rPr>{char_props}</w:rPr><w:t xml:space="preserve">{right}</w:t></w:r>"#
-            ));
-        }
-    }
-
-    xml.push_str("</w:p></w:ftr>");
-
-    Some(xml)
+    build_header_footer_xml(
+        HeaderFooterType::Footer,
+        vars,
+        left_content,
+        center_content,
+        right_content,
+        page_width,
+        media_files,
+        base_index,
+    )
+    .await
 }
 
 #[cfg(test)]
