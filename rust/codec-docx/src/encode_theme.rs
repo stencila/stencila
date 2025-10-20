@@ -1210,6 +1210,7 @@ fn build_captioned_figure_style(vars: &BTreeMap<String, Value>) -> String {
 /// **CSS Tokens Source**: `web/src/themes/base/tables.css`
 ///
 /// **Tokens Applied**:
+/// - ✓ `table-margin-horizontal` → w:jc (if "auto", centers table; otherwise left-aligns, defaults to center)
 /// - ✓ `table-cell-padding` → w:tblCellMar (cell margins in twips)
 /// - ✓ `table-cell-font-family` → w:rFonts in wholeTable
 /// - ✓ `table-cell-font-size` → w:sz/w:szCs in wholeTable
@@ -1229,6 +1230,10 @@ fn build_captioned_figure_style(vars: &BTreeMap<String, Value>) -> String {
 /// - ✗ `table-cell-line-height` - DOCX uses automatic line height
 ///
 /// **Design Notes**:
+/// - Table alignment follows the same pattern as figures (see [`build_captioned_figure_style()`])
+///   - `table-margin-horizontal: auto` (default) → centered tables
+///   - `table-margin-horizontal: 0` → left-aligned tables
+///   - This matches CSS behavior where `margin: auto` creates centering
 /// - Cell padding is applied horizontally (left/right) but not vertically (top/bottom = 0)
 ///   to match common DOCX table styling conventions
 /// - Outer table borders provide the table frame/perimeter
@@ -1291,6 +1296,20 @@ fn build_table_style(vars: &BTreeMap<String, Value>) -> String {
         ),
     );
     xml.push_str(&table_borders);
+
+    // Table alignment (justification) - check if table should be centered
+    // If table-margin-horizontal is "auto", center the table (matching CSS behavior)
+    let alignment = if let Some(margin) = vars.get("table-margin-horizontal") {
+        if margin.as_str() == Some("auto") {
+            "center"
+        } else {
+            "left"
+        }
+    } else {
+        // Default to center (matches CSS default)
+        "center"
+    };
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/>"#));
 
     xml.push_str(r#"</w:tblPr>"#);
 

@@ -59,6 +59,11 @@
  */
 
 :root {
+    /* Table layout - positioning and constraints (matches figure pattern) */
+    --table-min-width: 100%;
+    --table-max-width: 100%;
+    --table-margin-horizontal: auto;
+
     /* Vertical spacing tokens - vertical separation from surrounding content */
     --table-spacing-top: var(--content-spacing);
     --table-spacing-bottom: var(--content-spacing);
@@ -199,7 +204,10 @@ stencila-table {
 
     /* Table element styling */
     table {
-        width: 100%;
+        min-width: var(--table-min-width);
+        max-width: var(--table-max-width);
+        margin-left: var(--table-margin-horizontal);
+        margin-right: var(--table-margin-horizontal);
         border-collapse: collapse;
         border-top: var(--table-border-top-width) var(--table-border-top-style) var(--table-border-top-color);
         border-bottom: var(--table-border-bottom-width) var(--table-border-bottom-style) var(--table-border-bottom-color);
