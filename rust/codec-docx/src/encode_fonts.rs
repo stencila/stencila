@@ -18,6 +18,8 @@ const DOCX_FONT_VARIABLES: &[&str] = &[
     "text-font-family",
     "heading-font-family",
     "code-font-family",
+    "figure-caption-font-family",
+    "table-caption-font-family",
     "table-cell-font-family",
     "page-margin-font-family",
 ];

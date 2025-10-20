@@ -32,6 +32,8 @@ use crate::encode_utils::{
 /// - ✓ `Author` (paragraph) → [`build_author_style()`] - Author name
 /// - ✓ `Abstract` (paragraph) → [`build_abstract_style()`] - Abstract section
 /// - ✓ `AbstractTitle` (paragraph) → [`build_abstract_title_style()`] - Abstract heading (currently uses Heading1 tokens)
+/// - ✓ `TableCaption` (paragraph) → [`build_table_caption_style()`] - Table captions
+/// - ✓ `ImageCaption` (paragraph) → [`build_image_caption_style()`] - Figure/image captions
 /// - ✓ `DefaultParagraphFont` (character) → [`build_default_paragraph_font()`] - Base character style
 /// - ✓ `BodyTextChar` (character) → [`build_body_text_char_style()`] - Body text character variant
 /// - ✓ `Heading1Char-9Char` (character) → [`build_heading_char_styles()`] - Heading character variants
@@ -45,8 +47,6 @@ use crate::encode_utils::{
 /// *Paragraph Styles*:
 /// - ✗ `Subtitle` - Document subtitle
 /// - ✗ `Date` - Document date
-/// - ✗ `Caption` - Generic caption style
-/// - ✗ `TableCaption` / `ImageCaption` - Specific caption types
 /// - ✗ `Figure` / `CaptionedFigure` - Figure containers
 /// - ✗ `FirstParagraph` - First paragraph after heading
 /// - ✗ `Compact` - Compact paragraph spacing
@@ -109,10 +109,11 @@ use crate::encode_utils::{
 /// - ✓ `links.css` → [`build_hyperlink_style()`]
 /// - ✓ `quotes.css` → [`build_block_text_style()`]
 /// - ✓/✗ `lists.css` → [`build_list_style()`] - Only spacing applied; markers/indent need numbering.xml (see function docs)
-/// - ✓ `tables.css` → [`build_table_style()`]
+/// - ✓ `tables.css` → [`build_table_style()`], [`build_table_caption_style()`]
 /// - ✓/✗ `articles.css` → [`build_title_style()`], [`build_author_style()`], [`build_abstract_style()`] - Title, Author, Abstract implemented; content-max-width is layout-only
 ///
 /// **Partially Implemented** (some features work, others pending):
+/// - ✓/✗ `figures.css` → [`build_image_caption_style()`] - background and border not yet implemented
 /// - ✓/✗ `pages.css` - Page layout → Section properties (w:sectPr), headers/footers (see [`encode_page_layout`], [`encode_headers_footers`])
 ///   - ✓ Page size, margins, padding
 ///   - ✓ Header/footer content (left/center/right positioning)
@@ -125,10 +126,8 @@ use crate::encode_utils::{
 /// **Not Yet Mapped** (could be implemented in future):
 /// - ✗ `admonitions.css` - Callout/alert boxes → Custom paragraph styles with borders/shading (w:pBdr, w:shd)
 /// - ✗ `breaks.css` - Page/section breaks → Page break runs (w:br w:type="page")
-/// - ✗ `captions.css` - Figure/table captions → Extended caption paragraph styles (partially in table style)
 /// - ✗ `citations.css` - Citation formatting → Custom character/paragraph styles for bibliography
-/// - ✗ `figures.css` - Figure captions/containers → Custom paragraph styles for figure captions
-/// - ✗ `labels.css` - Figure/table label formatting → Character styles for label prefixes (e.g., "Figure 1:")
+/// - ✗ `labels.css` - Figure/table label character formatting → Would need character styles for label spans within captions
 /// - ✗ `references.css` - Cross-reference styling → Custom character styles for internal references
 ///
 /// **No Mapping Applicable** (not relevant for static DOCX):
@@ -169,6 +168,10 @@ pub(crate) fn theme_to_styles(variables: &BTreeMap<String, Value>) -> String {
     xml.push_str(&build_author_style(variables));
     xml.push_str(&build_abstract_style(variables));
     xml.push_str(&build_abstract_title_style(variables));
+
+    // Caption styles
+    xml.push_str(&build_table_caption_style(variables));
+    xml.push_str(&build_image_caption_style(variables));
 
     // Character styles
     xml.push_str(&build_title_char_style(variables));
@@ -1037,6 +1040,122 @@ fn build_abstract_title_style(vars: &BTreeMap<String, Value>) -> String {
     xml
 }
 
+/// Build TableCaption paragraph style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/tables.css`
+///
+/// **Tokens Applied**:
+/// - `table-caption-font-family` → w:rFonts
+/// - `table-caption-font-size` → w:sz/w:szCs
+/// - `table-caption-color` → w:color
+/// - `table-caption-align` → w:jc
+/// - `table-caption-spacing` → w:spacing w:after (spacing below caption, above table)
+///
+/// **Tokens NOT Yet Applied**:
+/// - `table-caption-line-height` - DOCX uses automatic line height
+/// - `table-caption-max-width` - Layout constraint not applicable to paragraph styles
+/// - `table-label-font-weight` / `table-label-font-style` / `table-label-color` - Applied at run level (`.table-label` spans), not paragraph style
+///
+/// **Design Note**:
+/// TableCaption is used for table captions which typically appear **above** tables.
+/// Uses `w:keepNext` to prevent caption from being separated from its table.
+fn build_table_caption_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(512);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="TableCaption">
+<w:name w:val="Table Caption"/>
+<w:basedOn w:val="Normal"/>
+<w:next w:val="BodyText"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    xml.push_str(KEEP_NEXT);
+
+    // Spacing (below caption, above table)
+    let after = get_twips(vars, "table-caption-spacing");
+    xml.push_str(&build_spacing_element(None, after.as_deref()));
+
+    // Text alignment
+    let alignment = get_text_align(vars, "table-caption-align");
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/></w:pPr><w:rPr>"#));
+
+    // Font family
+    xml.push_str(&build_font_element(vars, "table-caption-font-family"));
+
+    // Color
+    if let Some(color) = get_color_hex(vars, "table-caption-color") {
+        xml.push_str(&build_color_element(&color));
+    }
+
+    // Font size
+    if let Some(size) = get_font_size_half_points(vars, "table-caption-font-size") {
+        xml.push_str(&build_size_elements(&size));
+    }
+
+    xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
+/// Build ImageCaption paragraph style (for figure captions)
+///
+/// **CSS Tokens Source**: `web/src/themes/base/figures.css`
+///
+/// **Tokens Applied**:
+/// - `figure-caption-font-family` → w:rFonts
+/// - `figure-caption-font-size` → w:sz/w:szCs
+/// - `figure-caption-color` → w:color
+/// - `figure-caption-align` → w:jc
+/// - `figure-caption-spacing-top` → w:spacing w:before (spacing above caption, below figure)
+///
+/// **Tokens NOT Yet Applied**:
+/// - `figure-caption-line-height` - DOCX uses automatic line height
+/// - `figure-caption-max-width` - Layout constraint not applicable to paragraph styles
+/// - `figure-label-font-weight` / `figure-label-font-style` / `figure-label-color` - Applied at run level (`.figure-label` spans), not paragraph style
+///
+/// **Design Note**:
+/// ImageCaption is used for figure captions which typically appear **below** figures.
+/// Does not use `w:keepNext` as caption follows (rather than precedes) the figure content.
+fn build_image_caption_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(512);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="ImageCaption">
+<w:name w:val="Image Caption"/>
+<w:basedOn w:val="Normal"/>
+<w:next w:val="BodyText"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    // Spacing (above caption, below figure)
+    let before = get_twips(vars, "figure-caption-spacing-top");
+    xml.push_str(&build_spacing_element(before.as_deref(), None));
+
+    // Text alignment
+    let alignment = get_text_align(vars, "figure-caption-align");
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/></w:pPr><w:rPr>"#));
+
+    // Font family
+    xml.push_str(&build_font_element(vars, "figure-caption-font-family"));
+
+    // Color
+    if let Some(color) = get_color_hex(vars, "figure-caption-color") {
+        xml.push_str(&build_color_element(&color));
+    }
+
+    // Font size
+    if let Some(size) = get_font_size_half_points(vars, "figure-caption-font-size") {
+        xml.push_str(&build_size_elements(&size));
+    }
+
+    xml.push_str("</w:rPr></w:style>");
+    xml
+}
+
 /// Build Table style
 ///
 /// **CSS Tokens Source**: `web/src/themes/base/tables.css`
@@ -1278,6 +1397,8 @@ mod tests {
         assert!(styles_xml.contains(r#"w:styleId="Author""#));
         assert!(styles_xml.contains(r#"w:styleId="Abstract""#));
         assert!(styles_xml.contains(r#"w:styleId="AbstractTitle""#));
+        assert!(styles_xml.contains(r#"w:styleId="TableCaption""#));
+        assert!(styles_xml.contains(r#"w:styleId="ImageCaption""#));
 
         // Verify article-related character styles exist
         assert!(styles_xml.contains(r#"w:styleId="TitleChar""#));
