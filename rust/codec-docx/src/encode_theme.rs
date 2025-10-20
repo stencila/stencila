@@ -34,6 +34,7 @@ use crate::encode_utils::{
 /// - ✓ `AbstractTitle` (paragraph) → [`build_abstract_title_style()`] - Abstract heading (currently uses Heading1 tokens)
 /// - ✓ `TableCaption` (paragraph) → [`build_table_caption_style()`] - Table captions
 /// - ✓ `ImageCaption` (paragraph) → [`build_image_caption_style()`] - Figure/image captions
+/// - ✓ `CaptionedFigure` (paragraph) → [`build_captioned_figure_style()`] - Paragraphs containing figures with captions (centered alignment)
 /// - ✓ `DefaultParagraphFont` (character) → [`build_default_paragraph_font()`] - Base character style
 /// - ✓ `BodyTextChar` (character) → [`build_body_text_char_style()`] - Body text character variant
 /// - ✓ `Heading1Char-9Char` (character) → [`build_heading_char_styles()`] - Heading character variants
@@ -47,7 +48,6 @@ use crate::encode_utils::{
 /// *Paragraph Styles*:
 /// - ✗ `Subtitle` - Document subtitle
 /// - ✗ `Date` - Document date
-/// - ✗ `Figure` / `CaptionedFigure` - Figure containers
 /// - ✗ `FirstParagraph` - First paragraph after heading
 /// - ✗ `Compact` - Compact paragraph spacing
 /// - ✗ `Bibliography` - Bibliography entries
@@ -113,7 +113,7 @@ use crate::encode_utils::{
 /// - ✓/✗ `articles.css` → [`build_title_style()`], [`build_author_style()`], [`build_abstract_style()`] - Title, Author, Abstract implemented; content-max-width is layout-only
 ///
 /// **Partially Implemented** (some features work, others pending):
-/// - ✓/✗ `figures.css` → [`build_image_caption_style()`] - background and border not yet implemented
+/// - ✓/✗ `figures.css` → [`build_image_caption_style()`], [`build_captioned_figure_style()`] - Caption and centering implemented; figure container background/border not applicable to paragraph styles
 /// - ✓/✗ `pages.css` - Page layout → Section properties (w:sectPr), headers/footers (see [`encode_page_layout`], [`encode_headers_footers`])
 ///   - ✓ Page size, margins, padding
 ///   - ✓ Header/footer content (left/center/right positioning)
@@ -169,9 +169,10 @@ pub(crate) fn theme_to_styles(variables: &BTreeMap<String, Value>) -> String {
     xml.push_str(&build_abstract_style(variables));
     xml.push_str(&build_abstract_title_style(variables));
 
-    // Caption styles
+    // Caption and figure styles
     xml.push_str(&build_table_caption_style(variables));
     xml.push_str(&build_image_caption_style(variables));
+    xml.push_str(&build_captioned_figure_style(variables));
 
     // Character styles
     xml.push_str(&build_title_char_style(variables));
@@ -1156,6 +1157,54 @@ fn build_image_caption_style(vars: &BTreeMap<String, Value>) -> String {
     xml
 }
 
+/// Build CaptionedFigure paragraph style
+///
+/// **CSS Tokens Source**: `web/src/themes/base/figures.css`
+///
+/// **Tokens Applied**:
+/// - `figure-content-margin-horizontal` → w:jc w:val="center" (if set to "auto", which indicates centering)
+///
+/// **Tokens NOT Yet Applied**:
+/// - `figure-spacing-top` / `figure-spacing-bottom` - Currently inherit from Normal paragraph spacing
+/// - `figure-background` / `figure-border-*` / `figure-padding` - Paragraph styles don't support these visual properties
+///
+/// **Design Note**:
+/// CaptionedFigure is a paragraph style used by Pandoc for paragraphs containing the image of a Figure.
+/// The primary purpose is to center the image horizontally within the paragraph. This matches the
+/// CSS behavior where `figure-content-margin-horizontal: auto` creates horizontal centering.
+/// The actual caption is rendered in a separate paragraph using the ImageCaption style.
+fn build_captioned_figure_style(vars: &BTreeMap<String, Value>) -> String {
+    let mut xml = String::with_capacity(384);
+
+    xml.push_str(
+        r#"<w:style w:type="paragraph" w:styleId="CaptionedFigure">
+<w:name w:val="Captioned Figure"/>
+<w:basedOn w:val="Normal"/>
+<w:next w:val="BodyText"/>
+<w:uiPriority w:val="10"/>
+<w:qFormat/>
+<w:pPr>"#,
+    );
+
+    // Center alignment for the figure content
+    // Check if margin-horizontal is "auto" (which means center in CSS)
+    let alignment = if let Some(margin) = vars.get("figure-content-margin-horizontal") {
+        if margin.as_str() == Some("auto") {
+            "center"
+        } else {
+            "left"
+        }
+    } else {
+        // Default to center for captioned figures
+        "center"
+    };
+
+    xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/>"#));
+
+    xml.push_str("</w:pPr><w:rPr></w:rPr></w:style>");
+    xml
+}
+
 /// Build Table style
 ///
 /// **CSS Tokens Source**: `web/src/themes/base/tables.css`
@@ -1399,6 +1448,7 @@ mod tests {
         assert!(styles_xml.contains(r#"w:styleId="AbstractTitle""#));
         assert!(styles_xml.contains(r#"w:styleId="TableCaption""#));
         assert!(styles_xml.contains(r#"w:styleId="ImageCaption""#));
+        assert!(styles_xml.contains(r#"w:styleId="CaptionedFigure""#));
 
         // Verify article-related character styles exist
         assert!(styles_xml.contains(r#"w:styleId="TitleChar""#));
