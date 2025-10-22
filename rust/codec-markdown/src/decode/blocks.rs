@@ -23,7 +23,7 @@ use stencila_codec::{
         CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading,
         HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
         InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
-        Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
+        Node, Page, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
         StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableCellOptions,
         TableCellType, TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
@@ -502,6 +502,7 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
                 table,
                 for_block,
                 instruction_block,
+                page,
                 suggestion_block,
                 chat_message,
                 claim,
@@ -998,6 +999,22 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
         .parse_next(input)
 }
 
+/// Parse a [`Page`] node
+fn page(input: &mut Located<&str>) -> ModalResult<Block> {
+    preceded((Caseless("page"), multispace0), take_while(0.., |_| true))
+        .map(|page_type: &str| {
+            // Allow for alternative casing of section type by converting to
+            // casing expected by `PageType::from_str`
+            let page_type = page_type.to_pascal_case().parse().ok();
+
+            Block::Page(Page {
+                page_type,
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
+}
+
 /// Parse a [`SuggestionBlock`] node
 fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
@@ -1115,6 +1132,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
     if let Block::SuggestionBlock(SuggestionBlock { content, .. })
     | Block::ChatMessage(ChatMessage { content, .. })
     | Block::Claim(Claim { content, .. })
+    | Block::Page(Page { content, .. })
     | Block::Section(Section { content, .. })
     | Block::StyledBlock(StyledBlock { content, .. }) = parent
     {
