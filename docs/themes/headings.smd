@@ -49,6 +49,53 @@ Design tokens for headings use a modular scale system with base values and ratio
 | `--heading-h4-font-weight`          | Font weight override for h4                            | Calculated from decrement            |
 | `--heading-h5-font-weight`          | Font weight override for h5                            | Calculated from decrement            |
 | `--heading-h6-font-weight`          | Font weight override for h6                            | Calculated from decrement            |
+| `--heading-border-width`            | Border width for all headings (default: bottom border) | `0`                                  |
+| `--heading-border-style`            | Border style for all headings                          | `solid`                              |
+| `--heading-border-color`            | Border color for all headings                          | `var(--color-gray-300)`              |
+| `--heading-border-color-dark`       | Border color for headings in dark mode                 | `var(--color-gray-700)`              |
+| `--heading-upper-border-width`      | Border width for h1-h3 (zone-based helper)             | `var(--heading-border-width)`        |
+| `--heading-upper-border-style`      | Border style for h1-h3 (zone-based helper)             | `var(--heading-border-style)`        |
+| `--heading-upper-border-color`      | Border color for h1-h3 (zone-based helper)             | `var(--heading-border-color)`        |
+| `--heading-lower-border-width`      | Border width for h4-h6 (zone-based helper)             | `var(--heading-border-width)`        |
+| `--heading-lower-border-style`      | Border style for h4-h6 (zone-based helper)             | `var(--heading-border-style)`        |
+| `--heading-lower-border-color`      | Border color for h4-h6 (zone-based helper)             | `var(--heading-border-color)`        |
+| `--heading-h1-border-width`         | Border width override for h1                           | `var(--heading-upper-border-width)`  |
+| `--heading-h1-border-style`         | Border style override for h1                           | `var(--heading-upper-border-style)`  |
+| `--heading-h1-border-color`         | Border color override for h1                           | `var(--heading-upper-border-color)`  |
+| `--heading-h2-border-width`         | Border width override for h2                           | `var(--heading-upper-border-width)`  |
+| `--heading-h2-border-style`         | Border style override for h2                           | `var(--heading-upper-border-style)`  |
+| `--heading-h2-border-color`         | Border color override for h2                           | `var(--heading-upper-border-color)`  |
+| `--heading-h3-border-width`         | Border width override for h3                           | `var(--heading-upper-border-width)`  |
+| `--heading-h3-border-style`         | Border style override for h3                           | `var(--heading-upper-border-style)`  |
+| `--heading-h3-border-color`         | Border color override for h3                           | `var(--heading-upper-border-color)`  |
+| `--heading-h4-border-width`         | Border width override for h4                           | `var(--heading-lower-border-width)`  |
+| `--heading-h4-border-style`         | Border style override for h4                           | `var(--heading-lower-border-style)`  |
+| `--heading-h4-border-color`         | Border color override for h4                           | `var(--heading-lower-border-color)`  |
+| `--heading-h5-border-width`         | Border width override for h5                           | `var(--heading-lower-border-width)`  |
+| `--heading-h5-border-style`         | Border style override for h5                           | `var(--heading-lower-border-style)`  |
+| `--heading-h5-border-color`         | Border color override for h5                           | `var(--heading-lower-border-color)`  |
+| `--heading-h6-border-width`         | Border width override for h6                           | `var(--heading-lower-border-width)`  |
+| `--heading-h6-border-style`         | Border style override for h6                           | `var(--heading-lower-border-style)`  |
+| `--heading-h6-border-color`         | Border color override for h6                           | `var(--heading-lower-border-color)`  |
+| `--heading-background-color`        | Background color for all headings                      | `transparent`                        |
+| `--heading-background-color-dark`   | Background color for headings in dark mode             | `transparent`                        |
+| `--heading-upper-background-color`  | Background color for h1-h3 (zone-based helper)         | `var(--heading-background-color)`    |
+| `--heading-lower-background-color`  | Background color for h4-h6 (zone-based helper)         | `var(--heading-background-color)`    |
+| `--heading-h1-background-color`     | Background color override for h1                       | `var(--heading-upper-background-color)` |
+| `--heading-h2-background-color`     | Background color override for h2                       | `var(--heading-upper-background-color)` |
+| `--heading-h3-background-color`     | Background color override for h3                       | `var(--heading-upper-background-color)` |
+| `--heading-h4-background-color`     | Background color override for h4                       | `var(--heading-lower-background-color)` |
+| `--heading-h5-background-color`     | Background color override for h5                       | `var(--heading-lower-background-color)` |
+| `--heading-h6-background-color`     | Background color override for h6                       | `var(--heading-lower-background-color)` |
+| `--heading-padding`                 | Padding for all headings                               | `0`                                  |
+| `--heading-upper-padding`           | Padding for h1-h3 (zone-based helper)                  | `var(--heading-padding)`             |
+| `--heading-lower-padding`           | Padding for h4-h6 (zone-based helper)                  | `var(--heading-padding)`             |
+| `--heading-h1-padding`              | Padding override for h1                                | `var(--heading-upper-padding)`       |
+| `--heading-h2-padding`              | Padding override for h2                                | `var(--heading-upper-padding)`       |
+| `--heading-h3-padding`              | Padding override for h3                                | `var(--heading-upper-padding)`       |
+| `--heading-h4-padding`              | Padding override for h4                                | `var(--heading-lower-padding)`       |
+| `--heading-h5-padding`              | Padding override for h5                                | `var(--heading-lower-padding)`       |
+| `--heading-h6-padding`              | Padding override for h6                                | `var(--heading-lower-padding)`       |
 
 # Usage
 
@@ -83,6 +130,12 @@ The heading system uses three key token types to automatically calculate all hea
 - **Font-weight**: Override calculated weights (useful when combining italic style with lighter weight)
 
 The per-level tokens default to zone helpers, which default to sensible base values, maintaining full backward compatibility while enabling classical book typography patterns.
+
+**Border, background, and padding tokens** enable visual customization beyond typography:
+
+- **Borders**: Applied to `border-bottom` by default (theme authors can override for other positions). All border tokens default to 0 width, so borders are invisible until explicitly enabled. Use zone-based helpers (`--heading-upper-border-*`) or per-level overrides (`--heading-h1-border-*`) for fine control.
+- **Backgrounds**: All background colors default to `transparent`. Set zone-based or per-level background colors for callout-style headings.
+- **Padding**: Defaults to `0` but particularly useful when combined with borders or backgrounds. Works with zone-based or per-level tokens.
 
 For quick customization, focus on these tokens:
 
@@ -316,6 +369,114 @@ Traditional book design with italic lower-level headings and small-caps:
 
 :::
 
+## Bottom Border Headings
+
+Documentation-style with subtle bottom borders on upper-level headings:
+
+```css
+:root {
+  /* Borders on h1 and h2 only */
+  --heading-h1-border-width: 2px;
+  --heading-h1-border-color: var(--color-blue-500);
+  --heading-h2-border-width: 1px;
+  --heading-h2-border-color: var(--color-gray-300);
+
+  /* Add padding-bottom for spacing between text and border */
+  --heading-h1-padding: 0 0 0.5rem 0;
+  --heading-h2-padding: 0 0 0.375rem 0;
+
+  /* Typography */
+  --heading-font-size: 2rem;
+  --heading-font-weight: 600;
+  --heading-color: var(--color-gray-900);
+}
+```
+
+::: style --heading-h1-border-width: 2px; --heading-h1-border-color: var(--color-blue-500); --heading-h2-border-width: 1px; --heading-h2-border-color: var(--color-gray-300); --heading-h1-padding: 0 0 0.5rem 0; --heading-h2-padding: 0 0 0.375rem 0; --heading-font-size: 2rem; --heading-font-weight: 600; --heading-color: var(--color-gray-900);
+
+# Heading One
+## Heading Two
+### Heading Three
+#### Heading Four
+##### Heading Five
+###### Heading Six
+
+:::
+
+## Callout-Style Headings
+
+Headings with background colors and padding for visual emphasis:
+
+```css
+:root {
+  /* Background colors for upper headings */
+  --heading-h1-background-color: var(--color-purple-100);
+  --heading-h2-background-color: var(--color-purple-50);
+
+  /* Padding to create space around text */
+  --heading-h1-padding: 0.75rem 1rem;
+  --heading-h2-padding: 0.5rem 0.875rem;
+
+  /* Optional: add subtle borders */
+  --heading-h1-border-width: 0 0 0 4px;
+  --heading-h1-border-color: var(--color-purple-600);
+
+  /* Typography */
+  --heading-font-size: 2rem;
+  --heading-font-weight: 600;
+  --heading-color: var(--color-gray-900);
+}
+```
+
+::: style --heading-h1-background-color: var(--color-purple-100); --heading-h2-background-color: var(--color-purple-50); --heading-h1-padding: 0.75rem 1rem; --heading-h2-padding: 0.5rem 0.875rem; --heading-font-size: 2rem; --heading-font-weight: 600; --heading-color: var(--color-gray-900);
+
+# Heading One
+## Heading Two
+### Heading Three
+#### Heading Four
+##### Heading Five
+###### Heading Six
+
+:::
+
+## Mixed Border Styles
+
+Combining different border approaches for unique designs:
+
+```css
+:root {
+  /* h1: Thick bottom border with color */
+  --heading-h1-border-width: 3px;
+  --heading-h1-border-color: var(--color-teal-500);
+  --heading-h1-padding: 0 0 0.5rem 0;
+
+  /* h2: Subtle gray background with no border */
+  --heading-h2-background-color: var(--color-gray-50);
+  --heading-h2-padding: 0.375rem 0.75rem;
+  --heading-h2-border-width: 0;
+
+  /* h3: Thin bottom border */
+  --heading-h3-border-width: 1px;
+  --heading-h3-border-color: var(--color-gray-200);
+
+  /* Typography */
+  --heading-font-size: 2.25rem;
+  --heading-font-size-ratio: 0.85;
+  --heading-color: var(--color-gray-900);
+}
+```
+
+::: style --heading-h1-border-width: 3px; --heading-h1-border-color: var(--color-teal-500); --heading-h1-padding: 0 0 0.5rem 0; --heading-h2-background-color: var(--color-gray-50); --heading-h2-padding: 0.375rem 0.75rem; --heading-h2-border-width: 0; --heading-h3-border-width: 1px; --heading-h3-border-color: var(--color-gray-200); --heading-font-size: 2.25rem; --heading-font-size-ratio: 0.85; --heading-color: var(--color-gray-900);
+
+# Heading One
+## Heading Two
+### Heading Three
+#### Heading Four
+##### Heading Five
+###### Heading Six
+
+:::
+
 # Tips
 
 **Choose appropriate ratios**: Larger ratios (0.87-0.9) create subtle hierarchy for dense content, while smaller ratios (0.6-0.75) create dramatic contrast for marketing or presentation materials.
@@ -345,3 +506,22 @@ Traditional book design with italic lower-level headings and small-caps:
 **Italic headings and weight**: When using italic for lower headings (`--heading-lower-font-style: italic`), typically reduce font-weight to normal (400) for those levels. Bold italic is rarely appropriate for body text-sized headings. Override calculated weights with `--heading-h4-font-weight`, `--heading-h5-font-weight`, and `--heading-h6-font-weight`.
 
 **Small-caps tracking**: When using `font-variant: small-caps`, increase `letter-spacing` slightly (0.03em-0.05em) for better readability. Small-caps characters appear crowded with default tracking.
+
+**Border positioning**: By default, border tokens apply to `border-bottom`, ideal for underlines and visual separators. For left accent borders or complete boxes, override in your custom theme CSS:
+
+```css
+/* Left accent border example */
+stencila-heading h1 {
+  border-bottom: none;
+  border-left: var(--heading-h1-border-width) var(--heading-h1-border-style) var(--heading-h1-border-color);
+  padding-left: 1rem; /* Add left padding when using left borders */
+}
+```
+
+**Padding with borders**: When using borders, add padding to create space between text and the border. For bottom borders, use `padding: 0 0 0.5rem 0` (bottom padding only). For backgrounds or complete boxes, use equal padding on all sides (e.g., `padding: 0.75rem 1rem`).
+
+**Background colors and readability**: When using background colors, ensure sufficient contrast with text. Lighter backgrounds (50-100 in color scale) work well with dark text. Test dark mode carefully - consider setting `--heading-background-color-dark` to slightly darker values to maintain contrast.
+
+**Zone-based border control**: Use zone helpers to apply borders to groups of headings. For example, `--heading-upper-border-width: 2px` adds borders to h1-h3, while `--heading-lower-border-width: 0` keeps h4-h6 borderless. Override specific levels as needed with per-level tokens.
+
+**Mixing visual styles**: Don't be afraid to mix borders and backgrounds across heading levels (see Mixed Border Styles example). h1 might have a thick border, h2 a background, and h3 a thin border - this creates visual hierarchy through variety while maintaining consistency through color and spacing.

@@ -91,6 +91,72 @@
     --heading-h4-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 3);
     --heading-h5-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 4);
     --heading-h6-font-weight: calc(var(--heading-font-weight) - var(--heading-font-weight-decrement) * 5);
+
+    /* Border system - applied to border-bottom by default (theme authors can customize for other positions)
+     * Useful for bottom borders, left accent borders, or complete border boxes */
+    --heading-border-width: 0;
+    --heading-border-style: solid;
+    --heading-border-color: var(--color-gray-300);
+    --heading-border-color-dark: var(--color-gray-700);
+
+    /* Zone-based border helpers */
+    --heading-upper-border-width: var(--heading-border-width);
+    --heading-upper-border-style: var(--heading-border-style);
+    --heading-upper-border-color: var(--heading-border-color);
+    --heading-lower-border-width: var(--heading-border-width);
+    --heading-lower-border-style: var(--heading-border-style);
+    --heading-lower-border-color: var(--heading-border-color);
+
+    /* Per-level border overrides */
+    --heading-h1-border-width: var(--heading-upper-border-width);
+    --heading-h1-border-style: var(--heading-upper-border-style);
+    --heading-h1-border-color: var(--heading-upper-border-color);
+    --heading-h2-border-width: var(--heading-upper-border-width);
+    --heading-h2-border-style: var(--heading-upper-border-style);
+    --heading-h2-border-color: var(--heading-upper-border-color);
+    --heading-h3-border-width: var(--heading-upper-border-width);
+    --heading-h3-border-style: var(--heading-upper-border-style);
+    --heading-h3-border-color: var(--heading-upper-border-color);
+    --heading-h4-border-width: var(--heading-lower-border-width);
+    --heading-h4-border-style: var(--heading-lower-border-style);
+    --heading-h4-border-color: var(--heading-lower-border-color);
+    --heading-h5-border-width: var(--heading-lower-border-width);
+    --heading-h5-border-style: var(--heading-lower-border-style);
+    --heading-h5-border-color: var(--heading-lower-border-color);
+    --heading-h6-border-width: var(--heading-lower-border-width);
+    --heading-h6-border-style: var(--heading-lower-border-style);
+    --heading-h6-border-color: var(--heading-lower-border-color);
+
+    /* Background colors for callout-style headings */
+    --heading-background-color: transparent;
+    --heading-background-color-dark: transparent;
+
+    /* Zone-based background helpers */
+    --heading-upper-background-color: var(--heading-background-color);
+    --heading-lower-background-color: var(--heading-background-color);
+
+    /* Per-level background overrides */
+    --heading-h1-background-color: var(--heading-upper-background-color);
+    --heading-h2-background-color: var(--heading-upper-background-color);
+    --heading-h3-background-color: var(--heading-upper-background-color);
+    --heading-h4-background-color: var(--heading-lower-background-color);
+    --heading-h5-background-color: var(--heading-lower-background-color);
+    --heading-h6-background-color: var(--heading-lower-background-color);
+
+    /* Padding system - useful with borders and backgrounds */
+    --heading-padding: 0;
+
+    /* Zone-based padding helpers */
+    --heading-upper-padding: var(--heading-padding);
+    --heading-lower-padding: var(--heading-padding);
+
+    /* Per-level padding overrides */
+    --heading-h1-padding: var(--heading-upper-padding);
+    --heading-h2-padding: var(--heading-upper-padding);
+    --heading-h3-padding: var(--heading-upper-padding);
+    --heading-h4-padding: var(--heading-lower-padding);
+    --heading-h5-padding: var(--heading-lower-padding);
+    --heading-h6-padding: var(--heading-lower-padding);
 }
 
 /* Spacing applied at outer element level based on heading level */
@@ -185,6 +251,9 @@ stencila-heading {
         font-style: var(--heading-h1-font-style);
         font-variant: var(--heading-h1-font-variant);
         letter-spacing: var(--heading-h1-letter-spacing);
+        border-bottom: var(--heading-h1-border-width) var(--heading-h1-border-style) var(--heading-h1-border-color);
+        background-color: var(--heading-h1-background-color);
+        padding: var(--heading-h1-padding);
     }
 
     h2 {
@@ -195,6 +264,9 @@ stencila-heading {
         letter-spacing: var(--heading-h2-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 1);
+        border-bottom: var(--heading-h2-border-width) var(--heading-h2-border-style) var(--heading-h2-border-color);
+        background-color: var(--heading-h2-background-color);
+        padding: var(--heading-h2-padding);
     }
 
     h3 {
@@ -205,6 +277,9 @@ stencila-heading {
         letter-spacing: var(--heading-h3-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 2);
+        border-bottom: var(--heading-h3-border-width) var(--heading-h3-border-style) var(--heading-h3-border-color);
+        background-color: var(--heading-h3-background-color);
+        padding: var(--heading-h3-padding);
     }
 
     h4 {
@@ -215,6 +290,9 @@ stencila-heading {
         letter-spacing: var(--heading-h4-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 3);
+        border-bottom: var(--heading-h4-border-width) var(--heading-h4-border-style) var(--heading-h4-border-color);
+        background-color: var(--heading-h4-background-color);
+        padding: var(--heading-h4-padding);
     }
 
     h5 {
@@ -225,6 +303,9 @@ stencila-heading {
         letter-spacing: var(--heading-h5-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 4);
+        border-bottom: var(--heading-h5-border-width) var(--heading-h5-border-style) var(--heading-h5-border-color);
+        background-color: var(--heading-h5-background-color);
+        padding: var(--heading-h5-padding);
     }
 
     h6 {
@@ -235,6 +316,9 @@ stencila-heading {
         letter-spacing: var(--heading-h6-letter-spacing);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 5);
+        border-bottom: var(--heading-h6-border-width) var(--heading-h6-border-style) var(--heading-h6-border-color);
+        background-color: var(--heading-h6-background-color);
+        padding: var(--heading-h6-padding);
     }
 }
 
@@ -242,12 +326,16 @@ stencila-heading {
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
         --heading-color: var(--heading-color-dark);
+        --heading-border-color: var(--heading-border-color-dark);
+        --heading-background-color: var(--heading-background-color-dark);
     }
 }
 
 /* Dark Mode Application - Explicit User Choice */
 :root[data-color-scheme="dark"] {
     --heading-color: var(--heading-color-dark);
+    --heading-border-color: var(--heading-border-color-dark);
+    --heading-background-color: var(--heading-background-color-dark);
 }
 
 /* Mobile breakpoint (640px) - Special case for h1 top margin
