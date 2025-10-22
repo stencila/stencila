@@ -278,7 +278,7 @@ fn myst_role(input: &mut Located<&str>) -> ModalResult<Inline> {
 // Parse a QMD inline expression
 fn qmd_inline_code(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
-        delimited("`{", take_until(0.., '}'), '}'),
+        alt((delimited("`{", take_until(0.., '}'), '}'), "`r ".value("r"))),
         delimited(multispace0, take_until(0.., '`'), '`'),
     )
         .map(|(lang, value): (&str, &str)| {
