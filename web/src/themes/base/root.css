@@ -37,7 +37,7 @@
     color: var(--text-color-primary);
 }
 
-@media (min-width: 768px) {
+@media (max-width: 1023px) {
     :root {
         --root-padding: var(--root-padding-tablet);
     }
@@ -50,6 +50,9 @@
 }
 
 @media print {
+    :root {
+        --root-padding: 0;
+    }
 
     /* Hide user interface elements during print */
     stencila-document-menu {

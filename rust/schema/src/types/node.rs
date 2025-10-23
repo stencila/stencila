@@ -89,6 +89,7 @@ use super::number_validator::NumberValidator;
 use super::object::Object;
 use super::object_hint::ObjectHint;
 use super::organization::Organization;
+use super::page::Page;
 use super::paragraph::Paragraph;
 use super::parameter::Parameter;
 use super::periodical::Periodical;
@@ -319,6 +320,8 @@ pub enum Node {
     ObjectHint(ObjectHint),
 
     Organization(Organization),
+
+    Page(Page),
 
     Paragraph(Paragraph),
 

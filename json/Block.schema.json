@@ -233,6 +233,15 @@
       "$ref": "MathBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Page` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "Page.schema.json"
+    },
+    {
       "$ref": "Paragraph.schema.json"
     },
     {

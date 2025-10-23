@@ -59,7 +59,9 @@ html {
 body {
     background-color: var(--surface-background);
     color: var(--text-color-primary);
+
     padding: 0;
+    margin: 0;
 }
 
 /* Webkit scrollbar (Chrome, Safari, Edge) */

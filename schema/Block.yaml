@@ -163,6 +163,12 @@ anyOf:
 
   - $ref: MathBlock
 
+  - $ref: Page
+    proptest:
+      min:
+        description: Do not generate `Page` nodes in block content.
+        skip: true
+
   - $ref: Paragraph
 
   - $ref: PromptBlock

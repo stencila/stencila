@@ -26,6 +26,7 @@ export type BlockType =
   | "Island"
   | "List"
   | "MathBlock"
+  | "Page"
   | "Paragraph"
   | "PromptBlock"
   | "QuoteBlock"
@@ -65,6 +66,7 @@ export const BlockTypeList = [
   "Island",
   "List",
   "MathBlock",
+  "Page",
   "Paragraph",
   "PromptBlock",
   "QuoteBlock",

@@ -27,6 +27,7 @@ use super::instruction_block::InstructionBlock;
 use super::island::Island;
 use super::list::List;
 use super::math_block::MathBlock;
+use super::page::Page;
 use super::paragraph::Paragraph;
 use super::prompt_block::PromptBlock;
 use super::quote_block::QuoteBlock;
@@ -154,6 +155,12 @@ pub enum Block {
     List(List),
 
     MathBlock(MathBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Page(Page),
 
     #[default]
     Paragraph(Paragraph),

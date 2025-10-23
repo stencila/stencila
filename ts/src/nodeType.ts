@@ -88,6 +88,7 @@ export type NodeType =
   | "NumberValidator"
   | "ObjectHint"
   | "Organization"
+  | "Page"
   | "Paragraph"
   | "Parameter"
   | "Periodical"
@@ -228,6 +229,7 @@ export const NodeTypeList = [
   "NumberValidator",
   "ObjectHint",
   "Organization",
+  "Page",
   "Paragraph",
   "Parameter",
   "Periodical",

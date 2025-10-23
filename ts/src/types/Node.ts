@@ -86,6 +86,7 @@ import { type NumberValidator } from "./NumberValidator.js";
 import { type Object } from "./Object.js";
 import { type ObjectHint } from "./ObjectHint.js";
 import { type Organization } from "./Organization.js";
+import { type Page } from "./Page.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type Parameter } from "./Parameter.js";
 import { type Periodical } from "./Periodical.js";
@@ -228,6 +229,7 @@ export type Node =
   NumberValidator |
   ObjectHint |
   Organization |
+  Page |
   Paragraph |
   Parameter |
   Periodical |
@@ -368,6 +370,7 @@ export function node(other: Node): Node {
     case "NumberValidator":
     case "ObjectHint":
     case "Organization":
+    case "Page":
     case "Paragraph":
     case "Parameter":
     case "Periodical":

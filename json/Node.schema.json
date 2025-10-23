@@ -264,6 +264,9 @@
       "$ref": "Organization.schema.json"
     },
     {
+      "$ref": "Page.schema.json"
+    },
+    {
       "$ref": "Paragraph.schema.json"
     },
     {

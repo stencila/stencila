@@ -186,6 +186,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Island",
                 "ModelParameters",
                 "MonetaryGrant",
+                "Page",
                 "PostalAddress",
                 "Product",
                 "Prompt",

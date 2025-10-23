@@ -1,0 +1,383 @@
+{
+  "@id": "https://stencila.org/Page",
+  "name": "Page",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Page",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Page",
+      "rdfs:comment": "A separate page in a document",
+      "rdfs:subClassOf": {
+        "@id": "stencila:StyledBlock"
+      }
+    },
+    {
+      "@id": "stencila:code",
+      "@type": "rdfs:Property",
+      "rdfs:label": "code",
+      "rdfs:comment": "The code of the equation in the `styleLanguage`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CallArgument"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Cord"
+      }
+    },
+    {
+      "@id": "stencila:styleLanguage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "styleLanguage",
+      "rdfs:comment": "The language used for the style specification e.g. css, tw",
+      "schema:domainIncludes": {
+        "@id": "stencila:Styled"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "authors",
+      "rdfs:comment": "The authors of the code and content in the styled node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
+    },
+    {
+      "@id": "stencila:provenance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "provenance",
+      "rdfs:comment": "A summary of the provenance of the code and content in the styed node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ProvenanceCount"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
+      "rdfs:comment": "A digest of the `code` and `styleLanguage`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while parsing and transpiling the style.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "stencila:AppendixBreak"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Supplement"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
+      }
+    },
+    {
+      "@id": "stencila:css",
+      "@type": "rdfs:Property",
+      "rdfs:label": "css",
+      "rdfs:comment": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:classList",
+      "@type": "rdfs:Property",
+      "rdfs:label": "classList",
+      "rdfs:comment": "A space separated list of class names associated with the node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Styled"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content within the styled block",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:CitationGroup"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InlinesBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Sentence"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    }
+  ]
+}

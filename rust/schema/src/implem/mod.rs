@@ -61,6 +61,7 @@ mod note;
 mod null;
 mod object;
 mod organization;
+mod page;
 mod paragraph;
 mod parameter;
 mod person;

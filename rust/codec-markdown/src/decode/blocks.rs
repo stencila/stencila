@@ -999,22 +999,6 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
         .parse_next(input)
 }
 
-/// Parse a [`Page`] node
-fn page(input: &mut Located<&str>) -> ModalResult<Block> {
-    preceded((Caseless("page"), multispace0), take_while(0.., |_| true))
-        .map(|page_type: &str| {
-            // Allow for alternative casing of section type by converting to
-            // casing expected by `PageType::from_str`
-            let page_type = page_type.to_pascal_case().parse().ok();
-
-            Block::Page(Page {
-                page_type,
-                ..Default::default()
-            })
-        })
-        .parse_next(input)
-}
-
 /// Parse a [`SuggestionBlock`] node
 fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
@@ -1090,6 +1074,18 @@ fn styled_block(input: &mut Located<&str>) -> ModalResult<Block> {
         })
     })
     .parse_next(input)
+}
+
+/// Parse a [`Page`] node
+fn page(input: &mut Located<&str>) -> ModalResult<Block> {
+    preceded((Caseless("page"), multispace0), take_while(0.., |_| true))
+        .map(|code: &str| {
+            Block::Page(Page {
+                code: code.trim().into(),
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
 }
 
 /// Parse a [`Table`] with a label and/or caption

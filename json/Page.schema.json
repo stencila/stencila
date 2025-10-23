@@ -1,0 +1,218 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Page.schema.json",
+  "@id": "stencila:Page",
+  "title": "Page",
+  "nick": "pge",
+  "extends": [
+    "StyledBlock"
+  ],
+  "category": "style",
+  "description": "A separate page in a document",
+  "status": "beta",
+  "dom": {
+    "derive": false
+  },
+  "markdown": {
+    "derive": false
+  },
+  "proptest": {},
+  "required": [
+    "type",
+    "code",
+    "content"
+  ],
+  "core": [
+    "id",
+    "styleLanguage",
+    "authors",
+    "provenance"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code of the equation in the `styleLanguage`.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "jats": {
+        "attr": "style"
+      },
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string of code.",
+          "value": "Cord::from(\"code\")"
+        },
+        "low": {
+          "description": "Generate a random string of up to 10 alphanumeric & space characters (trimmed). Avoid keywords used to identify other node types.\n",
+          "strategy": "r\"[a-zA-Z0-9 ]{1,10}\".prop_filter(\"No keywords\", |code| ![\"include\", \"call\", \"if\", \"ifblock\", \"for\"].contains(&code.trim())).prop_map(|code| Cord::from(code.trim()))"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::from)"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary().prop_map(Cord::from)"
+        }
+      },
+      "$ref": "Cord.schema.json"
+    },
+    "styleLanguage": {
+      "@id": "stencila:styleLanguage",
+      "description": "The language used for the style specification e.g. css, tw",
+      "aliases": [
+        "style-language",
+        "style_language"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "jats": {
+        "attr": "style-detail"
+      },
+      "proptest": {
+        "min": {
+          "description": "Do not generate a style language.",
+          "value": "None"
+        },
+        "high": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
+          "strategy": "option::of(r\"[a-zA-Z0-9]{1,10}\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
+      "type": "string"
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the code and content in the styled node.",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "authors"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the code and content in the styed node.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
+      }
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the `code` and `styleLanguage`.",
+      "$comment": "Used to avoid unnecessary transpilation to CSS.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while parsing and transpiling the style.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
+    "css": {
+      "@id": "stencila:css",
+      "description": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
+      "strip": [
+        "output"
+      ],
+      "type": "string"
+    },
+    "classList": {
+      "@id": "stencila:classList",
+      "description": "A space separated list of class names associated with the node.",
+      "$comment": "Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)\nin the Web API.\n",
+      "aliases": [
+        "class-list",
+        "class_list"
+      ],
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content within the styled block",
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    }
+  }
+}

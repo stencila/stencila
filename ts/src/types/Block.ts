@@ -27,6 +27,7 @@ import { type InstructionBlock } from "./InstructionBlock.js";
 import { type Island } from "./Island.js";
 import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
+import { type Page } from "./Page.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type PromptBlock } from "./PromptBlock.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
@@ -69,6 +70,7 @@ export type Block =
   Island |
   List |
   MathBlock |
+  Page |
   Paragraph |
   PromptBlock |
   QuoteBlock |
@@ -112,6 +114,7 @@ export function block(other: Block): Block {
     case "Island":
     case "List":
     case "MathBlock":
+    case "Page":
     case "Paragraph":
     case "PromptBlock":
     case "QuoteBlock":

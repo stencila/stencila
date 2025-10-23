@@ -5,8 +5,9 @@
  */
 
 :root {
-    /* Page Layout */
-    --page-size: a4;
+    /* Page dimensions defaults to A4 */
+    --page-height: 297mm;
+    --page-width: 210mm;
 
     /* Page margins - margin boxes around page */
     --page-margin-vertical: 1.5cm;
@@ -22,10 +23,9 @@
     --page-padding-bottom: var(--page-padding);
 
     /* Available content dimensions for a page
-     * Calculated from A4 (297mm × 210mm) minus margins and padding.
      * JavaScript reads these computed values (in pixels) to scale content to fit pages. */
-    --page-content-height: calc(297mm - var(--page-margin-top) - var(--page-margin-bottom) - var(--page-padding-top) - var(--page-padding-bottom));
-    --page-content-width: calc(210mm - var(--page-margin-left) - var(--page-margin-right));
+    --page-content-height: calc(var(--page-height) - var(--page-margin-top) - var(--page-margin-bottom) - var(--page-padding-top) - var(--page-padding-bottom));
+    --page-content-width: calc(var(--page-width) - var(--page-margin-left) - var(--page-margin-right));
 
     /* Page Margin Box Styling */
     --page-margin-font-family: var(--font-family-sans);
@@ -35,12 +35,12 @@
     --page-margin-padding: 0;
 
     /* Page Margin Box Content - Set these to control margin content */
-    --page-top-left-content: '';
-    --page-top-center-content: '';
-    --page-top-right-content: '';
-    --page-bottom-left-content: '';
-    --page-bottom-center-content: '';
-    --page-bottom-right-content: '';
+    --page-top-left-content: none;
+    --page-top-center-content: none;
+    --page-top-right-content: none;
+    --page-bottom-left-content: none;
+    --page-bottom-center-content: none;
+    --page-bottom-right-content: none;
 
     /* First Page Margin Box Content - Defaults to regular margin content */
     --page1-top-left-content: var(--page-top-left-content);
@@ -105,10 +105,17 @@
     --page1-bottom-border-narrow: var(--page1-horizontal-border-narrow);
     --page1-bottom-border-wide: var(--page1-horizontal-border-wide);
     --page1-bottom-border-full: var(--page1-horizontal-border-full);
+
+    /* Page Layout Tokens - Control overall page flexbox behavior */
+    --page-display: flex;
+    --page-flex-direction: column;
+    --page-section-gap: 0;
+    --page-justify-content: flex-start;
+    --page-align-items: stretch;
 }
 
 @page {
-    size: var(--page-size);
+    size: var(--page-width) var(--page-height);
 
     margin-top: var(--page-margin-top);
     margin-right: var(--page-margin-right);
@@ -120,7 +127,7 @@
 
     /* Top margin boxes */
     @top-left-corner {
-        content: '';
+        content: none;
         border-bottom: var(--page-top-border-full, 0) var(--page-top-border-style) var(--page-top-border-color);
     }
 
@@ -155,39 +162,39 @@
     }
 
     @top-right-corner {
-        content: '';
+        content: none;
         border-bottom: var(--page-top-border-full, 0) var(--page-top-border-style) var(--page-top-border-color);
     }
 
     /* Left margin boxes */
     @left-top {
-        content: '';
+        content: none;
     }
 
     @left-middle {
-        content: '';
+        content: none;
     }
 
     @left-bottom {
-        content: '';
+        content: none;
     }
 
     /* Right margin boxes */
     @right-top {
-        content: '';
+        content: none;
     }
 
     @right-middle {
-        content: '';
+        content: none;
     }
 
     @right-bottom {
-        content: '';
+        content: none;
     }
 
     /* Bottom margin boxes */
     @bottom-left-corner {
-        content: '';
+        content: none;
         border-top: var(--page-bottom-border-full, 0) var(--page-bottom-border-style) var(--page-bottom-border-color);
     }
 
@@ -222,128 +229,88 @@
     }
 
     @bottom-right-corner {
-        content: '';
+        content: none;
         border-top: var(--page-bottom-border-full, 0) var(--page-bottom-border-style) var(--page-bottom-border-color);
     }
 }
 
-/* First page layout with margin boxes */
 @page :first {
-    size: var(--page-size);
-
-    margin-top: var(--page-margin-top);
-    margin-right: var(--page-margin-right);
-    margin-bottom: var(--page-margin-bottom);
-    margin-left: var(--page-margin-left);
-
-    padding-top: var(--page-padding-top);
-    padding-bottom: var(--page-padding-bottom);
-
-    /* Top margin boxes */
     @top-left-corner {
-        content: '';
         border-bottom: var(--page1-top-border-full, 0) var(--page1-top-border-style) var(--page1-top-border-color);
     }
 
     @top-left {
         content: var(--page1-top-left-content);
-        font-family: var(--page-margin-font-family);
-        font-size: var(--page-margin-font-size);
-        color: var(--page-margin-color);
-        line-height: var(--page-margin-line-height);
-        padding: var(--page-margin-padding);
         border-bottom: var(--page1-top-border-wide, var(--page1-top-border-full, 0)) var(--page1-top-border-style) var(--page1-top-border-color);
     }
 
     @top-center {
         content: var(--page1-top-center-content);
-        font-family: var(--page-margin-font-family);
-        font-size: var(--page-margin-font-size);
-        color: var(--page-margin-color);
-        line-height: var(--page-margin-line-height);
-        padding: var(--page-margin-padding);
         border-bottom: var(--page1-top-border-narrow, var(--page1-top-border-wide, var(--page1-top-border-full, 0))) var(--page1-top-border-style) var(--page1-top-border-color);
     }
 
     @top-right {
         content: var(--page1-top-right-content);
-        font-family: var(--page-margin-font-family);
-        font-size: var(--page-margin-font-size);
-        color: var(--page-margin-color);
-        line-height: var(--page-margin-line-height);
-        padding: var(--page-margin-padding);
         border-bottom: var(--page1-top-border-wide, var(--page1-top-border-full, 0)) var(--page1-top-border-style) var(--page1-top-border-color);
     }
 
     @top-right-corner {
-        content: '';
         border-bottom: var(--page1-top-border-full, 0) var(--page1-top-border-style) var(--page1-top-border-color);
     }
 
-    /* Left margin boxes */
-    @left-top {
-        content: '';
-    }
-
-    @left-middle {
-        content: '';
-    }
-
-    @left-bottom {
-        content: '';
-    }
-
-    /* Right margin boxes */
-    @right-top {
-        content: '';
-    }
-
-    @right-middle {
-        content: '';
-    }
-
-    @right-bottom {
-        content: '';
-    }
-
-    /* Bottom margin boxes */
     @bottom-left-corner {
-        content: '';
         border-top: var(--page1-bottom-border-full, 0) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
     }
 
     @bottom-left {
         content: var(--page1-bottom-left-content);
-        font-family: var(--page-margin-font-family);
-        font-size: var(--page-margin-font-size);
-        color: var(--page-margin-color);
-        line-height: var(--page-margin-line-height);
-        padding: var(--page-margin-padding);
         border-top: var(--page1-bottom-border-wide, var(--page1-bottom-border-full, 0)) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
     }
 
     @bottom-center {
         content: var(--page1-bottom-center-content);
-        font-family: var(--page-margin-font-family);
-        font-size: var(--page-margin-font-size);
-        color: var(--page-margin-color);
-        line-height: var(--page-margin-line-height);
-        padding: var(--page-margin-padding);
         border-top: var(--page1-bottom-border-narrow, var(--page1-bottom-border-wide, var(--page1-bottom-border-full, 0))) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
     }
 
     @bottom-right {
         content: var(--page1-bottom-right-content);
-        font-family: var(--page-margin-font-family);
-        font-size: var(--page-margin-font-size);
-        color: var(--page-margin-color);
-        line-height: var(--page-margin-line-height);
-        padding: var(--page-margin-padding);
         border-top: var(--page1-bottom-border-wide, var(--page1-bottom-border-full, 0)) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
     }
 
     @bottom-right-corner {
-        content: '';
         border-top: var(--page1-bottom-border-full, 0) var(--page1-bottom-border-style) var(--page1-bottom-border-color);
     }
+}
+
+/* Named page for <stencila-page> elements with no margin or padding to allow
+background color and images to bleed to the edge */
+@page blank {
+    margin: 0;
+    padding: 0;
+}
+
+/* Page is displayed as a full height page in the browser so that it can be
+  previewed with live reloading of styles etc */
+stencila-page {
+    page: blank;
+
+    display: block;
+    break-after: page;
+
+    /* Force browsers to preserve background colors and images in print/PDF output.
+     * By default, browsers strip backgrounds to save ink. These properties ensure
+     * full-bleed colored backgrounds are rendered in the PDF. */
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+
+    /* Use absolute page dimensions to ensure bleed to the edge */
+    min-height: var(--page-height);
+    max-height: var(--page-height);
+    height: var(--page-height);
+
+    /* Prevent overflow that causes background bleed onto next page */
+    overflow: hidden;
+
+    /* Ensure proper box model calculation */
+    box-sizing: border-box;
 }

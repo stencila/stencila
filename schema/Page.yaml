@@ -1,0 +1,12 @@
+title: Page
+'@id': stencila:Page
+nick: pge
+status: beta
+extends: StyledBlock
+category: style
+description: A separate page in a document
+dom:
+  derive: false
+markdown:
+  derive: false
+proptest: {}

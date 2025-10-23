@@ -132,6 +132,7 @@ export * from "./NumberValidator.js";
 export * from "./Object.js";
 export * from "./ObjectHint.js";
 export * from "./Organization.js";
+export * from "./Page.js";
 export * from "./Paragraph.js";
 export * from "./Parameter.js";
 export * from "./Periodical.js";

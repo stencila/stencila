@@ -130,6 +130,7 @@
     "Object": "stencila:Object",
     "ObjectHint": "stencila:ObjectHint",
     "Organization": "schema:Organization",
+    "Page": "stencila:Page",
     "Paragraph": "stencila:Paragraph",
     "Parameter": "stencila:Parameter",
     "Periodical": "schema:Periodical",
