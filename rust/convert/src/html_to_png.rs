@@ -1192,7 +1192,7 @@ fn try_png(
         quality: Some(5), // Lower quality for speed
         clip,             // Use content bounds or None for full page
         from_surface: Some(true),
-        capture_beyond_viewport: Some(false), // Don't capture beyond viewport for speed
+        capture_beyond_viewport: Some(true), // Required to capture tall content beyond viewport
         optimize_for_speed: Some(true),
     };
 
