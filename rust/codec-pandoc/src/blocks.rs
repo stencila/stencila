@@ -432,12 +432,17 @@ fn table_cell_to_pandoc(cell: &TableCell, context: &mut PandocEncodeContext) -> 
         _ => pandoc::Alignment::AlignDefault,
     };
 
+    let row_span = cell.options.row_span.unwrap_or(1).max(1) as i32;
+    let col_span = cell.options.column_span.unwrap_or(1).max(1) as i32;
+
+    let content = blocks_to_pandoc(NodeProperty::Content, &cell.content, context);
+
     pandoc::Cell {
         attr: attrs_empty(),
         align,
-        row_span: 1,
-        col_span: 1,
-        content: blocks_to_pandoc(NodeProperty::Content, &cell.content, context),
+        row_span,
+        col_span,
+        content,
     }
 }
 
