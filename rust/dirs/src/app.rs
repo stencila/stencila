@@ -37,6 +37,9 @@ pub enum DirType {
 
     /// Cache subdirectory for template files (e.g. for Pandoc)
     Templates,
+
+    /// Runtime subdirectory for server info files
+    Servers,
 }
 
 /// Get an application directory
@@ -64,6 +67,11 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
             DirType::Kernels => dirs.cache_dir().join("kernels"),
             DirType::Models => dirs.cache_dir().join("models"),
             DirType::Templates => dirs.cache_dir().join("templates"),
+
+            DirType::Servers => dirs
+                .runtime_dir()
+                .unwrap_or_else(|| dirs.cache_dir())
+                .join("servers"),
         }
     };
 
