@@ -7,6 +7,9 @@ import { DocumentView } from './document'
 import '../nodes/all'
 import '../shoelace'
 import '../ui/document/menu'
+import { initUno } from '../unocss'
+
+initUno()
 
 /**
  * A view for a VSCode WebView preview panel

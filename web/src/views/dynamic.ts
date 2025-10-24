@@ -9,6 +9,9 @@ import { DocumentView } from './document'
 
 import '../nodes/all'
 import '../shoelace'
+import { initUno } from '../unocss'
+
+initUno()
 
 /**
  * Dynamic view of a document

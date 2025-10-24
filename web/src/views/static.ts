@@ -4,6 +4,9 @@ import { customElement } from 'lit/decorators.js'
 import '../nodes/code-block'
 import '../nodes/code-chunk' // For code chunks that are `echo` (ie. display code)
 import '../nodes/image-object'
+import { initUno } from '../unocss'
+
+initUno()
 
 /**
  * Static view of a document
