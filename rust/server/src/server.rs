@@ -1,8 +1,10 @@
 use std::{
-    env,
+    env, fs,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::PathBuf,
+    process,
     sync::Arc,
+    time::SystemTime,
 };
 
 use axum::{
@@ -16,7 +18,7 @@ use axum::{
 };
 use clap::Args;
 use rand::{Rng, rng};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
 use tokio::{net::TcpListener, sync::mpsc};
 use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
@@ -25,6 +27,7 @@ use tower_http::{
     trace::TraceLayer,
 };
 
+use stencila_dirs::{DirType, get_app_dir};
 use stencila_document::SyncDirection;
 pub(crate) use stencila_version::STENCILA_VERSION;
 
@@ -33,6 +36,75 @@ use crate::{
     documents::{self, Documents},
     login, statics, themes,
 };
+
+/// Server runtime information written to disk for discovery
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ServerInfo {
+    /// Process ID of the server
+    pub pid: u32,
+
+    /// Port the server is listening on
+    pub port: u16,
+
+    /// Server authentication token
+    pub token: Option<String>,
+
+    /// Directory being served (absolute path)
+    pub directory: PathBuf,
+
+    /// Unix timestamp when server started
+    pub started_at: u64,
+}
+
+impl ServerInfo {
+    /// Create ServerInfo for current server
+    fn new(port: u16, token: Option<String>, directory: PathBuf) -> Self {
+        Self {
+            pid: process::id(),
+            port,
+            token,
+            directory,
+            started_at: SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .map(|d| d.as_secs())
+                .unwrap_or(0),
+        }
+    }
+
+    /// Write server info to cache directory
+    fn write(&self) -> eyre::Result<PathBuf> {
+        let servers_dir = get_app_dir(DirType::Servers, true)?;
+        let info_path = servers_dir.join(format!("{}.json", self.pid));
+
+        let json = serde_json::to_string_pretty(self)?;
+        fs::write(&info_path, json)?;
+
+        // Set permissions to 600 (owner read/write only) for security
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let permissions = fs::Permissions::from_mode(0o600);
+            fs::set_permissions(&info_path, permissions)?;
+        }
+
+        tracing::debug!("Wrote server info to {}", info_path.display());
+
+        Ok(info_path)
+    }
+
+    /// Remove server info file
+    fn cleanup(&self) -> eyre::Result<()> {
+        if let Ok(servers_dir) = get_app_dir(DirType::Servers, false) {
+            let info_path = servers_dir.join(format!("{}.json", self.pid));
+
+            if info_path.exists() {
+                fs::remove_file(&info_path)?;
+                tracing::debug!("Cleaned up server info at {}", info_path.display());
+            }
+        }
+        Ok(())
+    }
+}
 
 /// Server state available from all routes
 #[derive(Default, Clone)]
@@ -148,11 +220,6 @@ pub struct ServeOptions {
     /// Do not show a startup message giving a login URL
     #[clap(skip)]
     pub no_startup_message: bool,
-
-    /// Whether the server can be be gracefully shutdown by sending
-    /// a message on the server state's `shutdown_sender`.
-    #[clap(skip)]
-    pub graceful_shutdown: bool,
 }
 
 /// Start the server
@@ -168,7 +235,6 @@ pub async fn serve(
         cors,
         server_token,
         no_startup_message,
-        graceful_shutdown,
     }: ServeOptions,
 ) -> eyre::Result<()> {
     let dir = dir.canonicalize()?;
@@ -189,12 +255,11 @@ pub async fn serve(
         url.push_str(sst);
     }
 
-    let (shutdown_sender, shutdown_receiver) = if graceful_shutdown {
-        let channel = mpsc::channel(10);
-        (Some(channel.0), Some(channel.1))
-    } else {
-        (None, None)
-    };
+    // Always enable graceful shutdown to support SIGINT handling
+    let (shutdown_sender, mut shutdown_receiver) = mpsc::channel(10);
+
+    // Create ServerInfo before moving values into state
+    let server_info = ServerInfo::new(port, server_token.clone(), dir.clone());
 
     let state = ServerState {
         dir,
@@ -202,7 +267,7 @@ pub async fn serve(
         raw,
         source,
         sync,
-        shutdown_sender,
+        shutdown_sender: Some(shutdown_sender),
         ..Default::default()
     };
 
@@ -239,19 +304,33 @@ pub async fn serve(
         tracing::info!("Starting server at {url}");
     }
 
-    if let Some(mut shutdown_receiver) = shutdown_receiver {
-        axum::serve(listener, router)
-            .with_graceful_shutdown(async move {
-                if let Some(()) = shutdown_receiver.recv().await {
-                    tracing::debug!("Server shutdown signal received, stopping server gracefully");
-                } else {
-                    tracing::warn!("Server shutdown channel closed without signal");
+    // Write server info for discovery
+    server_info.write()?;
+
+    // Run server with graceful shutdown support
+    let result = axum::serve(listener, router)
+        .with_graceful_shutdown(async move {
+            tokio::select! {
+                _ = tokio::signal::ctrl_c() => {
+                    tracing::info!("Received SIGINT, stopping server gracefully");
                 }
-            })
-            .await?;
-    } else {
-        axum::serve(listener, router).await?;
+                result = shutdown_receiver.recv() => {
+                    if result.is_some() {
+                        tracing::debug!("Server shutdown signal received, stopping server gracefully");
+                    } else {
+                        tracing::warn!("Server shutdown channel closed without signal");
+                    }
+                }
+            }
+        })
+        .await;
+
+    // Cleanup server info file
+    if let Err(error) = server_info.cleanup() {
+        tracing::warn!("Failed to cleanup server info: {}", error);
     }
+
+    result?;
 
     Ok(())
 }

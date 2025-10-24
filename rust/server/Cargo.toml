@@ -21,6 +21,7 @@ stencila-cloud = { path = "../cloud" }
 stencila-codec-dom = { path = "../codec-dom" }
 stencila-codec-text = { path = "../codec-text" }
 stencila-codecs = { path = "../codecs" }
+stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }
 stencila-themes = { path = "../themes" }

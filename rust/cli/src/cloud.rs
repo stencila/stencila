@@ -126,7 +126,6 @@ impl Signin {
         let options = ServeOptions {
             server_token: Some(server_token.clone()),
             no_startup_message: true,
-            graceful_shutdown: true,
             ..Default::default()
         };
 
