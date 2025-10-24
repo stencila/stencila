@@ -58,6 +58,8 @@ pub struct CssProperties {
 
     pub color: Option<String>,
 
+    pub color_hex: Option<String>,
+
     pub font_family: Option<String>,
 
     pub font_weight: Option<String>,
@@ -82,6 +84,8 @@ pub struct CssProperties {
     // Backgrounds
     pub background_color: Option<String>,
 
+    pub background_color_hex: Option<String>,
+
     pub background_image: Option<String>,
 
     pub background_size: Option<String>,
@@ -92,6 +96,8 @@ pub struct CssProperties {
     pub border_width: Option<String>,
 
     pub border_color: Option<String>,
+
+    pub border_color_hex: Option<String>,
 
     pub border_radius: Option<String>,
 
@@ -152,6 +158,33 @@ pub struct BoxInfo {
 /// for specified selectors and returns them as JSON
 pub const MEASUREMENT_SCRIPT: &str = r#"
 (function(selector) {
+    // Helper function to convert rgb()/rgba() to hex
+    function rgbToHex(rgb) {
+        if (!rgb || rgb === 'transparent') return null;
+
+        // Match rgb() or rgba()
+        const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+        if (!match) return null;
+
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
+
+        // If fully transparent, return null
+        if (a === 0) return null;
+
+        const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+
+        // Include alpha if not fully opaque
+        if (a < 1) {
+            const alphaHex = Math.round(a * 255).toString(16).padStart(2, '0');
+            return hex + alphaHex;
+        }
+
+        return hex;
+    }
+
     const result = {
         css: {},
         box_info: {},
@@ -203,6 +236,7 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
             fontSize: cs.fontSize,
             lineHeight: cs.lineHeight,
             color: cs.color,
+            colorHex: rgbToHex(cs.color),
             fontFamily: cs.fontFamily,
             fontWeight: cs.fontWeight,
             textAlign: cs.textAlign,
@@ -216,12 +250,14 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
             opacity: cs.opacity,
             // Backgrounds
             backgroundColor: cs.backgroundColor,
+            backgroundColorHex: rgbToHex(cs.backgroundColor),
             backgroundImage: cs.backgroundImage,
             backgroundSize: cs.backgroundSize,
             backgroundPosition: cs.backgroundPosition,
             // Borders
             borderWidth: cs.borderWidth,
             borderColor: cs.borderColor,
+            borderColorHex: rgbToHex(cs.borderColor),
             borderRadius: cs.borderRadius,
             borderStyle: cs.borderStyle,
             borderTopWidth: cs.borderTopWidth,
@@ -276,12 +312,15 @@ mod tests {
 
     #[test]
     fn test_parse_measurements() {
-        let json = r#"{
+        let json = r##"{
             "css": {
                 ".title": {
                     "paddingTop": "24px",
                     "fontSize": "28px",
-                    "color": "rgb(0, 0, 0)"
+                    "color": "rgb(0, 0, 0)",
+                    "colorHex": "#000000",
+                    "backgroundColor": "rgb(255, 255, 255)",
+                    "backgroundColorHex": "#ffffff"
                 }
             },
             "box_info": {
@@ -299,7 +338,7 @@ mod tests {
                 ".title": "Document Title"
             },
             "errors": []
-        }"#;
+        }"##;
 
         let result = parse_measurements(json).expect("Failed to parse");
         assert_eq!(result.css.len(), 1);
@@ -310,5 +349,10 @@ mod tests {
             Some(&"Document Title".to_string())
         );
         assert_eq!(result.errors.len(), 0);
+
+        // Check hex color conversion
+        let title_css = result.css.get(".title").expect("Title CSS not found");
+        assert_eq!(title_css.color_hex.as_deref(), Some("#000000"));
+        assert_eq!(title_css.background_color_hex.as_deref(), Some("#ffffff"));
     }
 }

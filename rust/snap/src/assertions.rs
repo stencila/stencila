@@ -323,6 +323,7 @@ fn get_css_property(css: &crate::measure::CssProperties, prop: &str) -> Option<S
         "fontSize" => css.font_size.clone(),
         "lineHeight" => css.line_height.clone(),
         "color" => css.color.clone(),
+        "colorHex" => css.color_hex.clone(),
         "fontFamily" => css.font_family.clone(),
         "fontWeight" => css.font_weight.clone(),
         "textAlign" => css.text_align.clone(),
@@ -336,12 +337,14 @@ fn get_css_property(css: &crate::measure::CssProperties, prop: &str) -> Option<S
         "opacity" => css.opacity.clone(),
         // Backgrounds
         "backgroundColor" => css.background_color.clone(),
+        "backgroundColorHex" => css.background_color_hex.clone(),
         "backgroundImage" => css.background_image.clone(),
         "backgroundSize" => css.background_size.clone(),
         "backgroundPosition" => css.background_position.clone(),
         // Borders
         "borderWidth" => css.border_width.clone(),
         "borderColor" => css.border_color.clone(),
+        "borderColorHex" => css.border_color_hex.clone(),
         "borderRadius" => css.border_radius.clone(),
         "borderStyle" => css.border_style.clone(),
         "borderTopWidth" => css.border_top_width.clone(),
