@@ -7,7 +7,7 @@ edition = "2024"
 base64 = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
-headless_chrome = { version = "1.0.18", features = ["rustls"] }
+headless_chrome = { workspace = true}
 itertools = { workspace = true }
 rand = { workspace = true }
 regex = { workspace = true }

@@ -8007,6 +8007,7 @@ dependencies = [
  "stencila-schema",
  "stencila-secrets",
  "stencila-server",
+ "stencila-snap",
  "stencila-themes",
  "stencila-tools",
  "stencila-version",
@@ -10186,6 +10187,7 @@ dependencies = [
  "stencila-codec-dom",
  "stencila-codec-text",
  "stencila-codecs",
+ "stencila-dirs",
  "stencila-document",
  "stencila-format",
  "stencila-themes",
@@ -10196,6 +10198,26 @@ dependencies = [
  "tower-http",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "stencila-snap"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "clap",
+ "eyre",
+ "headless_chrome",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "stencila-cli-utils",
+ "stencila-dirs",
+ "stencila-format",
+ "stencila-server",
+ "test-log",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

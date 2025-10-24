@@ -263,6 +263,7 @@ pub enum Command {
     Tools(stencila_tools::cli::Cli),
 
     Serve(ServeOptions),
+    Snap(stencila_snap::cli::Cli),
     /// Run the Language Server Protocol server
     Lsp,
 
@@ -322,6 +323,7 @@ impl Cli {
             Command::Tools(tools) => tools.run().await,
 
             Command::Serve(options) => stencila_server::serve(options).await,
+            Command::Snap(snap) => snap.run().await,
 
             Command::Cloud(cloud) => cloud.run().await,
             Command::Signin(signin) => signin.run().await,
