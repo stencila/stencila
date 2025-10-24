@@ -53,10 +53,10 @@ pub struct Cli {
 
     /// Capture full scrollable page
     ///
-    /// By default, captures the entire page. Set to false with --no-full-page
-    /// to capture only the viewport.
-    #[arg(long, default_value_t = true)]
-    full_page: bool,
+    /// By default, captures only the viewport (first screen). Use this flag
+    /// to capture the entire scrollable document.
+    #[arg(long)]
+    full: bool,
 
     /// Device preset
     ///
@@ -139,14 +139,20 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Start server in background</dim>
   <b>stencila serve</> <c>--sync</> <g>in</> &
 
-  <dim># Capture full-page screenshot</dim>
-  <b>stencila snap</> <g>snaps/full.png</>
+  <dim># Capture viewport screenshot (default)</dim>
+  <b>stencila snap</> <g>snaps/viewport.png</>
+
+  <dim># Capture full scrollable page</dim>
+  <b>stencila snap</> <c>--full</> <g>snaps/full.png</>
 
   <dim># Verify computed padding for title</dim>
   <b>stencila snap</> <c>--assert</> <y>"css([slot=title]).paddingTop>=24px"</>
 
-  <dim># Capture mobile view of specific element</dim>
-  <b>stencila snap</> <c>--device</> <g>iphone-15</> <c>--selector</> <y>"stencila-article [slot=title]"</> <g>snaps/mobile.png</>
+  <dim># Capture mobile viewport of specific element</dim>
+  <b>stencila snap</> <c>--device</> <g>mobile</> <c>--selector</> <y>"stencila-article [slot=title]"</> <g>snaps/mobile.png</>
+
+  <dim># Capture full mobile page</dim>
+  <b>stencila snap</> <c>--device</> <g>mobile</> <c>--full</> <g>snaps/mobile-full.png</>
 
   <dim># Force light or dark mode</dim>
   <b>stencila snap</> <c>--light</> <g>snaps/light.png</>
@@ -216,7 +222,7 @@ impl Cli {
             url: self.url,
             output: self.output,
             selector: self.selector,
-            full_page: self.full_page,
+            full_page: self.full,
             device: self.device,
             viewport,
             color_scheme,
