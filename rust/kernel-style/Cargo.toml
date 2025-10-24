@@ -5,7 +5,6 @@ edition = "2024"
 
 [dependencies]
 bs58 = { workspace = true }
-railwind = { git = "https://github.com/nokome/railwind", rev = "e804d17b3f1e08ae96ab4aa048d237fc94e39911" }
 regex = { workspace = true }
 seahash = { workspace = true }
 stencila-kernel = { path = "../kernel" }

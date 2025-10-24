@@ -4741,12 +4741,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "line-col"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e69cdf6b85b5c8dce514f694089a2cf8b1a702f6cd28607bcb3cf296c9778db"
-
-[[package]]
 name = "link-cplusplus"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6604,21 +6598,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09"
 
 [[package]]
-name = "railwind"
-version = "0.1.5"
-source = "git+https://github.com/nokome/railwind?rev=e804d17b3f1e08ae96ab4aa048d237fc94e39911#e804d17b3f1e08ae96ab4aa048d237fc94e39911"
-dependencies = [
- "hex",
- "indexmap 1.9.3",
- "lazy_static",
- "line-col",
- "regex",
- "ron",
- "serde",
- "serde_regex",
-]
-
-[[package]]
 name = "rand"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7055,19 +7034,6 @@ dependencies = [
  "byteorder",
  "rmp",
  "serde",
-]
-
-[[package]]
-name = "ron"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b91f7eff05f748767f183df4320a63d6936e9c6107d97c9e6bdd9784f4289c94"
-dependencies = [
- "base64 0.21.7",
- "bitflags 2.9.4",
- "indexmap 2.11.4",
- "serde",
- "serde_derive",
 ]
 
 [[package]]
@@ -7611,16 +7577,6 @@ dependencies = [
  "itoa",
  "serde",
  "serde_core",
-]
-
-[[package]]
-name = "serde_regex"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8136f1a4ea815d7eac4101cfd0b16dc0cb5e1fe1b8609dfd728058656b7badf"
-dependencies = [
- "regex",
- "serde",
 ]
 
 [[package]]
@@ -9320,7 +9276,6 @@ version = "0.0.0"
 dependencies = [
  "bs58",
  "pretty_assertions",
- "railwind",
  "regex",
  "seahash",
  "stencila-kernel",

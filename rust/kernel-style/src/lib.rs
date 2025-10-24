@@ -3,7 +3,6 @@ use std::{
     sync::LazyLock,
 };
 
-use railwind::{CollectionOptions, Source, parse_to_string};
 use regex::Regex;
 use seahash::SeaHasher;
 
@@ -14,13 +13,12 @@ use stencila_kernel::{
     generate_id,
     stencila_format::Format,
     stencila_schema::{
-        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
-        SoftwareApplicationOptions,
+        ExecutionBounds, ExecutionMessage, Node, SoftwareApplication, SoftwareApplicationOptions,
     },
 };
 use stencila_kernel_jinja::JinjaKernelInstance;
 
-/// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.
+/// A kernel for compiling styles, optionally including Jinja templates, into CSS and utility classes.
 #[derive(Default)]
 pub struct StyleKernel;
 
@@ -110,16 +108,8 @@ impl StyleKernelInstance {
 
         // Currently, there is no way to tell the kernel what language the style is
         // in. So this assumes it is Tailwind unless it contains characters only found in CSS.
-        let (css, classes) = if code.contains(['<', '>']) {
-            // Transpile HTML in RawBlock, potentially with Tailwind classes, to CSS
-            let (css, mut tailwind_messages) = self.html_to_css(code);
-            messages.append(&mut tailwind_messages);
-            (css, String::new())
-        } else if !code.contains([';', '{', '}']) {
-            // Transpile Tailwind in StyledBlock to CSS
-            let (css, mut tailwind_messages) = self.tailwind_to_css(code);
-            messages.append(&mut tailwind_messages);
-            (css, code.to_string())
+        let (css, classes) = if !code.contains([';', '{', '}']) {
+            (String::new(), code.to_string())
         } else if code.ends_with('}') {
             // Complete CSS stylesheet in RawBlock: just return the CSS
             (code.to_string(), String::new())
@@ -137,41 +127,6 @@ impl StyleKernelInstance {
         };
 
         Ok((css, classes, messages))
-    }
-
-    /// Transpile Tailwind to CSS
-    fn tailwind_to_css(&self, tw: &str) -> (String, Vec<ExecutionMessage>) {
-        self.source_to_css(Source::String(tw.to_string(), CollectionOptions::String))
-    }
-
-    /// Parse HTML for Tailwind classes and transpile to CSS
-    fn html_to_css(&self, html: &str) -> (String, Vec<ExecutionMessage>) {
-        self.source_to_css(Source::String(html.to_string(), CollectionOptions::Html))
-    }
-
-    /// Tailwind [`Source`] to CSS
-    fn source_to_css(&self, source: Source) -> (String, Vec<ExecutionMessage>) {
-        let mut warnings = Vec::new();
-        let css = parse_to_string(source, false, &mut warnings);
-
-        let messages: Vec<ExecutionMessage> = warnings
-            .into_iter()
-            .map(|warning| {
-                let position = warning.position();
-                ExecutionMessage {
-                    level: MessageLevel::Warning,
-                    message: warning.message().to_string(),
-                    code_location: Some(CodeLocation {
-                        start_line: Some(position.line().saturating_sub(1) as u64),
-                        start_column: Some(position.column().saturating_sub(1) as u64),
-                        ..Default::default()
-                    }),
-                    ..Default::default()
-                }
-            })
-            .collect();
-
-        (css, messages)
     }
 }
 
@@ -251,29 +206,17 @@ mod tests {
         assert_eq!(
             outputs,
             vec![
-                Node::String(".bg-red-100 {\n    --tw-bg-opacity: 1;\n    background-color: rgb(254 226 226 / var(--tw-bg-opacity));\n}\n".to_string()), 
+                Node::String(String::new()),
                 Node::String("bg-red-100".to_string())
             ]
         );
 
         let (outputs, messages) = instance.execute(r"foo text-blue-800").await?;
-        assert_eq!(
-            messages,
-            vec![ExecutionMessage {
-                level: MessageLevel::Warning,
-                message: "Could not match class 'foo'".to_string(),
-                code_location: Some(CodeLocation {
-                    start_line: Some(0),
-                    start_column: Some(0),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            }]
-        );
+        assert_eq!(messages, vec![]);
         assert_eq!(
             outputs,
             vec![
-                Node::String(".text-blue-800 {\n    --tw-text-opacity: 1;\n    color: rgb(30 64 175 / var(--tw-text-opacity));\n}\n".to_string()),
+                Node::String(String::new()),
                 Node::String("foo text-blue-800".to_string())
             ]
         );
