@@ -221,6 +221,13 @@ pub struct ServeOptions {
     /// Do not show a startup message giving a login URL
     #[clap(skip)]
     pub no_startup_message: bool,
+
+    /// External shutdown receiver for programmatic shutdown control
+    ///
+    /// When provided, the server will listen for shutdown signals on this channel
+    /// in addition to SIGINT (Ctrl+C).
+    #[clap(skip)]
+    pub shutdown_receiver: Option<tokio::sync::oneshot::Receiver<()>>,
 }
 
 /// Start the server
@@ -236,6 +243,7 @@ pub async fn serve(
         cors,
         server_token,
         no_startup_message,
+        shutdown_receiver: external_shutdown_receiver,
     }: ServeOptions,
 ) -> eyre::Result<()> {
     let dir = dir.canonicalize()?;
@@ -287,7 +295,7 @@ pub async fn serve(
     }
 
     // Always enable graceful shutdown to support SIGINT handling
-    let (shutdown_sender, mut shutdown_receiver) = mpsc::channel(10);
+    let (internal_shutdown_sender, mut internal_shutdown_receiver) = mpsc::channel(10);
 
     // Create ServerInfo with the actual port that was bound
     let server_info = ServerInfo::new(current_port, server_token.clone(), dir.clone());
@@ -298,7 +306,7 @@ pub async fn serve(
         raw,
         source,
         sync,
-        shutdown_sender: Some(shutdown_sender),
+        shutdown_sender: Some(internal_shutdown_sender),
         ..Default::default()
     };
 
@@ -339,15 +347,33 @@ pub async fn serve(
     // Run server with graceful shutdown support
     let result = axum::serve(listener, router)
         .with_graceful_shutdown(async move {
-            tokio::select! {
-                _ = tokio::signal::ctrl_c() => {
-                    tracing::info!("Received SIGINT, stopping server gracefully");
+            if let Some(mut external_shutdown_receiver) = external_shutdown_receiver {
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {
+                        tracing::info!("Received SIGINT, stopping server gracefully");
+                    }
+                    result = internal_shutdown_receiver.recv() => {
+                        if result.is_some() {
+                            tracing::debug!("Internal shutdown signal received, stopping server gracefully");
+                        } else {
+                            tracing::warn!("Internal shutdown channel closed without signal");
+                        }
+                    }
+                    _ = &mut external_shutdown_receiver => {
+                        tracing::debug!("External shutdown signal received, stopping server gracefully");
+                    }
                 }
-                result = shutdown_receiver.recv() => {
-                    if result.is_some() {
-                        tracing::debug!("Server shutdown signal received, stopping server gracefully");
-                    } else {
-                        tracing::warn!("Server shutdown channel closed without signal");
+            } else {
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {
+                        tracing::info!("Received SIGINT, stopping server gracefully");
+                    }
+                    result = internal_shutdown_receiver.recv() => {
+                        if result.is_some() {
+                            tracing::debug!("Internal shutdown signal received, stopping server gracefully");
+                        } else {
+                            tracing::warn!("Internal shutdown channel closed without signal");
+                        }
                     }
                 }
             }
