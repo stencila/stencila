@@ -131,7 +131,9 @@ async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
             full_page: options.full_page,
             selector: options.selector.clone(),
         };
-        browser.capture_screenshot(&capture_opts, output).await?;
+        browser
+            .capture_screenshot(&capture_opts, output, &viewport)
+            .await?;
     }
 
     // Build output

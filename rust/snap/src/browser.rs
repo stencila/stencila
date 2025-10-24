@@ -275,6 +275,7 @@ impl BrowserSession {
         &mut self,
         options: &CaptureOptions,
         path: &Path,
+        viewport: &ViewportConfig,
     ) -> Result<()> {
         let screenshot_data = if let Some(selector) = &options.selector {
             // Element-specific screenshot
@@ -287,28 +288,74 @@ impl BrowserSession {
                     headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
                 )
                 .map_err(|error| eyre!("Failed to capture element screenshot: {error}"))?
-        } else {
-            // Full page or viewport screenshot
+        } else if options.full_page {
+            // For full-page screenshots, we need to get the actual content height
+            // and adjust the viewport accordingly to capture everything
+            let content_height_script = r#"
+                Math.max(
+                    document.body.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.clientHeight,
+                    document.documentElement.scrollHeight,
+                    document.documentElement.offsetHeight
+                )
+            "#;
 
-            if options.full_page {
-                self.tab
-                    .capture_screenshot(
-                        headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
-                        None,
-                        None,
-                        true,
-                    )
-                    .map_err(|error| eyre!("Failed to capture full page screenshot: {error}"))?
-            } else {
-                self.tab
-                    .capture_screenshot(
-                        headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
-                        None,
-                        None,
-                        false,
-                    )
-                    .map_err(|error| eyre!("Failed to capture viewport screenshot: {error}"))?
-            }
+            let result = self
+                .tab
+                .evaluate(content_height_script, false)
+                .map_err(|error| eyre!("Failed to get content height: {error}"))?;
+
+            let content_height = result
+                .value
+                .and_then(|v| v.as_f64())
+                .ok_or_else(|| eyre!("Failed to parse content height"))?
+                as u32;
+
+            // Update viewport height to match content height
+            self.tab
+                .call_method(
+                    headless_chrome::protocol::cdp::Emulation::SetDeviceMetricsOverride {
+                        width: viewport.width,
+                        height: content_height,
+                        device_scale_factor: viewport.dpr as f64,
+                        mobile: false,
+                        scale: None,
+                        screen_width: None,
+                        screen_height: None,
+                        position_x: None,
+                        position_y: None,
+                        dont_set_visible_size: None,
+                        screen_orientation: None,
+                        viewport: None,
+                        display_feature: None,
+                        device_posture: None,
+                    },
+                )
+                .map_err(|error| eyre!("Failed to update viewport for full page: {error}"))?;
+
+            // Small delay to let the viewport adjustment take effect
+            sleep(Duration::from_millis(100));
+
+            // Now capture the full page
+            self.tab
+                .capture_screenshot(
+                    headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
+                    None,
+                    None,
+                    true,
+                )
+                .map_err(|error| eyre!("Failed to capture full page screenshot: {error}"))?
+        } else {
+            // Viewport-only screenshot
+            self.tab
+                .capture_screenshot(
+                    headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
+                    None,
+                    None,
+                    false,
+                )
+                .map_err(|error| eyre!("Failed to capture viewport screenshot: {error}"))?
         };
 
         if let Some(dir) = path.parent() {
