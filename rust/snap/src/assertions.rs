@@ -80,6 +80,13 @@ impl Assertion {
 
     /// Evaluate this assertion against measurement results
     pub fn evaluate(&self, measurements: &MeasureResult) -> AssertionResult {
+        // Check if element exists first
+        let element_count = measurements
+            .counts
+            .get(&self.selector)
+            .copied()
+            .unwrap_or(0);
+
         let actual_value = match self.domain.as_str() {
             "css" => {
                 // Safe: parse() ensures property is present for css domain
@@ -87,11 +94,19 @@ impl Assertion {
                     .property
                     .as_ref()
                     .expect("property required for css domain");
-                measurements
-                    .css
-                    .get(&self.selector)
-                    .and_then(|css| get_css_property(css, prop))
-                    .unwrap_or_else(|| "not found".to_string())
+
+                if element_count == 0 {
+                    format!(
+                        "element not found (selector '{}' matched 0 elements)",
+                        self.selector
+                    )
+                } else {
+                    measurements
+                        .css
+                        .get(&self.selector)
+                        .and_then(|css| get_css_property(css, prop))
+                        .unwrap_or_else(|| format!("property '{}' not available", prop))
+                }
             }
             "box" => {
                 // Safe: parse() ensures property is present for box domain
@@ -99,12 +114,20 @@ impl Assertion {
                     .property
                     .as_ref()
                     .expect("property required for box domain");
-                measurements
-                    .box_info
-                    .get(&self.selector)
-                    .and_then(|box_info| get_box_property(box_info, prop))
-                    .map(|v| v.to_string())
-                    .unwrap_or_else(|| "not found".to_string())
+
+                if element_count == 0 {
+                    format!(
+                        "element not found (selector '{}' matched 0 elements)",
+                        self.selector
+                    )
+                } else {
+                    measurements
+                        .box_info
+                        .get(&self.selector)
+                        .and_then(|box_info| get_box_property(box_info, prop))
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| format!("property '{}' not available", prop))
+                }
             }
             "count" => measurements
                 .counts
@@ -116,11 +139,20 @@ impl Assertion {
                 .get(&self.selector)
                 .map(|c| (*c > 0).to_string())
                 .unwrap_or_else(|| "false".to_string()),
-            "text" => measurements
-                .text
-                .get(&self.selector)
-                .cloned()
-                .unwrap_or_else(|| "not found".to_string()),
+            "text" => {
+                if element_count == 0 {
+                    format!(
+                        "element not found (selector '{}' matched 0 elements)",
+                        self.selector
+                    )
+                } else {
+                    measurements
+                        .text
+                        .get(&self.selector)
+                        .cloned()
+                        .unwrap_or_else(|| "text not available".to_string())
+                }
+            }
             _ => "unsupported domain".to_string(),
         };
 
@@ -278,6 +310,7 @@ fn parse_operator_value(input: &str) -> Result<(Operator, Value)> {
 
 fn get_css_property(css: &crate::measure::CssProperties, prop: &str) -> Option<String> {
     match prop {
+        // Spacing
         "paddingTop" => css.padding_top.clone(),
         "paddingBottom" => css.padding_bottom.clone(),
         "paddingLeft" => css.padding_left.clone(),
@@ -286,14 +319,52 @@ fn get_css_property(css: &crate::measure::CssProperties, prop: &str) -> Option<S
         "marginBottom" => css.margin_bottom.clone(),
         "marginLeft" => css.margin_left.clone(),
         "marginRight" => css.margin_right.clone(),
+        // Typography
         "fontSize" => css.font_size.clone(),
         "lineHeight" => css.line_height.clone(),
         "color" => css.color.clone(),
         "fontFamily" => css.font_family.clone(),
         "fontWeight" => css.font_weight.clone(),
+        "textAlign" => css.text_align.clone(),
+        "textDecoration" => css.text_decoration.clone(),
+        "letterSpacing" => css.letter_spacing.clone(),
+        "textTransform" => css.text_transform.clone(),
+        "whiteSpace" => css.white_space.clone(),
+        // Display
         "display" => css.display.clone(),
         "visibility" => css.visibility.clone(),
         "opacity" => css.opacity.clone(),
+        // Backgrounds
+        "backgroundColor" => css.background_color.clone(),
+        "backgroundImage" => css.background_image.clone(),
+        "backgroundSize" => css.background_size.clone(),
+        "backgroundPosition" => css.background_position.clone(),
+        // Borders
+        "borderWidth" => css.border_width.clone(),
+        "borderColor" => css.border_color.clone(),
+        "borderRadius" => css.border_radius.clone(),
+        "borderStyle" => css.border_style.clone(),
+        "borderTopWidth" => css.border_top_width.clone(),
+        "borderRightWidth" => css.border_right_width.clone(),
+        "borderBottomWidth" => css.border_bottom_width.clone(),
+        "borderLeftWidth" => css.border_left_width.clone(),
+        // Layout
+        "position" => css.position.clone(),
+        "top" => css.top.clone(),
+        "right" => css.right.clone(),
+        "bottom" => css.bottom.clone(),
+        "left" => css.left.clone(),
+        "zIndex" => css.z_index.clone(),
+        "overflow" => css.overflow.clone(),
+        // Flexbox
+        "gap" => css.gap.clone(),
+        "justifyContent" => css.justify_content.clone(),
+        "alignItems" => css.align_items.clone(),
+        "flexDirection" => css.flex_direction.clone(),
+        // Visual effects
+        "boxShadow" => css.box_shadow.clone(),
+        "transform" => css.transform.clone(),
+        "filter" => css.filter.clone(),
         _ => None,
     }
 }

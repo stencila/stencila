@@ -23,6 +23,10 @@ pub struct MeasureResult {
     /// Text content by selector
     #[serde(skip_serializing_if = "HashMap::is_empty", default)]
     pub text: HashMap<String, String>,
+
+    /// Diagnostic errors and warnings
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub errors: Vec<String>,
 }
 
 /// Common CSS properties
@@ -30,6 +34,7 @@ pub struct MeasureResult {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CssProperties {
+    // Spacing
     pub padding_top: Option<String>,
 
     pub padding_bottom: Option<String>,
@@ -46,6 +51,7 @@ pub struct CssProperties {
 
     pub margin_right: Option<String>,
 
+    // Typography
     pub font_size: Option<String>,
 
     pub line_height: Option<String>,
@@ -56,11 +62,79 @@ pub struct CssProperties {
 
     pub font_weight: Option<String>,
 
+    pub text_align: Option<String>,
+
+    pub text_decoration: Option<String>,
+
+    pub letter_spacing: Option<String>,
+
+    pub text_transform: Option<String>,
+
+    pub white_space: Option<String>,
+
+    // Display
     pub display: Option<String>,
 
     pub visibility: Option<String>,
 
     pub opacity: Option<String>,
+
+    // Backgrounds
+    pub background_color: Option<String>,
+
+    pub background_image: Option<String>,
+
+    pub background_size: Option<String>,
+
+    pub background_position: Option<String>,
+
+    // Borders
+    pub border_width: Option<String>,
+
+    pub border_color: Option<String>,
+
+    pub border_radius: Option<String>,
+
+    pub border_style: Option<String>,
+
+    pub border_top_width: Option<String>,
+
+    pub border_right_width: Option<String>,
+
+    pub border_bottom_width: Option<String>,
+
+    pub border_left_width: Option<String>,
+
+    // Layout
+    pub position: Option<String>,
+
+    pub top: Option<String>,
+
+    pub right: Option<String>,
+
+    pub bottom: Option<String>,
+
+    pub left: Option<String>,
+
+    pub z_index: Option<String>,
+
+    pub overflow: Option<String>,
+
+    // Flexbox
+    pub gap: Option<String>,
+
+    pub justify_content: Option<String>,
+
+    pub align_items: Option<String>,
+
+    pub flex_direction: Option<String>,
+
+    // Visual effects
+    pub box_shadow: Option<String>,
+
+    pub transform: Option<String>,
+
+    pub filter: Option<String>,
 }
 
 /// Bounding box information
@@ -82,7 +156,8 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
         css: {},
         box_info: {},
         counts: {},
-        text: {}
+        text: {},
+        errors: []
     };
 
     // If selector provided, measure just that element
@@ -101,7 +176,13 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
         const elements = document.querySelectorAll(sel);
         result.counts[sel] = elements.length;
 
-        if (elements.length === 0) continue;
+        if (elements.length === 0) {
+            if (selector) {
+                // Only report error for user-specified selectors
+                result.errors.push(`Selector '${sel}' matched 0 elements`);
+            }
+            continue;
+        }
 
         // Get first element for measurements
         const el = elements[0];
@@ -109,6 +190,7 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
         // Computed styles
         const cs = getComputedStyle(el);
         result.css[sel] = {
+            // Spacing
             paddingTop: cs.paddingTop,
             paddingBottom: cs.paddingBottom,
             paddingLeft: cs.paddingLeft,
@@ -117,14 +199,52 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
             marginBottom: cs.marginBottom,
             marginLeft: cs.marginLeft,
             marginRight: cs.marginRight,
+            // Typography
             fontSize: cs.fontSize,
             lineHeight: cs.lineHeight,
             color: cs.color,
             fontFamily: cs.fontFamily,
             fontWeight: cs.fontWeight,
+            textAlign: cs.textAlign,
+            textDecoration: cs.textDecoration,
+            letterSpacing: cs.letterSpacing,
+            textTransform: cs.textTransform,
+            whiteSpace: cs.whiteSpace,
+            // Display
             display: cs.display,
             visibility: cs.visibility,
-            opacity: cs.opacity
+            opacity: cs.opacity,
+            // Backgrounds
+            backgroundColor: cs.backgroundColor,
+            backgroundImage: cs.backgroundImage,
+            backgroundSize: cs.backgroundSize,
+            backgroundPosition: cs.backgroundPosition,
+            // Borders
+            borderWidth: cs.borderWidth,
+            borderColor: cs.borderColor,
+            borderRadius: cs.borderRadius,
+            borderStyle: cs.borderStyle,
+            borderTopWidth: cs.borderTopWidth,
+            borderRightWidth: cs.borderRightWidth,
+            borderBottomWidth: cs.borderBottomWidth,
+            borderLeftWidth: cs.borderLeftWidth,
+            // Layout
+            position: cs.position,
+            top: cs.top,
+            right: cs.right,
+            bottom: cs.bottom,
+            left: cs.left,
+            zIndex: cs.zIndex,
+            overflow: cs.overflow,
+            // Flexbox
+            gap: cs.gap,
+            justifyContent: cs.justifyContent,
+            alignItems: cs.alignItems,
+            flexDirection: cs.flexDirection,
+            // Visual effects
+            boxShadow: cs.boxShadow,
+            transform: cs.transform,
+            filter: cs.filter
         };
 
         // Bounding box
@@ -177,7 +297,8 @@ mod tests {
             },
             "text": {
                 ".title": "Document Title"
-            }
+            },
+            "errors": []
         }"#;
 
         let result = parse_measurements(json).expect("Failed to parse");
@@ -188,5 +309,6 @@ mod tests {
             result.text.get(".title"),
             Some(&"Document Title".to_string())
         );
+        assert_eq!(result.errors.len(), 0);
     }
 }

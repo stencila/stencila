@@ -247,15 +247,15 @@ impl BrowserSession {
             .map(|s| format!("'{}'", s))
             .unwrap_or_else(|| "null".to_string());
 
-        // Don't use semicolon at end - we want the value returned from the IIFE
-        let script = format!("({MEASUREMENT_SCRIPT})({selector_arg})");
+        // Wrap in JSON.stringify so Chrome returns a serialized string instead of an object reference
+        let script = format!("JSON.stringify(({MEASUREMENT_SCRIPT})({selector_arg}))");
 
         let result = self
             .tab
             .evaluate(&script, false)
             .map_err(|error| eyre!("Failed to evaluate measurement script: {error}"))?;
 
-        // Check if result is null or None and provide better error message
+        // Extract the string value
         let value = result.value.ok_or_else(|| {
             eyre!("Measurement script returned no value. This might indicate a JavaScript error or that the page is not ready.")
         })?;
@@ -266,8 +266,12 @@ impl BrowserSession {
             ));
         }
 
-        let json_str = serde_json::to_string(&value)?;
-        parse_measurements(&json_str)
+        // The value is already a JSON string from JavaScript, extract it
+        let json_str = value
+            .as_str()
+            .ok_or_else(|| eyre!("Expected string value from JSON.stringify"))?;
+
+        parse_measurements(json_str)
     }
 
     /// Capture screenshot
