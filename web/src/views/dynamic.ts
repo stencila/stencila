@@ -4,12 +4,12 @@ import { customElement, property } from 'lit/decorators.js'
 import { DomClient } from '../clients/dom'
 import { ThemeClient } from '../clients/themes'
 import type { DocumentId, DocumentAccess } from '../types'
+import { initUno } from '../unocss'
 
 import { DocumentView } from './document'
 
 import '../nodes/all'
 import '../shoelace'
-import { initUno } from '../unocss'
 
 initUno()
 

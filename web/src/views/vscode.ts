@@ -1,13 +1,13 @@
 import { customElement } from 'lit/decorators.js'
 
 import { VSCodeClient } from '../clients/vscode'
+import { initUno } from '../unocss'
 
 import { DocumentView } from './document'
 
 import '../nodes/all'
 import '../shoelace'
 import '../ui/document/menu'
-import { initUno } from '../unocss'
 
 initUno()
 
