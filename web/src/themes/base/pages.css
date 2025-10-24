@@ -282,6 +282,26 @@
     }
 }
 
+stencila-page {
+    page: blank;
+
+    display: block;
+
+    /* Use absolute page dimensions to ensure bleed to the edge */
+    width: var(--page-width);
+    max-width: var(--page-width);
+    height: var(--page-height);
+    min-height: var(--page-height);
+    max-height: var(--page-height);
+
+    /* Center the page using negative margins when wider than parent */
+    margin-left: calc(50% - var(--page-width) / 2);
+    margin-right: calc(50% - var(--page-width) / 2);
+
+    /* Ensure proper box model calculation */
+    box-sizing: border-box;
+}
+
 /* Named page for <stencila-page> elements with no margin or padding to allow
 background color and images to bleed to the edge */
 @page blank {
@@ -291,26 +311,21 @@ background color and images to bleed to the edge */
 
 /* Page is displayed as a full height page in the browser so that it can be
   previewed with live reloading of styles etc */
-stencila-page {
-    page: blank;
+@media print {
+    stencila-page {
+        page: blank;
 
-    display: block;
-    break-after: page;
+        display: block;
+        break-after: page;
 
-    /* Force browsers to preserve background colors and images in print/PDF output.
-     * By default, browsers strip backgrounds to save ink. These properties ensure
-     * full-bleed colored backgrounds are rendered in the PDF. */
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+        /* Force browsers to preserve background colors and images in print/PDF
+        * output. By default, browsers strip backgrounds to save ink. These
+        * properties ensure full-bleed colored backgrounds are rendered in the PDF.
+        * */
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
 
-    /* Use absolute page dimensions to ensure bleed to the edge */
-    min-height: var(--page-height);
-    max-height: var(--page-height);
-    height: var(--page-height);
-
-    /* Prevent overflow that causes background bleed onto next page */
-    overflow: hidden;
-
-    /* Ensure proper box model calculation */
-    box-sizing: border-box;
+        /* Prevent overflow that causes background bleed onto next page */
+        overflow: hidden;
+    }
 }

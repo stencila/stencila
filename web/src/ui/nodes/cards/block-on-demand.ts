@@ -30,6 +30,7 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
     const cardStyles = apply([
       'group',
       'transition duration-400',
+      'h-full',
       hasBorder
         ? `rounded border border-[${this.ui.borderColour}] my-2 mx-auto`
         : '',
@@ -37,7 +38,7 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
 
     return html`
       <div class=${cardStyles}>
-        <div class="relative">
+        <div class="relative h-full">
           <stencila-ui-collapsible-animation
             class=${this.toggle ? 'opened' : ''}
           >
@@ -70,6 +71,7 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   protected override renderContent() {
     const contentStyles = apply(
       'transition-[padding] ease-in-out duration-[250ms]',
+      'h-full',
       this.toggle && !(this.noContent || this.noContentPadding)
         ? this.depth == 0
           ? // For top level node cars use larger left margin so that
@@ -80,7 +82,7 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
     )
 
     return html`
-      <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
+      <div class=${!this.displayContent && this.toggle ? 'hidden h-full' : 'block h-full'}>
         ${this.renderMarker()}
         <div class="${contentStyles}">
           <slot name="content" class="relative w-full"></slot>

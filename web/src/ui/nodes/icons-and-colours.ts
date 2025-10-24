@@ -92,6 +92,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   // Styled content: use neutral to avoid confusion with styling
   StyledBlock:      { icon: 'brush',        ...nodeColours('neutral')},
   StyledInline:     { icon: 'brush',        ...nodeColours('neutral')},
+  Page:             { icon: 'brush',        ...nodeColours('neutral')},
   
   // Static code
   CodeBlock:        { icon: 'braces',         ...nodeColours('teal')},

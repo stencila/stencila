@@ -145,6 +145,11 @@ stencila-article {
         /* Temporarily hidden until pull styled */
         display: none;
     }
+
+    /* Allow pages to extend beyond content width */
+    >[slot="content"] {
+        overflow: visible;
+    }
 }
 
 /* Responsive Application - Mobile Breakpoint (640px) */
