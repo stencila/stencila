@@ -17,6 +17,7 @@ use axum::{
     routing::get,
 };
 use clap::Args;
+use eyre::bail;
 use rand::{Rng, rng};
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
@@ -239,7 +240,6 @@ pub async fn serve(
 ) -> eyre::Result<()> {
     let dir = dir.canonicalize()?;
 
-    let address = SocketAddr::new(address, port);
     let server_token = if no_auth {
         tracing::warn!(
             "Using `--no-auth` flag; no routes are protected by authentication/authorization checks"
@@ -249,7 +249,38 @@ pub async fn serve(
         Some(server_token.unwrap_or_else(get_server_token))
     };
 
-    let mut url = format!("http://{address}");
+    // Try to bind to the requested port, or the next available port
+    const MAX_PORT_ATTEMPTS: u16 = 100;
+    let mut current_port = port;
+    let listener = loop {
+        let socket_addr = SocketAddr::new(address, current_port);
+        match TcpListener::bind(&socket_addr).await {
+            Ok(listener) => {
+                if current_port != port {
+                    tracing::info!(
+                        "Port {port} was unavailable, using port {current_port} instead",
+                    );
+                }
+                break listener;
+            }
+            Err(error) if current_port < port + MAX_PORT_ATTEMPTS => {
+                // Only try next port if it's an "address already in use" error
+                if error.kind() == std::io::ErrorKind::AddrInUse {
+                    current_port += 1;
+                    continue;
+                }
+                // For other errors, fail immediately
+                return Err(error.into());
+            }
+            Err(error) => {
+                bail!("Failed to bind to any port from {port} to {current_port}: {error}",);
+            }
+        }
+    };
+
+    // Use the actual port that was bound
+    let actual_address = SocketAddr::new(address, current_port);
+    let mut url = format!("http://{actual_address}");
     if let Some(sst) = &server_token {
         url.push_str("/~login?sst=");
         url.push_str(sst);
@@ -258,8 +289,8 @@ pub async fn serve(
     // Always enable graceful shutdown to support SIGINT handling
     let (shutdown_sender, mut shutdown_receiver) = mpsc::channel(10);
 
-    // Create ServerInfo before moving values into state
-    let server_info = ServerInfo::new(port, server_token.clone(), dir.clone());
+    // Create ServerInfo with the actual port that was bound
+    let server_info = ServerInfo::new(current_port, server_token.clone(), dir.clone());
 
     let state = ServerState {
         dir,
@@ -297,8 +328,6 @@ pub async fn serve(
         .layer(CookieManagerLayer::new())
         .with_state(state)
         .into_make_service();
-
-    let listener = TcpListener::bind(&address).await?;
 
     if !no_startup_message {
         tracing::info!("Starting server at {url}");
