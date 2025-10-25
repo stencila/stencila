@@ -194,14 +194,17 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
     };
 
     // If selector provided, measure just that element
-    // Otherwise measure common selectors
+    // Otherwise measure common Stencila elements that appear in most documents
     const selectors = selector ? [selector] : [
-        '[slot=title]',
         'stencila-article',
-        'section',
-        'figure',
-        'h1',
-        'h2'
+        'stencila-paragraph',
+        'stencila-heading[level="1"]',
+        'stencila-heading[level="2"]',
+        'stencila-heading[level="3"]',
+        'stencila-code-block',
+        'stencila-list',
+        'stencila-figure',
+        'stencila-table'
     ];
 
     for (const sel of selectors) {
