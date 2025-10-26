@@ -397,9 +397,15 @@ async fn build_header_footer_xml(
     media_files: &mut Vec<(String, Vec<u8>)>,
     base_index: usize,
 ) -> Option<String> {
-    let left = get_var(vars, left_content).unwrap_or_default();
-    let center = get_var(vars, center_content).unwrap_or_default();
-    let right = get_var(vars, right_content).unwrap_or_default();
+    // Helper to normalize content - treat "none" as empty
+    let normalize = |content: &str| -> String {
+        let val = get_var(vars, content).unwrap_or_default();
+        if val == "none" { String::new() } else { val }
+    };
+
+    let left = normalize(left_content);
+    let center = normalize(center_content);
+    let right = normalize(right_content);
 
     // Skip if all content is empty
     if left.is_empty() && center.is_empty() && right.is_empty() {
@@ -659,6 +665,79 @@ mod tests {
         .await;
 
         assert!(xml.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_build_header_xml_none_values() {
+        let mut vars = BTreeMap::new();
+        vars.insert("page-top-left-content".to_string(), json!("none"));
+        vars.insert("page-top-center-content".to_string(), json!("none"));
+        vars.insert("page-top-right-content".to_string(), json!("none"));
+
+        let mut media_files = Vec::new();
+        let xml = build_header_xml(
+            &vars,
+            "page-top-left-content",
+            "page-top-center-content",
+            "page-top-right-content",
+            9000,
+            &mut media_files,
+            0,
+        )
+        .await;
+
+        // "none" values should be treated as empty, so no XML should be generated
+        assert!(xml.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_build_footer_xml_none_values() {
+        let mut vars = BTreeMap::new();
+        vars.insert("page-bottom-left-content".to_string(), json!("none"));
+        vars.insert("page-bottom-center-content".to_string(), json!("none"));
+        vars.insert("page-bottom-right-content".to_string(), json!("none"));
+
+        let mut media_files = Vec::new();
+        let xml = build_footer_xml(
+            &vars,
+            "page-bottom-left-content",
+            "page-bottom-center-content",
+            "page-bottom-right-content",
+            9000,
+            &mut media_files,
+            0,
+        )
+        .await;
+
+        // "none" values should be treated as empty, so no XML should be generated
+        assert!(xml.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_build_header_xml_mixed_none_and_content() {
+        let mut vars = BTreeMap::new();
+        vars.insert("page-top-left-content".to_string(), json!("none"));
+        vars.insert("page-top-center-content".to_string(), json!("Title"));
+        vars.insert("page-top-right-content".to_string(), json!("none"));
+
+        let mut media_files = Vec::new();
+        let xml = build_header_xml(
+            &vars,
+            "page-top-left-content",
+            "page-top-center-content",
+            "page-top-right-content",
+            9000,
+            &mut media_files,
+            0,
+        )
+        .await;
+
+        // Should generate XML since center has content
+        assert!(xml.is_some());
+        if let Some(xml) = xml {
+            assert!(xml.contains("Title"));
+            assert!(!xml.contains("none"));
+        }
     }
 
     #[tokio::test]
