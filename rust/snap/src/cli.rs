@@ -16,8 +16,6 @@ use super::{
 };
 
 const ASSERTION_FAILED: i32 = 12;
-const SELECTOR_NOT_FOUND: i32 = 20;
-const TIMEOUT: i32 = 30;
 const BROWSER_FAILURE: i32 = 40;
 
 /// Capture screenshots and measurements of documents served by Stencila
