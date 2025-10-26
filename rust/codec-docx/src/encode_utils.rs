@@ -304,6 +304,37 @@ pub(crate) fn build_paragraph_left_border_element(width_twips: &str, color_hex: 
     )
 }
 
+/// Build <w:pBdr> element with bottom border
+///
+/// Maps to CSS border-bottom property. Commonly used for headings and section dividers.
+///
+/// # Arguments
+/// * `width_twips` - Border width in twips (already converted by theme processor)
+/// * `color_hex` - Border color in hex format without # prefix
+/// * `style` - CSS border style (e.g., "solid", "dashed", "dotted")
+/// * `padding_twips` - Optional padding between text and border in twips (defaults to 0)
+pub(crate) fn build_paragraph_bottom_border_element(
+    width_twips: &str,
+    color_hex: &str,
+    style: &str,
+    padding_twips: Option<&str>,
+) -> String {
+    // Convert twips to eighths of a point for w:sz (1 twip = 0.4 eighths-pt)
+    let sz = twips_to_border_size(width_twips);
+
+    // Convert padding from twips to points for w:space (1 point = 20 twips)
+    let space = padding_twips
+        .and_then(|p| p.parse::<f64>().ok())
+        .map(|twips| (twips / 20.0).round() as u32)
+        .unwrap_or(0);
+
+    let val = get_border_val(style);
+
+    format!(
+        r#"<w:pBdr><w:bottom w:val="{val}" w:sz="{sz}" w:space="{space}" w:color="{color_hex}"/></w:pBdr>"#
+    )
+}
+
 /// Build paragraph border element for header/footer
 ///
 /// # Arguments

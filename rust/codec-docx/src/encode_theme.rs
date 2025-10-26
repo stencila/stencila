@@ -4,9 +4,11 @@ use serde_json::Value;
 
 use crate::encode_utils::{
     build_cell_borders_element, build_color_element, build_font_element,
-    build_paragraph_left_border_element, build_paragraph_shading_element, build_size_elements,
-    build_spacing_element, build_table_borders_element, get_color_hex, get_font_size_half_points,
-    get_font_variant_element, get_text_align, get_twips, is_bold, is_italic, twips_to_half_points,
+    build_paragraph_bottom_border_element, build_paragraph_left_border_element,
+    build_paragraph_shading_element, build_size_elements, build_spacing_element,
+    build_table_borders_element, get_color_hex, get_font_size_half_points,
+    get_font_variant_element, get_text_align, get_twips, get_var, is_bold, is_italic,
+    twips_to_half_points,
 };
 
 /// Generate a DOCX `styles.xml` file from a Stencila [`Theme`]
@@ -334,12 +336,23 @@ fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
 /// - `heading-h{N}-letter-spacing` → w:spacing w:val (character spacing in twips)
 /// - `heading-spacing-top-{N}` → w:spacing w:before
 /// - `heading-spacing-bottom` → w:spacing w:after
+/// - `heading-h{N}-background-color` → w:shd (paragraph background shading)
+/// - `heading-h{N}-border-width` → w:pBdr w:bottom w:sz (if width > 0)
+/// - `heading-h{N}-border-style` → w:pBdr w:bottom w:val (border style)
+/// - `heading-h{N}-border-color` → w:pBdr w:bottom w:color (border color)
+/// - `heading-h{N}-padding` → w:pBdr w:bottom w:space (space between text and border)
 ///
 /// **Tokens NOT Yet Applied**:
 /// - `heading-line-height` - DOCX uses automatic line height; complex conversion for unitless values
 /// - `heading-color-opacity-decrement` - Would require blending color with background
 /// - `heading-font-weight-decrement` - Already effectively applied via per-level font-weight tokens
 /// - Page break properties - Applied via KEEP_NEXT/KEEP_LINES constants instead
+///
+/// **Design Notes**:
+/// - Borders are applied to the bottom edge only (matching CSS `border-bottom` property)
+/// - Padding is implemented via the w:space attribute on borders, which creates space between
+///   text and border. This provides vertical padding effect when borders are present.
+/// - Without a border, padding tokens are not applied (as they would not be visible in DOCX)
 fn build_heading_style(vars: &BTreeMap<String, Value>, level: u8) -> String {
     let mut xml = String::with_capacity(768);
 
@@ -369,6 +382,36 @@ fn build_heading_style(vars: &BTreeMap<String, Value>, level: u8) -> String {
     let before = get_twips(vars, &spacing_var);
     let after = get_twips(vars, "heading-spacing-bottom");
     xml.push_str(&build_spacing_element(before.as_deref(), after.as_deref()));
+
+    // Background color (paragraph shading)
+    let bg_var = format!("heading-h{level}-background-color");
+    if let Some(bg_color) = get_color_hex(vars, &bg_var) {
+        xml.push_str(&build_paragraph_shading_element(&bg_color));
+    }
+
+    // Bottom border with optional padding
+    let border_width_var = format!("heading-h{level}-border-width");
+    let border_color_var = format!("heading-h{level}-border-color");
+    let border_style_var = format!("heading-h{level}-border-style");
+    let padding_var = format!("heading-h{level}-padding");
+
+    if let (Some(border_width), Some(border_color)) = (
+        get_twips(vars, &border_width_var),
+        get_color_hex(vars, &border_color_var),
+    ) {
+        // Only apply border if width > 0
+        if border_width.parse::<f64>().unwrap_or(0.0) > 0.0 {
+            let border_style =
+                get_var(vars, &border_style_var).unwrap_or_else(|| "solid".to_string());
+            let padding = get_twips(vars, &padding_var);
+            xml.push_str(&build_paragraph_bottom_border_element(
+                &border_width,
+                &border_color,
+                &border_style,
+                padding.as_deref(),
+            ));
+        }
+    }
 
     // Outline level (0-indexed)
     xml.push_str(&format!(
