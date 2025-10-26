@@ -312,7 +312,34 @@ impl Theme {
     /// For color values (detected by variable name or color functions in value),
     /// uses the `color:` property with browser targets to ensure transpilation to hex.
     /// For other values, uses the `width:` property for calc() evaluation.
+    ///
+    /// Uses panic handling to gracefully handle invalid property-value combinations
+    /// that cause lightningcss to panic.
     fn evaluate_css_value(value: &str) -> String {
+        let trimmed = value.trim();
+
+        // Early return for values that are definitely not compatible with width/color properties
+        // to avoid triggering panic hooks even though catch_unwind would recover
+        if matches!(
+            trimmed,
+            // Flexbox/grid alignment values
+            "stretch" | "start" | "end" | "flex-start" | "flex-end" | "space-between"
+                | "space-around" | "space-evenly"
+                // Text alignment (already checked but adding here for completeness)
+                | "left" | "right" | "center" | "justify"
+                // Display/position values
+                | "block" | "inline" | "inline-block" | "flex" | "grid" | "none"
+                | "static" | "relative" | "absolute" | "fixed" | "sticky"
+                // Font weight keywords (unitless numbers handled elsewhere)
+                | "normal" | "bold" | "bolder" | "lighter"
+                // Other common non-length/non-color keywords
+                | "auto" | "inherit" | "initial" | "unset" | "revert"
+                // Empty values
+                | ""
+        ) {
+            return value.to_string();
+        }
+
         let property = if value.contains("color-mix(")
             || value.contains("oklch(")
             || value.contains("oklab(")
@@ -349,11 +376,18 @@ impl Theme {
             .ok();
 
         // Print to minified CSS
-        let Ok(result) = sheet.to_css(PrinterOptions {
-            minify: true,
-            ..Default::default()
-        }) else {
-            return value.to_string();
+        // Use catch_unwind to handle panics from lightningcss when it encounters
+        // invalid property-value combinations (e.g., width:apa) that reach unreachable!() code
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            sheet.to_css(PrinterOptions {
+                minify: true,
+                ..Default::default()
+            })
+        }));
+
+        let result = match result {
+            Ok(Ok(res)) => res,
+            _ => return value.to_string(),
         };
 
         // Extract value
