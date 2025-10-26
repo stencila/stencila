@@ -384,8 +384,12 @@ fn build_heading_style(vars: &BTreeMap<String, Value>, level: u8) -> String {
     xml.push_str(&build_spacing_element(before.as_deref(), after.as_deref()));
 
     // Background color (paragraph shading)
+    // Skip if transparent (not a valid DOCX color value)
     let bg_var = format!("heading-h{level}-background-color");
-    if let Some(bg_color) = get_color_hex(vars, &bg_var) {
+    if let Some(bg_color) = get_color_hex(vars, &bg_var)
+        && bg_color != "transparent"
+        && !bg_color.is_empty()
+    {
         xml.push_str(&build_paragraph_shading_element(&bg_color));
     }
 
@@ -694,7 +698,11 @@ fn build_block_text_style(vars: &BTreeMap<String, Value>) -> String {
     }
 
     // Background shading
-    if let Some(bg_color) = get_color_hex(vars, "quote-background") {
+    // Skip if transparent (not a valid DOCX color value)
+    if let Some(bg_color) = get_color_hex(vars, "quote-background")
+        && bg_color != "transparent"
+        && !bg_color.is_empty()
+    {
         xml.push_str(&build_paragraph_shading_element(&bg_color));
     }
 
@@ -981,7 +989,11 @@ fn build_abstract_style(vars: &BTreeMap<String, Value>) -> String {
     xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/>"#));
 
     // Background shading
-    if let Some(bg_color) = get_color_hex(vars, "article-abstract-background") {
+    // Skip if transparent (not a valid DOCX color value)
+    if let Some(bg_color) = get_color_hex(vars, "article-abstract-background")
+        && bg_color != "transparent"
+        && !bg_color.is_empty()
+    {
         xml.push_str(&build_paragraph_shading_element(&bg_color));
     }
 
@@ -1374,7 +1386,11 @@ fn build_table_style(vars: &BTreeMap<String, Value>) -> String {
     xml.push_str(r#"<w:tblStylePr w:type="firstRow"><w:tblPr/><w:tcPr>"#);
 
     // Header background color
-    if let Some(bg_color) = get_color_hex(vars, "table-header-background") {
+    // Skip if transparent (not a valid DOCX color value)
+    if let Some(bg_color) = get_color_hex(vars, "table-header-background")
+        && bg_color != "transparent"
+        && !bg_color.is_empty()
+    {
         xml.push_str(&format!(
             r#"<w:shd w:val="clear" w:color="auto" w:fill="{bg_color}"/>"#
         ));
@@ -1517,5 +1533,102 @@ mod tests {
 
         // Verify table style exists
         assert!(styles_xml.contains(r#"w:styleId="Table""#));
+    }
+
+    #[test]
+    fn test_transparent_background_colors_are_filtered() {
+        use serde_json::json;
+
+        // Create mock variables with transparent backgrounds
+        let mut variables = BTreeMap::new();
+        variables.insert("text-font-family".to_string(), json!("Arial"));
+        variables.insert("text-font-size".to_string(), json!(240.0));
+        variables.insert("text-color-primary".to_string(), json!("#000000"));
+        variables.insert("heading-font-family".to_string(), json!("Arial"));
+        variables.insert("heading-font-size".to_string(), json!(480.0));
+        variables.insert("heading-font-size-ratio".to_string(), json!(0.9));
+        variables.insert("heading-color".to_string(), json!("#000000"));
+
+        // Set backgrounds to transparent
+        variables.insert(
+            "heading-h1-background-color".to_string(),
+            json!("transparent"),
+        );
+        variables.insert(
+            "heading-h2-background-color".to_string(),
+            json!("transparent"),
+        );
+        variables.insert("quote-background".to_string(), json!("transparent"));
+        variables.insert(
+            "article-abstract-background".to_string(),
+            json!("transparent"),
+        );
+        variables.insert(
+            "table-header-background".to_string(),
+            json!("transparent"),
+        );
+
+        // Generate styles
+        let styles_xml = theme_to_styles(&variables);
+
+        // Verify that no shading elements with "transparent" fill are generated
+        assert!(
+            !styles_xml.contains(r#"w:fill="transparent""#),
+            "Found transparent fill value in generated XML, which is invalid in DOCX"
+        );
+
+        // Also verify that "transparent" doesn't appear as a color value at all
+        assert!(
+            !styles_xml.contains("transparent"),
+            "Found 'transparent' in generated XML"
+        );
+    }
+
+    #[test]
+    fn test_valid_background_colors_are_applied() {
+        use serde_json::json;
+
+        // Create mock variables with valid hex backgrounds
+        let mut variables = BTreeMap::new();
+        variables.insert("text-font-family".to_string(), json!("Arial"));
+        variables.insert("text-font-size".to_string(), json!(240.0));
+        variables.insert("text-color-primary".to_string(), json!("#000000"));
+        variables.insert("heading-font-family".to_string(), json!("Arial"));
+        variables.insert("heading-font-size".to_string(), json!(480.0));
+        variables.insert("heading-font-size-ratio".to_string(), json!(0.9));
+        variables.insert("heading-color".to_string(), json!("#000000"));
+
+        // Set backgrounds to valid hex colors
+        variables.insert(
+            "heading-h1-background-color".to_string(),
+            json!("#F0F0F0"),
+        );
+        variables.insert("quote-background".to_string(), json!("#E8E8E8"));
+        variables.insert(
+            "article-abstract-background".to_string(),
+            json!("#F5F5F5"),
+        );
+        variables.insert("table-header-background".to_string(), json!("#D0D0D0"));
+
+        // Generate styles
+        let styles_xml = theme_to_styles(&variables);
+
+        // Verify that shading elements with valid colors ARE generated
+        assert!(
+            styles_xml.contains(r#"w:fill="F0F0F0""#),
+            "Should contain H1 background color"
+        );
+        assert!(
+            styles_xml.contains(r#"w:fill="E8E8E8""#),
+            "Should contain quote background color"
+        );
+        assert!(
+            styles_xml.contains(r#"w:fill="F5F5F5""#),
+            "Should contain abstract background color"
+        );
+        assert!(
+            styles_xml.contains(r#"w:fill="D0D0D0""#),
+            "Should contain table header background color"
+        );
     }
 }
