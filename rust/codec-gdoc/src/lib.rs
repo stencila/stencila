@@ -6,13 +6,13 @@ use stencila_codec::{
 };
 use stencila_codec_docx::DocxCodec;
 
-/// A codec for DOCX compatible with uploads/downloads to/from Google Docs
-pub struct GDocxCodec;
+/// A codec for uploads/downloads to/from Google Docs
+pub struct GDocCodec;
 
 #[async_trait]
-impl Codec for GDocxCodec {
+impl Codec for GDocCodec {
     fn name(&self) -> &str {
-        "gdocx"
+        "gdoc"
     }
 
     fn availability(&self) -> CodecAvailability {

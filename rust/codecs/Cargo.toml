@@ -31,7 +31,7 @@ stencila-codec-directory = { path = "../codec-directory" }
 stencila-codec-docx = { path = "../codec-docx" }
 stencila-codec-doi = { path = "../codec-doi" }
 stencila-codec-dom = { path = "../codec-dom" }
-stencila-codec-gdocx = { path = "../codec-gdocx" }
+stencila-codec-gdoc = { path = "../codec-gdoc" }
 stencila-codec-github = { path = "../codec-github" }
 stencila-codec-html = { path = "../codec-html" }
 stencila-codec-ipynb = { path = "../codec-ipynb" }

@@ -1,5 +1,5 @@
 [package]
-name = "stencila-codec-gdocx"
+name = "stencila-codec-gdoc"
 version = "0.0.0"
 edition = "2024"
 

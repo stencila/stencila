@@ -8308,7 +8308,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-codec-gdocx"
+name = "stencila-codec-gdoc"
 version = "0.0.0"
 dependencies = [
  "stencila-codec",
@@ -8887,7 +8887,7 @@ dependencies = [
  "stencila-codec-docx",
  "stencila-codec-doi",
  "stencila-codec-dom",
- "stencila-codec-gdocx",
+ "stencila-codec-gdoc",
  "stencila-codec-github",
  "stencila-codec-html",
  "stencila-codec-ipynb",
