@@ -117,6 +117,7 @@ async fn get_token() -> Result<String, MicrosoftTokenError> {
 }
 
 /// Get Microsoft access token with retry for connection flow
+#[allow(clippy::print_stderr)]
 pub async fn get_token_with_retry() -> Result<String> {
     loop {
         match get_token().await {

@@ -1563,10 +1563,7 @@ mod tests {
             "article-abstract-background".to_string(),
             json!("transparent"),
         );
-        variables.insert(
-            "table-header-background".to_string(),
-            json!("transparent"),
-        );
+        variables.insert("table-header-background".to_string(), json!("transparent"));
 
         // Generate styles
         let styles_xml = theme_to_styles(&variables);
@@ -1599,15 +1596,9 @@ mod tests {
         variables.insert("heading-color".to_string(), json!("#000000"));
 
         // Set backgrounds to valid hex colors
-        variables.insert(
-            "heading-h1-background-color".to_string(),
-            json!("#F0F0F0"),
-        );
+        variables.insert("heading-h1-background-color".to_string(), json!("#F0F0F0"));
         variables.insert("quote-background".to_string(), json!("#E8E8E8"));
-        variables.insert(
-            "article-abstract-background".to_string(),
-            json!("#F5F5F5"),
-        );
+        variables.insert("article-abstract-background".to_string(), json!("#F5F5F5"));
         variables.insert("table-header-background".to_string(), json!("#D0D0D0"));
 
         // Generate styles

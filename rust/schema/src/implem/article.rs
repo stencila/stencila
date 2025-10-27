@@ -103,7 +103,10 @@ impl Article {
         }
 
         if let Some(doi) = &self.doi {
-            vars.insert("document-doi".to_string(), format!("DOI: {}", doi.replace("\"", "'")));
+            vars.insert(
+                "document-doi".to_string(),
+                format!("DOI: {}", doi.replace("\"", "'")),
+            );
         }
 
         vars
@@ -459,7 +462,10 @@ mod tests {
             ..Default::default()
         };
         let vars = article.document_variables();
-        assert_eq!(vars.get("document-title"), Some(&"Test Article Title".to_string()));
+        assert_eq!(
+            vars.get("document-title"),
+            Some(&"Test Article Title".to_string())
+        );
     }
 
     #[test]
@@ -508,7 +514,10 @@ mod tests {
             ..Default::default()
         };
         let vars = article.document_variables();
-        assert_eq!(vars.get("document-authors"), Some(&"Doe & Smith".to_string()));
+        assert_eq!(
+            vars.get("document-authors"),
+            Some(&"Doe & Smith".to_string())
+        );
     }
 
     #[test]
@@ -534,7 +543,10 @@ mod tests {
             ..Default::default()
         };
         let vars = article.document_variables();
-        assert_eq!(vars.get("document-authors"), Some(&"Doe et al.".to_string()));
+        assert_eq!(
+            vars.get("document-authors"),
+            Some(&"Doe et al.".to_string())
+        );
     }
 
     #[test]
@@ -557,7 +569,10 @@ mod tests {
             ..Default::default()
         };
         let vars = article.document_variables();
-        assert_eq!(vars.get("document-doi"), Some(&"DOI: 10.1234/test.2025".to_string()));
+        assert_eq!(
+            vars.get("document-doi"),
+            Some(&"DOI: 10.1234/test.2025".to_string())
+        );
     }
 
     #[test]

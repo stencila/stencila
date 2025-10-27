@@ -78,7 +78,7 @@ fn parse_content_expression(content: &str) -> Option<Vec<ContentPart>> {
                 let mut end = start;
 
                 // Find closing quote
-                while let Some((j, c)) = chars.next() {
+                for (j, c) in chars.by_ref() {
                     if c == quote {
                         end = j;
                         break;
@@ -618,6 +618,7 @@ async fn build_image_run(
 ///
 /// # Returns
 /// Complete header or footer XML file content, or None if no content defined
+#[allow(clippy::too_many_arguments)]
 async fn build_header_footer_xml(
     header_footer_type: HeaderFooterType,
     vars: &BTreeMap<String, Value>,
