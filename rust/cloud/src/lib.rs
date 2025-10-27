@@ -11,6 +11,9 @@ use strum::Display;
 
 use stencila_version::STENCILA_USER_AGENT;
 
+pub mod google;
+pub use google::{GoogleTokenError, google_token};
+
 /// The base URL for the Stencila Cloud API
 ///
 /// Can be overridden by setting the STENCILA_API_URL environment variable.
@@ -134,6 +137,7 @@ pub struct OtcResponse {
 pub struct ErrorResponse {
     pub status: u16,
     pub error: String,
+    pub url: Option<String>,
 }
 
 /// Process an HTTP response from Stencila Cloud API and return parsed JSON
@@ -165,7 +169,7 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
 /// Get an authenticated client for the Stencila Cloud API
 pub async fn client() -> Result<Client> {
     let Some(token) = api_token() else {
-        bail!("This functionality requires a Stencila Cloud account. Please sign in and try again.")
+        bail!("Please `stencila signin` first and try again.")
     };
 
     let client = Client::builder()
