@@ -91,7 +91,7 @@ struct DriveFileResponse {
 /// prompting the user to connect their account if necessary.
 ///
 /// Returns the URL of the Google Doc.
-pub async fn push(node: &Node, title: &str, url: Option<&Url>) -> Result<Url> {
+pub async fn push(node: &Node, title: Option<&str>, url: Option<&Url>) -> Result<Url> {
     let access_token = stencila_cloud::get_token("google").await?;
 
     if let Some(url) = url {
@@ -100,6 +100,7 @@ pub async fn push(node: &Node, title: &str, url: Option<&Url>) -> Result<Url> {
         update(node, &access_token, &doc_id).await
     } else {
         // Create new document
+        let title = title.unwrap_or("Untitled");
         upload(node, title, &access_token).await
     }
 }
@@ -125,12 +126,9 @@ async fn upload(node: &Node, title: &str, access_token: &str) -> Result<Url> {
     let docx_bytes = tokio::fs::read(temp_path).await?;
 
     // Create metadata part
-    // It is possible to use application/vnd.google-apps.document mimetype and the document
-    // will be automatically converted. However, this looses the repro links and possibly other aspects.
     let metadata = serde_json::to_string(&serde_json::json!({
         "name": title,
         "mimeType": "application/vnd.google-apps.document",
-        //"mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     }))?;
 
     // Build multipart request
@@ -222,11 +220,11 @@ async fn update(node: &Node, access_token: &str, doc_id: &str) -> Result<Url> {
 
 /// Pull a document from Google Docs
 ///
-/// Downloads the document as DOCX and converts it to a Node.
+/// Downloads the document as DOCX and saves it to the specified path.
 ///
 /// This function will obtain a Google Drive access token from Stencila Cloud,
 /// prompting the user to connect their account if necessary.
-pub async fn pull(url: &Url) -> Result<Node> {
+pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
     // Get access token from Stencila Cloud
     let access_token = stencila_cloud::get_token("google").await?;
 
@@ -249,16 +247,11 @@ pub async fn pull(url: &Url) -> Result<Node> {
         bail!("Failed to download from Google Docs ({status}): {error_text}");
     }
 
-    // Save to temporary file
-    let temp_file = NamedTempFile::new()?;
-    let temp_path = temp_file.path();
+    // Write the downloaded bytes directly to the destination
     let bytes = response.bytes().await?;
-    tokio::fs::write(temp_path, bytes).await?;
+    tokio::fs::write(dest, bytes).await?;
 
-    // Decode the DOCX file to a Node
-    let (node, ..) = GDocCodec.from_path(temp_path, None).await?;
-
-    Ok(node)
+    Ok(())
 }
 
 /// Extract the document ID from a Google Docs URL

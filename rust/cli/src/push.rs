@@ -103,9 +103,7 @@ impl Cli {
             // Check tracked remotes
             let remotes = doc.remotes().await?;
             if remotes.is_empty() {
-                bail!(
-                    "No tracked remotes for `{input}`. Use `--to` to specify target service.",
-                );
+                bail!("No tracked remotes for `{input}`. Use `--to` to specify target service.",);
             }
 
             // Find which service(s) the tracked remotes belong to
@@ -163,10 +161,7 @@ impl Cli {
         } else {
             // Get tracked remotes for this service
             let remotes = doc.remotes().await?;
-            remotes
-                .iter()
-                .find(|url| service.matches_url(url))
-                .cloned()
+            remotes.iter().find(|url| service.matches_url(url)).cloned()
         };
 
         // Display appropriate message
@@ -185,12 +180,14 @@ impl Cli {
             );
         }
 
-        // Get the root node and title
-        let root = doc.root().await;
-        let title = doc.file_name().unwrap_or("Untitled Document");
-
         // Push to the remote service
-        let url = service.push(&root, title, existing_url.as_ref()).await?;
+        let url = stencila_codecs::push(
+            &service,
+            &doc.root().await,
+            doc.file_name(),
+            existing_url.as_ref(),
+        )
+        .await?;
 
         message(&format!("Successfully pushed to {url}"), Some("✅"));
 

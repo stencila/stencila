@@ -7989,7 +7989,6 @@ dependencies = [
  "stencila-ask",
  "stencila-cli-utils",
  "stencila-cloud",
- "stencila-codec-gdoc",
  "stencila-codecs",
  "stencila-dirs",
  "stencila-document",

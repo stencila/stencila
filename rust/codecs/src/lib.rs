@@ -1050,6 +1050,71 @@ async fn check_git_for_merge(path: &Path, commit: &str, other: &Path, force: boo
     Ok(true)
 }
 
+/// Pull a document from a remote service
+///
+/// Downloads the document from the remote service and saves it to the specified path.
+#[tracing::instrument]
+pub async fn push(
+    service: &remotes::RemoteService,
+    node: &Node,
+    title: Option<&str>,
+    url: Option<&Url>,
+) -> Result<Url> {
+    service.push(node, title, url).await
+}
+
+/// Pull a document from a remote service and update a local file
+///
+/// If `merge` is true, merges the pulled version with the local file.
+/// If false, replaces the local file with the pulled version.
+///
+/// Returns `Some(paths)` with modified file paths, or `None` if merge was cancelled.
+#[tracing::instrument]
+pub async fn pull(
+    service: &remotes::RemoteService,
+    url: &Url,
+    dest: &Path,
+    merge: bool,
+    decode_options: DecodeOptions,
+    encode_options: EncodeOptions,
+) -> Result<Option<Vec<PathBuf>>> {
+    // Create temp directory for the pulled version
+    let temp_dir = tempdir()?;
+    let format = service.pull_format();
+    let pulled_path = temp_dir
+        .path()
+        .join("pulled")
+        .with_extension(format.extension());
+
+    // Download from remote service
+    service.pull(url, &pulled_path).await?;
+
+    if merge {
+        // Merge the pulled version with the local file
+        self::merge(
+            &pulled_path,
+            Some(dest),
+            None,
+            None,
+            false,
+            decode_options,
+            encode_options,
+            None,
+        )
+        .await
+    } else {
+        // Replace local file with pulled version
+        self::convert(
+            Some(&pulled_path),
+            Some(dest),
+            Some(decode_options),
+            Some(encode_options),
+        )
+        .await?;
+        Ok(Some(vec![dest.to_path_buf()]))
+    }
+}
+
 /// A visitor that implements the `--recurse` encoding option by walking over
 /// the a node and encoding any `IncludeBlock` nodes having `content` to their
 /// `source` file.

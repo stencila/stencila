@@ -26,7 +26,6 @@ serde_json = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
-stencila-codec-gdoc = { path = "../codec-gdoc" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }

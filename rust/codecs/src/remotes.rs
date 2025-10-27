@@ -1,10 +1,9 @@
+use std::path::Path;
+
 use clap::ValueEnum;
 use url::Url;
 
-use stencila_codec::{
-    eyre::Result,
-    stencila_schema::Node,
-};
+use stencila_codec::{eyre::Result, stencila_format::Format, stencila_schema::Node};
 
 /// Remote document services
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -51,13 +50,15 @@ impl RemoteService {
         }
     }
 
+    /// Get the format used by this remote service for pull/push operations
+    pub fn pull_format(&self) -> Format {
+        match self {
+            Self::GoogleDocs => Format::Docx,
+        }
+    }
+
     /// Push a document to this remote service
-    pub async fn push(
-        &self,
-        node: &Node,
-        title: &str,
-        url: Option<&Url>,
-    ) -> Result<Url> {
+    pub async fn push(&self, node: &Node, title: Option<&str>, url: Option<&Url>) -> Result<Url> {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::push(node, title, url).await,
         }
@@ -65,10 +66,10 @@ impl RemoteService {
 
     /// Pull a document from this remote service
     ///
-    /// Downloads the document and returns it as a Node.
-    pub async fn pull(&self, url: &Url) -> Result<Node> {
+    /// Downloads the document and saves it to the specified path.
+    pub async fn pull(&self, url: &Url, dest: &Path) -> Result<()> {
         match self {
-            Self::GoogleDocs => stencila_codec_gdoc::pull(url).await,
+            Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest).await,
         }
     }
 }

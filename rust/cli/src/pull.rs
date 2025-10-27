@@ -119,46 +119,23 @@ impl Cli {
             Some("⬇️ "),
         );
 
-        // Pull from the remote service
-        let pulled_node = service.pull(&url).await?;
+        // Pull and update the local file
+        let modified_files = stencila_codecs::pull(
+            &service,
+            &url,
+            &self.input,
+            !self.no_merge,
+            DecodeOptions::default(),
+            EncodeOptions::default(),
+        )
+        .await?;
 
         message("Successfully pulled from remote", Some("✅"));
 
-        if self.no_merge {
-            // Replace local file without merging
-            message("Replacing local file (no merge)", Some("📝"));
-
-            // Encode and save the pulled node
-            stencila_codecs::to_path(&pulled_node, &self.input, Some(EncodeOptions::default()))
-                .await?;
-
-            message("Local file replaced successfully", Some("✅"));
-        } else {
-            // Merge the pulled version with local version
-            message("Merging pulled changes with local file", Some("🔀"));
-
-            // Create a temporary file for the pulled version
-            let temp_dir = tempfile::tempdir()?;
-            let pulled_path = temp_dir.path().join("pulled.docx");
-
-            // Save pulled version as DOCX (intermediate format)
-            stencila_codecs::to_path(&pulled_node, &pulled_path, Some(EncodeOptions::default()))
-                .await?;
-
-            // Merge using stencila_codecs::merge
-            let modified_files = stencila_codecs::merge(
-                &pulled_path,             // edited (the pulled version)
-                Some(&self.input),        // original (the local file)
-                None,                     // unedited (not needed)
-                None,                     // commit (not needed)
-                false,                    // rebase (not needed)
-                DecodeOptions::default(), // decode_options
-                EncodeOptions::default(), // encode_options
-                None,                     // workdir
-            )
-            .await?;
-
-            if let Some(modified_files) = modified_files {
+        if let Some(modified_files) = modified_files {
+            if self.no_merge {
+                message("Local file replaced successfully", Some("✅"));
+            } else {
                 message(
                     &format!(
                         "Merge completed, {}",
@@ -170,9 +147,9 @@ impl Cli {
                     ),
                     Some("✅"),
                 );
-            } else {
-                message("Merge cancelled", Some("🚫"));
             }
+        } else {
+            message("Merge cancelled", Some("🚫"));
         }
 
         // Track the remote pull
