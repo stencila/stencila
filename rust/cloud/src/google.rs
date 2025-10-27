@@ -1,21 +1,22 @@
-use std::fmt;
+use std::{fmt, io::Write};
 
-use eyre::Result;
+use eyre::{Result, bail};
 use serde::Deserialize;
 
 use crate::{ErrorResponse, base_url, client};
 
 /// Response from the Google token endpoint when successful
 #[derive(Deserialize)]
-pub struct GoogleTokenResponse {
-    pub access_token: String,
-    pub token_type: Option<String>,
-    pub scopes: Option<String>,
+#[allow(dead_code)]
+struct GoogleTokenResponse {
+    access_token: String,
+    token_type: Option<String>,
+    scopes: Option<String>,
 }
 
 /// Custom error types for Google integration
 #[derive(Debug)]
-pub enum GoogleTokenError {
+enum GoogleTokenError {
     NotLinked { connect_url: Option<String> },
     RefreshFailed { connect_url: Option<String> },
     JsonParsing(String),
@@ -54,7 +55,7 @@ impl std::error::Error for GoogleTokenError {}
 /// to their Stencila account.
 ///
 /// Returns a `GoogleTokenError` if the account is not connected or token refresh fails.
-pub async fn google_token() -> Result<String, GoogleTokenError> {
+async fn get_token() -> Result<String, GoogleTokenError> {
     // Get authenticated client
     let client = match client().await {
         Ok(client) => client,
@@ -107,6 +108,59 @@ pub async fn google_token() -> Result<String, GoogleTokenError> {
                 .await
                 .unwrap_or_else(|_| format!("HTTP error: {status}"));
             Err(GoogleTokenError::Other(error_msg))
+        }
+    }
+}
+
+/// Get Google access token with retry for connection flow
+pub async fn get_token_with_retry() -> Result<String> {
+    loop {
+        match get_token().await {
+            Ok(token) => return Ok(token),
+            Err(GoogleTokenError::NotLinked { connect_url }) => {
+                // Handle connection flow
+                let url = connect_url
+                    .as_deref()
+                    .unwrap_or("https://stencila.cloud/settings/connections");
+
+                eprintln!(
+                    "\n🔗 Google account not yet connected to your Stencila account.\n   Opening browser to connect your Google account...\n"
+                );
+
+                // Open browser
+                if let Err(e) = webbrowser::open(url) {
+                    eprintln!(
+                        "⚠️  Failed to open browser: {}.\n   Please visit manually: {}\n",
+                        e, url
+                    );
+                }
+
+                // Wait for user
+                eprint!("⏳ Press Enter after you've connected your account: ");
+                std::io::stderr().flush()?;
+                let mut input = String::new();
+                std::io::stdin().read_line(&mut input)?;
+
+                eprintln!("🔄 Trying again...\n");
+                // Loop will retry
+            }
+            Err(GoogleTokenError::RefreshFailed { connect_url }) => {
+                let url = connect_url
+                    .as_deref()
+                    .unwrap_or("https://stencila.cloud/settings/connections");
+
+                eprintln!(
+                    "\n❌ Failed to refresh your Google access token.\n\n   To fix:\n   1. Visit {}\n   2. Re-connect your Google account\n   3. Try again\n",
+                    url
+                );
+                bail!("Google token refresh failed. Please re-connect your account.");
+            }
+            Err(GoogleTokenError::JsonParsing(msg)) => {
+                bail!("Failed to parse Google token response: {msg}");
+            }
+            Err(GoogleTokenError::Other(msg)) => {
+                bail!("Failed to get Google access token: {msg}");
+            }
         }
     }
 }

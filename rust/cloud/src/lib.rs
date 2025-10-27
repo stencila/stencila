@@ -11,8 +11,7 @@ use strum::Display;
 
 use stencila_version::STENCILA_USER_AGENT;
 
-pub mod google;
-pub use google::{GoogleTokenError, google_token};
+mod google;
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -181,4 +180,18 @@ pub async fn client() -> Result<Client> {
         .build()?;
 
     Ok(client)
+}
+
+/// Get an access token for a remote service with interactive retry flow
+///
+/// This function will attempt to get a token from Stencila Cloud and handle
+/// authentication failures by prompting the user to connect their account.
+///
+/// Currently supported services:
+/// - "google": Google Drive / Google Docs
+pub async fn get_token(service: &str) -> Result<String> {
+    match service {
+        "google" => google::get_token_with_retry().await,
+        _ => bail!("Unsupported service: {service}"),
+    }
 }

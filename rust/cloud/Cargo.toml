@@ -12,6 +12,7 @@ stencila-secrets = { "path" = "../secrets" }
 stencila-version = { "path" = "../version" }
 strum = { workspace = true }
 tracing = { workspace = true }
+webbrowser = { workspace = true }
 
 [lints]
 workspace = true
