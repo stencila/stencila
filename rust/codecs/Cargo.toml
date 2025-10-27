@@ -41,6 +41,7 @@ stencila-codec-json5 = { path = "../codec-json5" }
 stencila-codec-jsonld = { path = "../codec-jsonld" }
 stencila-codec-latex = { path = "../codec-latex" }
 stencila-codec-lexical = { path = "../codec-lexical" }
+stencila-codec-m365 = { path = "../codec-m365" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codec-meca = { path = "../codec-meca" }
 stencila-codec-odt = { path = "../codec-odt" }

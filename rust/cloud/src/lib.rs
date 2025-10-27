@@ -12,6 +12,7 @@ use strum::Display;
 use stencila_version::STENCILA_USER_AGENT;
 
 mod google;
+mod microsoft;
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -189,9 +190,11 @@ pub async fn client() -> Result<Client> {
 ///
 /// Currently supported services:
 /// - "google": Google Drive / Google Docs
+/// - "microsoft": Microsoft 365 / OneDrive
 pub async fn get_token(service: &str) -> Result<String> {
     match service {
         "google" => google::get_token_with_retry().await,
+        "microsoft" => microsoft::get_token_with_retry().await,
         _ => bail!("Unsupported service: {service}"),
     }
 }

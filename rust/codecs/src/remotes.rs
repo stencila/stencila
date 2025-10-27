@@ -8,9 +8,13 @@ use stencila_codec::{eyre::Result, stencila_format::Format, stencila_schema::Nod
 /// Remote document services
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum RemoteService {
-    /// Google Docs
+    /// Google Docs / Drive
     #[value(name = "gdocs")]
     GoogleDocs,
+
+    /// Microsoft 365 / OneDrive
+    #[value(name = "m365")]
+    Microsoft365,
 }
 
 impl RemoteService {
@@ -18,12 +22,22 @@ impl RemoteService {
     pub fn matches_url(&self, url: &Url) -> bool {
         match self {
             Self::GoogleDocs => url.host_str() == Some("docs.google.com"),
+            Self::Microsoft365 => {
+                if let Some(host) = url.host_str() {
+                    // Personal OneDrive
+                    host == "onedrive.live.com" || host == "1drv.ms" ||
+                    // Business OneDrive / SharePoint
+                    host.ends_with("-my.sharepoint.com") || host.ends_with(".sharepoint.com")
+                } else {
+                    false
+                }
+            }
         }
     }
 
     /// Get the remote service from a URL
     pub fn from_url(url: &Url) -> Option<Self> {
-        [Self::GoogleDocs]
+        [Self::GoogleDocs, Self::Microsoft365]
             .iter()
             .find(|service| service.matches_url(url))
             .copied()
@@ -33,6 +47,7 @@ impl RemoteService {
     pub fn display_name(&self) -> &str {
         match self {
             Self::GoogleDocs => "Google Doc",
+            Self::Microsoft365 => "Microsoft 365 document",
         }
     }
 
@@ -40,6 +55,7 @@ impl RemoteService {
     pub fn display_name_plural(&self) -> &str {
         match self {
             Self::GoogleDocs => "Google Docs",
+            Self::Microsoft365 => "Microsoft 365 documents",
         }
     }
 
@@ -47,6 +63,7 @@ impl RemoteService {
     pub fn cli_name(&self) -> &str {
         match self {
             Self::GoogleDocs => "gdocs",
+            Self::Microsoft365 => "m365",
         }
     }
 
@@ -54,6 +71,7 @@ impl RemoteService {
     pub fn pull_format(&self) -> Format {
         match self {
             Self::GoogleDocs => Format::Docx,
+            Self::Microsoft365 => Format::Docx,
         }
     }
 
@@ -61,6 +79,7 @@ impl RemoteService {
     pub async fn push(&self, node: &Node, title: Option<&str>, url: Option<&Url>) -> Result<Url> {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::push(node, title, url).await,
+            Self::Microsoft365 => stencila_codec_m365::push(node, title, url).await,
         }
     }
 
@@ -70,6 +89,7 @@ impl RemoteService {
     pub async fn pull(&self, url: &Url, dest: &Path) -> Result<()> {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest).await,
+            Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
         }
     }
 }

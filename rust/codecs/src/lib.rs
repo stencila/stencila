@@ -1053,7 +1053,7 @@ async fn check_git_for_merge(path: &Path, commit: &str, other: &Path, force: boo
 /// Pull a document from a remote service
 ///
 /// Downloads the document from the remote service and saves it to the specified path.
-#[tracing::instrument]
+#[tracing::instrument(skip(node))]
 pub async fn push(
     service: &remotes::RemoteService,
     node: &Node,

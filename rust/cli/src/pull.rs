@@ -43,6 +43,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Pull from specific service</dim>
   <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdocs</>
 
+  <dim># Pull from Microsoft 365</dim>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>m365</>
+
   <dim># Pull from specific URL</dim>
   <b>stencila pull</> <g>document.smd</> <c>--url</> <g>https://docs.google.com/document/d/abc123</>
 

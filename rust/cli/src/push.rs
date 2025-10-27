@@ -48,6 +48,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Push a document to Google Docs</dim>
   <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdocs</>
 
+  <dim># Push a document to Microsoft 365</dim>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>m365</>
+
   <dim># Push and update existing tracked document</dim>
   <b>stencila push</> <g>document.smd</>
 

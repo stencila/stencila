@@ -8565,6 +8565,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-m365"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "percent-encoding",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-cloud",
+ "stencila-codec",
+ "stencila-codec-docx",
+ "tempfile",
+ "tokio",
+ "url",
+]
+
+[[package]]
 name = "stencila-codec-markdown"
 version = "0.0.0"
 dependencies = [
@@ -8906,6 +8923,7 @@ dependencies = [
  "stencila-codec-jsonld",
  "stencila-codec-latex",
  "stencila-codec-lexical",
+ "stencila-codec-m365",
  "stencila-codec-markdown",
  "stencila-codec-meca",
  "stencila-codec-odt",
