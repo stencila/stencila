@@ -16,6 +16,8 @@ mod merge;
 mod new;
 mod options;
 mod preview;
+mod pull;
+mod push;
 mod render;
 mod sync;
 mod uninstall;
@@ -81,6 +83,7 @@ mod tests {
             ("execute", crate::execute::CLI_AFTER_LONG_HELP),
             ("render", crate::render::CLI_AFTER_LONG_HELP),
             ("preview", crate::preview::CLI_AFTER_LONG_HELP),
+            ("push", crate::push::CLI_AFTER_LONG_HELP),
             ("demo", crate::demo::DEMO_AFTER_LONG_HELP),
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
             ("uninstall", crate::uninstall::CLI_AFTER_LONG_HELP),

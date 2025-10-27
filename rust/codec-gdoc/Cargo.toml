@@ -4,8 +4,16 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+eyre = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+stencila-cloud = { path = "../cloud" }
 stencila-codec = { path = "../codec" }
 stencila-codec-docx = { path = "../codec-docx" }
+tempfile = { workspace = true }
+tokio = { workspace = true }
+url = { workspace = true }
 
 [lints]
 workspace = true

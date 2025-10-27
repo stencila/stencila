@@ -7989,6 +7989,7 @@ dependencies = [
  "stencila-ask",
  "stencila-cli-utils",
  "stencila-cloud",
+ "stencila-codec-gdoc",
  "stencila-codecs",
  "stencila-dirs",
  "stencila-document",
@@ -8064,6 +8065,7 @@ dependencies = [
  "stencila-version",
  "strum 0.27.2",
  "tracing",
+ "webbrowser",
 ]
 
 [[package]]
@@ -8311,8 +8313,16 @@ dependencies = [
 name = "stencila-codec-gdoc"
 version = "0.0.0"
 dependencies = [
+ "eyre",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-cloud",
  "stencila-codec",
  "stencila-codec-docx",
+ "tempfile",
+ "tokio",
+ "url",
 ]
 
 [[package]]

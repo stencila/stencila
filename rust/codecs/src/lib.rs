@@ -73,6 +73,7 @@ use stencila_codec_zenodo::ZenodoCodec;
 //use stencila_codec_polars::PolarsCodec;
 
 pub mod cli;
+pub mod remotes;
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {

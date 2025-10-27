@@ -9,7 +9,7 @@ use stencila_version::STENCILA_VERSION;
 use crate::{
     compile, convert, db, demo, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, preview, render, sync, uninstall, upgrade,
+    merge, new, preview, pull, push, render, sync, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -249,6 +249,8 @@ pub enum Command {
 
     Preview(preview::Cli),
     Publish(stencila_publish::Cli),
+    Pull(pull::Cli),
+    Push(push::Cli),
     Demo(demo::Demo),
 
     Db(db::Cli),
@@ -309,6 +311,8 @@ impl Cli {
 
             Command::Preview(preview) => preview.run().await,
             Command::Publish(publish) => publish.run().await,
+            Command::Pull(pull) => pull.run().await,
+            Command::Push(push) => push.run().await,
             Command::Demo(demo) => demo.run().await,
 
             Command::Db(db) => db.run().await,

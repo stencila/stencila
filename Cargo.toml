@@ -43,7 +43,7 @@ quick-xml = "0.37.5"
 quote = "1.0.41"
 rand = "0.9.2"
 regex = "1.12.2"
-reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls", "stream"] }
+reqwest = { version = "0.12.24", default-features = false, features = ["json", "multipart", "rustls-tls", "stream"] }
 roxmltree = "0.21.1"
 seahash = "4.1.0"
 semver = { version = "1.0.27", features = ["serde"] }
@@ -70,6 +70,7 @@ tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter", "json"] }
 url = { version = "2.5.7", features = ["serde"] }
 uuid = { version = "1.18.1", features = ["v4"] }
+webbrowser = "1.0.5"
 which = "8.0.0"
 winnow = "0.7.13"
 zip = { version = "6.0.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary

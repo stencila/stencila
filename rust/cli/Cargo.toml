@@ -26,6 +26,7 @@ serde_json = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
+stencila-codec-gdoc = { path = "../codec-gdoc" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
@@ -56,7 +57,7 @@ tracing = { workspace = true }
 tracing-error = { workspace = true }
 tracing-subscriber = { workspace = true }
 url = { workspace = true }
-webbrowser = "1.0.5"
+webbrowser = { workspace = true }
 zip = { workspace = true }
 
 [lints]
