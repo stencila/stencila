@@ -15,11 +15,13 @@ pub struct Cli {
     /// The path to the document to push
     input: PathBuf,
 
-    /// The remote service to push to
+    /// The URL or service to push to
     ///
-    /// If not specified, will use tracked remotes.
-    #[arg(long)]
-    to: Option<RemoteService>,
+    /// Can be:
+    /// - A full URL (e.g., https://docs.google.com/document/d/...)
+    /// - A service shorthand: "gdoc" or "m365"
+    /// - Omitted to use any tracked remote
+    url: Option<String>,
 
     /// Create a new document instead of updating an existing one
     ///
@@ -46,19 +48,22 @@ pub struct Cli {
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Push a document to Google Docs</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdocs</>
+  <b>stencila push</> <g>document.smd</> <g>gdoc</>
 
   <dim># Push a document to Microsoft 365</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>m365</>
+  <b>stencila push</> <g>document.smd</> <g>m365</>
 
   <dim># Push and update existing tracked document</dim>
   <b>stencila push</> <g>document.smd</>
 
+  <dim># Push to specific URL</dim>
+  <b>stencila push</> <g>document.smd</> <g>https://docs.google.com/document/d/abc123</>
+
   <dim># Push with execution first</dim>
-  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdocs</> <c>--</> <c>arg1=value1</>
+  <b>stencila push</> <g>report.smd</> <g>gdoc</> <c>--</> <c>arg1=value1</>
 
   <dim># Force create new document</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdocs</> <c>--force-new</>
+  <b>stencila push</> <g>document.smd</> <g>gdoc</> <c>--force-new</>
 "
 );
 
@@ -74,6 +79,38 @@ impl Cli {
         // Open the document
         let doc = Document::open(&self.input, None).await?;
 
+        // Determine target remote service, explicit URL, and execution args
+        // If the url string looks like an execution arg (starts with '-' or contains '='), treat it as such
+        let (service, explicit_url, execution_args) = if let Some(url_str) = self.url {
+            if url_str.starts_with('-') || url_str.contains('=') {
+                // Looks like an execution arg, not a URL/service
+                let mut args = vec![url_str];
+                args.extend(self.args);
+                (None, None, args)
+            } else {
+                // Try to determine if it's a service shorthand or a URL
+                match url_str.as_str() {
+                    "gdoc" | "gdocs" => (Some(RemoteService::GoogleDocs), None, self.args),
+                    "m365" => (Some(RemoteService::Microsoft365), None, self.args),
+                    _ => {
+                        // Try to parse as URL
+                        let url = Url::parse(&url_str).map_err(|_| {
+                            eyre::eyre!(
+                                "Invalid URL or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
+                                url_str
+                            )
+                        })?;
+                        let service = RemoteService::from_url(&url).ok_or_else(|| {
+                            eyre::eyre!("URL {} is not from a supported remote service", url)
+                        })?;
+                        (Some(service), Some(url), self.args)
+                    }
+                }
+            }
+        } else {
+            (None, None, self.args)
+        };
+
         // Execute document if args provided
         if !self.no_execute {
             message(
@@ -82,8 +119,7 @@ impl Cli {
             );
 
             // Parse arguments as key=value pairs
-            let arguments: Vec<(&str, &str)> = self
-                .args
+            let arguments: Vec<(&str, &str)> = execution_args
                 .iter()
                 .filter_map(|arg| {
                     let parts: Vec<&str> = arg.splitn(2, '=').collect();
@@ -99,14 +135,16 @@ impl Cli {
                 .await?;
         }
 
-        // Determine target remote service
-        let service = if let Some(to) = self.to {
-            to
+        // Determine target remote service from tracked remotes if not specified
+        let service = if let Some(svc) = service {
+            svc
         } else {
             // Check tracked remotes
             let remotes = doc.remotes().await?;
             if remotes.is_empty() {
-                bail!("No tracked remotes for `{input}`. Use `--to` to specify target service.",);
+                bail!(
+                    "No tracked remotes for `{input}`. Specify a service (gdoc/m365) to push to.",
+                );
             }
 
             // Find which service(s) the tracked remotes belong to
@@ -122,7 +160,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "No supported remotes tracked for `{input}`:\n{urls_list}\n\nUse `--to` to specify target service.",
+                    "No supported remotes tracked for `{input}`:\n{urls_list}\n\nSpecify a service (gdoc/m365) to push to.",
                 );
             }
 
@@ -150,7 +188,7 @@ impl Cli {
                     Some("⚠️"),
                 );
                 bail!(
-                    "Use `--to {}` with `--force-new` to create a new document, or untrack remotes you don't want.",
+                    "Specify '{}' with `--force-new` to create a new document, or untrack remotes you don't want.",
                     first_service.cli_name()
                 );
             }
@@ -159,7 +197,14 @@ impl Cli {
         };
 
         // Determine existing URL for this service
-        let existing_url = if self.force_new {
+        let existing_url = if let Some(url) = explicit_url {
+            // Explicit URL provided - use it directly
+            if self.force_new {
+                bail!("Cannot use both an explicit URL and --force-new flag");
+            }
+            Some(url)
+        } else if self.force_new {
+            // Force new document creation
             None
         } else {
             // Get tracked remotes for this service

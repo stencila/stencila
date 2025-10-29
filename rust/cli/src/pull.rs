@@ -15,17 +15,13 @@ pub struct Cli {
     /// The path to the local document
     input: PathBuf,
 
-    /// The remote service to pull from
+    /// The URL or service to pull from
     ///
-    /// If not specified, will use tracked remotes.
-    #[arg(long)]
-    from: Option<RemoteService>,
-
-    /// The URL to pull from
-    ///
-    /// If not specified, will use the tracked remote for the service.
-    #[arg(long)]
-    url: Option<Url>,
+    /// Can be:
+    /// - A full URL (e.g., https://docs.google.com/document/d/...)
+    /// - A service shorthand: "gdoc" or "m365"
+    /// - Omitted to use any tracked remote
+    url: Option<String>,
 
     /// Do not merge, just download
     ///
@@ -37,20 +33,20 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Pull from tracked Google Doc</dim>
+  <dim># Pull from any tracked remote</dim>
   <b>stencila pull</> <g>document.smd</>
 
-  <dim># Pull from specific service</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdocs</>
+  <dim># Pull from tracked Google Doc</dim>
+  <b>stencila pull</> <g>document.smd</> <g>gdoc</>
 
-  <dim># Pull from Microsoft 365</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>m365</>
+  <dim># Pull from tracked Microsoft 365 document</dim>
+  <b>stencila pull</> <g>document.smd</> <g>m365</>
 
   <dim># Pull from specific URL</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--url</> <g>https://docs.google.com/document/d/abc123</>
+  <b>stencila pull</> <g>document.smd</> <g>https://docs.google.com/document/d/abc123</>
 
   <dim># Pull without merging (replace local file)</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--no-merge</>
+  <b>stencila pull</> <g>document.smd</> <g>gdoc</> <c>--no-merge</>
 "
 );
 
@@ -67,31 +63,53 @@ impl Cli {
         let doc = Document::open(&self.input, None).await?;
 
         // Determine the URL to pull from
-        let (service, url) = if let Some(url) = &self.url {
-            // URL specified directly
-            let service = RemoteService::from_url(url)
-                .ok_or_else(|| eyre::eyre!("URL {} is not from a supported remote service", url))?;
-            (service, url.clone())
-        } else if let Some(service) = self.from {
-            // Service specified, find the tracked remote for it
-            let remotes = doc.remotes().await?;
-            let url = remotes
-                .iter()
-                .find(|u| service.matches_url(u))
-                .ok_or_else(|| {
-                    eyre::eyre!(
-                        "No tracked {} remote found for `{input}`. Use `--url` to specify one.",
-                        service.display_name()
-                    )
-                })?
-                .clone();
-            (service, url)
+        let (service, url) = if let Some(url_str) = &self.url {
+            // URL or service shorthand specified
+            match url_str.as_str() {
+                "gdoc" | "gdocs" => {
+                    // Find tracked Google Docs remote
+                    let remotes = doc.remotes().await?;
+                    let url = remotes
+                        .iter()
+                        .find(|u| RemoteService::GoogleDocs.matches_url(u))
+                        .ok_or_else(|| {
+                            eyre::eyre!(
+                                "No tracked Google Docs remote found for `{input}`. Use a full URL to specify one."
+                            )
+                        })?
+                        .clone();
+                    (RemoteService::GoogleDocs, url)
+                }
+                "m365" => {
+                    // Find tracked Microsoft 365 remote
+                    let remotes = doc.remotes().await?;
+                    let url = remotes
+                        .iter()
+                        .find(|u| RemoteService::Microsoft365.matches_url(u))
+                        .ok_or_else(|| {
+                            eyre::eyre!(
+                                "No tracked Microsoft 365 remote found for `{input}`. Use a full URL to specify one."
+                            )
+                        })?
+                        .clone();
+                    (RemoteService::Microsoft365, url)
+                }
+                _ => {
+                    // Assume it's a URL
+                    let url =
+                        Url::parse(url_str).map_err(|_| eyre::eyre!("Invalid URL: {url_str}"))?;
+                    let service = RemoteService::from_url(&url).ok_or_else(|| {
+                        eyre::eyre!("URL {url} is not from a supported remote service")
+                    })?;
+                    (service, url)
+                }
+            }
         } else {
-            // No service or URL specified, find any tracked remote
+            // No URL or service specified, find any tracked remote
             let remotes = doc.remotes().await?;
             if remotes.is_empty() {
                 bail!(
-                    "No tracked remotes for `{input}`. Use `--from` or `--url` to specify source.",
+                    "No tracked remotes for `{input}`. Specify a URL or service (gdoc/m365) to pull from.",
                 );
             }
 
@@ -108,7 +126,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "No supported remotes tracked for `{input}`:\n{urls_list}\n\nUse `--from` or `--url` to specify source.",
+                    "No supported remotes tracked for `{input}`:\n{urls_list}\n\nSpecify a URL or service (gdoc/m365) to pull from.",
                 );
             }
 
