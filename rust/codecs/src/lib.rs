@@ -43,7 +43,6 @@ use stencila_codec_directory::DirectoryCodec;
 use stencila_codec_docx::DocxCodec;
 use stencila_codec_doi::DoiCodec;
 use stencila_codec_dom::DomCodec;
-use stencila_codec_gdoc::GDocCodec;
 use stencila_codec_github::GithubCodec;
 use stencila_codec_html::HtmlCodec;
 use stencila_codec_ipynb::IpynbCodec;
@@ -88,7 +87,6 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         // will be selected when encoding to HTML
         Box::new(DomCodec),
         Box::new(DirectoryCodec),
-        Box::new(GDocCodec),
         Box::new(GithubCodec),
         Box::new(HtmlCodec),
         Box::new(IpynbCodec),

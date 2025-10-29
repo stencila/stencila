@@ -6,66 +6,8 @@ use serde::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
 use url::Url;
 
-use stencila_codec::{
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    async_trait, stencila_format::Format, stencila_schema::Node,
-};
+use stencila_codec::{Codec, EncodeOptions, stencila_format::Format, stencila_schema::Node};
 use stencila_codec_docx::DocxCodec;
-
-/// A codec for uploads/downloads to/from Google Docs
-pub struct GDocCodec;
-
-#[async_trait]
-impl Codec for GDocCodec {
-    fn name(&self) -> &str {
-        "gdoc"
-    }
-
-    fn availability(&self) -> CodecAvailability {
-        DocxCodec.availability()
-    }
-
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::GDocx => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::GDocx => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    async fn from_path(
-        &self,
-        path: &Path,
-        options: Option<DecodeOptions>,
-    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
-        let options = DecodeOptions {
-            format: Some(Format::GDocx),
-            ..options.unwrap_or_default()
-        };
-
-        DocxCodec.from_path(path, Some(options)).await
-    }
-
-    async fn to_path(
-        &self,
-        node: &Node,
-        path: &Path,
-        options: Option<EncodeOptions>,
-    ) -> Result<EncodeInfo> {
-        let options = EncodeOptions {
-            format: Some(Format::GDocx),
-            ..options.unwrap_or_default()
-        };
-
-        DocxCodec.to_path(node, path, Some(options)).await
-    }
-}
 
 /// Information about a Google Doc
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -111,11 +53,12 @@ async fn upload(node: &Node, title: &str, access_token: &str) -> Result<Url> {
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
 
-    GDocCodec
+    DocxCodec
         .to_path(
             node,
             temp_path,
             Some(EncodeOptions {
+                format: Some(Format::GDocx),
                 reproducible: Some(true),
                 ..Default::default()
             }),
@@ -177,11 +120,12 @@ async fn update(node: &Node, access_token: &str, doc_id: &str) -> Result<Url> {
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
 
-    GDocCodec
+    DocxCodec
         .to_path(
             node,
             temp_path,
             Some(EncodeOptions {
+                format: Some(Format::GDocx),
                 reproducible: Some(true),
                 ..Default::default()
             }),
