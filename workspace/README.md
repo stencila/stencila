@@ -41,8 +41,16 @@ This workspace is designed for two primary purposes:
 
 ## How It Works
 
-### Architecture
+The workspace supports two distinct operational modes:
 
+- If `STENCILA_SCRIPT` environment variable is set → CI Mode
+- If `STENCILA_SCRIPT` is not set → CDE Mode (default)
+
+### 1. CDE Mode (Default)
+
+Interactive development environment with browser-accessible VSCode.
+
+**Architecture:**
 ```
 User Browser
     ↓
@@ -55,12 +63,32 @@ setup.sh (if present in workspace)
 User Workspace (with dependencies installed)
 ```
 
-When a workspace is opened:
-
+**Workflow:**
 1. The container starts via `entrypoint.sh`, launching OpenVSCode Server on port 8080
 2. The browser connects to the server (typically at `http://localhost:8080/?folder=/path/to/workspace`)
 3. If a `setup.sh` file exists in the workspace root, the Stencila VSCode extension automatically detects and runs it (see [`vscode/src/workspace.ts`](../vscode/src/workspace.ts))
 4. Users can see setup progress directly in the VSCode window
+
+### 2. CI Mode
+
+Headless automation for running scripts (sync, testing, deployment, etc.).
+
+**Architecture:**
+```
+entrypoint.sh
+    ↓
+setup.sh (initializes repository)
+    ↓
+specified script (e.g., sync-to-remote.sh, test-runner.sh)
+    ↓
+Stencila CLI / External Services
+```
+
+**Workflow:**
+1. The container starts via `entrypoint.sh` with `STENCILA_SCRIPT` environment variable set
+2. `setup.sh` is executed to clone and configure the Git repository
+3. The specified script from `/home/workspace/stencila/defaults/` executes
+4. The container exits with the script's exit code
 
 ### Container User
 
@@ -70,25 +98,42 @@ The workspace directory is located at `/home/workspace` with the `stencila` user
 
 ### Environment Variables
 
-The following environment variables configure workspace initialization:
+#### Common Variables (Both Modes)
 
 - `GITHUB_REPO`: GitHub repository to clone (format: `owner/repo`)
 - `REPO_SUBDIR`: Subdirectory within the repository to work in (optional)
 - `REPO_REF`: Git reference to checkout - branch, tag, or commit (optional)
 - `GITHUB_TOKEN`: GitHub authentication token for private repositories (optional)
 
-### Default Dependencies
+#### CI Mode Variables
 
-The `defaults/` directory contains fallback package specifications:
+- `STENCILA_SCRIPT`: Name of the script to run from `/home/workspace/stencila/defaults/` (e.g., `sync-to-remote.sh`, `sync-from-remote.sh`, `test-runner.sh`)
 
+**Sync Script Variables** (when using sync scripts):
+- `STENCILA_SYNC_FILE_PATH`: Path to the local file to sync (relative to repository directory)
+- `STENCILA_SYNC_REMOTE_URL`: URL of the remote cloud document (e.g., Google Docs URL, OneDrive URL)
+
+Note: Authentication for cloud services is handled by the Stencila CLI using credentials configured in your Stencila account.
+
+### Default Dependencies and Scripts
+
+The `defaults/` directory contains fallback package specifications and sync scripts:
+
+**Package Specifications:**
 - **`pyproject.toml`**: Python dependencies (requires Python ≥3.12)
 - **`DESCRIPTION`**: R package metadata
-- **`setup.sh`**: Workspace initialization script
 
-These defaults serve two purposes:
+**Initialization and Sync Scripts:**
+- **`setup.sh`**: Workspace initialization script (clones repo, installs dependencies)
+- **`sync-to-remote.sh`**: Pushes local file to remote cloud document using `stencila push`
+- **`sync-from-remote.sh`**: Pulls remote cloud document to local file using `stencila pull`, then commits and pushes to Git
+
+The package specifications serve two purposes:
 
 1. **Build-time caching**: Packages are pre-installed during Docker image build for faster workspace startup
 2. **Runtime fallback**: If a workspace doesn't specify its own dependencies, the defaults are used
+
+The scripts are executed in CI mode when specified via the `STENCILA_SCRIPT` environment variable.
 
 ## Configuration Files
 
@@ -173,9 +218,11 @@ The Dockerfile follows a carefully ordered build process optimized for layer cac
 
 The build is optimized with frequently-changing files (config, settings, entrypoint) placed near the end to maximize Docker layer cache reuse. Images are built for `linux/amd64` and published to Docker Hub as `stencila/workspace`.
 
-## Usage Example
+## Usage Examples
 
-### Running Locally
+### CDE Mode
+
+#### Running Locally
 
 ```bash
 docker run -p 8080:8080 stencila/workspace
@@ -183,7 +230,7 @@ docker run -p 8080:8080 stencila/workspace
 
 Then open http://localhost:8080 in your browser.
 
-### With GitHub Repository
+#### With GitHub Repository
 
 ```bash
 docker run -p 8080:8080 \
@@ -195,9 +242,32 @@ docker run -p 8080:8080 \
 
 Then open http://localhost:8080/?folder=/workspace/owner/repo/subdir in your browser.
 
-## Related Files
+### CI Mode
 
-- **`icons/`**: Stencila branding assets (logos, favicons)
-- **`Dockerfile`**: Multi-stage build configuration
-- **`entrypoint.sh`**: Container startup script
-- **`Makefile`**: Build and deployment automation
+#### Example: Sync to Remote (Push)
+
+Push a local file to a cloud document (e.g., Google Docs, OneDrive):
+
+```bash
+docker run \
+  -e STENCILA_SCRIPT="sync-to-remote.sh" \
+  -e GITHUB_REPO="owner/repo" \
+  -e GITHUB_TOKEN="ghp_xxxx" \
+  -e STENCILA_SYNC_FILE_PATH="docs/report.md" \
+  -e STENCILA_SYNC_REMOTE_URL="https://docs.google.com/document/d/abc123..." \
+  stencila/workspace
+```
+
+#### Example: Sync from Remote (Pull)
+
+Pull changes from a cloud document and push them to the Git repository:
+
+```bash
+docker run \
+  -e STENCILA_SCRIPT="sync-from-remote.sh" \
+  -e GITHUB_REPO="owner/repo" \
+  -e GITHUB_TOKEN="ghp_xxxx" \
+  -e STENCILA_SYNC_FILE_PATH="docs/report.md" \
+  -e STENCILA_SYNC_REMOTE_URL="https://onedrive.live.com/edit.aspx?..." \
+  stencila/workspace
+```

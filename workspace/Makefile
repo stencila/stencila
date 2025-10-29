@@ -1,6 +1,6 @@
 # Linting checks
 lint:
-	shellcheck defaults/setup.sh
+	shellcheck defaults/*.sh
 
 # Build the image
 build:
