@@ -16,7 +16,7 @@ if [[ -n "${REPO_SUBDIR:-}" ]]; then
     # Iterate in reverse order so that we remove the deepest directory first
     for (( idx=${#SUBDIR_PARTS[@]}-1; idx>=0; idx-- )); do
         cd .. || exit
-        rmdir "${SUBDIR_PARTS[idx]}"
+        rmdir "${SUBDIR_PARTS[idx]}" 2>/dev/null || true
     done
 fi
 
