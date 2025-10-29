@@ -781,6 +781,39 @@ class Executable(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Styled(Entity):
+    """
+    An abstract base class for a document node that has styling applied to it and/or its content.
+    """
+
+    type: Literal["Styled"] = "Styled"
+
+    code: Cord
+    """The code of the equation in the `styleLanguage`."""
+
+    style_language: str | None = None
+    """The language used for the style specification e.g. css, tw"""
+
+    authors: list[Author] | None = None
+    """The authors of the code and content in the styled node."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the code and content in the styed node."""
+
+    compilation_digest: CompilationDigest | None = None
+    """A digest of the `code` and `styleLanguage`."""
+
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while parsing and transpiling the style."""
+
+    css: str | None = None
+    """A Cascading Style Sheet (CSS) transpiled from the `code` property."""
+
+    class_list: str | None = None
+    """A space separated list of class names associated with the node."""
+
+
+@dataclass(kw_only=True, repr=False)
 class CodeExecutable(Executable):
     """
     Abstract base type for executable code nodes (e.g. `CodeChunk`).
@@ -1036,36 +1069,15 @@ class Role(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class Styled(Entity):
+class StyledBlock(Styled):
     """
-    An abstract base class for a document node that has styling applied to it and/or its content.
+    Styled block content.
     """
 
-    type: Literal["Styled"] = "Styled"
+    type: Literal["StyledBlock"] = "StyledBlock"
 
-    code: Cord
-    """The code of the equation in the `styleLanguage`."""
-
-    style_language: str | None = None
-    """The language used for the style specification e.g. css, tw"""
-
-    authors: list[Author] | None = None
-    """The authors of the code and content in the styled node."""
-
-    provenance: list[ProvenanceCount] | None = None
-    """A summary of the provenance of the code and content in the styed node."""
-
-    compilation_digest: CompilationDigest | None = None
-    """A digest of the `code` and `styleLanguage`."""
-
-    compilation_messages: list[CompilationMessage] | None = None
-    """Messages generated while parsing and transpiling the style."""
-
-    css: str | None = None
-    """A Cascading Style Sheet (CSS) transpiled from the `code` property."""
-
-    class_list: str | None = None
-    """A space separated list of class names associated with the node."""
+    content: list[Block]
+    """The content within the styled block"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2485,6 +2497,15 @@ class Organization(Thing):
 
 
 @dataclass(kw_only=True, repr=False)
+class Page(StyledBlock):
+    """
+    A separate page in a document
+    """
+
+    type: Literal["Page"] = "Page"
+
+
+@dataclass(kw_only=True, repr=False)
 class Paragraph(Entity):
     """
     A paragraph.
@@ -3007,18 +3028,6 @@ class Strong(Mark):
 
 
 @dataclass(kw_only=True, repr=False)
-class StyledBlock(Styled):
-    """
-    Styled block content.
-    """
-
-    type: Literal["StyledBlock"] = "StyledBlock"
-
-    content: list[Block]
-    """The content within the styled block"""
-
-
-@dataclass(kw_only=True, repr=False)
 class StyledInline(Styled):
     """
     Styled inline content.
@@ -3413,6 +3422,7 @@ Block = Union[
     Island,
     List,
     MathBlock,
+    Page,
     Paragraph,
     PromptBlock,
     QuoteBlock,
@@ -3617,6 +3627,7 @@ Node = Union[
     NumberValidator,
     ObjectHint,
     Organization,
+    Page,
     Paragraph,
     Parameter,
     Periodical,
@@ -3739,6 +3750,7 @@ TYPES = [
     Thing,
     CreativeWork,
     Executable,
+    Styled,
     CodeExecutable,
     CodeStatic,
     ContactPoint,
@@ -3751,7 +3763,7 @@ TYPES = [
     NumberValidator,
     Parameter,
     Role,
-    Styled,
+    StyledBlock,
     Suggestion,
     Admonition,
     Annotation,
@@ -3827,6 +3839,7 @@ TYPES = [
     Note,
     ObjectHint,
     Organization,
+    Page,
     Paragraph,
     Periodical,
     Person,
@@ -3851,7 +3864,6 @@ TYPES = [
     StringHint,
     StringValidator,
     Strong,
-    StyledBlock,
     StyledInline,
     Subscript,
     SuggestionBlock,
