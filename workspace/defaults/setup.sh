@@ -67,14 +67,45 @@ if [[ -n "${GITHUB_REPO:-}" ]]; then
 
     # Checkout the desired ref (or the default branch if not specified)
     if [[ -n "${REPO_REF:-}" ]]; then
-        echo "📥 Checking out $REPO_REF"
-        if ! git fetch --depth=1 origin "$REPO_REF"; then
-            echo "❌ Error: Failed to fetch $REPO_REF"
+        # First, determine and checkout the default branch
+        echo "📥 Checking out default branch"
+        if ! default_branch=$(basename "$(git symbolic-ref refs/remotes/origin/HEAD)"); then
+            echo "❌ Error: Failed to determine default branch"
             exit 1
         fi
-        if ! git checkout FETCH_HEAD; then
-            echo "❌ Error: Failed to checkout $REPO_REF"
+        if ! git checkout "$default_branch"; then
+            echo "❌ Error: Failed to checkout default branch $default_branch"
             exit 1
+        fi
+        echo
+
+        # Try to fetch REPO_REF from origin
+        echo "📥 Attempting to fetch $REPO_REF"
+        if git fetch --depth=1 origin "$REPO_REF" 2>/dev/null; then
+            # Remote ref exists, check it out
+            echo "✓ Remote ref found, checking out $REPO_REF"
+            # Try to create a tracked branch (works for remote branches)
+            if git checkout -B "$REPO_REF" --track "origin/$REPO_REF" 2>/dev/null; then
+                echo "✓ Branch $REPO_REF checked out with tracking"
+            else
+                # Fallback for tags and commit SHAs (detached HEAD is acceptable)
+                if ! git checkout FETCH_HEAD; then
+                    echo "❌ Error: Failed to checkout $REPO_REF"
+                    exit 1
+                fi
+                echo "✓ Checked out $REPO_REF (detached HEAD - tag or commit)"
+            fi
+        else
+            # Remote branch doesn't exist, create a new local branch
+            echo "✓ Remote ref not found, creating new branch $REPO_REF"
+            if ! git checkout -b "$REPO_REF"; then
+                echo "❌ Error: Failed to create branch $REPO_REF"
+                exit 1
+            fi
+            # Set up tracking to origin/REPO_REF
+            if ! git branch --set-upstream-to="origin/$REPO_REF" 2>/dev/null; then
+                echo "⚠️ Warning: Could not set up tracking for $REPO_REF (will be set when pushed)"
+            fi
         fi
         echo
     else
