@@ -17,13 +17,12 @@ pub struct Cli {
 
     /// The URL or service to pull from
     ///
-    /// Can be:
-    /// - A full URL (e.g., https://docs.google.com/document/d/...)
-    /// - A service shorthand: "gdoc" or "m365"
-    /// - Omitted to use any tracked remote
+    /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
+    /// service shorthand (e.g "gdoc" or "m365"). Omit to use any tracked
+    /// remote.
     url: Option<String>,
 
-    /// Do not merge, just download
+    /// Do not merge, just replace
     ///
     /// By default, the pulled document will be merged with the local version.
     /// Use this flag to skip merging and just replace the local file.

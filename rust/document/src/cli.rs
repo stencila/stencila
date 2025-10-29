@@ -577,6 +577,7 @@ impl Status {
             "Modified\n",
             "Stored\n↳ Pulled",
             "Added\n↳ Pushed",
+            "Watch",
         ]);
 
         for (path, entry) in statuses {
@@ -608,9 +609,22 @@ impl Status {
                 }),
                 Cell::new(humanize_timestamp(entry.stored_at)?),
                 Cell::new(humanize_timestamp(entry.added_at)?),
+                Cell::new(""),
             ]);
 
             for (url, remote) in entry.remotes.iter().flatten() {
+                // Format watch status with directional arrows and colors
+                let (watch_status, watch_color) = if let Some(watch_dir) = &remote.watch_direction {
+                    use crate::WatchDirection;
+                    match watch_dir {
+                        WatchDirection::Bi => ("↔ bi".to_string(), Color::Green),
+                        WatchDirection::FromRemote => ("← from-remote".to_string(), Color::Yellow),
+                        WatchDirection::ToRemote => ("→ to-remote".to_string(), Color::Cyan),
+                    }
+                } else {
+                    (String::from("-"), Color::DarkGrey)
+                };
+
                 table.add_row([
                     Cell::new(format!("↳ {url}")),
                     Cell::new(""),
@@ -627,6 +641,7 @@ impl Status {
                         } else {
                             Attribute::Reset
                         }),
+                    Cell::new(watch_status).fg(watch_color),
                 ]);
             }
         }

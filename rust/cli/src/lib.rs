@@ -21,7 +21,9 @@ mod push;
 mod render;
 mod sync;
 mod uninstall;
+mod unwatch;
 pub mod upgrade;
+mod watch;
 
 #[allow(clippy::print_stderr)]
 #[cfg(test)]
@@ -78,12 +80,14 @@ mod tests {
             ("convert", crate::convert::CLI_AFTER_LONG_HELP),
             ("merge", crate::merge::CLI_AFTER_LONG_HELP),
             ("sync", crate::sync::CLI_AFTER_LONG_HELP),
+            ("push", crate::push::CLI_AFTER_LONG_HELP),
+            ("watch", crate::watch::CLI_AFTER_LONG_HELP),
+            ("unwatch", crate::unwatch::CLI_AFTER_LONG_HELP),
             ("compile", crate::compile::CLI_AFTER_LONG_HELP),
             ("lint", crate::lint::CLI_AFTER_LONG_HELP),
             ("execute", crate::execute::CLI_AFTER_LONG_HELP),
             ("render", crate::render::CLI_AFTER_LONG_HELP),
             ("preview", crate::preview::CLI_AFTER_LONG_HELP),
-            ("push", crate::push::CLI_AFTER_LONG_HELP),
             ("demo", crate::demo::DEMO_AFTER_LONG_HELP),
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
             ("uninstall", crate::uninstall::CLI_AFTER_LONG_HELP),

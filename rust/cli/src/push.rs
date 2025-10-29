@@ -5,8 +5,10 @@ use eyre::{Result, bail};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
+use stencila_cloud::{WatchRequest, create_watch};
+use stencila_codec_utils::git_info;
 use stencila_codecs::remotes::RemoteService;
-use stencila_document::Document;
+use stencila_document::{Document, WatchDirection, WatchPrMode};
 
 /// Push a document to a remote service
 #[derive(Debug, Parser)]
@@ -17,17 +19,16 @@ pub struct Cli {
 
     /// The URL or service to push to
     ///
-    /// Can be:
-    /// - A full URL (e.g., https://docs.google.com/document/d/...)
-    /// - A service shorthand: "gdoc" or "m365"
-    /// - Omitted to use any tracked remote
+    /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
+    /// service shorthand (e.g "gdoc" or "m365"). Omit to use any tracked
+    /// remote.
     url: Option<String>,
 
     /// Create a new document instead of updating an existing one
     ///
     /// By default, if a remote is already tracked for the document,
     /// it will be updated. Use this flag to create a new document.
-    #[arg(long)]
+    #[arg(long, short = 'n')]
     force_new: bool,
 
     /// Do not execute the document before pushing it
@@ -36,6 +37,21 @@ pub struct Cli {
     /// it is up-to-date before pushing it. Use this flag to skip execution.
     #[arg(long)]
     no_execute: bool,
+
+    /// Enable watch after successful push
+    ///
+    /// Creates a watch in Stencila Cloud to automatically sync changes
+    /// between the remote and repository via pull requests.
+    #[arg(long, short)]
+    watch: bool,
+
+    /// The sync direction (only used with --watch)
+    #[arg(long, short, requires = "watch")]
+    direction: WatchDirection,
+
+    /// The GitHub PR mode (only used with --watch)
+    #[arg(long, short, requires = "watch")]
+    pr_mode: WatchPrMode,
 
     /// Arguments to pass to the document for execution
     ///
@@ -249,6 +265,64 @@ impl Cli {
                     service.display_name()
                 ),
                 Some("💾"),
+            );
+        }
+
+        // Enable watch if requested
+        if self.watch {
+            // Get git repository information
+            let git_info = git_info(&self.input)?;
+            let Some(repo_url) = git_info.origin else {
+                bail!(
+                    "File is not in a git repository. Cannot enable watch without git repository."
+                );
+            };
+
+            // Get tracking information to get doc_id
+            let Some((.., Some(tracking))) = doc.tracking().await? else {
+                bail!("Failed to get tracking information for document");
+            };
+
+            // Get file path relative to repo root
+            let file_path = git_info.path.unwrap_or_else(|| {
+                self.input
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("unknown")
+                    .to_string()
+            });
+
+            // Call Cloud API to create watch
+            let request = WatchRequest {
+                remote_url: url.to_string(),
+                repo_url,
+                file_path,
+                direction: self.direction.to_string(),
+                pr_mode: Some(self.pr_mode.to_string()),
+            };
+            let response = create_watch(request).await?;
+
+            // Update docs.json with watch metadata
+            let mut remote_info = tracking
+                .remotes
+                .and_then(|mut remotes| remotes.remove(&url))
+                .unwrap_or_default();
+            remote_info.watch_id = Some(response.id.to_string());
+            remote_info.watch_direction = Some(self.direction);
+            doc.track(Some((url, remote_info))).await?;
+
+            // Success message
+            let direction_desc = match self.direction {
+                WatchDirection::Bi => "bi-directional",
+                WatchDirection::FromRemote => "from remote only",
+                WatchDirection::ToRemote => "to remote only",
+            };
+
+            message(
+                &format!(
+                    "Watching `{input}` ({direction_desc}). PRs will be opened/updated on changes from the remote."
+                ),
+                Some("👁️ "),
             );
         }
 

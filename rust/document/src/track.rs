@@ -8,11 +8,12 @@ use std::{
 };
 
 use chrono::Utc;
+use clap::ValueEnum;
 use eyre::{OptionExt, Result, bail};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use strum::Display;
+use strum::{Display, EnumString};
 use tokio::{
     self,
     fs::{read_to_string, remove_dir_all, remove_file, rename, write},
@@ -170,6 +171,72 @@ pub struct DocumentRemote {
 
     /// The last time the document was pushed from the remote
     pub pushed_at: Option<u64>,
+
+    /// The watch ID from Stencila Cloud (if watch is enabled)
+    pub watch_id: Option<String>,
+
+    /// The watch direction (bi-directional, from-remote, or to-remote)
+    pub watch_direction: Option<WatchDirection>,
+}
+
+/// The direction of synchronization for a watched remote
+#[derive(
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Serialize,
+    Deserialize,
+    Display,
+    EnumString,
+    ValueEnum,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum WatchDirection {
+    /// Bi-directional sync: changes from remote create PRs, changes to repo push to remote
+    #[default]
+    Bi,
+
+    /// One-way sync from remote: only remote changes create PRs
+    FromRemote,
+
+    /// One-way sync to remote: only repo changes push to remote
+    ToRemote,
+}
+
+/// The pull request mode for a watched remote
+#[derive(
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Serialize,
+    Deserialize,
+    Display,
+    EnumString,
+    ValueEnum,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum WatchPrMode {
+    /// Create PRs as drafts (default)
+    #[default]
+    Draft,
+
+    /// Create PRs ready for review
+    Ready,
+}
+
+impl DocumentRemote {
+    /// Check if this remote is being watched
+    pub fn is_watched(&self) -> bool {
+        self.watch_id.is_some()
+    }
 }
 
 #[derive(Default, Display, Serialize, Deserialize)]

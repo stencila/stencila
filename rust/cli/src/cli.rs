@@ -9,7 +9,7 @@ use stencila_version::STENCILA_VERSION;
 use crate::{
     compile, convert, db, demo, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, preview, pull, push, render, sync, uninstall, upgrade,
+    merge, new, preview, pull, push, render, sync, uninstall, unwatch, upgrade, watch,
 };
 
 /// CLI subcommands and global options
@@ -240,6 +240,10 @@ pub enum Command {
     Convert(convert::Cli),
     Merge(merge::Cli),
     Sync(sync::Cli),
+    Push(push::Cli),
+    Pull(pull::Cli),
+    Watch(watch::Cli),
+    Unwatch(unwatch::Cli),
 
     Compile(compile::Cli),
     Lint(lint::Cli),
@@ -249,8 +253,6 @@ pub enum Command {
 
     Preview(preview::Cli),
     Publish(stencila_publish::Cli),
-    Pull(pull::Cli),
-    Push(push::Cli),
     Demo(demo::Demo),
 
     Db(db::Cli),
@@ -302,7 +304,11 @@ impl Cli {
             Command::Convert(convert) => convert.run().await,
             Command::Merge(merge) => merge.run().await,
             Command::Sync(sync) => sync.run().await,
-
+            Command::Push(push) => push.run().await,
+            Command::Pull(pull) => pull.run().await,
+            Command::Watch(watch) => watch.run().await,
+            Command::Unwatch(unwatch) => unwatch.run().await,
+            
             Command::Compile(compile) => compile.run().await,
             Command::Lint(lint) => lint.run().await,
             Command::Execute(execute) => execute.run().await,
@@ -311,8 +317,6 @@ impl Cli {
 
             Command::Preview(preview) => preview.run().await,
             Command::Publish(publish) => publish.run().await,
-            Command::Pull(pull) => pull.run().await,
-            Command::Push(push) => push.run().await,
             Command::Demo(demo) => demo.run().await,
 
             Command::Db(db) => db.run().await,

@@ -47,6 +47,7 @@ pub use stencila_codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResp
 pub use stencila_node_execute::ExecuteOptions;
 pub use stencila_schema;
 pub use sync_dom::DomPatch;
+pub use track::{WatchDirection, WatchPrMode};
 
 /// The synchronization mode between documents and external resources
 ///

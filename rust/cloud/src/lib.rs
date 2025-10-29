@@ -13,6 +13,9 @@ use stencila_version::STENCILA_USER_AGENT;
 
 mod google;
 mod microsoft;
+mod watch;
+
+pub use watch::*;
 
 /// The base URL for the Stencila Cloud API
 ///
