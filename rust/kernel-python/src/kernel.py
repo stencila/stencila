@@ -297,12 +297,12 @@ try:
             items_type = "String"
             convert_type = None
 
-        length = np.size(array)
+        length = int(np.size(array))
 
         null_count = None
         if length > 0 and convert_type:
             try:
-                null_count = np.count_nonzero(np.isnan(array))
+                null_count = int(np.count_nonzero(np.isnan(array)))
             except Exception:
                 pass
 
