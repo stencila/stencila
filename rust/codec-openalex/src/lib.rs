@@ -30,7 +30,7 @@ use work::Work;
 // Re-export client functions
 pub use client::{
     list_url, request_ids, request_list, search_authors, search_institutions,
-    search_works_title_year, work_by_doi,
+    search_works_title_date, work_by_doi,
 };
 
 // Re-export types that might be needed by consumers
@@ -84,16 +84,11 @@ impl OpenAlexCodec {
 
         tracing::debug!("Searching OpenAlex API");
 
-        // If the reference does not have a DOI, or the above failed, search by title and year
+        // If the reference does not have a DOI, or the above failed, search by title and date
         let mut works = if let Some(title) = &reference.title {
-            let year = reference
-                .date
-                .as_ref()
-                .and_then(|date| date.year())
-                .map(|year| year as i32);
-            search_works_title_year(&to_text(title), year).await?
+            search_works_title_date(&to_text(title), reference.date.clone()).await?
         } else if let Some(text) = &reference.options.text {
-            search_works_title_year(text, None).await?
+            search_works_title_date(text, None).await?
         } else {
             bail!("Reference has no title or text to search using");
         };

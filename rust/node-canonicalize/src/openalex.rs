@@ -4,7 +4,7 @@ use eyre::Result;
 use regex::Regex;
 
 use stencila_codec_openalex::{
-    OpenAlexWork, search_authors, search_institutions, search_works_title_year, work_by_doi,
+    OpenAlexWork, search_authors, search_institutions, search_works_title_date, work_by_doi,
 };
 use stencila_codec_text::to_text;
 use stencila_schema::{AuthorRole, AuthorRoleAuthor, Reference};
@@ -49,13 +49,7 @@ pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
             return Ok(());
         }
 
-        let year = reference
-            .date
-            .as_ref()
-            .and_then(|date| date.year())
-            .map(|y| y as i32);
-
-        let mut works = search_works_title_year(&title, year).await?;
+        let mut works = search_works_title_date(&title, reference.date.clone()).await?;
 
         if works.is_empty() {
             return Ok(());

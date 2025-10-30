@@ -10,7 +10,10 @@ use reqwest::{Client, Response, StatusCode};
 use serde::de::DeserializeOwned;
 use tokio::time::{Duration, Instant, sleep};
 
-use stencila_codec::eyre::{Result, bail};
+use stencila_codec::{
+    eyre::{Result, bail},
+    stencila_schema::Date,
+};
 use stencila_version::STENCILA_USER_AGENT;
 
 use crate::{
@@ -211,16 +214,17 @@ pub async fn fetch_work_references(work: &mut Work) -> Result<()> {
     Ok(())
 }
 
-/// Search for works by title and optional year
+/// Search for works by title and optional date
 #[tracing::instrument]
-pub async fn search_works_title_year(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
+pub async fn search_works_title_date(title: &str, date: Option<Date>) -> Result<Vec<Work>> {
     tracing::trace!("Searching works by title: {title}");
 
     let title = title.replace(",", " ");
 
     let mut filters = vec![format!("title.search:{title}")];
-    if let Some(year) = year {
-        filters.push(format!("publication_date:{year}"))
+    if let Some(date) = date {
+        let date = date.value;
+        filters.push(format!("publication_date:{date}"))
     }
     let filters = filters
         .into_iter()
