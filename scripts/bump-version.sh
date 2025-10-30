@@ -71,7 +71,14 @@ cd vscode
 sed -i "3i## $VERSION $(date '+%Y-%m-%d')\n\n\n" CHANGELOG.md
 cd ..
 
-# 8. Commit and tag
+# 8. Prompt user to update changelog before committing
+echo ""
+echo "⚠️  Please update vscode/CHANGELOG.md with release notes for v$VERSION"
+echo ""
+read -p "Press Enter when you have updated the changelog and are ready to commit..." -r
+echo ""
+
+# 9. Commit and tag
 echo "Creating git commit and tag..."
 git add .
 git commit -m "release: v$VERSION"
@@ -82,11 +89,10 @@ echo "✅ Version bumped to $VERSION across all components!"
 echo ""
 echo "Updated:"
 echo "  - CLI (Rust workspace)"
-echo "  - VSCode extension"
+echo "  - VSCode extension (including CHANGELOG.md)"
 echo "  - npm packages (@stencila/types, @stencila/node, @stencila/web)"
 echo "  - Python packages (stencila_types, stencila)"
 echo ""
 echo "Next steps:"
-echo "  1. Update vscode/CHANGELOG.md with release notes"
-echo "  2. Review changes: git show"
-echo "  3. Push: git push && git push --tags"
+echo "  1. Review the commit: git show"
+echo "  2. Push the release: git push && git push --tags"
