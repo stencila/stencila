@@ -26,7 +26,7 @@
       "source": [
         "src/images/favicon.png",
         "src/themes/init.js",
-        "src/themes/**/*.css",
+        "src/themes/*.css",
         "src/views/dynamic.ts",
         "src/views/static.ts"
       ],
@@ -40,7 +40,7 @@
     },
     "vscode": {
       "source": [
-        "src/themes/**/*.css",
+        "src/themes/*.css",
         "src/views/vscode.ts"
       ],
       "distDir": "../vscode/out/web"
@@ -59,9 +59,9 @@
     "typecheck": "../node_modules/.bin/tsc --skipLibCheck --noEmit",
     "e2e": "playwright test",
     "start": "parcel watch",
-    "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
-    "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
-    "build:ghost": "cross-env NODE_ENV=production parcel build --target ghost --no-source-maps --no-cache",
+    "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist --no-cache",
+    "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-scope-hoist --no-cache",
+    "build:ghost": "cross-env NODE_ENV=production parcel build --target ghost --no-source-maps --no-scope-hoist --no-cache",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*,@tailwindcss/postcss' --ignore-patterns 'vitest.config.ts,**/*.test.ts'"
   },
