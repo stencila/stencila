@@ -31,6 +31,14 @@ on:
         description: Publish release
         type: boolean
         default: true
+      trigger-install:
+        description: Trigger installation test workflow
+        type: boolean
+        default: true
+      trigger-release-vsix:
+        description: Trigger VSCode extension release workflow
+        type: boolean
+        default: true
 
 env:
   RUST_VERSION: "1.89.0"
@@ -199,4 +207,9 @@ jobs:
         run: gh release edit ${{ inputs.tag }} --draft=false
 
       - name: Trigger installation test workflow
+        if: ${{ inputs.trigger-install }}
         run: sleep 90 && gh workflow run install-cli.yml
+
+      - name: Trigger VSCode extension release workflow
+        if: ${{ inputs.trigger-release-vsix }}
+        run: gh workflow run release-vsix.yml -f tag=${{ inputs.tag }}
