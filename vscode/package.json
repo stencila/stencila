@@ -1292,7 +1292,7 @@
     "@eslint/js": "9.37.0",
     "@types/mocha": "10.0.10",
     "@types/node": "24.7.0",
-    "@types/vscode": "1.104.0",
+    "@types/vscode": "1.90.0",
     "@typescript-eslint/parser": "8.46.0",
     "@vscode/test-cli": "0.0.11",
     "@vscode/test-electron": "2.5.2",
