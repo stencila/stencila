@@ -10,6 +10,7 @@ use std::{
 use chrono::Utc;
 use clap::ValueEnum;
 use eyre::{OptionExt, Result, bail};
+use futures::future::join_all;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -22,8 +23,9 @@ use url::Url;
 
 use stencila_codecs::{DecodeOptions, EncodeOptions};
 use stencila_dirs::{
-    DB_FILE, DOCS_FILE, STORE_DIR, closest_stencila_dir, stencila_artifacts_dir, stencila_db_file,
-    stencila_docs_file, stencila_store_dir, workspace_dir, workspace_relative_path,
+    CACHE_DIR, DB_FILE, DOCS_FILE, closest_stencila_dir, stencila_artifacts_dir,
+    stencila_cache_dir, stencila_db_file, stencila_docs_file, workspace_dir,
+    workspace_relative_path,
 };
 use stencila_node_canonicalize::canonicalize;
 use stencila_node_db::NodeDatabase;
@@ -106,8 +108,8 @@ pub struct DocumentTracking {
     /// The tracking id for the document
     pub id: NodeId,
 
-    /// The last time the document was stored in the `store` directory
-    pub stored_at: Option<u64>,
+    /// The last time the document was cached
+    pub cached_at: Option<u64>,
 
     /// The last time the document was added to the workspace database
     pub added_at: Option<u64>,
@@ -120,7 +122,7 @@ impl Default for DocumentTracking {
     fn default() -> Self {
         Self {
             id: new_id(),
-            stored_at: Default::default(),
+            cached_at: Default::default(),
             added_at: Default::default(),
             remotes: Default::default(),
         }
@@ -132,8 +134,8 @@ impl DocumentTracking {
         format!("{}.json", self.id)
     }
 
-    pub fn store_path(&self, stencila_dir: &Path) -> PathBuf {
-        stencila_dir.join(STORE_DIR).join(self.store_file())
+    pub fn cache_path(&self, stencila_dir: &Path) -> PathBuf {
+        stencila_dir.join(CACHE_DIR).join(self.store_file())
     }
 
     pub fn status(
@@ -149,16 +151,104 @@ impl DocumentTracking {
 
         let modified_at = time_modified(&path).ok();
 
-        let status = if modified_at >= self.stored_at.map(|stored_at| stored_at.saturating_add(10))
+        let status = if modified_at >= self.cached_at.map(|cached_at| cached_at.saturating_add(10))
         {
             DocumentTrackingStatus::Ahead
-        } else if modified_at < self.stored_at {
+        } else if modified_at < self.cached_at {
             DocumentTrackingStatus::Behind
         } else {
             DocumentTrackingStatus::Synced
         };
 
         (status, modified_at)
+    }
+
+    /// Get the status and modification time for all tracked remotes
+    ///
+    /// Fetches metadata from each remote service in parallel and compares with local modification time,
+    /// as well as pulled_at and pushed_at times to detect divergence.
+    /// Returns a map of URL to (remote_modified_at, status).
+    ///
+    /// If fetching metadata fails for a remote, it will be included in the result with None for modified_at
+    /// and Unknown status.
+    pub async fn remote_statuses(
+        &self,
+        local_status: DocumentTrackingStatus,
+        local_modified_at: Option<u64>,
+    ) -> BTreeMap<Url, (Option<u64>, DocumentTrackingStatus)> {
+        let Some(remotes) = &self.remotes else {
+            return BTreeMap::new();
+        };
+
+        // Create futures to fetch metadata for each remote
+        let futures = remotes.iter().map(|(url, remote)| async move {
+            // Fetch metadata from remote service
+            let remote_modified_at = async {
+                let host = url.host_str().unwrap_or("");
+
+                if host.contains("google.com") || host.contains("docs.google") {
+                    stencila_codec_gdoc::get_metadata(url).await
+                } else if host.contains("microsoft.com")
+                    || host.contains("office.com")
+                    || host.contains("sharepoint.com")
+                {
+                    stencila_codec_m365::get_metadata(url).await
+                } else {
+                    bail!("Unsupported remote service: {host}")
+                }
+            }
+            .await
+            .ok();
+
+            // Calculate status by comparing local/remote modified times with pushed_at/pulled_at
+            let status = if local_status == DocumentTrackingStatus::Deleted {
+                DocumentTrackingStatus::Ahead
+            } else {
+                match (
+                    local_modified_at,
+                    remote_modified_at,
+                    remote.pushed_at,
+                    remote.pulled_at,
+                ) {
+                    (Some(local), Some(remote_mod), Some(pushed), Some(pulled)) => {
+                        // Use the most recent sync time (push or pull) as our reference point
+                        let last_synced = pushed.max(pulled);
+
+                        // Check if local or remote have changed since last sync
+                        // Use 10s tolerance for local files, 30s for remote (accounts for processing delays)
+                        let local_changed = local > last_synced.saturating_add(10);
+                        let remote_changed = remote_mod > last_synced.saturating_add(30);
+
+                        if local_changed && remote_changed {
+                            DocumentTrackingStatus::Diverged
+                        } else if local_changed {
+                            DocumentTrackingStatus::Behind
+                        } else if remote_changed {
+                            DocumentTrackingStatus::Ahead
+                        } else {
+                            DocumentTrackingStatus::Synced
+                        }
+                    }
+                    (Some(local), Some(remote_mod), _, _) => {
+                        // Fallback: if we don't have pushed_at/pulled_at, just compare modified times
+                        // Use 30s tolerance for remote comparisons
+                        if local > remote_mod.saturating_add(30) {
+                            DocumentTrackingStatus::Behind
+                        } else if remote_mod > local.saturating_add(30) {
+                            DocumentTrackingStatus::Ahead
+                        } else {
+                            DocumentTrackingStatus::Synced
+                        }
+                    }
+                    _ => DocumentTrackingStatus::Unknown,
+                }
+            };
+
+            (url.clone(), (remote_modified_at, status))
+        });
+
+        // Execute all futures in parallel and collect results into a BTreeMap
+        join_all(futures).await.into_iter().collect()
     }
 }
 
@@ -239,27 +329,25 @@ impl DocumentRemote {
     }
 }
 
-#[derive(Default, Display, Serialize, Deserialize)]
+#[derive(Default, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DocumentTrackingStatus {
-    /// The workspace file is of a format that does not support tracking
     #[default]
-    Unsupported,
+    Unknown,
 
-    /// There is an entry for the workspace file in the tracking file
-    /// but that path no longer exists in the workspace directory
+    /// There is an entry for the file but that path no longer exists in the
+    /// workspace directory
     Deleted,
 
-    /// The workspace file is ahead of the tracking file: it has changed
-    /// since it was last synced
+    /// Remote has changes that need to be pulled
     Ahead,
 
-    /// The workspace file is behind the tracking file: there have been
-    /// changes to the tracking file which have not been propagated
-    /// to the workspace file
+    /// Local file has changes that need to be pushed
     Behind,
 
-    /// The workspace file is synced with the tracking file: they have the
-    /// same modification time
+    /// Both local and remote have changes since last sync
+    Diverged,
+
+    /// Local and remote are in sync
     Synced,
 }
 
@@ -335,14 +423,14 @@ impl Document {
         };
 
         // Get the storage and database paths for the document, ensuring both exist
-        let (_, _, store_path, ..) = Document::track_path(path, Some(time_now()), None).await?;
+        let (_, _, cache_path, ..) = Document::track_path(path, Some(time_now()), None).await?;
 
         let root = self.root.read().await;
 
         // Write the root node to storage
         stencila_codec_json::to_path(
             &root,
-            &store_path,
+            &cache_path,
             Some(EncodeOptions {
                 compact: Some(false),
                 ..Default::default()
@@ -373,7 +461,7 @@ impl Document {
     /// Start tracking a document path
     ///
     /// Starts tracking the path by saving the document at the
-    /// path to `.stencila/store/<ID>.json` and adding an entry
+    /// path to `.stencila/cache/<ID>.json` and adding an entry
     /// to the `.stencila/docs.json` file.
     ///
     /// If the path is already being tracked (i.e. it has an entry
@@ -381,7 +469,7 @@ impl Document {
     #[tracing::instrument]
     pub async fn track_path(
         path: &Path,
-        stored_at: Option<u64>,
+        cached_at: Option<u64>,
         added_at: Option<u64>,
     ) -> Result<(NodeId, bool, PathBuf, PathBuf)> {
         if !(path.exists() && path.is_file()) {
@@ -396,7 +484,7 @@ impl Document {
             .await?
             .ok_or_eyre("no tracking file despite ensure")?;
 
-        let store_dir = stencila_dir.join(STORE_DIR);
+        let cache_dir = stencila_dir.join(CACHE_DIR);
         let db_path = stencila_dir.join(DB_FILE);
         let relative_path = workspace_relative_path(&stencila_dir, path, true)?;
 
@@ -405,14 +493,14 @@ impl Document {
                 // Update existing entry
                 let entry = occupied_entry.get_mut();
                 let id = entry.id.clone();
-                let store_path = store_dir.join(entry.store_file());
+                let cache_path = cache_dir.join(entry.store_file());
 
-                entry.stored_at = stored_at;
+                entry.cached_at = cached_at;
                 entry.added_at = added_at;
 
                 write_entries(&stencila_dir, &entries).await?;
 
-                Ok((id, true, store_path, db_path))
+                Ok((id, true, cache_path, db_path))
             }
             Entry::Vacant(vacant_entry) => {
                 // Create a new entry
@@ -420,16 +508,16 @@ impl Document {
 
                 let entry = DocumentTracking {
                     id: id.clone(),
-                    stored_at,
+                    cached_at,
                     added_at,
                     ..Default::default()
                 };
-                let store_path = store_dir.join(entry.store_file());
+                let cache_path = cache_dir.join(entry.store_file());
 
                 vacant_entry.insert(entry);
                 write_entries(&stencila_dir, &entries).await?;
 
-                Ok((id, false, store_path, db_path))
+                Ok((id, false, cache_path, db_path))
             }
         }
     }
@@ -514,21 +602,21 @@ impl Document {
         // Open each document, store it and upsert to database
         for identifier in identifiers {
             let path = PathBuf::from(identifier);
-            let (doc_id, store_path, mut root) = if path.exists() {
-                let (doc_id, _, store_path, _) =
+            let (doc_id, cache_path, mut root) = if path.exists() {
+                let (doc_id, _, cache_path, _) =
                     Document::track_path(&path, Some(time_now()), Some(time_now())).await?;
                 let root = Document::open(&path, decode_options.clone())
                     .await?
                     .root()
                     .await;
-                (doc_id, store_path, root)
+                (doc_id, cache_path, root)
             } else {
                 let doc_id = new_id();
-                let store_dir = stencila_store_dir(stencila_dir, true).await?;
-                let store_path = store_dir.join(format!("{doc_id}.json"));
+                let cache_dir = stencila_cache_dir(stencila_dir, true).await?;
+                let cache_path = cache_dir.join(format!("{doc_id}.json"));
                 let root =
                     stencila_codecs::from_identifier(identifier, decode_options.clone()).await?;
-                (doc_id, store_path, root)
+                (doc_id, cache_path, root)
             };
 
             if should_canonicalize {
@@ -538,7 +626,7 @@ impl Document {
             // Store root node
             stencila_codec_json::to_path(
                 &root,
-                &store_path,
+                &cache_path,
                 Some(EncodeOptions {
                     compact: Some(false),
                     ..Default::default()
@@ -597,7 +685,7 @@ impl Document {
     /// Stop tracking a document path
     ///
     /// Removes the entry for the path in `.stencila/docs.json`,
-    /// deletes the corresponding `.stencila/store/<ID>.json`,
+    /// deletes the corresponding `.stencila/cache/<ID>.json`,
     /// and removes nodes for the document from the workspace database.
     ///
     /// Gives a warning if the path is not being tracked.
@@ -626,9 +714,9 @@ impl Document {
         }
 
         // Remove store file
-        let store_path = entry.store_path(&stencila_dir);
-        if store_path.exists() {
-            remove_file(store_path).await?;
+        let cache_path = entry.cache_path(&stencila_dir);
+        if cache_path.exists() {
+            remove_file(cache_path).await?;
         }
 
         Ok(())
@@ -749,9 +837,9 @@ impl Document {
         }
 
         // Remove all store files that do not have an entry for some reason
-        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
+        let cache_dir = stencila_cache_dir(&stencila_dir, false).await?;
         let entries = read_entries(&stencila_dir).await?;
-        for path in read_dir(store_dir)?.flatten() {
+        for path in read_dir(cache_dir)?.flatten() {
             let path = path.path();
             let Some(id) = path
                 .file_stem()
@@ -808,17 +896,17 @@ impl Document {
             return Ok(None);
         };
 
-        let store_dir = stencila_dir.join(STORE_DIR);
+        let cache_dir = stencila_dir.join(CACHE_DIR);
         let relative_path = workspace_relative_path(&stencila_dir, path, false)?;
 
-        Ok(Some((store_dir, entries.remove(&relative_path))))
+        Ok(Some((cache_dir, entries.remove(&relative_path))))
     }
 
     /// Get the tracking storage file path for a document path
     pub async fn tracking_storage(path: &Path) -> Result<Option<PathBuf>> {
         Ok(Document::tracking_path(path)
             .await?
-            .and_then(|(store_dir, entry)| entry.map(|entry| store_dir.join(entry.store_file()))))
+            .and_then(|(cache_dir, entry)| entry.map(|entry| cache_dir.join(entry.store_file()))))
     }
 
     /// Get the tracking information for all tracked files in the workspace
@@ -843,9 +931,9 @@ impl Document {
             bail!("No `.stencila/docs.json` entries to rebuild")
         };
 
-        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
-        if store_dir.exists() {
-            remove_dir_all(&store_dir).await?;
+        let cache_dir = stencila_cache_dir(&stencila_dir, false).await?;
+        if cache_dir.exists() {
+            remove_dir_all(&cache_dir).await?;
         }
 
         let db_file = stencila_db_file(&stencila_dir, false).await?;

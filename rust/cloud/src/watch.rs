@@ -17,14 +17,17 @@ pub struct WatchRequest {
     pub remote_url: String,
 
     /// The sync direction
-    pub direction: String,
+    pub direction: Option<String>,
 
     /// The PR mode (draft or ready)
     pub pr_mode: Option<String>,
+
+    /// The debounce time in seconds
+    pub debounce_seconds: Option<u64>,
 }
 
 /// Response from creating a watch
-/// 
+///
 /// Note: other fields are available in response but are not currently necessary
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

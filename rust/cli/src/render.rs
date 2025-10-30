@@ -10,8 +10,8 @@ use stencila_format::Format;
 use stencila_node_execute::ExecuteOptions;
 
 use crate::{
+    open,
     options::{DecodeOptions, EncodeOptions, StripOptions},
-    preview,
 };
 
 /// Render a document
@@ -259,7 +259,7 @@ impl Cli {
                 Code::new(format, &content).to_stdout();
             } else if let Some(input) = input {
                 // Otherwise render the path in the browser
-                preview::Cli::new(input.to_path_buf()).run().await?;
+                open::Cli::new(input.to_path_buf()).run().await?;
             }
 
             return Ok(());

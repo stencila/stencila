@@ -460,7 +460,7 @@ impl Document {
 
     /// Open an existing document
     ///
-    /// Restores the document if possible (ie. if there is a .stencila/store file for it)
+    /// Restores the document if possible (ie. if there is a .stencila/cache file for it)
     /// and then imports the path (merging in any differences).
     #[tracing::instrument]
     pub async fn open(path: &Path, decode_options: Option<DecodeOptions>) -> Result<Self> {

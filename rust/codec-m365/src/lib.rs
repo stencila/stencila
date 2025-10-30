@@ -19,6 +19,7 @@
 
 use std::path::Path;
 
+use chrono::{DateTime, Utc};
 use eyre::{Result, bail};
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use reqwest::Client;
@@ -48,6 +49,13 @@ struct DriveItemResponse {
     #[allow(dead_code)]
     id: String,
     web_url: String,
+}
+
+/// Response from Microsoft Graph API when fetching item metadata
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct DriveItemMetadata {
+    last_modified_date_time: String,
 }
 
 /// Push a document to Microsoft 365 / OneDrive
@@ -208,6 +216,55 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
     tokio::fs::write(dest, bytes).await?;
 
     Ok(())
+}
+
+/// Get metadata for a Microsoft 365 / OneDrive document
+///
+/// Returns the last modified time as a Unix timestamp.
+///
+/// This function will obtain a Microsoft access token from Stencila Cloud,
+/// prompting the user to connect their account if necessary.
+pub async fn get_metadata(url: &Url) -> Result<u64> {
+    let access_token = stencila_cloud::get_token("microsoft").await?;
+    let item_id = extract_item_id(url)?;
+
+    // Fetch item metadata with only the lastModifiedDateTime field
+    let client = Client::new();
+    let response = client
+        .get(format!(
+            "https://graph.microsoft.com/v1.0/me/drive/items/{item_id}?select=lastModifiedDateTime"
+        ))
+        .header("Authorization", format!("Bearer {access_token}"))
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response.text().await.unwrap_or_default();
+
+        match status.as_u16() {
+            404 => bail!(
+                "OneDrive document not found ({status}). Please check the URL is correct \
+                and the document hasn't been deleted.\n\n\
+                Error details: {error_text}"
+            ),
+            401 | 403 => bail!(
+                "Access denied ({status}). You may not have permission to access this document.\n\n\
+                Error details: {error_text}"
+            ),
+            _ => bail!("Failed to fetch OneDrive metadata ({status}): {error_text}"),
+        }
+    }
+
+    // Parse response to get modified time
+    let metadata: DriveItemMetadata = response.json().await?;
+
+    // Parse ISO 8601 timestamp and convert to Unix timestamp
+    let modified_time = DateTime::parse_from_rfc3339(&metadata.last_modified_date_time)?
+        .with_timezone(&Utc)
+        .timestamp() as u64;
+
+    Ok(modified_time)
 }
 
 /// Extract the filename from a OneDrive or SharePoint URL

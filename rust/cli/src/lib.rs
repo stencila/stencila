@@ -14,8 +14,8 @@ mod lint;
 pub mod logging;
 mod merge;
 mod new;
+mod open;
 mod options;
-mod preview;
 mod pull;
 mod push;
 mod render;
@@ -87,7 +87,7 @@ mod tests {
             ("lint", crate::lint::CLI_AFTER_LONG_HELP),
             ("execute", crate::execute::CLI_AFTER_LONG_HELP),
             ("render", crate::render::CLI_AFTER_LONG_HELP),
-            ("preview", crate::preview::CLI_AFTER_LONG_HELP),
+            ("preview", crate::open::CLI_AFTER_LONG_HELP),
             ("demo", crate::demo::DEMO_AFTER_LONG_HELP),
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
             ("uninstall", crate::uninstall::CLI_AFTER_LONG_HELP),

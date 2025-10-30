@@ -20,8 +20,8 @@ pub struct Cli {
     /// The URL or service to push to
     ///
     /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
-    /// service shorthand (e.g "gdoc" or "m365"). Omit to use any tracked
-    /// remote.
+    /// service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked
+    /// remotes.
     url: Option<String>,
 
     /// Create a new document instead of updating an existing one
@@ -47,11 +47,18 @@ pub struct Cli {
 
     /// The sync direction (only used with --watch)
     #[arg(long, short, requires = "watch")]
-    direction: WatchDirection,
+    direction: Option<WatchDirection>,
 
     /// The GitHub PR mode (only used with --watch)
     #[arg(long, short, requires = "watch")]
-    pr_mode: WatchPrMode,
+    pr_mode: Option<WatchPrMode>,
+
+    /// Debounce time in seconds (10-86400, only used with --watch)
+    ///
+    /// Time to wait after detecting changes before syncing to avoid
+    /// too frequent updates. Minimum 10 seconds, maximum 24 hours (86400 seconds).
+    #[arg(long, value_parser = clap::value_parser!(u64).range(10..=86400), requires = "watch")]
+    debounce_seconds: Option<u64>,
 
     /// Arguments to pass to the document for execution
     ///
@@ -69,7 +76,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Push a document to Microsoft 365</dim>
   <b>stencila push</> <g>document.smd</> <g>m365</>
 
-  <dim># Push and update existing tracked document</dim>
+  <dim># Push to all tracked remotes</dim>
   <b>stencila push</> <g>document.smd</>
 
   <dim># Push to specific URL</dim>
@@ -94,6 +101,21 @@ impl Cli {
 
         // Open the document
         let doc = Document::open(&self.input, None).await?;
+
+        // Early validation: --watch is not compatible with multiple remotes
+        if self.watch && self.url.is_none() {
+            let remotes = doc.remotes().await?;
+            if remotes.len() > 1 {
+                let urls_list = remotes
+                    .iter()
+                    .map(|url| format!("  - {}", url))
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                bail!(
+                    "Cannot enable watch with multiple tracked remotes:\n{urls_list}\n\nSpecify a remote URL to watch."
+                );
+            }
+        }
 
         // Determine target remote service, explicit URL, and execution args
         // If the url string looks like an execution arg (starts with '-' or contains '='), treat it as such
@@ -149,6 +171,95 @@ impl Cli {
 
             doc.call(&arguments, stencila_document::ExecuteOptions::default())
                 .await?;
+        }
+
+        // Handle multi-remote push when no service/URL is specified
+        if service.is_none() && explicit_url.is_none() {
+            let remotes = doc.remotes().await?;
+
+            if remotes.is_empty() {
+                bail!(
+                    "No tracked remotes for `{input}`. Specify a service (gdoc/m365) to push to.",
+                );
+            }
+
+            // If multiple remotes, push to all of them
+            if remotes.len() > 1 {
+                message(
+                    &format!("Pushing `{input}` to {} tracked remotes", remotes.len()),
+                    Some("☁️ "),
+                );
+
+                let mut successes: Vec<Url> = Vec::new();
+                let mut errors: Vec<(Url, String)> = Vec::new();
+
+                for remote_url in remotes {
+                    let remote_service = match RemoteService::from_url(&remote_url) {
+                        Some(svc) => svc,
+                        None => {
+                            errors.push((
+                                remote_url.clone(),
+                                format!(
+                                    "URL {} is not from a supported remote service",
+                                    remote_url
+                                ),
+                            ));
+                            continue;
+                        }
+                    };
+
+                    message(
+                        &format!(
+                            "Updating {} linked to `{input}`",
+                            remote_service.display_name()
+                        ),
+                        Some("🔄"),
+                    );
+
+                    match stencila_codecs::push(
+                        &remote_service,
+                        &doc.root().await,
+                        doc.file_name(),
+                        Some(&remote_url),
+                    )
+                    .await
+                    {
+                        Ok(url) => {
+                            if let Err(e) = doc.track_remote_pushed(url.clone()).await {
+                                errors.push((remote_url, format!("Failed to track remote: {}", e)));
+                            } else {
+                                message(&format!("Successfully pushed to {url}"), Some("✅"));
+                                successes.push(url);
+                            }
+                        }
+                        Err(e) => {
+                            message(&format!("Failed to push to {remote_url}: {e}"), Some("❌"));
+                            errors.push((remote_url, e.to_string()));
+                        }
+                    }
+                }
+
+                // Display summary
+                message(
+                    &format!(
+                        "Push complete: {} succeeded, {} failed",
+                        successes.len(),
+                        errors.len()
+                    ),
+                    Some("📊"),
+                );
+
+                if !errors.is_empty() {
+                    let error_list = errors
+                        .iter()
+                        .map(|(url, err)| format!("  - {}: {}", url, err))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    bail!("Some pushes failed:\n{error_list}");
+                }
+
+                return Ok(());
+            }
         }
 
         // Determine target remote service from tracked remotes if not specified
@@ -297,8 +408,9 @@ impl Cli {
                 remote_url: url.to_string(),
                 repo_url,
                 file_path,
-                direction: self.direction.to_string(),
-                pr_mode: Some(self.pr_mode.to_string()),
+                direction: self.direction.map(|dir| dir.to_string()),
+                pr_mode: self.pr_mode.map(|mode| mode.to_string()),
+                debounce_seconds: self.debounce_seconds,
             };
             let response = create_watch(request).await?;
 
@@ -308,11 +420,11 @@ impl Cli {
                 .and_then(|mut remotes| remotes.remove(&url))
                 .unwrap_or_default();
             remote_info.watch_id = Some(response.id.to_string());
-            remote_info.watch_direction = Some(self.direction);
+            remote_info.watch_direction = self.direction;
             doc.track(Some((url, remote_info))).await?;
 
             // Success message
-            let direction_desc = match self.direction {
+            let direction_desc = match self.direction.unwrap_or_default() {
                 WatchDirection::Bi => "bi-directional",
                 WatchDirection::FromRemote => "from remote only",
                 WatchDirection::ToRemote => "to remote only",

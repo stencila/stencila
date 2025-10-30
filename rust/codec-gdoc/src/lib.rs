@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use chrono::{DateTime, Utc};
 use eyre::{Result, bail, eyre};
 use reqwest::{Client, multipart};
 use serde::{Deserialize, Serialize};
@@ -22,6 +23,13 @@ pub struct GDocInfo {
 #[derive(Deserialize)]
 struct DriveFileResponse {
     id: String,
+}
+
+/// Response from Google Drive API when fetching file metadata
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct DriveFileMetadata {
+    modified_time: String,
 }
 
 /// Push a document to Google Docs
@@ -196,6 +204,43 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
     tokio::fs::write(dest, bytes).await?;
 
     Ok(())
+}
+
+/// Get metadata for a Google Doc
+///
+/// Returns the last modified time as a Unix timestamp.
+///
+/// This function will obtain a Google Drive access token from Stencila Cloud,
+/// prompting the user to connect their account if necessary.
+pub async fn get_metadata(url: &Url) -> Result<u64> {
+    let access_token = stencila_cloud::get_token("google").await?;
+    let doc_id = extract_doc_id(url)?;
+
+    // Fetch file metadata with only the modifiedTime field
+    let client = Client::new();
+    let response = client
+        .get(format!(
+            "https://www.googleapis.com/drive/v3/files/{doc_id}?fields=modifiedTime"
+        ))
+        .header("Authorization", format!("Bearer {access_token}"))
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response.text().await.unwrap_or_default();
+        bail!("Failed to fetch Google Doc metadata ({status}): {error_text}");
+    }
+
+    // Parse response to get modified time
+    let metadata: DriveFileMetadata = response.json().await?;
+
+    // Parse ISO 8601 timestamp and convert to Unix timestamp
+    let modified_time = DateTime::parse_from_rfc3339(&metadata.modified_time)?
+        .with_timezone(&Utc)
+        .timestamp() as u64;
+
+    Ok(modified_time)
 }
 
 /// Extract the document ID from a Google Docs URL

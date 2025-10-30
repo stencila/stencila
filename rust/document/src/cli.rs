@@ -1,4 +1,5 @@
 use std::{
+    collections::{BTreeMap, HashSet},
     env::current_dir,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
@@ -17,7 +18,8 @@ use stencila_ask::{Answer, ask_with_default};
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
-    tabulated::{Attribute, Cell, Color, Tabulated},
+    message,
+    tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
 use stencila_codecs::{EncodeOptions, LossesResponse};
 use stencila_dirs::{
@@ -509,6 +511,10 @@ pub struct Status {
     /// Output the status as JSON or YAML
     #[arg(long, short)]
     r#as: Option<AsFormat>,
+
+    /// Skip fetching remote status (faster)
+    #[arg(long)]
+    no_remotes: bool,
 }
 
 pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
@@ -522,9 +528,13 @@ pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
   <dim># Output status as JSON</dim>
   <b>stencila status</> <c>--as</> <g>json</>
 
+  <dim># Skip fetching remote status (faster)</dim>
+  <b>stencila status</> <c>--no-remotes</>
+
 <bold><b>Status Information</b></bold>
   Shows modification times, storage status, and sync
   information for tracked documents and their remotes.
+  Use --no-remotes to skip remote status checks for faster results.
 "
 );
 
@@ -572,49 +582,107 @@ impl Status {
 
         let mut table = Tabulated::new();
         table.set_header([
-            "File\n↳ Remote",
+            "File/Remote",
             "Status",
-            "Modified\n",
-            "Stored\n↳ Pulled",
-            "Added\n↳ Pushed",
+            "Modified",
+            "Cached/Pulled",
+            "Pushed",
             "Watch",
         ]);
+
+        // Track statuses that appear in the table for legend
+        let mut seen_statuses = HashSet::new();
+
+        // Track whether any remotes were displayed
+        let mut has_remotes = false;
 
         for (path, entry) in statuses {
             let (status, modified_at) = entry.status(&workspace_dir, &path);
 
             use DocumentTrackingStatus::*;
-            let (attr, color) = match status {
-                Unsupported => (Attribute::Dim, Color::DarkGrey),
-                Deleted => (Attribute::Bold, Color::Red),
-                Synced => (Attribute::Bold, Color::Green),
-                Ahead => (Attribute::Bold, Color::Yellow),
-                Behind => (Attribute::Bold, Color::Red),
+
+            let status_attr = |status: &DocumentTrackingStatus| match status {
+                Unknown => Attribute::Dim,
+                Deleted | Synced | Ahead | Behind | Diverged => Attribute::Bold,
             };
 
+            let status_color = |status: &DocumentTrackingStatus| match status {
+                Unknown => Color::DarkGrey,
+                Deleted => Color::Red,
+                Diverged => Color::Magenta,
+                Behind => Color::Yellow,
+                Synced => Color::Green,
+                Ahead => Color::Cyan,
+            };
+
+            // Track local file status for legend
+            if !matches!(status, Unknown) {
+                seen_statuses.insert(status);
+            }
+
+            // Fetch remote statuses in parallel (unless --no-remotes flag is set)
+            let remote_statuses = if self.no_remotes {
+                BTreeMap::new()
+            } else {
+                entry.remote_statuses(status, modified_at).await
+            };
+
+            // Local file
             table.add_row([
-                Cell::new(path.to_string_lossy()).add_attribute(attr),
-                // Currently, only show status for deleted files
+                // File path
+                Cell::new(path.to_string_lossy()).add_attribute(status_attr(&status)),
+                // File status: only show status if deleted
                 Cell::new(if matches!(status, DocumentTrackingStatus::Deleted) {
                     status.to_string()
                 } else {
                     String::new()
                 })
-                .fg(color),
-                // Do not show modified time if deleted
+                .fg(status_color(&status)),
+                // File modification time: do not show if deleted
                 Cell::new(if matches!(status, DocumentTrackingStatus::Deleted) {
                     String::new()
                 } else {
                     humanize_timestamp(modified_at)?
-                }),
-                Cell::new(humanize_timestamp(entry.stored_at)?),
-                Cell::new(humanize_timestamp(entry.added_at)?),
+                })
+                .set_alignment(CellAlignment::Right),
+                // File cached time
+                Cell::new(humanize_timestamp(entry.cached_at)?).set_alignment(CellAlignment::Right),
+                // Watch: always empty
                 Cell::new(""),
             ]);
 
             for (url, remote) in entry.remotes.iter().flatten() {
+                // Mark that we have at least one remote
+                has_remotes = true;
+
+                // Helper function to get service name from URL
+                let service_name = |url: &Url| -> String {
+                    let host = url.host_str().unwrap_or("");
+                    if host.contains("google.com") || host.contains("docs.google") {
+                        "Google Docs".to_string()
+                    } else if host.contains("microsoft.com")
+                        || host.contains("office.com")
+                        || host.contains("sharepoint.com")
+                    {
+                        "Microsoft 365".to_string()
+                    } else {
+                        url.to_string()
+                    }
+                };
+
+                // Get remote status and modified time from fetched metadata
+                let (remote_modified_at, remote_status) = remote_statuses
+                    .get(url)
+                    .cloned()
+                    .unwrap_or((None, DocumentTrackingStatus::Unknown));
+
+                // Track remote status for legend
+                if !matches!(remote_status, Unknown) {
+                    seen_statuses.insert(remote_status);
+                }
+
                 // Format watch status with directional arrows and colors
-                let (watch_status, watch_color) = if let Some(watch_dir) = &remote.watch_direction {
+                let (watch_dir, watch_color) = if let Some(watch_dir) = &remote.watch_direction {
                     use crate::WatchDirection;
                     match watch_dir {
                         WatchDirection::Bi => ("↔ bi".to_string(), Color::Green),
@@ -626,27 +694,76 @@ impl Status {
                 };
 
                 table.add_row([
-                    Cell::new(format!("↳ {url}")),
-                    Cell::new(""),
-                    Cell::new(""),
-                    Cell::new(format!("↳ {}", humanize_timestamp(remote.pulled_at)?))
+                    // Remote name
+                    Cell::new(format!("└ {}", service_name(url))),
+                    // Remote status
+                    Cell::new(
+                        if matches!(remote_status, DocumentTrackingStatus::Unknown) {
+                            String::new()
+                        } else {
+                            remote_status.to_string()
+                        },
+                    )
+                    .fg(status_color(&remote_status)),
+                    // Remote modification time
+                    Cell::new(humanize_timestamp(remote_modified_at)?)
+                        .set_alignment(CellAlignment::Right),
+                    // Pulled time
+                    Cell::new((humanize_timestamp(remote.pulled_at)?).to_string())
                         .add_attribute(if remote.pulled_at.is_none() {
                             Attribute::Dim
                         } else {
                             Attribute::Reset
-                        }),
-                    Cell::new(format!("↳ {}", humanize_timestamp(remote.pushed_at)?))
+                        })
+                        .set_alignment(CellAlignment::Right),
+                    // Pushed time
+                    Cell::new((humanize_timestamp(remote.pushed_at)?).to_string())
                         .add_attribute(if remote.pushed_at.is_none() {
                             Attribute::Dim
                         } else {
                             Attribute::Reset
-                        }),
-                    Cell::new(watch_status).fg(watch_color),
+                        })
+                        .set_alignment(CellAlignment::Right),
+                    // Watch status
+                    Cell::new(watch_dir).fg(watch_color),
                 ]);
             }
         }
 
         table.to_stdout();
+
+        // Print note only if there were any remotes
+        if has_remotes {
+            message!("Modification time updates for remotes can be delayed by 1-3 minutes.");
+        }
+
+        // Print legend if any non-Unknown statuses were displayed
+        if !seen_statuses.is_empty() {
+            use DocumentTrackingStatus::*;
+
+            let mut parts = Vec::new();
+
+            if seen_statuses.contains(&Ahead) {
+                parts.push(cstr!(
+                    "<cyan>Ahead</>: run `stencila pull` to merge remote changes into local."
+                ));
+            }
+            if seen_statuses.contains(&Behind) {
+                parts.push(cstr!(
+                    "<yellow>Behind</>: run `stencila push` to upload local changes to remote."
+                ));
+            }
+            if seen_statuses.contains(&Diverged) {
+                parts.push(cstr!("<magenta>Diverged</>: run `stencila pull` to create a local branch and merge remote changes."));
+            }
+            if seen_statuses.contains(&Deleted) {
+                parts.push(cstr!(
+                    "<red>Deleted</>: run `stencila untrack` to stop tracking deleted file."
+                ));
+            }
+
+            message!("{}", parts.join("\n"));
+        }
 
         Ok(())
     }

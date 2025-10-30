@@ -8314,6 +8314,7 @@ dependencies = [
 name = "stencila-codec-gdoc"
 version = "0.0.0"
 dependencies = [
+ "chrono",
  "eyre",
  "reqwest",
  "serde",
@@ -8570,6 +8571,7 @@ dependencies = [
 name = "stencila-codec-m365"
 version = "0.0.0"
 dependencies = [
+ "chrono",
  "eyre",
  "percent-encoding",
  "reqwest",
@@ -9012,7 +9014,9 @@ dependencies = [
  "smart-default",
  "stencila-ask",
  "stencila-cli-utils",
+ "stencila-codec-gdoc",
  "stencila-codec-json",
+ "stencila-codec-m365",
  "stencila-codec-text",
  "stencila-codecs",
  "stencila-dirs",

@@ -9,7 +9,7 @@ use stencila_version::STENCILA_VERSION;
 use crate::{
     compile, convert, db, demo, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, preview, pull, push, render, sync, uninstall, unwatch, upgrade, watch,
+    merge, new, open, pull, push, render, sync, uninstall, unwatch, upgrade, watch,
 };
 
 /// CLI subcommands and global options
@@ -194,8 +194,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Execute a document</dim>
   <b>stencila execute</> <g>notebook.myst</>
 
-  <dim># Preview a document with hot reloading</dim>
-  <b>stencila preview</> <g>document.md</>
+  <dim># Open a document in the browser</dim>
+  <b>stencila open</> <g>document.md</>
 "
 );
 
@@ -251,7 +251,7 @@ pub enum Command {
     Render(render::Cli),
     Query(stencila_document::cli::Query),
 
-    Preview(preview::Cli),
+    Open(open::Cli),
     Publish(stencila_publish::Cli),
     Demo(demo::Demo),
 
@@ -308,14 +308,14 @@ impl Cli {
             Command::Pull(pull) => pull.run().await,
             Command::Watch(watch) => watch.run().await,
             Command::Unwatch(unwatch) => unwatch.run().await,
-            
+
             Command::Compile(compile) => compile.run().await,
             Command::Lint(lint) => lint.run().await,
             Command::Execute(execute) => execute.run().await,
             Command::Render(render) => render.run().await,
             Command::Query(query) => query.run().await,
 
-            Command::Preview(preview) => preview.run().await,
+            Command::Open(open) => open.run().await,
             Command::Publish(publish) => publish.run().await,
             Command::Demo(demo) => demo.run().await,
 

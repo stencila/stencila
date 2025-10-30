@@ -18,8 +18,8 @@ pub struct Cli {
     /// The URL or service to pull from
     ///
     /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
-    /// service shorthand (e.g "gdoc" or "m365"). Omit to use any tracked
-    /// remote.
+    /// service shorthand (e.g "gdoc" or "m365"). Omit to use the tracked
+    /// remote (errors if multiple remotes are tracked).
     url: Option<String>,
 
     /// Do not merge, just replace
@@ -32,7 +32,7 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Pull from any tracked remote</dim>
+  <dim># Pull from the tracked remote (if only one exists)</dim>
   <b>stencila pull</> <g>document.smd</>
 
   <dim># Pull from tracked Google Doc</dim>
@@ -112,26 +112,33 @@ impl Cli {
                 );
             }
 
-            // Find which service(s) the tracked remotes belong to
-            let remote_services: Vec<(RemoteService, &Url)> = remotes
-                .iter()
-                .filter_map(|url| RemoteService::from_url(url).map(|service| (service, url)))
-                .collect();
-
-            if remote_services.is_empty() {
-                let urls_list = remotes
+            // Error if multiple remotes are tracked
+            if remotes.len() > 1 {
+                let remotes_list = remotes
                     .iter()
-                    .map(|url| format!("  - {}", url))
+                    .map(|url| {
+                        let service = RemoteService::from_url(url)
+                            .map(|s| s.cli_name().to_string())
+                            .unwrap_or_else(|| "unknown".to_string());
+                        format!("  - {}: {}", service, url)
+                    })
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "No supported remotes tracked for `{input}`:\n{urls_list}\n\nSpecify a URL or service (gdoc/m365) to pull from.",
+                    "Multiple remotes found for `{input}`:\n{remotes_list}\n\nSpecify which one to pull using a service (gdoc/m365) or full URL."
                 );
             }
 
-            // Use the first service and URL
-            let (first_service, first_url) = remote_services[0];
-            (first_service, (*first_url).clone())
+            // Find which service the tracked remote belongs to
+            let remote_url = &remotes[0];
+            let service = RemoteService::from_url(remote_url).ok_or_else(|| {
+                eyre::eyre!(
+                    "Tracked remote {} is not from a supported service",
+                    remote_url
+                )
+            })?;
+
+            (service, remote_url.clone())
         };
 
         message(

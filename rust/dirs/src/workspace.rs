@@ -10,7 +10,7 @@ use tokio::fs::{create_dir_all, write};
 pub const STENCILA_DIR: &str = ".stencila";
 pub const CONFIG_FILE: &str = "config.yaml";
 pub const DOCS_FILE: &str = "docs.json";
-pub const STORE_DIR: &str = "store";
+pub const CACHE_DIR: &str = "cache";
 pub const ARTIFACTS_DIR: &str = "artifacts";
 pub const DB_FILE: &str = "db.kuzu";
 
@@ -26,7 +26,7 @@ pub struct CreateStencilaDirOptions {
     pub gitignore_file: bool,
 
     #[default = true]
-    pub store_dir: bool,
+    pub cache_dir: bool,
 }
 
 /// Create a `.stencila` directory initialized with expected file and directory structure
@@ -49,8 +49,8 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
         write(path.join(".gitignore"), "*\n").await?;
     }
 
-    if options.store_dir {
-        stencila_store_dir(path, true).await?;
+    if options.cache_dir {
+        stencila_cache_dir(path, true).await?;
     }
 
     Ok(())
@@ -78,15 +78,15 @@ pub async fn stencila_docs_file(stencila_dir: &Path, ensure: bool) -> Result<Pat
     Ok(tracking_file)
 }
 
-/// Get the path of the `.stencila/store` directory and optionally ensure it exists
-pub async fn stencila_store_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let store_dir = stencila_dir.join(STORE_DIR);
+/// Get the path of the `.stencila/cache` directory and optionally ensure it exists
+pub async fn stencila_cache_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let cache_dir = stencila_dir.join(CACHE_DIR);
 
-    if ensure && !store_dir.exists() {
-        create_dir_all(&store_dir).await?;
+    if ensure && !cache_dir.exists() {
+        create_dir_all(&cache_dir).await?;
     }
 
-    Ok(store_dir)
+    Ok(cache_dir)
 }
 
 /// Get the path of the `.stencila/artifacts` directory and optionally ensure it exists

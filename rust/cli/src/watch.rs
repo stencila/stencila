@@ -31,11 +31,18 @@ pub struct Cli {
 
     /// The sync direction
     #[arg(long, short)]
-    direction: WatchDirection,
+    direction: Option<WatchDirection>,
 
     /// The GitHub PR mode
     #[arg(long, short)]
-    pr_mode: WatchPrMode,
+    pr_mode: Option<WatchPrMode>,
+
+    /// Debounce time in seconds (10-86400)
+    ///
+    /// Time to wait after detecting changes before syncing to avoid
+    /// too frequent updates. Minimum 10 seconds, maximum 24 hours (86400 seconds).
+    #[arg(long, value_parser = clap::value_parser!(u64).range(10..=86400))]
+    debounce_seconds: Option<u64>,
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -136,7 +143,7 @@ impl Cli {
         } else {
             // No URL specified - check if there's only one remote
             if remotes.len() > 1 {
-                let urls_list = remotes
+                let remotes_list = remotes
                     .keys()
                     .map(|url| {
                         let service = RemoteService::from_url(url)
@@ -147,7 +154,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "Multiple remotes found for `{input}`:\n{urls_list}\n\nSpecify which one to watch using a service (gdoc/m365) or full URL."
+                    "Multiple remotes found for `{input}`:\n{remotes_list}\n\nSpecify which one to watch using a service (gdoc/m365) or full URL."
                 );
             }
 
@@ -178,8 +185,9 @@ impl Cli {
             remote_url: remote_url.to_string(),
             repo_url,
             file_path,
-            direction: self.direction.to_string(),
-            pr_mode: Some(self.pr_mode.to_string()),
+            direction: self.direction.map(|dir| dir.to_string()),
+            pr_mode: self.pr_mode.map(|mode| mode.to_string()),
+            debounce_seconds: self.debounce_seconds,
         };
 
         // Call Cloud API to create watch
@@ -187,11 +195,11 @@ impl Cli {
 
         // Update docs.json with watch metadata
         remote_info.watch_id = Some(response.id.to_string());
-        remote_info.watch_direction = Some(self.direction);
+        remote_info.watch_direction = self.direction;
         doc.track(Some((remote_url, remote_info))).await?;
 
         // Success message
-        let direction_desc = match self.direction {
+        let direction_desc = match self.direction.unwrap_or_default() {
             WatchDirection::Bi => "bi-directional",
             WatchDirection::FromRemote => "from remote only",
             WatchDirection::ToRemote => "to remote only",

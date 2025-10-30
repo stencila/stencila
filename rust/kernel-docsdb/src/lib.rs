@@ -11,7 +11,7 @@ use futures::future::join_all;
 use itertools::Itertools;
 use regex::Regex;
 use stencila_codecs::EncodeOptions;
-use stencila_dirs::{closest_stencila_dir, stencila_db_file, stencila_store_dir};
+use stencila_dirs::{closest_stencila_dir, stencila_cache_dir, stencila_db_file};
 use stencila_kernel_kuzu::{
     KuzuKernelInstance,
     stencila_kernel::{
@@ -208,7 +208,7 @@ impl DocsDBKernelInstance {
     /// Use the workspace database associated with a path
     ///
     /// Finds the closest `.stencila` directory and uses its `.stencila/db`
-    /// and `.stencila/store` subdirectories.
+    /// and `.stencila/cache` subdirectories.
     async fn use_workspace(&mut self) -> Result<()> {
         let home_dir = self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
         let stencila_dir = closest_stencila_dir(&home_dir, false).await?;
@@ -219,14 +219,14 @@ impl DocsDBKernelInstance {
         }
         self.workspace_db.set_path(db_path);
 
-        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
-        if !store_dir.exists() {
+        let cache_dir = stencila_cache_dir(&stencila_dir, false).await?;
+        if !cache_dir.exists() {
             bail!(
                 "Workspace store `{}` does not exist yet",
-                store_dir.display()
+                cache_dir.display()
             )
         }
-        self.store = Some(store_dir);
+        self.store = Some(cache_dir);
         if let Some(cache) = self.cache.as_mut() {
             cache.lock().await.clear();
         } else {
@@ -450,14 +450,14 @@ impl DocsDBKernelInstance {
             bail!("No workspace database")
         };
 
-        let Some(store_dir) = &self.store else {
+        let Some(cache_dir) = &self.store else {
             bail!("No store directory for workspace database")
         };
 
         // Process documents in parallel
-        let store_dir_clone = store_dir.clone();
+        let cache_dir_clone = cache_dir.clone();
         let tasks = documents.iter().map(|document_identifiers| {
-            let store_dir = store_dir_clone.clone();
+            let cache_dir = cache_dir_clone.clone();
             let identifiers = document_identifiers.clone();
 
             task::spawn(async move {
@@ -477,10 +477,10 @@ impl DocsDBKernelInstance {
                             }
 
                             // Store the document as JSON
-                            let store_path = store_dir.join(format!("{doc_id}.json"));
+                            let cache_path = cache_dir.join(format!("{doc_id}.json"));
                             if let Err(error) = stencila_codec_json::to_path(
                                 &root,
-                                &store_path,
+                                &cache_path,
                                 Some(EncodeOptions {
                                     compact: Some(false),
                                     ..Default::default()

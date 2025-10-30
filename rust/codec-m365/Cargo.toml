@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+chrono = { workspace = true }
 eyre = { workspace = true }
 percent-encoding = { workspace = true }
 reqwest = { workspace = true }
