@@ -34,6 +34,7 @@ on:
 
 env:
   RUST_VERSION: "1.89.0"
+  NODE_VERSION: "22"
 
 jobs:
   # Create a draft release
@@ -111,9 +112,17 @@ jobs:
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         uses: Swatinem/rust-cache@v2
 
+      - name: Setup Node.js (for web build)
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Build and archive CLI
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: make -C rust build archive -e TARGET=${{ matrix.target }}
+        env:
+          NODE_OPTIONS: ${{ matrix.platform == 'windows' && '--max-old-space-size=8192 --no-warnings' || '' }}
 
       - name: Upload archive
         if: ${{ contains(inputs.platforms, matrix.platform) }}
