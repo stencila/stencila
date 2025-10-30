@@ -51,13 +51,11 @@ use stencila_web_dist::Web;
 /// Duration in seconds to keep browser open for inspection during development.
 /// Set to 0 for normal operation (headless mode).
 /// Set to > 0 to keep browser window open for debugging.
-#[cfg(debug_assertions)]
 const BROWSER_OPEN_SECS: u64 = 0;
 
 /// Use local development web assets instead of production CDN.
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
-#[cfg(debug_assertions)]
 const USE_LOCALHOST: bool = false;
 
 /// Converts HTML to PNG and returns as data URI
@@ -1041,7 +1039,7 @@ fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewp
 /// Wraps HTML with so that any necessary CSS and Javascript is available
 fn wrap_html(html: &str) -> String {
     // Use local or production web assets based on USE_LOCALHOST constant
-    let web_base = if USE_LOCALHOST {
+    let web_base = if cfg!(debug_assertions) && USE_LOCALHOST {
         "http://localhost:9000/~static/dev".to_string()
     } else {
         ["https://stencila.io/web/v", STENCILA_VERSION].concat()
