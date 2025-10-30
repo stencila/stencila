@@ -79,6 +79,6 @@
     "@napi-rs/cli": "3.4.1"
   },
   "dependencies": {
-    "@stencila/types": "2.0.0-alpha.26"
+    "@stencila/types": "*"
   }
 }
