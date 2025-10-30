@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    path::PathBuf,
+    process::{self, exit},
+};
 
 use clap::Parser;
 use eyre::{Result, bail};
@@ -250,12 +253,7 @@ impl Cli {
                 );
 
                 if !errors.is_empty() {
-                    let error_list = errors
-                        .iter()
-                        .map(|(url, err)| format!("  - {}: {}", url, err))
-                        .collect::<Vec<_>>()
-                        .join("\n");
-                    bail!("Some pushes failed:\n{error_list}");
+                    exit(1)
                 }
 
                 return Ok(());

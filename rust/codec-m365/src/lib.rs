@@ -150,9 +150,7 @@ async fn upload(node: &Node, filename: &str, access_token: &str) -> Result<Url> 
                 Error details: {error_text}"
             ),
             423 => bail!(
-                "File is locked ({status}). The document is currently being edited in OneDrive/Office.\n\n\
-                Please close the document and try again.\n\n\
-                Error details: {error_text}"
+                "The document is currently being edited in OneDrive/Office. Please close the document and try again."
             ),
             _ => bail!("Failed to upload to OneDrive ({status}): {error_text}"),
         }
@@ -203,9 +201,7 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
                 Error details: {error_text}"
             ),
             423 => bail!(
-                "File is locked ({status}). The document is currently being edited in OneDrive/Office.\n\n\
-                Please close the document and try again.\n\n\
-                Error details: {error_text}"
+                "The document is currently being edited in OneDrive/Office. Please close the document and try again."
             ),
             _ => bail!("Failed to download from OneDrive ({status}): {error_text}"),
         }
