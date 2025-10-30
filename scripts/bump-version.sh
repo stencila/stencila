@@ -60,8 +60,7 @@ fi
 # 6. Build and update lock files
 echo "Building version crate and updating lock files..."
 cargo build -p stencila-version
-# Use --ignore-scripts to avoid premature attempts to download the as yet unavailable binary addons
-npm install --ignore-scripts
+npm install
 cargo generate-lockfile
 
 # 7. Update VSCode CHANGELOG

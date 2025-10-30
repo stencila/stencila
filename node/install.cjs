@@ -3,10 +3,20 @@
  * binary addons for the platform from GitHub release.
  */
 
-const { readFileSync, createWriteStream } = require('fs')
+const { readFileSync, createWriteStream, existsSync } = require('fs')
 const https = require('https')
 const path = require('path')
 const { createGunzip } = require('zlib')
+
+// Skip download in development/monorepo mode
+// Check if we're in the monorepo by looking for the parent workspace
+const isMonorepo = existsSync(path.join(__dirname, '..', 'rust'))
+const addonExists = existsSync(path.join(__dirname, 'stencila.node'))
+
+if (isMonorepo || addonExists) {
+  console.log('Skipping download: running in monorepo or addon already exists')
+  process.exit(0)
+}
 
 const version = JSON.parse(
   readFileSync(path.join(__dirname, 'package.json')),
