@@ -615,8 +615,8 @@ impl Status {
                 Ahead => Color::Cyan,
             };
 
-            // Track local file status for legend
-            if !matches!(status, Unknown) {
+            // Track local file status for legend (only Deleted is shown in table)
+            if matches!(status, Deleted) {
                 seen_statuses.insert(status);
             }
 
