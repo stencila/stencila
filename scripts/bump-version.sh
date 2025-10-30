@@ -59,9 +59,11 @@ fi
 
 # 6. Build and update lock files
 echo "Building version crate and updating lock files..."
+# Building the version crate is sufficient to update Cargo.lock with the new version
+# Note: DO NOT use `cargo generate-lockfile` as it would update ALL dependencies to their
+# latest versions, which is not desired during a version bump
 cargo build -p stencila-version
 npm install
-cargo generate-lockfile
 
 # 7. Update VSCode CHANGELOG
 echo "Updating VSCode CHANGELOG..."
