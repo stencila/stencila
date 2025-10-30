@@ -4,6 +4,11 @@ name: Publish Workspace Image
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to build the workspace image for e.g. v2.1.0
+        type: string
+        required: false
   schedule:
     - cron: '0 4 * * 0'  # Runs at 4am Sunday UTC each week
 
@@ -13,6 +18,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Build image with no cache
         run: make -C workspace build-no-cache
