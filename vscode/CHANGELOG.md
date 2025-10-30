@@ -1,10 +1,14 @@
 # Change Log
 
+## 2.7.0 2025-10-30
+
+- Based on Stencila CLI [v2.7.0](https://github.com/stencila/stencila/releases/tag/v2.7.0).
+
 ## 0.6.0 2025-07-21
 
 - Adds "Merge document" command
 
-- Based on Stencila CLI [v2.5.0](https://github.com/stencila/stencila/releases/tag/v2.4.0).
+- Based on Stencila CLI [v2.5.0](https://github.com/stencila/stencila/releases/tag/v2.5.0).
 
 ## 0.5.0 2025-06-26
 

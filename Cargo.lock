@@ -9620,7 +9620,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "2.0.0-alpha.25"
+version = "2.7.0"
 dependencies = [
  "eyre",
  "napi",
@@ -10083,7 +10083,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "2.0.0-beta.2"
+version = "2.7.0"
 dependencies = [
  "eyre",
  "pyo3",
@@ -10302,7 +10302,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-version"
-version = "2.6.0"
+version = "2.7.0"
 dependencies = [
  "semver",
 ]

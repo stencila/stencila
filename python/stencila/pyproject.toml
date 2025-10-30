@@ -2,7 +2,7 @@
 
 [project]
 name = "stencila"
-version = "2.0.0b2"
+version = "2.7.0"
 description = "Python SDK for Stencila"
 readme = "README.md"
 license = { text = "Apache-2.0" }
