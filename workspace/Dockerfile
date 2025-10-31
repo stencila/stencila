@@ -170,16 +170,20 @@ RUN exts=(\
 RUN STENCILA_DIR=$(find /home/workspace/.openvscode-server/extensions -maxdepth 1 -type d -name 'stencila.stencila-*' | head -n 1) && \
     ln -s "$STENCILA_DIR/cli/stencila" /home/workspace/.local/bin/stencila
 
-# Copy over Stencila workspace files and install default packages
-# These steps are placed late in the build to maximize cache reuse, since default
-# package specifications change less frequently than config/settings files
+# Copy over dependency specification files first to maximize cache reuse
+# Only copy files needed for package installation - changes to other files (like *.sh scripts)
+# won't invalidate this layer and trigger expensive package reinstallation
 RUN mkdir -p /home/workspace/stencila/defaults
-COPY --chown=${USERNAME}:${USERNAME} defaults/* /home/workspace/stencila/defaults/
+COPY --chown=${USERNAME}:${USERNAME} defaults/pyproject.toml defaults/DESCRIPTION /home/workspace/stencila/defaults/
 
 # Install default packages for Python and R so that they are cached in the image
 RUN cd /home/workspace/stencila/defaults && \
     uv sync && \
     Rscript -e "renv::install()"
+
+# Copy remaining workspace default files (e.g. scripts) after package installation
+# This prevents changes to these files from invalidating the package installation layer
+COPY --chown=${USERNAME}:${USERNAME} defaults/*.sh /home/workspace/stencila/defaults/
 
 # Add Stencila user level config
 # COPY creates parent directories automatically, no mkdir needed
