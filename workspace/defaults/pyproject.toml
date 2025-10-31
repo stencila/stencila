@@ -5,11 +5,11 @@ description = "Default Python packages for Stencila workspaces. Used when a work
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pandas>=2.2.3",
-    "polars>=1.21.0",
-    "matplotlib>=3.10.0",
-    "seaborn>=0.13.2",
-    "plotly>=6.0.0",
-    "altair[all]>=5.5.0",
-    "plotnine>=0.14.5"
+    "pandas",
+    "polars",
+    "matplotlib",
+    "seaborn",
+    "plotly",
+    "altair[all]",
+    "plotnine"
 ]
