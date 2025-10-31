@@ -153,6 +153,15 @@ if [[ "$PYTHON_DEPS" = false && "$R_DEPS" = false ]]; then
     echo
 fi
 
+# Trust mise config files if they exist (workspace container only)
+if [[ -f "mise.toml" ]] || [[ -f ".mise.toml" ]] || [[ -f "mise.local.toml" ]] || [[ -f ".mise.local.toml" ]]; then
+    echo "🔧 Trusting mise configuration"
+    if ! mise trust; then
+        echo "⚠️ Warning: Failed to trust mise config, installation may fail"
+    fi
+    echo
+fi
+
 # Run stencila tools install to install everything
 echo "🔧 Running Stencila tools install"
 if ! stencila tools install; then
