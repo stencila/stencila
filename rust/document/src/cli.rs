@@ -682,10 +682,11 @@ impl Status {
                 }
 
                 // Format watch status with directional arrows and colors
-                let (watch_dir, watch_color) = if let Some(watch_dir) = &remote.watch_direction {
+                let (watch_dir, watch_color) = if remote.watch_id.is_some() {
                     use crate::WatchDirection;
-                    match watch_dir {
-                        WatchDirection::Bi => ("↔ bi".to_string(), Color::Green),
+                    let direction = remote.watch_direction.unwrap_or_default();
+                    match direction {
+                        WatchDirection::Bi => ("↔ bi-directional".to_string(), Color::Green),
                         WatchDirection::FromRemote => ("← from-remote".to_string(), Color::Yellow),
                         WatchDirection::ToRemote => ("→ to-remote".to_string(), Color::Cyan),
                     }
