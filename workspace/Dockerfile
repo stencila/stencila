@@ -177,8 +177,9 @@ RUN mkdir -p /home/workspace/stencila/defaults
 COPY --chown=${USERNAME}:${USERNAME} defaults/pyproject.toml defaults/DESCRIPTION /home/workspace/stencila/defaults/
 
 # Install default packages for Python and R so that they are cached in the image
+# Use increased HTTP timeout (300s) to handle slow connections during Docker builds
 RUN cd /home/workspace/stencila/defaults && \
-    uv sync && \
+    UV_HTTP_TIMEOUT=300 uv sync && \
     Rscript -e "renv::install()"
 
 # Copy remaining workspace default files (e.g. scripts) after package installation
