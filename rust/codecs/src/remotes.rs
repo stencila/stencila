@@ -55,7 +55,7 @@ impl RemoteService {
     pub fn display_name_plural(&self) -> &str {
         match self {
             Self::GoogleDocs => "Google Docs",
-            Self::Microsoft365 => "Microsoft 365 documents",
+            Self::Microsoft365 => "Microsoft 365",
         }
     }
 

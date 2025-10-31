@@ -167,7 +167,13 @@ impl Cli {
 
         // Check if already being watched
         if remote_info.is_watched() {
-            message(&format!("File `{input}` is already being watched."), None);
+            let service_name = RemoteService::from_url(&remote_url)
+                .map(|s| s.display_name_plural().to_string())
+                .unwrap_or_else(|| remote_url.to_string());
+            message(
+                &format!("File `{input}` is already being watched on `{service_name}`."),
+                None,
+            );
             return Ok(());
         }
 
