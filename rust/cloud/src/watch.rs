@@ -1,9 +1,11 @@
 use eyre::{Result, bail};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 use crate::{ErrorResponse, base_url, client, process_response};
 
 /// Request to create a watch for a document
+#[skip_serializing_none]
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WatchRequest {

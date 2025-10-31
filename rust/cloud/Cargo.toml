@@ -8,6 +8,7 @@ cached = { workspace = true }
 eyre = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
+serde_with = { workspace = true }
 stencila-secrets = { "path" = "../secrets" }
 stencila-version = { "path" = "../version" }
 strum = { workspace = true }

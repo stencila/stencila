@@ -8061,6 +8061,7 @@ dependencies = [
  "eyre",
  "reqwest",
  "serde",
+ "serde_with",
  "stencila-secrets",
  "stencila-version",
  "strum 0.27.2",
