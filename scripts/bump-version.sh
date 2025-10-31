@@ -71,14 +71,22 @@ cd vscode
 sed -i "3i## $VERSION $(date '+%Y-%m-%d')\n\n\n" CHANGELOG.md
 cd ..
 
-# 8. Prompt user to update changelog before committing
+# 8. Update main CHANGELOG
+echo "Updating main CHANGELOG..."
+# Get the previous version tag for the compare link
+PREV_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "vX.X.X")
+sed -i "1i# [$VERSION](https://github.com/stencila/stencila/compare/$PREV_VERSION...v$VERSION) ($(date '+%Y-%m-%d'))\n\n\n### Bug Fixes\n\n\n### Features\n\n\n" CHANGELOG.md
+
+# 9. Prompt user to update changelogs before committing
 echo ""
-echo "⚠️  Please update vscode/CHANGELOG.md with release notes for v$VERSION"
+echo "⚠️  Please update the following changelogs with release notes for v$VERSION:"
+echo "   - CHANGELOG.md (main changelog with categorized sections)"
+echo "   - vscode/CHANGELOG.md (VSCode extension changelog)"
 echo ""
-read -p "Press Enter when you have updated the changelog and are ready to commit..." -r
+read -p "Press Enter when you have updated the changelogs and are ready to commit..." -r
 echo ""
 
-# 9. Commit and tag
+# 10. Commit and tag
 echo "Creating git commit and tag..."
 git add .
 git commit -m "release: v$VERSION"
@@ -89,7 +97,8 @@ echo "✅ Version bumped to $VERSION across all components!"
 echo ""
 echo "Updated:"
 echo "  - CLI (Rust workspace)"
-echo "  - VSCode extension (including CHANGELOG.md)"
+echo "  - Main CHANGELOG.md"
+echo "  - VSCode extension (including vscode/CHANGELOG.md)"
 echo "  - npm packages (@stencila/types, @stencila/node, @stencila/web)"
 echo "  - Python packages (stencila_types, stencila)"
 echo ""
