@@ -150,6 +150,10 @@ if [[ "$PYTHON_DEPS" = false && "$R_DEPS" = false ]]; then
         echo "❌ Error: Failed to copy default pyproject.toml"
         exit 1
     fi
+    if ! cp /home/workspace/stencila/defaults/uv.lock ./; then
+        echo "❌ Error: Failed to copy default uv.lock"
+        exit 1
+    fi
     echo
 fi
 
