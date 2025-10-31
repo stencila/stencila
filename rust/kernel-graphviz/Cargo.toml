@@ -7,7 +7,7 @@ edition = "2024"
 ignored = ["layout-rs"]
 
 [dependencies]
-layout-rs = { git = "https://github.com/nadavrot/layout", rev = "9ff0d4976df64b9dc5684db7088e73499d1243d1" }
+layout-rs = { git = "https://github.com/nadavrot/layout", rev = "440e032a8ce21b61f5ada67e2b1450fb77842b7c" }
 regex = { workspace = true }
 stencila-kernel = { path = "../kernel" }
 tracing = { workspace = true }
