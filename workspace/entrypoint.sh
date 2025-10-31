@@ -22,15 +22,20 @@ if [[ -n "${STENCILA_SCRIPT:-}" ]]; then
         echo "Warning: setup.sh not found at ${SETUP_SCRIPT}"
     fi
 
-    # Run the specified script
-    SCRIPT_PATH="/home/workspace/stencila/defaults/${STENCILA_SCRIPT}"
-    if [[ -f "${SCRIPT_PATH}" ]]; then
-        echo "Executing ${STENCILA_SCRIPT}..."
-        bash "${SCRIPT_PATH}"
-        exit $?
+    # Run the specified script (unless it's "none")
+    if [[ "${STENCILA_SCRIPT}" != "none" ]]; then
+        SCRIPT_PATH="/home/workspace/stencila/defaults/${STENCILA_SCRIPT}"
+        if [[ -f "${SCRIPT_PATH}" ]]; then
+            echo "Executing ${STENCILA_SCRIPT}..."
+            bash "${SCRIPT_PATH}"
+            exit $?
+        else
+            echo "Error: Script not found at ${SCRIPT_PATH}"
+            exit 1
+        fi
     else
-        echo "Error: Script not found at ${SCRIPT_PATH}"
-        exit 1
+        echo "Setup complete. No script to execute (STENCILA_SCRIPT=none)."
+        exit 0
     fi
 else
     # CDE mode: start VSCode server
