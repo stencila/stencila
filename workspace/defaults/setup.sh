@@ -150,9 +150,11 @@ if [[ "$PYTHON_DEPS" = false && "$R_DEPS" = false ]]; then
         echo "❌ Error: Failed to copy default pyproject.toml"
         exit 1
     fi
-    if ! cp /home/workspace/stencila/defaults/uv.lock ./; then
-        echo "❌ Error: Failed to copy default uv.lock"
-        exit 1
+    # Also copy uv.lock if it exists for reproducible builds
+    if [[ -f /home/workspace/stencila/defaults/uv.lock ]]; then
+        if ! cp /home/workspace/stencila/defaults/uv.lock ./; then
+            echo "⚠️  Warning: Failed to copy default uv.lock"
+        fi
     fi
     echo
 fi
@@ -164,20 +166,6 @@ if [[ -f "mise.toml" ]] || [[ -f ".mise.toml" ]] || [[ -f "mise.local.toml" ]] |
         echo "⚠️ Warning: Failed to trust mise config, installation may fail"
     fi
     echo
-fi
-
-# Run stencila tools install to install everything
-echo "🔧 Running Stencila tools install"
-if ! stencila tools install; then
-    echo "❌ Error: Failed to run stencila tools install"
-    exit 1
-fi
-echo
-
-# Setup a `.stencila` folder so that tracked files are visible to the user
-if ! mkdir -p .stencila; then
-    echo "❌ Error: Failed to create .stencila directory"
-    exit 1
 fi
 
 echo "🎉 Setup complete!"
