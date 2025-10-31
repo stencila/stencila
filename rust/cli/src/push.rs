@@ -1,6 +1,6 @@
 use std::{
     path::PathBuf,
-    process::{self, exit},
+    process::exit,
 };
 
 use clap::Parser;
