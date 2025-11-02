@@ -1289,18 +1289,18 @@
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "9.37.0",
+    "@eslint/js": "9.39.0",
     "@types/mocha": "10.0.10",
-    "@types/node": "24.7.0",
-    "@types/vscode": "1.90.0",
-    "@typescript-eslint/parser": "8.46.0",
-    "@vscode/test-cli": "0.0.11",
+    "@types/node": "24.9.2",
+    "@types/vscode": "1.105.0",
+    "@typescript-eslint/parser": "8.46.2",
+    "@vscode/test-cli": "0.0.12",
     "@vscode/test-electron": "2.5.2",
     "@vscode/vsce": "3.6.2",
-    "esbuild": "0.25.10",
-    "eslint": "9.37.0",
+    "esbuild": "0.25.12",
+    "eslint": "9.39.0",
     "js-yaml": "4.1.0",
     "ovsx": "0.10.6",
-    "typescript-eslint": "8.46.0"
+    "typescript-eslint": "8.46.2"
   }
 }
