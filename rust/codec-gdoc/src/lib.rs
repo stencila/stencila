@@ -251,7 +251,7 @@ pub async fn get_metadata(url: &Url) -> Result<u64> {
 pub fn extract_doc_id(url: &Url) -> Result<String> {
     // Check that it's a Google Docs URL
     if url.host_str() != Some("docs.google.com") {
-        bail!("Not a Google Docs URL: {}", url);
+        bail!("Not a Google Docs URL: {url}");
     }
 
     // Parse path segments
@@ -264,6 +264,6 @@ pub fn extract_doc_id(url: &Url) -> Result<String> {
     if segments.len() >= 3 && segments[0] == "document" && segments[1] == "d" {
         Ok(segments[2].to_string())
     } else {
-        bail!("Invalid Google Docs URL format: {}", url);
+        bail!("Invalid Google Docs URL format: {url}");
     }
 }
