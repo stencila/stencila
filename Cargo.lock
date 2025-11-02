@@ -8993,6 +8993,7 @@ dependencies = [
 name = "stencila-document"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "chrono",
  "chrono-humanize",
  "clap",
@@ -9015,10 +9016,12 @@ dependencies = [
  "smart-default",
  "stencila-ask",
  "stencila-cli-utils",
+ "stencila-cloud",
  "stencila-codec-gdoc",
  "stencila-codec-json",
  "stencila-codec-m365",
  "stencila-codec-text",
+ "stencila-codec-utils",
  "stencila-codecs",
  "stencila-dirs",
  "stencila-format",

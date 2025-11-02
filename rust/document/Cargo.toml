@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+Inflector = { workspace = true }
 chrono = { workspace = true }
 chrono-humanize = { workspace = true }
 clap = { workspace = true }
@@ -24,6 +25,8 @@ similar = { workspace = true }
 smart-default = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
+stencila-cloud = { path = "../cloud" }
+stencila-codec-utils = { path = "../codec-utils" }
 stencila-codec-gdoc = { path = "../codec-gdoc" }
 stencila-codec-json = { path = "../codec-json" }
 stencila-codec-m365 = { path = "../codec-m365" }

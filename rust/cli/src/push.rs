@@ -1,7 +1,4 @@
-use std::{
-    path::PathBuf,
-    process::exit,
-};
+use std::{path::PathBuf, process::exit};
 
 use clap::Parser;
 use eyre::{Result, bail};
@@ -419,6 +416,8 @@ impl Cli {
                 .unwrap_or_default();
             remote_info.watch_id = Some(response.id.to_string());
             remote_info.watch_direction = self.direction;
+
+            let url_str = url.to_string();
             doc.track(Some((url, remote_info))).await?;
 
             // Success message
@@ -430,7 +429,7 @@ impl Cli {
 
             message(
                 &format!(
-                    "Watching `{input}` ({direction_desc}). PRs will be opened/updated on changes from the remote."
+                    "Watching `{input}` ({direction_desc}). PRs will be opened/updated on changes from {url_str}."
                 ),
                 Some("👁️ "),
             );

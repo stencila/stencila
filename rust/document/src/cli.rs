@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     env::current_dir,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
@@ -10,8 +10,10 @@ use chrono_humanize;
 use clap::Parser;
 use eyre::{Report, Result, bail};
 use futures::future::try_join_all;
+use inflector::Inflector;
 use itertools::Itertools;
 use reqwest::Url;
+use stencila_cloud::DirectionState;
 use tokio::fs::create_dir_all;
 
 use stencila_ask::{Answer, ask_with_default};
@@ -21,7 +23,8 @@ use stencila_cli_utils::{
     message,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
-use stencila_codecs::{EncodeOptions, LossesResponse};
+use stencila_codec_utils::git_info;
+use stencila_codecs::{EncodeOptions, LossesResponse, remotes::RemoteService};
 use stencila_dirs::{
     CreateStencilaDirOptions, STENCILA_DIR, closest_workspace_dir, stencila_dir_create,
 };
@@ -512,14 +515,18 @@ pub struct Status {
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 
-    /// Skip fetching remote status (faster)
+    /// Skip fetching remote status
     #[arg(long)]
     no_remotes: bool,
+
+    /// Skip fetching watch status
+    #[arg(long)]
+    no_watches: bool,
 }
 
 pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Show status of all tracked documents</dim>
+  <dim># Show status of all tracked documents (includes watch details by default)</dim>
   <b>stencila status</>
 
   <dim># Show status of specific documents</dim>
@@ -530,11 +537,9 @@ pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Skip fetching remote status (faster)</dim>
   <b>stencila status</> <c>--no-remotes</>
-
-<bold><b>Status Information</b></bold>
-  Shows modification times, storage status, and sync
-  information for tracked documents and their remotes.
-  Use --no-remotes to skip remote status checks for faster results.
+  
+  <dim># Skip fetching watch status (faster)</dim>
+  <b>stencila status</> <c>--no-watches</>
 "
 );
 
@@ -579,6 +584,26 @@ impl Status {
         }
 
         let workspace_dir = closest_workspace_dir(&current_dir()?, false).await?;
+
+        // Get repo URL for filtering watches (if in a git repository)
+        let repo_url = git_info(&workspace_dir).ok().and_then(|info| info.origin);
+
+        // Fetch watch details from API if not skipping remotes or watches
+        let watch_details_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> =
+            if !self.no_watches {
+                match stencila_cloud::get_watches(repo_url.as_deref()).await {
+                    Ok(watches) => watches.into_iter().map(|w| (w.id, w)).collect(),
+                    Err(error) => {
+                        tracing::debug!("Failed to fetch watch details from API: {error}");
+                        HashMap::new()
+                    }
+                }
+            } else {
+                HashMap::new()
+            };
+
+        // Collect watch details for later display if --watch-details is enabled
+        let mut watch_details_for_display = Vec::new();
 
         let mut table = Tabulated::new();
         table.set_header([
@@ -657,17 +682,9 @@ impl Status {
 
                 // Helper function to get service name from URL
                 let service_name = |url: &Url| -> String {
-                    let host = url.host_str().unwrap_or("");
-                    if host.contains("google.com") || host.contains("docs.google") {
-                        "Google Docs".to_string()
-                    } else if host.contains("microsoft.com")
-                        || host.contains("office.com")
-                        || host.contains("sharepoint.com")
-                    {
-                        "Microsoft 365".to_string()
-                    } else {
-                        url.to_string()
-                    }
+                    RemoteService::from_url(url)
+                        .map(|s| s.display_name_plural().to_string())
+                        .unwrap_or_else(|| url.to_string())
                 };
 
                 // Get remote status and modified time from fetched metadata
@@ -682,14 +699,63 @@ impl Status {
                 }
 
                 // Format watch status with directional arrows and colors
-                let (watch_dir, watch_color) = if remote.watch_id.is_some() {
+                let (watch_dir, watch_color) = if let Some(watch_id) = remote
+                    .watch_id
+                    .as_ref()
+                    .and_then(|id| id.parse::<u64>().ok())
+                {
                     use crate::WatchDirection;
                     let direction = remote.watch_direction.unwrap_or_default();
-                    match direction {
-                        WatchDirection::Bi => ("↔ bi-directional".to_string(), Color::Green),
-                        WatchDirection::FromRemote => ("← from-remote".to_string(), Color::Yellow),
-                        WatchDirection::ToRemote => ("→ to-remote".to_string(), Color::Cyan),
+
+                    // Get watch details from API if available
+                    let (watch_status_color, watch_status_text) = watch_details_map
+                        .get(&watch_id)
+                        .map(|details| {
+                            use stencila_cloud::WatchStatus;
+                            let color = match details.status {
+                                WatchStatus::Ok => Color::Green,
+                                WatchStatus::Pending => Color::Yellow,
+                                WatchStatus::Syncing => Color::Cyan,
+                                WatchStatus::Blocked => Color::Magenta,
+                                WatchStatus::Error => Color::Red,
+                            };
+                            let text = details.status.to_string();
+                            (color, text)
+                        })
+                        .unzip();
+
+                    // Collect watch details for display (unless --no-watch-details is set)
+                    if !self.no_watches
+                        && let Some(details) = watch_details_map.get(&watch_id)
+                    {
+                        watch_details_for_display.push((
+                            path.clone(),
+                            url.clone(),
+                            details.clone(),
+                        ));
                     }
+
+                    let direction_str = match direction {
+                        WatchDirection::Bi => "↔",
+                        WatchDirection::FromRemote => "←",
+                        WatchDirection::ToRemote => "→",
+                    };
+
+                    // Build the display string with status if available
+                    let display_str = if let Some(status) = watch_status_text {
+                        format!("{} {}", direction_str, status)
+                    } else {
+                        direction_str.to_string()
+                    };
+
+                    // Use watch status color if available, otherwise use direction default color
+                    let color = watch_status_color.unwrap_or(match direction {
+                        WatchDirection::Bi => Color::Green,
+                        WatchDirection::FromRemote => Color::Yellow,
+                        WatchDirection::ToRemote => Color::Cyan,
+                    });
+
+                    (display_str, color)
                 } else {
                     (String::from("-"), Color::DarkGrey)
                 };
@@ -766,7 +832,186 @@ impl Status {
             message!("{}", parts.join("\n"));
         }
 
+        // Display detailed watch information (unless --no-watch-details is set)
+        if !self.no_watches && !watch_details_for_display.is_empty() {
+            let direction_state_color = |state| match state {
+                DirectionState::Ok => Color::Green,
+                DirectionState::Pending => Color::Yellow,
+                DirectionState::Running => Color::Cyan,
+                DirectionState::Blocked => Color::Magenta,
+                DirectionState::Error => Color::Red,
+                DirectionState::Disabled => Color::DarkGrey,
+            };
+
+            for (file_path, remote_url, details) in watch_details_for_display {
+                eprintln!();
+
+                // Create a separate table for this watch
+                let mut watch_table = Tabulated::new();
+                watch_table.set_header([
+                    "Watch",
+                    "Status",
+                    "Received",
+                    "Queued",
+                    "Processed",
+                    "Reason",
+                ]);
+
+                // Determine service name for display
+                let service_name = RemoteService::from_url(&remote_url)
+                    .map(|s| s.display_name_plural().to_string())
+                    .unwrap_or_else(|| remote_url.to_string());
+
+                // Add header row for this watch
+                watch_table.add_row([
+                    Cell::new(file_path.display()).add_attribute(Attribute::Bold),
+                    Cell::new(""),
+                    Cell::new(""),
+                    Cell::new(""),
+                    Cell::new(""),
+                    Cell::new(""),
+                ]);
+
+                // Add row for to_remote direction if present
+                if let Some(to_remote) = &details.status_details.directions.to_remote {
+                    let state_color = direction_state_color(to_remote.state);
+                    let state_text = to_remote.state.to_string();
+
+                    let received = to_remote
+                        .last_received_at
+                        .as_ref()
+                        .map(|t| format_timestamp(t))
+                        .unwrap_or_else(|| "-".to_string());
+
+                    let queued = to_remote
+                        .last_queued_at
+                        .as_ref()
+                        .map(|t| format_timestamp(t))
+                        .unwrap_or_else(|| "-".to_string());
+
+                    let processed = to_remote
+                        .last_processed_at
+                        .as_ref()
+                        .map(|t| format_timestamp(t))
+                        .unwrap_or_else(|| "-".to_string());
+
+                    let reason = format_reason(&to_remote.reason, &to_remote.recommended_action);
+
+                    watch_table.add_row([
+                        Cell::new(format!("└ To {service_name}")),
+                        Cell::new(state_text).fg(state_color),
+                        Cell::new(received),
+                        Cell::new(queued),
+                        Cell::new(processed),
+                        Cell::new(reason),
+                    ]);
+                }
+
+                // Add row for from_remote direction if present
+                if let Some(from_remote) = &details.status_details.directions.from_remote {
+                    let state_color = direction_state_color(from_remote.state);
+                    let state_text = from_remote.state.to_string();
+
+                    let received = from_remote
+                        .last_received_at
+                        .as_ref()
+                        .map(|t| format_timestamp(t))
+                        .unwrap_or_else(|| "-".to_string());
+
+                    let queued = from_remote
+                        .last_queued_at
+                        .as_ref()
+                        .map(|t| format_timestamp(t))
+                        .unwrap_or_else(|| "-".to_string());
+
+                    let processed = from_remote
+                        .last_processed_at
+                        .as_ref()
+                        .map(|t| format_timestamp(t))
+                        .unwrap_or_else(|| "-".to_string());
+
+                    let reason =
+                        format_reason(&from_remote.reason, &from_remote.recommended_action);
+
+                    watch_table.add_row([
+                        Cell::new(format!("└ From {service_name}")),
+                        Cell::new(state_text).fg(state_color),
+                        Cell::new(received),
+                        Cell::new(queued),
+                        Cell::new(processed),
+                        Cell::new(reason),
+                    ]);
+                }
+
+                watch_table.to_stdout();
+
+                // Display summary message after the table
+                let mut message_parts = Vec::new();
+
+                // Add summary
+                if !details.status_details.summary.is_empty() {
+                    message_parts.push(details.status_details.summary.clone());
+                }
+
+                // Add error in red if present
+                if let Some(error) = &details.status_details.last_error {
+                    message_parts.push(format!("{} {}", cstr!("<red>Error:</>"), error));
+                }
+
+                // Add recommended actions if present
+                if let Some(actions) = &details.status_details.recommended_actions
+                    && !actions.is_empty()
+                {
+                    let actions_text = actions.join(". ");
+                    message_parts.push(actions_text);
+                }
+
+                // Print the combined message
+                if !message_parts.is_empty() {
+                    message!("{}", message_parts.join(". "));
+                }
+            }
+        }
+
         Ok(())
+    }
+}
+
+/// Format an ISO 8601 timestamp to a human-readable relative time
+fn format_timestamp(iso_timestamp: &str) -> String {
+    use chrono::{DateTime, Utc};
+    use chrono_humanize::{Accuracy, HumanTime, Tense};
+
+    if let Ok(dt) = DateTime::parse_from_rfc3339(iso_timestamp) {
+        let now = Utc::now();
+        let duration = now.signed_duration_since(dt.with_timezone(&Utc));
+
+        if let Ok(time_delta) = TimeDelta::from_std(duration.to_std().unwrap_or_default()) {
+            let mut string =
+                HumanTime::from(time_delta).to_text_en(Accuracy::Rough, Tense::Present);
+            if string == "now" {
+                string.insert_str(0, "just ");
+            } else {
+                string.push_str(" ago");
+            }
+            return string;
+        }
+    }
+
+    // Fallback to showing the raw timestamp if parsing fails
+    iso_timestamp.to_string()
+}
+
+/// Format reason and recommended action for display
+fn format_reason(reason: &Option<String>, recommended_action: &Option<String>) -> String {
+    let reason_text = reason.as_ref().map(|r| r.to_sentence_case());
+    let action_text = recommended_action.as_deref();
+
+    match (reason_text, action_text) {
+        (Some(r), Some(a)) => format!("{}. {}", r, a),
+        (Some(r), None) => r,
+        (None, Some(a)) => a.to_string(),
+        (None, None) => "-".to_string(),
     }
 }
 

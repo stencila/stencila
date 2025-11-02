@@ -140,6 +140,7 @@ pub struct OtcResponse {
 pub struct ErrorResponse {
     pub status: u16,
     pub error: String,
+    pub advice: Option<String>,
     pub url: Option<String>,
 }
 
@@ -151,16 +152,25 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
     if !response.status().is_success() {
         let status = response.status();
         let message = match response.json::<ErrorResponse>().await {
-            Ok(error_resp) => {
-                if !error_resp.error.is_empty() {
-                    error_resp.error
+            Ok(error_response) => {
+                if !error_response.error.is_empty() {
+                    let mut message = error_response.error;
+                    if let Some(advice) = error_response.advice {
+                        message.push(' ');
+                        message.push_str(&advice);
+                    }
+                    if let Some(url) = error_response.url {
+                        message.push(' ');
+                        message.push_str(&url);
+                    }
+                    message
                 } else {
                     format!("HTTP error status: {status}")
                 }
             }
             Err(_) => format!("HTTP error status: {status}"),
         };
-        bail!("API request failed: {message}");
+        bail!("{message}");
     }
 
     response

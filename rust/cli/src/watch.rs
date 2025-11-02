@@ -172,7 +172,7 @@ impl Cli {
                 .unwrap_or_else(|| remote_url.to_string());
             message(
                 &format!("File `{input}` is already being watched on `{service_name}`."),
-                None,
+                Some("👁️ "),
             );
             return Ok(());
         }
@@ -202,6 +202,8 @@ impl Cli {
         // Update docs.json with watch metadata
         remote_info.watch_id = Some(response.id.to_string());
         remote_info.watch_direction = self.direction;
+
+        let remote_url_str = remote_url.to_string();
         doc.track(Some((remote_url, remote_info))).await?;
 
         // Success message
@@ -213,9 +215,9 @@ impl Cli {
 
         message(
             &format!(
-                "Watching `{input}` ({direction_desc}). PRs will be opened/updated on changes from the remote."
+                "Watching `{input}` ({direction_desc}). PRs will be opened/updated on changes from {remote_url_str}."
             ),
-            None,
+            Some("👁️ "),
         );
 
         Ok(())

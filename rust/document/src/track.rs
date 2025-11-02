@@ -21,7 +21,7 @@ use tokio::{
 };
 use url::Url;
 
-use stencila_codecs::{DecodeOptions, EncodeOptions};
+use stencila_codecs::{DecodeOptions, EncodeOptions, remotes::RemoteService};
 use stencila_dirs::{
     CACHE_DIR, DB_FILE, DOCS_FILE, closest_stencila_dir, stencila_artifacts_dir,
     stencila_cache_dir, stencila_db_file, stencila_docs_file, workspace_dir,
@@ -184,17 +184,12 @@ impl DocumentTracking {
         let futures = remotes.iter().map(|(url, remote)| async move {
             // Fetch metadata from remote service
             let remote_modified_at = async {
-                let host = url.host_str().unwrap_or("");
-
-                if host.contains("google.com") || host.contains("docs.google") {
-                    stencila_codec_gdoc::get_metadata(url).await
-                } else if host.contains("microsoft.com")
-                    || host.contains("office.com")
-                    || host.contains("sharepoint.com")
-                {
-                    stencila_codec_m365::get_metadata(url).await
-                } else {
-                    bail!("Unsupported remote service: {host}")
+                match RemoteService::from_url(url) {
+                    Some(RemoteService::GoogleDocs) => stencila_codec_gdoc::get_metadata(url).await,
+                    Some(RemoteService::Microsoft365) => {
+                        stencila_codec_m365::get_metadata(url).await
+                    }
+                    None => bail!("Unsupported remote service: {url}"),
                 }
             }
             .await
