@@ -238,6 +238,15 @@ impl DocumentTracking {
             .await
             .ok();
 
+            tracing::debug!("Remote {url} modified at {remote_modified_at:?}");
+
+            /// Tolerance in seconds for local file modification time comparisons
+            const LOCAL_TOLERANCE: u64 = 5;
+
+            /// Tolerance in seconds for remote modification time comparisons
+            /// (accounts for cloud service processing delays)
+            const REMOTE_TOLERANCE: u64 = 30;
+
             // Calculate status by comparing local/remote modified times with pushed_at/pulled_at
             let status = if local_status == DocumentTrackingStatus::Deleted {
                 DocumentTrackingStatus::Ahead
@@ -253,9 +262,39 @@ impl DocumentTracking {
                         let last_synced = pushed.max(pulled);
 
                         // Check if local or remote have changed since last sync
-                        // Use 10s tolerance for local files, 30s for remote (accounts for processing delays)
-                        let local_changed = local > last_synced.saturating_add(10);
-                        let remote_changed = remote_mod > last_synced.saturating_add(30);
+                        let local_changed = local > last_synced.saturating_add(LOCAL_TOLERANCE);
+                        let remote_changed =
+                            remote_mod > last_synced.saturating_add(REMOTE_TOLERANCE);
+
+                        if local_changed && remote_changed {
+                            DocumentTrackingStatus::Diverged
+                        } else if local_changed {
+                            DocumentTrackingStatus::Behind
+                        } else if remote_changed {
+                            DocumentTrackingStatus::Ahead
+                        } else {
+                            DocumentTrackingStatus::Synced
+                        }
+                    }
+                    (Some(local), Some(remote_mod), Some(pushed), None) => {
+                        // Only pushed_at exists, use it as reference
+                        let local_changed = local > pushed.saturating_add(LOCAL_TOLERANCE);
+                        let remote_changed = remote_mod > pushed.saturating_add(REMOTE_TOLERANCE);
+
+                        if local_changed && remote_changed {
+                            DocumentTrackingStatus::Diverged
+                        } else if local_changed {
+                            DocumentTrackingStatus::Behind
+                        } else if remote_changed {
+                            DocumentTrackingStatus::Ahead
+                        } else {
+                            DocumentTrackingStatus::Synced
+                        }
+                    }
+                    (Some(local), Some(remote_mod), None, Some(pulled)) => {
+                        // Only pulled_at exists, use it as reference
+                        let local_changed = local > pulled.saturating_add(LOCAL_TOLERANCE);
+                        let remote_changed = remote_mod > pulled.saturating_add(REMOTE_TOLERANCE);
 
                         if local_changed && remote_changed {
                             DocumentTrackingStatus::Diverged
@@ -269,10 +308,9 @@ impl DocumentTracking {
                     }
                     (Some(local), Some(remote_mod), _, _) => {
                         // Fallback: if we don't have pushed_at/pulled_at, just compare modified times
-                        // Use 30s tolerance for remote comparisons
-                        if local > remote_mod.saturating_add(30) {
+                        if local > remote_mod.saturating_add(REMOTE_TOLERANCE) {
                             DocumentTrackingStatus::Behind
-                        } else if remote_mod > local.saturating_add(30) {
+                        } else if remote_mod > local.saturating_add(REMOTE_TOLERANCE) {
                             DocumentTrackingStatus::Ahead
                         } else {
                             DocumentTrackingStatus::Synced
