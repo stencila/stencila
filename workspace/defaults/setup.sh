@@ -83,28 +83,28 @@ if [[ -n "${GITHUB_REPO:-}" ]]; then
         echo "📥 Attempting to fetch $REPO_REF"
         if git fetch --depth=1 origin "$REPO_REF" 2>/dev/null; then
             # Remote ref exists, check it out
-            echo "✓ Remote ref found, checking out $REPO_REF"
+            echo "✅ Remote ref found, checking out $REPO_REF"
             # Try to create a tracked branch (works for remote branches)
             if git checkout -B "$REPO_REF" --track "origin/$REPO_REF" 2>/dev/null; then
-                echo "✓ Branch $REPO_REF checked out with tracking"
+                echo "✅ Branch $REPO_REF checked out with tracking"
             else
                 # Fallback for tags and commit SHAs (detached HEAD is acceptable)
                 if ! git checkout FETCH_HEAD; then
                     echo "❌ Error: Failed to checkout $REPO_REF"
                     exit 1
                 fi
-                echo "✓ Checked out $REPO_REF (detached HEAD - tag or commit)"
+                echo "✅ Checked out $REPO_REF (detached HEAD - tag or commit)"
             fi
         else
             # Remote branch doesn't exist, create a new local branch
-            echo "✓ Remote ref not found, creating new branch $REPO_REF"
+            echo "✅ Remote ref not found, creating new branch $REPO_REF"
             if ! git checkout -b "$REPO_REF"; then
                 echo "❌ Error: Failed to create branch $REPO_REF"
                 exit 1
             fi
             # Set up tracking to origin/REPO_REF
             if ! git branch --set-upstream-to="origin/$REPO_REF" 2>/dev/null; then
-                echo "⚠️ Warning: Could not set up tracking for $REPO_REF (will be set when pushed)"
+                echo "📋 Note: Could not set up tracking for branch; will be set when pushed"
             fi
         fi
         echo
@@ -163,7 +163,7 @@ fi
 if [[ -f "mise.toml" ]] || [[ -f ".mise.toml" ]] || [[ -f "mise.local.toml" ]] || [[ -f ".mise.local.toml" ]]; then
     echo "🔧 Trusting mise configuration"
     if ! mise trust; then
-        echo "⚠️ Warning: Failed to trust mise config, installation may fail"
+        echo "⚠️  Warning: Failed to trust mise config, installation may fail"
     fi
     echo
 fi
