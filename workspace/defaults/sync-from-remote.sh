@@ -45,8 +45,8 @@ if [[ -n "$(git status --porcelain)" ]]; then
 
     # Configure git if not already configured
     if [[ -z "$(git config --get user.email || true)" ]]; then
-        git config user.name "Stencila User"
-        git config user.email "noreply@stencila.cloud"
+        git config user.name "${GIT_AUTHOR_NAME:-Stencila User}"
+        git config user.email "${GIT_AUTHOR_EMAIL:-noreply@stencila.io}"
     fi
 
     # Add all changes
