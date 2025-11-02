@@ -16,10 +16,10 @@ cleanup() {
     if [[ -n "${STENCILA_SESSION_ID:-}" && -n "${STENCILA_API_TOKEN:-}" ]]; then
         local api_url="${STENCILA_API_URL:-https://api.stencila.cloud}"
         echo "Notifying Stencila Cloud of session completion (status: $status)..."
-        curl -f -X POST \
+        curl -f -s -X POST \
             "${api_url}/v1/sessions/${STENCILA_SESSION_ID}/finished?status=${status}" \
             -H "Authorization: Bearer ${STENCILA_API_TOKEN}" \
-            --max-time 5 \
+            --max-time 30 \
             || echo "Warning: Failed to notify session completion API"
     fi
 }
