@@ -107,7 +107,7 @@ pub struct DirectionDetails {
     pub recommended_action: Option<String>,
 }
 
-/// Current PR information
+/// Current PR information within status details
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CurrentPr {
@@ -141,8 +141,11 @@ pub struct DirectionDetailsMap {
 #[serde(rename_all = "camelCase")]
 pub struct WatchDetailsResponse {
     pub id: u64,
+    pub created_by: String,
     pub created_at: String,
     pub updated_at: String,
+    pub user_id: String,
+    pub org_id: Option<String>,
     pub repo_url: String,
     pub file_path: String,
     pub remote_url: String,
@@ -150,7 +153,6 @@ pub struct WatchDetailsResponse {
     pub direction: String,
     pub pr_mode: String,
     pub debounce_seconds: u64,
-    pub processing_status: String,
     pub status: WatchStatus,
     pub status_details: StatusDetails,
 }

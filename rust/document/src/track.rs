@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, btree_map::Entry},
+    collections::{BTreeMap, HashSet, btree_map::Entry},
     env::current_dir,
     fs::read_dir,
     path::{Path, PathBuf},
@@ -79,6 +79,49 @@ async fn write_entries(stencila_dir: &Path, entries: &DocumentTrackingEntries) -
     write(&docs_file, json).await?;
 
     Ok(())
+}
+
+/// Remove watch_ids that no longer exist on Stencila Cloud
+///
+/// Takes a set of valid watch IDs and removes any watch_id from the tracking
+/// entries that is not in the provided set. Returns a list of removed watches
+/// for display purposes.
+pub async fn remove_deleted_watches(
+    path: &Path,
+    valid_watch_ids: &HashSet<u64>,
+) -> Result<Vec<(PathBuf, Url, u64)>> {
+    let mut deleted_watches = Vec::new();
+
+    let Some((stencila_dir, mut entries)) = closest_entries(path, false).await? else {
+        return Ok(deleted_watches);
+    };
+
+    let mut write_needed = false;
+
+    for (path, tracking) in entries.iter_mut() {
+        if let Some(remotes) = &mut tracking.remotes {
+            for (remote_url, remote) in remotes.iter_mut() {
+                if let Some(watch_id_str) = &remote.watch_id
+                    && let Ok(watch_id) = watch_id_str.parse::<u64>()
+                    && !valid_watch_ids.contains(&watch_id)
+                {
+                    // Watch no longer exists, remove it
+                    remote.watch_id = None;
+                    remote.watch_direction = None;
+                    write_needed = true;
+
+                    deleted_watches.push((path.clone(), remote_url.clone(), watch_id));
+                }
+            }
+        }
+    }
+
+    // Write back to docs.json if any watch_ids were removed
+    if write_needed {
+        write_entries(&stencila_dir, &entries).await?;
+    }
+
+    Ok(deleted_watches)
 }
 
 /// Create a new document id

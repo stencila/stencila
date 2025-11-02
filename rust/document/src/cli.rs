@@ -32,7 +32,7 @@ use stencila_format::Format;
 use stencila_node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 use stencila_schema::{Article, Block, Collection, CreativeWorkVariant, Node, NodeId, NodeType};
 
-use crate::track::DocumentRemote;
+use crate::track::{DocumentRemote, remove_deleted_watches};
 
 use super::{Document, track::DocumentTrackingStatus};
 
@@ -589,18 +589,41 @@ impl Status {
         let repo_url = git_info(&workspace_dir).ok().and_then(|info| info.origin);
 
         // Fetch watch details from API if not skipping remotes or watches
-        let watch_details_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> =
-            if !self.no_watches {
-                match stencila_cloud::get_watches(repo_url.as_deref()).await {
-                    Ok(watches) => watches.into_iter().map(|w| (w.id, w)).collect(),
-                    Err(error) => {
-                        tracing::debug!("Failed to fetch watch details from API: {error}");
-                        HashMap::new()
+        let watch_details_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> = if !self
+            .no_watches
+        {
+            match stencila_cloud::get_watches(repo_url.as_deref()).await {
+                Ok(watches) => {
+                    let watch_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> =
+                        watches.into_iter().map(|w| (w.id, w)).collect();
+
+                    // Clean up watch_ids that no longer exist in the cloud
+                    let valid_watch_ids: HashSet<u64> = watch_map.keys().copied().collect();
+                    match remove_deleted_watches(&current_dir()?, &valid_watch_ids).await {
+                        Ok(removed_watches) => {
+                            for (path, remote_url, watch_id) in removed_watches {
+                                message!(
+                                    "ℹ️ Removed watch {watch_id} for {} -> {} (watch no longer exists)",
+                                    path.display(),
+                                    remote_url
+                                );
+                            }
+                        }
+                        Err(error) => {
+                            tracing::warn!("Failed to cleanup deleted watches: {error}");
+                        }
                     }
+
+                    watch_map
                 }
-            } else {
-                HashMap::new()
-            };
+                Err(error) => {
+                    tracing::debug!("Failed to fetch watch details from API: {error}");
+                    HashMap::new()
+                }
+            }
+        } else {
+            HashMap::new()
+        };
 
         // Collect watch details for later display if --watch-details is enabled
         let mut watch_details_for_display = Vec::new();
@@ -849,12 +872,7 @@ impl Status {
                 // Create a separate table for this watch
                 let mut watch_table = Tabulated::new();
                 watch_table.set_header([
-                    "Watch",
-                    "Status",
-                    "Received",
-                    "Queued",
-                    "Processed",
-                    "Reason",
+                    "Watch", "Status", "Received", "Started", "Finished", "Reason",
                 ]);
 
                 // Determine service name for display
@@ -959,16 +977,15 @@ impl Status {
                 }
 
                 // Add recommended actions if present
-                if let Some(actions) = &details.status_details.recommended_actions
+                if let Some(actions) = details.status_details.recommended_actions
                     && !actions.is_empty()
                 {
-                    let actions_text = actions.join(". ");
-                    message_parts.push(actions_text);
+                    message_parts.extend(actions);
                 }
 
                 // Print the combined message
                 if !message_parts.is_empty() {
-                    message!("{}", message_parts.join(". "));
+                    message!("{}", message_parts.join("\n"));
                 }
             }
         }
