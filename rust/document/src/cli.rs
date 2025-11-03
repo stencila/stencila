@@ -589,9 +589,10 @@ impl Status {
         let repo_url = git_info(&workspace_dir).ok().and_then(|info| info.origin);
 
         // Fetch watch details from API if not skipping remotes or watches
-        let watch_details_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> = if !self
-            .no_watches
-        {
+        let (watch_details_map, removed_watches): (
+            HashMap<u64, stencila_cloud::WatchDetailsResponse>,
+            Vec<_>,
+        ) = if !self.no_watches {
             match stencila_cloud::get_watches(repo_url.as_deref()).await {
                 Ok(watches) => {
                     let watch_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> =
@@ -599,30 +600,24 @@ impl Status {
 
                     // Clean up watch_ids that no longer exist in the cloud
                     let valid_watch_ids: HashSet<u64> = watch_map.keys().copied().collect();
-                    match remove_deleted_watches(&current_dir()?, &valid_watch_ids).await {
-                        Ok(removed_watches) => {
-                            for (path, remote_url, watch_id) in removed_watches {
-                                message!(
-                                    "ℹ️ Removed watch {watch_id} for {} -> {} (watch no longer exists)",
-                                    path.display(),
-                                    remote_url
-                                );
+                    let removed_watches =
+                        match remove_deleted_watches(&current_dir()?, &valid_watch_ids).await {
+                            Ok(removed) => removed,
+                            Err(error) => {
+                                tracing::warn!("Failed to cleanup deleted watches: {error}");
+                                Vec::new()
                             }
-                        }
-                        Err(error) => {
-                            tracing::warn!("Failed to cleanup deleted watches: {error}");
-                        }
-                    }
+                        };
 
-                    watch_map
+                    (watch_map, removed_watches)
                 }
                 Err(error) => {
                     tracing::debug!("Failed to fetch watch details from API: {error}");
-                    HashMap::new()
+                    (HashMap::new(), Vec::new())
                 }
             }
         } else {
-            HashMap::new()
+            (HashMap::new(), Vec::new())
         };
 
         // Collect watch details for later display if --watch-details is enabled
@@ -643,6 +638,12 @@ impl Status {
 
         // Track whether any remotes were displayed
         let mut has_remotes = false;
+
+        // Create a set of removed watch (path, url) pairs for quick lookup
+        let removed_watch_set: HashSet<(PathBuf, Url)> = removed_watches
+            .into_iter()
+            .map(|(path, url, _)| (path, url))
+            .collect();
 
         for (path, entry) in statuses {
             let (status, modified_at) = entry.status(&workspace_dir, &path);
@@ -722,7 +723,12 @@ impl Status {
                 }
 
                 // Format watch status with directional arrows and colors
-                let (watch_dir, watch_color) = if let Some(watch_id) = remote
+                // Check if this watch was removed
+                let watch_cell = if removed_watch_set.contains(&(path.clone(), url.clone())) {
+                    Cell::new("Removed")
+                        .fg(Color::DarkGrey)
+                        .add_attribute(Attribute::Dim)
+                } else if let Some(watch_id) = remote
                     .watch_id
                     .as_ref()
                     .and_then(|id| id.parse::<u64>().ok())
@@ -778,9 +784,9 @@ impl Status {
                         WatchDirection::ToRemote => Color::Cyan,
                     });
 
-                    (display_str, color)
+                    Cell::new(display_str).fg(color)
                 } else {
-                    (String::from("-"), Color::DarkGrey)
+                    Cell::new("-").fg(Color::DarkGrey)
                 };
 
                 table.add_row([
@@ -815,7 +821,7 @@ impl Status {
                         })
                         .set_alignment(CellAlignment::Right),
                     // Watch status
-                    Cell::new(watch_dir).fg(watch_color),
+                    watch_cell,
                 ]);
             }
         }
