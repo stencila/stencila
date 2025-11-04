@@ -6,7 +6,7 @@ use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
-use stencila_codec_utils::git_info;
+use stencila_codec_utils::{git_info, validate_file_on_default_branch};
 use stencila_codecs::remotes::RemoteService;
 use stencila_document::{Document, WatchDirection, WatchPrMode};
 
@@ -391,6 +391,9 @@ impl Cli {
 
         // Enable watch if requested
         if self.watch {
+            // Validate file exists on the default branch (also validates it's in a git repo)
+            validate_file_on_default_branch(&path)?;
+
             // Get git repository information
             let git_info = git_info(&path)?;
             let Some(repo_url) = git_info.origin else {

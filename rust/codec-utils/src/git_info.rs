@@ -142,6 +142,103 @@ pub fn closest_git_repo(path: &Path) -> Result<PathBuf> {
     bail!("Path is not within a Git repository: {}", path.display())
 }
 
+/// Validate that a file exists on the default branch of its Git repository
+///
+/// This is used to ensure that Stencila Cloud watches can successfully create
+/// branches off the default branch that contain the file.
+///
+/// # Returns
+///
+/// * `Ok(())` if the file exists on the default branch
+/// * `Err` if the file is not in a git repo, or doesn't exist on the default branch
+pub fn validate_file_on_default_branch(path: &Path) -> Result<()> {
+    let path_display = path.display();
+
+    let path = path.canonicalize()?;
+
+    // Get the repository root
+    let repo_root = closest_git_repo(&path)?;
+
+    // Get the relative path within the repo
+    let relative_path = path
+        .strip_prefix(&repo_root)?
+        .to_str()
+        .ok_or_eyre("Path is not valid UTF-8")?;
+
+    // Get the default branch name
+    let default_branch = get_default_branch(&repo_root)?;
+
+    // Check if the file exists on the default branch using git ls-tree
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(&repo_root)
+        .args([
+            "ls-tree",
+            "--name-only",
+            &format!("origin/{default_branch}"),
+            "--",
+        ])
+        .arg(relative_path)
+        .output()?;
+
+    if !output.status.success() {
+        let error = String::from_utf8_lossy(&output.stderr);
+        bail!("Failed to check file on default branch: {error}");
+    }
+
+    if output.stdout.is_empty() {
+        bail!(
+            "File `{path_display}` does not exist on the default branch `{default_branch}`.\n\
+             This is necessary for watch syncs to work properly. Please commit and push the file to `{default_branch}` first.",
+        );
+    }
+
+    Ok(())
+}
+
+/// Get the default branch name for a Git repository
+///
+/// Tries multiple methods to determine the default branch:
+/// 1. `git symbolic-ref refs/remotes/origin/HEAD` (fastest)
+/// 2. `git remote show origin` (slower but more reliable)
+/// 3. Falls back to "main" if both fail
+fn get_default_branch(repo_root: &Path) -> Result<String> {
+    // Try symbolic-ref first (fast)
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .args(["symbolic-ref", "refs/remotes/origin/HEAD"])
+        .output()?;
+
+    if output.status.success() {
+        let branch = String::from_utf8(output.stdout)?
+            .trim()
+            .strip_prefix("refs/remotes/origin/")
+            .unwrap_or("main")
+            .to_string();
+        return Ok(branch);
+    }
+
+    // Fallback: try remote show origin (slower but more reliable)
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .args(["remote", "show", "origin"])
+        .output()?;
+
+    if output.status.success() {
+        let output_str = String::from_utf8(output.stdout)?;
+        for line in output_str.lines() {
+            if let Some(branch) = line.trim().strip_prefix("HEAD branch: ") {
+                return Ok(branch.to_string());
+            }
+        }
+    }
+
+    // Last fallback: assume "main"
+    Ok("main".to_string())
+}
+
 /// Get the git remote origin URL for a repository
 fn get_git_origin(repo_root: &Path) -> Option<String> {
     let output = Command::new("git")
