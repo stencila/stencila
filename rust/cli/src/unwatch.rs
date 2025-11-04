@@ -16,14 +16,14 @@ use url::Url;
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path to the document to unwatch
-    input: PathBuf,
+    path: PathBuf,
 
-    /// The remote URL to unwatch
+    /// The target remote to unwatch
     ///
     /// If the document has multiple watched remotes, you must specify which one
     /// to unwatch. Can be the full URL or a service shorthand: "gdoc" or
     /// "m365".
-    url: Option<String>,
+    target: Option<String>,
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -42,38 +42,38 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let input = self.input.display();
+        let path_display = self.path.display();
 
-        // Validate input file exists
-        if !self.input.exists() {
-            bail!("Input file `{input}` does not exist");
+        // Validate file exists
+        if !self.path.exists() {
+            bail!("File `{path_display}` does not exist");
         }
 
         // Open the document and get tracking information
-        let doc = Document::open(&self.input, None).await?;
+        let doc = Document::open(&self.path, None).await?;
         let Some((.., Some(tracking))) = doc.tracking().await? else {
-            bail!("File `{input}` is not being tracked.");
+            bail!("File `{path_display}` is not being tracked.");
         };
 
         // Get tracked remotes
         let Some(remotes) = tracking.remotes else {
-            bail!("No remote linkage found for `{input}`.");
+            bail!("No remote linkage found for `{path_display}`.");
         };
 
         if remotes.is_empty() {
-            bail!("No remote linkage found for `{input}`.");
+            bail!("No remote linkage found for `{path_display}`.");
         }
 
-        // Determine which remote to unwatch based on URL argument
-        let (remote_url, mut remote_info) = if let Some(url_str) = self.url {
-            // Parse URL or service shorthand
-            let target_url = match url_str.as_str() {
+        // Determine which remote to unwatch based on target argument
+        let (remote_url, mut remote_info) = if let Some(target_str) = self.target {
+            // Parse target or service shorthand
+            let target_url = match target_str.as_str() {
                 "gdoc" | "gdocs" => {
                     // Find the Google Docs remote
                     remotes
                         .iter()
                         .find(|(url, _)| RemoteService::GoogleDocs.matches_url(url))
-                        .ok_or_else(|| eyre!("No Google Docs remote found for `{input}`"))?
+                        .ok_or_else(|| eyre!("No Google Docs remote found for `{path_display}`"))?
                         .0
                         .clone()
                 }
@@ -82,16 +82,16 @@ impl Cli {
                     remotes
                         .iter()
                         .find(|(url, _)| RemoteService::Microsoft365.matches_url(url))
-                        .ok_or_else(|| eyre!("No Microsoft 365 remote found for `{input}`"))?
+                        .ok_or_else(|| eyre!("No Microsoft 365 remote found for `{path_display}`"))?
                         .0
                         .clone()
                 }
                 _ => {
                     // Try to parse as URL
-                    Url::parse(&url_str).map_err(|_| {
+                    Url::parse(&target_str).map_err(|_| {
                         eyre!(
-                            "Invalid URL or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
-                            url_str
+                            "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
+                            target_str
                         )
                     })?
                 }
@@ -101,16 +101,18 @@ impl Cli {
             remotes
                 .into_iter()
                 .find(|(url, _)| url == &target_url)
-                .ok_or_else(|| eyre!("Remote URL not found in tracked remotes: {}", target_url))?
+                .ok_or_else(|| {
+                    eyre!("Remote target not found in tracked remotes: {}", target_url)
+                })?
         } else {
-            // No URL specified - check if there's only one watched remote
+            // No target specified - check if there's only one watched remote
             let watched_remotes: Vec<_> = remotes
                 .iter()
                 .filter(|(_, info)| info.is_watched())
                 .collect();
 
             if watched_remotes.is_empty() {
-                bail!("File `{input}` is not being watched.");
+                bail!("File `{path_display}` is not being watched.");
             }
 
             if watched_remotes.len() > 1 {
@@ -125,7 +127,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "Multiple watched remotes found for `{input}`:\n{urls_list}\n\nSpecify which one to unwatch using a service (gdoc/m365) or full URL."
+                    "Multiple watched remotes found for `{path_display}`:\n{urls_list}\n\nSpecify which one to unwatch using a service (gdoc/m365) or full URL."
                 );
             }
 
@@ -155,7 +157,9 @@ impl Cli {
 
         // Success message
         message(
-            &format!("Stopped watching `{input}` (link to remote remains, see `stencila status`)"),
+            &format!(
+                "Stopped watching `{path_display}` (link to remote remains, see `stencila status`)"
+            ),
             None,
         );
 

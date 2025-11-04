@@ -20,14 +20,14 @@ use url::Url;
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path to the document to watch
-    input: PathBuf,
+    path: PathBuf,
 
-    /// The remote URL to watch
+    /// The target remote to watch
     ///
     /// If the document has multiple remotes (e.g., both Google Docs and M365),
     /// you must specify which one to watch. Can be the full URL or a service
     /// shorthand: "gdoc" or "m365".
-    url: Option<String>,
+    target: Option<String>,
 
     /// The sync direction
     #[arg(long, short)]
@@ -68,21 +68,21 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let input = self.input.display();
+        let path_display = self.path.display();
 
-        // Validate input file exists
-        if !self.input.exists() {
-            bail!("Input file `{input}` does not exist");
+        // Validate file exists
+        if !self.path.exists() {
+            bail!("File `{path_display}` does not exist");
         }
 
         // Get git repository information
-        let git_info = git_info(&self.input)?;
+        let git_info = git_info(&self.path)?;
         let Some(repo_url) = git_info.origin else {
             bail!("File is not in a git repository. Please initialize a git repository first.");
         };
 
         // Open the document and get tracking information
-        let doc = Document::open(&self.input, None).await?;
+        let doc = Document::open(&self.path, None).await?;
         let Some((.., Some(tracking))) = doc.tracking().await? else {
             std::process::exit(3); // Exit code 3: missing remote linkage
         };
@@ -90,26 +90,28 @@ impl Cli {
         // Get tracked remotes
         let Some(remotes) = tracking.remotes else {
             bail!(
-                "No remote linkage found for `{input}`.\nPlease push the document to a remote first:\n  stencila push {input} gdoc"
+                "No remote linkage found for `{path_display}`.\nPlease push the document to a remote first:\n  stencila push {path_display} gdoc"
             );
         };
 
         if remotes.is_empty() {
             bail!(
-                "No remote linkage found for `{input}`.\nPlease push the document to a remote first:\n  stencila push {input} gdoc"
+                "No remote linkage found for `{path_display}`.\nPlease push the document to a remote first:\n  stencila push {path_display} gdoc"
             );
         }
 
-        // Determine which remote to watch based on URL argument or tracked remotes
-        let (remote_url, mut remote_info) = if let Some(url_str) = self.url {
-            // Parse URL or service shorthand
-            let target_url = match url_str.as_str() {
+        // Determine which remote to watch based on target argument or tracked remotes
+        let (remote_url, mut remote_info) = if let Some(target_str) = self.target {
+            // Parse target or service shorthand
+            let target_url = match target_str.as_str() {
                 "gdoc" | "gdocs" => {
                     // Find the Google Docs remote
                     remotes
                         .iter()
                         .find(|(url, _)| RemoteService::GoogleDocs.matches_url(url))
-                        .ok_or_else(|| eyre::eyre!("No Google Docs remote found for `{input}`"))?
+                        .ok_or_else(|| {
+                            eyre::eyre!("No Google Docs remote found for `{path_display}`")
+                        })?
                         .0
                         .clone()
                 }
@@ -118,16 +120,18 @@ impl Cli {
                     remotes
                         .iter()
                         .find(|(url, _)| RemoteService::Microsoft365.matches_url(url))
-                        .ok_or_else(|| eyre::eyre!("No Microsoft 365 remote found for `{input}`"))?
+                        .ok_or_else(|| {
+                            eyre::eyre!("No Microsoft 365 remote found for `{path_display}`")
+                        })?
                         .0
                         .clone()
                 }
                 _ => {
                     // Try to parse as URL
-                    Url::parse(&url_str).map_err(|_| {
+                    Url::parse(&target_str).map_err(|_| {
                         eyre::eyre!(
-                            "Invalid URL or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
-                            url_str
+                            "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
+                            target_str
                         )
                     })?
                 }
@@ -138,10 +142,10 @@ impl Cli {
                 .into_iter()
                 .find(|(url, _)| url == &target_url)
                 .ok_or_else(|| {
-                    eyre::eyre!("Remote URL not found in tracked remotes: {}", target_url)
+                    eyre::eyre!("Remote target not found in tracked remotes: {}", target_url)
                 })?
         } else {
-            // No URL specified - check if there's only one remote
+            // No target specified - check if there's only one remote
             if remotes.len() > 1 {
                 let remotes_list = remotes
                     .keys()
@@ -154,7 +158,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "Multiple remotes found for `{input}`:\n{remotes_list}\n\nSpecify which one to watch using a service (gdoc/m365) or full URL."
+                    "Multiple remotes found for `{path_display}`:\n{remotes_list}\n\nSpecify which one to watch using a service (gdoc/m365) or full URL."
                 );
             }
 
@@ -171,7 +175,7 @@ impl Cli {
                 .map(|s| s.display_name_plural().to_string())
                 .unwrap_or_else(|| remote_url.to_string());
             message(
-                &format!("File `{input}` is already being watched on `{service_name}`."),
+                &format!("File `{path_display}` is already being watched on `{service_name}`."),
                 Some("👁️ "),
             );
             return Ok(());
@@ -179,7 +183,7 @@ impl Cli {
 
         // Get file path relative to repo root
         let file_path = git_info.path.unwrap_or_else(|| {
-            self.input
+            self.path
                 .file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or("unknown")
@@ -215,7 +219,7 @@ impl Cli {
 
         message(
             &format!(
-                "Watching `{input}` ({direction_desc}). PRs will be opened/updated on changes from {remote_url_str}."
+                "Watching `{path_display}` ({direction_desc}). PRs will be opened/updated on changes from {remote_url_str}."
             ),
             Some("👁️ "),
         );

@@ -13,14 +13,14 @@ use stencila_document::Document;
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path to the local document
-    input: PathBuf,
+    path: PathBuf,
 
-    /// The URL or service to pull from
+    /// The target to pull from
     ///
     /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
     /// service shorthand (e.g "gdoc" or "m365"). Omit to use the tracked
     /// remote (errors if multiple remotes are tracked).
-    url: Option<String>,
+    target: Option<String>,
 
     /// Do not merge, just replace
     ///
@@ -51,20 +51,20 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let input = self.input.display();
+        let path_display = self.path.display();
 
         // Validate input file exists
-        if !self.input.exists() {
-            bail!("Input file `{input}` does not exist");
+        if !self.path.exists() {
+            bail!("File `{path_display}` does not exist");
         }
 
         // Open the document
-        let doc = Document::open(&self.input, None).await?;
+        let doc = Document::open(&self.path, None).await?;
 
-        // Determine the URL to pull from
-        let (service, url) = if let Some(url_str) = &self.url {
-            // URL or service shorthand specified
-            match url_str.as_str() {
+        // Determine the target to pull from
+        let (service, url) = if let Some(target_str) = &self.target {
+            // Target or service shorthand specified
+            match target_str.as_str() {
                 "gdoc" | "gdocs" => {
                     // Find tracked Google Docs remote
                     let remotes = doc.remotes().await?;
@@ -73,7 +73,7 @@ impl Cli {
                         .find(|u| RemoteService::GoogleDocs.matches_url(u))
                         .ok_or_else(|| {
                             eyre::eyre!(
-                                "No tracked Google Docs remote found for `{input}`. Use a full URL to specify one."
+                                "No tracked Google Docs remote found for `{path_display}`. Use a full URL to specify one."
                             )
                         })?
                         .clone();
@@ -87,7 +87,7 @@ impl Cli {
                         .find(|u| RemoteService::Microsoft365.matches_url(u))
                         .ok_or_else(|| {
                             eyre::eyre!(
-                                "No tracked Microsoft 365 remote found for `{input}`. Use a full URL to specify one."
+                                "No tracked Microsoft 365 remote found for `{path_display}`. Use a full URL to specify one."
                             )
                         })?
                         .clone();
@@ -95,8 +95,8 @@ impl Cli {
                 }
                 _ => {
                     // Assume it's a URL
-                    let url =
-                        Url::parse(url_str).map_err(|_| eyre::eyre!("Invalid URL: {url_str}"))?;
+                    let url = Url::parse(target_str)
+                        .map_err(|_| eyre::eyre!("Invalid target: {target_str}"))?;
                     let service = RemoteService::from_url(&url).ok_or_else(|| {
                         eyre::eyre!("URL {url} is not from a supported remote service")
                     })?;
@@ -104,11 +104,11 @@ impl Cli {
                 }
             }
         } else {
-            // No URL or service specified, find any tracked remote
+            // No target or service specified, find any tracked remote
             let remotes = doc.remotes().await?;
             if remotes.is_empty() {
                 bail!(
-                    "No tracked remotes for `{input}`. Specify a URL or service (gdoc/m365) to pull from.",
+                    "No tracked remotes for `{path_display}`. Specify a target or service (gdoc/m365) to pull from.",
                 );
             }
 
@@ -125,7 +125,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "Multiple remotes found for `{input}`:\n{remotes_list}\n\nSpecify which one to pull using a service (gdoc/m365) or full URL."
+                    "Multiple remotes found for `{path_display}`:\n{remotes_list}\n\nSpecify which one to pull using a service (gdoc/m365) or full URL."
                 );
             }
 
@@ -150,7 +150,7 @@ impl Cli {
         let modified_files = stencila_codecs::pull(
             &service,
             &url,
-            &self.input,
+            &self.path,
             !self.no_merge,
             DecodeOptions::default(),
             EncodeOptions::default(),

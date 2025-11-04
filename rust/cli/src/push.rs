@@ -19,12 +19,12 @@ pub struct Cli {
     /// If omitted, pushes all tracked files that have remotes.
     path: Option<PathBuf>,
 
-    /// The URL or service to push to
+    /// The target to push to
     ///
     /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
     /// service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked
     /// remotes for the path.
-    url: Option<String>,
+    target: Option<String>,
 
     /// Create a new document instead of updating an existing one
     ///
@@ -113,7 +113,7 @@ impl Cli {
         let doc = Document::open(&path, None).await?;
 
         // Early validation: --watch is not compatible with multiple remotes
-        if self.watch && self.url.is_none() {
+        if self.watch && self.target.is_none() {
             let remotes = doc.remotes().await?;
             if remotes.len() > 1 {
                 let urls_list = remotes
@@ -122,30 +122,30 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "Cannot enable watch with multiple tracked remotes:\n{urls_list}\n\nSpecify a remote URL to watch."
+                    "Cannot enable watch with multiple tracked remotes:\n{urls_list}\n\nSpecify a remote target to watch."
                 );
             }
         }
 
         // Determine target remote service, explicit URL, and execution args
-        // If the url string looks like an execution arg (starts with '-' or contains '='), treat it as such
-        let (service, explicit_url, execution_args) = if let Some(url_str) = self.url {
-            if url_str.starts_with('-') || url_str.contains('=') {
-                // Looks like an execution arg, not a URL/service
-                let mut args = vec![url_str];
+        // If the target string looks like an execution arg (starts with '-' or contains '='), treat it as such
+        let (service, explicit_target, execution_args) = if let Some(target_str) = self.target {
+            if target_str.starts_with('-') || target_str.contains('=') {
+                // Looks like an execution arg, not a target/service
+                let mut args = vec![target_str];
                 args.extend(self.args);
                 (None, None, args)
             } else {
                 // Try to determine if it's a service shorthand or a URL
-                match url_str.as_str() {
+                match target_str.as_str() {
                     "gdoc" | "gdocs" => (Some(RemoteService::GoogleDocs), None, self.args),
                     "m365" => (Some(RemoteService::Microsoft365), None, self.args),
                     _ => {
                         // Try to parse as URL
-                        let url = Url::parse(&url_str).map_err(|_| {
+                        let url = Url::parse(&target_str).map_err(|_| {
                             eyre::eyre!(
-                                "Invalid URL or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
-                                url_str
+                                "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
+                                target_str
                             )
                         })?;
                         let service = RemoteService::from_url(&url).ok_or_else(|| {
@@ -185,8 +185,8 @@ impl Cli {
                 .await?;
         }
 
-        // Handle multi-remote push when no service/URL is specified
-        if service.is_none() && explicit_url.is_none() {
+        // Handle multi-remote push when no service/target is specified
+        if service.is_none() && explicit_target.is_none() {
             let remotes = doc.remotes().await?;
 
             if remotes.is_empty() {
@@ -334,10 +334,10 @@ impl Cli {
         };
 
         // Determine existing URL for this service
-        let existing_url = if let Some(url) = explicit_url {
-            // Explicit URL provided - use it directly
+        let existing_url = if let Some(url) = explicit_target {
+            // Explicit target provided - use it directly
             if self.force_new {
-                bail!("Cannot use both an explicit URL and --force-new flag");
+                bail!("Cannot use both an explicit target and --force-new flag");
             }
             Some(url)
         } else if self.force_new {
@@ -481,7 +481,9 @@ impl Cli {
             .collect();
 
         if files_with_remotes.is_empty() {
-            bail!("No tracked files with remotes found. Push individual files to a remote service first.");
+            bail!(
+                "No tracked files with remotes found. Push individual files to a remote service first."
+            );
         }
 
         message(
