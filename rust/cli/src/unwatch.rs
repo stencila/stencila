@@ -50,7 +50,10 @@ impl Cli {
         }
 
         let not_watched = || {
-            message(&format!("File `{path_display}` is not begin watched."), Some("ℹ️"));
+            message(
+                &format!("File `{path_display}` is not begin watched."),
+                Some("ℹ️"),
+            );
             Ok(())
         };
 
@@ -116,7 +119,7 @@ impl Cli {
                 .collect();
 
             if watched_remotes.is_empty() {
-                return  not_watched();
+                return not_watched();
             }
 
             if watched_remotes.len() > 1 {
