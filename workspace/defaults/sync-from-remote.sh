@@ -61,7 +61,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
 
     # Push to remote repository
     echo "🚀 Pushing changes to remote repository..."
-    git push --set-upstream origin "$(git branch --show-current)"
+    git push -u origin HEAD
     echo "✅ Changes pushed to remote repository"
 else
     echo "ℹ️  No changes to commit"

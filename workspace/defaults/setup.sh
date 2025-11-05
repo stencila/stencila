@@ -84,6 +84,13 @@ if [[ -n "${GITHUB_REPO:-}" ]]; then
         if git fetch --depth=1 origin "$REPO_REF" 2>/dev/null; then
             # Remote ref exists, check it out
             echo "✅ Remote ref found, checking out $REPO_REF"
+
+            # If the remote tracking branch doesn't exist, try to create it
+            # This will succeed for branches but fail for tags/SHAs (which is fine)
+            if ! git rev-parse --verify "origin/$REPO_REF" >/dev/null 2>&1; then
+                git fetch --depth=1 origin "$REPO_REF:refs/remotes/origin/$REPO_REF" 2>/dev/null || true
+            fi
+
             # Try to create a tracked branch (works for remote branches)
             if git checkout -B "$REPO_REF" --track "origin/$REPO_REF" 2>/dev/null; then
                 echo "✅ Branch $REPO_REF checked out with tracking"
