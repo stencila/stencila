@@ -17,12 +17,14 @@ cde: build
 		-e GITHUB_REPO=stencila/test \
 		stencila/workspace
 
-# Run the image as a continuos integration job
+# Run the image as a continuous integration job
 # (don't run any script, just test setup)
+# Usage: make ci [GITHUB_REPO=owner/repo] [REPO_REF=branch-name]
 ci: build
-	docker run -it --rm \
-		-e GITHUB_REPO=stencila/test \
+	docker run --rm \
+		-e GITHUB_REPO=$(if $(GITHUB_REPO),$(GITHUB_REPO),stencila/test) \
 		-e STENCILA_SCRIPT=none \
+		$(if $(REPO_REF),-e REPO_REF=$(REPO_REF)) \
 		stencila/workspace
 
 # Debug the image by entering a bash shell within it

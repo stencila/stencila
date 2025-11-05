@@ -81,37 +81,89 @@ if [[ -n "${GITHUB_REPO:-}" ]]; then
 
         # Try to fetch REPO_REF from origin
         echo "📥 Attempting to fetch $REPO_REF"
-        if git fetch --depth=1 origin "$REPO_REF" 2>/dev/null; then
-            # Remote ref exists, check it out
+
+        # BRANCH CHECKOUT STRATEGY:
+        # 1. For remote branches: Fetch with explicit refspec to create the remote
+        #    tracking ref, then checkout WITHOUT --track (which requires git to
+        #    recognize the ref as a "branch"), then set up tracking manually.
+        #    This avoids "cannot set up tracking information; starting point is not
+        #    a branch" errors in fresh containers.
+        # 2. For commits/tags: Try direct checkout first (if in shallow history),
+        #    then fetch and checkout FETCH_HEAD (detached HEAD is correct).
+        # 3. For new branches: Create local branch only after confirming it's not
+        #    a typo'd commit SHA (see hex pattern check below).
+
+        # First, try to fetch directly to the remote tracking branch
+        # This explicitly creates refs/remotes/origin/$REPO_REF
+        if git fetch --depth=1 origin "$REPO_REF:refs/remotes/origin/$REPO_REF" 2>/dev/null; then
             echo "✅ Remote ref found, checking out $REPO_REF"
 
-            # If the remote tracking branch doesn't exist, try to create it
-            # This will succeed for branches but fail for tags/SHAs (which is fine)
-            if ! git rev-parse --verify "origin/$REPO_REF" >/dev/null 2>&1; then
-                git fetch --depth=1 origin "$REPO_REF:refs/remotes/origin/$REPO_REF" 2>/dev/null || true
+            # Create local branch from the remote ref (without --track)
+            if ! git checkout -B "$REPO_REF" "origin/$REPO_REF"; then
+                echo "❌ Error: Failed to checkout $REPO_REF"
+                exit 1
             fi
 
-            # Try to create a tracked branch (works for remote branches)
-            if git checkout -B "$REPO_REF" --track "origin/$REPO_REF" 2>/dev/null; then
+            # Set up tracking manually after branch exists
+            if git branch --set-upstream-to="origin/$REPO_REF" "$REPO_REF" 2>/dev/null; then
                 echo "✅ Branch $REPO_REF checked out with tracking"
             else
-                # Fallback for tags and commit SHAs (detached HEAD is acceptable)
+                echo "✅ Branch $REPO_REF checked out"
+            fi
+        else
+            # Explicit refspec fetch failed, might be a tag, commit SHA, or new branch
+
+            # Try to checkout directly (works for commits already in history)
+            if git checkout "$REPO_REF" 2>/dev/null; then
+                echo "✅ Checked out $REPO_REF (detached HEAD - commit)"
+            # Try fetching as a tag or full commit SHA
+            elif git fetch --depth=1 origin "$REPO_REF" 2>/dev/null; then
+                echo "✅ Remote ref found, checking out $REPO_REF"
                 if ! git checkout FETCH_HEAD; then
                     echo "❌ Error: Failed to checkout $REPO_REF"
                     exit 1
                 fi
                 echo "✅ Checked out $REPO_REF (detached HEAD - tag or commit)"
-            fi
-        else
-            # Remote branch doesn't exist, create a new local branch
-            echo "✅ Remote ref not found, creating new branch $REPO_REF"
-            if ! git checkout -b "$REPO_REF"; then
-                echo "❌ Error: Failed to create branch $REPO_REF"
+
+            # Check if it looks like a commit SHA (7-64 hex characters)
+            # This pattern matches:
+            #   - Git short SHAs (7-39 chars)
+            #   - Full SHA-1 hashes (40 chars)
+            #   - Full SHA-256 hashes (64 chars)
+            #
+            # LIMITATION: This will also match legitimate branch names that are:
+            #   - 7-64 characters long
+            #   - Contain only hex characters [0-9a-fA-F]
+            #
+            # Examples of branch names that will be blocked:
+            #   - deadbeef (8 chars, all hex)
+            #   - 20250115 (8 chars, all hex - date-based release branch)
+            #   - cafebabe (8 chars, all hex)
+            #   - Any 40-char hex string (treated as SHA-1)
+            #   - Any 64-char hex string (treated as SHA-256)
+            #
+            # WORKAROUND: Use non-hex characters in branch names:
+            #   - release-20250115 instead of 20250115
+            #   - v-deadbeef instead of deadbeef
+            #   - Or create such branches manually first
+            #
+            # RATIONALE: Prevents typos in commit SHAs from silently creating
+            # spurious branches. The trade-off favors catching SHA errors over
+            # allowing uncommon hex-only branch names.
+            elif echo "$REPO_REF" | grep -qE '^[0-9a-fA-F]{7,64}$'; then
+                echo "❌ Error: Commit $REPO_REF not found in repository"
                 exit 1
-            fi
-            # Set up tracking to origin/REPO_REF
-            if ! git branch --set-upstream-to="origin/$REPO_REF" 2>/dev/null; then
-                echo "📋 Note: Could not set up tracking for branch; will be set when pushed"
+            else
+                # Doesn't look like a commit, create a new local branch
+                echo "⚠️  Remote ref not found, creating new branch $REPO_REF"
+                if ! git checkout -b "$REPO_REF"; then
+                    echo "❌ Error: Failed to create branch $REPO_REF"
+                    exit 1
+                fi
+                # Set up tracking to origin/REPO_REF
+                if ! git branch --set-upstream-to="origin/$REPO_REF" 2>/dev/null; then
+                    echo "📋 Note: Could not set up tracking for branch; will be set when pushed"
+                fi
             fi
         fi
         echo
