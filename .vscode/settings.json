@@ -36,6 +36,7 @@
         "canonicalize",
         "Caseless",
         "cbor",
+        "cformat",
         "chrono",
         "cito",
         "codecov",

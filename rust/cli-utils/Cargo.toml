@@ -17,7 +17,7 @@ stencila-format = { path = "../format" }
 stencila-schema = { path = "../schema" }
 syntect = "5.3.0"
 terminal_size = "0.4.3"
-textwrap = { version = "0.16.2", features = ["terminal_size"] }
+textwrap = { workspace = true }
 url = { workspace = true }
 
 [lints]

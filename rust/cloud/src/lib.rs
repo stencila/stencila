@@ -144,6 +144,14 @@ pub struct ErrorResponse {
     pub url: Option<String>,
 }
 
+/// A log entry from a session
+#[derive(Debug, Deserialize)]
+pub struct LogEntry {
+    pub timestamp: String,
+    pub level: String,
+    pub message: String,
+}
+
 /// Process an HTTP response from Stencila Cloud API and return parsed JSON
 ///
 /// This function handles error responses by extracting meaningful error messages
@@ -210,4 +218,20 @@ pub async fn get_token(service: &str) -> Result<String> {
         "microsoft" => microsoft::get_token_with_retry().await,
         _ => bail!("Unsupported service: {service}"),
     }
+}
+
+/// Get logs for a session from Stencila Cloud
+///
+/// # Arguments
+///
+/// * `session_id` - The ID of the session to retrieve logs for
+///
+/// # Returns
+///
+/// A vector of log entries containing timestamp, level, and message
+pub async fn get_logs(session_id: &str) -> Result<Vec<LogEntry>> {
+    let client = client().await?;
+    let url = format!("{}/sessions/{}/logs", base_url(), session_id);
+    let response = client.get(&url).send().await?;
+    process_response(response).await
 }

@@ -1,9 +1,13 @@
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
+use textwrap::{Options, termwidth, wrap};
 use url::Url;
 
 use stencila_ask::ask_for_password;
-use stencila_cli_utils::{color_print::cstr, message};
+use stencila_cli_utils::{
+    color_print::{cformat, cstr},
+    message,
+};
 use stencila_cloud::TokenSource;
 use stencila_server::{ServeOptions, get_server_token};
 
@@ -26,6 +30,7 @@ enum Command {
     Status(Status),
     Signin(Signin),
     Signout(Signout),
+    Logs(Logs),
 }
 
 impl Cli {
@@ -38,6 +43,7 @@ impl Cli {
             Command::Status(status) => status.run().await,
             Command::Signin(signin) => signin.run().await,
             Command::Signout(signout) => signout.run().await,
+            Command::Logs(logs) => logs.run().await,
         }
     }
 }
@@ -200,6 +206,182 @@ impl Signout {
             _ => {
                 message!("⚠️  Unknown authentication status during sign out");
             }
+        }
+
+        Ok(())
+    }
+}
+
+/// Display logs from Stencila Cloud workspace sessions
+#[derive(Debug, Args)]
+#[command(after_long_help = LOGS_AFTER_LONG_HELP)]
+pub struct Logs {
+    /// The session ID to retrieve logs for
+    #[arg(long, short)]
+    session: String,
+
+    /// Maximum number of recent logs to display
+    #[arg(long, short)]
+    limit: Option<usize>,
+
+    /// Continuously poll for new logs every N seconds (press Ctrl+C to stop)
+    ///
+    /// If provided without a value, defaults to 5 seconds. Minimum value is 1 second.
+    #[arg(
+        long,
+        short,
+        default_missing_value = "5",
+        num_args = 0..=1,
+        value_parser = clap::value_parser!(u64).range(1..)
+    )]
+    follow: Option<u64>,
+
+    /// Filter logs by level (error, warn, info, debug, trace)
+    #[arg(long)]
+    level: Option<String>,
+}
+
+pub static LOGS_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># View logs for a session</dim>
+  <b>stencila cloud logs --session SESSION_ID</>
+
+  <dim># View last 50 logs</dim>
+  <b>stencila cloud logs --session SESSION_ID --limit 50</>
+
+  <dim># Follow logs (poll every 5 seconds by default)</dim>
+  <b>stencila cloud logs --session SESSION_ID --follow</>
+
+  <dim># Follow logs with custom polling interval</dim>
+  <b>stencila cloud logs --session SESSION_ID --follow 10</>
+
+  <dim># Filter logs by level</dim>
+  <b>stencila cloud logs --session SESSION_ID --level error</>
+"
+);
+
+impl Logs {
+    /// Format a timestamp to have exactly 2 decimal places for subseconds
+    fn format_timestamp(timestamp: &str) -> String {
+        // Find the decimal point in the timestamp
+        // Expected format: 2025-11-05T07:21:47.546473193Z
+        if let (Some(dot_pos), Some(z_pos)) = (timestamp.rfind('.'), timestamp.rfind('Z')) {
+            // Extract the parts
+            let before_dot = &timestamp[..dot_pos];
+            let subseconds = &timestamp[dot_pos + 1..z_pos];
+
+            // Take only first 2 digits of subseconds
+            let truncated = if subseconds.len() >= 2 {
+                &subseconds[..2]
+            } else {
+                subseconds
+            };
+
+            return format!("{}.{}Z", before_dot, truncated);
+        }
+
+        // Fall back to original if format doesn't match expected pattern
+        timestamp.to_string()
+    }
+
+    /// Remove redundant timestamp from message if it starts with the same timestamp
+    fn trim_message_timestamp(timestamp: &str, message: &str) -> String {
+        // Extract timestamp up to seconds (YYYY-MM-DDTHH:MM:SS)
+        // Expected format: 2025-11-05T07:21:47.546473193Z
+        if let Some(dot_pos) = timestamp.find('.') {
+            let timestamp_to_seconds = &timestamp[..dot_pos];
+
+            // Check if message starts with this timestamp pattern
+            if message.starts_with(timestamp_to_seconds) {
+                // Find the first space after the timestamp in the message
+                if let Some(space_pos) = message[timestamp_to_seconds.len()..].find(' ') {
+                    // Return message after the space
+                    return message[timestamp_to_seconds.len() + space_pos + 1..].to_string();
+                }
+            }
+        }
+
+        // Return original message if no match
+        message.to_string()
+    }
+
+    pub async fn run(self) -> Result<()> {
+        use tokio::time::{Duration, sleep};
+
+        let mut last_log_count = 0;
+
+        loop {
+            // Fetch logs from API
+            let logs = stencila_cloud::get_logs(&self.session).await?;
+
+            // Filter by level if specified
+            let logs: Vec<_> = if let Some(ref level) = self.level {
+                logs.into_iter()
+                    .filter(|log| log.level.eq_ignore_ascii_case(level))
+                    .collect()
+            } else {
+                logs
+            };
+
+            // In follow mode, only show new logs after the first fetch
+            let logs_to_display = if self.follow.is_some() {
+                if logs.len() > last_log_count {
+                    &logs[last_log_count..]
+                } else {
+                    &[]
+                }
+            } else {
+                &logs[..]
+            };
+
+            // Apply limit if specified (only on first non-follow display)
+            let logs_to_display = if self.follow.is_none() && self.limit.is_some() {
+                let limit = self.limit.unwrap_or(logs_to_display.len());
+                if logs_to_display.len() > limit {
+                    &logs_to_display[logs_to_display.len() - limit..]
+                } else {
+                    logs_to_display
+                }
+            } else {
+                logs_to_display
+            };
+
+            // Display logs
+            for log in logs_to_display {
+                // Format timestamp and calculate visual width
+                let timestamp = Self::format_timestamp(&log.timestamp);
+
+                // Create styled prefix and matching indent for wrapped lines
+                let initial_indent = cformat!("<dim>{timestamp}</dim> ");
+                let subsequent_indent = " ".repeat(timestamp.len() + 1);
+
+                // Trim redundant timestamp from message if present, then trim whitespace
+                let message = Self::trim_message_timestamp(&log.timestamp, &log.message);
+                let message = message.trim();
+
+                // Wrap lines
+                let width = termwidth();
+                let options = Options::new(width)
+                    .initial_indent(&initial_indent)
+                    .subsequent_indent(&subsequent_indent);
+                let wrapped_lines = wrap(message, options);
+
+                // Print first line with prefix, subsequent lines with indent
+                for line in wrapped_lines.iter() {
+                    println!("{line}");
+                }
+            }
+
+            // Update last log count for follow mode
+            last_log_count = logs.len();
+
+            // If not following, exit after first display
+            let Some(poll_interval) = self.follow else {
+                break;
+            };
+
+            // Wait before polling again
+            sleep(Duration::from_secs(poll_interval)).await;
         }
 
         Ok(())

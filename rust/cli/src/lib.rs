@@ -147,6 +147,7 @@ mod tests {
             ("cloud::signin", crate::cloud::SIGNIN_AFTER_LONG_HELP),
             ("cloud::signout", crate::cloud::SIGNOUT_AFTER_LONG_HELP),
             ("cloud::status", crate::cloud::STATUS_AFTER_LONG_HELP),
+            ("cloud::logs", crate::cloud::LOGS_AFTER_LONG_HELP),
         ]
     }
 

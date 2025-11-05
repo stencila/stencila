@@ -274,6 +274,7 @@ pub enum Command {
     Cloud(crate::cloud::Cli),
     Signin(crate::cloud::Signin),
     Signout(crate::cloud::Signout),
+    Logs(crate::cloud::Logs),
 
     Upgrade(upgrade::Cli),
     Uninstall(uninstall::Cli),
@@ -336,6 +337,7 @@ impl Cli {
             Command::Cloud(cloud) => cloud.run().await,
             Command::Signin(signin) => signin.run().await,
             Command::Signout(signout) => signout.run().await,
+            Command::Logs(logs) => logs.run().await,
 
             Command::Upgrade(upgrade) => upgrade.run().await,
             Command::Uninstall(uninstall) => uninstall.run().await,
