@@ -989,6 +989,15 @@ impl Status {
                     message_parts.extend(actions);
                 }
 
+                // Add link to PR is there is any
+                if let Some(pr) = details.status_details.current_pr {
+                    let pr = format!(
+                        "Current {service_name} to repo PR is `{}`: {}",
+                        pr.status, pr.url
+                    );
+                    message_parts.push(pr);
+                }
+
                 // Print the combined message
                 if !message_parts.is_empty() {
                     message!("{}", message_parts.join("\n"));
