@@ -143,22 +143,6 @@ if [[ -f "renv.lock" || -f "DESCRIPTION" ]]; then
     R_DEPS=true
 fi
 
-# If no R or Python dependencies, then copy over default Python dependencies
-if [[ "$PYTHON_DEPS" = false && "$R_DEPS" = false ]]; then
-    echo "🐍 No language dependencies detected, creating default Python environment"
-    if ! cp /home/workspace/stencila/defaults/pyproject.toml ./; then
-        echo "❌ Error: Failed to copy default pyproject.toml"
-        exit 1
-    fi
-    # Also copy uv.lock if it exists for reproducible builds
-    if [[ -f /home/workspace/stencila/defaults/uv.lock ]]; then
-        if ! cp /home/workspace/stencila/defaults/uv.lock ./; then
-            echo "⚠️  Warning: Failed to copy default uv.lock"
-        fi
-    fi
-    echo
-fi
-
 # Trust mise config files if they exist (workspace container only)
 if [[ -f "mise.toml" ]] || [[ -f ".mise.toml" ]] || [[ -f "mise.local.toml" ]] || [[ -f ".mise.local.toml" ]]; then
     echo "🔧 Trusting mise configuration"
