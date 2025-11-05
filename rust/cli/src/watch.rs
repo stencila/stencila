@@ -84,23 +84,28 @@ impl Cli {
             bail!("File is not in a git repository. Please initialize a git repository first.");
         };
 
+        let no_remotes = || {
+            message(
+                &format!(
+                    "File `{path_display}` has no remotes to watch yet. Please push the document to a remote first e.g. `stencila push {path_display} gdoc`"
+                ),
+                Some("⚠️ "),
+            );
+            Ok(())
+        };
+
         // Open the document and get tracking information
         let doc = Document::open(&self.path, None).await?;
         let Some((.., Some(tracking))) = doc.tracking().await? else {
-            std::process::exit(3); // Exit code 3: missing remote linkage
+            return no_remotes();
         };
 
         // Get tracked remotes
         let Some(remotes) = tracking.remotes else {
-            bail!(
-                "No remote linkage found for `{path_display}`.\nPlease push the document to a remote first:\n  stencila push {path_display} gdoc"
-            );
+            return no_remotes();
         };
-
         if remotes.is_empty() {
-            bail!(
-                "No remote linkage found for `{path_display}`.\nPlease push the document to a remote first:\n  stencila push {path_display} gdoc"
-            );
+            return no_remotes();
         }
 
         // Determine which remote to watch based on target argument or tracked remotes

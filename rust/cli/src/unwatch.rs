@@ -49,19 +49,23 @@ impl Cli {
             bail!("File `{path_display}` does not exist");
         }
 
+        let not_watched = || {
+            message(&format!("File `{path_display}` is not begin watched."), Some("ℹ️"));
+            Ok(())
+        };
+
         // Open the document and get tracking information
         let doc = Document::open(&self.path, None).await?;
         let Some((.., Some(tracking))) = doc.tracking().await? else {
-            bail!("File `{path_display}` is not being tracked.");
+            return not_watched();
         };
 
         // Get tracked remotes
         let Some(remotes) = tracking.remotes else {
-            bail!("No remote linkage found for `{path_display}`.");
+            return not_watched();
         };
-
         if remotes.is_empty() {
-            bail!("No remote linkage found for `{path_display}`.");
+            return not_watched();
         }
 
         // Determine which remote to unwatch based on target argument
@@ -112,7 +116,7 @@ impl Cli {
                 .collect();
 
             if watched_remotes.is_empty() {
-                bail!("File `{path_display}` is not being watched.");
+                return  not_watched();
             }
 
             if watched_remotes.len() > 1 {
