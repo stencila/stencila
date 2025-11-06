@@ -109,7 +109,7 @@ export function registerPromptsView(
   return treeDataProvider
 }
 
-type InstructionType = 'Create' | 'Edit' | 'Fix' | 'Describe';
+type InstructionType = 'Create' | 'Edit' | 'Fix' | 'Describe' | 'TemplateDescribe';
 
 /**
  * A prompt with some other properties added when loaded into memory (e.g. path)
@@ -205,7 +205,7 @@ function smdSnippet(prompt: PromptInstance, selected?: string): string {
       snippet += '\n'
     }
     snippet += '\n:::\n'
-  } else if (type === 'create' || type === 'describe') {
+  } else if (type === 'create' || type === 'describe' || type === 'templatedescribe') {
     snippet += ' :::\n'
   } else {
     snippet += ' >>>\n'
@@ -269,7 +269,7 @@ function qmdSnippet(prompt: PromptInstance, selected?: string): string {
       snippet += '\n'
     }
     snippet += '\n:::\n'
-  } else if (type === 'create' || type === 'describe') {
+  } else if (type === 'create' || type === 'describe' || type === 'templatedescribe') {
     snippet += ' :::\n'
   } else {
     snippet += ' >>>\n'

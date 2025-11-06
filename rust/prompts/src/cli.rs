@@ -119,6 +119,7 @@ impl List {
                 Some(InstructionType::Discuss) => Color::Magenta,
                 Some(InstructionType::Create) => Color::Green,
                 Some(InstructionType::Describe) => Color::Blue,
+                Some(InstructionType::TemplateDescribe) => Color::Blue, // Same as Describe
                 Some(InstructionType::Edit) => Color::Cyan,
                 Some(InstructionType::Fix) => Color::Yellow,
                 None => Color::Grey,

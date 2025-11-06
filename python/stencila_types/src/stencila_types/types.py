@@ -396,6 +396,7 @@ class InstructionType(StrEnum):
     Describe = "Describe"
     Edit = "Edit"
     Fix = "Fix"
+    TemplateDescribe = "TemplateDescribe"
 
 
 class LabelType(StrEnum):

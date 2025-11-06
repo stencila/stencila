@@ -285,7 +285,7 @@ repository:
       ^
         (:{3,})\s*
         (?:
-          (create|edit|fix|describe)\b
+          (create|edit|fix|describe|template_describe)\b
         )
         (?:
           \s+

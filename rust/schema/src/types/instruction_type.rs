@@ -24,4 +24,7 @@ pub enum InstructionType {
 
     /// Fix an existing document node, usually a `CodeChunk`, `CodeInline`, or `MathBlock`. Expected to return the same node type without any `compilationErrors` or `executionErrors`. 
     Fix,
+
+    /// Experimental version of Describe that supports enhanced variable resolution and template features. Use this for testing new features before they are promoted to the standard Describe instruction type. 
+    TemplateDescribe,
 }

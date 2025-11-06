@@ -110,4 +110,9 @@
     "prefix": [":::{describe}"],
     "body": [":::{describe} ${0:what}", "", ":::", ""],
   },
+  "Template Describe Command": {
+    "description": "Experimental command to describe with enhanced variable resolution",
+    "prefix": [":::{template_describe}"],
+    "body": [":::{template_describe} ${0:what}", "", ":::", ""],
+  },
 }

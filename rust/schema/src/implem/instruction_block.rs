@@ -262,6 +262,7 @@ impl PatchNode for InstructionBlock {
                 InstructionType::Edit
                 | InstructionType::Fix
                 | InstructionType::Describe
+                | InstructionType::TemplateDescribe
                 | InstructionType::Discuss => {
                     // Merge the accepted content into the existing content and replace
                     // the instruction with that merged content
@@ -449,7 +450,11 @@ impl MarkdownCodec for InstructionBlock {
             .merge_losses(lost_options!(self, id, execution_mode))
             .merge_losses(lost_exec_options!(self));
 
-        let instruction_type = self.instruction_type.to_string().to_lowercase();
+        // Convert instruction type to lowercase string, preserving underscores
+        let instruction_type = match self.instruction_type {
+            InstructionType::TemplateDescribe => "template_describe".to_string(),
+            _ => self.instruction_type.to_string().to_lowercase(),
+        };
 
         if matches!(context.format, Format::Myst) {
             context

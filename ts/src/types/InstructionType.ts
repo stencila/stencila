@@ -7,6 +7,7 @@ export type InstructionType =
   'Create' |
   'Describe' |
   'Edit' |
-  'Fix';
+  'Fix' |
+  'TemplateDescribe';
 
 

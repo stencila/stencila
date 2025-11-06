@@ -70,6 +70,7 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> ModalResult<Instruc
             "fix".value(InstructionType::Fix),
             "describe".value(InstructionType::Describe),
             "discuss".value(InstructionType::Discuss),
+            "template_describe".value(InstructionType::TemplateDescribe),
         )),
         peek(not(alphanumeric1)),
     )
