@@ -47,6 +47,7 @@ mod island;
 mod link;
 mod math_block;
 mod math_inline;
+mod message_utils;
 mod model_utils;
 mod paragraph;
 mod parameter;

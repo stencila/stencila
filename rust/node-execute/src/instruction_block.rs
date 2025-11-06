@@ -11,7 +11,7 @@ use schema::{
     SoftwareApplication,
 };
 
-use crate::{ExecuteOptions, interrupt_impl, prelude::*, state_digest};
+use crate::{ExecuteOptions, interrupt_impl, message_utils, prelude::*, state_digest};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -175,6 +175,17 @@ impl Executable for InstructionBlock {
             executor.patch(&node_id, [none(NodeProperty::Suggestions)]);
         }
 
+        // Render variables in the instruction message through Jinja
+        // This allows {{variable}} syntax to be resolved from code kernels
+        let rendered_message = match message_utils::render_message_variables(&self.message, executor).await {
+            Ok(rendered) => rendered,
+            Err(error) => {
+                tracing::warn!("Failed to render variables in message, using original: {}", error);
+                // If rendering fails, use original message
+                self.message.clone()
+            }
+        };
+
         // Create a future for each replicate
         let mut futures = FuturesUnordered::new();
         for _ in 0..replicates {
@@ -185,6 +196,8 @@ impl Executable for InstructionBlock {
             let prompter = prompter.clone();
             let system_prompt = system_prompt.to_string();
             let mut instruction = self.clone();
+            // Use the rendered message with variables resolved
+            instruction.message = rendered_message.clone();
             if let Some(model_ids) = model_ids.clone() {
                 // Apply the model id for revisions
                 instruction.model_parameters.model_ids = Some(model_ids);
