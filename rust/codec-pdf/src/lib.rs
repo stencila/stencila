@@ -8,7 +8,7 @@ use stencila_codec::{
     StructuringOperation, StructuringOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
-    stencila_schema::{Article, File, InstructionMessage, MessagePart, ModelParameters, Node},
+    stencila_schema::{Article, File, MessagePart, ModelParameters, Node},
 };
 use stencila_codec_dom::DomCodec;
 use stencila_codec_latex::LatexCodec;
@@ -16,7 +16,7 @@ use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_utils::git_info;
 use stencila_convert::{clean_md, html_to_pdf, latex_to_pdf};
 use stencila_dirs::closest_artifacts_for;
-use stencila_models::{ModelTask, perform_task};
+use stencila_models::{ModelMessage, ModelTask, perform_task};
 use stencila_node_media::embed_media;
 use stencila_schema_json::{JsonSchemaVariant, json_schema};
 
@@ -131,10 +131,9 @@ impl Codec for PdfCodec {
                     // Specify model
                     model_parameters,
                     // Include PDF in message
-                    messages: vec![InstructionMessage {
-                        parts: vec![MessagePart::File(File::read(path)?)],
-                        ..Default::default()
-                    }],
+                    messages: vec![ModelMessage::system(vec![MessagePart::File(File::read(
+                        path,
+                    )?)])],
                     ..Default::default()
                 })
                 .await?;
@@ -164,10 +163,9 @@ impl Codec for PdfCodec {
                     format: Some(Format::Markdown),
                     schema: Some(json_schema(JsonSchemaVariant::ArticleMetadata)),
                     model_parameters: model_parameters.clone(),
-                    messages: vec![InstructionMessage {
-                        parts: vec![MessagePart::File(File::read(&partial_pdf_path)?)],
-                        ..Default::default()
-                    }],
+                    messages: vec![ModelMessage::system(vec![MessagePart::File(File::read(
+                        &partial_pdf_path,
+                    )?)])],
                     ..Default::default()
                 })
                 .await?;
@@ -178,10 +176,9 @@ impl Codec for PdfCodec {
                     // No schema for full content
                     schema: None,
                     model_parameters,
-                    messages: vec![InstructionMessage {
-                        parts: vec![MessagePart::File(File::read(path)?)],
-                        ..Default::default()
-                    }],
+                    messages: vec![ModelMessage::system(vec![MessagePart::File(File::read(
+                        path,
+                    )?)])],
                     ..Default::default()
                 })
                 .await?;

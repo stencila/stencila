@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 use strum::Display;
 
 use stencila_schema::{
-    AuthorRole, AuthorRoleAuthor, AuthorRoleName, InstructionMessage, MessagePart, MessageRole,
-    Organization, PersonOrOrganization, SoftwareApplication, SoftwareApplicationOptions,
-    StringOrNumber, Timestamp,
+    AuthorRole, AuthorRoleAuthor, AuthorRoleName, MessagePart, Organization,
+    PersonOrOrganization, SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
+    Timestamp,
 };
 
 // Export crates for the convenience of crates implementing the Model trait
@@ -21,7 +21,7 @@ pub use stencila_secrets;
 mod output;
 mod task;
 pub use output::{ModelOutput, ModelOutputKind};
-pub use task::{ModelTask, ModelTaskKind};
+pub use task::{ModelMessage, ModelTask, ModelTaskKind};
 
 /// The type of provider of a model
 ///
@@ -289,26 +289,18 @@ pub trait Model: Sync + Send {
 pub fn test_task_repeat_word() -> ModelTask {
     ModelTask {
         messages: vec![
-            InstructionMessage {
-                role: Some(MessageRole::System),
-                parts: vec![MessagePart::Text("When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".into())],
-                ..Default::default()
-            },
-            InstructionMessage {
-                role: Some(MessageRole::User),
-                parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
-                ..Default::default()
-            },
-            InstructionMessage {
-                role: Some(MessageRole::Model),
-                parts: vec![MessagePart::Text("Hello".into())],
-                ..Default::default()
-            },
-            InstructionMessage {
-                role: Some(MessageRole::User),
-                parts: vec![MessagePart::Text("Repeat the word.".into())],
-                ..Default::default()
-            },
+            ModelMessage::system(
+                vec![MessagePart::Text("When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".into())],
+            ),
+            ModelMessage::user(
+                vec![MessagePart::Text("Say the word \"Hello\".".into())],
+            ),
+            ModelMessage::model(
+                vec![MessagePart::Text("Hello".into())],
+            ),
+            ModelMessage::user(
+                vec![MessagePart::Text("Repeat the word.".into())],
+            ),
         ],
         temperature: Some(0.),
         ..Default::default()

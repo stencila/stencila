@@ -13,15 +13,17 @@ use stencila_codec_biblio::decode::{
     text_with_parenthetic_numeric_citations,
 };
 use stencila_codec_text_trait::to_text;
-use stencila_models::{ModelTask, perform_task};
+use stencila_models::{ModelMessage, ModelTask, perform_task};
 use stencila_schema::{
     Admonition, Article, Author, Block, Datatable, Figure, ForBlock, Heading, IfBlockClause,
-    ImageObject, IncludeBlock, Inline, InstructionMessage, ListItem, ListOrder, MathInline,
-    MessagePart, ModelParameters, Node, NodeId, Paragraph, Reference, Section, SectionType,
-    StyledBlock, TableCell, TableRow, Text, VisitorAsync, WalkControl,
+    ImageObject, IncludeBlock, Inline, ListItem, ListOrder, MathInline, MessagePart,
+    ModelParameters, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock,
+    TableCell, TableRow, Text, VisitorAsync, WalkControl,
     shortcuts::{p, t},
 };
-use stencila_schema::{Cord, CreativeWorkVariant, MathBlock, QuoteBlock, Table, WalkthroughStep};
+use stencila_schema::{
+    Cord, CreativeWorkVariant, MathBlock, QuoteBlock, Table, WalkthroughStep,
+};
 use stencila_schema_json::{JsonSchemaVariant, json_schema};
 
 use crate::{block_to_remove, inline_to_remove};
@@ -1614,10 +1616,7 @@ async fn table_image_to_rows(image: &ImageObject) -> Result<Vec<TableRow>> {
             model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
             ..Default::default()
         }),
-        messages: vec![InstructionMessage {
-            parts: vec![MessagePart::ImageObject(image.clone())],
-            ..Default::default()
-        }],
+        messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(image.clone())])],
         ..Default::default()
     })
     .await?;
@@ -1642,10 +1641,7 @@ async fn math_image_to_tex(image: &ImageObject, is_block: bool) -> Result<Cord> 
             model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
             ..Default::default()
         }),
-        messages: vec![InstructionMessage {
-            parts: vec![MessagePart::ImageObject(image.clone())],
-            ..Default::default()
-        }],
+        messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(image.clone())])],
         ..Default::default()
     })
     .await?;

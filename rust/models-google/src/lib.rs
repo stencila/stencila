@@ -74,7 +74,7 @@ impl Model for GoogleModel {
         let mut system_instruction = None;
         let mut contents = Vec::new();
         for message in task.messages.iter() {
-            if matches!(message.role, Some(MessageRole::System)) {
+            if matches!(message.role, MessageRole::System) {
                 let parts = message
                     .parts
                     .iter()
@@ -93,7 +93,7 @@ impl Model for GoogleModel {
                 continue;
             }
 
-            let role = match message.role.unwrap_or_default() {
+            let role = match message.role {
                 MessageRole::Model => Some(Role::Model),
                 MessageRole::User => Some(Role::User),
                 _ => None,

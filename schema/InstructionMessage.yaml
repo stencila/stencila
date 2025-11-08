@@ -7,8 +7,9 @@ description: A message within an `Instruction`.
 markdown:
   derive: false
 required:
-  - parts
+  - content
 core:
+  - files
   - role
   - authors
   - provenance
@@ -17,16 +18,24 @@ properties:
     '@id': stencila:role
     description: The role of the message in the conversation.
     $ref: MessageRole
-  parts:
-    '@id': schema:hasParts
-    description: Parts of the message.
+  content:
+    '@id': stencila:content
+    description: The content of the message as inline nodes.
     type: array
     items:
-      $ref: MessagePart
+      $ref: Inline
     patch:
       formats: [md, smd, myst, ipynb, qmd]
     serde:
       default: true
+    dom:
+      elem: div
+  files:
+    '@id': stencila:files
+    description: Files attached to the message.
+    type: array
+    items:
+      $ref: File
     dom:
       elem: div
   authors:

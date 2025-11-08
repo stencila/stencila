@@ -76,7 +76,7 @@ impl Model for AnthropicModel {
             .messages
             .iter()
             .filter_map(|message| {
-                if matches!(message.role, Some(MessageRole::System)) {
+                if matches!(message.role, MessageRole::System) {
                     let text = message
                         .parts
                         .iter()
@@ -97,8 +97,8 @@ impl Model for AnthropicModel {
                 }
 
                 let role = match message.role {
-                    Some(MessageRole::Model) => "assistant",
-                    Some(MessageRole::System) => "system",
+                    MessageRole::Model => "assistant",
+                    MessageRole::System => "system",
                     _ => "user",
                 }
                 .to_string();

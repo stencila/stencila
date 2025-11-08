@@ -1376,11 +1376,8 @@ fn instruction_block_to_pandoc(
         attributes.push(("prompt".into(), prompt.to_string()));
     }
 
-    if let Some(MessagePart::Text(Text { value, .. })) = &block.message.parts.first() {
-        attributes.push(("message".into(), value.to_string()));
-    } else {
-        context.losses.add("InstructionBlock.message.parts")
-    }
+    // TODO: encode message content
+    context.losses.add("InstructionBlock.message");
 
     if let Some(mode) = &block.execution_mode {
         attributes.push(("execution-mode".into(), mode.to_string()));
@@ -1698,7 +1695,7 @@ fn div_from_pandoc(
             .iter()
             .find_map(|(name, value)| {
                 (name == "message").then_some(InstructionMessage {
-                    parts: vec![MessagePart::Text(value.into())],
+                    content: vec![Inline::Text(value.into())],
                     ..Default::default()
                 })
             })
