@@ -108,7 +108,7 @@ impl MistralModel {
     async fn chat_completion(&self, task: &ModelTask) -> Result<ModelOutput> {
         let mut messages = Vec::new();
         for message in &task.messages {
-            let role = match message.role.unwrap_or_default() {
+            let role = match message.role {
                 MessageRole::Model => ChatRole::Assistant,
                 MessageRole::System => ChatRole::System,
                 MessageRole::User => ChatRole::User,

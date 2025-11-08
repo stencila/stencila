@@ -23,7 +23,6 @@ stencila-cli-utils = { path = "../cli-utils" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
-stencila-images = { path = "../images" }
 stencila-model = { path = "../model" }
 stencila-models = { path = "../models" }
 stencila-version = { path = "../version" }

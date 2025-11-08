@@ -1,15 +1,22 @@
+use eyre::{Result, bail};
 use futures::stream::{FuturesUnordered, StreamExt};
 use itertools::Itertools;
 
 use stencila_codec_cbor::r#trait::CborCodec;
-use stencila_codec_markdown::to_markdown_flavor;
-use stencila_codecs::Format;
+use stencila_codec_markdown::{to_markdown, to_markdown_flavor};
+use stencila_codecs::{DecodeOptions, Format};
+use stencila_images::ensure_http_or_data_uri;
+use stencila_models::{ModelOutput, ModelOutputKind, ModelTask};
 use stencila_schema::{
-    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
-    SoftwareApplication,
+    Article, AudioObject, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block,
+    CompilationDigest, CompilationMessage, ImageObject, Inline, InstructionBlock,
+    InstructionMessage, InstructionType, Link, SoftwareApplication, SuggestionBlock,
+    SuggestionStatus, VideoObject, authorship, shortcuts::p,
 };
 
-use crate::{ExecuteOptions, interrupt_impl, prelude::*, state_digest};
+use crate::{
+    ExecuteOptions, interrupt_impl, model_utils::instr_msg_to_model_msg, prelude::*, state_digest,
+};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -186,7 +193,7 @@ impl Executable for InstructionBlock {
                 instruction.model_parameters.model_ids = Some(model_ids);
             };
             futures.push(async move {
-                stencila_prompts::execute_instruction_block(
+                execute_instruction_block(
                     instructors,
                     prompter,
                     &system_prompt,
@@ -256,4 +263,213 @@ impl Executable for InstructionBlock {
         // Continue to interrupt executable nodes in `content`
         WalkControl::Continue
     }
+}
+
+/// Execute an [`InstructionBlock`]
+pub async fn execute_instruction_block(
+    mut instructors: Vec<AuthorRole>,
+    prompter: AuthorRole,
+    system_prompt: &str,
+    instruction: &InstructionBlock,
+    dry_run: bool,
+) -> Result<SuggestionBlock> {
+    // Create a vector of messages beginning with the system message
+    let system_message = InstructionMessage::system(
+        system_prompt,
+        Some(vec![Author::AuthorRole(prompter.clone())]),
+    );
+    let mut messages = vec![instr_msg_to_model_msg(&system_message)];
+
+    // Add a user message for the instruction
+    let mut message = instruction.message.clone();
+
+    // Ensure that any images in the message content are fully resolved
+    message.content = message
+        .content
+        .into_iter()
+        .map(|inline| {
+            Ok(match inline {
+                Inline::ImageObject(image) => Inline::ImageObject(ImageObject {
+                    content_url: ensure_http_or_data_uri(&image.content_url)?,
+                    ..image
+                }),
+                _ => inline,
+            })
+        })
+        .collect::<Result<_>>()?;
+
+    messages.push(instr_msg_to_model_msg(&message));
+
+    // If the instruction type is `Fix` and the first block in the content
+    // (usually there is only one!) has errors or warnings then add a message for those.
+    fn comp_msgs(messages: &Option<Vec<CompilationMessage>>) -> Option<String> {
+        let messages = messages
+            .iter()
+            .flatten()
+            .filter_map(|message| {
+                matches!(
+                    message.level,
+                    MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                )
+                .then_some(message.formatted())
+            })
+            .join("\n\n");
+
+        (!messages.is_empty()).then_some(messages)
+    }
+    fn exec_msgs(messages: &Option<Vec<ExecutionMessage>>) -> Option<String> {
+        let messages = messages
+            .iter()
+            .flatten()
+            .filter_map(|message| {
+                matches!(
+                    message.level,
+                    MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                )
+                .then_some(message.formatted())
+            })
+            .join("\n\n");
+
+        (!messages.is_empty()).then_some(messages)
+    }
+    if instruction.instruction_type == InstructionType::Fix
+        && let Some(message_text) = instruction
+            .content
+            .iter()
+            .flatten()
+            .next()
+            .and_then(|block| match block {
+                Block::CodeChunk(node) => comp_msgs(&node.options.compilation_messages)
+                    .or(exec_msgs(&node.options.execution_messages)),
+                Block::MathBlock(node) => comp_msgs(&node.options.compilation_messages),
+                _ => None,
+            })
+    {
+        let instr_msg = InstructionMessage::user(message_text, None);
+        messages.push(instr_msg_to_model_msg(&instr_msg))
+    }
+
+    // Add pairs of assistant/user messages for each suggestion
+    for suggestion in instruction.suggestions.iter().flatten() {
+        // Note: this encodes suggestion content to Markdown. Using the
+        // format used by the particular prompt e.g. HTML may be more appropriate
+        let assistant_msg = InstructionMessage::assistant(
+            to_markdown(&suggestion.content),
+            suggestion.authors.clone(),
+        );
+        messages.push(instr_msg_to_model_msg(&assistant_msg));
+
+        // If there is feedback on the suggestion use that, otherwise generate feedback
+        // to follow the suggestion.
+        let feedback = if let Some(feedback) = &suggestion.feedback {
+            feedback
+        } else if let Some(status) = &suggestion.suggestion_status {
+            match status {
+                SuggestionStatus::Original => "This is the original.",
+                SuggestionStatus::Accepted => {
+                    "This is suggestion is acceptable, but please try again."
+                }
+                SuggestionStatus::Rejected => {
+                    "This is wrong or otherwise not acceptable, please try again."
+                }
+            }
+        } else {
+            "Please try again."
+        };
+        let user_msg = InstructionMessage::user(feedback, None);
+        messages.push(instr_msg_to_model_msg(&user_msg));
+    }
+
+    tracing::trace!("Model task messages:\n\n{messages:#?}");
+
+    // Create a model task
+    let mut task = ModelTask::new(
+        instruction.instruction_type,
+        *instruction.model_parameters.clone(),
+        messages,
+    );
+    task.dry_run = dry_run;
+
+    // Perform the task
+    let started = Timestamp::now();
+    let ModelOutput {
+        mut authors,
+        kind,
+        format,
+        content,
+        ..
+    } = stencila_models::perform_task(task).await?;
+    let ended = Timestamp::now();
+
+    let blocks = match kind {
+        ModelOutputKind::Text => {
+            // Decode the model output into blocks
+            let node = stencila_codecs::from_str(
+                &content,
+                Some(DecodeOptions {
+                    format: format
+                        .is_unknown()
+                        .then_some(Format::Markdown)
+                        .or(Some(format)),
+                    ..Default::default()
+                }),
+            )
+            .await?;
+
+            let Node::Article(Article { content, .. }) = node else {
+                bail!("Expected content to be decoded to an article")
+            };
+
+            content
+        }
+        ModelOutputKind::Url => {
+            let content_url = content;
+            let media_type = Some(format.media_type());
+
+            let node = if format.is_audio() {
+                Inline::AudioObject(AudioObject {
+                    content_url,
+                    media_type,
+                    ..Default::default()
+                })
+            } else if format.is_image() {
+                Inline::ImageObject(ImageObject {
+                    content_url,
+                    media_type,
+                    ..Default::default()
+                })
+            } else if format.is_video() {
+                Inline::VideoObject(VideoObject {
+                    content_url,
+                    media_type,
+                    ..Default::default()
+                })
+            } else {
+                Inline::Link(Link {
+                    target: content_url,
+                    ..Default::default()
+                })
+            };
+
+            vec![p([node])]
+        }
+    };
+
+    // TODO: check that blocks are the correct type
+
+    let mut suggestion = SuggestionBlock::new(blocks);
+
+    // Record execution time for the suggestion
+    let duration = ended
+        .duration(&started)
+        .expect("should use compatible timestamps");
+    suggestion.execution_duration = Some(duration);
+    suggestion.execution_ended = Some(ended);
+
+    // Apply authorship to the suggestion.
+    authors.append(&mut instructors);
+    authors.push(prompter);
+    authorship(&mut suggestion, authors)?;
+
+    Ok(suggestion)
 }

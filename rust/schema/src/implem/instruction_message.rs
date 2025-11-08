@@ -1,12 +1,12 @@
 use stencila_codec_info::lost_options;
 
-use crate::{Author, InstructionMessage, MessagePart, MessageRole, prelude::*};
+use crate::{Author, Inline, InstructionMessage, MessageRole, Text, prelude::*};
 
 impl InstructionMessage {
     pub fn system<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {
         Self {
             role: Some(MessageRole::System),
-            parts: vec![MessagePart::from(value)],
+            content: vec![Inline::Text(Text::from(value.as_ref()))],
             authors,
             ..Default::default()
         }
@@ -15,7 +15,7 @@ impl InstructionMessage {
     pub fn user<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {
         Self {
             role: Some(MessageRole::User),
-            parts: vec![MessagePart::from(value)],
+            content: vec![Inline::Text(Text::from(value.as_ref()))],
             authors,
             ..Default::default()
         }
@@ -24,7 +24,7 @@ impl InstructionMessage {
     pub fn assistant<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {
         Self {
             role: Some(MessageRole::Model),
-            parts: vec![MessagePart::from(value)],
+            content: vec![Inline::Text(Text::from(value.as_ref()))],
             authors,
             ..Default::default()
         }
@@ -36,7 +36,10 @@ where
     S: AsRef<str>,
 {
     fn from(value: S) -> Self {
-        Self::new(vec![MessagePart::from(value)])
+        Self {
+            content: vec![Inline::Text(Text::from(value.as_ref()))],
+            ..Default::default()
+        }
     }
 }
 
@@ -45,8 +48,8 @@ impl MarkdownCodec for InstructionMessage {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, role, authors, provenance))
-            .push_prop_fn(NodeProperty::Parts, |context| {
-                self.parts.to_markdown(context)
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
             })
             .exit_node();
     }

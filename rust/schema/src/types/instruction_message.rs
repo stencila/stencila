@@ -3,7 +3,8 @@
 use crate::prelude::*;
 
 use super::author::Author;
-use super::message_part::MessagePart;
+use super::file::File;
+use super::inline::Inline;
 use super::message_role::MessageRole;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
@@ -29,12 +30,18 @@ pub struct InstructionMessage {
     /// The role of the message in the conversation.
     pub role: Option<MessageRole>,
 
-    /// Parts of the message.
-    #[serde(alias = "part")]
+    /// The content of the message as inline nodes.
     #[serde(default)]
+    #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "div")]
-    pub parts: Vec<MessagePart>,
+    pub content: Vec<Inline>,
+
+    /// Files attached to the message.
+    #[serde(alias = "file")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[dom(elem = "div")]
+    pub files: Option<Vec<File>>,
 
     /// The authors of the message.
     #[serde(alias = "author")]
@@ -65,9 +72,9 @@ impl InstructionMessage {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(parts: Vec<MessagePart>) -> Self {
+    pub fn new(content: Vec<Inline>) -> Self {
         Self {
-            parts,
+            content,
             ..Default::default()
         }
     }

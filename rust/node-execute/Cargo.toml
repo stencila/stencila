@@ -17,6 +17,7 @@ stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-cbor = { path = "../codec-cbor" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codecs = { path = "../codecs" }
+stencila-images = { path = "../images" }
 stencila-kernels = { path = "../kernels" }
 stencila-linters = { path = "../linters" }
 stencila-models = { path = "../models" }

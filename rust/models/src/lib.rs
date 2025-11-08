@@ -8,8 +8,8 @@ use itertools::Itertools;
 use stencila_model::eyre::{Result, bail};
 
 pub use stencila_model::{
-    Model, ModelAvailability, ModelOutput, ModelOutputKind, ModelSpecification, ModelTask,
-    ModelType,
+    Model, ModelAvailability, ModelMessage, ModelOutput, ModelOutputKind, ModelSpecification,
+    ModelTask, ModelType,
 };
 
 pub mod cli;

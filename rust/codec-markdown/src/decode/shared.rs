@@ -15,13 +15,11 @@ use winnow::{
 };
 
 use stencila_codec::stencila_schema::{
-    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
-    InstructionType, MessagePart, ModelParameters, Node, RelativePosition, Time, Timestamp,
+    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, InstructionMessage, InstructionType,
+    ModelParameters, Node, RelativePosition, Time, Timestamp,
 };
 use stencila_codec_json5_trait::Json5Codec;
 use stencila_codec_text_trait::TextCodec;
-
-use crate::decode::inlines::mds_to_string;
 
 /// Parse a name (e.g. name of a variable, parameter, call argument, or curly braced option)
 ///
@@ -413,53 +411,27 @@ pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
     use markdown::{ParseOptions, to_mdast};
     use mdast::Node;
 
+    use super::{Context, inlines::mds_to_inlines};
+
     let Ok(Node::Root(root)) = to_mdast(md, &ParseOptions::default()) else {
         return InstructionMessage::from(md);
     };
 
-    let Some(Node::Paragraph(mdast::Paragraph { children, .. })) = root.children.first().cloned()
-    else {
-        return InstructionMessage::from(md);
+    // Extract the children from the first paragraph, or use all root children if no paragraph
+    let children = if let Some(Node::Paragraph(mdast::Paragraph { children, .. })) =
+        root.children.first().cloned()
+    {
+        children
+    } else {
+        root.children
     };
 
-    let mut parts = Vec::with_capacity(1);
-
-    let mut text = String::new();
-    for node in children {
-        match node {
-            Node::Image(image) => {
-                if !text.is_empty() {
-                    parts.push(MessagePart::from(text.drain(..)))
-                }
-                let content_url = if image.url.starts_with("file://")
-                    || image.url.starts_with("https://")
-                    || image.url.starts_with("http://")
-                    || image.url.starts_with("data:image/")
-                {
-                    image.url
-                } else {
-                    ["file://", &image.url].concat()
-                };
-
-                parts.push(MessagePart::ImageObject(ImageObject {
-                    content_url,
-                    ..Default::default()
-                }))
-            }
-            Node::Text(node) => {
-                text += &node.value;
-            }
-            _ => {
-                text += &mds_to_string(&[node]);
-            }
-        }
-    }
-    if !text.is_empty() {
-        parts.push(MessagePart::from(text.drain(..)))
-    }
+    // Convert MDAST nodes to Stencila inline nodes
+    let mut context = Context::default();
+    let content = mds_to_inlines(children, &mut context);
 
     InstructionMessage {
-        parts,
+        content,
         ..Default::default()
     }
 }

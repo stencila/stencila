@@ -13,12 +13,10 @@ use stencila_cli_utils::{
 };
 
 use stencila_model::{
-    ModelAvailability, ModelSpecification, ModelTask, ModelType,
+    ModelAvailability, ModelMessage, ModelSpecification, ModelTask, ModelType,
     eyre::Result,
     stencila_format::Format,
-    stencila_schema::{
-        File, ImageObject, InstructionMessage, MessagePart, MessageRole, ModelParameters, Text,
-    },
+    stencila_schema::{File, ImageObject, MessagePart, ModelParameters, Text},
     stencila_schema_json::{JsonSchemaVariant, json_schema},
 };
 
@@ -240,14 +238,10 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
 
 impl Run {
     async fn run(self) -> Result<()> {
-        let mut messages = Vec::new();
+        let mut messages: Vec<ModelMessage> = Vec::new();
 
         if let Some(system) = self.system {
-            messages.push(InstructionMessage {
-                parts: vec![MessagePart::Text(Text::from(system))],
-                role: Some(MessageRole::System),
-                ..Default::default()
-            });
+            messages.push(ModelMessage::system(vec![MessagePart::Text(Text::from(system))]));
         }
 
         let mut parts = Vec::new();
@@ -266,11 +260,7 @@ impl Run {
             }
         }
 
-        messages.push(InstructionMessage {
-            parts,
-            role: Some(MessageRole::User),
-            ..Default::default()
-        });
+        messages.push(ModelMessage::user(parts));
 
         let schema = self.schema.map(json_schema);
 
