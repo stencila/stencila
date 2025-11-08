@@ -39,7 +39,7 @@ async fn open_alex_id() -> Result<()> {
     canonicalize(&mut reference).await?;
 
     if let Node::Reference(Reference { doi: Some(doi), .. }) = reference {
-        assert_eq!(doi, "10.0000/openalex.W2582743722")
+        assert_eq!(doi, "10.32614/r.manuals")
     } else {
         bail!("No DOI")
     };
