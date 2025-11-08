@@ -138,13 +138,11 @@ proptest! {
                 // only, so strip it.
                 "Admonition.title".into(),
 
-                // `CodeChunk.label` are not supported if there is no
-                // `label_type` (which can be generated as an arbitrary combo)
+                // Types that when arbitrarily generated do not necessarily have
+                // the same `label_automatically == false` when a label is
+                // present so need to strip label
                 "CodeChunk.label".into(),
-
-                // Arbitrary figures do not necessarily have `label_automatically == false`
-                // when a label is present so need to strip label
-                "Figure.label".into()
+                "Figure.label".into(),
             ],
             ..Default::default()
         });
@@ -171,9 +169,9 @@ proptest! {
                 // The `otherwise` property of `ForBlock`s is not yet supported
                 "ForBlock.otherwise".into(),
 
-                // Arbitrarily generated code chunks and figures do not necessarily have
-                // `label_automatically == false` when `label` is `Some` so we need
-                // to strip labels for round trips to be same
+                // Types that when arbitrarily generated do not necessarily have
+                // the same `label_automatically == false` when a label is
+                // present so need to strip label
                 "CodeChunk.label".into(),
                 "Figure.label".into(),
 
@@ -228,6 +226,12 @@ proptest! {
                 "StyledBlock".into(),
             ],
             properties: vec![
+                // Types that when arbitrarily generated do not necessarily have
+                // the same `label_automatically == false` when a label is
+                // present so need to strip label
+                "CodeChunk.label".into(),
+                "Figure.label".into(),
+
                 // Properties that are not yet supported
                 "ListItem.is_checked".into(),
                 "CodeChunk.execution_mode".into(),
