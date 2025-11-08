@@ -288,7 +288,7 @@ prop_compose! {
     ) -> Vec<TableRow> {
         let mut rows = vec![TableRow{
             row_type: Some(TableRowType::HeaderRow),
-            cells: header,
+            cells: header.into_iter().map(|cell| TableCell{cell_type: Some(TableCellType::HeaderCell), ..cell}).collect(),
             ..Default::default()
         }];
 
