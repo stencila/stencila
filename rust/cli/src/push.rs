@@ -456,6 +456,7 @@ impl Cli {
     }
 
     /// Push all tracked files that have remotes
+    #[allow(clippy::print_stderr)]
     async fn push_all(&self) -> Result<()> {
         // Validate watch flag is not allowed with multiple files
         if self.watch {

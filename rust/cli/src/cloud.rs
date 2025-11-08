@@ -292,12 +292,8 @@ impl Logs {
             let timestamp_to_seconds = &timestamp[..dot_pos];
 
             // Check if message starts with this timestamp pattern
-            if message.starts_with(timestamp_to_seconds) {
-                // Find the first space after the timestamp in the message
-                if let Some(space_pos) = message[timestamp_to_seconds.len()..].find(' ') {
-                    // Return message after the space
-                    return message[timestamp_to_seconds.len() + space_pos + 1..].to_string();
-                }
+            if let Some(rest) = message.strip_prefix(timestamp_to_seconds) {
+                return rest.to_string();
             }
         }
 
@@ -305,6 +301,7 @@ impl Logs {
         message.to_string()
     }
 
+    #[allow(clippy::print_stdout)]
     pub async fn run(self) -> Result<()> {
         use tokio::time::{Duration, sleep};
 
