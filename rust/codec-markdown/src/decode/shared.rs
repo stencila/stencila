@@ -2,7 +2,6 @@
 
 use std::str::FromStr;
 
-use markdown::mdast;
 use winnow::{
     LocatingSlice as Located, ModalResult, Parser,
     ascii::{
@@ -405,30 +404,17 @@ pub fn node_to_option_duration(node: Node) -> Option<Duration> {
 
 /// Parse a string into an [`InstructionMessage`]
 ///
-/// Parses the string as Markdown and splits images into separate
-/// message parts.
+/// Uses Stencila's custom inline parser to preserve extensions like
+/// `code`{exec} syntax that the standard markdown crate doesn't understand.
 pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
-    use markdown::{ParseOptions, to_mdast};
-    use mdast::Node;
+    use super::inlines::inlines;
 
-    use super::{Context, inlines::mds_to_inlines};
-
-    let Ok(Node::Root(root)) = to_mdast(md, &ParseOptions::default()) else {
-        return InstructionMessage::from(md);
-    };
-
-    // Extract the children from the first paragraph, or use all root children if no paragraph
-    let children = if let Some(Node::Paragraph(mdast::Paragraph { children, .. })) =
-        root.children.first().cloned()
-    {
-        children
-    } else {
-        root.children
-    };
-
-    // Convert MDAST nodes to Stencila inline nodes
-    let mut context = Context::default();
-    let content = mds_to_inlines(children, &mut context);
+    // Parse the input string directly using Stencila's inline parser
+    // This preserves custom syntax like `code`{exec} that the standard markdown crate doesn't understand
+    let content = inlines(md)
+        .into_iter()
+        .map(|(inline, _span)| inline)
+        .collect();
 
     InstructionMessage {
         content,
