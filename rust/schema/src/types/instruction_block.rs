@@ -62,6 +62,7 @@ pub struct InstructionBlock {
 
     /// The instruction message, possibly including images, audio, or other media.
     #[serde(default)]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub message: InstructionMessage,
