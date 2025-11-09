@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
+rust-embed = { version = "8.9.0", features = ["interpolate-folder-path", "include-exclude"] }
 
 [lints]
 workspace = true

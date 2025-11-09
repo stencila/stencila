@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-ariadne = "0.5.1"
+ariadne = "0.6.0"
 eyre = { workspace = true }
 serde = { workspace = true }
 serde_with = { workspace = true }

@@ -11,7 +11,7 @@ proptest-max = ["stencila-schema/proptest-max"]
 
 [dependencies]
 async-trait = { workspace = true }
-automerge = "0.7.0"
+automerge = "0.7.1"
 eyre = { workspace = true }
 serde_json = { workspace = true }
 smol_str = { workspace = true }

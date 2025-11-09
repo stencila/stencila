@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-bitflags = "2.9.4"
+bitflags = "2.10.0"
 monostate = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

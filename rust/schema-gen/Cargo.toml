@@ -16,7 +16,7 @@ futures = { workspace = true }
 glob = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
-schemars = { version = "1.0.4", features = ["indexmap2"] }
+schemars = { version = "1.1.0", features = ["indexmap2"] }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

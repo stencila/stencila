@@ -28,7 +28,7 @@ stencila-node-find = { path = "../node-find" }
 stencila-prompts = { path = "../prompts" }
 stencila-schema = { path = "../schema" }
 tokio = { workspace = true }
-tokio-util = { version = "0.7.16", features = ["compat"] }
+tokio-util = { version = "0.7.17", features = ["compat"] }
 tower = "0.5.2"
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
