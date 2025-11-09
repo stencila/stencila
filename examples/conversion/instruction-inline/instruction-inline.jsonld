@@ -22,7 +22,7 @@
           },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
-            "hasParts": [
+            "stencila:content": [
               {
                 "@type": "Text",
                 "value": {
@@ -60,7 +60,7 @@
           },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
-            "hasParts": [
+            "stencila:content": [
               {
                 "@type": "Text",
                 "value": {
@@ -107,7 +107,7 @@
           },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
-            "hasParts": [
+            "stencila:content": [
               {
                 "@type": "Text",
                 "value": {
@@ -135,7 +135,7 @@
           },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
-            "hasParts": []
+            "stencila:content": []
           },
           "stencila:modelParameters": {
             "@type": "stencila:ModelParameters"
@@ -156,7 +156,7 @@
           },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
-            "hasParts": [
+            "stencila:content": [
               {
                 "@type": "Text",
                 "value": {
@@ -203,7 +203,7 @@
           },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
-            "hasParts": [
+            "stencila:content": [
               {
                 "@type": "Text",
                 "value": {
@@ -244,7 +244,7 @@
           },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
-            "hasParts": [
+            "stencila:content": [
               {
                 "@type": "Text",
                 "value": {

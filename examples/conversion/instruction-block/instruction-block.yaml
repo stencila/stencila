@@ -11,7 +11,7 @@ content:
     type: PromptBlock
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: a 4x10 table
@@ -29,7 +29,7 @@ content:
     target: table
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: top five highest mountains, with height in metres
@@ -47,7 +47,7 @@ content:
     target: code-chunk
   message:
     type: InstructionMessage
-    parts: []
+    content: []
   modelParameters:
     type: ModelParameters
 - type: Paragraph
@@ -61,7 +61,7 @@ content:
     type: PromptBlock
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: improve this paragraph
@@ -85,7 +85,7 @@ content:
     target: para
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: please improve this paragraph
@@ -109,7 +109,7 @@ content:
     target: code-chunk
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: analyze data
@@ -133,7 +133,7 @@ content:
     type: PromptBlock
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: more succinct
@@ -166,7 +166,7 @@ content:
     target: prompt
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: message

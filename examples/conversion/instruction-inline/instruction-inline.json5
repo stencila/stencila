@@ -14,7 +14,7 @@
           prompt: { type: "PromptBlock" },
           message: {
             type: "InstructionMessage",
-            parts: [
+            content: [
               {
                 type: "Text",
                 value: { string: "insert an inline" }
@@ -42,7 +42,7 @@
           prompt: { type: "PromptBlock" },
           message: {
             type: "InstructionMessage",
-            parts: [
+            content: [
               {
                 type: "Text",
                 value: { string: "improve this" }
@@ -79,7 +79,7 @@
           },
           message: {
             type: "InstructionMessage",
-            parts: [
+            content: [
               {
                 type: "Text",
                 value: { string: "equation for surface area of cube" }
@@ -101,7 +101,7 @@
           },
           message: {
             type: "InstructionMessage",
-            parts: []
+            content: []
           },
           modelParameters: { type: "ModelParameters" }
         },
@@ -118,7 +118,7 @@
           },
           message: {
             type: "InstructionMessage",
-            parts: [
+            content: [
               {
                 type: "Text",
                 value: { string: "please improve this" }
@@ -155,7 +155,7 @@
           },
           message: {
             type: "InstructionMessage",
-            parts: [
+            content: [
               {
                 type: "Text",
                 value: { string: "area of circle" }
@@ -186,7 +186,7 @@
           prompt: { type: "PromptBlock" },
           message: {
             type: "InstructionMessage",
-            parts: [
+            content: [
               {
                 type: "Text",
                 value: { string: "improve" }

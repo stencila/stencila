@@ -16,7 +16,7 @@
       prompt: { type: "PromptBlock" },
       message: {
         type: "InstructionMessage",
-        parts: [
+        content: [
           {
             type: "Text",
             value: { string: "a 4x10 table" }
@@ -43,7 +43,7 @@
       },
       message: {
         type: "InstructionMessage",
-        parts: [
+        content: [
           {
             type: "Text",
             value: { string: "top five highest mountains, with height in metres" }
@@ -70,7 +70,7 @@
       },
       message: {
         type: "InstructionMessage",
-        parts: []
+        content: []
       },
       modelParameters: { type: "ModelParameters" }
     },
@@ -89,7 +89,7 @@
       prompt: { type: "PromptBlock" },
       message: {
         type: "InstructionMessage",
-        parts: [
+        content: [
           {
             type: "Text",
             value: { string: "improve this paragraph" }
@@ -127,7 +127,7 @@
       },
       message: {
         type: "InstructionMessage",
-        parts: [
+        content: [
           {
             type: "Text",
             value: { string: "please improve this paragraph" }
@@ -165,7 +165,7 @@
       },
       message: {
         type: "InstructionMessage",
-        parts: [
+        content: [
           {
             type: "Text",
             value: { string: "analyze data" }
@@ -201,7 +201,7 @@
       prompt: { type: "PromptBlock" },
       message: {
         type: "InstructionMessage",
-        parts: [
+        content: [
           {
             type: "Text",
             value: { string: "more succinct" }
@@ -256,7 +256,7 @@
       },
       message: {
         type: "InstructionMessage",
-        parts: [
+        content: [
           {
             type: "Text",
             value: { string: "message" }

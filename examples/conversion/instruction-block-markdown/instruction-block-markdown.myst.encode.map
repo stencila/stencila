@@ -10,14 +10,14 @@ start     end        offsets   node_type+property                   authorship
    108    133        (-2, 1)   Heading
    146    153       (38, 20)   Text.value
    146    153         (0, 0)   Text
-   146    153         (0, 0)   InstructionMessage.parts
+   146    153         (0, 0)   InstructionMessage.content
    146    153         (0, 0)   InstructionMessage
    146    153         (0, 0)   InstructionBlock.message
    154    154         (8, 1)   InstructionBlock.modelParameters
    134    159       (-20, 5)   InstructionBlock
    172    179       (38, 20)   Text.value
    172    179         (0, 0)   Text
-   172    179         (0, 0)   InstructionMessage.parts
+   172    179         (0, 0)   InstructionMessage.content
    172    179         (0, 0)   InstructionMessage
    172    179         (0, 0)   InstructionBlock.message
    180    180         (8, 1)   InstructionBlock.modelParameters
@@ -33,7 +33,7 @@ start     end        offsets   node_type+property                   authorship
    232    260        (-2, 1)   Heading
    271    278       (39, 18)   Text.value
    271    278         (0, 0)   Text
-   271    278         (0, 0)   InstructionMessage.parts
+   271    278         (0, 0)   InstructionMessage.content
    271    278         (0, 0)   InstructionMessage
    271    278         (0, 0)   InstructionBlock.message
    279    279         (8, 1)   InstructionBlock.modelParameters
@@ -45,7 +45,7 @@ start     end        offsets   node_type+property                   authorship
    261    303       (-19, 4)   InstructionBlock
    314    321       (53, 18)   Text.value
    314    321         (0, 0)   Text
-   314    321         (0, 0)   InstructionMessage.parts
+   314    321         (0, 0)   InstructionMessage.content
    314    321         (0, 0)   InstructionMessage
    314    321         (0, 0)   InstructionBlock.message
    322    322         (8, 1)   InstructionBlock.modelParameters
@@ -61,7 +61,7 @@ start     end        offsets   node_type+property                   authorship
    374    398         (0, 1)   Paragraph
    409    421       (35, 23)   Text.value
    409    421         (0, 0)   Text
-   409    421         (0, 0)   InstructionMessage.parts
+   409    421         (0, 0)   InstructionMessage.content
    409    421         (0, 0)   InstructionMessage
    409    421         (0, 0)   InstructionBlock.message
    422    422        (13, 1)   InstructionBlock.modelParameters
@@ -72,7 +72,7 @@ start     end        offsets   node_type+property                   authorship
    399    457       (-24, 4)   InstructionBlock
    470    480       (71, 23)   Text.value
    470    480         (0, 0)   Text
-   470    480         (0, 0)   InstructionMessage.parts
+   470    480         (0, 0)   InstructionMessage.content
    470    480         (0, 0)   InstructionMessage
    470    480         (0, 0)   InstructionBlock.message
    481    481        (11, 1)   InstructionBlock.modelParameters
@@ -93,7 +93,7 @@ start     end        offsets   node_type+property                   authorship
    579    594         (0, 0)   Text
    579    594         (0, 0)   Heading.content
    577    595        (-2, 1)   Heading
-   606    606       (29, 11)   InstructionMessage.parts
+   606    606       (29, 11)   InstructionMessage.content
    606    606         (0, 0)   InstructionMessage
    606    606         (0, 0)   InstructionBlock.message
    607    607         (1, 1)   InstructionBlock.modelParameters

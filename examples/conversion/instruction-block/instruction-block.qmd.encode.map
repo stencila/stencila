@@ -7,7 +7,7 @@ start     end        offsets   node_type+property                   authorship
     49     49         (6, 0)   InstructionBlock.modelParameters
     50     62        (1, 13)   Text.value
     50     62         (0, 0)   Text
-    50     62         (0, 0)   InstructionMessage.parts
+    50     62         (0, 0)   InstructionMessage.content
     50     62         (0, 0)   InstructionMessage
     49     62        (-1, 0)   InstructionBlock.message
     39     67       (-10, 5)   InstructionBlock
@@ -20,7 +20,7 @@ start     end        offsets   node_type+property                   authorship
    123    123         (5, 0)   InstructionBlock.modelParameters
    124    173        (1, 50)   Text.value
    124    173         (0, 0)   Text
-   124    173         (0, 0)   InstructionMessage.parts
+   124    173         (0, 0)   InstructionMessage.content
    124    173         (0, 0)   InstructionMessage
    123    173        (-1, 0)   InstructionBlock.message
    106    178       (-17, 5)   InstructionBlock
@@ -31,7 +31,7 @@ start     end        offsets   node_type+property                   authorship
    244    250       (65, 11)   InstructionBlock.instructionType
    252    262        (8, 12)   InstructionBlock.prompt
    262    262        (10, 0)   InstructionBlock.modelParameters
-   263    263         (1, 1)   InstructionMessage.parts
+   263    263         (1, 1)   InstructionMessage.content
    263    263         (0, 0)   InstructionMessage
    262    262       (-1, -1)   InstructionBlock.message
    240    267       (-22, 5)   InstructionBlock
@@ -43,7 +43,7 @@ start     end        offsets   node_type+property                   authorship
    327    327         (4, 0)   InstructionBlock.modelParameters
    328    350        (1, 23)   Text.value
    328    350         (0, 0)   Text
-   328    350         (0, 0)   InstructionMessage.parts
+   328    350         (0, 0)   InstructionMessage.content
    328    350         (0, 0)   InstructionMessage
    327    350        (-1, 0)   InstructionBlock.message
    356    385       (29, 35)   Text.value
@@ -61,7 +61,7 @@ start     end        offsets   node_type+property                   authorship
    437    437         (4, 0)   InstructionBlock.modelParameters
    438    467        (1, 30)   Text.value
    438    467         (0, 0)   Text
-   438    467         (0, 0)   InstructionMessage.parts
+   438    467         (0, 0)   InstructionMessage.content
    438    467         (0, 0)   InstructionMessage
    437    467        (-1, 0)   InstructionBlock.message
    473    506       (36, 39)   Text.value
@@ -79,7 +79,7 @@ start     end        offsets   node_type+property                   authorship
    585    585        (10, 0)   InstructionBlock.modelParameters
    586    598        (1, 13)   Text.value
    586    598         (0, 0)   Text
-   586    598         (0, 0)   InstructionMessage.parts
+   586    598         (0, 0)   InstructionMessage.content
    586    598         (0, 0)   InstructionMessage
    585    598        (-1, 0)   InstructionBlock.message
    608    608       (23, 10)   CodeChunk.programmingLanguage
@@ -97,7 +97,7 @@ start     end        offsets   node_type+property                   authorship
    674    674         (4, 0)   InstructionBlock.modelParameters
    675    688        (1, 14)   Text.value
    675    688         (0, 0)   Text
-   675    688         (0, 0)   InstructionMessage.parts
+   675    688         (0, 0)   InstructionMessage.content
    675    688         (0, 0)   InstructionMessage
    674    688        (-1, 0)   InstructionBlock.message
    694    706       (20, 18)   Text.value
@@ -125,7 +125,7 @@ start     end        offsets   node_type+property                   authorship
    771    816       (-44, 0)   InstructionBlock.modelParameters
    817    824        (46, 8)   Text.value
    817    824         (0, 0)   Text
-   817    824         (0, 0)   InstructionMessage.parts
+   817    824         (0, 0)   InstructionMessage.content
    817    824         (0, 0)   InstructionMessage
    816    824        (-1, 0)   InstructionBlock.message
    753    829       (-63, 5)   InstructionBlock

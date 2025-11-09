@@ -16,7 +16,7 @@
       "instructionType": "Create",
       "message": {
         "type": "InstructionMessage",
-        "parts": [{ "type": "Text", "value": "a 4x10 table" }]
+        "content": [{ "type": "Text", "value": "a 4x10 table" }]
       }
     },
     {
@@ -37,7 +37,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": "top five highest mountains, with height in metres"
@@ -76,7 +76,7 @@
       "instructionType": "Edit",
       "message": {
         "type": "InstructionMessage",
-        "parts": [{ "type": "Text", "value": "improve this paragraph" }]
+        "content": [{ "type": "Text", "value": "improve this paragraph" }]
       },
       "content": [
         {
@@ -105,7 +105,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [{ "type": "Text", "value": "please improve this paragraph" }]
+        "content": [{ "type": "Text", "value": "please improve this paragraph" }]
       },
       "content": [
         {
@@ -134,7 +134,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [{ "type": "Text", "value": "analyze data" }]
+        "content": [{ "type": "Text", "value": "analyze data" }]
       },
       "activeSuggestion": 0,
       "suggestions": [
@@ -158,7 +158,7 @@
       "instructionType": "Edit",
       "message": {
         "type": "InstructionMessage",
-        "parts": [{ "type": "Text", "value": "more succinct" }]
+        "content": [{ "type": "Text", "value": "more succinct" }]
       },
       "content": [
         {
@@ -195,7 +195,7 @@
       "instructionType": "Create",
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": {

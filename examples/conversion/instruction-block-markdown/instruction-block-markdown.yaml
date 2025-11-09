@@ -19,7 +19,7 @@ content:
     query: message
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: message
@@ -33,7 +33,7 @@ content:
     query: message
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: message
@@ -58,7 +58,7 @@ content:
     query: message
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: message
@@ -78,7 +78,7 @@ content:
     query: message
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: message
@@ -103,7 +103,7 @@ content:
     query: improve this
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: improve this
@@ -122,7 +122,7 @@ content:
     query: admonition
   message:
     type: InstructionMessage
-    parts:
+    content:
     - type: Text
       value:
         string: admonition
@@ -155,7 +155,7 @@ content:
     instructionType: Edit
   message:
     type: InstructionMessage
-    parts: []
+    content: []
   modelParameters:
     type: ModelParameters
   content:

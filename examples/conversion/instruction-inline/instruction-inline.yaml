@@ -11,7 +11,7 @@ content:
       type: PromptBlock
     message:
       type: InstructionMessage
-      parts:
+      content:
       - type: Text
         value:
           string: insert an inline
@@ -31,7 +31,7 @@ content:
       type: PromptBlock
     message:
       type: InstructionMessage
-      parts:
+      content:
       - type: Text
         value:
           string: improve this
@@ -56,7 +56,7 @@ content:
       target: math
     message:
       type: InstructionMessage
-      parts:
+      content:
       - type: Text
         value:
           string: equation for surface area of cube
@@ -72,7 +72,7 @@ content:
       target: math
     message:
       type: InstructionMessage
-      parts: []
+      content: []
     modelParameters:
       type: ModelParameters
   - type: Text
@@ -85,7 +85,7 @@ content:
       target: edit
     message:
       type: InstructionMessage
-      parts:
+      content:
       - type: Text
         value:
           string: please improve this
@@ -110,7 +110,7 @@ content:
       target: math
     message:
       type: InstructionMessage
-      parts:
+      content:
       - type: Text
         value:
           string: area of circle
@@ -132,7 +132,7 @@ content:
       type: PromptBlock
     message:
       type: InstructionMessage
-      parts:
+      content:
       - type: Text
         value:
           string: improve

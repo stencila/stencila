@@ -34,7 +34,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": {
@@ -57,7 +57,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": {
@@ -103,7 +103,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": {
@@ -139,7 +139,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": {
@@ -186,7 +186,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": {
@@ -218,7 +218,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": [
+        "content": [
           {
             "type": "Text",
             "value": {
@@ -282,7 +282,7 @@
       },
       "message": {
         "type": "InstructionMessage",
-        "parts": []
+        "content": []
       },
       "modelParameters": {
         "type": "ModelParameters"

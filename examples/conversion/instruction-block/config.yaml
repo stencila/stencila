@@ -18,5 +18,6 @@ pandoc:
   decode:
     strip-props:
       # Not supported
+      - message
       - model_parameters
       - suggestions 
