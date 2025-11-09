@@ -19,6 +19,9 @@ use stencila_node_media::{embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
 
+// Re-export to_dom
+pub use stencila_codec_dom_trait::to_dom;
+
 /// Use local development web assets instead of production CDN.
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).

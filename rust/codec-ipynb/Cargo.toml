@@ -8,6 +8,7 @@ jupyter-protocol = "0.9.0"
 nbformat = "0.13.0"
 serde_json = { workspace = true }
 stencila-codec = { path = "../codec" }
+stencila-codec-dom = { path = "../codec-dom" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 
 [lints]

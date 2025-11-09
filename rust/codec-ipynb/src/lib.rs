@@ -1,6 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
-use jupyter_protocol::{Media, MediaType};
+use jupyter_protocol::{ExecutionCount, Media, MediaType};
 use nbformat::{
     Notebook, parse_notebook, serialize_notebook, upgrade_legacy_notebook,
     v4::{
@@ -20,6 +20,7 @@ use stencila_codec::{
         LabelType, Node, Object, Person, RawBlock,
     },
 };
+use stencila_codec_dom::to_dom;
 
 /// A codec for Jupyter Notebooks
 pub struct IpynbCodec;
@@ -367,8 +368,10 @@ fn code_chunk_from_code_cell(
 /// Convert a Stencila [`CodeChunk`] to a Jupyter code cell
 fn code_chunk_to_code_cell(code_chunk: &CodeChunk) -> Result<Cell> {
     let mut stencila = serde_json::Map::new();
+    let mut vscode = serde_json::Map::new();
     if let Some(value) = &code_chunk.programming_language {
         stencila.insert("programmingLanguage".into(), json!(value));
+        vscode.insert("languageId".into(), json!(value));
     }
     if let Some(value) = &code_chunk.label_type {
         stencila.insert("labelType".into(), json!(value));
@@ -388,10 +391,13 @@ fn code_chunk_to_code_cell(code_chunk: &CodeChunk) -> Result<Cell> {
         stencila.insert("caption".into(), json!(md));
     }
 
-    let additional = if stencila.is_empty() {
+    let additional = if stencila.is_empty() && vscode.is_empty() {
         HashMap::new()
     } else {
-        HashMap::from([("stencila".into(), Value::Object(stencila))])
+        HashMap::from([
+            ("stencila".into(), Value::Object(stencila)),
+            ("vscode".into(), Value::Object(vscode)),
+        ])
     };
 
     let metadata = CellMetadata {
@@ -399,11 +405,17 @@ fn code_chunk_to_code_cell(code_chunk: &CodeChunk) -> Result<Cell> {
         ..cell_metadata_default()
     };
 
+    let execution_count = code_chunk
+        .options
+        .execution_count
+        .unwrap_or_default()
+        .min(1) as usize;
+
     let outputs = code_chunk
         .outputs
         .iter()
         .flatten()
-        .map(node_to_output)
+        .map(|output| node_to_output(output, execution_count))
         .collect();
 
     Ok(Cell::Code {
@@ -481,27 +493,123 @@ fn node_from_media(media: Media) -> Node {
     Node::String("Unhandled media type".into())
 }
 
-/// Convert a Stencila [`Node`] to a Jupyter [`Media`]
-fn node_to_output(node: &Node) -> Output {
-    let media_type = match node {
-        Node::String(string) => string_to_media_type(string),
-        Node::ImageObject(image_object) => image_object_to_media_type(image_object),
-        _ => match serde_json::to_value(node)
-            .ok()
-            .and_then(|value| value.as_object().cloned())
-        {
-            Some(object) => MediaType::Json(object),
-            None => MediaType::Plain("Unable to convert".into()),
-        },
-    };
-
+/// Convert a Stencila [`Node`] to a Jupyter [`Output`]
+fn node_to_output(node: &Node, execution_count: usize) -> Output {
     Output::ExecuteResult(ExecuteResult {
         data: Media {
-            content: vec![media_type],
+            content: node_to_media_types(node),
         },
-        execution_count: Default::default(),
+        execution_count: ExecutionCount::new(execution_count),
         metadata: Default::default(),
     })
+}
+
+/// Convert a Stencila [`Node`] to a vector of [`MediaType`]s
+///
+/// This function returns multiple media type representations for rich display in Jupyter.
+/// The order matters: Jupyter frontends will typically use the first format they can render.
+fn node_to_media_types(node: &Node) -> Vec<MediaType> {
+    let mut media_types = Vec::new();
+
+    // Handle each node type with appropriate media representations
+    match node {
+        // Primitive types: prioritize plain text for readability, add JSON for roundtripping
+        Node::Null(null) => {
+            media_types.push(MediaType::Plain(null.to_string()));
+        }
+        Node::Boolean(bool) => {
+            media_types.push(MediaType::Plain(bool.to_string()));
+        }
+        Node::Integer(int) => {
+            media_types.push(MediaType::Plain(int.to_string()));
+        }
+        Node::UnsignedInteger(uint) => {
+            media_types.push(MediaType::Plain(uint.to_string()));
+        }
+        Node::Number(num) => {
+            media_types.push(MediaType::Plain(num.to_string()));
+        }
+        Node::String(string) => {
+            media_types.push(MediaType::Plain(string.clone()));
+        }
+
+        // Date/Time types: use plain text ISO format, add JSON
+        Node::Date(date) => {
+            media_types.push(MediaType::Plain(date.to_string()));
+            add_json_media_type(&mut media_types, node);
+        }
+        Node::DateTime(datetime) => {
+            media_types.push(MediaType::Plain(datetime.to_string()));
+            add_json_media_type(&mut media_types, node);
+        }
+        Node::Time(time) => {
+            media_types.push(MediaType::Plain(time.to_string()));
+            add_json_media_type(&mut media_types, node);
+        }
+        Node::Timestamp(timestamp) => {
+            media_types.push(MediaType::Plain(timestamp.to_string()));
+            add_json_media_type(&mut media_types, node);
+        }
+        Node::Duration(duration) => {
+            media_types.push(MediaType::Plain(duration.to_string()));
+            add_json_media_type(&mut media_types, node);
+        }
+
+        // ImageObject: use specialized handling for plots and images
+        Node::ImageObject(image_object) => {
+            media_types.push(image_object_to_media_type(image_object));
+            media_types.push(MediaType::Html(to_dom(node)));
+            add_json_media_type(&mut media_types, node);
+        }
+
+        // Audio and Video: use appropriate media types
+        Node::AudioObject(_audio_object) => {
+            // TODO: Add native audio media type if supported by jupyter_protocol
+            media_types.push(MediaType::Html(to_dom(node)));
+            add_json_media_type(&mut media_types, node);
+        }
+        Node::VideoObject(_video_object) => {
+            // TODO: Add native video media type if supported by jupyter_protocol
+            media_types.push(MediaType::Html(to_dom(node)));
+            add_json_media_type(&mut media_types, node);
+        }
+
+        // Math expressions: use LaTeX for native rendering
+        Node::MathBlock(math_block) => {
+            media_types.push(MediaType::Latex(math_block.code.to_string()));
+            media_types.push(MediaType::Html(to_dom(node)));
+            add_json_media_type(&mut media_types, node);
+        }
+        Node::MathInline(math_inline) => {
+            media_types.push(MediaType::Latex(math_inline.code.to_string()));
+            media_types.push(MediaType::Html(to_dom(node)));
+            add_json_media_type(&mut media_types, node);
+        }
+
+        // All other types: provide HTML and JSON
+        _ => {
+            media_types.push(MediaType::Html(to_dom(node)));
+            add_json_media_type(&mut media_types, node);
+        }
+    }
+
+    // Fallback if no media types were added
+    if media_types.is_empty() {
+        media_types.push(MediaType::Plain(format!(
+            "Unable to convert Stencila `{node}` to Jupyter output"
+        )));
+    }
+
+    media_types
+}
+
+/// Add a JSON media type representation of a node to the media types vector
+fn add_json_media_type(media_types: &mut Vec<MediaType>, node: &Node) {
+    if let Ok(value) = serde_json::to_value(node)
+        && let Some(object) = value.as_object().cloned()
+    {
+        media_types.push(MediaType::Json(object));
+    }
 }
 
 /// Create a Stencila [`ImageObject`] from a JSON object
@@ -562,11 +670,6 @@ fn object_from_value(object: Map<String, Value>) -> Node {
 /// Convert a Jupyter code cell stream output to a Stencila [`Node`]
 fn node_from_multiline_string(text: MultilineString) -> Node {
     Node::String(text.0)
-}
-
-/// Convert a string to a Jupyter [`MediaType`]
-fn string_to_media_type(string: &str) -> MediaType {
-    MediaType::Plain(string.into())
 }
 
 /// Convert a Jupyter code cell stream output to a Stencila [`ExecutionMessage`]

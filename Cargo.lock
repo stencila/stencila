@@ -8748,6 +8748,7 @@ dependencies = [
  "nbformat",
  "serde_json",
  "stencila-codec",
+ "stencila-codec-dom",
  "stencila-codec-markdown",
 ]
 
