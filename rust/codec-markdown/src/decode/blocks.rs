@@ -35,7 +35,6 @@ use super::{
     shared::{
         attrs, attrs_list, block_node_type, execution_bounds, execution_mode, instruction_type,
         model_parameters, name, node_to_string, primitive_node, prompt, relative_position,
-        string_to_instruction_message,
     },
 };
 
@@ -979,9 +978,10 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
                     None => (None, Some(2)),
                 };
 
-                let message = message
-                    .map(string_to_instruction_message)
-                    .unwrap_or_default();
+                let message = InstructionMessage::new(decode_inlines(
+                    &message.unwrap_or_default(),
+                    &mut Context::new(Format::Markdown),
+                ));
 
                 let content = capacity.map(Vec::with_capacity);
 

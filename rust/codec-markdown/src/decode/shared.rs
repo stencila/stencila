@@ -14,8 +14,8 @@ use winnow::{
 };
 
 use stencila_codec::stencila_schema::{
-    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, InstructionMessage, InstructionType,
-    ModelParameters, Node, RelativePosition, Time, Timestamp,
+    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, InstructionType, ModelParameters,
+    Node, RelativePosition, Time, Timestamp,
 };
 use stencila_codec_json5_trait::Json5Codec;
 use stencila_codec_text_trait::TextCodec;
@@ -399,26 +399,6 @@ pub fn node_to_option_duration(node: Node) -> Option<Duration> {
     match node {
         Node::Duration(duration) => Some(duration),
         _ => None,
-    }
-}
-
-/// Parse a string into an [`InstructionMessage`]
-///
-/// Uses Stencila's custom inline parser to preserve extensions like
-/// `code`{exec} syntax that the standard markdown crate doesn't understand.
-pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
-    use super::inlines::inlines;
-
-    // Parse the input string directly using Stencila's inline parser
-    // This preserves custom syntax like `code`{exec} that the standard markdown crate doesn't understand
-    let content = inlines(md)
-        .into_iter()
-        .map(|(inline, _span)| inline)
-        .collect();
-
-    InstructionMessage {
-        content,
-        ..Default::default()
     }
 }
 
