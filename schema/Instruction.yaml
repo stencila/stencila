@@ -32,6 +32,7 @@ properties:
     "@id": stencila:message
     description: The instruction message, possibly including images, audio, or other media.
     $ref: InstructionMessage
+    walk: true
     patch:
       formats: [md, smd, myst, ipynb, qmd]
     serde:

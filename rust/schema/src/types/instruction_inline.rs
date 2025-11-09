@@ -66,6 +66,7 @@ pub struct InstructionInline {
 
     /// The instruction message, possibly including images, audio, or other media.
     #[serde(default)]
+    #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]

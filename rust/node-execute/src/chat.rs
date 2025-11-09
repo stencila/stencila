@@ -4,7 +4,7 @@ use futures::{StreamExt, stream::FuturesUnordered};
 use itertools::Itertools;
 use serde_json::json;
 
-use stencila_models::ModelTask;
+use stencila_models::{ModelMessage, ModelTask};
 use stencila_node_diagnostics::{DiagnosticLevel, diagnostics_gte};
 use stencila_schema::{
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
@@ -19,7 +19,7 @@ use crate::{
     interrupt_impl,
     model_utils::{
         blocks_to_message_part, blocks_to_system_message, file_to_message_part,
-        model_task_to_blocks_and_authors,
+        instr_msg_to_model_msg, model_task_to_blocks_and_authors,
     },
     prelude::*,
 };
@@ -169,7 +169,7 @@ impl Executable for Chat {
 
         let started = Timestamp::now();
 
-        let mut instruction_messages: Vec<InstructionMessage> = Vec::new();
+        let mut model_messages: Vec<ModelMessage> = Vec::new();
 
         // Execute the prompt and render to a system message
         self.prompt.execute(executor).await;
@@ -183,7 +183,7 @@ impl Executable for Chat {
                 blocks.push(block.clone());
             }
 
-            instruction_messages.push(blocks_to_system_message(&blocks));
+            model_messages.push(blocks_to_system_message(&blocks));
         }
 
         // If there are no messages yet, and the prompt block contains a query
@@ -235,13 +235,13 @@ impl Executable for Chat {
         }
 
         // Append the existing messages in this chat
-        instruction_messages.append(
+        model_messages.append(
             &mut self
                 .content
                 .iter()
                 .filter_map(|block| match block {
-                    Block::ChatMessage(msg) => msg_to_instr_msg(msg),
-                    Block::ChatMessageGroup(group) => group_to_instr_msg(group),
+                    Block::ChatMessage(msg) => chat_msg_to_model_msg(msg),
+                    Block::ChatMessageGroup(group) => group_to_model_msg(group),
                     _ => None,
                 })
                 .collect(),
@@ -343,7 +343,7 @@ impl Executable for Chat {
                     model_ids: Some(vec![model_id.clone()]),
                     ..*self.model_parameters.clone()
                 },
-                instruction_messages.clone(),
+                model_messages.clone(),
             );
             futures.push(async move {
                 let started = Timestamp::now();
@@ -484,9 +484,11 @@ impl Executable for Chat {
                                     .into_iter()
                                     .filter_map(|diag| diag.to_string_pretty("", "", &None).ok())
                                     .join("\n");
-                                task.messages.push(InstructionMessage::user(
-                                    format!("There was an error, please try again:\n\n{diags}"),
-                                    None,
+                                task.messages.push(instr_msg_to_model_msg(
+                                    &InstructionMessage::user(
+                                        format!("There was an error, please try again:\n\n{diags}"),
+                                        None,
+                                    ),
                                 ));
 
                                 // Run model task again with diagnostic added
@@ -626,8 +628,8 @@ impl Executable for Chat {
     }
 }
 
-/// Convert a [`ChatMessage`] to an [`InstructionMessage`]
-fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
+/// Convert a [`ChatMessage`] to a [`ModelMessage`]
+fn chat_msg_to_model_msg(msg: &ChatMessage) -> Option<ModelMessage> {
     // Begin parts with content of message converted to Markdown
     let mut parts: Vec<MessagePart> = blocks_to_message_part(&msg.content)
         .iter()
@@ -650,22 +652,21 @@ fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
         parts.push(MessagePart::Text("Hello".into()));
     }
 
-    Some(InstructionMessage {
-        role: Some(msg.role),
-        parts,
-        ..Default::default()
+    Some(match msg.role {
+        MessageRole::System => ModelMessage::system(parts),
+        MessageRole::User => ModelMessage::user(parts),
+        MessageRole::Model => ModelMessage::model(parts),
     })
 }
 
-fn group_to_instr_msg(group: &ChatMessageGroup) -> Option<InstructionMessage> {
-    // Convert the selected message, defaulting to the first messages, into an
-    // instruction message
+fn group_to_model_msg(group: &ChatMessageGroup) -> Option<ModelMessage> {
+    // Convert the selected message, defaulting to the first messages, into a model message
     group
         .messages
         .iter()
         .find(|msg| msg.options.is_selected.unwrap_or_default())
         .or_else(|| group.messages.first())
-        .and_then(msg_to_instr_msg)
+        .and_then(chat_msg_to_model_msg)
 }
 
 fn truncate(message: String, chars: usize) -> String {

@@ -144,7 +144,7 @@ impl OpenAIModel {
         let messages = task
             .messages
             .iter()
-            .map(|message| match message.role.unwrap_or_default() {
+            .map(|message| match message.role {
                 MessageRole::System => {
                     ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
                         content: ChatCompletionRequestSystemMessageContent::Text(

@@ -4,7 +4,7 @@ use smart_default::SmartDefault;
 use strum::Display;
 
 use stencila_format::Format;
-use stencila_schema::{InstructionMessage, InstructionType, ModelParameters};
+use stencila_schema::{InstructionType, MessagePart, MessageRole, ModelParameters};
 use stencila_schema_json::JsonSchema;
 
 /// The kind of generative model task
@@ -28,6 +28,52 @@ pub enum ModelTaskKind {
     ///
     /// - OpenAI Images: https://platform.openai.com/docs/api-reference/images
     ImageGeneration,
+}
+
+/// A message for use in model API requests
+///
+/// This is a lightweight type specifically designed for the model API boundary,
+/// containing only the fields that models actually need. Both `ChatMessage` and
+/// `InstructionMessage` (document node types) are converted to `ModelMessage` before
+/// being passed to model implementations.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelMessage {
+    /// The role of the message in the conversation
+    pub role: MessageRole,
+
+    /// The parts of the message (text, images, audio, video, files)
+    pub parts: Vec<MessagePart>,
+}
+
+impl ModelMessage {
+    /// Create a new model message with a given role and parts
+    pub fn new(role: MessageRole, parts: Vec<MessagePart>) -> Self {
+        Self { role, parts }
+    }
+
+    /// Create a new model message with system role
+    pub fn system(parts: Vec<MessagePart>) -> Self {
+        Self {
+            role: MessageRole::System,
+            parts,
+        }
+    }
+
+    /// Create a new model message with user role
+    pub fn user(parts: Vec<MessagePart>) -> Self {
+        Self {
+            role: MessageRole::User,
+            parts,
+        }
+    }
+
+    /// Create a new model message with model role
+    pub fn model(parts: Vec<MessagePart>) -> Self {
+        Self {
+            role: MessageRole::Model,
+            parts,
+        }
+    }
 }
 
 /// A task to generate content
@@ -64,7 +110,7 @@ pub struct ModelTask {
     pub model_parameters: Option<ModelParameters>,
 
     /// The list of input messages
-    pub messages: Vec<InstructionMessage>,
+    pub messages: Vec<ModelMessage>,
 
     /// The kind of model task
     pub kind: Option<ModelTaskKind>,
@@ -205,7 +251,7 @@ impl ModelTask {
     pub fn new(
         instruction_type: InstructionType,
         model_parameters: ModelParameters,
-        messages: Vec<InstructionMessage>,
+        messages: Vec<ModelMessage>,
     ) -> Self {
         // Extract and transform any model execution options from
         // model parameters and put in the top level of the task

@@ -2,24 +2,20 @@ use eyre::{Result, bail};
 
 use stencila_codec_markdown::to_markdown_flavor;
 use stencila_codecs::{DecodeOptions, Format};
-use stencila_models::{ModelOutput, ModelOutputKind, ModelTask};
+use stencila_models::{ModelMessage, ModelOutput, ModelOutputKind, ModelTask};
 use stencila_schema::{
-    Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline, InstructionMessage, Link,
-    MessagePart, MessageRole, Node, Text, VideoObject, shortcuts::p,
+    Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline, Link, MessagePart,
+    MessageRole, Node, Text, VideoObject, shortcuts::p,
 };
 
-/// Render Stencila [`Block`] nodes to a "system prompt"
+/// Render Stencila [`Block`] nodes to a "system message"
 ///
 /// Uses a [`MarkdownEncodeContext`] with the render option set to true.
 /// Used for generating Markdown from an executed prompt.
-pub(super) fn blocks_to_system_message(blocks: &Vec<Block>) -> InstructionMessage {
+pub(super) fn blocks_to_system_message(blocks: &Vec<Block>) -> ModelMessage {
     let md = to_markdown_flavor(blocks, Format::Llmd);
 
-    InstructionMessage {
-        role: Some(MessageRole::System),
-        parts: vec![MessagePart::from(md)],
-        ..Default::default()
-    }
+    ModelMessage::system(vec![MessagePart::from(md)])
 }
 
 /// Convert Stencila [`Block`] nodes to a [`MessagePart`]
@@ -27,6 +23,68 @@ pub(super) fn blocks_to_message_part(blocks: &Vec<Block>) -> Option<MessagePart>
     let md = to_markdown_flavor(blocks, Format::Llmd);
 
     (!md.trim().is_empty()).then_some(MessagePart::Text(md.into()))
+}
+
+/// Convert an [`InstructionMessage`] to a [`ModelMessage`]
+pub fn instr_msg_to_model_msg(msg: &stencila_schema::InstructionMessage) -> ModelMessage {
+    let mut parts = Vec::new();
+    let mut text_buffer = String::new();
+
+    // Process inline content, extracting media objects and converting rest to text
+    for inline in &msg.content {
+        match inline {
+            Inline::ImageObject(img) => {
+                // Flush text buffer first
+                if !text_buffer.is_empty() {
+                    parts.push(MessagePart::Text(text_buffer.clone().into()));
+                    text_buffer.clear();
+                }
+                parts.push(MessagePart::ImageObject(img.clone()));
+            }
+            Inline::AudioObject(audio) => {
+                if !text_buffer.is_empty() {
+                    parts.push(MessagePart::Text(text_buffer.clone().into()));
+                    text_buffer.clear();
+                }
+                parts.push(MessagePart::AudioObject(audio.clone()));
+            }
+            Inline::VideoObject(video) => {
+                if !text_buffer.is_empty() {
+                    parts.push(MessagePart::Text(text_buffer.clone().into()));
+                    text_buffer.clear();
+                }
+                parts.push(MessagePart::VideoObject(video.clone()));
+            }
+            _ => {
+                // Convert other inlines to markdown and append to buffer
+                text_buffer += &to_markdown_flavor(&vec![inline.clone()], Format::Llmd);
+            }
+        }
+    }
+
+    // Flush remaining text
+    if !text_buffer.is_empty() {
+        parts.push(MessagePart::Text(text_buffer.into()));
+    }
+
+    // Add any attached files
+    for file in msg.files.iter().flatten() {
+        if let Some(part) = file_to_message_part(file) {
+            parts.push(part);
+        }
+    }
+
+    // Some models do not like empty message parts, or no message parts so ensure that
+    // does not happen.
+    if parts.is_empty() {
+        parts.push(MessagePart::Text("Hello".into()));
+    }
+
+    match msg.role.unwrap_or(MessageRole::User) {
+        MessageRole::System => ModelMessage::system(parts),
+        MessageRole::User => ModelMessage::user(parts),
+        MessageRole::Model => ModelMessage::model(parts),
+    }
 }
 
 /// Convert a Stencila [`File`] to a [`MessagePart`]

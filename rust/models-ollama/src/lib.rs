@@ -116,7 +116,7 @@ impl Model for OllamaModel {
             .messages
             .iter()
             .map(|message| {
-                let role = match message.role.unwrap_or_default() {
+                let role = match message.role {
                     stencila_schema::MessageRole::Model => MessageRole::Assistant,
                     stencila_schema::MessageRole::System => MessageRole::System,
                     stencila_schema::MessageRole::User => MessageRole::User,
