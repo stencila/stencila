@@ -4837,8 +4837,8 @@ source = "git+https://github.com/TheClams/latex2mathml?rev=26cdf2be7f58663b3274f
 
 [[package]]
 name = "layout-rs"
-version = "0.1.2"
-source = "git+https://github.com/nadavrot/layout?rev=9ff0d4976df64b9dc5684db7088e73499d1243d1#9ff0d4976df64b9dc5684db7088e73499d1243d1"
+version = "0.1.3"
+source = "git+https://github.com/nadavrot/layout?rev=440e032a8ce21b61f5ada67e2b1450fb77842b7c#440e032a8ce21b61f5ada67e2b1450fb77842b7c"
 
 [[package]]
 name = "lazy_static"
