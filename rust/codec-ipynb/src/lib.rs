@@ -555,23 +555,18 @@ fn node_to_media_types(node: &Node) -> Vec<MediaType> {
             add_json_media_type(&mut media_types, node);
         }
 
-        // ImageObject: use specialized handling for plots and images
+        // Media object: because these tend to be large, only encode a
+        // single media type (rather than say HTML and JSON)
         Node::ImageObject(image_object) => {
             media_types.push(image_object_to_media_type(image_object));
-            media_types.push(MediaType::Html(to_dom(node)));
-            add_json_media_type(&mut media_types, node);
         }
-
-        // Audio and Video: use appropriate media types
         Node::AudioObject(_audio_object) => {
             // TODO: Add native audio media type if supported by jupyter_protocol
             media_types.push(MediaType::Html(to_dom(node)));
-            add_json_media_type(&mut media_types, node);
         }
         Node::VideoObject(_video_object) => {
             // TODO: Add native video media type if supported by jupyter_protocol
             media_types.push(MediaType::Html(to_dom(node)));
-            add_json_media_type(&mut media_types, node);
         }
 
         // Math expressions: use LaTeX for native rendering
@@ -623,18 +618,29 @@ fn image_object_from_object(media_type: &str, object: &Map<String, Value>) -> No
 
 /// Convert a Stencila [`ImageObject`] to a Jupyter [`MediaType`]
 fn image_object_to_media_type(image_object: &ImageObject) -> MediaType {
-    let Some(media_type) = &image_object.media_type else {
-        return MediaType::Png(image_object.content_url.clone());
+    let url = &image_object.content_url;
+
+    // Determine the media type of the image, falling back to PNG
+    let media_type = match &image_object.media_type {
+        Some(media_type) => media_type,
+        None => {
+            if let (Some(start), Some(end)) = (url.find("data:"), url.find(";base64,")) {
+                &url[(start + 5)..end]
+            } else {
+                "image/png"
+            }
+        }
     };
 
+    // Deserialize a visualization spec to an JSON object
     let object = || {
-        serde_json::from_str(&image_object.content_url)
+        serde_json::from_str(&url)
             .ok()
             .and_then(|value: Value| value.as_object().cloned())
             .unwrap_or_default()
     };
 
-    match media_type.as_str() {
+    match media_type {
         "application/vnd.plotly.v1+json" => MediaType::Plotly(object()),
         "application/vnd.vegalite.v2+json" => MediaType::VegaLiteV2(object()),
         "application/vnd.vegalite.v3+json" => MediaType::VegaLiteV3(object()),
@@ -644,15 +650,22 @@ fn image_object_to_media_type(image_object: &ImageObject) -> MediaType {
         "application/vnd.vega.v3+json" => MediaType::VegaV3(object()),
         "application/vnd.vega.v4+json" => MediaType::VegaV4(object()),
         "application/vnd.vega.v5+json" => MediaType::VegaV5(object()),
-        _ => MediaType::Png(image_object.content_url.clone()),
+        "image/svg+xml" => MediaType::Svg(url.into()),
+        "image/png" => MediaType::Png(url.into()),
+        "image/jpeg" => MediaType::Jpeg(url.into()),
+        "image/gif" => MediaType::Gif(url.into()),
+        _ => MediaType::Png(url.clone()),
     }
 }
 
-/// Create a Stencila [`ImageObject`] from a string
+/// Create a Stencila [`ImageObject`] from a string value
+///
+/// Note that Jupyter stores the Base64 encoding of images without the dataURI
+/// so this function add them back in.
 fn image_object_from_string(media_type: &str, content_url: &str) -> Node {
     Node::ImageObject(ImageObject {
         media_type: Some(media_type.into()),
-        content_url: content_url.into(),
+        content_url: ["data:", media_type, ";base64,", content_url].concat(),
         ..Default::default()
     })
 }
