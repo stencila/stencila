@@ -48,10 +48,7 @@ features = ["pyo3/extension-module"]
 python-source = "python"
 module-name = "stencila._stencila"
 
-[tool.pdm]
-distribution = false
-
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "coverage>=7.5.4",
     "maturin>=1.5.1",

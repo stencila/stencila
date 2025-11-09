@@ -37,15 +37,10 @@ Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
 
 [build-system]
-requires = [
-    "pdm-backend",
-]
-build-backend = "pdm.backend"
+requires = ["uv_build>=0.9.8,<0.10.0"]
+build-backend = "uv_build"
 
-[tool.pdm]
-distribution = true
-
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8.1.1",
     "pytest-regressions>=2.5.0",

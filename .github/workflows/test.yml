@@ -99,7 +99,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Setup Python dev dependencies
-        run: pip install pdm ruff pyright
+        run: pip install ruff pyright
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5

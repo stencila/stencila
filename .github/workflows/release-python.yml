@@ -14,7 +14,7 @@ on:
         type: boolean
         default: true
       update-sdk:
-        description: Update Python SDK pdm.lock
+        description: Update Python SDK uv.lock
         type: boolean
         default: true
       build-sdk:
@@ -49,15 +49,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
       - name: Publish package
         # Put `if` here so that jobs that `need` this one will still
         # run even if this is not getting published
         if: ${{ inputs.publish-types }}
-        run: cd python/stencila_types && pdm publish && sleep 60  
+        run: cd python/stencila_types && uv publish && sleep 60  
 
   # Publish stencila_plugin
   # Must be done after stencila_types is published
@@ -76,21 +76,21 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v4
 
-      - name: Publish pdm.lock
-        run: cd python/stencila_plugin && pdm sync
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Commit pdm.lock
+      - name: Update uv.lock
+        run: cd python/stencila_plugin && uv sync
+
+      - name: Commit uv.lock
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: 'python/stencila_plugin/pdm.lock'
-          commit_message: "chore(python/stencila_plugin): update pdm.lock"
+          file_pattern: 'python/stencila_plugin/uv.lock'
+          commit_message: "chore(python/stencila_plugin): update uv.lock"
 
       - name: Publish package
-        run: cd python/stencila_plugin && pdm publish
+        run: cd python/stencila_plugin && uv publish
 
   # Update python/stencila package (Python SDK)
   # Must be done after stencila_types is published
@@ -106,18 +106,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v4
 
-      - name: Update pdm.lock
-        run: cd python/stencila && pdm sync
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Commit pdm.lock
+      - name: Update uv.lock
+        run: cd python/stencila && uv sync
+
+      - name: Commit uv.lock
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: 'python/stencila/pdm.lock'
-          commit_message: "chore(python/stencila): update pdm.lock"
+          file_pattern: 'python/stencila/uv.lock'
+          commit_message: "chore(python/stencila): update uv.lock"
 
   # Build python/stencila package (Python SDK)
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
