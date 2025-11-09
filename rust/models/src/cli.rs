@@ -241,7 +241,9 @@ impl Run {
         let mut messages: Vec<ModelMessage> = Vec::new();
 
         if let Some(system) = self.system {
-            messages.push(ModelMessage::system(vec![MessagePart::Text(Text::from(system))]));
+            messages.push(ModelMessage::system(vec![MessagePart::Text(Text::from(
+                system,
+            ))]));
         }
 
         let mut parts = Vec::new();

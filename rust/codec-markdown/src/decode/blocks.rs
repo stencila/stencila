@@ -979,7 +979,7 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
                 };
 
                 let message = InstructionMessage::new(decode_inlines(
-                    &message.unwrap_or_default(),
+                    message.unwrap_or_default(),
                     &mut Context::new(Format::Markdown),
                 ));
 

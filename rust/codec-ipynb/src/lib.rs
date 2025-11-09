@@ -634,7 +634,7 @@ fn image_object_to_media_type(image_object: &ImageObject) -> MediaType {
 
     // Deserialize a visualization spec to an JSON object
     let object = || {
-        serde_json::from_str(&url)
+        serde_json::from_str(url)
             .ok()
             .and_then(|value: Value| value.as_object().cloned())
             .unwrap_or_default()

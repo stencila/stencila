@@ -5,9 +5,8 @@ use serde::{Deserialize, Serialize};
 use strum::Display;
 
 use stencila_schema::{
-    AuthorRole, AuthorRoleAuthor, AuthorRoleName, MessagePart, Organization,
-    PersonOrOrganization, SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
-    Timestamp,
+    AuthorRole, AuthorRoleAuthor, AuthorRoleName, MessagePart, Organization, PersonOrOrganization,
+    SoftwareApplication, SoftwareApplicationOptions, StringOrNumber, Timestamp,
 };
 
 // Export crates for the convenience of crates implementing the Model trait

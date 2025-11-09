@@ -21,9 +21,7 @@ use stencila_schema::{
     TableCell, TableRow, Text, VisitorAsync, WalkControl,
     shortcuts::{p, t},
 };
-use stencila_schema::{
-    Cord, CreativeWorkVariant, MathBlock, QuoteBlock, Table, WalkthroughStep,
-};
+use stencila_schema::{Cord, CreativeWorkVariant, MathBlock, QuoteBlock, Table, WalkthroughStep};
 use stencila_schema_json::{JsonSchemaVariant, json_schema};
 
 use crate::{block_to_remove, inline_to_remove};
@@ -1616,7 +1614,9 @@ async fn table_image_to_rows(image: &ImageObject) -> Result<Vec<TableRow>> {
             model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
             ..Default::default()
         }),
-        messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(image.clone())])],
+        messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(
+            image.clone(),
+        )])],
         ..Default::default()
     })
     .await?;
@@ -1641,7 +1641,9 @@ async fn math_image_to_tex(image: &ImageObject, is_block: bool) -> Result<Cord> 
             model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
             ..Default::default()
         }),
-        messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(image.clone())])],
+        messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(
+            image.clone(),
+        )])],
         ..Default::default()
     })
     .await?;
