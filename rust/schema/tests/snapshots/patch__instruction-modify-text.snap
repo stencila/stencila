@@ -25,7 +25,7 @@ old:
         query: more succinct
       message:
         type: InstructionMessage
-        parts:
+        content:
           - type: Text
             value:
               string: more succinct
@@ -82,7 +82,7 @@ new:
         query: more succinct
       message:
         type: InstructionMessage
-        parts:
+        content:
           - type: Text
             value:
               string: more succinct
@@ -123,7 +123,7 @@ merged:
         query: more succinct
       message:
         type: InstructionMessage
-        parts:
+        content:
           - type: Text
             value:
               string: more succinct

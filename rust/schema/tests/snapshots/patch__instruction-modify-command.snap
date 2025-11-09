@@ -48,7 +48,7 @@ old:
         target: table
       message:
         type: InstructionMessage
-        parts:
+        content:
           - type: Text
             value:
               string: "top five highest mountains, with height in metres"
@@ -88,7 +88,7 @@ new:
         target: table
       message:
         type: InstructionMessage
-        parts:
+        content:
           - type: Text
             value:
               string: "top five highest mountains, with height in feet"
@@ -150,7 +150,7 @@ merged:
         target: table
       message:
         type: InstructionMessage
-        parts:
+        content:
           - type: Text
             value:
               string: "top five highest mountains, with height in feet"
@@ -200,7 +200,7 @@ ops:
   - - - content
       - 1
       - message
-      - parts
+      - content
       - 0
       - value
     - Apply:
