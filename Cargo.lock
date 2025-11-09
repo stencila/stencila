@@ -553,11 +553,12 @@ checksum = "3a8241f3ebb85c056b509d4327ad0358fbbba6ffb340bf388f26350aeda225b1"
 
 [[package]]
 name = "biblatex"
-version = "0.10.0"
-source = "git+https://github.com/typst/biblatex.git?rev=abb77bd#abb77bde5e19035f3d1fe165f321efceabf76137"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53d0c374feba1b9a59042a7c1cf00ce7c34b977b9134fe7c42b08e5183729f66"
 dependencies = [
- "numerals",
  "paste",
+ "roman-numerals-rs",
  "strum",
  "unic-langid",
  "unicode-normalization",
@@ -1334,8 +1335,9 @@ dependencies = [
 
 [[package]]
 name = "citationberg"
-version = "0.5.0"
-source = "git+https://github.com/typst/citationberg.git?rev=80f4bc8#80f4bc8a64217476e8277c65e99264506b03e876"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f6597e8bdbca37f1f56e5a80d15857b0932aead21a78d20de49e99e74933046"
 dependencies = [
  "quick-xml 0.38.3",
  "serde",
@@ -3941,18 +3943,19 @@ dependencies = [
 
 [[package]]
 name = "hayagriva"
-version = "0.8.1"
-source = "git+https://github.com/typst/hayagriva?rev=a48cc775a90b5098cc9930c3f8447cc3116265fc#a48cc775a90b5098cc9930c3f8447cc3116265fc"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cb69425736f184173b3ca6e27fcba440a61492a790c786b1c6af7e06a03e575"
 dependencies = [
  "biblatex",
  "ciborium",
  "citationberg",
  "indexmap 2.12.0",
- "numerals",
  "paste",
+ "roman-numerals-rs",
  "serde",
  "serde_yaml",
- "thiserror 1.0.69",
+ "thiserror 2.0.17",
  "unic-langid",
  "unicode-segmentation",
  "unscanny",
@@ -5937,12 +5940,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
-name = "numerals"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e25be21376a772d15f97ae789845340a9651d3c4246ff5ebb6a2b35f9c37bd31"
-
-[[package]]
 name = "objc"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7344,6 +7341,12 @@ dependencies = [
  "rmp",
  "serde",
 ]
+
+[[package]]
+name = "roman-numerals-rs"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c85cd47a33a4510b1424fe796498e174c6a9cf94e606460ef022a19f3e4ff85e"
 
 [[package]]
 name = "roxmltree"
