@@ -9814,6 +9814,7 @@ dependencies = [
  "similar",
  "smart-default",
  "stencila-ask",
+ "stencila-cloud",
  "stencila-codec-markdown-trait",
  "stencila-codec-text-trait",
  "stencila-codec-utils",

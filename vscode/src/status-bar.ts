@@ -133,6 +133,21 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
             label: '$(comment-discussion) Chat',
             description: 'Chat about the current document',
             command: 'stencila.chat-doc',
+          },
+          {
+            label: '$(cloud-upload) Push',
+            description: 'Push the current document to remote',
+            command: 'stencila.invoke.push-doc',
+          },
+          {
+            label: '$(cloud-download) Pull',
+            description: 'Pull the current document from remote',
+            command: 'stencila.invoke.pull-doc',
+          },
+          {
+            label: '$(git-pull-request-go-to-changes) Merge',
+            description: 'Merge another file into the current document',
+            command: 'stencila.invoke.merge-doc',
           }
         )
       }

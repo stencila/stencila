@@ -205,7 +205,7 @@ nodeTypes: []
   context.subscriptions.push(
     vscode.commands.registerCommand(
       'stencila.invoke.retry-node',
-      async (docUri, nodeType, nodeId) => {
+      async (_docUri, _nodeType, _nodeId) => {
         const editor = vscode.window.activeTextEditor
         if (!editor) {
           vscode.window.showErrorMessage('No active editor')
@@ -225,7 +225,7 @@ nodeTypes: []
   context.subscriptions.push(
     vscode.commands.registerCommand(
       'stencila.invoke.revise-node',
-      async (docUri, nodeType, nodeId) => {
+      async (_docUri, nodeType, nodeId) => {
         const editor = vscode.window.activeTextEditor
         if (!editor) {
           vscode.window.showErrorMessage('No active editor')
@@ -456,11 +456,536 @@ nodeTypes: []
     })
   )
 
+  // Push document command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('stencila.invoke.push-doc', async () => {
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor')
+        return
+      }
+
+      // Save the document if it has unsaved changes
+      if (editor.document.isDirty) {
+        const saved = await editor.document.save()
+        if (!saved) {
+          vscode.window.showInformationMessage(
+            'Push cancelled: document must be saved first.'
+          )
+          return
+        }
+      }
+
+      const path = editor.document.uri.fsPath
+
+      // Build options object
+      const options: {
+        target?: string
+        force_new: boolean
+        no_execute: boolean
+        watch: boolean
+        push_all_remotes: boolean
+        args: string
+      } = {
+        force_new: false,
+        no_execute: false,
+        watch: false,
+        push_all_remotes: true,
+        args: ''
+      }
+
+      event('doc_push')
+
+      try {
+        const result = await vscode.commands.executeCommand<{
+          url?: string
+          status?: string
+          message?: string
+          success_count?: number
+          fail_count?: number
+          remotes?: Array<{service: string, url: string}>
+        }>(`stencila.push-doc`, path, options)
+
+        // Handle multiple remotes success case (handled by Rust)
+        if (result?.status === 'success_multiple') {
+          // Success message already shown by Rust LSP
+          return
+        }
+
+        // Handle no remotes case
+        if (result?.status === 'no_remotes') {
+          // Prompt user to select a service to create new document
+          const serviceChoice = await vscode.window.showQuickPick(
+            [
+              { label: 'Google Docs', value: 'gdoc', description: 'Create a new Google Doc' },
+              { label: 'Microsoft 365', value: 'm365', description: 'Create a new Microsoft 365 document' },
+              { label: 'Enter URL manually', value: 'manual', description: 'Connect to or update an existing remote' }
+            ],
+            {
+              title: 'Select service to push to',
+              placeHolder: 'No remotes tracked. Choose where to push this document.'
+            }
+          )
+
+          if (serviceChoice) {
+            let newTarget = serviceChoice.value
+            let forceNew = true
+
+            if (serviceChoice.value === 'manual') {
+              const urlInput = await vscode.window.showInputBox({
+                title: 'Enter remote URL',
+                placeHolder: 'https://docs.google.com/document/d/...',
+                prompt: 'Enter the full URL of the remote document'
+              })
+              if (!urlInput) {
+                return
+              }
+              newTarget = urlInput
+              forceNew = false // Don't force new when user provides explicit URL
+            }
+
+            // Retry with selected service or URL
+            options.target = newTarget
+            options.force_new = forceNew
+
+            const retryResult = await vscode.commands.executeCommand<{url?: string}>(
+              `stencila.push-doc`,
+              path,
+              options
+            )
+
+            if (retryResult?.url) {
+              const choice = await vscode.window.showInformationMessage(
+                `Successfully pushed to ${retryResult.url}`,
+                'Open Remote',
+                'Copy URL'
+              )
+
+              if (choice === 'Open Remote') {
+                vscode.env.openExternal(vscode.Uri.parse(retryResult.url))
+              } else if (choice === 'Copy URL') {
+                vscode.env.clipboard.writeText(retryResult.url)
+                vscode.window.showInformationMessage('URL copied to clipboard')
+              }
+            }
+          }
+          return
+        }
+
+        // Handle success case
+        if (result?.url) {
+          const choice = await vscode.window.showInformationMessage(
+            `Successfully pushed to ${result.url}`,
+            'Open Remote',
+            'Copy URL'
+          )
+
+          if (choice === 'Open Remote') {
+            vscode.env.openExternal(vscode.Uri.parse(result.url))
+          } else if (choice === 'Copy URL') {
+            vscode.env.clipboard.writeText(result.url)
+            vscode.window.showInformationMessage('URL copied to clipboard')
+          }
+          return
+        }
+
+        // If we get here, something unexpected happened
+        vscode.window.showErrorMessage('Push failed: no result returned')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        vscode.window.showErrorMessage(`Push failed: ${errorMessage}`)
+      }
+    })
+  )
+
+  // Push document to specific remote command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('stencila.invoke.push-doc-remote', async () => {
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor')
+        return
+      }
+
+      // Save the document if it has unsaved changes
+      if (editor.document.isDirty) {
+        const saved = await editor.document.save()
+        if (!saved) {
+          vscode.window.showInformationMessage(
+            'Push cancelled: document must be saved first.'
+          )
+          return
+        }
+      }
+
+      const path = editor.document.uri.fsPath
+
+      // Build options with push_all_remotes: false to get list of remotes
+      const options: {
+        target?: string
+        force_new: boolean
+        no_execute: boolean
+        watch: boolean
+        push_all_remotes: boolean
+        args: string
+      } = {
+        force_new: false,
+        no_execute: false,
+        watch: false,
+        push_all_remotes: false,
+        args: ''
+      }
+
+      event('doc_push_specific')
+
+      try {
+        const result = await vscode.commands.executeCommand<{
+          url?: string
+          status?: string
+          message?: string
+          remotes?: Array<{service: string, url: string}>
+        }>(`stencila.push-doc`, path, options)
+
+        // Handle multiple remotes - let user choose one
+        if (result?.status === 'multiple_remotes' && result.remotes) {
+          const remoteItems = result.remotes.map((remote) => ({
+            label: remote.service,
+            description: remote.url,
+            url: remote.url
+          }))
+
+          const selected = await vscode.window.showQuickPick(remoteItems, {
+            title: 'Select remote to push to',
+            placeHolder: 'Choose which remote to update.'
+          })
+
+          if (selected) {
+            // Push to selected remote
+            const retryOptions = {
+              target: selected.url,
+              force_new: false,
+              no_execute: false,
+              watch: false,
+              push_all_remotes: false,
+              args: ''
+            }
+
+            const retryResult = await vscode.commands.executeCommand<{url?: string}>(
+              `stencila.push-doc`,
+              path,
+              retryOptions
+            )
+
+            if (retryResult?.url) {
+              const choice = await vscode.window.showInformationMessage(
+                `Successfully pushed to ${retryResult.url}`,
+                'Open Remote',
+                'Copy URL'
+              )
+
+              if (choice === 'Open Remote') {
+                vscode.env.openExternal(vscode.Uri.parse(retryResult.url))
+              } else if (choice === 'Copy URL') {
+                vscode.env.clipboard.writeText(retryResult.url)
+                vscode.window.showInformationMessage('URL copied to clipboard')
+              }
+            }
+          }
+          return
+        }
+
+        // Handle no remotes case
+        if (result?.status === 'no_remotes') {
+          vscode.window.showErrorMessage(
+            'No remotes found. Use "Push document to remote" to create a new remote first.'
+          )
+          return
+        }
+
+        // If there's only one remote, just push to it
+        if (result?.url) {
+          const choice = await vscode.window.showInformationMessage(
+            `Successfully pushed to ${result.url}`,
+            'Open Remote',
+            'Copy URL'
+          )
+
+          if (choice === 'Open Remote') {
+            vscode.env.openExternal(vscode.Uri.parse(result.url))
+          } else if (choice === 'Copy URL') {
+            vscode.env.clipboard.writeText(result.url)
+            vscode.window.showInformationMessage('URL copied to clipboard')
+          }
+          return
+        }
+
+        // If we get here, something unexpected happened
+        vscode.window.showErrorMessage('Push failed: no result returned')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        vscode.window.showErrorMessage(`Push failed: ${errorMessage}`)
+      }
+    })
+  )
+
+  // Push all documents command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('stencila.invoke.push-docs', async () => {
+      const options = {
+        no_execute: false,
+        args: ''
+      }
+
+      event('doc_push_all')
+
+      try {
+        await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: 'Pushing all tracked documents...',
+            cancellable: false
+          },
+          async () => {
+            const result = await vscode.commands.executeCommand<{total: number, succeeded: number, failed: number}>(
+              `stencila.push-docs`,
+              options
+            )
+
+            if (result) {
+              const message = `Push complete: ${result.succeeded} succeeded, ${result.failed} failed`
+              if (result.failed > 0) {
+                vscode.window.showWarningMessage(message)
+              } else {
+                vscode.window.showInformationMessage(message)
+              }
+            }
+          }
+        )
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        vscode.window.showErrorMessage(`Push all failed: ${errorMessage}`)
+      }
+    })
+  )
+
+  // Pull document command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('stencila.invoke.pull-doc', async () => {
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor')
+        return
+      }
+
+      // Save the document if it has unsaved changes
+      if (editor.document.isDirty) {
+        const saved = await editor.document.save()
+        if (!saved) {
+          vscode.window.showInformationMessage(
+            'Pull cancelled: document must be saved first.'
+          )
+          return
+        }
+      }
+
+      const path = editor.document.uri.fsPath
+
+      // Ask user for merge preference
+      const mergeChoice = await vscode.window.showQuickPick(
+        [
+          {
+            label: 'Merge with local file (keep local changes)',
+            value: 'merge'
+          },
+          {
+            label: 'Replace local file (overwrite local changes)',
+            value: 'replace'
+          }
+        ],
+        {
+          title: 'Pull Mode',
+          placeHolder: 'How should the pulled content be applied?'
+        }
+      )
+
+      if (!mergeChoice) {
+        return
+      }
+
+      const merge = mergeChoice.value === 'merge'
+
+      const options: {
+        target?: string
+        merge: boolean
+      } = {
+        merge
+      }
+
+      event('doc_pull')
+
+      try {
+        const result = await vscode.commands.executeCommand<{
+          modified_files?: string[]
+          status?: string
+          message?: string
+          remotes?: Array<{service: string, url: string}>
+        }>(`stencila.pull-doc`, path, options)
+
+        // Handle multiple remotes case
+        if (result?.status === 'multiple_remotes' && result.remotes) {
+          const remoteItems = result.remotes.map((remote) => ({
+            label: remote.service,
+            description: remote.url,
+            url: remote.url
+          }))
+
+          const selected = await vscode.window.showQuickPick(remoteItems, {
+            title: 'Select remote to pull from',
+            placeHolder: 'Multiple remotes found. Choose which one to pull from.'
+          })
+
+          if (selected) {
+            // Retry with selected remote
+            const retryOptions = {
+              target: selected.url,
+              merge
+            }
+
+            const retryResult = await vscode.commands.executeCommand<{modified_files?: string[]}>(
+              `stencila.pull-doc`,
+              path,
+              retryOptions
+            )
+
+            if (retryResult?.modified_files) {
+              const modifiedFiles = retryResult.modified_files as string[]
+
+              if (modifiedFiles.length === 0) {
+                vscode.window.showInformationMessage('Pulled successfully, no changes detected.')
+              } else {
+                // Open modified files
+                for (const filePath of modifiedFiles) {
+                  try {
+                    const fileUri = vscode.Uri.file(filePath)
+                    await vscode.window.showTextDocument(fileUri, {
+                      preview: false,
+                      preserveFocus: false
+                    })
+                  } catch (error) {
+                    // Ignore file open errors
+                  }
+                }
+
+                vscode.window.showInformationMessage(
+                  `Pulled successfully, ${modifiedFiles.length} file${modifiedFiles.length === 1 ? '' : 's'} modified`
+                )
+              }
+            } else {
+              vscode.window.showInformationMessage('Pull completed')
+            }
+          }
+          return
+        }
+
+        // Handle no remotes case
+        if (result?.status === 'no_remotes') {
+          // Prompt user to enter URL to pull from
+          const urlInput = await vscode.window.showInputBox({
+            title: 'Enter remote URL to pull from',
+            placeHolder: 'https://docs.google.com/document/d/... or https://...',
+            prompt: 'No tracked remotes found. Enter the URL of the remote document to pull from.',
+            validateInput: (value) => {
+              if (!value) {
+                return 'URL is required'
+              }
+              if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                return 'URL must start with http:// or https://'
+              }
+              return null
+            }
+          })
+
+          if (urlInput) {
+            // Retry with user-provided URL
+            options.target = urlInput
+
+            const retryResult = await vscode.commands.executeCommand<{modified_files?: string[]}>(
+              `stencila.pull-doc`,
+              path,
+              options
+            )
+
+            if (retryResult?.modified_files) {
+              const modifiedFiles = retryResult.modified_files as string[]
+
+              if (modifiedFiles.length === 0) {
+                vscode.window.showInformationMessage('Pulled successfully, no changes detected.')
+              } else {
+                // Open modified files
+                for (const filePath of modifiedFiles) {
+                  try {
+                    const fileUri = vscode.Uri.file(filePath)
+                    await vscode.window.showTextDocument(fileUri, {
+                      preview: false,
+                      preserveFocus: false
+                    })
+                  } catch (error) {
+                    // Ignore file open errors
+                  }
+                }
+
+                vscode.window.showInformationMessage(
+                  `Pulled successfully, ${modifiedFiles.length} file${modifiedFiles.length === 1 ? '' : 's'} modified`
+                )
+              }
+            } else {
+              vscode.window.showInformationMessage('Pull completed')
+            }
+          }
+          return
+        }
+
+        // Handle success case
+        if (result?.modified_files) {
+          const modifiedFiles = result.modified_files as string[]
+
+          if (modifiedFiles.length === 0) {
+            vscode.window.showInformationMessage('Pulled successfully, no changes detected.')
+          } else {
+            // Open modified files
+            for (const filePath of modifiedFiles) {
+              try {
+                const fileUri = vscode.Uri.file(filePath)
+                await vscode.window.showTextDocument(fileUri, {
+                  preview: false,
+                  preserveFocus: false
+                })
+              } catch (error) {
+                // Ignore file open errors
+              }
+            }
+
+            vscode.window.showInformationMessage(
+              `Pulled successfully, ${modifiedFiles.length} file${modifiedFiles.length === 1 ? '' : 's'} modified`
+            )
+          }
+          return
+        }
+
+        // If we get here, something unexpected happened
+        vscode.window.showInformationMessage('Pull completed')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        vscode.window.showErrorMessage(`Pull failed: ${errorMessage}`)
+      }
+    })
+  )
+
   // Document preview panel
   context.subscriptions.push(
     vscode.commands.registerCommand(
       'stencila.view-doc',
-      async (docUri, nodeType) => {
+      async (_docUri, _nodeType) => {
         const editor = vscode.window.activeTextEditor ?? lastTextEditor
         if (!editor) {
           vscode.window.showErrorMessage('No active editor')
@@ -476,7 +1001,7 @@ nodeTypes: []
   context.subscriptions.push(
     vscode.commands.registerCommand(
       'stencila.view-node',
-      async (docUri, nodeType, nodeId) => {
+      async (_docUri, nodeType, nodeId) => {
         const editor = vscode.window.activeTextEditor ?? lastTextEditor
         if (!editor) {
           vscode.window.showErrorMessage('No active editor')
@@ -496,7 +1021,7 @@ nodeTypes: []
   context.subscriptions.push(
     vscode.commands.registerCommand(
       'stencila.view-node-authors',
-      async (docUri, nodeType, nodeId) => {
+      async (_docUri, nodeType, nodeId) => {
         const editor = vscode.window.activeTextEditor ?? lastTextEditor
         if (!editor) {
           vscode.window.showErrorMessage('No active editor')

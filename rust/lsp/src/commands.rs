@@ -1,34 +1,28 @@
-use std::{
-    fmt::Display,
-    ops::ControlFlow,
-    path::PathBuf,
-    str::FromStr,
-    sync::{
-        Arc, LazyLock,
-        atomic::{AtomicI32, Ordering},
-    },
-    time::Duration,
-};
+mod merge_doc;
+mod progress;
+mod pull_doc;
+mod push_docs;
+mod push_doc;
+
+use std::{fmt::Display, path::PathBuf, str::FromStr, sync::Arc, time::Duration};
 
 use async_lsp::{
-    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
+    ClientSocket, ErrorCode, LanguageClient, ResponseError,
     lsp_types::{
-        ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
-        NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
-        ProgressParamsValue, Range, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
-        WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
-        WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
+        ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType, OneOf,
+        OptionalVersionedTextDocumentIdentifier, Position, Range, ShowMessageParams,
+        TextDocumentEdit, Url, WorkspaceEdit,
     },
 };
 use eyre::{OptionExt, Result};
 use itertools::Itertools;
 use serde_json::{Value, json};
 use tokio::{
-    sync::{RwLock, mpsc, watch::Receiver},
+    sync::{RwLock, watch::Receiver},
     time::timeout,
 };
 
-use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
+use stencila_codecs::{EncodeOptions, Format};
 use stencila_document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
 use stencila_node_execute::ExecuteOptions;
 use stencila_node_find::find;
@@ -40,10 +34,19 @@ use stencila_schema::{
 };
 
 use crate::{
-    ServerState,
     formatting::format_doc,
     text_document::{SyncState, TextNode},
 };
+
+// Re-export the submodule functions
+pub(super) use merge_doc::merge_doc;
+pub(super) use progress::cancel_progress;
+pub(super) use pull_doc::pull_doc;
+pub(super) use push_docs::push_docs;
+pub(super) use push_doc::push_doc;
+
+// Import internal functions from submodules
+use progress::create_progress;
 
 pub(super) const PATCH_VALUE: &str = "stencila.patch-value";
 pub(super) const PATCH_VALUE_EXECUTE: &str = "stencila.patch-value-execute";
@@ -84,6 +87,9 @@ pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
 
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 pub(super) const MERGE_DOC: &str = "stencila.merge-doc";
+pub(super) const PUSH_DOC: &str = "stencila.push-doc";
+pub(super) const PUSH_DOCS: &str = "stencila.push-docs";
+pub(super) const PULL_DOC: &str = "stencila.pull-doc";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
@@ -119,6 +125,9 @@ pub(super) fn commands() -> Vec<String> {
         CREATE_CHAT,
         EXPORT_DOC,
         MERGE_DOC,
+        PUSH_DOC,
+        PUSH_DOCS,
+        PULL_DOC,
     ]
     .into_iter()
     .map(String::from)
@@ -1101,54 +1110,13 @@ pub(super) async fn doc_command(
     Ok(return_value)
 }
 
-/// Handle the merge-doc command
-///
-/// This is a separate function to [`doc_command`] because it does not perform a
-/// command on the in-memory document, but rather operates directly on file paths
-pub(super) async fn merge_doc(
-    params: ExecuteCommandParams,
-    mut client: ClientSocket,
-) -> Result<Option<Value>, ResponseError> {
-    let mut args = params.arguments.into_iter();
-
-    let edited_path = path_buf_arg(args.next())?;
-    let original_path = path_buf_arg(args.next())?;
-
-    match stencila_codecs::merge(
-        &edited_path,
-        Some(&original_path),
-        None,
-        None,
-        true,
-        DecodeOptions::default(),
-        EncodeOptions::default(),
-        None,
-    )
-    .await
-    {
-        Ok(modified) => {
-            let modified = serde_json::to_value(&modified).map_err(internal_error)?;
-            Ok(Some(modified))
-        }
-        Err(error) => {
-            client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::ERROR,
-                    message: format!("Failed to merge document: {error}"),
-                })
-                .ok();
-            Ok(None)
-        }
-    }
-}
-
 /// Create an invalid request error
-fn invalid_request<T: Display>(value: T) -> ResponseError {
+pub(super) fn invalid_request<T: Display>(value: T) -> ResponseError {
     ResponseError::new(ErrorCode::INVALID_REQUEST, value.to_string())
 }
 
 /// Create an internal error
-fn internal_error<T: Display>(value: T) -> ResponseError {
+pub(super) fn internal_error<T: Display>(value: T) -> ResponseError {
     ResponseError::new(ErrorCode::INTERNAL_ERROR, value.to_string())
 }
 
@@ -1205,79 +1173,7 @@ fn string_arg(arg: Option<Value>) -> Result<String, ResponseError> {
 }
 
 /// Extract a `PathBuf` from a command arg
-fn path_buf_arg(arg: Option<Value>) -> Result<PathBuf, ResponseError> {
+pub(super) fn path_buf_arg(arg: Option<Value>) -> Result<PathBuf, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
         .ok_or_else(|| invalid_request("Path argument missing or invalid"))
-}
-
-static PROGRESS_TOKEN: LazyLock<AtomicI32> = LazyLock::new(AtomicI32::default);
-
-/// Create and begin a progress notification
-async fn create_progress(
-    mut client: ClientSocket,
-    title: String,
-    cancellable: bool,
-) -> mpsc::UnboundedSender<(u32, Option<String>)> {
-    // Create the token for the progress
-    let token = NumberOrString::Number(PROGRESS_TOKEN.fetch_add(1, Ordering::Relaxed));
-
-    // Request that the progress be created
-    client
-        .work_done_progress_create(WorkDoneProgressCreateParams {
-            token: token.clone(),
-        })
-        .await
-        .ok();
-
-    // Begin the progress
-    client
-        .progress(ProgressParams {
-            token: token.clone(),
-            value: ProgressParamsValue::WorkDone(WorkDoneProgress::Begin(WorkDoneProgressBegin {
-                title,
-                cancellable: Some(cancellable),
-                ..Default::default()
-            })),
-        })
-        .ok();
-
-    // Create channel and async task to update progress
-    let (sender, mut receiver) = mpsc::unbounded_channel::<(u32, Option<String>)>();
-    tokio::spawn(async move {
-        while let Some((percentage, message)) = receiver.recv().await {
-            let work_done = if percentage >= 100 {
-                WorkDoneProgress::End(WorkDoneProgressEnd {
-                    ..Default::default()
-                })
-            } else {
-                WorkDoneProgress::Report(WorkDoneProgressReport {
-                    percentage: Some(percentage),
-                    message: Some(message.unwrap_or_else(|| format!("{percentage}%"))),
-                    ..Default::default()
-                })
-            };
-
-            client
-                .progress(ProgressParams {
-                    token: token.clone(),
-                    value: ProgressParamsValue::WorkDone(work_done),
-                })
-                .ok();
-        }
-    });
-
-    sender
-}
-
-/// Handle a notification from the client to cancel a task previously associated
-/// with `WorkDoneProgressBegin`
-pub(crate) fn cancel_progress(
-    _state: &mut ServerState,
-    params: WorkDoneProgressCancelParams,
-) -> ControlFlow<Result<(), Error>> {
-    tracing::info!("cancel_progress: {:?}", params.token);
-
-    // TODO: Cancel the task associated with the token
-
-    ControlFlow::Continue(())
 }

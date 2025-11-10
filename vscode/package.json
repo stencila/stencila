@@ -476,6 +476,34 @@
         "icon": "$(git-pull-request-go-to-changes)"
       },
       {
+        "command": "stencila.invoke.push-doc",
+        "category": "Stencila",
+        "title": "Push document to remote",
+        "shortTitle": "Push",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "stencila.invoke.push-doc-remote",
+        "category": "Stencila",
+        "title": "Push document to specific remote",
+        "shortTitle": "Push to...",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "stencila.invoke.push-docs",
+        "category": "Stencila",
+        "title": "Push all tracked documents",
+        "shortTitle": "Push all",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "stencila.invoke.pull-doc",
+        "category": "Stencila",
+        "title": "Pull document from remote",
+        "shortTitle": "Pull",
+        "icon": "$(cloud-download)"
+      },
+      {
         "command": "stencila.setup.refresh",
         "category": "Stencila",
         "title": "Refresh setup checklist",
@@ -809,6 +837,17 @@
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
         {
+          "command": "stencila.invoke.push-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
+        },
+        {
+          "command": "stencila.invoke.push-docs"
+        },
+        {
+          "command": "stencila.invoke.pull-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
+        },
+        {
           "command": "stencila.walkthroughs.expand",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
@@ -842,6 +881,16 @@
           "command": "stencila.invoke.merge-doc",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
           "group": "000-Stencila@5"
+        },
+        {
+          "command": "stencila.invoke.push-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
+          "group": "000-Stencila@6"
+        },
+        {
+          "command": "stencila.invoke.pull-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
+          "group": "000-Stencila@7"
         }
       ],
       "editor/context": [
