@@ -981,6 +981,222 @@ nodeTypes: []
     })
   )
 
+  // Watch document command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('stencila.invoke.watch-doc', async () => {
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor')
+        return
+      }
+
+      // Save the document if it has unsaved changes
+      if (editor.document.isDirty) {
+        const saved = await editor.document.save()
+        if (!saved) {
+          vscode.window.showInformationMessage(
+            'Watch cancelled: document must be saved first.'
+          )
+          return
+        }
+      }
+
+      const path = editor.document.uri.fsPath
+
+      // Prompt for watch direction
+      const directionChoice = await vscode.window.showQuickPick(
+        [
+          {
+            label: 'Bi-directional',
+            value: 'bi',
+            description: 'Sync changes in both directions'
+          },
+          {
+            label: 'From remote only',
+            value: 'from-remote',
+            description: 'Only pull changes from remote to repository'
+          },
+          {
+            label: 'To remote only',
+            value: 'to-remote',
+            description: 'Only push changes from repository to remote'
+          }
+        ],
+        {
+          title: 'Watch Direction',
+          placeHolder: 'How should changes be synced?'
+        }
+      )
+
+      if (!directionChoice) {
+        return
+      }
+
+      const options = {
+        direction: directionChoice.value
+      }
+
+      event('doc_watch')
+
+      try {
+        const result = await vscode.commands.executeCommand<{
+          status?: string
+          message?: string
+          watch_id?: string
+          remote_url?: string
+          remotes?: Array<{service: string, url: string}>
+        }>('stencila.watch-doc', path, options)
+
+        // Handle multiple remotes - let user choose one
+        if (result?.status === 'multiple_remotes' && result.remotes) {
+          const remoteItems = result.remotes.map((remote) => ({
+            label: remote.service,
+            description: remote.url,
+            url: remote.url
+          }))
+
+          const selected = await vscode.window.showQuickPick(remoteItems, {
+            title: 'Select remote to watch',
+            placeHolder: 'Choose which remote to watch for changes.'
+          })
+
+          if (selected) {
+            // Retry with selected remote
+            const retryOptions = {
+              target: selected.url,
+              direction: directionChoice.value
+            }
+
+            const retryResult = await vscode.commands.executeCommand<{
+              status?: string
+              watch_id?: string
+              remote_url?: string
+            }>('stencila.watch-doc', path, retryOptions)
+
+            if (retryResult?.status === 'success') {
+              vscode.window.showInformationMessage(
+                `Now watching document on ${selected.label}`
+              )
+            }
+          }
+          return
+        }
+
+        // Handle no remotes case
+        if (result?.status === 'no_remotes') {
+          vscode.window.showErrorMessage(
+            'No remotes found. Use "Push document to remote" to create a remote first.'
+          )
+          return
+        }
+
+        // Handle already watched case
+        if (result?.status === 'already_watched') {
+          vscode.window.showInformationMessage('Document is already being watched.')
+          return
+        }
+
+        // Handle success case
+        if (result?.status === 'success') {
+          vscode.window.showInformationMessage('Document is now being watched.')
+          return
+        }
+
+        // If we get here, something unexpected happened
+        vscode.window.showWarningMessage('Watch setup may not have completed successfully.')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        vscode.window.showErrorMessage(`Watch failed: ${errorMessage}`)
+      }
+    })
+  )
+
+  // Unwatch document command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('stencila.invoke.unwatch-doc', async () => {
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor')
+        return
+      }
+
+      const path = editor.document.uri.fsPath
+
+      // Show confirmation dialog
+      const confirmed = await vscode.window.showWarningMessage(
+        'Stop watching this document? (Link to remote will be preserved)',
+        { modal: true },
+        'Stop Watching'
+      )
+
+      if (confirmed !== 'Stop Watching') {
+        return
+      }
+
+      const options = {}
+
+      event('doc_unwatch')
+
+      try {
+        const result = await vscode.commands.executeCommand<{
+          status?: string
+          message?: string
+          remotes?: Array<{service: string, url: string}>
+        }>('stencila.unwatch-doc', path, options)
+
+        // Handle multiple watched remotes - let user choose one
+        if (result?.status === 'multiple_watched' && result.remotes) {
+          const remoteItems = result.remotes.map((remote) => ({
+            label: remote.service,
+            description: remote.url,
+            url: remote.url
+          }))
+
+          const selected = await vscode.window.showQuickPick(remoteItems, {
+            title: 'Select remote to unwatch',
+            placeHolder: 'Choose which remote to stop watching.'
+          })
+
+          if (selected) {
+            // Retry with selected remote
+            const retryOptions = {
+              target: selected.url
+            }
+
+            const retryResult = await vscode.commands.executeCommand<{
+              status?: string
+            }>('stencila.unwatch-doc', path, retryOptions)
+
+            if (retryResult?.status === 'success') {
+              vscode.window.showInformationMessage(
+                `Stopped watching ${selected.label}`
+              )
+            }
+          }
+          return
+        }
+
+        // Handle not watched case
+        if (result?.status === 'not_watched') {
+          vscode.window.showInformationMessage('Document is not being watched.')
+          return
+        }
+
+        // Handle success case
+        if (result?.status === 'success') {
+          vscode.window.showInformationMessage('Stopped watching document.')
+          return
+        }
+
+        // If we get here, something unexpected happened
+        vscode.window.showWarningMessage('Unwatch may not have completed successfully.')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        vscode.window.showErrorMessage(`Unwatch failed: ${errorMessage}`)
+      }
+    })
+  )
+
   // Document preview panel
   context.subscriptions.push(
     vscode.commands.registerCommand(

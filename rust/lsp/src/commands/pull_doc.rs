@@ -47,9 +47,7 @@ pub(crate) async fn pull_doc(
     }
 
     // Open the document
-    progress
-        .send((20, Some("opening".to_string())))
-        .ok();
+    progress.send((20, Some("opening".to_string()))).ok();
     let doc = match Document::open(&path, None).await {
         Ok(doc) => doc,
         Err(error) => {
@@ -151,9 +149,7 @@ pub(crate) async fn pull_doc(
     };
 
     // Pull from remote
-    progress
-        .send((50, Some("fetching".to_string())))
-        .ok();
+    progress.send((50, Some("fetching".to_string()))).ok();
     let modified_files = match stencila_codecs::pull(
         &service,
         &url,
@@ -178,9 +174,7 @@ pub(crate) async fn pull_doc(
     };
 
     // Track the remote pull
-    progress
-        .send((80, Some("recording".to_string())))
-        .ok();
+    progress.send((80, Some("recording".to_string()))).ok();
     if let Err(error) = doc.track_remote_pulled(url).await {
         client
             .show_message(ShowMessageParams {

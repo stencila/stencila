@@ -145,6 +145,16 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
             command: 'stencila.invoke.pull-doc',
           },
           {
+            label: '$(eye) Watch',
+            description: 'Watch the current document for remote changes',
+            command: 'stencila.invoke.watch-doc',
+          },
+          {
+            label: '$(eye-closed) Unwatch',
+            description: 'Stop watching the current document',
+            command: 'stencila.invoke.unwatch-doc',
+          },
+          {
             label: '$(git-pull-request-go-to-changes) Merge',
             description: 'Merge another file into the current document',
             command: 'stencila.invoke.merge-doc',

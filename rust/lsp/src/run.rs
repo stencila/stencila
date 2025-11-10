@@ -18,7 +18,8 @@ use tracing_subscriber::filter::LevelFilter;
 use crate::{
     ServerState, ServerStatus, code_lens,
     commands::{
-        self, INSERT_CLONES, INSERT_INSTRUCTION, MERGE_DOC, PULL_DOC, PUSH_DOCS, PUSH_DOC,
+        self, INSERT_CLONES, INSERT_INSTRUCTION, MERGE_DOC, PULL_DOC, PUSH_DOC, PUSH_DOCS,
+        UNWATCH_DOC, WATCH_DOC,
     },
     completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
     prompts_, symbols, text_document,
@@ -123,7 +124,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
             .request::<request::ExecuteCommand, _>(|state, params| {
                 let doc_props = if matches!(
                     params.command.as_str(),
-                    MERGE_DOC | PUSH_DOC | PUSH_DOCS | PULL_DOC
+                    MERGE_DOC | PUSH_DOC | PUSH_DOCS | PULL_DOC | WATCH_DOC | UNWATCH_DOC
                 ) {
                     None
                 } else {
@@ -169,6 +170,8 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
                         PUSH_DOC => return commands::push_doc(params, client).await,
                         PUSH_DOCS => return commands::push_docs(params, client).await,
                         PULL_DOC => return commands::pull_doc(params, client).await,
+                        WATCH_DOC => return commands::watch_doc(params, client).await,
+                        UNWATCH_DOC => return commands::unwatch_doc(params, client).await,
                         _ => {}
                     }
 

@@ -180,7 +180,10 @@ pub(crate) async fn push_doc(
                         None => {
                             failures.push((
                                 remote_url.to_string(),
-                                format!("URL {} is not from a supported remote service", remote_url),
+                                format!(
+                                    "URL {} is not from a supported remote service",
+                                    remote_url
+                                ),
                             ));
                             continue;
                         }

@@ -504,6 +504,20 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "stencila.invoke.watch-doc",
+        "category": "Stencila",
+        "title": "Watch document for remote changes",
+        "shortTitle": "Watch",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "stencila.invoke.unwatch-doc",
+        "category": "Stencila",
+        "title": "Stop watching document",
+        "shortTitle": "Unwatch",
+        "icon": "$(eye-closed)"
+      },
+      {
         "command": "stencila.setup.refresh",
         "category": "Stencila",
         "title": "Refresh setup checklist",
@@ -848,6 +862,14 @@
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
         {
+          "command": "stencila.invoke.watch-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
+        },
+        {
+          "command": "stencila.invoke.unwatch-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
+        },
+        {
           "command": "stencila.walkthroughs.expand",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
@@ -891,6 +913,16 @@
           "command": "stencila.invoke.pull-doc",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
           "group": "000-Stencila@7"
+        },
+        {
+          "command": "stencila.invoke.watch-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
+          "group": "000-Stencila@8"
+        },
+        {
+          "command": "stencila.invoke.unwatch-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
+          "group": "000-Stencila@9"
         }
       ],
       "editor/context": [

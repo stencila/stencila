@@ -1,8 +1,10 @@
 mod merge_doc;
 mod progress;
 mod pull_doc;
-mod push_docs;
 mod push_doc;
+mod push_docs;
+mod unwatch_doc;
+mod watch_doc;
 
 use std::{fmt::Display, path::PathBuf, str::FromStr, sync::Arc, time::Duration};
 
@@ -42,8 +44,10 @@ use crate::{
 pub(super) use merge_doc::merge_doc;
 pub(super) use progress::cancel_progress;
 pub(super) use pull_doc::pull_doc;
-pub(super) use push_docs::push_docs;
 pub(super) use push_doc::push_doc;
+pub(super) use push_docs::push_docs;
+pub(super) use unwatch_doc::unwatch_doc;
+pub(super) use watch_doc::watch_doc;
 
 // Import internal functions from submodules
 use progress::create_progress;
@@ -90,6 +94,8 @@ pub(super) const MERGE_DOC: &str = "stencila.merge-doc";
 pub(super) const PUSH_DOC: &str = "stencila.push-doc";
 pub(super) const PUSH_DOCS: &str = "stencila.push-docs";
 pub(super) const PULL_DOC: &str = "stencila.pull-doc";
+pub(super) const WATCH_DOC: &str = "stencila.watch-doc";
+pub(super) const UNWATCH_DOC: &str = "stencila.unwatch-doc";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
@@ -128,6 +134,8 @@ pub(super) fn commands() -> Vec<String> {
         PUSH_DOC,
         PUSH_DOCS,
         PULL_DOC,
+        WATCH_DOC,
+        UNWATCH_DOC,
     ]
     .into_iter()
     .map(String::from)
