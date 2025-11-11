@@ -8,6 +8,7 @@ import {
 import { registerAuthenticationProvider } from './authentication'
 import { cliPath } from './cli'
 import { registerDocumentCommands } from './commands'
+import { registerDocumentsView } from './documents'
 import { event, registerEventing } from './events'
 import { registerKernelsView } from './kernels'
 import { registerModelsView } from './models'
@@ -183,6 +184,7 @@ async function startServer(context: vscode.ExtensionContext) {
     }
   } else {
     views = [
+      registerDocumentsView(context, client),
       registerKernelsView(context, client),
       registerPromptsView(context, client),
       registerModelsView(context, client),

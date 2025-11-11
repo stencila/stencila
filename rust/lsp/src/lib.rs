@@ -12,6 +12,7 @@ mod commands;
 mod completion;
 mod content;
 mod diagnostics;
+mod documents;
 mod dom;
 mod formatting;
 mod hover;

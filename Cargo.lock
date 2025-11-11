@@ -9819,6 +9819,7 @@ dependencies = [
  "stencila-codec-text-trait",
  "stencila-codec-utils",
  "stencila-codecs",
+ "stencila-dirs",
  "stencila-document",
  "stencila-kernels",
  "stencila-models",

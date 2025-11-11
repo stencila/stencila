@@ -21,8 +21,8 @@ use crate::{
         self, INSERT_CLONES, INSERT_INSTRUCTION, MERGE_DOC, PULL_DOC, PUSH_DOC, PUSH_DOCS,
         UNWATCH_DOC, WATCH_DOC,
     },
-    completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
-    prompts_, symbols, text_document,
+    completion, content, documents, dom, formatting, hover, kernels_, lifecycle, logging, models_,
+    node_ids, prompts_, symbols, text_document,
 };
 
 /// Run the language server
@@ -295,6 +295,10 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
 
         router.request::<models_::ListModels, _>(|_state, _params| async {
             Ok(models_::list().await)
+        });
+
+        router.request::<documents::ListDocumentTracking, _>(|_state, _params| async {
+            Ok(documents::list().await)
         });
 
         router.request::<request::Shutdown, _>(|state, _params| {

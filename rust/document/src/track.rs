@@ -405,7 +405,7 @@ impl DocumentRemote {
     }
 }
 
-#[derive(Default, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DocumentTrackingStatus {
     #[default]
     Unknown,
