@@ -74,6 +74,7 @@ Support and degree of loss by node type:
 | [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | ⚠️ High loss |            |                                    |
 | [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | ⚠️ High loss |            |                                    |
 | [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | ⚠️ High loss |            |                                    |
+| [Supplement](https://stencila.ghost.io/docs/reference/schema/supplement)                     | ⚠️ High loss |            | Encoded using implemented function |
 | [Table](https://stencila.ghost.io/docs/reference/schema/table)                               | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
 | [TableCell](https://stencila.ghost.io/docs/reference/schema/table_cell)                      | 🔷 Low loss   | 🔷 Low loss |                                    |
 | [TableRow](https://stencila.ghost.io/docs/reference/schema/table_row)                        | 🔷 Low loss   | 🔷 Low loss |                                    |
@@ -170,6 +171,7 @@ Support and degree of loss by node type:
 | [Walkthrough](https://stencila.ghost.io/docs/reference/schema/walkthrough)                   | ⚠️ High loss |            | Encoded using implemented function |
 | [WalkthroughStep](https://stencila.ghost.io/docs/reference/schema/walkthrough_step)          | ⚠️ High loss |            | Encoded using implemented function |
 | **Style**                                                                                    |
+| [Page](https://stencila.ghost.io/docs/reference/schema/page)                                 | ⚠️ High loss |            | Encoded using implemented function |
 | [StyledBlock](https://stencila.ghost.io/docs/reference/schema/styled_block)                  | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
 | [StyledInline](https://stencila.ghost.io/docs/reference/schema/styled_inline)                | ⚠️ High loss |            | Encoded using implemented function |
 | **Edits**                                                                                    |

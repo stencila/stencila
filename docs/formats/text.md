@@ -62,6 +62,7 @@ Support and degree of loss by node type:
 | [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | ⚠️ High loss |          |       |
 | [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | ⚠️ High loss |          |       |
 | [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | ⚠️ High loss |          |       |
+| [Supplement](https://stencila.ghost.io/docs/reference/schema/supplement)                     | ⚠️ High loss |          |       |
 | [Table](https://stencila.ghost.io/docs/reference/schema/table)                               | ⚠️ High loss |          |       |
 | [TableCell](https://stencila.ghost.io/docs/reference/schema/table_cell)                      | ⚠️ High loss |          |       |
 | [TableRow](https://stencila.ghost.io/docs/reference/schema/table_row)                        | ⚠️ High loss |          |       |
@@ -158,6 +159,7 @@ Support and degree of loss by node type:
 | [Walkthrough](https://stencila.ghost.io/docs/reference/schema/walkthrough)                   | ⚠️ High loss |          |       |
 | [WalkthroughStep](https://stencila.ghost.io/docs/reference/schema/walkthrough_step)          | ⚠️ High loss |          |       |
 | **Style**                                                                                    |
+| [Page](https://stencila.ghost.io/docs/reference/schema/page)                                 | ⚠️ High loss |          |       |
 | [StyledBlock](https://stencila.ghost.io/docs/reference/schema/styled_block)                  | ⚠️ High loss |          |       |
 | [StyledInline](https://stencila.ghost.io/docs/reference/schema/styled_inline)                | ⚠️ High loss |          |       |
 | **Edits**                                                                                    |

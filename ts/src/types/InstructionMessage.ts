@@ -2,7 +2,8 @@
 
 import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
-import { MessagePart } from "./MessagePart.js";
+import { File } from "./File.js";
+import { Inline } from "./Inline.js";
 import { MessageRole } from "./MessageRole.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
@@ -19,9 +20,14 @@ export class InstructionMessage extends Entity {
   role?: MessageRole;
 
   /**
-   * Parts of the message.
+   * The content of the message as inline nodes.
    */
-  parts: MessagePart[];
+  content: Inline[];
+
+  /**
+   * Files attached to the message.
+   */
+  files?: File[];
 
   /**
    * The authors of the message.
@@ -33,17 +39,17 @@ export class InstructionMessage extends Entity {
    */
   provenance?: ProvenanceCount[];
 
-  constructor(parts: MessagePart[], options?: Partial<InstructionMessage>) {
+  constructor(content: Inline[], options?: Partial<InstructionMessage>) {
     super();
     this.type = "InstructionMessage";
     if (options) Object.assign(this, options);
-    this.parts = parts;
+    this.content = content;
   }
 }
 
 /**
 * Create a new `InstructionMessage`
 */
-export function instructionMessage(parts: MessagePart[], options?: Partial<InstructionMessage>): InstructionMessage {
-  return new InstructionMessage(parts, options);
+export function instructionMessage(content: Inline[], options?: Partial<InstructionMessage>): InstructionMessage {
+  return new InstructionMessage(content, options);
 }

@@ -48,8 +48,7 @@ The `ConfigPublish` type can be encoded (serialized) to, and/or decoded (deseria
 | [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                         |          |          |         |
 | [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                 |          |          |         |
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                     |          |          |         |
-| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)        |          |          |         |
-| [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)          |          |          |         |
+| [Microsoft Word](https://stencila.ghost.io/docs/reference/formats/docx)             |          |          |         |
 | [OpenDocument Text](https://stencila.ghost.io/docs/reference/formats/odt)           |          |          |         |
 | [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                         |          |          |         |
 | [JSON](https://stencila.ghost.io/docs/reference/formats/json)                       |          |          |         |
@@ -57,7 +56,7 @@ The `ConfigPublish` type can be encoded (serialized) to, and/or decoded (deseria
 | [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)                     |          |          |         |
 | [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)                  |          |          |         |
 | [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                       |          |          |         |
-| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/cbor.zstd)             |          |          |         |
+| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/czst)                  |          |          |         |
 | [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                       |          |          |         |
 | [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)            |          |          |         |
 | [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)              |          |          |         |
@@ -66,8 +65,8 @@ The `ConfigPublish` type can be encoded (serialized) to, and/or decoded (deseria
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |          |          |         |
 | [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         |          |          |         |
 | [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         |          |          |         |
-| [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |          |          |         |
-| [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |          |          |         |
+| [Microsoft Excel](https://stencila.ghost.io/docs/reference/formats/xlsx)            |          |          |         |
+| [Microsoft Excel (XLS)](https://stencila.ghost.io/docs/reference/formats/xls)       |          |          |         |
 | [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |          |          |         |
 | [PNG](https://stencila.ghost.io/docs/reference/formats/png)                         |          |          |         |
 | [Directory](https://stencila.ghost.io/docs/reference/formats/directory)             |          |          |         |

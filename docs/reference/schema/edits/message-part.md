@@ -25,6 +25,7 @@ The `MessagePart` type has these members:
 - [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
 - [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
 - [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
+- [`File`](https://stencila.ghost.io/docs/reference/schema/file)
 
 # Bindings
 

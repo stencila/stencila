@@ -16,12 +16,16 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila merge`↴](#stencila-merge)
 * [`stencila sync`↴](#stencila-sync)
+* [`stencila push`↴](#stencila-push)
+* [`stencila pull`↴](#stencila-pull)
+* [`stencila watch`↴](#stencila-watch)
+* [`stencila unwatch`↴](#stencila-unwatch)
 * [`stencila compile`↴](#stencila-compile)
 * [`stencila lint`↴](#stencila-lint)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila render`↴](#stencila-render)
 * [`stencila query`↴](#stencila-query)
-* [`stencila preview`↴](#stencila-preview)
+* [`stencila open`↴](#stencila-open)
 * [`stencila publish`↴](#stencila-publish)
 * [`stencila publish zenodo`↴](#stencila-publish-zenodo)
 * [`stencila publish ghost`↴](#stencila-publish-ghost)
@@ -54,6 +58,12 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila linters lint`↴](#stencila-linters-lint)
 * [`stencila formats`↴](#stencila-formats)
 * [`stencila formats list`↴](#stencila-formats-list)
+* [`stencila formats structuring`↴](#stencila-formats-structuring)
+* [`stencila themes`↴](#stencila-themes)
+* [`stencila themes list`↴](#stencila-themes-list)
+* [`stencila themes show`↴](#stencila-themes-show)
+* [`stencila themes new`↴](#stencila-themes-new)
+* [`stencila themes remove`↴](#stencila-themes-remove)
 * [`stencila secrets`↴](#stencila-secrets)
 * [`stencila secrets list`↴](#stencila-secrets-list)
 * [`stencila secrets set`↴](#stencila-secrets-set)
@@ -65,13 +75,16 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila tools env`↴](#stencila-tools-env)
 * [`stencila tools run`↴](#stencila-tools-run)
 * [`stencila serve`↴](#stencila-serve)
+* [`stencila snap`↴](#stencila-snap)
 * [`stencila lsp`↴](#stencila-lsp)
 * [`stencila cloud`↴](#stencila-cloud)
 * [`stencila cloud status`↴](#stencila-cloud-status)
 * [`stencila cloud signin`↴](#stencila-cloud-signin)
 * [`stencila cloud signout`↴](#stencila-cloud-signout)
+* [`stencila cloud logs`↴](#stencila-cloud-logs)
 * [`stencila signin`↴](#stencila-signin)
 * [`stencila signout`↴](#stencila-signout)
+* [`stencila logs`↴](#stencila-logs)
 * [`stencila upgrade`↴](#stencila-upgrade)
 * [`stencila uninstall`↴](#stencila-uninstall)
 
@@ -97,8 +110,8 @@ Examples
   # Execute a document
   stencila execute notebook.myst
 
-  # Preview a document with hot reloading
-  stencila preview document.md
+  # Open a document in the browser
+  stencila open document.md
 
 
 ###### **Subcommands:**
@@ -114,27 +127,34 @@ Examples
 * `convert` — Convert a document to another format
 * `merge` — Merge changes from another format
 * `sync` — Synchronize a document between formats
+* `push` — Push a document to a remote service
+* `pull` — Pull a document from a remote service
+* `watch` — Enable automatic sync between a document and its remote
+* `unwatch` — Disable automatic sync for a document
 * `compile` — Compile a document
 * `lint` — Lint one or more documents
 * `execute` — Execute a document
 * `render` — Render a document
 * `query` — Query a workspace database
-* `preview` — Preview a document
+* `open` — Open a document in the browser
 * `publish` — Publish one or more documents
 * `demo` — Run a terminal demonstration from a document
 * `db` — Manage the workspace and other document databases
 * `prompts` — Manage prompts
-* `models` — Manage generative models
+* `models` — Manage and interact with generative AI models
 * `kernels` — Manage execution kernels
 * `linters` — Manage linters
-* `formats` — List the support for formats
+* `formats` — List and inspect supported formats
+* `themes` — Manage themes
 * `secrets` — Manage secrets
 * `tools` — Manage tools and environments used by Stencila
 * `serve` — Run the HTTP/Websocket server
+* `snap` — Capture screenshots and measurements of documents served by Stencila
 * `lsp` — Run the Language Server Protocol server
 * `cloud` — Manage Stencila Cloud account
 * `signin` — Sign in to Stencila Cloud
 * `signout` — Sign out from Stencila Cloud
+* `logs` — Display logs from Stencila Cloud workspace sessions
 * `upgrade` — Upgrade to the latest version
 * `uninstall` — Uninstall this command line tool
 
@@ -258,7 +278,7 @@ Get the tracking status of documents
 **Usage:** `stencila status [OPTIONS] [FILES]...`
 
 Examples
-  # Show status of all tracked documents
+  # Show status of all tracked documents (includes watch details by default)
   stencila status
 
   # Show status of specific documents
@@ -267,9 +287,11 @@ Examples
   # Output status as JSON
   stencila status --as json
 
-Status Information
-  Shows modification times, storage status, and sync
-  information for tracked documents and their remotes.
+  # Skip fetching remote status (faster)
+  stencila status --no-remotes
+  
+  # Skip fetching watch status (faster)
+  stencila status --no-watches
 
 
 ###### **Arguments:**
@@ -282,6 +304,8 @@ Status Information
 
   Possible values: `json`, `yaml`
 
+* `--no-remotes` — Skip fetching remote status
+* `--no-watches` — Skip fetching watch status
 
 
 
@@ -469,48 +493,175 @@ Examples
 * `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
 
    Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--ignore-artifacts` — Ignore cached artifacts and force re-processing
+
+   When decoding documents, Stencila caches intermediate artifacts (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use this flag to ignore existing cached artifacts and re-download or re-process everything from scratch. Useful for getting updated data or retrying failed processing.
+* `--no-artifacts` — Prevent creating artifacts during decoding
+
+   By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `debug`
-* `-t`, `--to <TO>` — The format of the output/s
+* `--include-structuring <INCLUDE_OPS>` — Structuring operations to include (comma-separated)
 
-   If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--template <TEMPLATE>` — The template document to use
+   If not specified will default to those appropriate for the input format. Generally, less structuring is done for formats that are already well structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no operations. Example: heading-to-title,section-to-abstract
 
-   Only supported by some formats (e.g. DOCX).
-* `--reproducible` — Encode executable nodes so that they are reproducible
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
 
-   Encode links to the source of executable nodes so that edits made to rendered documents can be merged back to the source document.
+* `--exclude-structuring <EXCLUDE_OPS>` — Structuring operations to exclude (comma-separated)
 
-   Only supported by some formats, and may be the default for those.
-* `--highlight` — Highlight the rendered outputs of executable nodes
+   Defaults to empty. Use this to prevent operations used by default for the input format. Use 'all' to exclude all operations, 'none' to exclude nothing. Example: remove-empty-text,remove-empty-paragraphs
 
-   Only supported by some formats (e.g. DOCX and ODT). Defaults to `true` when `--reproducible` flag is used.
-* `--no-highlight` — Do not highlight the rendered outputs of executable nodes
-* `--standalone` — Encode as a standalone document
-* `--not-standalone` — Do not encode as a standalone document when writing to file
-* `--embed-media` — Embed media files as data URIs
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
 
-   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
-* `--extract-media <FOLDER>` — Extract embedded media to a folder
+* `--citation-style <CITATION_STYLE>` — The citation style to assume for text-to-citation structuring.
 
-   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
-* `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
+   If not specified, will be determined automatically based on whether references are numbered and the relative frequency of detected styles within text. Only relevant if the `text-to-citations` operation is enabled.
 
-   Only supported when encoding to a path.
-* `--compact` — Use a compact form of encoding if available
+  Possible values:
+  - `author-year`:
+    Author-year citations like (Smith, 2023)
+  - `bracketed-numeric`:
+    Bracketed numeric citations like [1]
+  - `parenthetic-numeric`:
+    Parenthetic numeric citations like (1)
+  - `superscripted-numeric`:
+    Superscripted numeric citations like ¹
 
-   Use this flag to produce a compact form of encoding if the format supports it. For formats such as JSON and HTML, this usually means no indentation. For Markdown-based formats, this means that embedded Base64 media will NOT be written to separate files in a media folder (the default behavior).
-* `--pretty` — Use a "pretty" form of encoding if available
-
-   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
-* `--output-losses <OUTPUT_LOSSES>` — Action when there are losses encoding to output files
-
-   See help for `--input-losses` for details.
-
-  Default value: `debug`
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -539,6 +690,55 @@ Examples
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+* `-t`, `--to <TO>` — The format of the output/s
+
+   If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
+* `--template <TEMPLATE>` — The template document to use
+
+   Only supported by some formats (e.g. DOCX).
+* `--reproducible` — Encode executable nodes so that they are reproducible
+
+   Encode links to the source of executable nodes so that edits made to rendered documents can be merged back to the source document.
+
+   Only supported by some formats, and may be the default for those.
+* `--highlight` — Highlight the rendered outputs of executable nodes
+
+   Only supported by some formats (e.g. DOCX and ODT). Defaults to `true` when `--reproducible` flag is used.
+* `--no-highlight` — Do not highlight the rendered outputs of executable nodes
+* `--standalone` — Encode as a standalone document
+* `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--theme <THEME>` — The CSS theme to use when encoding to HTML and HTML-derived formats
+
+   Use this option to specify the theme for HTML and HTML-derived (e.g. PDF) formats.
+* `--view <VIEW>` — The document view to use when encoding to HTML and HTML-derived formats
+
+   Stencila provides alternatives views with alternative ways of interacting with a document (e.g. "dynamic", "static", "none").
+* `--embed-media` — Embed media files as data URIs
+
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--extract-media`.
+* `--extract-media <FOLDER>` — Extract embedded media to a folder
+
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--embed-media`.
+* `--embed-supplements` — Embed supplemental files directly into the document
+
+   When enabled, supplemental files referenced in the document will be decoded and embedded directly into the output. Supports CSV, DOCX, XLSX, PDF, Jupyter notebooks, LaTeX, and media files. This creates a self-contained document but may increase file size significantly. Should not be used with `--extract-supplements`.
+* `--extract-supplements <FOLDER>` — Extract embedded supplemental content to separate files
+
+   When provided, any supplemental content embedded in the document will be extracted to files in the specified directory. Supplements are saved as `supplement-<N>.czst` files. This reduces document size but creates external file dependencies. Should not be used with `--embed-supplements`.
+* `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
+
+   Only supported when encoding to a path.
+* `--compact` — Use a compact form of encoding if available
+
+   Use this flag to produce a compact form of encoding if the format supports it. For formats such as JSON and HTML, this usually means no indentation. For Markdown-based formats, this means that embedded Base64 media will NOT be written to separate files in a media folder (the default behavior).
+* `--pretty` — Use a "pretty" form of encoding if available
+
+   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
+* `--output-losses <OUTPUT_LOSSES>` — Action when there are losses encoding to output files
+
+   See help for `--input-losses` for details.
+
+  Default value: `debug`
 * `--from-tool <FROM_TOOL>` — The tool to use for decoding inputs
 
    Only supported for formats that use alternative external tools for decoding inputs and ignored otherwise. Use `--tool` for specifying the tool to use for encoding outputs.
@@ -602,11 +802,175 @@ Examples
 * `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
 
    Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--ignore-artifacts` — Ignore cached artifacts and force re-processing
+
+   When decoding documents, Stencila caches intermediate artifacts (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use this flag to ignore existing cached artifacts and re-download or re-process everything from scratch. Useful for getting updated data or retrying failed processing.
+* `--no-artifacts` — Prevent creating artifacts during decoding
+
+   By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `debug`
+* `--include-structuring <INCLUDE_OPS>` — Structuring operations to include (comma-separated)
+
+   If not specified will default to those appropriate for the input format. Generally, less structuring is done for formats that are already well structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no operations. Example: heading-to-title,section-to-abstract
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--exclude-structuring <EXCLUDE_OPS>` — Structuring operations to exclude (comma-separated)
+
+   Defaults to empty. Use this to prevent operations used by default for the input format. Use 'all' to exclude all operations, 'none' to exclude nothing. Example: remove-empty-text,remove-empty-paragraphs
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--citation-style <CITATION_STYLE>` — The citation style to assume for text-to-citation structuring.
+
+   If not specified, will be determined automatically based on whether references are numbered and the relative frequency of detected styles within text. Only relevant if the `text-to-citations` operation is enabled.
+
+  Possible values:
+  - `author-year`:
+    Author-year citations like (Smith, 2023)
+  - `bracketed-numeric`:
+    Bracketed numeric citations like [1]
+  - `parenthetic-numeric`:
+    Parenthetic numeric citations like (1)
+  - `superscripted-numeric`:
+    Superscripted numeric citations like ¹
+
 * `-t`, `--to <TO>` — The format of the output/s
 
    If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
@@ -624,12 +988,24 @@ Examples
 * `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--theme <THEME>` — The CSS theme to use when encoding to HTML and HTML-derived formats
+
+   Use this option to specify the theme for HTML and HTML-derived (e.g. PDF) formats.
+* `--view <VIEW>` — The document view to use when encoding to HTML and HTML-derived formats
+
+   Stencila provides alternatives views with alternative ways of interacting with a document (e.g. "dynamic", "static", "none").
 * `--embed-media` — Embed media files as data URIs
 
-   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--extract-media`.
 * `--extract-media <FOLDER>` — Extract embedded media to a folder
 
-   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--embed-media`.
+* `--embed-supplements` — Embed supplemental files directly into the document
+
+   When enabled, supplemental files referenced in the document will be decoded and embedded directly into the output. Supports CSV, DOCX, XLSX, PDF, Jupyter notebooks, LaTeX, and media files. This creates a self-contained document but may increase file size significantly. Should not be used with `--extract-supplements`.
+* `--extract-supplements <FOLDER>` — Extract embedded supplemental content to separate files
+
+   When provided, any supplemental content embedded in the document will be extracted to files in the specified directory. Supplements are saved as `supplement-<N>.czst` files. This reduces document size but creates external file dependencies. Should not be used with `--embed-supplements`.
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
 
    Only supported when encoding to a path.
@@ -713,11 +1089,175 @@ Note
 * `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
 
    Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--ignore-artifacts` — Ignore cached artifacts and force re-processing
+
+   When decoding documents, Stencila caches intermediate artifacts (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use this flag to ignore existing cached artifacts and re-download or re-process everything from scratch. Useful for getting updated data or retrying failed processing.
+* `--no-artifacts` — Prevent creating artifacts during decoding
+
+   By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `debug`
+* `--include-structuring <INCLUDE_OPS>` — Structuring operations to include (comma-separated)
+
+   If not specified will default to those appropriate for the input format. Generally, less structuring is done for formats that are already well structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no operations. Example: heading-to-title,section-to-abstract
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--exclude-structuring <EXCLUDE_OPS>` — Structuring operations to exclude (comma-separated)
+
+   Defaults to empty. Use this to prevent operations used by default for the input format. Use 'all' to exclude all operations, 'none' to exclude nothing. Example: remove-empty-text,remove-empty-paragraphs
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--citation-style <CITATION_STYLE>` — The citation style to assume for text-to-citation structuring.
+
+   If not specified, will be determined automatically based on whether references are numbered and the relative frequency of detected styles within text. Only relevant if the `text-to-citations` operation is enabled.
+
+  Possible values:
+  - `author-year`:
+    Author-year citations like (Smith, 2023)
+  - `bracketed-numeric`:
+    Bracketed numeric citations like [1]
+  - `parenthetic-numeric`:
+    Parenthetic numeric citations like (1)
+  - `superscripted-numeric`:
+    Superscripted numeric citations like ¹
+
 * `-t`, `--to <TO>` — The format of the output/s
 
    If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
@@ -735,12 +1275,24 @@ Note
 * `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--theme <THEME>` — The CSS theme to use when encoding to HTML and HTML-derived formats
+
+   Use this option to specify the theme for HTML and HTML-derived (e.g. PDF) formats.
+* `--view <VIEW>` — The document view to use when encoding to HTML and HTML-derived formats
+
+   Stencila provides alternatives views with alternative ways of interacting with a document (e.g. "dynamic", "static", "none").
 * `--embed-media` — Embed media files as data URIs
 
-   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--extract-media`.
 * `--extract-media <FOLDER>` — Extract embedded media to a folder
 
-   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--embed-media`.
+* `--embed-supplements` — Embed supplemental files directly into the document
+
+   When enabled, supplemental files referenced in the document will be decoded and embedded directly into the output. Supports CSV, DOCX, XLSX, PDF, Jupyter notebooks, LaTeX, and media files. This creates a self-contained document but may increase file size significantly. Should not be used with `--extract-supplements`.
+* `--extract-supplements <FOLDER>` — Extract embedded supplemental content to separate files
+
+   When provided, any supplemental content embedded in the document will be extracted to files in the specified directory. Supplements are saved as `supplement-<N>.czst` files. This reduces document size but creates external file dependencies. Should not be used with `--embed-supplements`.
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
 
    Only supported when encoding to a path.
@@ -783,6 +1335,209 @@ Note
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+
+
+
+## `stencila push`
+
+Push a document to a remote service
+
+**Usage:** `stencila push [OPTIONS] [PATH] [TARGET] [-- <ARGS>...]`
+
+Examples
+  # Push all files with tracked remotes
+  stencila push
+
+  # Push a document to Google Docs
+  stencila push document.smd gdoc
+
+  # Push a document to Microsoft 365
+  stencila push document.smd m365
+
+  # Push to file to all tracked remotes
+  stencila push document.smd
+
+  # Push to specific remote
+  stencila push document.smd https://docs.google.com/document/d/abc123
+
+  # Push with execution first
+  stencila push report.smd gdoc -- arg1=value1
+
+  # Force create new document
+  stencila push document.smd gdoc --force-new
+
+
+###### **Arguments:**
+
+* `<PATH>` — The path of the document to push
+
+   If omitted, pushes all tracked files that have remotes.
+* `<TARGET>` — The target to push to
+
+   Can be a full URL (e.g., https://docs.google.com/document/d/...) or a service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked remotes for the path.
+* `<ARGS>` — Arguments to pass to the document for execution
+
+   If provided, the document will be executed with these arguments before being pushed. Use -- to separate these from other options.
+
+###### **Options:**
+
+* `-n`, `--force-new` — Create a new document instead of updating an existing one
+
+   By default, if a remote is already tracked for the document, it will be updated. Use this flag to create a new document.
+* `--no-execute` — Do not execute the document before pushing it
+
+   By default, the document will be executed to ensure that it is up-to-date before pushing it. Use this flag to skip execution.
+* `-w`, `--watch` — Enable watch after successful push
+
+   Creates a watch in Stencila Cloud to automatically sync changes between the remote and repository via pull requests.
+* `-d`, `--direction <DIRECTION>` — The sync direction (only used with --watch)
+
+  Possible values:
+  - `bi`:
+    Bi-directional sync: changes from remote create PRs, changes to repo push to remote
+  - `from-remote`:
+    One-way sync from remote: only remote changes create PRs
+  - `to-remote`:
+    One-way sync to remote: only repo changes push to remote
+
+* `-p`, `--pr-mode <PR_MODE>` — The GitHub PR mode (only used with --watch)
+
+  Possible values:
+  - `draft`:
+    Create PRs as drafts (default)
+  - `ready`:
+    Create PRs ready for review
+
+* `--debounce-seconds <DEBOUNCE_SECONDS>` — Debounce time in seconds (10-86400, only used with --watch)
+
+   Time to wait after detecting changes before syncing to avoid too frequent updates. Minimum 10 seconds, maximum 24 hours (86400 seconds).
+
+
+
+## `stencila pull`
+
+Pull a document from a remote service
+
+**Usage:** `stencila pull [OPTIONS] <PATH> [TARGET]`
+
+Examples
+  # Pull from the tracked remote (if only one exists)
+  stencila pull document.smd
+
+  # Pull from tracked Google Doc
+  stencila pull document.smd gdoc
+
+  # Pull from tracked Microsoft 365 document
+  stencila pull document.smd m365
+
+  # Pull from specific URL
+  stencila pull document.smd https://docs.google.com/document/d/abc123
+
+  # Pull without merging (replace local file)
+  stencila pull document.smd gdoc --no-merge
+
+
+###### **Arguments:**
+
+* `<PATH>` — The path to the local document
+* `<TARGET>` — The target to pull from
+
+   Can be a full URL (e.g., https://docs.google.com/document/d/...) or a service shorthand (e.g "gdoc" or "m365"). Omit to use the tracked remote (errors if multiple remotes are tracked).
+
+###### **Options:**
+
+* `--no-merge` — Do not merge, just replace
+
+   By default, the pulled document will be merged with the local version. Use this flag to skip merging and just replace the local file.
+
+
+
+## `stencila watch`
+
+Enable automatic sync between a document and its remote
+
+Creates a watch in Stencila Cloud that automatically syncs changes between a remote (Google Docs or M365) and a GitHub repository. When changes are detected in the remote, a pull request will be created or updated in the repository.
+
+**Usage:** `stencila watch [OPTIONS] <PATH> [TARGET]`
+
+Examples
+  # Enable watch on the tracked remote
+  stencila watch report.md
+
+  # Watch a specific remote (if document has multiple)
+  stencila watch report.md gdoc
+  stencila watch report.md https://docs.google.com/document/d/abc123
+
+  # Enable watch with one-way sync from remote
+  stencila watch report.md gdoc --direction from-remote
+
+  # Enable watch with ready-for-review PRs
+  stencila watch report.md gdoc --pr-mode ready
+
+  # Note: The document must already be pushed to a remote
+  stencila push report.md gdoc
+  stencila watch report.md
+
+
+###### **Arguments:**
+
+* `<PATH>` — The path to the document to watch
+* `<TARGET>` — The target remote to watch
+
+   If the document has multiple remotes (e.g., both Google Docs and M365), you must specify which one to watch. Can be the full URL or a service shorthand: "gdoc" or "m365".
+
+###### **Options:**
+
+* `-d`, `--direction <DIRECTION>` — The sync direction
+
+  Possible values:
+  - `bi`:
+    Bi-directional sync: changes from remote create PRs, changes to repo push to remote
+  - `from-remote`:
+    One-way sync from remote: only remote changes create PRs
+  - `to-remote`:
+    One-way sync to remote: only repo changes push to remote
+
+* `-p`, `--pr-mode <PR_MODE>` — The GitHub PR mode
+
+  Possible values:
+  - `draft`:
+    Create PRs as drafts (default)
+  - `ready`:
+    Create PRs ready for review
+
+* `--debounce-seconds <DEBOUNCE_SECONDS>` — Debounce time in seconds (10-86400)
+
+   Time to wait after detecting changes before syncing to avoid too frequent updates. Minimum 10 seconds, maximum 24 hours (86400 seconds).
+
+
+
+## `stencila unwatch`
+
+Disable automatic sync for a document
+
+Removes the watch from Stencila Cloud, stopping automatic sync.
+
+**Usage:** `stencila unwatch <PATH> [TARGET]`
+
+Examples
+  # Disable watch for a document
+  stencila unwatch report.md
+
+  # Unwatch a specific remote (if document has multiple)
+  stencila unwatch report.md gdoc
+
+  # Note: Remote linkage is preserved, you can re-enable watch later
+  stencila unwatch report.md
+  stencila watch report.md
+
+
+###### **Arguments:**
+
+* `<PATH>` — The path to the document to unwatch
+* `<TARGET>` — The target remote to unwatch
+
+   If the document has multiple watched remotes, you must specify which one to unwatch. Can be the full URL or a service shorthand: "gdoc" or "m365".
 
 
 
@@ -833,11 +1588,175 @@ Note
 * `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
 
    Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--ignore-artifacts` — Ignore cached artifacts and force re-processing
+
+   When decoding documents, Stencila caches intermediate artifacts (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use this flag to ignore existing cached artifacts and re-download or re-process everything from scratch. Useful for getting updated data or retrying failed processing.
+* `--no-artifacts` — Prevent creating artifacts during decoding
+
+   By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `debug`
+* `--include-structuring <INCLUDE_OPS>` — Structuring operations to include (comma-separated)
+
+   If not specified will default to those appropriate for the input format. Generally, less structuring is done for formats that are already well structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no operations. Example: heading-to-title,section-to-abstract
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--exclude-structuring <EXCLUDE_OPS>` — Structuring operations to exclude (comma-separated)
+
+   Defaults to empty. Use this to prevent operations used by default for the input format. Use 'all' to exclude all operations, 'none' to exclude nothing. Example: remove-empty-text,remove-empty-paragraphs
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--citation-style <CITATION_STYLE>` — The citation style to assume for text-to-citation structuring.
+
+   If not specified, will be determined automatically based on whether references are numbered and the relative frequency of detected styles within text. Only relevant if the `text-to-citations` operation is enabled.
+
+  Possible values:
+  - `author-year`:
+    Author-year citations like (Smith, 2023)
+  - `bracketed-numeric`:
+    Bracketed numeric citations like [1]
+  - `parenthetic-numeric`:
+    Parenthetic numeric citations like (1)
+  - `superscripted-numeric`:
+    Superscripted numeric citations like ¹
+
 
 
 
@@ -930,11 +1849,175 @@ Examples
 * `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
 
    Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--ignore-artifacts` — Ignore cached artifacts and force re-processing
+
+   When decoding documents, Stencila caches intermediate artifacts (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use this flag to ignore existing cached artifacts and re-download or re-process everything from scratch. Useful for getting updated data or retrying failed processing.
+* `--no-artifacts` — Prevent creating artifacts during decoding
+
+   By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `debug`
+* `--include-structuring <INCLUDE_OPS>` — Structuring operations to include (comma-separated)
+
+   If not specified will default to those appropriate for the input format. Generally, less structuring is done for formats that are already well structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no operations. Example: heading-to-title,section-to-abstract
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--exclude-structuring <EXCLUDE_OPS>` — Structuring operations to exclude (comma-separated)
+
+   Defaults to empty. Use this to prevent operations used by default for the input format. Use 'all' to exclude all operations, 'none' to exclude nothing. Example: remove-empty-text,remove-empty-paragraphs
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--citation-style <CITATION_STYLE>` — The citation style to assume for text-to-citation structuring.
+
+   If not specified, will be determined automatically based on whether references are numbered and the relative frequency of detected styles within text. Only relevant if the `text-to-citations` operation is enabled.
+
+  Possible values:
+  - `author-year`:
+    Author-year citations like (Smith, 2023)
+  - `bracketed-numeric`:
+    Bracketed numeric citations like [1]
+  - `parenthetic-numeric`:
+    Parenthetic numeric citations like (1)
+  - `superscripted-numeric`:
+    Superscripted numeric citations like ¹
+
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
@@ -1047,11 +2130,175 @@ Examples
 * `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
 
    Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--ignore-artifacts` — Ignore cached artifacts and force re-processing
+
+   When decoding documents, Stencila caches intermediate artifacts (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use this flag to ignore existing cached artifacts and re-download or re-process everything from scratch. Useful for getting updated data or retrying failed processing.
+* `--no-artifacts` — Prevent creating artifacts during decoding
+
+   By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `debug`
+* `--include-structuring <INCLUDE_OPS>` — Structuring operations to include (comma-separated)
+
+   If not specified will default to those appropriate for the input format. Generally, less structuring is done for formats that are already well structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no operations. Example: heading-to-title,section-to-abstract
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--exclude-structuring <EXCLUDE_OPS>` — Structuring operations to exclude (comma-separated)
+
+   Defaults to empty. Use this to prevent operations used by default for the input format. Use 'all' to exclude all operations, 'none' to exclude nothing. Example: remove-empty-text,remove-empty-paragraphs
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--citation-style <CITATION_STYLE>` — The citation style to assume for text-to-citation structuring.
+
+   If not specified, will be determined automatically based on whether references are numbered and the relative frequency of detected styles within text. Only relevant if the `text-to-citations` operation is enabled.
+
+  Possible values:
+  - `author-year`:
+    Author-year citations like (Smith, 2023)
+  - `bracketed-numeric`:
+    Bracketed numeric citations like [1]
+  - `parenthetic-numeric`:
+    Parenthetic numeric citations like (1)
+  - `superscripted-numeric`:
+    Superscripted numeric citations like ¹
+
 * `-t`, `--to <TO>` — The format of the output/s
 
    If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
@@ -1069,12 +2316,24 @@ Examples
 * `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--theme <THEME>` — The CSS theme to use when encoding to HTML and HTML-derived formats
+
+   Use this option to specify the theme for HTML and HTML-derived (e.g. PDF) formats.
+* `--view <VIEW>` — The document view to use when encoding to HTML and HTML-derived formats
+
+   Stencila provides alternatives views with alternative ways of interacting with a document (e.g. "dynamic", "static", "none").
 * `--embed-media` — Embed media files as data URIs
 
-   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--extract-media`.
 * `--extract-media <FOLDER>` — Extract embedded media to a folder
 
-   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors, LaTeX, HTML, and CBOR. Should not be used with `--embed-media`.
+* `--embed-supplements` — Embed supplemental files directly into the document
+
+   When enabled, supplemental files referenced in the document will be decoded and embedded directly into the output. Supports CSV, DOCX, XLSX, PDF, Jupyter notebooks, LaTeX, and media files. This creates a self-contained document but may increase file size significantly. Should not be used with `--extract-supplements`.
+* `--extract-supplements <FOLDER>` — Extract embedded supplemental content to separate files
+
+   When provided, any supplemental content embedded in the document will be extracted to files in the specified directory. Supplements are saved as `supplement-<N>.czst` files. This reduces document size but creates external file dependencies. Should not be used with `--embed-supplements`.
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
 
    Only supported when encoding to a path.
@@ -1167,25 +2426,42 @@ Examples
 
 
 
-## `stencila preview`
+## `stencila open`
 
-Preview a document
+Open a document in the browser
 
-Opens a preview of a document in the browser. If the path supplied is a folder then the first file with name `index.*`, `main.*`, or `readme.*` will be opened.
+Opens a document in the browser. If the path supplied is a folder then the first file with name `index.*`, `main.*`, or `readme.*` will be opened.
 
-When `--sync=in` (the default) the preview will update when the document is changed and saved to disk.
+By default, opens both a local preview server and any tracked remote URLs (e.g., Google Docs, Microsoft 365). Use the `target` argument to open only a specific remote (by service shorthand like "gdoc" or "m365", or by full URL), or use "local" to open only the local preview. Alternatively, use `--no-local` or `--no-remotes` to open only one or the other.
 
-**Usage:** `stencila preview [OPTIONS] [PATH]`
+When `--sync=in` (the default) the local preview will update when the document is changed and saved to disk.
+
+**Usage:** `stencila open [OPTIONS] [PATH] [TARGET]`
 
 Examples
-  # Preview a specific document
-  stencila preview document.md
+  # Open a specific document (all remotes + local)
+  stencila open document.md
 
-  # Preview from current directory (finds index/main/readme)
-  stencila preview
+  # Open current directory (finds index/main/readme)
+  stencila open
 
-  # Preview a document in a specific folder
-  stencila preview report/main.smd
+  # Open only Google Docs remote
+  stencila open document.md gdoc
+
+  # Open only Microsoft 365 remote
+  stencila open document.md m365
+
+  # Open only local preview server
+  stencila open document.md local
+
+  # Open a specific remote URL
+  stencila open document.md https://docs.google.com/document/d/abc123
+
+  # Open only tracked remotes (skip local preview)
+  stencila open document.md --no-local
+
+  # Open only local preview (skip remotes)
+  stencila open document.md --no-remotes
 
 
 ###### **Arguments:**
@@ -1195,6 +2471,9 @@ Examples
    Defaults to the current folder.
 
   Default value: `.`
+* `<TARGET>` — The target to open
+
+   Can be a full URL (e.g., https://docs.google.com/document/d/...), a service shorthand (e.g., "gdoc" or "m365"), or "local" to open only the local preview server. If omitted, opens all tracked remotes and the local preview server.
 
 ###### **Options:**
 
@@ -1204,6 +2483,8 @@ Examples
 
   Possible values: `in`, `out`, `in-out`
 
+* `--no-local` — Do not open the local preview server
+* `--no-remotes` — Do not open tracked remote URLs
 
 
 
@@ -1706,16 +2987,179 @@ Note
 * `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
 
    Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--ignore-artifacts` — Ignore cached artifacts and force re-processing
+
+   When decoding documents, Stencila caches intermediate artifacts (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use this flag to ignore existing cached artifacts and re-download or re-process everything from scratch. Useful for getting updated data or retrying failed processing.
+* `--no-artifacts` — Prevent creating artifacts during decoding
+
+   By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `debug`
+* `--include-structuring <INCLUDE_OPS>` — Structuring operations to include (comma-separated)
+
+   If not specified will default to those appropriate for the input format. Generally, less structuring is done for formats that are already well structured (e.g. JATS XML). Use 'all' for all operations, 'none' for no operations. Example: heading-to-title,section-to-abstract
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--exclude-structuring <EXCLUDE_OPS>` — Structuring operations to exclude (comma-separated)
+
+   Defaults to empty. Use this to prevent operations used by default for the input format. Use 'all' to exclude all operations, 'none' to exclude nothing. Example: remove-empty-text,remove-empty-paragraphs
+
+  Possible values:
+  - `none`:
+    No structuring operations
+  - `all`:
+    All structuring operations
+  - `sections-to-keywords`:
+    Extract keywords from the "Keywords" section
+  - `sections-to-abstract`:
+    Extract abstract from the "Abstract" section
+  - `sections-to-references`:
+    Extract references from "References" section
+  - `headings-to-title`:
+    Extract document title from the first heading
+  - `heading1-to-title`:
+    Extract document title from the very first level 1 heading
+  - `headings-decrement`:
+    Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
+  - `headings-primary-level1`:
+    Ensure that all "primary" headings have level 1
+  - `headings-to-sections`:
+    Create a section for each heading
+  - `headings-to-paragraphs`:
+    Transform headings to paragraphs if appropriate
+  - `paragraphs-to-keywords`:
+    Extract keywords from paragraphs starting with "Keywords"
+  - `paragraphs-to-headings`:
+    Transform paragraphs to headings if appropriate
+  - `paragraphs-to-sentences`:
+    Split paragraphs into individual sentences
+  - `figures-with-captions`:
+    Combine an image with a figure caption before or after it
+  - `tables-with-captions`:
+    Combine a table caption with the following table or datatable
+  - `table-images-to-rows`:
+    Convert table images to table rows using OCR
+  - `tables-to-datatables`:
+    Transform tables into datatables if possible
+  - `unwrap-media-objects`:
+    Unwrap media objects from paragraphs to block level
+  - `unwrap-quote-blocks`:
+    Unwrap quote blocks containing more than two child blocks
+  - `text-to-citations`:
+    Convert text to structured citations
+  - `text-to-links`:
+    Convert URL text to structured links
+  - `math-to-citations`:
+    Convert math to structured citations
+  - `math-images-to-tex`:
+    Convert math images to TeX code using OCR
+  - `links-to-citations`:
+    Convert links to citations
+  - `normalize-citations`:
+    Normalize citation formatting and grouping
+  - `remove-pre-primary`:
+    Remove content before the first primary heading
+  - `remove-frontmatter-duplicates`:
+    Remove front matter that duplicates article metadata
+  - `remove-empty-headings`:
+    Remove empty headings
+  - `remove-empty-tables`:
+    Remove empty tables and datatables
+  - `remove-empty-lists`:
+    Remove empty lists
+  - `remove-empty-paragraphs`:
+    Remove empty paragraphs
+  - `remove-empty-text`:
+    Remove empty text
+
+* `--citation-style <CITATION_STYLE>` — The citation style to assume for text-to-citation structuring.
+
+   If not specified, will be determined automatically based on whether references are numbered and the relative frequency of detected styles within text. Only relevant if the `text-to-citations` operation is enabled.
+
+  Possible values:
+  - `author-year`:
+    Author-year citations like (Smith, 2023)
+  - `bracketed-numeric`:
+    Bracketed numeric citations like [1]
+  - `parenthetic-numeric`:
+    Parenthetic numeric citations like (1)
+  - `superscripted-numeric`:
+    Superscripted numeric citations like ¹
+
 * `--tool <TOOL>` — The tool to use for decoding inputs
 
    Only supported for formats that use alternative external tools for decoding and ignored otherwise.
 * `--no-canonicalize` — Do not canonicalize the document
-* `--no-sentencize` — Do not split document paragraphs into sentences
 
 
 
@@ -1994,7 +3438,7 @@ Warning
 
 ## `stencila models`
 
-Manage generative models
+Manage and interact with generative AI models
 
 **Usage:** `stencila models [COMMAND]`
 
@@ -2011,6 +3455,15 @@ Examples
   # Test a specific model
   stencila models run "Write a poem" --model gpt-4o
 
+  # Run with multiple text arguments
+  stencila models run "Analyze this:" "Some data here"
+
+  # Mix text and file arguments
+  stencila models run "Summarize this file:" document.txt
+
+  # Multiple files and text
+  stencila models run "Compare these files:" file1.txt file2.txt
+
   # Dry run to see task construction
   stencila models run "Hello" --dry-run
 
@@ -2019,28 +3472,36 @@ Model Types
   • local - Running locally (e.g. Ollama)
   • remote - Cloud-based APIs
   • router - Routes to other models
+  • proxied - Proxied through another service
 
 
 ###### **Subcommands:**
 
-* `list` — List the models available
-* `run` — Run a model task
+* `list` — List available models with their status and capabilities
+* `run` — Execute a task using a generative AI model
 
 
 
 ## `stencila models list`
 
-List the models available
+List available models with their status and capabilities
 
-**Usage:** `stencila models list [OPTIONS]`
+**Usage:** `stencila models list [OPTIONS] [PREFIX]`
 
 Examples
   # List all models in table format
   stencila models list
 
+  # Filter models by ID prefix
+  stencila models list google/gemini
+
   # Output models as YAML
   stencila models list --as yaml
 
+
+###### **Arguments:**
+
+* `<PREFIX>` — Filter models by ID prefix (e.g., "ollama/gemma")
 
 ###### **Options:**
 
@@ -2053,11 +3514,11 @@ Examples
 
 ## `stencila models run`
 
-Run a model task
+Execute a task using a generative AI model
 
-Mainly intended for testing of model selection and routing. Displays the task sent to the model and the generated output returned from it.
+Primarily intended for testing model selection and routing. This command constructs a task from the provided inputs, selects an appropriate model, and displays both the constructed task and the generated output.
 
-**Usage:** `stencila models run [OPTIONS] <PROMPT>`
+**Usage:** `stencila models run [OPTIONS] [ARGS]...`
 
 Examples
   # Run with automatic model selection
@@ -2066,6 +3527,15 @@ Examples
   # Run with a specific model
   stencila models run "Write a haiku" --model gpt-3.5-turbo
 
+  # Multiple text arguments
+  stencila models run "Analyze this data:" "temperature: 23°C, humidity: 65%"
+
+  # Mix text and file paths (files detected automatically)
+  stencila models run "Summarize:" report.txt
+
+  # Multiple files and text
+  stencila models run "Compare these:" version1.py version2.py
+
   # Run a dry run to see task construction
   stencila models run "Hello world" --dry-run
 
@@ -2073,17 +3543,23 @@ Examples
   stencila models execute "Summarize this text"
 
 Note
-  This command is primarily for testing model routing and selection.
+  Arguments are automatically detected as file paths (if they exist) or treated as
+  text content. Images are detected by file extension. This command is primarily
+  for testing model routing and selection.
 
 
 ###### **Arguments:**
 
-* `<PROMPT>`
+* `<ARGS>` — Text prompts and/or file paths (automatically detected)
 
 ###### **Options:**
 
-* `-m`, `--model <MODEL>` — The id pattern to specify the model to use
-* `--dry-run` — Perform a dry run
+* `-m`, `--model <MODEL>` — Model id or pattern to select a specific model (e.g., "gpt-4o", "ollama/")
+* `-f`, `--format <FORMAT>` — Output format for generated content (json, markdown, yaml, etc.)
+* `-s`, `--schema <SCHEMA>` — JSON schema name for structured output validation (e.g., "math-block-tex")
+* `--system <SYSTEM>` — System message to set context or behavior for the model
+* `-o`, `--output <OUTPUT>` — Write generated output to the specified file instead of stdout
+* `--dry-run` — Show task construction and model selection without executing
 
 
 
@@ -2138,7 +3614,7 @@ Examples
 
 * `-t`, `--type <TYPE>` — Only list kernels of a particular type
 
-  Possible values: `programming`, `database`, `templating`, `diagrams`, `math`, `styling`
+  Possible values: `programming`, `database`, `templating`, `diagrams`, `visualization`, `math`, `styling`
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
@@ -2356,7 +3832,7 @@ Examples
 
 ## `stencila formats`
 
-List the support for formats
+List and inspect supported formats
 
 **Usage:** `stencila formats [COMMAND]`
 
@@ -2376,6 +3852,7 @@ Format Support
 ###### **Subcommands:**
 
 * `list` — List the support for formats
+* `structuring` — Get a list of all structuring operations, or those that are the default for a format
 
 
 
@@ -2406,6 +3883,169 @@ Columns
 
   Possible values: `json`, `yaml`
 
+
+
+
+## `stencila formats structuring`
+
+Get a list of all structuring operations, or those that are the default for a format
+
+**Usage:** `stencila formats structuring [OPTIONS] [FORMAT]`
+
+
+  # List all structuring operations
+  stencila formats structuring
+
+  # List the default structuring operations for DOCX
+  stencila formats structuring docx
+
+  # List all structuring operations with details for each
+  stencila formats structuring --verbose
+
+
+###### **Arguments:**
+
+* `<FORMAT>` — The format to show default structuring operations for
+
+###### **Options:**
+
+* `-v`, `--verbose` — Provide longer details on each structuring operation
+
+
+
+## `stencila themes`
+
+Manage themes
+
+**Usage:** `stencila themes [COMMAND]`
+
+Examples
+  # List all available themes
+  stencila themes
+
+  # Show the default resolved theme
+  stencila themes show
+
+  # Show a specific theme
+  stencila themes show tufte
+
+  # Create a new workspace theme
+  stencila themes new
+
+  # Create a named user theme
+  stencila themes new my-theme
+
+  # Remove a user theme
+  stencila themes remove my-theme
+
+
+###### **Subcommands:**
+
+* `list` — List the available themes
+* `show` — Show the resolved theme CSS
+* `new` — Create a new theme
+* `remove` — Remove a user theme
+
+
+
+## `stencila themes list`
+
+List the available themes
+
+**Usage:** `stencila themes list`
+
+Examples
+  # List all available themes
+  stencila themes list
+
+
+
+
+## `stencila themes show`
+
+Show the resolved theme CSS
+
+**Usage:** `stencila themes show [OPTIONS] [NAME]`
+
+Examples
+  # Show the default resolved theme
+  stencila themes show
+
+  # Show a specific theme by name
+  stencila themes show tufte
+
+  # Show a user theme
+  stencila themes show my-theme
+
+  # Show theme with resolved CSS variables
+  stencila themes show stencila --verbose
+
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the theme to show
+
+   If not provided, shows the default resolved theme following the resolution order: workspace theme.css → user default.css → builtin stencila.css
+
+###### **Options:**
+
+* `-v`, `--verbose` — Show resolved CSS variables
+
+
+
+## `stencila themes new`
+
+Create a new theme
+
+**Usage:** `stencila themes new [OPTIONS] [NAME]`
+
+Examples
+  # Create a new workspace theme in the current folder
+  stencila themes new
+
+  # Create a named user theme in the config folder
+  stencila themes new my-theme
+
+  # Force overwrite an existing user theme
+  stencila themes new my-theme --force
+
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the theme to create
+
+   If not provided, creates `theme.css` in the current directory. Otherwise, creates in the themes config directory.
+
+###### **Options:**
+
+* `-f`, `--force` — Overwrite the theme file if it already exists
+
+
+
+## `stencila themes remove`
+
+Remove a user theme
+
+**Usage:** `stencila themes remove [OPTIONS] <NAME>`
+
+Examples
+  # Remove a user theme
+  stencila themes remove my-theme
+
+  # Force remove without confirmation
+  stencila themes remove my-theme --force
+
+  # Use the rm alias
+  stencila themes rm my-theme
+
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the theme to remove
+
+###### **Options:**
+
+* `-f`, `--force` — Remove the theme without confirmation
 
 
 
@@ -2825,6 +4465,130 @@ Run the HTTP/Websocket server
 
 
 
+## `stencila snap`
+
+Capture screenshots and measurements of documents served by Stencila
+
+The `snap` command allows programmatic screenshotting and measurement of documents served by Stencila. It can be used to:
+
+- Iterate on themes and styled elements and verify changes - Capture screenshots for documentation or CI - Assert computed CSS properties and layout metrics - Measure page elements for automated testing
+
+**Usage:** `stencila snap [OPTIONS] [PATH] [OUTPUT]`
+
+Examples
+  # Start server in background
+  stencila serve --sync in &
+
+  # Capture viewport screenshot (default)
+  stencila snap snaps/viewport.png
+
+  # Capture full scrollable page
+  stencila snap --full snaps/full.png
+
+  # Verify computed padding for title
+  stencila snap --assert "css([slot=title]).paddingTop>=24px"
+
+  # Capture mobile viewport of specific element
+  stencila snap --device mobile --selector "stencila-article [slot=title]" snaps/mobile.png
+
+  # Capture full mobile page
+  stencila snap --device mobile --full snaps/mobile-full.png
+
+  # Force light or dark mode
+  stencila snap --light snaps/light.png
+  stencila snap --dark snaps/dark.png
+
+  # Preview with PDF/print styles (A4 width)
+  stencila snap --print snaps/print-preview.png
+
+  # Multiple assertions without screenshot
+  stencila snap \
+    --assert "css([slot=title]).fontSize>=28px" \
+    --assert "count(section)==5" \
+    --measure
+
+  # Use custom viewport and wait conditions
+  stencila snap \
+    --width 1920 --height 1080 \
+    --wait-until networkidle \
+    --delay 500 \
+    snaps/desktop.png
+
+  # Capture specific document path
+  stencila snap docs/guide.md snaps/guide.png
+
+
+###### **Arguments:**
+
+* `<PATH>` — Path to document or directory
+
+   If not specified, will use the current directory. The path should be within the directory being served by a running Stencila server.
+* `<OUTPUT>` — Output screenshot path (.png)
+
+   If specified, a screenshot will be captured. If not specified, only measurements and assertions will be performed (no screenshot).
+
+###### **Options:**
+
+* `--selector <SELECTOR>` — CSS selector to capture or measure
+
+   If specified, screenshots will be cropped to this element and measurements will focus on it.
+* `--full` — Capture full scrollable page
+
+   By default, captures only the viewport (first screen). Use this flag to capture the entire scrollable document.
+* `--device <DEVICE>` — Device preset
+
+   Use a predefined viewport configuration: laptop, desktop, iphone-15, ipad, ipad-landscape
+
+  Possible values:
+  - `laptop`:
+    Laptop (1440x900 @2x DPR)
+  - `desktop`:
+    Desktop (1920x1080 @1x DPR)
+  - `mobile`:
+    Mobile (390x844 @3x DPR)
+  - `tablet`:
+    Tablet (768x1024 @2x DPR)
+  - `tablet-landscape`:
+    Tablet Landscape (1024x768 @2x DPR)
+
+* `--width <WIDTH>` — Viewport width in pixels
+
+   Overrides device preset width if both are specified
+* `--height <HEIGHT>` — Viewport height in pixels
+
+   Overrides device preset height if both are specified
+* `--dpr <DPR>` — Device pixel ratio
+
+   Overrides device preset DPR if both are specified
+* `--light` — Use light color scheme
+* `--dark` — Use dark color scheme
+* `--print` — Preview with print media styles (A4 width, for PDF preview)
+
+   Sets viewport to A4 dimensions (794x1123px), emulates print media type, and applies simulated page margins (75px, based on @page margins from web/src/themes/base/pages.css). This provides a preview of PDF output but is not identical - theme-defined @page margin boxes, custom page sizes, and other advanced @page features will not be rendered. Conflicts with --light, --dark, and --device options.
+* `--wait-until <WAIT_UNTIL>` — When to capture: load, domcontentloaded, networkidle
+
+  Default value: `network-idle`
+
+  Possible values:
+  - `load`:
+    Wait for 'load' event
+  - `dom-content-loaded`:
+    Wait for 'DOMContentLoaded' event
+  - `network-idle`:
+    Wait for network idle (default)
+
+* `--wait-for <WAIT_FOR>` — Wait for CSS selector to exist before capturing
+* `--delay <DELAY>` — Additional delay in milliseconds after page is ready
+* `--measure` — Collect computed CSS and layout metrics
+* `--assert <ASSERTIONS>` — Assert measurement conditions
+
+   Can be specified multiple times. Each assertion is a condition like: - css(.title).paddingTop >= 24px - count(section) == 5 - box(.header).height < 100
+* `--url <URL>` — Override URL (instead of discovering server)
+
+   Useful when connecting to a specific server or non-standard configuration
+
+
+
 ## `stencila lsp`
 
 Run the Language Server Protocol server
@@ -2848,6 +4612,7 @@ Examples
 * `status` — Display Stencila Cloud authentication status
 * `signin` — Sign in to Stencila Cloud
 * `signout` — Sign out from Stencila Cloud
+* `logs` — Display logs from Stencila Cloud workspace sessions
 
 
 
@@ -2905,6 +4670,40 @@ Examples
 
 
 
+## `stencila cloud logs`
+
+Display logs from Stencila Cloud workspace sessions
+
+**Usage:** `stencila cloud logs [OPTIONS] --session <SESSION>`
+
+Examples
+  # View logs for a session
+  stencila cloud logs --session SESSION_ID
+
+  # View last 50 logs
+  stencila cloud logs --session SESSION_ID --limit 50
+
+  # Follow logs (poll every 5 seconds by default)
+  stencila cloud logs --session SESSION_ID --follow
+
+  # Follow logs with custom polling interval
+  stencila cloud logs --session SESSION_ID --follow 10
+
+  # Filter logs by level
+  stencila cloud logs --session SESSION_ID --level error
+
+
+###### **Options:**
+
+* `-s`, `--session <SESSION>` — The session ID to retrieve logs for
+* `-l`, `--limit <LIMIT>` — Maximum number of recent logs to display
+* `-f`, `--follow <FOLLOW>` — Continuously poll for new logs every N seconds (press Ctrl+C to stop)
+
+   If provided without a value, defaults to 5 seconds. Minimum value is 1 second.
+* `--level <LEVEL>` — Filter logs by level (error, warn, info, debug, trace)
+
+
+
 ## `stencila signin`
 
 Sign in to Stencila Cloud
@@ -2943,6 +4742,40 @@ Examples
   stencila signout
   stencila logout
 
+
+
+
+## `stencila logs`
+
+Display logs from Stencila Cloud workspace sessions
+
+**Usage:** `stencila logs [OPTIONS] --session <SESSION>`
+
+Examples
+  # View logs for a session
+  stencila cloud logs --session SESSION_ID
+
+  # View last 50 logs
+  stencila cloud logs --session SESSION_ID --limit 50
+
+  # Follow logs (poll every 5 seconds by default)
+  stencila cloud logs --session SESSION_ID --follow
+
+  # Follow logs with custom polling interval
+  stencila cloud logs --session SESSION_ID --follow 10
+
+  # Filter logs by level
+  stencila cloud logs --session SESSION_ID --level error
+
+
+###### **Options:**
+
+* `-s`, `--session <SESSION>` — The session ID to retrieve logs for
+* `-l`, `--limit <LIMIT>` — Maximum number of recent logs to display
+* `-f`, `--follow <FOLLOW>` — Continuously poll for new logs every N seconds (press Ctrl+C to stop)
+
+   If provided without a value, defaults to 5 seconds. Minimum value is 1 second.
+* `--level <LEVEL>` — Filter logs by level (error, warn, info, debug, trace)
 
 
 

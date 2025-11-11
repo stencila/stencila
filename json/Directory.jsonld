@@ -92,9 +92,6 @@
         },
         {
           "@id": "stencila:Directory"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": [

@@ -81,6 +81,7 @@ Support and degree of loss by node type:
 | [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | 🟢 No loss | 🟢 No loss |       |
 | [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | 🟢 No loss | 🟢 No loss |       |
 | [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | 🟢 No loss | 🟢 No loss |       |
+| [Supplement](https://stencila.ghost.io/docs/reference/schema/supplement)                     | 🟢 No loss | 🟢 No loss |       |
 | [Table](https://stencila.ghost.io/docs/reference/schema/table)                               | 🟢 No loss | 🟢 No loss |       |
 | [TableCell](https://stencila.ghost.io/docs/reference/schema/table_cell)                      | 🟢 No loss | 🟢 No loss |       |
 | [TableRow](https://stencila.ghost.io/docs/reference/schema/table_row)                        | 🟢 No loss | 🟢 No loss |       |
@@ -177,6 +178,7 @@ Support and degree of loss by node type:
 | [Walkthrough](https://stencila.ghost.io/docs/reference/schema/walkthrough)                   | 🟢 No loss | 🟢 No loss |       |
 | [WalkthroughStep](https://stencila.ghost.io/docs/reference/schema/walkthrough_step)          | 🟢 No loss | 🟢 No loss |       |
 | **Style**                                                                                    |
+| [Page](https://stencila.ghost.io/docs/reference/schema/page)                                 | 🟢 No loss | 🟢 No loss |       |
 | [StyledBlock](https://stencila.ghost.io/docs/reference/schema/styled_block)                  | 🟢 No loss | 🟢 No loss |       |
 | [StyledInline](https://stencila.ghost.io/docs/reference/schema/styled_inline)                | 🟢 No loss | 🟢 No loss |       |
 | **Edits**                                                                                    |

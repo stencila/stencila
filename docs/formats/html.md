@@ -73,6 +73,7 @@ Support and degree of loss by node type:
 | [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | 🟢 No loss |          |                                                                                                                    |
 | [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | 🟢 No loss |          |                                                                                                                    |
 | [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | 🟢 No loss |          |                                                                                                                    |
+| [Supplement](https://stencila.ghost.io/docs/reference/schema/supplement)                     | 🟢 No loss |          |                                                                                                                    |
 | [Table](https://stencila.ghost.io/docs/reference/schema/table)                               | 🟢 No loss |          | Encoded using special function                                                                                     |
 | [TableCell](https://stencila.ghost.io/docs/reference/schema/table_cell)                      | 🟢 No loss |          | Encoded as [`<td>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)                                  |
 | [TableRow](https://stencila.ghost.io/docs/reference/schema/table_row)                        | 🟢 No loss |          | Encoded as [`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr)                                  |
@@ -169,6 +170,7 @@ Support and degree of loss by node type:
 | [Walkthrough](https://stencila.ghost.io/docs/reference/schema/walkthrough)                   | 🟢 No loss |          |                                                                                                                    |
 | [WalkthroughStep](https://stencila.ghost.io/docs/reference/schema/walkthrough_step)          | 🟢 No loss |          |                                                                                                                    |
 | **Style**                                                                                    |
+| [Page](https://stencila.ghost.io/docs/reference/schema/page)                                 | 🟢 No loss |          |                                                                                                                    |
 | [StyledBlock](https://stencila.ghost.io/docs/reference/schema/styled_block)                  | 🟢 No loss |          | Encoded as [`<div>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div)                                |
 | [StyledInline](https://stencila.ghost.io/docs/reference/schema/styled_inline)                | 🟢 No loss |          | Encoded as [`<span>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span)                              |
 | **Edits**                                                                                    |

@@ -2228,8 +2228,11 @@ class InstructionMessage(Entity):
     role: MessageRole | None = None
     """The role of the message in the conversation."""
 
-    parts: list[MessagePart]
-    """Parts of the message."""
+    content: list[Inline]
+    """The content of the message as inline nodes."""
+
+    files: list[File] | None = None
+    """Files attached to the message."""
 
     authors: list[Author] | None = None
     """The authors of the message."""

@@ -14,10 +14,11 @@
   },
   "required": [
     "type",
-    "parts"
+    "content"
   ],
   "core": [
     "id",
+    "files",
     "role",
     "authors",
     "provenance"
@@ -49,12 +50,9 @@
       "description": "The role of the message in the conversation.",
       "$ref": "MessageRole.schema.json"
     },
-    "parts": {
-      "@id": "schema:hasParts",
-      "description": "Parts of the message.",
-      "aliases": [
-        "part"
-      ],
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the message as inline nodes.",
       "patch": {
         "formats": [
           "md",
@@ -72,7 +70,21 @@
       },
       "type": "array",
       "items": {
-        "$ref": "MessagePart.schema.json"
+        "$ref": "Inline.schema.json"
+      }
+    },
+    "files": {
+      "@id": "stencila:files",
+      "description": "Files attached to the message.",
+      "aliases": [
+        "file"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "File.schema.json"
       }
     },
     "authors": {

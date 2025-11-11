@@ -532,9 +532,6 @@
         },
         {
           "@id": "stencila:Directory"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
         }
       ]
     },
@@ -799,6 +796,9 @@
         },
         {
           "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Island"

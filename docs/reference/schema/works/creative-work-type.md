@@ -35,6 +35,7 @@ The `CreativeWorkType` type has these members:
 - `Datatable`
 - `Drawing`
 - `Figure`
+- `File`
 - `ImageObject`
 - `Legislation`
 - `Manuscript`

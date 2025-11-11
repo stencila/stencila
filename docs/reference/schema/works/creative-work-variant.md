@@ -25,6 +25,7 @@ The `CreativeWorkVariant` type has these members:
 - [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment)
 - [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable)
 - [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
+- [`File`](https://stencila.ghost.io/docs/reference/schema/file)
 - [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
 - [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object)
 - [`Periodical`](https://stencila.ghost.io/docs/reference/schema/periodical)

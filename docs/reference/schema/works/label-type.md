@@ -19,6 +19,7 @@ The `LabelType` type has these members:
 
 - `AppendixLabel`
 - `FigureLabel`
+- `SupplementLabel`
 - `TableLabel`
 
 # Bindings

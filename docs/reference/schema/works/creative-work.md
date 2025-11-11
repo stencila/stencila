@@ -67,7 +67,7 @@ The `CreativeWork` type has these properties:
 The `CreativeWork` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
-- Children: [`Article`](https://stencila.ghost.io/docs/reference/schema/article), [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat), [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim), [`Collection`](https://stencila.ghost.io/docs/reference/schema/collection), [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment), [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable), [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure), [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object), [`Periodical`](https://stencila.ghost.io/docs/reference/schema/periodical), [`Prompt`](https://stencila.ghost.io/docs/reference/schema/prompt), [`PublicationIssue`](https://stencila.ghost.io/docs/reference/schema/publication-issue), [`PublicationVolume`](https://stencila.ghost.io/docs/reference/schema/publication-volume), [`Review`](https://stencila.ghost.io/docs/reference/schema/review), [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application), [`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code), [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
+- Children: [`Article`](https://stencila.ghost.io/docs/reference/schema/article), [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat), [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim), [`Collection`](https://stencila.ghost.io/docs/reference/schema/collection), [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment), [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable), [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure), [`File`](https://stencila.ghost.io/docs/reference/schema/file), [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object), [`Periodical`](https://stencila.ghost.io/docs/reference/schema/periodical), [`Prompt`](https://stencila.ghost.io/docs/reference/schema/prompt), [`PublicationIssue`](https://stencila.ghost.io/docs/reference/schema/publication-issue), [`PublicationVolume`](https://stencila.ghost.io/docs/reference/schema/publication-volume), [`Review`](https://stencila.ghost.io/docs/reference/schema/review), [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application), [`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code), [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
 
 # Formats
 
@@ -88,8 +88,7 @@ The `CreativeWork` type can be encoded (serialized) to, and/or decoded (deserial
 | [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                         | ⚠️ High loss | ⚠️ High loss |         |
 | [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                 | ⚠️ High loss |              |         |
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                     | 🔷 Low loss   | 🔷 Low loss   |         |
-| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)        | 🔷 Low loss   | 🔷 Low loss   |         |
-| [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)          |              |              |         |
+| [Microsoft Word](https://stencila.ghost.io/docs/reference/formats/docx)             | 🔷 Low loss   | 🔷 Low loss   |         |
 | [OpenDocument Text](https://stencila.ghost.io/docs/reference/formats/odt)           | 🔷 Low loss   | 🔷 Low loss   |         |
 | [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                         | 🔷 Low loss   | 🔷 Low loss   |         |
 | [JSON](https://stencila.ghost.io/docs/reference/formats/json)                       | 🟢 No loss    | 🟢 No loss    |         |
@@ -97,7 +96,7 @@ The `CreativeWork` type can be encoded (serialized) to, and/or decoded (deserial
 | [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)                     | 🟢 No loss    | 🟢 No loss    |         |
 | [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)                  | 🟢 No loss    | 🟢 No loss    |         |
 | [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                       | 🟢 No loss    | 🟢 No loss    |         |
-| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/cbor.zstd)             | 🟢 No loss    | 🟢 No loss    |         |
+| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/czst)                  | 🟢 No loss    | 🟢 No loss    |         |
 | [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                       | 🟢 No loss    | 🟢 No loss    |         |
 | [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)            | 🔷 Low loss   | 🔷 Low loss   |         |
 | [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)              | 🔷 Low loss   | 🔷 Low loss   |         |
@@ -106,14 +105,14 @@ The `CreativeWork` type can be encoded (serialized) to, and/or decoded (deserial
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |              |              |         |
 | [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         |              |              |         |
 | [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         |              |              |         |
-| [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |              |              |         |
-| [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |              |              |         |
+| [Microsoft Excel](https://stencila.ghost.io/docs/reference/formats/xlsx)            |              |              |         |
+| [Microsoft Excel (XLS)](https://stencila.ghost.io/docs/reference/formats/xls)       |              |              |         |
 | [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |              |              |         |
 | [PNG](https://stencila.ghost.io/docs/reference/formats/png)                         | ⚠️ High loss |              |         |
 | [Directory](https://stencila.ghost.io/docs/reference/formats/directory)             |              |              |         |
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)         |              |              |         |
 | [Meca](https://stencila.ghost.io/docs/reference/formats/meca)                       |              | 🔷 Low loss   |         |
-| [PubMed Central OA Package](https://stencila.ghost.io/docs/reference/formats/pmcoa) |              | 🔷 Low loss   |         |
+| [PubMed Central OA Package](https://stencila.ghost.io/docs/reference/formats/pmcoa) |              |              |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)                     | 🔷 Low loss   |              |         |
 
 # Bindings

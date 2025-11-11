@@ -30,6 +30,7 @@ The `ThingVariant` type has these members:
 - [`DefinedTerm`](https://stencila.ghost.io/docs/reference/schema/defined-term)
 - [`Enumeration`](https://stencila.ghost.io/docs/reference/schema/enumeration)
 - [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
+- [`File`](https://stencila.ghost.io/docs/reference/schema/file)
 - [`Grant`](https://stencila.ghost.io/docs/reference/schema/grant)
 - [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
 - [`ListItem`](https://stencila.ghost.io/docs/reference/schema/list-item)

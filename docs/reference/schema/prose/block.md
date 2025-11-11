@@ -27,6 +27,7 @@ The `Block` type has these members:
 - [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim)
 - [`CodeBlock`](https://stencila.ghost.io/docs/reference/schema/code-block)
 - [`CodeChunk`](https://stencila.ghost.io/docs/reference/schema/code-chunk)
+- [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable)
 - [`Excerpt`](https://stencila.ghost.io/docs/reference/schema/excerpt)
 - [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
 - [`File`](https://stencila.ghost.io/docs/reference/schema/file)
@@ -41,6 +42,7 @@ The `Block` type has these members:
 - [`Island`](https://stencila.ghost.io/docs/reference/schema/island)
 - [`List`](https://stencila.ghost.io/docs/reference/schema/list)
 - [`MathBlock`](https://stencila.ghost.io/docs/reference/schema/math-block)
+- [`Page`](https://stencila.ghost.io/docs/reference/schema/page)
 - [`Paragraph`](https://stencila.ghost.io/docs/reference/schema/paragraph)
 - [`PromptBlock`](https://stencila.ghost.io/docs/reference/schema/prompt-block)
 - [`QuoteBlock`](https://stencila.ghost.io/docs/reference/schema/quote-block)
@@ -48,6 +50,7 @@ The `Block` type has these members:
 - [`Section`](https://stencila.ghost.io/docs/reference/schema/section)
 - [`StyledBlock`](https://stencila.ghost.io/docs/reference/schema/styled-block)
 - [`SuggestionBlock`](https://stencila.ghost.io/docs/reference/schema/suggestion-block)
+- [`Supplement`](https://stencila.ghost.io/docs/reference/schema/supplement)
 - [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
 - [`ThematicBreak`](https://stencila.ghost.io/docs/reference/schema/thematic-break)
 - [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
@@ -82,6 +85,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 |                    | Low+       | Generate `Claim` nodes in block content.                   | Default for level |
 | `CodeChunk`        | Min+       | Do not generate `CodeChunk` nodes in block content.        | -                 |
 |                    | Low+       | Generate `CodeChunk` nodes in block content.               | Default for level |
+| `Datatable`        | Min+       | Do not generate `Datatable` nodes in block content.        | -                 |
 | `Excerpt`          | Min+       | Do not generate `Excerpt` nodes in block content.          | -                 |
 | `Figure`           | Min+       | Do not generate `Figure` nodes in block content.           | -                 |
 |                    | Low+       | Generate `Figure` nodes in block content.                  | Default for level |
@@ -97,10 +101,12 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `InlinesBlock`     | Min+       | Do not generate `InlinesBlock` nodes in block content.     | -                 |
 | `InstructionBlock` | Min+       | Do not generate `InstructionBlock` nodes in block content. | -                 |
 | `Island`           | Min+       | Do not generate `Island` nodes in block content.           | -                 |
+| `Page`             | Min+       | Do not generate `Page` nodes in block content.             | -                 |
 | `PromptBlock`      | Min+       | Do not generate `PromptBlock` nodes in block content.      | -                 |
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
 |                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |
 | `SuggestionBlock`  | Min+       | Do not generate `SuggestionBlock` nodes in block content.  | -                 |
+| `Supplement`       | Min+       | Do not generate `Supplement` nodes in block content.       | -                 |
 | `VideoObject`      | Min+       | Do not generate `VideoObject` nodes in block content.      | -                 |
 | `Walkthrough`      | Min+       | Do not generate `Walkthrough` nodes in block content.      | -                 |
 

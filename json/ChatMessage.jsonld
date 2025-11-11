@@ -338,6 +338,9 @@
           "@id": "stencila:InstructionInline"
         },
         {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
           "@id": "stencila:Island"
         },
         {
@@ -401,9 +404,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "files",
       "rdfs:comment": "The content of the message.",
-      "schema:domainIncludes": {
-        "@id": "stencila:ChatMessage"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:File"
       }

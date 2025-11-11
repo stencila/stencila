@@ -343,6 +343,7 @@
           "qmd"
         ]
       },
+      "walk": true,
       "serde": {
         "default": true
       },
