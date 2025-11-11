@@ -1,3 +1,56 @@
+# [2.8.0](https://github.com/stencila/stencila/compare/v2.7.0...v2.8.0) (2025-11-10)
+
+
+### Bug Fixes
+
+* **Bibliography codec:** Upgrade `hayagriva` dependency ([481aa39](https://github.com/stencila/stencila/commit/481aa3964))
+* **CLI:** Improve messages for watch/unwatch commands ([8a49446](https://github.com/stencila/stencila/commit/8a494c466))
+* **CLI:** Improve message when multiple remotes ([d0da8f1](https://github.com/stencila/stencila/commit/d0da8f119))
+* **CLI:** Print current pull request ([ab6504b](https://github.com/stencila/stencila/commit/ab6504bbc))
+* **Cloud:** Avoid watch request serialization issues ([101364d](https://github.com/stencila/stencila/commit/101364d5c))
+* **Documents:** Fix remote status determination ([3facc96](https://github.com/stencila/stencila/commit/3facc966a))
+* **Graphviz kernel:** Upgrade `layout-rs` dependency ([16244376](https://github.com/stencila/stencila/commit/16244376d))
+* **Jupyter notebook codec:** Fix handling of data URIs ([4ab56a8](https://github.com/stencila/stencila/commit/4ab56a82d))
+* **Jupyter notebook codec:** Improved encoding of outputs and VSCode metadata ([6221c60](https://github.com/stencila/stencila/commit/6221c6084))
+* **Markdown codec:** Decode instruction message properly ([388f432](https://github.com/stencila/stencila/commit/388f432b3))
+* **Markdown codec:** Parse instruction message properly ([3ee5707](https://github.com/stencila/stencila/commit/3ee5707ad))
+* **Node:** Upgrade napi dependency ([029abd6](https://github.com/stencila/stencila/commit/029abd616))
+* **Push:** Improve error messages ([7a9f9b8](https://github.com/stencila/stencila/commit/7a9f9b8c2))
+* **Rust:** Upgrade dependencies ([cd507d4](https://github.com/stencila/stencila/commit/cd507d497))
+* **Schema:** Walk over instruction message ([16e3e57](https://github.com/stencila/stencila/commit/16e3e5754)), ensures that inline executables are compiled and executed
+* **Status:** Only show local file status in legend if deleted ([13ed77f](https://github.com/stencila/stencila/commit/13ed77f5b))
+* **Status:** Show watch status ([91f1c6f](https://github.com/stencila/stencila/commit/91f1c6f38))
+* **Watches:** Ensure the path is on the main branch ([d3e7e71](https://github.com/stencila/stencila/commit/d3e7e7179))
+* **Workspace:** Do not copy over default python env ([56d3717](https://github.com/stencila/stencila/commit/56d3717bf))
+* **Workspace:** Improve branch checkout strategy ([a82fa52](https://github.com/stencila/stencila/commit/a82fa52ad))
+* **Workspace:** Improve branch handling ([b3f4141](https://github.com/stencila/stencila/commit/b3f41419d))
+* **Workspace:** Improve logging for notification callback ([88330a6](https://github.com/stencila/stencila/commit/88330a645))
+* **Workspace:** Push to current branch ([86a3ff0](https://github.com/stencila/stencila/commit/86a3ff058))
+* **Workspace:** Set upstream on push ([fc30235](https://github.com/stencila/stencila/commit/fc30235bd))
+* **Workspace:** Trust mise configs ([01c89f9](https://github.com/stencila/stencila/commit/01c89f926))
+* **Workspace:** Use `--no-merge` option to avoid branching ([f80e11c](https://github.com/stencila/stencila/commit/f80e11c4f))
+* **Workspace:** Use env vars if possible ([2eaae1d](https://github.com/stencila/stencila/commit/2eaae1d3b))
+
+
+### Features
+
+* **CLI:** Add command for fetching logs ([5edb2ed](https://github.com/stencila/stencila/commit/5edb2ed5f))
+* **CLI:** Allow pushing to all files with remotes ([b49b21c](https://github.com/stencila/stencila/commit/b49b21c61))
+* **Documents:** Remove deleted watch ids ([e9ee940](https://github.com/stencila/stencila/commit/e9ee94077))
+* **VSCode:** Add commands for pushing and pulling documents ([8261739](https://github.com/stencila/stencila/commit/82617394f))
+* **VSCode:** Add commands for watching and un-watching documents ([8981acb](https://github.com/stencila/stencila/commit/8981acbb1))
+* **VSCode:** Add document tree view ([750fc1c](https://github.com/stencila/stencila/commit/750fc1c33))
+* **Workspace:** Send finished notification on exit ([3b55231](https://github.com/stencila/stencila/commit/3b5523111))
+
+
+### Performance Improvements
+
+* **Workspace:** Also copy over default uv.lock ([e0077a6](https://github.com/stencila/stencila/commit/e0077a6b5))
+* **Workspace:** Do not install tools up front ([8d997e0](https://github.com/stencila/stencila/commit/8d997e003))
+* **Workspace:** Improve cache layering in Dockerfile ([473b06e](https://github.com/stencila/stencila/commit/473b06e20))
+
+
+
 # [1.16.0](https://github.com/stencila/stencila/compare/v1.15.0...v1.16.0) (2022-07-29)
 
 

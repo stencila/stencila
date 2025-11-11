@@ -1,5 +1,17 @@
 # Change Log
 
+## 2.8.0 2025-11-10
+
+- Adds document tree view for viewing and managing Stencila documents in your workspace.
+
+- Adds commands for watching and un-watching documents to enable automatic syncing with remote sources.
+
+- Adds commands for pushing and pulling documents to/from remote sources.
+
+- Based on Stencila CLI [v2.8.0](https://github.com/stencila/stencila/releases/tag/v2.8.0) which includes numerous fixes and improvements to workspace handling, document syncing, and dependency upgrades.
+
+
+
 ## 2.7.0 2025-10-30
 
 - Based on Stencila CLI [v2.7.0](https://github.com/stencila/stencila/releases/tag/v2.7.0).
