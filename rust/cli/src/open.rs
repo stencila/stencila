@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::Parser;
-use eyre::{OptionExt, Result, bail};
+use eyre::{OptionExt, Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
@@ -102,6 +102,7 @@ impl Cli {
         };
 
         let file = file.canonicalize()?;
+        let path_display = self.path.display();
 
         // Open the document to get tracked remotes
         let doc = Document::open(&file, None).await?;
@@ -119,9 +120,7 @@ impl Cli {
                     let remote = remotes
                         .iter()
                         .find(|url| RemoteService::GoogleDocs.matches_url(url))
-                        .ok_or_else(|| {
-                            eyre::eyre!("No Google Docs remote tracked for {}", self.path.display())
-                        })?;
+                        .ok_or_else(|| eyre!("No Google Doc tracked for `{path_display}`"))?;
                     (false, Some(remote.clone()))
                 }
                 "m365" => {
@@ -130,30 +129,33 @@ impl Cli {
                         .iter()
                         .find(|url| RemoteService::Microsoft365.matches_url(url))
                         .ok_or_else(|| {
-                            eyre::eyre!(
-                                "No Microsoft 365 remote tracked for {}",
-                                self.path.display()
-                            )
+                            eyre!("No Microsoft 365 doc tracked for `{path_display}`",)
                         })?;
+                    (false, Some(remote.clone()))
+                }
+                "site" | "sites" => {
+                    // Find Stencila Site
+                    let remote = remotes
+                        .iter()
+                        .find(|url| RemoteService::StencilaSites.matches_url(url))
+                        .ok_or_else(|| eyre!("No Stencila Site tracked for `{path_display}`"))?;
                     (false, Some(remote.clone()))
                 }
                 _ => {
                     // Try to parse as full URL
                     let url = Url::parse(target_str).map_err(|_| {
-                        eyre::eyre!(
-                            "Invalid target or service: '{}'. Use 'local', 'gdoc', 'm365', or a full URL.",
-                            target_str
+                        eyre!(
+                            "Invalid target or service: `{target_str}`. Use `local`, `site`, `gdoc`, `m365` or a full URL.",
                         )
                     })?;
 
                     // Validate it's from a supported service
-                    let _service = RemoteService::from_url(&url).ok_or_else(|| {
-                        eyre::eyre!("URL {} is not from a supported remote service", url)
-                    })?;
+                    let _service = RemoteService::from_url(&url)
+                        .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
 
                     // Check if this URL is tracked for the document
                     if !remotes.contains(&url) {
-                        bail!("URL {} is not tracked for {}", url, self.path.display());
+                        bail!("URL {url} is not tracked for `{path_display}`");
                     }
 
                     (false, Some(url))

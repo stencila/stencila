@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::Parser;
-use eyre::{Result, bail};
+use eyre::{Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
@@ -72,8 +72,8 @@ impl Cli {
                         .iter()
                         .find(|u| RemoteService::GoogleDocs.matches_url(u))
                         .ok_or_else(|| {
-                            eyre::eyre!(
-                                "No tracked Google Docs remote found for `{path_display}`. Use a full URL to specify one."
+                            eyre!(
+                                "No tracked Google Doc found for `{path_display}`. Use a full URL to specify one."
                             )
                         })?
                         .clone();
@@ -86,20 +86,33 @@ impl Cli {
                         .iter()
                         .find(|u| RemoteService::Microsoft365.matches_url(u))
                         .ok_or_else(|| {
-                            eyre::eyre!(
-                                "No tracked Microsoft 365 remote found for `{path_display}`. Use a full URL to specify one."
+                            eyre!(
+                                "No tracked Microsoft 365 document found for `{path_display}`. Use a full URL to specify one."
                             )
                         })?
                         .clone();
                     (RemoteService::Microsoft365, url)
                 }
+                "site" | "sites" => {
+                    // Find tracked Stencila Site remote
+                    let remotes = doc.remotes().await?;
+                    let url = remotes
+                        .iter()
+                        .find(|u| RemoteService::StencilaSites.matches_url(u))
+                        .ok_or_else(|| {
+                            eyre!(
+                                "No tracked Stencila Site found for `{path_display}`. Use a full URL to specify one."
+                            )
+                        })?
+                        .clone();
+                    (RemoteService::StencilaSites, url)
+                }
                 _ => {
                     // Assume it's a URL
                     let url = Url::parse(target_str)
-                        .map_err(|_| eyre::eyre!("Invalid target: {target_str}"))?;
-                    let service = RemoteService::from_url(&url).ok_or_else(|| {
-                        eyre::eyre!("URL {url} is not from a supported remote service")
-                    })?;
+                        .map_err(|_| eyre!("Invalid target: {target_str}"))?;
+                    let service = RemoteService::from_url(&url)
+                        .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
                     (service, url)
                 }
             }
@@ -108,7 +121,7 @@ impl Cli {
             let remotes = doc.remotes().await?;
             if remotes.is_empty() {
                 bail!(
-                    "No tracked remotes for `{path_display}`. Specify a target or service (gdoc/m365) to pull from.",
+                    "No tracked remotes for `{path_display}`. Specify a target or service to pull from.",
                 );
             }
 
@@ -132,10 +145,7 @@ impl Cli {
             // Find which service the tracked remote belongs to
             let remote_url = &remotes[0];
             let service = RemoteService::from_url(remote_url).ok_or_else(|| {
-                eyre::eyre!(
-                    "Tracked remote {} is not from a supported service",
-                    remote_url
-                )
+                eyre!("Tracked remote {remote_url} is not from a supported service",)
             })?;
 
             (service, remote_url.clone())

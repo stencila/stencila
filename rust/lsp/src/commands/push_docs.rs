@@ -118,6 +118,7 @@ pub(crate) async fn push_docs(
                 doc.path(),
                 doc.file_name(),
                 Some(remote_url),
+                doc.path(),
             )
             .await
             {

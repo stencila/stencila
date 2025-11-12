@@ -1058,6 +1058,7 @@ pub async fn push(
     path: Option<&Path>,
     title: Option<&str>,
     url: Option<&Url>,
+    doc_path: Option<&Path>,
 ) -> Result<Url> {
     service.push(node, path, title, url).await
 }

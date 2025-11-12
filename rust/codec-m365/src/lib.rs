@@ -225,13 +225,11 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Get metadata for a Microsoft 365 / OneDrive document
-///
-/// Returns the last modified time as a Unix timestamp.
+/// Time that a Microsoft 365 / OneDrive document was last modified as a Unix timestamp
 ///
 /// This function will obtain a Microsoft access token from Stencila Cloud,
 /// prompting the user to connect their account if necessary.
-pub async fn get_metadata(url: &Url) -> Result<u64> {
+pub async fn modified_at(url: &Url) -> Result<u64> {
     let access_token = stencila_cloud::get_token("microsoft").await?;
     let item_id = extract_item_id(url)?;
 

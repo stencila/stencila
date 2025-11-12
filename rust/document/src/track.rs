@@ -228,9 +228,12 @@ impl DocumentTracking {
             // Fetch metadata from remote service
             let remote_modified_at = async {
                 match RemoteService::from_url(url) {
-                    Some(RemoteService::GoogleDocs) => stencila_codec_gdoc::get_metadata(url).await,
+                    Some(RemoteService::GoogleDocs) => stencila_codec_gdoc::modified_at(url).await,
                     Some(RemoteService::Microsoft365) => {
-                        stencila_codec_m365::get_metadata(url).await
+                        stencila_codec_m365::modified_at(url).await
+                    }
+                    Some(RemoteService::StencilaSites) => {
+                        stencila_codec_site::modified_at(url).await
                     }
                     None => bail!("Unsupported remote service: {url}"),
                 }

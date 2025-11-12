@@ -53,6 +53,7 @@ stencila-codec-pmc = { path = "../codec-pmc" }
 stencila-codec-png = { path = "../codec-png" }
 # stencila-codec-polars = { path = "../codec-polars", optional = true }
 stencila-codec-rnw = { path = "../codec-rnw" }
+stencila-codec-site = { path = "../codec-site" }
 stencila-codec-swb = { path = "../codec-swb" }
 stencila-codec-text = { path = "../codec-text" }
 stencila-codec-utils = { path = "../codec-utils" }

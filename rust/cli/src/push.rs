@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process::exit};
 
 use clap::Parser;
-use eyre::{Result, bail};
+use eyre::{Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
@@ -30,8 +30,16 @@ pub struct Cli {
     ///
     /// By default, if a remote is already tracked for the document,
     /// it will be updated. Use this flag to create a new document.
-    #[arg(long, short = 'n')]
-    force_new: bool,
+    #[arg(long, short)]
+    new: bool,
+
+    /// Force push even if file is up-to-date
+    ///
+    /// By default, files pushed to Stencila Sites are only uploaded if they
+    /// are out of date compared to the remote. Use this flag to push regardless
+    /// of status. This flag only affects Stencila Sites pushes.
+    #[arg(long, short)]
+    force: bool,
 
     /// Do not execute the document before pushing it
     ///
@@ -81,6 +89,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Push a document to Microsoft 365</dim>
   <b>stencila push</> <g>document.smd</> <g>m365</>
 
+  <dim># Push a document to a Stencila Site</dim>
+  <b>stencila push</> <g>document.smd</> <g>site</>
+
   <dim># Push to file to all tracked remotes</dim>
   <b>stencila push</> <g>document.smd</>
 
@@ -91,7 +102,10 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila push</> <g>report.smd</> <g>gdoc</> <c>--</> <c>arg1=value1</>
 
   <dim># Force create new document</dim>
-  <b>stencila push</> <g>document.smd</> <g>gdoc</> <c>--force-new</>
+  <b>stencila push</> <g>document.smd</> <g>gdoc</> <c>--new</>
+
+  <dim># Force push even if up-to-date (useful for sites)</dim>
+  <b>stencila push</> <g>document.smd</> <g>site</> <c>--force</>
 "
 );
 
@@ -140,16 +154,14 @@ impl Cli {
                 match target_str.as_str() {
                     "gdoc" | "gdocs" => (Some(RemoteService::GoogleDocs), None, self.args),
                     "m365" => (Some(RemoteService::Microsoft365), None, self.args),
+                    "site" | "sites" => (Some(RemoteService::StencilaSites), None, self.args),
                     _ => {
                         // Try to parse as URL
                         let url = Url::parse(&target_str).map_err(|_| {
-                            eyre::eyre!(
-                                "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
-                                target_str
-                            )
+                            eyre!("Invalid target or service: `{target_str}`. Use 'gdoc', 'm365', or a full URL.")
                         })?;
                         let service = RemoteService::from_url(&url).ok_or_else(|| {
-                            eyre::eyre!("URL {} is not from a supported remote service", url)
+                            eyre!("URL {url} is not from a supported remote service")
                         })?;
                         (Some(service), Some(url), self.args)
                     }
@@ -158,6 +170,13 @@ impl Cli {
         } else {
             (None, None, self.args)
         };
+
+        // Validate: --watch is not supported with Stencila Sites
+        if self.watch && matches!(service, Some(RemoteService::StencilaSites)) {
+            bail!(
+                "Watch is not supported for Stencila Sites. Sites are write-only remotes that don't support bidirectional sync."
+            );
+        }
 
         // Execute document if args provided
         if !self.no_execute {
@@ -237,6 +256,7 @@ impl Cli {
                         doc.path(),
                         doc.file_name(),
                         Some(&remote_url),
+                        doc.path(),
                     )
                     .await
                     {
@@ -334,14 +354,21 @@ impl Cli {
             first_service
         };
 
+        // Validate: --watch is not supported with Stencila Sites (check after service resolution)
+        if self.watch && matches!(service, RemoteService::StencilaSites) {
+            bail!(
+                "Watch is not supported for Stencila Sites. Sites are write-only remotes that don't support bidirectional sync."
+            );
+        }
+
         // Determine existing URL for this service
         let existing_url = if let Some(url) = explicit_target {
             // Explicit target provided - use it directly
-            if self.force_new {
+            if self.new {
                 bail!("Cannot use both an explicit target and --force-new flag");
             }
             Some(url)
-        } else if self.force_new {
+        } else if self.new {
             // Force new document creation
             None
         } else {
@@ -366,6 +393,45 @@ impl Cli {
             );
         }
 
+        // For Stencila Sites, check file status before pushing
+        if matches!(service, RemoteService::StencilaSites)
+            && !self.force
+            && let Some(doc_path) = doc.path()
+        {
+            // Try to find workspace and read site config
+            if let Ok(stencila_dir) = stencila_dirs::closest_stencila_dir(doc_path, false).await
+                && let Ok(project_dir) = stencila_dirs::workspace_dir(&stencila_dir)
+                && let Ok(config) = stencila_codec_site::read_site_config(doc_path).await
+            {
+                // Get API token
+                if let Some(token) = stencila_cloud::api_token() {
+                    // Try to check file status
+                    match stencila_codec_site::should_skip_push(
+                        doc_path,
+                        &project_dir,
+                        &config,
+                        &token,
+                    )
+                    .await
+                    {
+                        Ok(should_skip) => {
+                            if should_skip {
+                                message(
+                                    "File is up-to-date on site, skipping push (use --force to push anyway)",
+                                    Some("✓"),
+                                );
+                                return Ok(());
+                            }
+                        }
+                        Err(error) => {
+                            // Log warning but continue with push
+                            tracing::warn!("Failed to check site status: {error}");
+                        }
+                    }
+                }
+            }
+        }
+
         // Push to the remote service
         let url = stencila_codecs::push(
             &service,
@@ -373,6 +439,7 @@ impl Cli {
             doc.path(),
             doc.file_name(),
             existing_url.as_ref(),
+            doc.path(),
         )
         .await?;
 
@@ -593,6 +660,7 @@ impl Cli {
                     doc.path(),
                     doc.file_name(),
                     Some(remote_url),
+                    doc.path(),
                 )
                 .await
                 {

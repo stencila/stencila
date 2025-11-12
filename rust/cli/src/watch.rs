@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::Parser;
-use eyre::{Result, bail};
+use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
@@ -117,9 +117,7 @@ impl Cli {
                     remotes
                         .iter()
                         .find(|(url, _)| RemoteService::GoogleDocs.matches_url(url))
-                        .ok_or_else(|| {
-                            eyre::eyre!("No Google Docs remote found for `{path_display}`")
-                        })?
+                        .ok_or_else(|| eyre!("No Google Doc found for `{path_display}`"))?
                         .0
                         .clone()
                 }
@@ -129,7 +127,7 @@ impl Cli {
                         .iter()
                         .find(|(url, _)| RemoteService::Microsoft365.matches_url(url))
                         .ok_or_else(|| {
-                            eyre::eyre!("No Microsoft 365 remote found for `{path_display}`")
+                            eyre!("No Microsoft 365 document found for `{path_display}`")
                         })?
                         .0
                         .clone()
@@ -137,7 +135,7 @@ impl Cli {
                 _ => {
                     // Try to parse as URL
                     Url::parse(&target_str).map_err(|_| {
-                        eyre::eyre!(
+                        eyre!(
                             "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
                             target_str
                         )
@@ -150,7 +148,7 @@ impl Cli {
                 .into_iter()
                 .find(|(url, _)| url == &target_url)
                 .ok_or_else(|| {
-                    eyre::eyre!("Remote target not found in tracked remotes: {}", target_url)
+                    eyre!("Remote target not found in tracked remotes: {}", target_url)
                 })?
         } else {
             // No target specified - check if there's only one remote
@@ -174,7 +172,7 @@ impl Cli {
             remotes
                 .into_iter()
                 .next()
-                .ok_or_else(|| eyre::eyre!("No remote found (this should not happen)"))?
+                .ok_or_else(|| eyre!("No remote found (this should not happen)"))?
         };
 
         // Check if already being watched
