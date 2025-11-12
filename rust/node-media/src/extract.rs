@@ -7,7 +7,7 @@ use std::{
 };
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
-use eyre::{OptionExt, Result, bail};
+use eyre::{OptionExt, Result, bail, eyre};
 use itertools::Itertools;
 use pathdiff::diff_paths;
 use seahash::SeaHasher;
@@ -32,13 +32,20 @@ pub fn extract_media<T>(node: &mut T, document_path: Option<&Path>, media_dir: &
 where
     T: WalkNode,
 {
-    let document_path = match document_path {
-        Some(path) => path,
-        None => &current_dir()?,
+    // Determine the document directory (base for relative paths)
+    let document_dir = match document_path {
+        Some(path) => {
+            // Get parent directory of the document file
+            match path.parent() {
+                Some(parent) if !parent.as_os_str().is_empty() => parent.to_path_buf(),
+                _ => PathBuf::from("."),
+            }
+        }
+        None => current_dir()?,
     };
 
     let mut walker = Extractor {
-        document_path: document_path.into(),
+        document_dir,
         media_dir: media_dir.into(),
     };
     walker.walk(node);
@@ -47,8 +54,8 @@ where
 }
 
 struct Extractor {
-    /// The path of the document. Used to determine relative paths to the extracted media.
-    document_path: PathBuf,
+    /// The directory containing the document. Used as base for relative paths to extracted media.
+    document_dir: PathBuf,
 
     /// The directory where media files will be written
     media_dir: PathBuf,
@@ -76,7 +83,7 @@ impl Extractor {
 
         // Determine the format and extension from the MIME type
         let format = Format::from_media_type(mime_type)
-            .map_err(|_| eyre::eyre!("Unsupported media format: {mime_type}"))?;
+            .map_err(|_| eyre!("Unsupported media format: {mime_type}"))?;
 
         let extension = if mime_type == "audio/mp4" {
             // Special case: audio/mp4 should use m4a extension
@@ -106,10 +113,7 @@ impl Extractor {
         let mut file = File::create(&path)?;
         file.write_all(&decoded_data)?;
 
-        let relative_path = self
-            .document_path
-            .parent()
-            .and_then(|base| diff_paths(&path, base))
+        let relative_path = diff_paths(&path, &self.document_dir)
             .unwrap_or(path)
             .to_string_lossy()
             .to_string();
