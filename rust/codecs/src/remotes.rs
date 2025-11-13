@@ -76,10 +76,16 @@ impl RemoteService {
     }
 
     /// Push a document to this remote service
-    pub async fn push(&self, node: &Node, title: Option<&str>, url: Option<&Url>) -> Result<Url> {
+    pub async fn push(
+        &self,
+        node: &Node,
+        path: Option<&Path>,
+        title: Option<&str>,
+        url: Option<&Url>,
+    ) -> Result<Url> {
         match self {
-            Self::GoogleDocs => stencila_codec_gdoc::push(node, title, url).await,
-            Self::Microsoft365 => stencila_codec_m365::push(node, title, url).await,
+            Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url).await,
+            Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url).await,
         }
     }
 

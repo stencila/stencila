@@ -201,6 +201,7 @@ pub(crate) async fn push_doc(
                     match stencila_codecs::push(
                         &remote_service,
                         &doc.root().await,
+                        doc.path(),
                         doc.file_name(),
                         Some(remote_url),
                     )
@@ -306,6 +307,7 @@ pub(crate) async fn push_doc(
     let url = match stencila_codecs::push(
         &service,
         &doc.root().await,
+        doc.path(),
         doc.file_name(),
         existing_url.as_ref(),
     )

@@ -234,6 +234,7 @@ impl Cli {
                     match stencila_codecs::push(
                         &remote_service,
                         &doc.root().await,
+                        doc.path(),
                         doc.file_name(),
                         Some(&remote_url),
                     )
@@ -369,6 +370,7 @@ impl Cli {
         let url = stencila_codecs::push(
             &service,
             &doc.root().await,
+            doc.path(),
             doc.file_name(),
             existing_url.as_ref(),
         )
@@ -588,6 +590,7 @@ impl Cli {
                 match stencila_codecs::push(
                     &remote_service,
                     &doc.root().await,
+                    doc.path(),
                     doc.file_name(),
                     Some(remote_url),
                 )

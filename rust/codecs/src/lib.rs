@@ -1055,10 +1055,11 @@ async fn check_git_for_merge(path: &Path, commit: &str, other: &Path, force: boo
 pub async fn push(
     service: &remotes::RemoteService,
     node: &Node,
+    path: Option<&Path>,
     title: Option<&str>,
     url: Option<&Url>,
 ) -> Result<Url> {
-    service.push(node, title, url).await
+    service.push(node, path, title, url).await
 }
 
 /// Pull a document from a remote service and update a local file

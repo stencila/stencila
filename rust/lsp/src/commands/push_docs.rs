@@ -115,6 +115,7 @@ pub(crate) async fn push_docs(
             match stencila_codecs::push(
                 &service,
                 &doc.root().await,
+                doc.path(),
                 doc.file_name(),
                 Some(remote_url),
             )

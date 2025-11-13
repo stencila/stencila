@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use chrono::{DateTime, Utc};
 use eyre::{Result, bail, eyre};
@@ -41,22 +41,31 @@ struct DriveFileMetadata {
 /// prompting the user to connect their account if necessary.
 ///
 /// Returns the URL of the Google Doc.
-pub async fn push(node: &Node, title: Option<&str>, url: Option<&Url>) -> Result<Url> {
+pub async fn push(
+    node: &Node,
+    path: Option<&Path>,
+    title: Option<&str>,
+    url: Option<&Url>,
+) -> Result<Url> {
     let access_token = stencila_cloud::get_token("google").await?;
 
     if let Some(url) = url {
         // Update existing document
         let doc_id = extract_doc_id(url)?;
-        update(node, &access_token, &doc_id).await
+        update(node, path, &access_token, &doc_id).await
     } else {
         // Create new document
-        let title = title.unwrap_or("Untitled");
-        upload(node, title, &access_token).await
+        upload(node, path, title, &access_token).await
     }
 }
 
 /// Upload a new document to Google Docs
-async fn upload(node: &Node, title: &str, access_token: &str) -> Result<Url> {
+async fn upload(
+    node: &Node,
+    path: Option<&Path>,
+    title: Option<&str>,
+    access_token: &str,
+) -> Result<Url> {
     // Export document to DOCX in a temporary file
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
@@ -67,6 +76,7 @@ async fn upload(node: &Node, title: &str, access_token: &str) -> Result<Url> {
             temp_path,
             Some(EncodeOptions {
                 format: Some(Format::GDocx),
+                from_path: path.map(PathBuf::from),
                 reproducible: Some(true),
                 ..Default::default()
             }),
@@ -123,7 +133,7 @@ async fn upload(node: &Node, title: &str, access_token: &str) -> Result<Url> {
 }
 
 /// Update an existing Google Doc
-async fn update(node: &Node, access_token: &str, doc_id: &str) -> Result<Url> {
+async fn update(node: &Node, path: Option<&Path>, access_token: &str, doc_id: &str) -> Result<Url> {
     // Export document to DOCX in a temporary file
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
@@ -134,6 +144,7 @@ async fn update(node: &Node, access_token: &str, doc_id: &str) -> Result<Url> {
             temp_path,
             Some(EncodeOptions {
                 format: Some(Format::GDocx),
+                from_path: path.map(PathBuf::from),
                 reproducible: Some(true),
                 ..Default::default()
             }),

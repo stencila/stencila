@@ -17,7 +17,7 @@
 //! The app folder approach works but is less discoverable for users since files are in
 //! a hidden application-specific folder rather than their main OneDrive directory.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use chrono::{DateTime, Utc};
 use eyre::{Result, bail};
@@ -67,14 +67,19 @@ struct DriveItemMetadata {
 /// prompting the user to connect their account if necessary.
 ///
 /// Returns the URL of the OneDrive document.
-pub async fn push(node: &Node, title: Option<&str>, url: Option<&Url>) -> Result<Url> {
+pub async fn push(
+    node: &Node,
+    path: Option<&Path>,
+    title: Option<&str>,
+    url: Option<&Url>,
+) -> Result<Url> {
     let access_token = stencila_cloud::get_token("microsoft").await?;
 
     if let Some(url) = url {
         // Update existing document by extracting filename from URL
         let filename = extract_filename(url)?;
         // Use upload which will overwrite the existing file
-        upload(node, &filename, &access_token).await
+        upload(node, &filename, path, &access_token).await
     } else {
         // Create new document
         let title = title.unwrap_or("Untitled.docx");
@@ -84,7 +89,7 @@ pub async fn push(node: &Node, title: Option<&str>, url: Option<&Url>) -> Result
         } else {
             format!("{title}.docx")
         };
-        upload(node, &filename, &access_token).await
+        upload(node, &filename, path, &access_token).await
     }
 }
 
@@ -92,7 +97,12 @@ pub async fn push(node: &Node, title: Option<&str>, url: Option<&Url>) -> Result
 ///
 /// This function creates a new file or overwrites an existing file with the same name.
 /// Using PUT with the same path allows both create and update operations.
-async fn upload(node: &Node, filename: &str, access_token: &str) -> Result<Url> {
+async fn upload(
+    node: &Node,
+    filename: &str,
+    path: Option<&Path>,
+    access_token: &str,
+) -> Result<Url> {
     // Export document to DOCX in a temporary file
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
@@ -102,6 +112,7 @@ async fn upload(node: &Node, filename: &str, access_token: &str) -> Result<Url> 
             node,
             temp_path,
             Some(EncodeOptions {
+                from_path: path.map(PathBuf::from),
                 reproducible: Some(true),
                 ..Default::default()
             }),
