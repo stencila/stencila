@@ -532,16 +532,16 @@ pub async fn should_skip_push(
 /// Returns the URL of the published document on the site.
 pub async fn push(
     node: &Node,
+    path: Option<&Path>,
     title: Option<&str>,
     url: Option<&Url>,
-    doc_path: Option<&Path>,
 ) -> Result<Url> {
     // Get API token
     let token = stencila_cloud::api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
     // Find the workspace root directory
-    let start_path = if let Some(path) = doc_path {
+    let start_path = if let Some(path) = path {
         path.to_path_buf()
     } else {
         std::env::current_dir()?
@@ -576,7 +576,7 @@ pub async fn push(
     let mut node_copy = node.clone();
 
     // Extract and collect media files
-    let media_files = extract_and_collect_media(&mut node_copy, doc_path, &media_dir)?;
+    let media_files = extract_and_collect_media(&mut node_copy, path, &media_dir)?;
 
     tracing::info!("Collected {} media files", media_files.len());
 
@@ -598,7 +598,7 @@ pub async fn push(
     let html = build_html(&node_copy, &base_url).await?;
 
     // Determine route based on doc_path or fallback to title-based heuristic
-    let route = if let Some(path) = doc_path {
+    let route = if let Some(path) = path {
         determine_route(path, &project_dir, &config)?
     } else if let Some(title) = title {
         // Fallback: use a simple heuristic based on title

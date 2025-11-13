@@ -101,7 +101,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url).await,
             Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url).await,
-            Self::StencilaSites => stencila_codec_site::push(node, title, url, doc_path).await,
+            Self::StencilaSites => stencila_codec_site::push(node, path, title, url).await,
         }
     }
 
