@@ -10140,6 +10140,7 @@ dependencies = [
  "image",
  "itertools 0.14.0",
  "pathdiff",
+ "regex",
  "seahash",
  "stencila-format",
  "stencila-schema",

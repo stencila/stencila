@@ -3,15 +3,17 @@ use std::{
     fs::{File, create_dir_all},
     hash::{Hash, Hasher},
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 
 use eyre::Result;
 use pathdiff::diff_paths;
+use regex::Regex;
 use seahash::SeaHasher;
 
 use stencila_schema::{
-    AudioObject, Block, CreativeWorkVariant, ImageObject, Inline, Node, VideoObject, VisitorMut,
-    WalkControl, WalkNode,
+    AudioObject, Block, Cord, CreativeWorkVariant, ImageObject, Inline, Node, RawBlock,
+    VideoObject, VisitorMut, WalkControl, WalkNode,
 };
 
 /// Collect all media files
@@ -211,6 +213,59 @@ impl Collector {
             video.content_url = relative_url;
         }
     }
+
+    /// Collect media from HTML content in RawBlock nodes
+    fn collect_html_media(&mut self, raw_block: &mut RawBlock) {
+        // Only process HTML format
+        if raw_block.format.to_lowercase() != "html" {
+            return;
+        }
+
+        let html = raw_block.content.to_string();
+        let mut modified_html = html.clone();
+
+        // Regex pattern to match img, video, and audio tags with src attributes
+        // This pattern captures the entire tag and the src attribute value
+        static MEDIA_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r#"<(img|video|audio)([^>]*?)\s+src\s*=\s*["']([^"']+)["']([^>]*?)(/?)>"#)
+                .expect("invalid regex")
+        });
+
+        // Find all media tags and collect their sources
+        let matches: Vec<_> = MEDIA_PATTERN.captures_iter(&html).collect();
+
+        for cap in matches {
+            let full_match = &cap[0];
+            let tag_name = &cap[1];
+            let before_src = &cap[2];
+            let src_value = &cap[3];
+            let after_src = &cap[4];
+            let self_closing = &cap[5];
+
+            // Determine media type from tag name
+            let media_type = match tag_name {
+                "img" => "image",
+                "video" => "video",
+                "audio" => "audio",
+                _ => continue,
+            };
+
+            // Attempt to collect the media file
+            if let Some(new_url) = self.collect_media(src_value, media_type) {
+                // Reconstruct the tag with the new URL
+                let new_tag =
+                    format!(r#"<{tag_name}{before_src} src="{new_url}"{after_src}{self_closing}>"#);
+
+                // Replace the old tag with the new one
+                modified_html = modified_html.replace(full_match, &new_tag);
+            }
+        }
+
+        // Update the raw block content if any changes were made
+        if modified_html != html {
+            raw_block.content = Cord::from(modified_html);
+        }
+    }
 }
 
 impl VisitorMut for Collector {
@@ -269,6 +324,7 @@ impl VisitorMut for Collector {
                     self.collect_images(images)
                 }
             }
+            Block::RawBlock(raw_block) => self.collect_html_media(raw_block),
             _ => {}
         }
         WalkControl::Continue
