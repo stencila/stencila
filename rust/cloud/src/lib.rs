@@ -13,6 +13,7 @@ use stencila_version::STENCILA_USER_AGENT;
 
 mod google;
 mod microsoft;
+pub mod sites;
 mod watch;
 
 pub use watch::*;

@@ -403,30 +403,20 @@ impl Cli {
                 && let Ok(project_dir) = stencila_dirs::workspace_dir(&stencila_dir)
                 && let Ok(config) = stencila_codec_site::read_site_config(doc_path).await
             {
-                // Get API token
-                if let Some(token) = stencila_cloud::api_token() {
-                    // Try to check file status
-                    match stencila_codec_site::should_skip_push(
-                        doc_path,
-                        &project_dir,
-                        &config,
-                        &token,
-                    )
-                    .await
-                    {
-                        Ok(should_skip) => {
-                            if should_skip {
-                                message(
-                                    "File is up-to-date on site, skipping push (use --force to push anyway)",
-                                    Some("✓"),
-                                );
-                                return Ok(());
-                            }
+                // Try to check file status
+                match stencila_codec_site::should_skip_push(doc_path, &project_dir, &config).await {
+                    Ok(should_skip) => {
+                        if should_skip {
+                            message(
+                                "File is up-to-date on site, skipping push (use --force to push anyway)",
+                                Some("✓"),
+                            );
+                            return Ok(());
                         }
-                        Err(error) => {
-                            // Log warning but continue with push
-                            tracing::warn!("Failed to check site status: {error}");
-                        }
+                    }
+                    Err(error) => {
+                        // Log warning but continue with push
+                        tracing::warn!("Failed to check site status: {error}");
                     }
                 }
             }
