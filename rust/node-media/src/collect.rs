@@ -6,6 +6,7 @@ use std::{
 };
 
 use eyre::Result;
+use pathdiff::diff_paths;
 use seahash::SeaHasher;
 
 use stencila_schema::{
@@ -13,51 +14,16 @@ use stencila_schema::{
     WalkControl, WalkNode,
 };
 
-use crate::extract_media;
-
-/// Information about a media file that has been extracted or collected
-#[derive(Debug, Clone)]
-pub struct MediaFile {
-    /// Path to the file in the temporary directory
-    pub path: PathBuf,
-
-    /// Original content_url from the node
-    pub content_url: String,
-
-    /// Content hash (hexadecimal)
-    pub hash: String,
-
-    /// File extension (without dot)
-    pub extension: String,
-}
-
-/// Extract data URIs and collect all media files
-///
-/// This function:
-///
-/// 1. Extracts data URIs to files (using `extract_media`)
-/// 2. Collects all media files including those with relative paths
-/// 3. Copies relative path files to the media directory with content-based hashes
-/// 4. Returns a list of all media files extracted or collected
+/// Collect all media files
 ///
 /// # Arguments
 /// * `node` - The document node tree (will be mutated with updated content_urls)
 /// * `document_path` - Path to the source document (for resolving relative paths)
 /// * `media_dir` - Directory where media files will be extracted/collected
-///
-/// # Returns
-/// A vector of [`MediaFile`] structs containing information about each media file
-pub fn extract_and_collect_media<T>(
-    node: &mut T,
-    document_path: Option<&Path>,
-    media_dir: &Path,
-) -> Result<Vec<MediaFile>>
+pub fn collect_media<T>(node: &mut T, document_path: Option<&Path>, media_dir: &Path) -> Result<()>
 where
     T: WalkNode,
 {
-    // First, extract any data URIs to files
-    extract_media(node, document_path, media_dir)?;
-
     // Determine the document directory for resolving relative paths
     let document_dir = match document_path {
         Some(path) => {
@@ -72,16 +38,13 @@ where
         None => &current_dir()?,
     };
 
-    // Now collect all media files (including those that were just extracted
-    // and those that have relative/absolute file paths)
     let mut collector = Collector {
         document_dir: document_dir.into(),
         media_dir: media_dir.into(),
-        media_files: Vec::new(),
     };
     collector.walk(node);
 
-    Ok(collector.media_files)
+    Ok(())
 }
 
 struct Collector {
@@ -90,35 +53,20 @@ struct Collector {
 
     /// The directory where media files are stored
     media_dir: PathBuf,
-
-    /// Collected media files
-    media_files: Vec<MediaFile>,
 }
 
 impl Collector {
-    /// Process an image and collect it if it's a file path
-    fn collect_image(&mut self, image: &ImageObject) {
-        self.collect_media(&image.content_url, "image");
-    }
-
-    /// Process an audio file and collect it if it's a file path
-    fn collect_audio(&mut self, audio: &AudioObject) {
-        self.collect_media(&audio.content_url, "audio");
-    }
-
-    /// Process a video file and collect it if it's a file path
-    fn collect_video(&mut self, video: &VideoObject) {
-        self.collect_media(&video.content_url, "video");
-    }
-
     /// Collect media from a content URL
-    fn collect_media(&mut self, content_url: &str, media_type: &str) {
-        // Skip data URIs (already extracted) and external URLs
+    ///
+    /// Returns the relative URL to use for the collected media file,
+    /// or None if the URL doesn't need to be rewritten.
+    fn collect_media(&mut self, content_url: &str, media_type: &str) -> Option<String> {
+        // Skip data URIs and external URLs
         if content_url.starts_with("data:")
             || content_url.starts_with("http://")
             || content_url.starts_with("https://")
         {
-            return;
+            return None;
         }
 
         // This is a file path - resolve it
@@ -132,7 +80,7 @@ impl Collector {
         // Check if the file exists
         if !source_path.exists() {
             tracing::warn!("Media file not found: {}", source_path.display());
-            return;
+            return None;
         }
 
         // Determine extension first (before opening file)
@@ -148,31 +96,31 @@ impl Collector {
             .to_string();
 
         // Hash and copy the file in a single pass to avoid reading twice
-        let (hash_str, dest_path) = match self.hash_and_copy_file(&source_path, &extension) {
+        let dest_path = match self.hash_and_copy_file(&source_path, &extension) {
             Ok(result) => result,
             Err(error) => {
                 tracing::error!(
                     "Failed to process media file {}: {error}",
                     source_path.display()
                 );
-                return;
+                return None;
             }
         };
 
-        // Add to collected media files
-        self.media_files.push(MediaFile {
-            path: dest_path,
-            content_url: content_url.to_string(),
-            hash: hash_str,
-            extension,
-        });
+        // Create relative URL from document directory to the media file
+        let relative_url = diff_paths(&dest_path, &self.document_dir)
+            .unwrap_or_else(|| dest_path.clone())
+            .to_string_lossy()
+            .to_string();
+
+        Some(relative_url)
     }
 
     /// Hash and copy a file in a single pass to avoid reading twice
     ///
     /// Returns the hash string and destination path.
     /// Creates the destination file only if it doesn't already exist.
-    fn hash_and_copy_file(&self, source_path: &Path, extension: &str) -> Result<(String, PathBuf)> {
+    fn hash_and_copy_file(&self, source_path: &Path, extension: &str) -> Result<PathBuf> {
         use std::io::{BufReader, BufWriter, Read, Write};
 
         // Open source file for reading
@@ -215,11 +163,35 @@ impl Collector {
             writer.flush()?;
         }
 
-        Ok((hash_str, dest_path))
+        Ok(dest_path)
     }
 
-    fn collect_images(&mut self, images: &[ImageObject]) {
-        images.iter().for_each(|image| self.collect_image(image));
+    /// Collect an image
+    fn collect_image(&mut self, image: &mut ImageObject) {
+        if let Some(relative_url) = self.collect_media(&image.content_url, "image") {
+            image.content_url = relative_url;
+        }
+    }
+
+    /// Collect one or more images
+    fn collect_images(&mut self, images: &mut [ImageObject]) {
+        images
+            .iter_mut()
+            .for_each(|image| self.collect_image(image));
+    }
+
+    /// Collect an audio file
+    fn collect_audio(&mut self, audio: &mut AudioObject) {
+        if let Some(relative_url) = self.collect_media(&audio.content_url, "audio") {
+            audio.content_url = relative_url;
+        }
+    }
+
+    /// Collect a video file
+    fn collect_video(&mut self, video: &mut VideoObject) {
+        if let Some(relative_url) = self.collect_media(&video.content_url, "video") {
+            video.content_url = relative_url;
+        }
     }
 }
 
@@ -230,17 +202,17 @@ impl VisitorMut for Collector {
             Node::ImageObject(image) => self.collect_image(image),
             Node::VideoObject(video) => self.collect_video(video),
             Node::MathBlock(math) => {
-                if let Some(images) = &math.options.images {
+                if let Some(images) = &mut math.options.images {
                     self.collect_images(images)
                 }
             }
             Node::MathInline(math) => {
-                if let Some(images) = &math.options.images {
+                if let Some(images) = &mut math.options.images {
                     self.collect_images(images)
                 }
             }
             Node::Table(table) => {
-                if let Some(images) = &table.options.images {
+                if let Some(images) = &mut table.options.images {
                     self.collect_images(images)
                 }
             }
@@ -255,7 +227,7 @@ impl VisitorMut for Collector {
             CreativeWorkVariant::ImageObject(image) => self.collect_image(image),
             CreativeWorkVariant::VideoObject(video) => self.collect_video(video),
             CreativeWorkVariant::Table(table) => {
-                if let Some(images) = &table.options.images {
+                if let Some(images) = &mut table.options.images {
                     self.collect_images(images)
                 }
             }
@@ -270,12 +242,12 @@ impl VisitorMut for Collector {
             Block::ImageObject(image) => self.collect_image(image),
             Block::VideoObject(video) => self.collect_video(video),
             Block::MathBlock(math) => {
-                if let Some(images) = &math.options.images {
+                if let Some(images) = &mut math.options.images {
                     self.collect_images(images)
                 }
             }
             Block::Table(table) => {
-                if let Some(images) = &table.options.images {
+                if let Some(images) = &mut table.options.images {
                     self.collect_images(images)
                 }
             }
@@ -290,7 +262,7 @@ impl VisitorMut for Collector {
             Inline::ImageObject(image) => self.collect_image(image),
             Inline::VideoObject(video) => self.collect_video(video),
             Inline::MathInline(math) => {
-                if let Some(images) = &math.options.images {
+                if let Some(images) = &mut math.options.images {
                     self.collect_images(images)
                 }
             }

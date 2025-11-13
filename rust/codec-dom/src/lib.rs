@@ -15,7 +15,7 @@ use stencila_codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
-use stencila_node_media::{embed_media, extract_media};
+use stencila_node_media::{collect_media, embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
 
@@ -85,6 +85,21 @@ impl Codec for DomCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
+        let node = if let Some(media) = options
+            .as_ref()
+            .and_then(|opts| opts.collect_media.as_ref())
+        {
+            let mut copy = node.clone();
+            collect_media(
+                &mut copy,
+                options.as_ref().and_then(|opts| opts.to_path.as_deref()),
+                media,
+            )?;
+            copy
+        } else {
+            node.clone()
+        };
+
         let mut options = options.unwrap_or_default();
         if options.standalone.is_none() {
             options.standalone = Some(true);
@@ -94,7 +109,7 @@ impl Codec for DomCodec {
         }
         options.to_path = Some(path.to_path_buf());
 
-        let (html, info) = self.to_string(node, Some(options)).await?;
+        let (html, info) = self.to_string(&node, Some(options)).await?;
 
         if let Some(parent) = path.parent() {
             create_dir_all(parent).await?;
