@@ -19,15 +19,21 @@ use stencila_schema::{
 /// # Arguments
 /// * `node` - The document node tree (will be mutated with updated content_urls)
 /// * `document_path` - Path to the source document (for resolving relative paths)
+/// * `to_path` - Path of the destination file (for creating relative paths to collected files)
 /// * `media_dir` - Directory where media files will be extracted/collected
-pub fn collect_media<T>(node: &mut T, document_path: Option<&Path>, media_dir: &Path) -> Result<()>
+pub fn collect_media<T>(
+    node: &mut T,
+    document_path: Option<&Path>,
+    to_path: &Path,
+    media_dir: &Path,
+) -> Result<()>
 where
     T: WalkNode,
 {
     // Determine the document directory for resolving relative paths
     let document_dir = match document_path {
         Some(path) => {
-            // Get the parent directory of the document
+            // Get the parent directory of the source document
             match path.parent() {
                 // If parent exists and is not empty, use it
                 Some(parent) if !parent.as_os_str().is_empty() => parent,
@@ -38,8 +44,17 @@ where
         None => &current_dir()?,
     };
 
+    // Determine the destination directory for calculating relative paths
+    let to_dir = match to_path.parent() {
+        // If parent exists and is not empty, use it
+        Some(parent) if !parent.as_os_str().is_empty() => parent,
+        // If parent is empty or None, the document is at the current directory
+        _ => Path::new("."),
+    };
+
     let mut collector = Collector {
         document_dir: document_dir.into(),
+        to_dir: to_dir.into(),
         media_dir: media_dir.into(),
     };
     collector.walk(node);
@@ -50,6 +65,9 @@ where
 struct Collector {
     /// The directory containing the document (for resolving relative paths)
     document_dir: PathBuf,
+
+    /// The directory containing the destination file
+    to_dir: PathBuf,
 
     /// The directory where media files are stored
     media_dir: PathBuf,
@@ -108,7 +126,7 @@ impl Collector {
         };
 
         // Create relative URL from document directory to the media file
-        let relative_url = diff_paths(&dest_path, &self.document_dir)
+        let relative_url = diff_paths(&dest_path, &self.to_dir)
             .unwrap_or_else(|| dest_path.clone())
             .to_string_lossy()
             .to_string();
