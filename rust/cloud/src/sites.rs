@@ -71,19 +71,24 @@ pub async fn upload_file(site_id: &str, path: &str, file: &Path) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    let url = format!("{}/sites/{}/latest/{}", base_url(), site_id, path);
     let content = read(file).await?;
 
-    // TODO: determine whether to gzip content based on file extension
-    // If gzipped then add a .gz to the path so that the serving worker
-    // knows how to correctly set headers.
+    // Compress HTML for faster uploads, smaller storage, and faster downloads
+    let (path, body) = if file.extension().map(|ext| ext == "html").unwrap_or(false) {
+        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(&content)?;
+        let compressed = encoder.finish()?;
+        (format!("{path}.gz"), compressed)
+    } else {
+        (path.to_string(), content)
+    };
 
-    tracing::debug!("Uploading to Stencila Site");
+    tracing::debug!("Uploading file to Stencila Site");
     let client = Client::new();
     let response = client
-        .put(&url)
+        .put(&format!("{}/sites/{}/latest/{}", base_url(), site_id, path))
         .bearer_auth(token)
-        .body(content)
+        .body(body)
         .send()
         .await?;
 
@@ -131,12 +136,4 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
 
     tracing::debug!("Last modified timestamp for {url}: {timestamp}");
     Ok(timestamp)
-}
-
-/// Compress content using gzip
-fn gzip_content(content: &[u8]) -> Result<Vec<u8>> {
-    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-    encoder.write_all(content)?;
-    let compressed = encoder.finish()?;
-    Ok(compressed)
 }
