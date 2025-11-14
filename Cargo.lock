@@ -8392,6 +8392,7 @@ name = "stencila-cloud"
 version = "0.0.0"
 dependencies = [
  "cached",
+ "chrono",
  "eyre",
  "flate2",
  "reqwest",
@@ -8402,6 +8403,7 @@ dependencies = [
  "strum",
  "tokio",
  "tracing",
+ "url",
  "urlencoding",
  "webbrowser",
 ]

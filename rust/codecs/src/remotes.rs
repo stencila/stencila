@@ -36,7 +36,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => "Google Doc",
             Self::Microsoft365 => "Microsoft 365 doc",
-            Self::StencilaSites => "Stencila Site",
+            Self::StencilaSites => "Stencila Site route",
         }
     }
 

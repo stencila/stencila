@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 cached = { workspace = true }
+chrono = { workspace = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
 reqwest = { workspace = true }
@@ -15,6 +16,7 @@ stencila-version = { "path" = "../version" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+url = { workspace = true }
 urlencoding = "2.1"
 webbrowser = { workspace = true }
 

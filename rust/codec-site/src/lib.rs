@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use tempfile::TempDir;
 use url::Url;
 
-use stencila_cloud::sites::{StatusResponse, create_site, get_site_status, upload_file};
+use stencila_cloud::sites::{create_site, last_modified, upload_file};
 use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
 use stencila_codec_dom::DomCodec;
 use stencila_dirs::{closest_site_file, closest_stencila_dir, workspace_dir};
@@ -45,17 +45,6 @@ pub struct Route {
     /// HTTP status code for redirect (default 302)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<u16>,
-}
-
-/// File status comparison result
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum FileStatusCheck {
-    /// File is up to date (no need to push)
-    UpToDate,
-    /// File is behind (needs to be pushed)
-    Behind,
-    /// File doesn't exist on site (needs to be pushed)
-    NotFound,
 }
 
 /// Read the site configuration from `.stencila/site.yaml`
@@ -97,10 +86,7 @@ async fn ensure_site_config(path: &Path) -> Result<SiteConfig> {
         let id = create_site().await?;
 
         // Create config with defaults
-        let config = SiteConfig {
-            id,
-            routes: None,
-        };
+        let config = SiteConfig { id, routes: None };
 
         // Write to disk
         write_site_config(path, &config).await?;
@@ -173,7 +159,7 @@ pub fn determine_route(
         // Regular files: strip extension, add trailing slash
         if let Some(parent) = rel_path.parent() {
             if parent == Path::new("") {
-                format!("/{}/", file_stem)
+                format!("/{file_stem}/")
             } else {
                 format!(
                     "/{}/{}/",
@@ -182,87 +168,11 @@ pub fn determine_route(
                 )
             }
         } else {
-            format!("/{}/", file_stem)
+            format!("/{file_stem}/")
         }
     };
 
     Ok(route)
-}
-
-/// Convert a URL route to a storage path for the HTML file
-///
-/// Routes always map to `index.html` files in their directory.
-/// Examples:
-/// - `/` → `index.html`
-/// - `/report/` → `report/index.html`
-/// - `/docs/analysis/` → `docs/analysis/index.html`
-pub fn route_to_storage_path(route: &str) -> String {
-    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
-
-    if trimmed.is_empty() {
-        "index.html".to_string()
-    } else {
-        format!("{}/index.html", trimmed)
-    }
-}
-
-/// Check the status of a file by comparing local and remote modification times
-pub fn check_file_status(
-    storage_path: &str,
-    local_modified: u64,
-    site_status: &Option<StatusResponse>,
-) -> FileStatusCheck {
-    match site_status {
-        None => {
-            // No site status available, assume file needs to be pushed
-            FileStatusCheck::NotFound
-        }
-        Some(status) => {
-            if let Some(remote_file) = status.files.get(storage_path) {
-                // File exists on site, compare modification times
-                if local_modified > remote_file.modified_at {
-                    FileStatusCheck::Behind
-                } else {
-                    FileStatusCheck::UpToDate
-                }
-            } else {
-                // File doesn't exist on site
-                FileStatusCheck::NotFound
-            }
-        }
-    }
-}
-
-/// Check if a document file should be pushed to a Stencila Site
-///
-/// This is a convenience function that combines all the steps needed to determine
-/// if a file needs to be pushed: fetching site status, getting local file modification
-/// time, determining the route, and comparing timestamps.
-///
-/// Returns `Ok(true)` if the file should be skipped (is up-to-date),
-/// `Ok(false)` if it should be pushed, or `Err` if the status check failed.
-pub async fn should_skip_push(
-    doc_path: &Path,
-    project_dir: &Path,
-    config: &SiteConfig,
-) -> Result<bool> {
-    // Get site status from Cloud API
-    let site_status = get_site_status(&config.id).await?;
-
-    // Get local file modification time
-    let metadata = std::fs::metadata(doc_path)?;
-    let modified = metadata.modified()?;
-    let local_modified = modified.duration_since(std::time::UNIX_EPOCH)?.as_secs();
-
-    // Determine route and storage path for this file
-    let route = determine_route(doc_path, project_dir, config)?;
-    let storage_path = route_to_storage_path(&route);
-
-    // Check file status
-    let status = check_file_status(&storage_path, local_modified, &site_status);
-
-    // Return true (skip push) only if file is up-to-date
-    Ok(matches!(status, FileStatusCheck::UpToDate))
 }
 
 /// Push a document to a Stencila Site
@@ -362,15 +272,24 @@ pub async fn push(
         "/document/".to_string()
     };
 
-    // Convert route to storage path
-    let storage_path = route_to_storage_path(&route);
+    // Convert route to storage path. Routes always map to `index.html` files in their directory.
+    //
+    // Examples:
+    // - `/` → `index.html`
+    // - `/report/` → `report/index.html`
+    // - `/docs/analysis/` → `docs/analysis/index.html`
+    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
+    let storage_path = if trimmed.is_empty() {
+        "index.html".to_string()
+    } else {
+        format!("{trimmed}/index.html")
+    };
 
     // Upload HTML
     upload_file(site_id, &storage_path, &temp_html).await?;
 
     // Return the site URL with the route
-    let site_url = format!("{base_url}{}", route.trim_end_matches('/'));
-    Ok(Url::parse(&site_url)?)
+    Ok(Url::parse(&format!("{base_url}/latest{route}"))?)
 }
 
 /// Pull a document from a Stencila Site
@@ -382,39 +301,6 @@ pub async fn pull(_url: &Url, _dest: &Path) -> Result<()> {
 }
 
 /// Time that a Stencila Site was last modified as a Unix timestamp.
-///
-/// Queries the Cloud API for the last modification time of the site.
 pub async fn modified_at(url: &Url) -> Result<u64> {
-    // Extract site ID from URL
-    let host = url
-        .host_str()
-        .ok_or_else(|| eyre!("Invalid site URL: no host"))?;
-
-    // Expected format: {siteId}.stencila.site
-    let site_id = host.strip_suffix(".stencila.site").ok_or_else(|| {
-        eyre!("Invalid site URL: host should be in format {{siteId}}.stencila.site")
-    })?;
-
-    // Query the Cloud API for site status
-    match get_site_status(site_id).await {
-        Ok(Some(status)) => {
-            // Find the most recent modification time across all files
-            let max_modified = status
-                .files
-                .values()
-                .map(|f| f.modified_at)
-                .max()
-                .unwrap_or(0);
-            Ok(max_modified)
-        }
-        Ok(None) => {
-            // Site doesn't have status yet
-            Ok(0)
-        }
-        Err(_) => {
-            // If the API call fails, return 0
-            tracing::warn!("Could not fetch site status, returning 0 for modified_at");
-            Ok(0)
-        }
-    }
+    last_modified(url).await
 }

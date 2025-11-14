@@ -5,7 +5,10 @@
 use std::io::Write;
 use std::{collections::HashMap, path::Path};
 
+use chrono::DateTime;
 use flate2::{Compression, write::GzEncoder};
+use reqwest::header::LAST_MODIFIED;
+use url::Url;
 
 use eyre::{Result, bail, eyre};
 use reqwest::Client;
@@ -74,7 +77,7 @@ pub async fn upload_file(site_id: &str, path: &str, file: &Path) -> Result<()> {
     // TODO: determine whether to gzip content based on file extension
     // If gzipped then add a .gz to the path so that the serving worker
     // knows how to correctly set headers.
-    
+
     tracing::debug!("Uploading to Stencila Site");
     let client = Client::new();
     let response = client
@@ -93,32 +96,41 @@ pub async fn upload_file(site_id: &str, path: &str, file: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Get the current status of files on the site from the Cloud API
+/// Get the last modified time of a route on a Stencila Site
+///
+/// Makes a HEAD request to the URL (ensuring it has a trailing slash)
+/// and returns the last-modified header as a Unix timestamp.
 #[tracing::instrument]
-pub async fn get_site_status(site_id: &str) -> Result<Option<StatusResponse>> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+pub async fn last_modified(url: &Url) -> Result<u64> {
+    tracing::debug!("Fetching last-modified header from {url}");
 
-    tracing::debug!("Getting Stencila Site status");
     let client = Client::new();
-    let response = client
-        .get(format!("{}/sites/{}/status", base_url(), site_id))
-        .bearer_auth(token)
-        .send()
-        .await?;
+    let response = client.head(url.to_string()).send().await?;
 
-    if response.status().is_success() {
-        let status = response.json::<StatusResponse>().await?;
-        Ok(Some(status))
-    } else if response.status().as_u16() == 404 {
-        // Site doesn't have status yet (new site or API not implemented)
-        tracing::info!("No site status available (new site or endpoint not implemented)");
-        Ok(None)
-    } else {
+    if !response.status().is_success() {
         let status = response.status();
-        let error_text = response.text().await.unwrap_or_default();
-        bail!("Failed to get site status ({status}): {error_text}");
+        bail!("Failed to fetch ({status}): {url}");
     }
+
+    // Extract the last-modified header
+    let headers = response.headers();
+    let last_modified = headers
+        .get(LAST_MODIFIED)
+        .ok_or_else(|| eyre!("No last-modified header found for {url}"))?;
+
+    // Convert header value to string
+    let last_modified_str = last_modified
+        .to_str()
+        .map_err(|e| eyre!("Invalid last-modified header value: {e}"))?;
+
+    // Parse RFC 2822 timestamp and convert to Unix timestamp
+    let datetime = DateTime::parse_from_rfc2822(last_modified_str)
+        .map_err(|e| eyre!("Failed to parse last-modified header '{last_modified_str}': {e}"))?;
+
+    let timestamp = datetime.timestamp() as u64;
+
+    tracing::debug!("Last modified timestamp for {url}: {timestamp}");
+    Ok(timestamp)
 }
 
 /// Compress content using gzip

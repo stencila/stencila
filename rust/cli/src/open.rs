@@ -169,9 +169,8 @@ impl Cli {
         // Open remote URLs in browser if specified or not disabled
         if let Some(remote_url) = remote_to_open {
             // Open only the specified remote
-            message(&format!("Opening {} in browser", remote_url), Some("🌐"));
+            message(&format!("Opening {remote_url} in browser"), Some("🌐"));
             webbrowser::open(remote_url.as_str())?;
-            message(&format!("Opened {remote_url}"), Some("✅"));
         } else if self.target.is_none() && !self.no_remotes && !remotes.is_empty() {
             // No target specified and remotes not disabled - open all remotes
             message(
@@ -180,7 +179,7 @@ impl Cli {
             );
             for remote_url in &remotes {
                 webbrowser::open(remote_url.as_str())?;
-                message(&format!("Opened {remote_url}"), Some("✅"));
+                message(&format!("Opened {remote_url}"), Some("↗️"));
             }
         }
 
@@ -195,7 +194,7 @@ impl Cli {
             // Get (or generate) a server token so it can be included in the URL
             let server_token = get_server_token();
 
-            message("Opening local preview server", Some("🖥️ "));
+            message("Starting local preview server", Some("🖥️ "));
 
             // Serve the directory
             let options = ServeOptions {

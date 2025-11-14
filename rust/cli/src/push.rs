@@ -393,35 +393,6 @@ impl Cli {
             );
         }
 
-        // For Stencila Sites, check file status before pushing
-        if matches!(service, RemoteService::StencilaSites)
-            && !self.force
-            && let Some(doc_path) = doc.path()
-        {
-            // Try to find workspace and read site config
-            if let Ok(stencila_dir) = stencila_dirs::closest_stencila_dir(doc_path, false).await
-                && let Ok(project_dir) = stencila_dirs::workspace_dir(&stencila_dir)
-                && let Ok(config) = stencila_codec_site::read_site_config(doc_path).await
-            {
-                // Try to check file status
-                match stencila_codec_site::should_skip_push(doc_path, &project_dir, &config).await {
-                    Ok(should_skip) => {
-                        if should_skip {
-                            message(
-                                "File is up-to-date on site, skipping push (use --force to push anyway)",
-                                Some("✓"),
-                            );
-                            return Ok(());
-                        }
-                    }
-                    Err(error) => {
-                        // Log warning but continue with push
-                        tracing::warn!("Failed to check site status: {error}");
-                    }
-                }
-            }
-        }
-
         // Push to the remote service
         let url = stencila_codecs::push(
             &service,
