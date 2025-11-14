@@ -9195,6 +9195,7 @@ dependencies = [
  "itertools 0.14.0",
  "proptest",
  "reqwest",
+ "sha2 0.10.9",
  "similar",
  "which",
 ]
