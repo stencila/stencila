@@ -15,6 +15,7 @@ serde_yaml = { workspace = true }
 stencila-cloud = { path = "../cloud" }
 stencila-codec = { path = "../codec" }
 stencila-codec-dom = { path = "../codec-dom" }
+stencila-codec-utils = { path = "../codec-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-node-media = { path = "../node-media" }
 tempfile = { workspace = true }

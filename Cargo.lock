@@ -9140,6 +9140,7 @@ dependencies = [
  "stencila-cloud",
  "stencila-codec",
  "stencila-codec-dom",
+ "stencila-codec-utils",
  "stencila-dirs",
  "stencila-node-media",
  "tempfile",

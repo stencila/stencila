@@ -9,6 +9,7 @@ use url::Url;
 use stencila_cloud::sites::{create_site, last_modified, upload_file};
 use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
 use stencila_codec_dom::DomCodec;
+use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 use stencila_dirs::{closest_site_file, closest_stencila_dir, workspace_dir};
 
 /// Configuration for a Stencila Site
@@ -201,6 +202,10 @@ pub async fn push(
     let config = ensure_site_config(&start_path).await?;
     let site_id = &config.id;
 
+    // Get branch slug
+    let branch_name = get_current_branch(Some(&start_path)).unwrap_or_else(|| "main".to_string());
+    let branch_slug = slugify_branch_name(&branch_name);
+
     // Build base URL for the site
     let base_url = if let Some(url) = url {
         // If URL provided, use its host as the base
@@ -250,9 +255,9 @@ pub async fn push(
         }
 
         if !media_files.is_empty() {
-            let upload_futures = media_files
-                .iter()
-                .map(|(storage_path, path)| upload_file(site_id, storage_path, path));
+            let upload_futures = media_files.iter().map(|(storage_path, file_path)| {
+                upload_file(site_id, &branch_slug, storage_path, file_path)
+            });
             try_join_all(upload_futures).await?;
         }
     }
@@ -286,7 +291,7 @@ pub async fn push(
     };
 
     // Upload HTML
-    upload_file(site_id, &storage_path, &temp_html).await?;
+    upload_file(site_id, &branch_slug, &storage_path, &temp_html).await?;
 
     // Return the site URL with the route
     Ok(Url::parse(&format!("{base_url}/latest{route}"))?)

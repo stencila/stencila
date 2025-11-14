@@ -67,7 +67,7 @@ pub async fn create_site() -> Result<String> {
 
 /// Upload a single file to the site
 #[tracing::instrument]
-pub async fn upload_file(site_id: &str, path: &str, file: &Path) -> Result<()> {
+pub async fn upload_file(site_id: &str, branch_slug: &str, path: &str, file: &Path) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
@@ -86,7 +86,10 @@ pub async fn upload_file(site_id: &str, path: &str, file: &Path) -> Result<()> {
     tracing::debug!("Uploading file to Stencila Site");
     let client = Client::new();
     let response = client
-        .put(&format!("{}/sites/{}/latest/{}", base_url(), site_id, path))
+        .put(&format!(
+            "{}/sites/{site_id}/{branch_slug}/{path}",
+            base_url()
+        ))
         .bearer_auth(token)
         .body(body)
         .send()
