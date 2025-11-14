@@ -8398,6 +8398,8 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_with",
+ "serde_yaml",
+ "stencila-dirs",
  "stencila-secrets",
  "stencila-version",
  "strum",

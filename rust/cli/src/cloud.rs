@@ -3,7 +3,7 @@ use eyre::{Result, bail};
 use textwrap::{Options, termwidth, wrap};
 use url::Url;
 
-use stencila_ask::ask_for_password;
+use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
 use stencila_cli_utils::{
     color_print::{cformat, cstr},
     message,
@@ -21,7 +21,23 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  // TODO: complete as for other module's CLI_AFTER_LONG_HELP
+  <dim># Check your cloud authentication status</dim>
+  <b>stencila cloud status</>
+
+  <dim># Sign in to Stencila Cloud</dim>
+  <b>stencila cloud signin</>
+
+  <dim># Sign out from Stencila Cloud</dim>
+  <b>stencila cloud signout</>
+
+  <dim># View logs from a cloud workspace session</dim>
+  <b>stencila cloud logs --session</> <g>SESSION_ID</>
+
+  <dim># Create a site for the current workspace</dim>
+  <b>stencila cloud site create</>
+
+  <dim># Delete the workspace site</dim>
+  <b>stencila cloud site delete</>
 "
 );
 
@@ -31,6 +47,7 @@ enum Command {
     Signin(Signin),
     Signout(Signout),
     Logs(Logs),
+    Site(Site),
 }
 
 impl Cli {
@@ -44,6 +61,7 @@ impl Cli {
             Command::Signin(signin) => signin.run().await,
             Command::Signout(signout) => signout.run().await,
             Command::Logs(logs) => logs.run().await,
+            Command::Site(site) => site.run().await,
         }
     }
 }
@@ -380,6 +398,139 @@ impl Logs {
             // Wait before polling again
             sleep(Duration::from_secs(poll_interval)).await;
         }
+
+        Ok(())
+    }
+}
+
+/// Manage Stencila Sites
+#[derive(Debug, Parser)]
+#[command(alias = "sites", after_long_help = SITE_AFTER_LONG_HELP)]
+pub struct Site {
+    #[command(subcommand)]
+    command: SiteCommand,
+}
+
+pub static SITE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Create a site for the workspace</dim>
+  <b>stencila cloud site create</>
+
+  <dim># Delete the workspace site</dim>
+  <b>stencila cloud site delete</>
+"
+);
+
+#[derive(Debug, Subcommand)]
+enum SiteCommand {
+    Create(SiteCreate),
+    Delete(SiteDelete),
+}
+
+impl Site {
+    pub async fn run(self) -> Result<()> {
+        match self.command {
+            SiteCommand::Create(create) => create.run().await,
+            SiteCommand::Delete(delete) => delete.run().await,
+        }
+    }
+}
+
+/// Create a new Stencila Site
+#[derive(Debug, Args)]
+#[command(after_long_help = SITE_CREATE_AFTER_LONG_HELP)]
+pub struct SiteCreate {
+    /// Path to the workspace directory where .stencila/site.yaml will be created
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static SITE_CREATE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Create site for the current workspace</dim>
+  <b>stencila cloud site create</>
+
+  <dim># Create site for another workspace</dim>
+  <b>stencila cloud site create --path /path/to/project</>
+"
+);
+
+impl SiteCreate {
+    pub async fn run(self) -> Result<()> {
+        let path = self
+            .path
+            .unwrap_or_else(|| std::env::current_dir().unwrap());
+
+        let (config, already_existed) = stencila_cloud::sites::ensure_site(&path).await?;
+        let url = config.default_url();
+
+        if already_existed {
+            message(
+                &format!("Site already exists for workspace: {url}"),
+                Some("ℹ️"),
+            );
+        } else {
+            message(
+                &format!("Site successfully created for workspace: {url}"),
+                Some("✅"),
+            );
+        }
+
+        Ok(())
+    }
+}
+
+/// Delete a Stencila Site
+#[derive(Debug, Args)]
+#[command(after_long_help = SITE_DELETE_AFTER_LONG_HELP)]
+pub struct SiteDelete {
+    /// Path to the workspace directory containing .stencila/site.yaml
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static SITE_DELETE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Delete site for current workspace</dim>
+  <b>stencila cloud site delete</>
+
+  <dim># Delete site for another workspace</dim>
+  <b>stencila cloud site delete --path /path/to/project</>
+"
+);
+
+impl SiteDelete {
+    pub async fn run(self) -> Result<()> {
+        let path = self
+            .path
+            .unwrap_or_else(|| std::env::current_dir().unwrap());
+
+        // Ask for confirmation with warning level
+        let answer = ask_with(
+            "This will permanently delete the site on Stencila Cloud including all content. This cannot be undone.",
+            AskOptions {
+                level: AskLevel::Warning,
+                default: Some(Answer::No),
+                title: Some("Delete Stencila Site".into()),
+                yes_text: Some("Yes, delete".into()),
+                no_text: Some("Cancel".into()),
+                ..Default::default()
+            },
+        )
+        .await?;
+
+        if !answer.is_yes() {
+            message("Site deletion cancelled", Some("ℹ️"));
+            return Ok(());
+        }
+
+        stencila_cloud::sites::delete_site(&path).await?;
+
+        message("Site deleted successfully", Some("✅"));
 
         Ok(())
     }
