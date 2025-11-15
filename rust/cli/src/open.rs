@@ -168,9 +168,17 @@ impl Cli {
 
         // Open remote URLs in browser if specified or not disabled
         if let Some(remote_url) = remote_to_open {
+            // Convert to browseable URL for Stencila Sites
+            let url_to_open = if RemoteService::StencilaSites.matches_url(&remote_url) {
+                stencila_codec_site::browseable_url(&remote_url, Some(&file))
+                    .unwrap_or_else(|_| remote_url.clone())
+            } else {
+                remote_url.clone()
+            };
+
             // Open only the specified remote
-            message(&format!("Opening {remote_url} in browser"), Some("🌐"));
-            webbrowser::open(remote_url.as_str())?;
+            message(&format!("Opening {url_to_open} in browser"), Some("🌐"));
+            webbrowser::open(url_to_open.as_str())?;
         } else if self.target.is_none() && !self.no_remotes && !remotes.is_empty() {
             // No target specified and remotes not disabled - open all remotes
             message(
@@ -178,8 +186,16 @@ impl Cli {
                 Some("🌐"),
             );
             for remote_url in &remotes {
-                webbrowser::open(remote_url.as_str())?;
-                message(&format!("Opened {remote_url}"), Some("↗️"));
+                // Convert to browseable URL for Stencila Sites
+                let url_to_open = if RemoteService::StencilaSites.matches_url(remote_url) {
+                    stencila_codec_site::browseable_url(remote_url, Some(&file))
+                        .unwrap_or_else(|_| remote_url.clone())
+                } else {
+                    remote_url.clone()
+                };
+
+                webbrowser::open(url_to_open.as_str())?;
+                message(&format!("Opened {url_to_open}"), Some("↗️"));
             }
         }
 

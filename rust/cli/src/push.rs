@@ -264,7 +264,18 @@ impl Cli {
                             if let Err(e) = doc.track_remote_pushed(url.clone()).await {
                                 errors.push((remote_url, format!("Failed to track remote: {}", e)));
                             } else {
-                                message(&format!("Successfully pushed to {url}"), Some("✅"));
+                                // For Stencila Sites, display browsable URL
+                                let display_url =
+                                    if matches!(remote_service, RemoteService::StencilaSites) {
+                                        stencila_codec_site::browseable_url(&url, doc.path())
+                                            .unwrap_or_else(|_| url.clone())
+                                    } else {
+                                        url.clone()
+                                    };
+                                message(
+                                    &format!("Successfully pushed to {display_url}"),
+                                    Some("✅"),
+                                );
                                 successes.push(url);
                             }
                         }
@@ -404,9 +415,16 @@ impl Cli {
         )
         .await?;
 
-        message(&format!("Successfully pushed to {url}"), Some("✅"));
+        // For Stencila Sites, display the browsable (branch-aware) URL but track the canonical URL
+        let display_url = if matches!(service, RemoteService::StencilaSites) {
+            stencila_codec_site::browseable_url(&url, doc.path()).unwrap_or_else(|_| url.clone())
+        } else {
+            url.clone()
+        };
 
-        // Track the remote
+        message(&format!("Successfully pushed to {display_url}"), Some("✅"));
+
+        // Track the remote (always use canonical URL for tracking)
         doc.track_remote_pushed(url.clone()).await?;
 
         if existing_url.is_none() {
@@ -626,14 +644,25 @@ impl Cli {
                 .await
                 {
                     Ok(url) => {
+                        // For Stencila Sites, display browsable URL
+                        let display_url = if matches!(remote_service, RemoteService::StencilaSites)
+                        {
+                            stencila_codec_site::browseable_url(&url, doc.path())
+                                .unwrap_or_else(|_| url.clone())
+                        } else {
+                            url.clone()
+                        };
+
                         if let Err(e) = doc.track_remote_pushed(url.clone()).await {
                             message(
-                                &format!("Pushed to {url} but failed to update tracking: {e}"),
+                                &format!(
+                                    "Pushed to {display_url} but failed to update tracking: {e}"
+                                ),
                                 Some("⚠️"),
                             );
                             file_errors += 1;
                         } else {
-                            message(&format!("Successfully pushed to {url}"), Some("✅"));
+                            message(&format!("Successfully pushed to {display_url}"), Some("✅"));
                             file_successes += 1;
                         }
                     }
