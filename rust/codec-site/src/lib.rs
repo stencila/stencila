@@ -5,7 +5,9 @@ use futures::future::try_join_all;
 use tempfile::TempDir;
 use url::Url;
 
-use stencila_cloud::sites::{SiteConfig, ensure_site, last_modified, upload_file};
+use stencila_cloud::sites::{
+    SiteConfig, ensure_site, last_modified, reconcile_prefix, upload_file,
+};
 use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
 use stencila_codec_dom::DomCodec;
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
@@ -154,29 +156,6 @@ pub async fn push(
         )
         .await?;
 
-    // Upload media files in parallel
-    if media_dir.exists() {
-        let mut entries = tokio::fs::read_dir(&media_dir).await?;
-        let mut media_files = Vec::new();
-
-        while let Some(entry) = entries.next_entry().await? {
-            let path = entry.path();
-            if path.is_file()
-                && let Some(filename) = path.file_name().and_then(|n| n.to_str())
-            {
-                let storage_path = format!("media/{filename}");
-                media_files.push((storage_path, path));
-            }
-        }
-
-        if !media_files.is_empty() {
-            let upload_futures = media_files.iter().map(|(storage_path, file_path)| {
-                upload_file(site_id, &branch_slug, storage_path, file_path)
-            });
-            try_join_all(upload_futures).await?;
-        }
-    }
-
     // Determine route based on doc_path or fallback to title-based heuristic
     let route = if let Some(path) = path {
         determine_route(path, &workspace_dir, &site_config)?
@@ -192,13 +171,45 @@ pub async fn push(
         "/document/".to_string()
     };
 
+    // Calculate media prefix for this route
+    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
+    let media_prefix = if trimmed.is_empty() {
+        "media/".to_string()
+    } else {
+        format!("{trimmed}/media/")
+    };
+
+    // Upload media files in parallel and track filenames for reconciliation
+    let mut current_media_files = Vec::new();
+    if media_dir.exists() {
+        let mut entries = tokio::fs::read_dir(&media_dir).await?;
+        let mut media_files = Vec::new();
+
+        while let Some(entry) = entries.next_entry().await? {
+            let path = entry.path();
+            if path.is_file()
+                && let Some(filename) = path.file_name().and_then(|n| n.to_str())
+            {
+                current_media_files.push(filename.to_string());
+                let storage_path = format!("{media_prefix}{filename}");
+                media_files.push((storage_path, path));
+            }
+        }
+
+        if !media_files.is_empty() {
+            let upload_futures = media_files.iter().map(|(storage_path, file_path)| {
+                upload_file(site_id, &branch_slug, storage_path, file_path)
+            });
+            try_join_all(upload_futures).await?;
+        }
+    }
+
     // Convert route to storage path. Routes always map to `index.html` files in their directory.
     //
     // Examples:
     // - `/` → `index.html`
     // - `/report/` → `report/index.html`
     // - `/docs/analysis/` → `docs/analysis/index.html`
-    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
     let storage_path = if trimmed.is_empty() {
         "index.html".to_string()
     } else {
@@ -208,8 +219,11 @@ pub async fn push(
     // Upload HTML
     upload_file(site_id, &branch_slug, &storage_path, &temp_html).await?;
 
+    // Reconcile media files at this route to clean up orphaned files
+    reconcile_prefix(site_id, &branch_slug, &media_prefix, current_media_files).await?;
+
     // Return the site URL with the route
-    Ok(Url::parse(&format!("{base_url}/latest{route}"))?)
+    Ok(Url::parse(&format!("{base_url}{route}"))?)
 }
 
 /// Pull a document from a Stencila Site

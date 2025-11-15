@@ -54,7 +54,7 @@ pub struct SiteConfig {
 
 impl SiteConfig {
     pub fn default_url(&self) -> String {
-        return format!("https://{}.stencila.site", self.id);
+        format!("https://{}.stencila.site", self.id)
     }
 
     /// Read the site configuration from `.stencila/site.yaml`
@@ -214,6 +214,53 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
 
     tracing::debug!("Last modified timestamp for {url}: {timestamp}");
     Ok(timestamp)
+}
+
+/// Reconcile files at a prefix by cleaning up orphaned files
+///
+/// This function sends a list of current files to the Stencila Cloud API,
+/// which will compare them with files in the bucket at the given prefix
+/// and delete orphaned files.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+/// * `branch_slug` - The branch slug (e.g., "main", "feature-foo")
+/// * `prefix` - The storage path prefix (e.g., "media/", "report/media/")
+/// * `current_files` - List of filenames (without prefix) currently at this location
+#[tracing::instrument]
+pub async fn reconcile_prefix(
+    site_id: &str,
+    branch_slug: &str,
+    prefix: &str,
+    current_files: Vec<String>,
+) -> Result<()> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!(
+        "Reconciling prefix {prefix} with {} files",
+        current_files.len()
+    );
+
+    let client = Client::new();
+    let response = client
+        .post(format!(
+            "{}/sites/{site_id}/{branch_slug}/reconcile/{prefix}",
+            base_url()
+        ))
+        .bearer_auth(token)
+        .json(&current_files)
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response.text().await.unwrap_or_default();
+        bail!("Failed to reconcile prefix {prefix} ({status}): {error_text}");
+    }
+
+    Ok(())
 }
 
 /// Delete a site from Stencila Cloud and remove local configuration
