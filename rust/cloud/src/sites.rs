@@ -319,6 +319,66 @@ pub async fn delete_site(path: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Update site access settings
+///
+/// This function sends a PATCH request to `/sites/{site_id}/access` with
+/// optional fields to update access restrictions, password, and main branch settings.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+/// * `access_restriction` - Optional access mode: "public", "password", or "auth"
+/// * `password` - Optional password to set (use Some(None) to clear password)
+/// * `access_restrict_main` - Optional flag for whether main/master branches are restricted
+#[tracing::instrument(skip(password))]
+pub async fn update_site_access(
+    site_id: &str,
+    access_restriction: Option<&str>,
+    password: Option<Option<&str>>,
+    access_restrict_main: Option<bool>,
+) -> Result<()> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Updating access settings for site {site_id}");
+
+    let mut json = serde_json::Map::new();
+
+    if let Some(mode) = access_restriction {
+        json.insert(
+            "accessRestriction".to_string(),
+            serde_json::Value::String(mode.to_string()),
+        );
+    }
+
+    if let Some(pwd) = password {
+        json.insert(
+            "password".to_string(),
+            match pwd {
+                Some(p) => serde_json::Value::String(p.to_string()),
+                None => serde_json::Value::Null,
+            },
+        );
+    }
+
+    if let Some(restrict_main) = access_restrict_main {
+        json.insert(
+            "accessRestrictMain".to_string(),
+            serde_json::Value::Bool(restrict_main),
+        );
+    }
+
+    let client = Client::new();
+    let response = client
+        .patch(format!("{}/sites/{site_id}/access", base_url()))
+        .bearer_auth(token)
+        .json(&json)
+        .send()
+        .await?;
+
+    check_response(response).await
+}
+
 /// Set password protection for a site
 ///
 /// This function sends a PUT request to `/sites/{site_id}/password` with
