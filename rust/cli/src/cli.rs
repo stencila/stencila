@@ -9,7 +9,7 @@ use stencila_version::STENCILA_VERSION;
 use crate::{
     compile, convert, db, demo, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, open, pull, push, render, sync, uninstall, unwatch, upgrade, watch,
+    merge, new, open, pull, push, render, site, sync, uninstall, unwatch, upgrade, watch,
 };
 
 /// CLI subcommands and global options
@@ -272,6 +272,7 @@ pub enum Command {
     Lsp,
 
     Cloud(crate::cloud::Cli),
+    Site(site::Site),
     Signin(crate::cloud::Signin),
     Signout(crate::cloud::Signout),
     Logs(crate::cloud::Logs),
@@ -335,6 +336,7 @@ impl Cli {
             Command::Snap(snap) => snap.run().await,
 
             Command::Cloud(cloud) => cloud.run().await,
+            Command::Site(site) => site.run().await,
             Command::Signin(signin) => signin.run().await,
             Command::Signout(signout) => signout.run().await,
             Command::Logs(logs) => logs.run().await,

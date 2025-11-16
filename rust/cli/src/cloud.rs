@@ -3,7 +3,7 @@ use eyre::{Result, bail};
 use textwrap::{Options, termwidth, wrap};
 use url::Url;
 
-use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
+use stencila_ask::ask_for_password;
 use stencila_cli_utils::{
     color_print::{cformat, cstr},
     message,
@@ -32,15 +32,6 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># View logs from a cloud workspace session</dim>
   <b>stencila cloud logs --session</> <g>SESSION_ID</>
-
-  <dim># Create a site for the current workspace</dim>
-  <b>stencila cloud site create</>
-
-  <dim># Set password protection for a site</dim>
-  <b>stencila cloud site password set</>
-
-  <dim># Delete the workspace site</dim>
-  <b>stencila cloud site delete</>
 "
 );
 
@@ -50,7 +41,17 @@ enum Command {
     Signin(Signin),
     Signout(Signout),
     Logs(Logs),
-    Site(Site),
+}
+
+impl Command {
+    pub async fn run(self) -> Result<()> {
+        match self {
+            Command::Status(status) => status.run().await,
+            Command::Signin(signin) => signin.run().await,
+            Command::Signout(signout) => signout.run().await,
+            Command::Logs(logs) => logs.run().await,
+        }
+    }
 }
 
 impl Cli {
@@ -59,13 +60,7 @@ impl Cli {
             return Status.run().await;
         };
 
-        match command {
-            Command::Status(status) => status.run().await,
-            Command::Signin(signin) => signin.run().await,
-            Command::Signout(signout) => signout.run().await,
-            Command::Logs(logs) => logs.run().await,
-            Command::Site(site) => site.run().await,
-        }
+        command.run().await
     }
 }
 
@@ -401,316 +396,6 @@ impl Logs {
             // Wait before polling again
             sleep(Duration::from_secs(poll_interval)).await;
         }
-
-        Ok(())
-    }
-}
-
-/// Manage Stencila Sites
-#[derive(Debug, Parser)]
-#[command(alias = "sites", after_long_help = SITE_AFTER_LONG_HELP)]
-pub struct Site {
-    #[command(subcommand)]
-    command: SiteCommand,
-}
-
-pub static SITE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Create a site for the workspace</dim>
-  <b>stencila cloud site create</>
-
-  <dim># Set password protection for the site</dim>
-  <b>stencila cloud site password set</>
-
-  <dim># Remove password protection from the site</dim>
-  <b>stencila cloud site password remove</>
-
-  <dim># Delete the workspace site</dim>
-  <b>stencila cloud site delete</>
-"
-);
-
-#[derive(Debug, Subcommand)]
-enum SiteCommand {
-    Create(SiteCreate),
-    Delete(SiteDelete),
-    Password(SitePassword),
-}
-
-impl Site {
-    pub async fn run(self) -> Result<()> {
-        match self.command {
-            SiteCommand::Create(create) => create.run().await,
-            SiteCommand::Delete(delete) => delete.run().await,
-            SiteCommand::Password(password) => password.run().await,
-        }
-    }
-}
-
-/// Create a new Stencila Site
-#[derive(Debug, Args)]
-#[command(after_long_help = SITE_CREATE_AFTER_LONG_HELP)]
-pub struct SiteCreate {
-    /// Path to the workspace directory where .stencila/site.yaml will be created
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-}
-
-pub static SITE_CREATE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Create site for the current workspace</dim>
-  <b>stencila cloud site create</>
-
-  <dim># Create site for another workspace</dim>
-  <b>stencila cloud site create --path /path/to/project</>
-"
-);
-
-impl SiteCreate {
-    pub async fn run(self) -> Result<()> {
-        let path = self
-            .path
-            .unwrap_or_else(|| std::env::current_dir().expect("Failed to get current directory"));
-
-        let (config, already_existed) = stencila_cloud::sites::ensure_site(&path).await?;
-        let url = config.default_url();
-
-        if already_existed {
-            message(
-                &format!("Site already exists for workspace: {url}"),
-                Some("ℹ️"),
-            );
-        } else {
-            message(
-                &format!("Site successfully created for workspace: {url}"),
-                Some("✅"),
-            );
-        }
-
-        Ok(())
-    }
-}
-
-/// Delete a Stencila Site
-#[derive(Debug, Args)]
-#[command(after_long_help = SITE_DELETE_AFTER_LONG_HELP)]
-pub struct SiteDelete {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-}
-
-pub static SITE_DELETE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Delete site for current workspace</dim>
-  <b>stencila cloud site delete</>
-
-  <dim># Delete site for another workspace</dim>
-  <b>stencila cloud site delete --path /path/to/project</>
-"
-);
-
-impl SiteDelete {
-    pub async fn run(self) -> Result<()> {
-        let path = self
-            .path
-            .unwrap_or_else(|| std::env::current_dir().expect("Failed to get current directory"));
-
-        // Ask for confirmation with warning level
-        let answer = ask_with(
-            "This will permanently delete the site on Stencila Cloud including all content. This cannot be undone.",
-            AskOptions {
-                level: AskLevel::Warning,
-                default: Some(Answer::No),
-                title: Some("Delete Stencila Site".into()),
-                yes_text: Some("Yes, delete".into()),
-                no_text: Some("Cancel".into()),
-                ..Default::default()
-            },
-        )
-        .await?;
-
-        if !answer.is_yes() {
-            message("Site deletion cancelled", Some("ℹ️"));
-            return Ok(());
-        }
-
-        stencila_cloud::sites::delete_site(&path).await?;
-
-        message("Site deleted successfully", Some("✅"));
-
-        Ok(())
-    }
-}
-
-/// Manage password protection for Stencila Sites
-#[derive(Debug, Parser)]
-#[command(after_long_help = SITE_PASSWORD_AFTER_LONG_HELP)]
-pub struct SitePassword {
-    #[command(subcommand)]
-    command: SitePasswordCommand,
-}
-
-pub static SITE_PASSWORD_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Set password for the current workspace site</dim>
-  <b>stencila cloud site password set</>
-
-  <dim># Set password only for current branch (not main)</dim>
-  <b>stencila cloud site password set --not-main</>
-
-  <dim># Remove password protection</dim>
-  <b>stencila cloud site password remove</>
-"
-);
-
-#[derive(Debug, Subcommand)]
-enum SitePasswordCommand {
-    #[command(alias = "add")]
-    Set(SitePasswordSet),
-
-    #[command(alias = "rm")]
-    Remove(SitePasswordRemove),
-}
-
-impl SitePassword {
-    pub async fn run(self) -> Result<()> {
-        match self.command {
-            SitePasswordCommand::Set(set) => set.run().await,
-            SitePasswordCommand::Remove(remove) => remove.run().await,
-        }
-    }
-}
-
-/// Set password protection for a Stencila Site
-#[derive(Debug, Args)]
-#[command(after_long_help = SITE_PASSWORD_SET_AFTER_LONG_HELP)]
-pub struct SitePasswordSet {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-
-    /// Only protect the current branch (not main branch)
-    ///
-    /// By default, the password applies to the main branch. Use this flag
-    /// to set a password only for the current branch.
-    #[arg(long)]
-    not_main: bool,
-}
-
-pub static SITE_PASSWORD_SET_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Set password for current workspace site</dim>
-  <b>stencila cloud site password set</>
-
-  <dim># Set password for another workspace</dim>
-  <b>stencila cloud site password set --path /path/to/project</>
-
-  <dim># Set password only for current branch</dim>
-  <b>stencila cloud site password set --not-main</>
-"
-);
-
-impl SitePasswordSet {
-    pub async fn run(self) -> Result<()> {
-        let path = self
-            .path
-            .unwrap_or_else(|| std::env::current_dir().expect("Failed to get current directory"));
-
-        // Read site config to get site ID
-        let config = stencila_cloud::sites::SiteConfig::read(&path).await?;
-
-        // Prompt for password securely
-        let password = ask_for_password(cstr!(
-            "Enter password to protect your site (will not be displayed)"
-        ))
-        .await?;
-
-        // Set password_for_main based on the flag (true by default, false if --not-main)
-        let password_for_main = !self.not_main;
-
-        // Call API to set password
-        stencila_cloud::sites::set_site_password(&config.id, &password, password_for_main).await?;
-
-        message(
-            &format!(
-                "Password protection enabled for {} {}",
-                config.default_url(),
-                if !password_for_main {
-                    "(excluding main branch)"
-                } else {
-                    ""
-                }
-            ),
-            Some("✅"),
-        );
-
-        Ok(())
-    }
-}
-
-/// Remove password protection from a Stencila Site
-#[derive(Debug, Args)]
-#[command(after_long_help = SITE_PASSWORD_REMOVE_AFTER_LONG_HELP)]
-pub struct SitePasswordRemove {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-}
-
-pub static SITE_PASSWORD_REMOVE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Remove password for current workspace site</dim>
-  <b>stencila cloud site password remove</>
-
-  <dim># Remove password for another workspace</dim>
-  <b>stencila cloud site password remove --path /path/to/project</>
-"
-);
-
-impl SitePasswordRemove {
-    pub async fn run(self) -> Result<()> {
-        let path = self
-            .path
-            .unwrap_or_else(|| std::env::current_dir().expect("Failed to get current directory"));
-
-        // Read site config to get site ID
-        let config = stencila_cloud::sites::SiteConfig::read(&path).await?;
-
-        // Ask for confirmation
-        let answer = ask_with(
-            "This will remove password protection from your site, making it publicly accessible.",
-            AskOptions {
-                level: AskLevel::Warning,
-                default: Some(Answer::No),
-                title: Some("Remove Password Protection".into()),
-                yes_text: Some("Yes, remove password".into()),
-                no_text: Some("Cancel".into()),
-                ..Default::default()
-            },
-        )
-        .await?;
-
-        if !answer.is_yes() {
-            message("Password removal cancelled", Some("ℹ️"));
-            return Ok(());
-        }
-
-        // Call API to remove password
-        stencila_cloud::sites::remove_site_password(&config.id).await?;
-
-        message(
-            &format!("Password protection removed from {}", config.default_url()),
-            Some("✅"),
-        );
 
         Ok(())
     }

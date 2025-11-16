@@ -19,6 +19,7 @@ mod options;
 mod pull;
 mod push;
 mod render;
+mod site;
 mod sync;
 mod uninstall;
 mod unwatch;
@@ -148,6 +149,13 @@ mod tests {
             ("cloud::signout", crate::cloud::SIGNOUT_AFTER_LONG_HELP),
             ("cloud::status", crate::cloud::STATUS_AFTER_LONG_HELP),
             ("cloud::logs", crate::cloud::LOGS_AFTER_LONG_HELP),
+            // Site module help strings
+            ("site::cli", crate::site::AFTER_LONG_HELP),
+            ("site::create", crate::site::CREATE_AFTER_LONG_HELP),
+            ("site::delete", crate::site::DELETE_AFTER_LONG_HELP),
+            ("site::password", crate::site::PASSWORD_AFTER_LONG_HELP),
+            ("site::password::set", crate::site::PASSWORD_SET_AFTER_LONG_HELP),
+            ("site::password::remove", crate::site::PASSWORD_REMOVE_AFTER_LONG_HELP),
         ]
     }
 
