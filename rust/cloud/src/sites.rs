@@ -90,6 +90,21 @@ struct CreateResponse {
     id: String,
 }
 
+/// Response from GET /sites/{id}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteDetails {
+    pub id: String,
+    pub domain: Option<String>,
+    pub org_id: Option<String>,
+    pub user_id: String,
+    pub created_by: String,
+    pub created_at: String,
+    pub access_restriction: String,
+    pub access_restrict_main: bool,
+    pub access_updated_at: String,
+}
+
 /// Create a new site
 #[tracing::instrument]
 pub async fn create_site() -> Result<String> {
@@ -133,6 +148,26 @@ pub async fn ensure_site(path: &Path) -> Result<(SiteConfig, bool)> {
 
         Ok((config, false))
     }
+}
+
+/// Get details for a site from Stencila Cloud
+///
+/// Fetches the site details including domain, ownership, access restrictions,
+/// and timestamps.
+#[tracing::instrument]
+pub async fn get_site(site_id: &str) -> Result<SiteDetails> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Fetching site details for {site_id}");
+    let client = Client::new();
+    let response = client
+        .get(format!("{}/sites/{site_id}", base_url()))
+        .bearer_auth(token)
+        .send()
+        .await?;
+
+    process_response(response).await
 }
 
 /// Upload a single file to the site
@@ -311,7 +346,7 @@ pub async fn set_site_password(
         .bearer_auth(token)
         .json(&serde_json::json!({
             "password": password,
-            "passwordForMain": password_for_main
+            "accessRestrictMain": password_for_main
         }))
         .send()
         .await?;

@@ -5,17 +5,24 @@ use eyre::Result;
 
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
 use stencila_cli_utils::{color_print::cstr, message};
+use stencila_cloud::sites::{
+    SiteConfig, delete_site, ensure_site, get_site, remove_site_password, set_site_password,
+};
 
 /// Manage the workspace site
 #[derive(Debug, Parser)]
 #[command(alias = "sites", after_long_help = AFTER_LONG_HELP)]
 pub struct Site {
     #[command(subcommand)]
-    command: SiteCommand,
+    command: Option<SiteCommand>,
 }
 
 pub static AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
+  <dim># View details of the workspace site</dim>
+  <b>stencila site</>
+  <b>stencila site show</>
+
   <dim># Create a site for the workspace</dim>
   <b>stencila site create</>
 
@@ -32,6 +39,7 @@ pub static AFTER_LONG_HELP: &str = cstr!(
 
 #[derive(Debug, Subcommand)]
 enum SiteCommand {
+    Show(Show),
     Create(Create),
     Delete(Delete),
     Password(Password),
@@ -39,11 +47,105 @@ enum SiteCommand {
 
 impl Site {
     pub async fn run(self) -> Result<()> {
-        match self.command {
+        let command = self
+            .command
+            .unwrap_or(SiteCommand::Show(Show { path: None }));
+
+        match command {
+            SiteCommand::Show(show) => show.run().await,
             SiteCommand::Create(create) => create.run().await,
             SiteCommand::Delete(delete) => delete.run().await,
             SiteCommand::Password(password) => password.run().await,
         }
+    }
+}
+
+/// Show details of the workspace site
+#[derive(Debug, Args)]
+#[command(after_long_help = SHOW_AFTER_LONG_HELP)]
+pub struct Show {
+    /// Path to the workspace directory containing .stencila/site.yaml
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># View details of the current workspace's site</dim>
+  <b>stencila site</>
+  <b>stencila site show</>
+
+  <dim># View details of another workspace's site</dim>
+  <b>stencila site show --path /path/to/workspace</>
+"
+);
+
+impl Show {
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.map_or_else(current_dir, Ok)?;
+
+        // Read site config to get site ID
+        let config = match SiteConfig::read(&path).await {
+            Ok(config) => config,
+            Err(_) => {
+                message(
+                    cstr!(
+                        "No site is enabled for this workspace. To create one, run <b>stencila site create</>"
+                    ),
+                    Some("💡"),
+                );
+                return Ok(());
+            }
+        };
+
+        // Fetch site details from API
+        let details = get_site(&config.id).await?;
+
+        // Format ownership info
+        let ownership = if details.org_id.is_some() {
+            "Organization"
+        } else {
+            "User"
+        };
+
+        // Format access restriction
+        let access = match details.access_restriction.as_str() {
+            "public" => "Public".to_string(),
+            "password" => {
+                if details.access_restrict_main {
+                    "Password protected".to_string()
+                } else {
+                    "Password protected (excluding main/master branches)".to_string()
+                }
+            }
+            "auth" => "Team only".to_string(),
+            other => format!("Unknown ({})", other),
+        };
+
+        // Display site information
+        let info = format!(
+            "{}\n\
+             \n\
+             ID:             {}\n\
+             Custom domain:  {}\n\
+             Owned by:       {}\n\
+             Created:        {}\n\
+             Access:         {}\n\
+             Access updated: {}",
+            config.default_url(),
+            config.id,
+            details.domain.as_deref().unwrap_or("None"),
+            ownership,
+            details.created_at,
+            access,
+            details.access_updated_at
+        );
+
+        message(&info, Some("🌐"));
+
+        Ok(())
     }
 }
 
@@ -70,9 +172,9 @@ pub static CREATE_AFTER_LONG_HELP: &str = cstr!(
 
 impl Create {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(|| current_dir(), Ok)?;
+        let path = self.path.map_or_else(current_dir, Ok)?;
 
-        let (config, already_existed) = stencila_cloud::sites::ensure_site(&path).await?;
+        let (config, already_existed) = ensure_site(&path).await?;
         let url = config.default_url();
 
         if already_existed {
@@ -114,7 +216,7 @@ pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
 
 impl Delete {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(|| current_dir(), Ok)?;
+        let path = self.path.map_or_else(current_dir, Ok)?;
 
         // Ask for confirmation with warning level
         let answer = ask_with(
@@ -135,7 +237,7 @@ impl Delete {
             return Ok(());
         }
 
-        stencila_cloud::sites::delete_site(&path).await?;
+        delete_site(&path).await?;
 
         message("Site deleted successfully", Some("✅"));
 
@@ -216,10 +318,10 @@ pub static PASSWORD_SET_AFTER_LONG_HELP: &str = cstr!(
 
 impl PasswordSet {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(|| current_dir(), Ok)?;
+        let path = self.path.map_or_else(current_dir, Ok)?;
 
         // Read site config to get site ID
-        let config = stencila_cloud::sites::SiteConfig::read(&path).await?;
+        let config = SiteConfig::read(&path).await?;
 
         // Prompt for password securely
         let password = ask_for_password(cstr!(
@@ -231,7 +333,7 @@ impl PasswordSet {
         let password_for_main = !self.not_main;
 
         // Call API to set password
-        stencila_cloud::sites::set_site_password(&config.id, &password, password_for_main).await?;
+        set_site_password(&config.id, &password, password_for_main).await?;
 
         message(
             &format!(
@@ -273,10 +375,10 @@ pub static PASSWORD_REMOVE_AFTER_LONG_HELP: &str = cstr!(
 
 impl PasswordRemove {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(|| current_dir(), Ok)?;
+        let path = self.path.map_or_else(current_dir, Ok)?;
 
         // Read site config to get site ID
-        let config = stencila_cloud::sites::SiteConfig::read(&path).await?;
+        let config = SiteConfig::read(&path).await?;
 
         // Ask for confirmation
         let answer = ask_with(
@@ -298,7 +400,7 @@ impl PasswordRemove {
         }
 
         // Call API to remove password
-        stencila_cloud::sites::remove_site_password(&config.id).await?;
+        remove_site_password(&config.id).await?;
 
         message(
             &format!("Password protection removed from {}", config.default_url()),

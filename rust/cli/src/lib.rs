@@ -151,6 +151,7 @@ mod tests {
             ("cloud::logs", crate::cloud::LOGS_AFTER_LONG_HELP),
             // Site module help strings
             ("site::cli", crate::site::AFTER_LONG_HELP),
+            ("site::show", crate::site::SHOW_AFTER_LONG_HELP),
             ("site::create", crate::site::CREATE_AFTER_LONG_HELP),
             ("site::delete", crate::site::DELETE_AFTER_LONG_HELP),
             ("site::password", crate::site::PASSWORD_AFTER_LONG_HELP),
