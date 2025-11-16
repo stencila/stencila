@@ -145,12 +145,42 @@ pub struct ErrorResponse {
     pub url: Option<String>,
 }
 
-/// A log entry from a session
-#[derive(Debug, Deserialize)]
-pub struct LogEntry {
-    pub timestamp: String,
-    pub level: String,
-    pub message: String,
+impl ErrorResponse {
+    fn message(self) -> String {
+        let mut message = self.error;
+        if let Some(advice) = self.advice {
+            message.push(' ');
+            message.push_str(&advice);
+        }
+        if let Some(url) = self.url {
+            message.push(' ');
+            message.push_str(&url);
+        }
+        message
+    }
+}
+
+/// Check an HTTP response from Stencila Cloud API for errors
+///
+/// This function handles error responses by extracting meaningful error messages.
+/// Use this for responses with no body (e.g., DELETE operations returning 204 No Content).
+pub async fn check_response(response: reqwest::Response) -> Result<()> {
+    if !response.status().is_success() {
+        let status = response.status();
+        let message = match response.json::<ErrorResponse>().await {
+            Ok(error_response) => {
+                if !error_response.error.is_empty() {
+                    error_response.message()
+                } else {
+                    format!("HTTP error status: {status}")
+                }
+            }
+            Err(_) => format!("HTTP error status: {status}"),
+        };
+        bail!("{message}");
+    }
+
+    Ok(())
 }
 
 /// Process an HTTP response from Stencila Cloud API and return parsed JSON
@@ -163,16 +193,7 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
         let message = match response.json::<ErrorResponse>().await {
             Ok(error_response) => {
                 if !error_response.error.is_empty() {
-                    let mut message = error_response.error;
-                    if let Some(advice) = error_response.advice {
-                        message.push(' ');
-                        message.push_str(&advice);
-                    }
-                    if let Some(url) = error_response.url {
-                        message.push(' ');
-                        message.push_str(&url);
-                    }
-                    message
+                    error_response.message()
                 } else {
                     format!("HTTP error status: {status}")
                 }
@@ -219,6 +240,14 @@ pub async fn get_token(service: &str) -> Result<String> {
         "microsoft" => microsoft::get_token_with_retry().await,
         _ => bail!("Unsupported service: {service}"),
     }
+}
+
+/// A log entry from a session
+#[derive(Debug, Deserialize)]
+pub struct LogEntry {
+    pub timestamp: String,
+    pub level: String,
+    pub message: String,
 }
 
 /// Get logs for a session from Stencila Cloud

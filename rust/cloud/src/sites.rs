@@ -16,7 +16,7 @@ use url::Url;
 
 use stencila_dirs::closest_site_file;
 
-use crate::{api_token, base_url};
+use crate::{api_token, base_url, check_response, process_response};
 
 /// A route mapping or redirect rule
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -104,13 +104,8 @@ pub async fn create_site() -> Result<String> {
         .send()
         .await?;
 
-    if !response.status().is_success() {
-        let status = response.status();
-        let error_text = response.text().await.unwrap_or_default();
-        bail!("Failed to create site ({status}): {error_text}");
-    }
+    let init_response: CreateResponse = process_response(response).await?;
 
-    let init_response: CreateResponse = response.json().await?;
     Ok(init_response.id)
 }
 
@@ -170,13 +165,7 @@ pub async fn upload_file(site_id: &str, branch_slug: &str, path: &str, file: &Pa
         .send()
         .await?;
 
-    if !response.status().is_success() {
-        let status = response.status();
-        let error_text = response.text().await.unwrap_or_default();
-        bail!("Failed to upload {path} ({status}): {error_text}");
-    }
-
-    Ok(())
+    check_response(response).await
 }
 
 /// Get the last modified time of a route on a Stencila Site
@@ -254,13 +243,7 @@ pub async fn reconcile_prefix(
         .send()
         .await?;
 
-    if !response.status().is_success() {
-        let status = response.status();
-        let error_text = response.text().await.unwrap_or_default();
-        bail!("Failed to reconcile prefix {prefix} ({status}): {error_text}");
-    }
-
-    Ok(())
+    check_response(response).await
 }
 
 /// Delete a site from Stencila Cloud and remove local configuration
@@ -290,11 +273,7 @@ pub async fn delete_site(path: &Path) -> Result<()> {
         .send()
         .await?;
 
-    if !response.status().is_success() {
-        let status = response.status();
-        let error_text = response.text().await.unwrap_or_default();
-        bail!("Failed to delete site ({status}): {error_text}");
-    }
+    check_response(response).await?;
 
     // Delete local config file
     let config_path = closest_site_file(path, false).await?;
@@ -303,4 +282,63 @@ pub async fn delete_site(path: &Path) -> Result<()> {
     tracing::debug!("Site deleted successfully");
 
     Ok(())
+}
+
+/// Set password protection for a site
+///
+/// This function sends a PUT request to `/sites/{site_id}/password` with
+/// the password and whether it should apply to the main branch.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+/// * `password` - The password to set
+/// * `password_for_main` - Whether the password applies to the main branch (true by default)
+#[tracing::instrument(skip(password))]
+pub async fn set_site_password(
+    site_id: &str,
+    password: &str,
+    password_for_main: bool,
+) -> Result<()> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Setting password for site {site_id}");
+
+    let client = Client::new();
+    let response = client
+        .put(format!("{}/sites/{site_id}/password", base_url()))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "password": password,
+            "passwordForMain": password_for_main
+        }))
+        .send()
+        .await?;
+
+    check_response(response).await
+}
+
+/// Remove password protection from a site
+///
+/// This function sends a DELETE request to `/sites/{site_id}/password`.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+#[tracing::instrument]
+pub async fn remove_site_password(site_id: &str) -> Result<()> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Removing password from site {site_id}");
+
+    let client = Client::new();
+    let response = client
+        .delete(format!("{}/sites/{site_id}/password", base_url()))
+        .bearer_auth(token)
+        .send()
+        .await?;
+
+    check_response(response).await
 }
