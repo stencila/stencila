@@ -8307,6 +8307,7 @@ dependencies = [
 name = "stencila-cli"
 version = "0.0.0"
 dependencies = [
+ "chrono",
  "clap",
  "color-eyre",
  "console-subscriber",

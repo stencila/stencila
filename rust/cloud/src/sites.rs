@@ -546,3 +546,77 @@ pub async fn delete_site_domain(site_id: &str) -> Result<()> {
 
     check_response(response).await
 }
+
+/// Information about a deployed branch
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BranchInfo {
+    /// Branch name/slug
+    pub name: String,
+
+    /// Total number of files in the branch
+    pub file_count: usize,
+
+    /// Total size in bytes of all files
+    pub total_size: u64,
+
+    /// ISO 8601 timestamp of the most recently modified file
+    pub last_modified: Option<String>,
+}
+
+/// List all deployed branches for a site
+///
+/// This function sends a GET request to `/sites/{site_id}/branches` to retrieve
+/// information about all branches that have been deployed to the site.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+#[tracing::instrument]
+pub async fn list_site_branches(site_id: &str) -> Result<Vec<BranchInfo>> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Listing branches for site {site_id}");
+
+    let client = Client::new();
+    let response = client
+        .get(format!("{}/sites/{site_id}/branches", base_url()))
+        .bearer_auth(token)
+        .send()
+        .await?;
+
+    process_response(response).await
+}
+
+/// Delete a branch from a site
+///
+/// This function sends a DELETE request to `/sites/{site_id}/branches/{branch_slug}`
+/// to remove all files for a specific branch. The operation is asynchronous - a
+/// workflow is triggered and files are deleted in the background.
+///
+/// Protected branches (main, master) cannot be deleted and will return an error.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+/// * `branch_slug` - The branch name to delete
+#[tracing::instrument]
+pub async fn delete_site_branch(site_id: &str, branch_slug: &str) -> Result<()> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Deleting branch {branch_slug} for site {site_id}");
+
+    let client = Client::new();
+    let response = client
+        .delete(format!(
+            "{}/sites/{site_id}/branches/{branch_slug}",
+            base_url()
+        ))
+        .bearer_auth(token)
+        .send()
+        .await?;
+
+    check_response(response).await
+}

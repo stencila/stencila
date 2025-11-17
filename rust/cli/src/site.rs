@@ -4,10 +4,15 @@ use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
 
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
-use stencila_cli_utils::{color_print::cstr, message, parse_domain};
+use stencila_cli_utils::{
+    ToStdout,
+    color_print::cstr,
+    message, parse_domain,
+    tabulated::{Cell, CellAlignment, Color, Tabulated},
+};
 use stencila_cloud::sites::{
-    SiteConfig, delete_site, delete_site_domain, ensure_site, get_site, get_site_domain_status,
-    set_site_domain, update_site_access,
+    SiteConfig, delete_site, delete_site_branch, delete_site_domain, ensure_site, get_site,
+    get_site_domain_status, list_site_branches, set_site_domain, update_site_access,
 };
 
 /// Manage the workspace site
@@ -55,6 +60,7 @@ enum SiteCommand {
     Access(Access),
     Password(Password),
     Domain(Domain),
+    Branch(Branch),
 }
 
 impl Site {
@@ -70,6 +76,7 @@ impl Site {
             SiteCommand::Access(access) => access.run().await,
             SiteCommand::Password(password) => password.run().await,
             SiteCommand::Domain(domain) => domain.run().await,
+            SiteCommand::Branch(branch) => branch.run().await,
         }
     }
 }
@@ -1078,5 +1085,256 @@ impl DomainClear {
         );
 
         Ok(())
+    }
+}
+
+/// Manage branches for the workspace site
+#[derive(Debug, Parser)]
+#[command(after_long_help = BRANCH_AFTER_LONG_HELP)]
+pub struct Branch {
+    #[command(subcommand)]
+    command: BranchCommand,
+}
+
+pub static BRANCH_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># List all deployed branches</dim>
+  <b>stencila site branch list</>
+
+  <dim># Delete a feature branch</dim>
+  <b>stencila site branch delete feature-xyz</>
+
+  <dim># Delete a branch without confirmation</dim>
+  <b>stencila site branch delete feature-xyz --force</>
+"
+);
+
+#[derive(Debug, Subcommand)]
+enum BranchCommand {
+    List(BranchList),
+    Delete(BranchDelete),
+}
+
+impl Branch {
+    pub async fn run(self) -> Result<()> {
+        match self.command {
+            BranchCommand::List(list) => list.run().await,
+            BranchCommand::Delete(delete) => delete.run().await,
+        }
+    }
+}
+
+/// List all deployed branches
+#[derive(Debug, Args)]
+#[command(after_long_help = BRANCH_LIST_AFTER_LONG_HELP)]
+pub struct BranchList {
+    /// Path to the workspace directory containing .stencila/site.yaml
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static BRANCH_LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># List branches for the current workspace's site</dim>
+  <b>stencila site branch list</>
+
+  <dim># List branches for another workspace's site</dim>
+  <b>stencila site branch list --path /path/to/workspace</>
+"
+);
+
+impl BranchList {
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.map_or_else(current_dir, Ok)?;
+
+        // Read site config to get site ID
+        let config = SiteConfig::read(&path).await?;
+
+        // Fetch branch list from API
+        let branches = list_site_branches(&config.id).await?;
+
+        if branches.is_empty() {
+            message(
+                "No branches have been deployed to this site yet",
+                Some("ℹ️"),
+            );
+            return Ok(());
+        }
+
+        // Display header message
+        message(
+            &format!("Deployed branches for site {}:\n", config.default_url()),
+            None,
+        );
+
+        // Create and populate table
+        let mut table = Tabulated::new();
+        table.set_header(["Branch", "Files", "Size", "Last Updated"]);
+
+        for branch in &branches {
+            let size = format_size(branch.total_size);
+            let modified = branch
+                .last_modified
+                .as_ref()
+                .map(|s| format_timestamp(s))
+                .unwrap_or_else(|| "Never".to_string());
+
+            // Highlight main/master branches in green
+            let branch_cell = if branch.name == "main" || branch.name == "master" {
+                Cell::new(&branch.name).fg(Color::Green)
+            } else {
+                Cell::new(&branch.name)
+            };
+
+            table.add_row([
+                branch_cell,
+                Cell::new(branch.file_count).set_alignment(CellAlignment::Right),
+                Cell::new(size).set_alignment(CellAlignment::Right),
+                Cell::new(modified)
+                    .fg(Color::Grey)
+                    .set_alignment(CellAlignment::Right),
+            ]);
+        }
+
+        table.to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Delete a branch from the site
+#[derive(Debug, Args)]
+#[command(after_long_help = BRANCH_DELETE_AFTER_LONG_HELP)]
+pub struct BranchDelete {
+    /// The branch name to delete
+    #[arg(value_name = "BRANCH_NAME")]
+    branch_name: String,
+
+    /// Path to the workspace directory containing .stencila/site.yaml
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+
+    /// Skip confirmation prompt
+    #[arg(long, short)]
+    force: bool,
+}
+
+pub static BRANCH_DELETE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Delete a feature branch (with confirmation)</dim>
+  <b>stencila site branch delete feature-xyz</>
+
+  <dim># Delete a branch without confirmation</dim>
+  <b>stencila site branch delete feature-xyz --force</>
+
+  <dim># Delete a branch from another workspace</dim>
+  <b>stencila site branch delete feature-xyz --path /path/to/workspace</>
+
+<bold><b>Notes</b></bold>
+  - Protected branches (main, master) cannot be deleted
+  - Deletion is asynchronous and happens in the background
+  - Cache will be purged automatically for the deleted branch
+"
+);
+
+impl BranchDelete {
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.map_or_else(current_dir, Ok)?;
+
+        // Check if trying to delete protected branches
+        if self.branch_name == "main" || self.branch_name == "master" {
+            bail!(
+                "Cannot delete protected branch: {}. The main and master branches are protected.",
+                self.branch_name
+            );
+        }
+
+        // Read site config to get site ID
+        let config = SiteConfig::read(&path).await?;
+
+        // Ask for confirmation unless --force is used
+        if !self.force {
+            let answer = ask_with(
+                &format!(
+                    "This will permanently delete all files for branch '{}' from your site. This cannot be undone.",
+                    self.branch_name
+                ),
+                AskOptions {
+                    level: AskLevel::Warning,
+                    default: Some(Answer::No),
+                    title: Some("Delete Branch".into()),
+                    yes_text: Some("Yes, delete branch".into()),
+                    no_text: Some("Cancel".into()),
+                    ..Default::default()
+                },
+            )
+            .await?;
+
+            if !answer.is_yes() {
+                message("Branch deletion cancelled", Some("ℹ️"));
+                return Ok(());
+            }
+        }
+
+        // Call API to delete branch
+        delete_site_branch(&config.id, &self.branch_name).await?;
+
+        message(
+            &format!(
+                "Branch '{}' deletion started. Files will be removed in the background.",
+                self.branch_name
+            ),
+            Some("✅"),
+        );
+
+        Ok(())
+    }
+}
+
+/// Format bytes as human-readable size
+fn format_size(bytes: u64) -> String {
+    const KB: u64 = 1024;
+    const MB: u64 = KB * 1024;
+    const GB: u64 = MB * 1024;
+
+    if bytes >= GB {
+        format!("{:.2} GB", bytes as f64 / GB as f64)
+    } else if bytes >= MB {
+        format!("{:.2} MB", bytes as f64 / MB as f64)
+    } else if bytes >= KB {
+        format!("{:.2} KB", bytes as f64 / KB as f64)
+    } else {
+        format!("{} B", bytes)
+    }
+}
+
+/// Format ISO 8601 timestamp as relative time or local date
+fn format_timestamp(iso: &str) -> String {
+    use chrono::{DateTime, Utc};
+
+    if let Ok(dt) = iso.parse::<DateTime<Utc>>() {
+        let now = Utc::now();
+        let duration = now.signed_duration_since(dt);
+
+        if duration.num_seconds() < 60 {
+            "Just now".to_string()
+        } else if duration.num_minutes() < 60 {
+            let mins = duration.num_minutes();
+            format!("{} minute{} ago", mins, if mins == 1 { "" } else { "s" })
+        } else if duration.num_hours() < 24 {
+            let hours = duration.num_hours();
+            format!("{} hour{} ago", hours, if hours == 1 { "" } else { "s" })
+        } else if duration.num_days() < 7 {
+            let days = duration.num_days();
+            format!("{} day{} ago", days, if days == 1 { "" } else { "s" })
+        } else {
+            dt.format("%Y-%m-%d %H:%M UTC").to_string()
+        }
+    } else {
+        iso.to_string()
     }
 }
