@@ -29,6 +29,7 @@ sed -i -e "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
 echo "Updating VSCode extension..."
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" vscode/package.json
 sed -i -e "s/^VERSION=.*/VERSION=\"v$VERSION\"/" vscode/install-cli.sh
+npm install --package-lock-only --prefix vscode
 
 # 3. Update npm packages
 echo "Updating npm packages..."
