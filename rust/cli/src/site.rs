@@ -1,11 +1,14 @@
 use std::env::current_dir;
 
 use clap::{Args, Parser, Subcommand};
-use eyre::Result;
+use eyre::{Result, bail};
 
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
-use stencila_cli_utils::{color_print::cstr, message};
-use stencila_cloud::sites::{SiteConfig, delete_site, ensure_site, get_site, update_site_access};
+use stencila_cli_utils::{color_print::cstr, message, parse_domain};
+use stencila_cloud::sites::{
+    SiteConfig, delete_site, delete_site_domain, ensure_site, get_site, get_site_domain_status,
+    set_site_domain, update_site_access,
+};
 
 /// Manage the workspace site
 #[derive(Debug, Parser)]
@@ -51,6 +54,7 @@ enum SiteCommand {
     Delete(Delete),
     Access(Access),
     Password(Password),
+    Domain(Domain),
 }
 
 impl Site {
@@ -65,6 +69,7 @@ impl Site {
             SiteCommand::Delete(delete) => delete.run().await,
             SiteCommand::Access(access) => access.run().await,
             SiteCommand::Password(password) => password.run().await,
+            SiteCommand::Domain(domain) => domain.run().await,
         }
     }
 }
@@ -133,6 +138,11 @@ impl Show {
             other => format!("Unknown ({})", other),
         };
 
+        let url = details.domain.as_deref().map_or_else(
+            || config.default_url(),
+            |domain| format!("https://{domain}"),
+        );
+
         // Display site information
         let info = format!(
             "{}\n\
@@ -143,7 +153,7 @@ impl Show {
              Created:        {}\n\
              Access:         {}\n\
              Access updated: {}",
-            config.default_url(),
+            url,
             config.id,
             details.domain.as_deref().unwrap_or("None"),
             ownership,
@@ -728,6 +738,342 @@ impl PasswordClear {
 
         message(
             &format!("Password cleared from {}", config.default_url()),
+            Some("✅"),
+        );
+
+        Ok(())
+    }
+}
+
+/// Manage custom domain for the workspace site
+#[derive(Debug, Parser)]
+#[command(after_long_help = DOMAIN_AFTER_LONG_HELP)]
+pub struct Domain {
+    #[command(subcommand)]
+    command: DomainCommand,
+}
+
+pub static DOMAIN_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Set a custom domain for the site</dim>
+  <b>stencila site domain set example.com</>
+
+  <dim># Check domain status</dim>
+  <b>stencila site domain status</>
+
+  <dim># Remove the custom domain</dim>
+  <b>stencila site domain clear</>
+"
+);
+
+#[derive(Debug, Subcommand)]
+enum DomainCommand {
+    Set(DomainSet),
+    Status(DomainStatus),
+    Clear(DomainClear),
+}
+
+impl Domain {
+    pub async fn run(self) -> Result<()> {
+        match self.command {
+            DomainCommand::Set(set) => set.run().await,
+            DomainCommand::Status(status) => status.run().await,
+            DomainCommand::Clear(clear) => clear.run().await,
+        }
+    }
+}
+
+/// Format CNAME record setup instructions
+fn format_cname_instructions(cname_record: &str, cname_target: &str) -> String {
+    format!(
+        "Add this CNAME record to your DNS:\n   \
+        Name:   {} (or @ if configuring apex domain)\n   \
+        Target: {}\n\n\
+        ⚠️ If using Cloudflare DNS, set the CNAME to \"DNS only\" (gray cloud icon).\n   \
+        Do not use \"Proxied\" mode (orange cloud) as this will prevent verification.",
+        cname_record, cname_target
+    )
+}
+
+/// Set a custom domain for the site
+#[derive(Debug, Args)]
+#[command(after_long_help = DOMAIN_SET_AFTER_LONG_HELP)]
+pub struct DomainSet {
+    /// The custom domain to use for the site
+    ///
+    /// Must be a valid domain name (IP addresses and ports are not allowed)
+    #[arg(value_parser = parse_domain)]
+    domain: String,
+
+    /// Path to the workspace directory containing .stencila/site.yaml
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static DOMAIN_SET_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Set custom domain for the current workspace's site</dim>
+  <b>stencila site domain set example.com</>
+
+  <dim># Set custom domain for another workspace's site</dim>
+  <b>stencila site domain set example.com --path /path/to/workspace</>
+
+<bold><b>Setup Process</b></bold>
+
+  After running this command, you'll need to complete the following steps:
+
+  1. <bold>Add the CNAME record to your DNS</bold>
+     The command will provide the exact record details (name and target)
+
+  2. <bold>Wait for DNS propagation</bold> (usually 5-30 minutes)
+     DNS changes can take time to propagate globally
+
+  3. <bold>Check status:</bold> <dim>stencila site domain status</dim>
+     Monitor the verification and SSL provisioning progress
+
+  Once the CNAME is detected, SSL will be provisioned automatically and
+  your site will go live.
+
+<bold><b>Troubleshooting</b></bold>
+
+  <bold>Domain status stuck on \"Waiting for CNAME record to be configured\":</bold>
+
+  1. <bold>Verify CNAME is configured correctly:</bold>
+     <dim>dig example.com CNAME</dim>
+     <dim>nslookup -type=CNAME example.com</dim>
+     Should show your domain pointing to the CNAME target provided
+
+  2. <bold>Cloudflare DNS users:</bold>
+     - Ensure CNAME is set to \"DNS only\" (gray cloud), NOT \"Proxied\" (orange cloud)
+     - Proxied mode prevents domain verification and SSL provisioning
+     - This setting must remain \"DNS only\" permanently, not just during setup
+
+  3. <bold>Check for conflicting DNS records:</bold>
+     - Remove any A or AAAA records for the same hostname
+     - Ensure no NS records delegating to a different DNS provider
+
+  4. <bold>Wait for DNS propagation:</bold>
+     - DNS changes typically take 5-30 minutes (sometimes up to 48 hours)
+     - Check propagation: <dim>https://dnschecker.org</dim>
+
+  5. <bold>Apex domain issues:</bold>
+     - Some DNS providers don't support CNAME on apex/root domains
+     - Consider using a subdomain (e.g., www.example.com) instead
+"
+);
+
+impl DomainSet {
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.map_or_else(current_dir, Ok)?;
+
+        // Read site config to get site ID
+        let config = SiteConfig::read(&path).await?;
+
+        // Set the domain via API
+        let response = set_site_domain(&config.id, &self.domain).await?;
+
+        // Display appropriate message and instructions based on status
+        match response.status.as_str() {
+            "pending_dns" => {
+                let cname_instructions =
+                    format_cname_instructions(&response.cname_record, &response.cname_target);
+
+                message(
+                    &format!(
+                        "Custom domain `{}` set for site `{}`\n\n\
+                        To complete setup:\n\n\
+                        1. {}\n\n\
+                        2. Wait for DNS propagation (usually 5-30 minutes)\n\n\
+                        3. Check status with: `stencila site domain status`\n\n\
+                        Once the CNAME is detected, SSL will be provisioned automatically and your site will go live.",
+                        response.domain, config.id, cname_instructions
+                    ),
+                    Some("⏳"),
+                );
+            }
+            "ssl_initializing"
+            | "ssl_pending_validation"
+            | "ssl_pending_issuance"
+            | "ssl_pending_deployment" => {
+                message(
+                    &format!("🔄 SSL provisioning started for `{}`", response.domain),
+                    None,
+                );
+                if let Some(true) = response.cname_configured {
+                    message(
+                        "\nCNAME record detected! SSL certificate is being provisioned...\n\n\
+                        Check status with: `stencila site domain status`",
+                        None,
+                    );
+                } else {
+                    let cname_instructions =
+                        format_cname_instructions(&response.cname_record, &response.cname_target);
+
+                    message(
+                        &format!(
+                            "\nTo complete setup:\n\n\
+                            1. {}\n\n\
+                            2. Monitor progress with: `stencila site domain status`",
+                            cname_instructions
+                        ),
+                        None,
+                    );
+                }
+            }
+            "active" => {
+                message(
+                    &format!("Your site is now live at https://{}", response.domain),
+                    Some("🎉"),
+                );
+            }
+            "failed" => {
+                bail!(
+                    "Domain setup failed for `{}`. Run `stencila site domain status` for details.",
+                    response.domain
+                );
+            }
+            _ => {
+                message(&format!("Status: {}", response.status), Some("🔄"));
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// Check the status of the custom domain
+#[derive(Debug, Args)]
+#[command(after_long_help = DOMAIN_STATUS_AFTER_LONG_HELP)]
+pub struct DomainStatus {
+    /// Path to the workspace directory containing .stencila/site.yaml
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static DOMAIN_STATUS_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Check domain status</dim>
+  <b>stencila site domain status</>
+
+  <dim># Check status for another workspace</dim>
+  <b>stencila site domain status --path /path/to/workspace</>
+"
+);
+
+impl DomainStatus {
+    #[allow(clippy::print_stderr)]
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.map_or_else(current_dir, Ok)?;
+
+        // Read site config to get site ID
+        let config = SiteConfig::read(&path).await?;
+
+        // Get domain status
+        let status = get_site_domain_status(&config.id).await?;
+
+        if !status.configured {
+            message("No custom domain is configured for this site", Some("ℹ️"));
+        } else if let Some("active") = status.status.as_deref()
+            && let Some(domain) = &status.domain
+        {
+            message(
+                &format!("Your site is live at https://{domain}"),
+                Some("🎉"),
+            );
+        } else {
+            let emoji = match status.status.as_deref() {
+                Some("active") => "✅",
+                Some("failed") => "❌",
+                _ => "⏳",
+            };
+
+            let mut parts = Vec::new();
+
+            if let Some(domain) = &status.domain {
+                parts.push(format!("Status of custom domain setup for `{domain}`:"));
+            }
+
+            parts.push(status.message.clone());
+
+            // Add CNAME instructions for pending_dns status
+            if let Some("pending_dns") = status.status.as_deref()
+                && let Some(cname_record) = &status.cname_record
+                && let Some(cname_target) = &status.cname_target
+            {
+                parts.push(String::new()); // Empty line
+                parts.push(format_cname_instructions(cname_record, cname_target));
+            }
+
+            message(&parts.join("\n "), Some(emoji));
+        }
+
+        Ok(())
+    }
+}
+
+/// Remove the custom domain from the site
+#[derive(Debug, Args)]
+#[command(after_long_help = DOMAIN_CLEAR_AFTER_LONG_HELP)]
+pub struct DomainClear {
+    /// Path to the workspace directory containing .stencila/site.yaml
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static DOMAIN_CLEAR_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Remove custom domain from the current workspace's site</dim>
+  <b>stencila site domain clear</>
+
+  <dim># Remove custom domain from another workspace's site</dim>
+  <b>stencila site domain clear --path /path/to/workspace</>
+"
+);
+
+impl DomainClear {
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.map_or_else(current_dir, Ok)?;
+
+        // Read site config to get site ID
+        let config = SiteConfig::read(&path).await?;
+
+        // Check if a domain is configured before prompting
+        let status = get_site_domain_status(&config.id).await?;
+        if !status.configured {
+            message("No custom domain is configured for this site", Some("ℹ️"));
+            return Ok(());
+        }
+
+        // Ask for confirmation
+        let answer = ask_with(
+            "This will remove the custom domain from your site. The site will continue to be accessible at its default URL.",
+            AskOptions {
+                level: AskLevel::Warning,
+                default: Some(Answer::No),
+                title: Some("Remove Custom Domain".into()),
+                yes_text: Some("Yes, remove domain".into()),
+                no_text: Some("Cancel".into()),
+                ..Default::default()
+            },
+        )
+        .await?;
+
+        if !answer.is_yes() {
+            message("Domain removal cancelled", Some("ℹ️"));
+            return Ok(());
+        }
+
+        // Call API to clear domain
+        delete_site_domain(&config.id).await?;
+
+        message(
+            &format!("Custom domain removed from site {}", config.default_url()),
             Some("✅"),
         );
 

@@ -105,6 +105,34 @@ pub struct SiteDetails {
     pub access_updated_at: String,
 }
 
+/// Response from POST /sites/{id}/domain
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DomainSetResponse {
+    pub domain: String,
+    pub status: String,
+    pub cname_configured: Option<bool>,
+    pub ssl_status: Option<String>,
+    pub cname_record: String,
+    pub cname_target: String,
+    pub instructions: String,
+}
+
+/// Response from GET /sites/{id}/domain/status
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DomainStatusResponse {
+    pub configured: bool,
+    pub domain: Option<String>,
+    pub status: Option<String>,
+    pub cname_configured: Option<bool>,
+    pub ssl_status: Option<String>,
+    pub cname_record: Option<String>,
+    pub cname_target: Option<String>,
+    pub error: Option<String>,
+    pub message: String,
+}
+
 /// Create a new site
 #[tracing::instrument]
 pub async fn create_site() -> Result<String> {
@@ -431,6 +459,87 @@ pub async fn remove_site_password(site_id: &str) -> Result<()> {
     let client = Client::new();
     let response = client
         .delete(format!("{}/sites/{site_id}/password", base_url()))
+        .bearer_auth(token)
+        .send()
+        .await?;
+
+    check_response(response).await
+}
+
+/// Set a custom domain for a site
+///
+/// This function sends a POST request to `/sites/{site_id}/domain` to configure
+/// a custom domain. The API will return CNAME configuration instructions.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+/// * `domain` - The custom domain to set (e.g., "example.com")
+#[tracing::instrument]
+pub async fn set_site_domain(site_id: &str, domain: &str) -> Result<DomainSetResponse> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Setting domain for site {site_id}");
+
+    let json = serde_json::json!({
+        "domain": domain
+    });
+
+    let client = Client::new();
+    let response = client
+        .post(format!("{}/sites/{site_id}/domain", base_url()))
+        .bearer_auth(token)
+        .json(&json)
+        .send()
+        .await?;
+
+    process_response(response).await
+}
+
+/// Get the status of a custom domain
+///
+/// This function sends a GET request to `/sites/{site_id}/domain/status` to check
+/// the current status of domain configuration, CNAME setup, and SSL provisioning.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+#[tracing::instrument]
+pub async fn get_site_domain_status(site_id: &str) -> Result<DomainStatusResponse> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Getting domain status for site {site_id}");
+
+    let client = Client::new();
+    let response = client
+        .get(format!("{}/sites/{site_id}/domain/status", base_url()))
+        .bearer_auth(token)
+        .send()
+        .await?;
+
+    process_response(response).await
+}
+
+/// Remove the custom domain from a site
+///
+/// This function sends a DELETE request to `/sites/{site_id}/domain` to remove
+/// the custom domain configuration.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+#[tracing::instrument]
+pub async fn delete_site_domain(site_id: &str) -> Result<()> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Deleting domain for site {site_id}");
+
+    let client = Client::new();
+    let response = client
+        .delete(format!("{}/sites/{site_id}/domain", base_url()))
         .bearer_auth(token)
         .send()
         .await?;
