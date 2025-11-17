@@ -605,7 +605,7 @@ function getRemoteIcon(
   // Use service-specific icons if we have service information
   if (remote.serviceName) {
     switch (remote.serviceName) {
-      case 'gdocs':
+      case 'gdoc':
         return vscode.Uri.joinPath(
           context.extensionUri,
           'icons/google-docs.png'
@@ -614,6 +614,11 @@ function getRemoteIcon(
         return vscode.Uri.joinPath(
           context.extensionUri,
           'icons/microsoft-365.png'
+        )
+      case 'site':
+        return vscode.Uri.joinPath(
+          context.extensionUri,
+          'icons/stencila-sites.png'
         )
       default:
         return new vscode.ThemeIcon('symbol-namespace')
