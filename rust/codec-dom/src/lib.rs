@@ -91,7 +91,7 @@ impl Codec for DomCodec {
         {
             let mut copy = node.clone();
             let from_path = options.as_ref().and_then(|opts| opts.from_path.as_deref());
-            collect_media(&mut copy, from_path, &path, media)?;
+            collect_media(&mut copy, from_path, path, media)?;
             copy
         } else {
             node.clone()

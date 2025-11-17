@@ -1,14 +1,19 @@
 //! Handling of custom requests and notifications related to document tracking
 
-use std::{collections::{BTreeMap, HashMap}, path::PathBuf};
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::PathBuf,
+};
 
 use async_lsp::lsp_types::request::Request;
 use serde::{Deserialize, Serialize};
 
-use stencila_codecs::remotes::RemoteService;
 use stencila_codec_utils::git_info;
+use stencila_codecs::remotes::RemoteService;
 use stencila_dirs::closest_workspace_dir;
-use stencila_document::{Document, DocumentTrackingEntries, DocumentTrackingStatus, WatchDirection};
+use stencila_document::{
+    Document, DocumentTrackingEntries, DocumentTrackingStatus, WatchDirection,
+};
 use stencila_schema::NodeId;
 
 /// Enriched document tracking with service information for display
@@ -107,65 +112,65 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
             remotes
                 .into_iter()
                 .map(|(url, remote)| {
-                            let (service_name, display_name) =
-                                if let Some(service) = RemoteService::from_url(&url) {
-                                    (
-                                        Some(service.cli_name().to_string()),
-                                        Some(service.display_name_plural().to_string()),
-                                    )
-                                } else {
-                                    (None, None)
-                                };
+                    let (service_name, display_name) =
+                        if let Some(service) = RemoteService::from_url(&url) {
+                            (
+                                Some(service.cli_name().to_string()),
+                                Some(service.display_name_plural().to_string()),
+                            )
+                        } else {
+                            (None, None)
+                        };
 
-                            // Get watch details if watch_id exists
-                            let (watch_status, watch_status_summary, watch_last_error, current_pr) =
-                                if let Some(watch_id_str) = &remote.watch_id {
-                                    if let Ok(watch_id) = watch_id_str.parse::<u64>() {
-                                        if let Some(details) = watch_details_map.get(&watch_id) {
-                                            let status = Some(details.status.to_string());
-                                            let summary = if !details.status_details.summary.is_empty() {
-                                                Some(details.status_details.summary.clone())
-                                            } else {
-                                                None
-                                            };
-                                            let error = details.status_details.last_error.clone();
-                                            let pr = details.status_details.current_pr.as_ref().map(|pr| {
-                                                PullRequestInfo {
-                                                    status: pr.status.clone(),
-                                                    url: pr.url.clone(),
-                                                }
-                                            });
-                                            (status, summary, error, pr)
-                                        } else {
-                                            (None, None, None, None)
-                                        }
+                    // Get watch details if watch_id exists
+                    let (watch_status, watch_status_summary, watch_last_error, current_pr) =
+                        if let Some(watch_id_str) = &remote.watch_id {
+                            if let Ok(watch_id) = watch_id_str.parse::<u64>() {
+                                if let Some(details) = watch_details_map.get(&watch_id) {
+                                    let status = Some(details.status.to_string());
+                                    let summary = if !details.status_details.summary.is_empty() {
+                                        Some(details.status_details.summary.clone())
                                     } else {
-                                        (None, None, None, None)
-                                    }
+                                        None
+                                    };
+                                    let error = details.status_details.last_error.clone();
+                                    let pr = details.status_details.current_pr.as_ref().map(|pr| {
+                                        PullRequestInfo {
+                                            status: pr.status.clone(),
+                                            url: pr.url.clone(),
+                                        }
+                                    });
+                                    (status, summary, error, pr)
                                 } else {
                                     (None, None, None, None)
-                                };
+                                }
+                            } else {
+                                (None, None, None, None)
+                            }
+                        } else {
+                            (None, None, None, None)
+                        };
 
-                            // Get the actual status calculated by remote_statuses()
-                            let status = remote_statuses.get(&url).map(|(_, status)| *status);
+                    // Get the actual status calculated by remote_statuses()
+                    let status = remote_statuses.get(&url).map(|(_, status)| *status);
 
-                            let enriched_remote = EnrichedDocumentRemote {
-                                pulled_at: remote.pulled_at,
-                                pushed_at: remote.pushed_at,
-                                watch_id: remote.watch_id,
-                                watch_direction: remote.watch_direction,
-                                service_name,
-                                display_name,
-                                status,
-                                watch_status,
-                                watch_status_summary,
-                                watch_last_error,
-                                current_pr,
-                            };
+                    let enriched_remote = EnrichedDocumentRemote {
+                        pulled_at: remote.pulled_at,
+                        pushed_at: remote.pushed_at,
+                        watch_id: remote.watch_id,
+                        watch_direction: remote.watch_direction,
+                        service_name,
+                        display_name,
+                        status,
+                        watch_status,
+                        watch_status_summary,
+                        watch_last_error,
+                        current_pr,
+                    };
 
-                            (url.to_string(), enriched_remote)
-                        })
-                        .collect()
+                    (url.to_string(), enriched_remote)
+                })
+                .collect()
         });
 
         let enriched = EnrichedDocumentTracking {
