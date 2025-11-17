@@ -21,7 +21,17 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  // TODO: complete as for other module's CLI_AFTER_LONG_HELP
+  <dim># Check your cloud authentication status</dim>
+  <b>stencila cloud status</>
+
+  <dim># Sign in to Stencila Cloud</dim>
+  <b>stencila cloud signin</>
+
+  <dim># Sign out from Stencila Cloud</dim>
+  <b>stencila cloud signout</>
+
+  <dim># View logs from a cloud workspace session</dim>
+  <b>stencila cloud logs --session</> <g>SESSION_ID</>
 "
 );
 
@@ -33,18 +43,24 @@ enum Command {
     Logs(Logs),
 }
 
+impl Command {
+    pub async fn run(self) -> Result<()> {
+        match self {
+            Command::Status(status) => status.run().await,
+            Command::Signin(signin) => signin.run().await,
+            Command::Signout(signout) => signout.run().await,
+            Command::Logs(logs) => logs.run().await,
+        }
+    }
+}
+
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
             return Status.run().await;
         };
 
-        match command {
-            Command::Status(status) => status.run().await,
-            Command::Signin(signin) => signin.run().await,
-            Command::Signout(signout) => signout.run().await,
-            Command::Logs(logs) => logs.run().await,
-        }
+        command.run().await
     }
 }
 

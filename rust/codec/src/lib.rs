@@ -591,6 +591,15 @@ pub struct EncodeOptions {
     /// Should not be used together with `embed_media`.
     pub extract_media: Option<PathBuf>,
 
+    /// Path to collect local media to
+    ///
+    /// When provided, any local media files referred to in the document will be
+    /// copied into the specified directory, and the references will be updated
+    /// to point to these copies. This is necessary, for example, when pushing a
+    /// document to Stencila Sites so that it can be deployed independently of
+    /// the local file system layout.
+    pub collect_media: Option<PathBuf>,
+
     /// Whether to embed supplement files as embedded supplemental works
     ///
     /// When enabled, supplemental files (e.g. images, audio, video, CSV, DOCX)

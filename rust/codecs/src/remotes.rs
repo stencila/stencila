@@ -9,15 +9,46 @@ use stencila_codec::{eyre::Result, stencila_format::Format, stencila_schema::Nod
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum RemoteService {
     /// Google Docs / Drive
-    #[value(name = "gdocs")]
+    #[value(name = "gdoc", alias = "gdocs")]
     GoogleDocs,
 
     /// Microsoft 365 / OneDrive
     #[value(name = "m365")]
     Microsoft365,
+
+    /// Stencila Sites
+    #[value(name = "site", alias = "sites")]
+    StencilaSites,
 }
 
 impl RemoteService {
+    /// Get the CLI value name
+    pub fn cli_name(&self) -> &str {
+        match self {
+            Self::GoogleDocs => "gdoc",
+            Self::Microsoft365 => "m365",
+            Self::StencilaSites => "site",
+        }
+    }
+
+    /// Get the display name for user-facing messages
+    pub fn display_name(&self) -> &str {
+        match self {
+            Self::GoogleDocs => "Google Doc",
+            Self::Microsoft365 => "Microsoft 365 doc",
+            Self::StencilaSites => "Stencila Site route",
+        }
+    }
+
+    /// Get the plural display name for user-facing messages
+    pub fn display_name_plural(&self) -> &str {
+        match self {
+            Self::GoogleDocs => "Google Docs",
+            Self::Microsoft365 => "Microsoft 365",
+            Self::StencilaSites => "Stencila Sites",
+        }
+    }
+
     /// Check if a URL matches this remote service
     pub fn matches_url(&self, url: &Url) -> bool {
         match self {
@@ -32,39 +63,22 @@ impl RemoteService {
                     false
                 }
             }
+            Self::StencilaSites => {
+                if let Some(host) = url.host_str() {
+                    host.ends_with(".stencila.site")
+                } else {
+                    false
+                }
+            }
         }
     }
 
     /// Get the remote service from a URL
     pub fn from_url(url: &Url) -> Option<Self> {
-        [Self::GoogleDocs, Self::Microsoft365]
+        [Self::GoogleDocs, Self::Microsoft365, Self::StencilaSites]
             .iter()
             .find(|service| service.matches_url(url))
             .copied()
-    }
-
-    /// Get the display name for user-facing messages
-    pub fn display_name(&self) -> &str {
-        match self {
-            Self::GoogleDocs => "Google Doc",
-            Self::Microsoft365 => "Microsoft 365 document",
-        }
-    }
-
-    /// Get the plural display name for user-facing messages
-    pub fn display_name_plural(&self) -> &str {
-        match self {
-            Self::GoogleDocs => "Google Docs",
-            Self::Microsoft365 => "Microsoft 365",
-        }
-    }
-
-    /// Get the CLI value name (e.g., "gdocs")
-    pub fn cli_name(&self) -> &str {
-        match self {
-            Self::GoogleDocs => "gdocs",
-            Self::Microsoft365 => "m365",
-        }
     }
 
     /// Get the format used by this remote service for pull/push operations
@@ -72,6 +86,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => Format::Docx,
             Self::Microsoft365 => Format::Docx,
+            Self::StencilaSites => Format::JsonLd,
         }
     }
 
@@ -86,6 +101,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url).await,
             Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url).await,
+            Self::StencilaSites => stencila_codec_site::push(node, path, title, url).await,
         }
     }
 
@@ -96,6 +112,16 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest).await,
             Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
+            Self::StencilaSites => stencila_codec_site::pull(url, dest).await,
+        }
+    }
+
+    /// Time that a remote was last modified as a Unix timestamp
+    pub async fn modified_at(&self, url: &Url) -> Result<u64> {
+        match self {
+            Self::GoogleDocs => stencila_codec_gdoc::modified_at(url).await,
+            Self::Microsoft365 => stencila_codec_m365::modified_at(url).await,
+            Self::StencilaSites => stencila_codec_site::modified_at(url).await,
         }
     }
 }

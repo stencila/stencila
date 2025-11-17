@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::Parser;
-use eyre::{OptionExt, Result, bail};
+use eyre::{OptionExt, Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
@@ -102,6 +102,7 @@ impl Cli {
         };
 
         let file = file.canonicalize()?;
+        let path_display = self.path.display();
 
         // Open the document to get tracked remotes
         let doc = Document::open(&file, None).await?;
@@ -119,9 +120,7 @@ impl Cli {
                     let remote = remotes
                         .iter()
                         .find(|url| RemoteService::GoogleDocs.matches_url(url))
-                        .ok_or_else(|| {
-                            eyre::eyre!("No Google Docs remote tracked for {}", self.path.display())
-                        })?;
+                        .ok_or_else(|| eyre!("No Google Doc tracked for `{path_display}`"))?;
                     (false, Some(remote.clone()))
                 }
                 "m365" => {
@@ -130,30 +129,33 @@ impl Cli {
                         .iter()
                         .find(|url| RemoteService::Microsoft365.matches_url(url))
                         .ok_or_else(|| {
-                            eyre::eyre!(
-                                "No Microsoft 365 remote tracked for {}",
-                                self.path.display()
-                            )
+                            eyre!("No Microsoft 365 doc tracked for `{path_display}`",)
                         })?;
+                    (false, Some(remote.clone()))
+                }
+                "site" | "sites" => {
+                    // Find Stencila Site
+                    let remote = remotes
+                        .iter()
+                        .find(|url| RemoteService::StencilaSites.matches_url(url))
+                        .ok_or_else(|| eyre!("No Stencila Site tracked for `{path_display}`"))?;
                     (false, Some(remote.clone()))
                 }
                 _ => {
                     // Try to parse as full URL
                     let url = Url::parse(target_str).map_err(|_| {
-                        eyre::eyre!(
-                            "Invalid target or service: '{}'. Use 'local', 'gdoc', 'm365', or a full URL.",
-                            target_str
+                        eyre!(
+                            "Invalid target or service: `{target_str}`. Use `local`, `site`, `gdoc`, `m365` or a full URL.",
                         )
                     })?;
 
                     // Validate it's from a supported service
-                    let _service = RemoteService::from_url(&url).ok_or_else(|| {
-                        eyre::eyre!("URL {} is not from a supported remote service", url)
-                    })?;
+                    let _service = RemoteService::from_url(&url)
+                        .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
 
                     // Check if this URL is tracked for the document
                     if !remotes.contains(&url) {
-                        bail!("URL {} is not tracked for {}", url, self.path.display());
+                        bail!("URL {url} is not tracked for `{path_display}`");
                     }
 
                     (false, Some(url))
@@ -166,10 +168,17 @@ impl Cli {
 
         // Open remote URLs in browser if specified or not disabled
         if let Some(remote_url) = remote_to_open {
+            // Convert to browseable URL for Stencila Sites
+            let url_to_open = if RemoteService::StencilaSites.matches_url(&remote_url) {
+                stencila_codec_site::browseable_url(&remote_url, Some(&file))
+                    .unwrap_or_else(|_| remote_url.clone())
+            } else {
+                remote_url.clone()
+            };
+
             // Open only the specified remote
-            message(&format!("Opening {} in browser", remote_url), Some("🌐"));
-            webbrowser::open(remote_url.as_str())?;
-            message(&format!("Opened {remote_url}"), Some("✅"));
+            message(&format!("Opening {url_to_open} in browser"), Some("🌐"));
+            webbrowser::open(url_to_open.as_str())?;
         } else if self.target.is_none() && !self.no_remotes && !remotes.is_empty() {
             // No target specified and remotes not disabled - open all remotes
             message(
@@ -177,8 +186,16 @@ impl Cli {
                 Some("🌐"),
             );
             for remote_url in &remotes {
-                webbrowser::open(remote_url.as_str())?;
-                message(&format!("Opened {remote_url}"), Some("✅"));
+                // Convert to browseable URL for Stencila Sites
+                let url_to_open = if RemoteService::StencilaSites.matches_url(remote_url) {
+                    stencila_codec_site::browseable_url(remote_url, Some(&file))
+                        .unwrap_or_else(|_| remote_url.clone())
+                } else {
+                    remote_url.clone()
+                };
+
+                webbrowser::open(url_to_open.as_str())?;
+                message(&format!("Opened {url_to_open}"), Some("↗️"));
             }
         }
 
@@ -193,7 +210,7 @@ impl Cli {
             // Get (or generate) a server token so it can be included in the URL
             let server_token = get_server_token();
 
-            message("Opening local preview server", Some("🖥️ "));
+            message("Starting local preview server", Some("🖥️ "));
 
             // Serve the directory
             let options = ServeOptions {

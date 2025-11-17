@@ -8321,6 +8321,7 @@ dependencies = [
  "stencila-ask",
  "stencila-cli-utils",
  "stencila-cloud",
+ "stencila-codec-site",
  "stencila-codec-utils",
  "stencila-codecs",
  "stencila-dirs",
@@ -8391,14 +8392,21 @@ name = "stencila-cloud"
 version = "0.0.0"
 dependencies = [
  "cached",
+ "chrono",
  "eyre",
+ "flate2",
  "reqwest",
  "serde",
+ "serde_json",
  "serde_with",
+ "serde_yaml",
+ "stencila-dirs",
  "stencila-secrets",
  "stencila-version",
  "strum",
+ "tokio",
  "tracing",
+ "url",
  "urlencoding",
  "webbrowser",
 ]
@@ -9121,6 +9129,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-site"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "eyre",
+ "flate2",
+ "futures",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-cloud",
+ "stencila-codec",
+ "stencila-codec-dom",
+ "stencila-codec-utils",
+ "stencila-dirs",
+ "stencila-node-media",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
 name = "stencila-codec-swb"
 version = "0.0.0"
 dependencies = [
@@ -9167,6 +9199,7 @@ dependencies = [
  "itertools 0.14.0",
  "proptest",
  "reqwest",
+ "sha2 0.10.9",
  "similar",
  "which",
 ]
@@ -9273,6 +9306,7 @@ dependencies = [
  "stencila-codec-pmc",
  "stencila-codec-png",
  "stencila-codec-rnw",
+ "stencila-codec-site",
  "stencila-codec-swb",
  "stencila-codec-text",
  "stencila-codec-utils",
@@ -9354,6 +9388,7 @@ dependencies = [
  "stencila-codec-gdoc",
  "stencila-codec-json",
  "stencila-codec-m365",
+ "stencila-codec-site",
  "stencila-codec-text",
  "stencila-codec-utils",
  "stencila-codecs",
@@ -10112,6 +10147,7 @@ dependencies = [
  "image",
  "itertools 0.14.0",
  "pathdiff",
+ "regex",
  "seahash",
  "stencila-format",
  "stencila-schema",

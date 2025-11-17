@@ -80,7 +80,7 @@ impl Cli {
                     remotes
                         .iter()
                         .find(|(url, _)| RemoteService::GoogleDocs.matches_url(url))
-                        .ok_or_else(|| eyre!("No Google Docs remote found for `{path_display}`"))?
+                        .ok_or_else(|| eyre!("No Google Doc found for `{path_display}`"))?
                         .0
                         .clone()
                 }
@@ -89,7 +89,9 @@ impl Cli {
                     remotes
                         .iter()
                         .find(|(url, _)| RemoteService::Microsoft365.matches_url(url))
-                        .ok_or_else(|| eyre!("No Microsoft 365 remote found for `{path_display}`"))?
+                        .ok_or_else(|| {
+                            eyre!("No Microsoft 365 document found for `{path_display}`")
+                        })?
                         .0
                         .clone()
                 }
@@ -97,8 +99,7 @@ impl Cli {
                     // Try to parse as URL
                     Url::parse(&target_str).map_err(|_| {
                         eyre!(
-                            "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
-                            target_str
+                            "Invalid target or service: `{target_str}`. Use `gdoc`, `m365`, or a full URL.",
                         )
                     })?
                 }
@@ -108,9 +109,7 @@ impl Cli {
             remotes
                 .into_iter()
                 .find(|(url, _)| url == &target_url)
-                .ok_or_else(|| {
-                    eyre!("Remote target not found in tracked remotes: {}", target_url)
-                })?
+                .ok_or_else(|| eyre!("Remote target not found in tracked remotes: {target_url}"))?
         } else {
             // No target specified - check if there's only one watched remote
             let watched_remotes: Vec<_> = remotes
@@ -145,7 +144,7 @@ impl Cli {
 
         // Check if remote is actually being watched
         if !remote_info.is_watched() {
-            bail!("Remote `{}` is not being watched.", remote_url);
+            bail!("Remote {remote_url} is not being watched.");
         }
 
         // Call Cloud API to delete watch

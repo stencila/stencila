@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process::exit};
 
 use clap::Parser;
-use eyre::{Result, bail};
+use eyre::{Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
@@ -30,8 +30,16 @@ pub struct Cli {
     ///
     /// By default, if a remote is already tracked for the document,
     /// it will be updated. Use this flag to create a new document.
-    #[arg(long, short = 'n')]
-    force_new: bool,
+    #[arg(long, short)]
+    new: bool,
+
+    /// Force push even if file is up-to-date
+    ///
+    /// By default, files pushed to Stencila Sites are only uploaded if they
+    /// are out of date compared to the remote. Use this flag to push regardless
+    /// of status. This flag only affects Stencila Sites pushes.
+    #[arg(long, short)]
+    force: bool,
 
     /// Do not execute the document before pushing it
     ///
@@ -81,6 +89,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Push a document to Microsoft 365</dim>
   <b>stencila push</> <g>document.smd</> <g>m365</>
 
+  <dim># Push a document to a Stencila Site</dim>
+  <b>stencila push</> <g>document.smd</> <g>site</>
+
   <dim># Push to file to all tracked remotes</dim>
   <b>stencila push</> <g>document.smd</>
 
@@ -91,7 +102,10 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila push</> <g>report.smd</> <g>gdoc</> <c>--</> <c>arg1=value1</>
 
   <dim># Force create new document</dim>
-  <b>stencila push</> <g>document.smd</> <g>gdoc</> <c>--force-new</>
+  <b>stencila push</> <g>document.smd</> <g>gdoc</> <c>--new</>
+
+  <dim># Force push even if up-to-date (useful for sites)</dim>
+  <b>stencila push</> <g>document.smd</> <g>site</> <c>--force</>
 "
 );
 
@@ -140,16 +154,14 @@ impl Cli {
                 match target_str.as_str() {
                     "gdoc" | "gdocs" => (Some(RemoteService::GoogleDocs), None, self.args),
                     "m365" => (Some(RemoteService::Microsoft365), None, self.args),
+                    "site" | "sites" => (Some(RemoteService::StencilaSites), None, self.args),
                     _ => {
                         // Try to parse as URL
                         let url = Url::parse(&target_str).map_err(|_| {
-                            eyre::eyre!(
-                                "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
-                                target_str
-                            )
+                            eyre!("Invalid target or service: `{target_str}`. Use 'gdoc', 'm365', or a full URL.")
                         })?;
                         let service = RemoteService::from_url(&url).ok_or_else(|| {
-                            eyre::eyre!("URL {} is not from a supported remote service", url)
+                            eyre!("URL {url} is not from a supported remote service")
                         })?;
                         (Some(service), Some(url), self.args)
                     }
@@ -158,6 +170,13 @@ impl Cli {
         } else {
             (None, None, self.args)
         };
+
+        // Validate: --watch is not supported with Stencila Sites
+        if self.watch && matches!(service, Some(RemoteService::StencilaSites)) {
+            bail!(
+                "Watch is not supported for Stencila Sites. Sites are write-only remotes that don't support bidirectional sync."
+            );
+        }
 
         // Execute document if args provided
         if !self.no_execute {
@@ -237,6 +256,7 @@ impl Cli {
                         doc.path(),
                         doc.file_name(),
                         Some(&remote_url),
+                        doc.path(),
                     )
                     .await
                     {
@@ -244,7 +264,18 @@ impl Cli {
                             if let Err(e) = doc.track_remote_pushed(url.clone()).await {
                                 errors.push((remote_url, format!("Failed to track remote: {}", e)));
                             } else {
-                                message(&format!("Successfully pushed to {url}"), Some("✅"));
+                                // For Stencila Sites, display browsable URL
+                                let display_url =
+                                    if matches!(remote_service, RemoteService::StencilaSites) {
+                                        stencila_codec_site::browseable_url(&url, doc.path())
+                                            .unwrap_or_else(|_| url.clone())
+                                    } else {
+                                        url.clone()
+                                    };
+                                message(
+                                    &format!("Successfully pushed to {display_url}"),
+                                    Some("✅"),
+                                );
                                 successes.push(url);
                             }
                         }
@@ -334,14 +365,21 @@ impl Cli {
             first_service
         };
 
+        // Validate: --watch is not supported with Stencila Sites (check after service resolution)
+        if self.watch && matches!(service, RemoteService::StencilaSites) {
+            bail!(
+                "Watch is not supported for Stencila Sites. Sites are write-only remotes that don't support bidirectional sync."
+            );
+        }
+
         // Determine existing URL for this service
         let existing_url = if let Some(url) = explicit_target {
             // Explicit target provided - use it directly
-            if self.force_new {
+            if self.new {
                 bail!("Cannot use both an explicit target and --force-new flag");
             }
             Some(url)
-        } else if self.force_new {
+        } else if self.new {
             // Force new document creation
             None
         } else {
@@ -373,12 +411,20 @@ impl Cli {
             doc.path(),
             doc.file_name(),
             existing_url.as_ref(),
+            doc.path(),
         )
         .await?;
 
-        message(&format!("Successfully pushed to {url}"), Some("✅"));
+        // For Stencila Sites, display the browsable (branch-aware) URL but track the canonical URL
+        let display_url = if matches!(service, RemoteService::StencilaSites) {
+            stencila_codec_site::browseable_url(&url, doc.path()).unwrap_or_else(|_| url.clone())
+        } else {
+            url.clone()
+        };
 
-        // Track the remote
+        message(&format!("Successfully pushed to {display_url}"), Some("✅"));
+
+        // Track the remote (always use canonical URL for tracking)
         doc.track_remote_pushed(url.clone()).await?;
 
         if existing_url.is_none() {
@@ -593,18 +639,30 @@ impl Cli {
                     doc.path(),
                     doc.file_name(),
                     Some(remote_url),
+                    doc.path(),
                 )
                 .await
                 {
                     Ok(url) => {
+                        // For Stencila Sites, display browsable URL
+                        let display_url = if matches!(remote_service, RemoteService::StencilaSites)
+                        {
+                            stencila_codec_site::browseable_url(&url, doc.path())
+                                .unwrap_or_else(|_| url.clone())
+                        } else {
+                            url.clone()
+                        };
+
                         if let Err(e) = doc.track_remote_pushed(url.clone()).await {
                             message(
-                                &format!("Pushed to {url} but failed to update tracking: {e}"),
+                                &format!(
+                                    "Pushed to {display_url} but failed to update tracking: {e}"
+                                ),
                                 Some("⚠️"),
                             );
                             file_errors += 1;
                         } else {
-                            message(&format!("Successfully pushed to {url}"), Some("✅"));
+                            message(&format!("Successfully pushed to {display_url}"), Some("✅"));
                             file_successes += 1;
                         }
                     }

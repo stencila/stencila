@@ -1,10 +1,12 @@
 use std::{
+    env,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
 
 use eyre::{OptionExt, Result, bail};
 use reqwest::Url;
+use sha2::{Digest, Sha256};
 
 /// Information about a file within a Git repository
 #[derive(Debug, Clone)]
@@ -70,7 +72,7 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
 
     if !tracked {
         return Ok(GitInfo {
-            origin: get_git_origin(&repo_root),
+            origin: get_origin(&repo_root),
             path: Some(relative_path),
             commit: Some("untracked".into()),
         });
@@ -89,7 +91,7 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
 
     if !clean {
         return Ok(GitInfo {
-            origin: get_git_origin(&repo_root),
+            origin: get_origin(&repo_root),
             path: Some(relative_path),
             commit: Some("dirty".into()),
         });
@@ -110,7 +112,7 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
     let commit = String::from_utf8(head_out.stdout)?.trim().to_string();
 
     Ok(GitInfo {
-        origin: get_git_origin(&repo_root),
+        origin: get_origin(&repo_root),
         path: Some(relative_path),
         commit: Some(commit),
     })
@@ -239,8 +241,54 @@ fn get_default_branch(repo_root: &Path) -> Result<String> {
     Ok("main".to_string())
 }
 
+/// Get the current branch name for a Git repository
+///
+/// # Arguments
+///
+/// * `path` - Optional path within a Git repository. If `None`, uses current directory.
+///
+/// # Returns
+///
+/// * `Some(branch_name)` if in a Git repository and on a branch
+/// * `None` if not in a Git repository, git is not available, or in detached HEAD state
+pub fn get_current_branch(path: Option<&Path>) -> Option<String> {
+    // Determine the working directory
+    let repo_root = if let Some(p) = path {
+        closest_git_repo(p).ok()?
+    } else {
+        let current_dir = env::current_dir().ok()?;
+        closest_git_repo(&current_dir).ok()?
+    };
+
+    // Check if git is available
+    if which::which("git").is_err() {
+        return None;
+    }
+
+    // Get the current branch name
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(&repo_root)
+        .args(["rev-parse", "--abbrev-ref", "HEAD"])
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    let branch_name = String::from_utf8(output.stdout).ok()?.trim().to_string();
+
+    // Return None if in detached HEAD state
+    if branch_name == "HEAD" {
+        None
+    } else {
+        Some(branch_name)
+    }
+}
+
 /// Get the git remote origin URL for a repository
-fn get_git_origin(repo_root: &Path) -> Option<String> {
+fn get_origin(repo_root: &Path) -> Option<String> {
     let output = Command::new("git")
         .arg("-C")
         .arg(repo_root)
@@ -311,6 +359,92 @@ fn normalize_git_url(url: &str) -> Option<String> {
     } else {
         Some(url)
     }
+}
+
+/// Create a DNS-safe slug from a branch name for use as a subdomain
+///
+/// This function creates a deterministic, DNS-compatible slug from a Git branch name
+/// that can be used as a subdomain for preview deployments.
+///
+/// # Rules
+///
+/// * Converts to lowercase
+/// * Replaces `/` with `-` (e.g., `feature/foo` → `feature-foo`)
+/// * Replaces non-alphanumeric characters (except `-`) with `-`
+/// * Collapses consecutive `-` into a single `-`
+/// * Trims leading and trailing `-`
+/// * If length > 53 characters:
+///   - Truncates to 43 characters
+///   - Appends `-` followed by first 9 hex characters of SHA256 hash
+///   - Total length: 53 characters
+///
+/// # Arguments
+///
+/// * `branch_name` - The Git branch name to slugify
+///
+/// # Returns
+///
+/// A DNS-safe slug suitable for use as a subdomain (max 53 characters)
+///
+/// # Examples
+///
+/// ```
+/// # use stencila_codec_utils::slugify_branch_name;
+/// assert_eq!(slugify_branch_name("feature/new-api"), "feature-new-api");
+/// assert_eq!(slugify_branch_name("FEATURE/FOO"), "feature-foo");
+/// assert_eq!(slugify_branch_name("fix_bug#123"), "fix-bug-123");
+/// ```
+pub fn slugify_branch_name(branch_name: &str) -> String {
+    // Step 1: Convert to lowercase
+    let mut slug = branch_name.to_lowercase();
+
+    // Step 2: Replace slashes and non-alphanumeric chars with hyphens
+    slug = slug
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' {
+                c
+            } else {
+                '-'
+            }
+        })
+        .collect();
+
+    // Step 3: Collapse consecutive hyphens
+    while slug.contains("--") {
+        slug = slug.replace("--", "-");
+    }
+
+    // Step 4: Trim leading and trailing hyphens
+    slug = slug.trim_matches('-').to_string();
+
+    // Step 5: Handle length limit with deterministic hashing
+    const MAX_LENGTH: usize = 53;
+    const HASH_LENGTH: usize = 9;
+
+    if slug.len() > MAX_LENGTH {
+        // Create SHA256 hash of the original branch name for uniqueness
+        let mut hasher = Sha256::new();
+        hasher.update(branch_name.as_bytes());
+        let hash_result = hasher.finalize();
+        let hash_hex = format!("{:x}", hash_result);
+
+        // We want: prefix + "-" + 9-char-hash = 53 chars total
+        // So maximum prefix length is 53 - 1 - 9 = 43
+        let max_prefix_length = MAX_LENGTH - 1 - HASH_LENGTH;
+
+        // Truncate to max prefix length
+        slug.truncate(max_prefix_length);
+
+        // Trim trailing hyphens from truncated slug
+        slug = slug.trim_end_matches('-').to_string();
+
+        // Build final slug with hash
+        slug.push('-');
+        slug.push_str(&hash_hex[..HASH_LENGTH]);
+    }
+
+    slug
 }
 
 #[cfg(test)]
@@ -394,5 +528,145 @@ mod tests {
             normalize_git_url("file:///home/user/repos/project").expect("should parse"),
             "file:///home/user/repos/project"
         );
+    }
+
+    #[test]
+    fn test_slugify_branch_name_basic() {
+        // Simple branch names
+        assert_eq!(slugify_branch_name("main"), "main");
+        assert_eq!(slugify_branch_name("develop"), "develop");
+        assert_eq!(slugify_branch_name("master"), "master");
+    }
+
+    #[test]
+    fn test_slugify_branch_name_with_slashes() {
+        // Feature branches with slashes
+        assert_eq!(slugify_branch_name("feature/new-api"), "feature-new-api");
+        assert_eq!(slugify_branch_name("bugfix/fix-login"), "bugfix-fix-login");
+        assert_eq!(slugify_branch_name("release/v1.2.3"), "release-v1-2-3");
+    }
+
+    #[test]
+    fn test_slugify_branch_name_case_conversion() {
+        // Uppercase to lowercase
+        assert_eq!(slugify_branch_name("FEATURE/FOO"), "feature-foo");
+        assert_eq!(slugify_branch_name("BugFix/Bar"), "bugfix-bar");
+        assert_eq!(slugify_branch_name("Main"), "main");
+    }
+
+    #[test]
+    fn test_slugify_branch_name_special_chars() {
+        // Special characters replaced with hyphens
+        assert_eq!(slugify_branch_name("fix_bug#123"), "fix-bug-123");
+        assert_eq!(slugify_branch_name("feature@v2"), "feature-v2");
+        assert_eq!(slugify_branch_name("test:branch"), "test-branch");
+        assert_eq!(slugify_branch_name("my.branch"), "my-branch");
+    }
+
+    #[test]
+    fn test_slugify_branch_name_consecutive_hyphens() {
+        // Multiple consecutive hyphens collapsed
+        assert_eq!(slugify_branch_name("feature--foo"), "feature-foo");
+        assert_eq!(slugify_branch_name("test___bar"), "test-bar");
+        assert_eq!(slugify_branch_name("a///b"), "a-b");
+    }
+
+    #[test]
+    fn test_slugify_branch_name_trim_hyphens() {
+        // Leading and trailing hyphens trimmed
+        assert_eq!(slugify_branch_name("-feature-"), "feature");
+        assert_eq!(slugify_branch_name("__test__"), "test");
+        assert_eq!(slugify_branch_name("/branch/"), "branch");
+    }
+
+    #[test]
+    fn test_slugify_branch_name_long_names() {
+        // Test truncation with hash
+        // 60 character branch name (exceeds 53 char limit)
+        let long_branch = "feature/very-long-branch-name-that-exceeds-max-length-limit";
+        let slug = slugify_branch_name(long_branch);
+
+        // Should be at most 53 characters (may be slightly less if trailing hyphens trimmed)
+        assert!(slug.len() <= 53);
+
+        // Should end with hyphen followed by 9 hex chars
+        assert!(slug.contains('-'));
+        let parts: Vec<&str> = slug.rsplitn(2, '-').collect();
+        assert_eq!(parts[0].len(), 9);
+        assert!(parts[0].chars().all(|c| c.is_ascii_hexdigit()));
+
+        // Should be deterministic
+        let slug2 = slugify_branch_name(long_branch);
+        assert_eq!(slug, slug2);
+    }
+
+    #[test]
+    fn test_slugify_branch_name_deterministic_hashing() {
+        // Different long branch names should produce different slugs
+        let branch1 = "feature/very-long-branch-name-that-exceeds-maximum-length-allowed-for-dns";
+        let branch2 = "feature/very-long-branch-name-that-exceeds-maximum-length-allowed-for-web";
+
+        let slug1 = slugify_branch_name(branch1);
+        let slug2 = slugify_branch_name(branch2);
+
+        // Both should be at most 53 chars
+        assert!(slug1.len() <= 53);
+        assert!(slug2.len() <= 53);
+
+        // Should have different hashes
+        assert_ne!(slug1, slug2);
+
+        // Same input should produce same output
+        assert_eq!(slug1, slugify_branch_name(branch1));
+        assert_eq!(slug2, slugify_branch_name(branch2));
+    }
+
+    #[test]
+    fn test_slugify_branch_name_unicode() {
+        // Unicode characters replaced with hyphens and trimmed
+        assert_eq!(slugify_branch_name("feature/café"), "feature-caf");
+        assert_eq!(slugify_branch_name("test-😀"), "test");
+    }
+
+    #[test]
+    fn test_slugify_branch_name_edge_cases() {
+        // Empty-ish inputs
+        assert_eq!(slugify_branch_name("---"), "");
+        assert_eq!(slugify_branch_name("///"), "");
+        assert_eq!(slugify_branch_name("___"), "");
+
+        // Single character
+        assert_eq!(slugify_branch_name("a"), "a");
+        assert_eq!(slugify_branch_name("1"), "1");
+
+        // Numbers
+        assert_eq!(slugify_branch_name("v1.2.3"), "v1-2-3");
+        assert_eq!(slugify_branch_name("123"), "123");
+    }
+
+    #[test]
+    fn test_get_current_branch() {
+        // This test will only work if we're in a git repository
+        // We'll test with the current directory
+        if let Some(branch) = get_current_branch(None) {
+            // Should return a non-empty string
+            assert!(!branch.is_empty());
+            // Should not be "HEAD" (detached state)
+            assert_ne!(branch, "HEAD");
+        }
+        // If None is returned, we're either not in a git repo or in detached HEAD,
+        // which is also a valid result
+    }
+
+    #[test]
+    fn test_get_current_branch_with_path() {
+        // Test with current file's directory
+        let current_file = std::path::Path::new(file!());
+        if let Some(parent) = current_file.parent()
+            && let Some(branch) = get_current_branch(Some(parent))
+        {
+            assert!(!branch.is_empty());
+            assert_ne!(branch, "HEAD");
+        }
     }
 }
