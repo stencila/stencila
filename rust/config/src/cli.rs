@@ -5,7 +5,7 @@ use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
 use stencila_format::Format;
 
 use crate::{
-    config,
+    MANAGED_CONFIG_KEYS, config,
     utils::{ConfigTarget, config_set, config_unset, config_value},
 };
 
@@ -195,6 +195,20 @@ pub static SET_AFTER_LONG_HELP: &str = cstr!(
 
 impl Set {
     async fn run(self) -> Result<()> {
+        // Check if this key is managed by a specific command
+        for managed in MANAGED_CONFIG_KEYS {
+            if self.key == managed.key {
+                bail!(
+                    "The `{}` configuration should not be set directly.\n\n\
+                    Please use the dedicated command instead: *{}*\n\n\
+                    {}",
+                    managed.key,
+                    managed.command,
+                    managed.reason
+                );
+            }
+        }
+
         let target = if self.user {
             ConfigTarget::User
         } else if self.local {

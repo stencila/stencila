@@ -36,6 +36,36 @@ pub fn config(path: &Path) -> Result<Config> {
     figment.extract().map_err(|error| eyre!("{error}"))
 }
 
+/// A configuration key that is managed by a specific command
+///
+/// These keys should not be set directly via `stencila config set` because
+/// they require special validation, API calls, or side effects that are
+/// handled by dedicated commands.
+pub(crate) struct ManagedConfigKey {
+    /// The config key pattern (e.g., "site.id", "site.domain")
+    pub key: &'static str,
+
+    /// The command to use instead (e.g., "stencila site create")
+    pub command: &'static str,
+
+    /// Explanation of why this should use the dedicated command
+    pub reason: &'static str,
+}
+
+/// Registry of configuration keys that should be managed through specific commands
+static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
+    ManagedConfigKey {
+        key: "site.id",
+        command: "stencila site create",
+        reason: "Site IDs are automatically assigned when creating a site and must be registered with Stencila Cloud.",
+    },
+    ManagedConfigKey {
+        key: "site.domain",
+        command: "stencila site domain set <domain>",
+        reason: "Custom domains require DNS validation, SSL provisioning, and synchronization with Stencila Cloud.",
+    },
+];
+
 /// Stencila configuration
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
