@@ -1,0 +1,17 @@
+::: for a in range(3) {python}
+
+    ::: if a
+        
+        ::: if a
+            
+            ::: if a
+
+            Hello
+                
+            :::
+
+        :::
+
+    :::
+
+:::

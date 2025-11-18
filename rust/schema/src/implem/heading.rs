@@ -117,7 +117,14 @@ impl MarkdownCodec for Heading {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, authors, provenance))
+            .merge_losses(lost_options!(self, id, authors, provenance));
+
+        // Add indentation for SMD format
+        if matches!(context.format, Format::Smd) {
+            context.push_indent();
+        }
+
+        context
             .push_prop_str(
                 NodeProperty::Level,
                 &"#".repeat(self.level.clamp(1, 6) as usize),

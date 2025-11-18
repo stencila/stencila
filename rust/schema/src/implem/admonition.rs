@@ -118,6 +118,11 @@ impl MarkdownCodec for Admonition {
 
             context.push_str(":::\n").exit_node().newline();
         } else {
+            // Add indentation for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+
             context
                 .push_str("> [!")
                 .push_prop_str(
@@ -136,23 +141,32 @@ impl MarkdownCodec for Admonition {
                     .push_prop_fn(NodeProperty::Title, |context| title.to_markdown(context));
             }
 
+            // For SMD format, include indentation in the line prefix
+            let prefix = if matches!(context.format, Format::Smd) {
+                [&" ".repeat(context.depth * 4), "> "].concat()
+            } else {
+                "> ".to_string()
+            };
+
             context
                 .newline()
-                .push_line_prefix("> ")
+                .push_line_prefix(&prefix)
                 .prefix_empty_lines(true)
                 .push_prop_fn(NodeProperty::Content, |context| {
                     self.content.to_markdown(context)
-                })
-                .pop_line_prefix();
+                });
 
-            if context.content.ends_with("> \n") {
-                context.content.pop();
-                context.content.pop();
-                context.content.pop();
+            // Clean up trailing prefix if the content ends with an empty prefixed line
+            // Only remove the specific prefix we added, not parent prefixes
+            let trailing_pattern = format!("{}\n", prefix);
+            if context.content.ends_with(&trailing_pattern) {
+                for _ in 0..trailing_pattern.len() {
+                    context.content.pop();
+                }
                 context.content.push('\n');
             }
 
-            context.exit_node();
+            context.pop_line_prefix().exit_node();
         }
     }
 }

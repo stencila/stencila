@@ -14,12 +14,12 @@ A dog.
 
 ::: section
 
-::::: figure
+::: figure
 
 A figure of a mouse inside a section.
 
 ![](https://example.org/mouse.jpg)
 
-:::::
+:::
 
 :::

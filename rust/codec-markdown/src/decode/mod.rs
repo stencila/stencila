@@ -59,7 +59,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 
     // Parse Markdown to a MDAST root node and get its children
     let (children, position) =
-        match to_mdast(&md, &parse_options()).map_err(|error| eyre!(error))? {
+        match to_mdast(&md, &parse_options(&format)).map_err(|error| eyre!(error))? {
             mdast::Node::Root(mdast::Root { children, position }) => (children, position),
             _ => (Vec::new(), None),
         };
@@ -127,7 +127,7 @@ fn decode_blocks(md: &str, context: &mut Context) -> Vec<Block> {
         md.push_str(":\n\n");
     }
 
-    match to_mdast(&md, &parse_options()) {
+    match to_mdast(&md, &parse_options(&context.format)) {
         Ok(mdast::Node::Root(Root { children, .. })) => mds_to_blocks(children, context),
         _ => vec![],
     }
@@ -135,7 +135,7 @@ fn decode_blocks(md: &str, context: &mut Context) -> Vec<Block> {
 
 /// Decode a string to inlines
 fn decode_inlines(md: &str, context: &mut Context) -> Vec<Inline> {
-    match to_mdast(md, &parse_options()) {
+    match to_mdast(md, &parse_options(&context.format)) {
         Ok(mdast::Node::Root(Root { children, .. })) => {
             if let Some(mdast::Node::Paragraph(mdast::Paragraph { children, .. })) =
                 children.first()
@@ -287,7 +287,7 @@ fn preprocess_myst(myst: &str) -> String {
 }
 
 /// Markdown parsing options
-fn parse_options() -> ParseOptions {
+fn parse_options(format: &Format) -> ParseOptions {
     // Use GitHub Flavoured Markdown with the following differences
     let mut options = ParseOptions::gfm();
 
@@ -303,6 +303,10 @@ fn parse_options() -> ParseOptions {
     // code expressions but, because math is now turned on, this
     // will not work for code with more than one $ symbol in it.
     options.constructs.code_text = false;
+
+    // Do not enable indented code blocks for Stencila Markdown to avoid
+    // conflict with indentation within fenced divs
+    options.constructs.code_indented = !matches!(format, Format::Smd);
 
     // Do not parse GFM single strikethrough since we use that for subscripts
     options.constructs.gfm_strikethrough = false;

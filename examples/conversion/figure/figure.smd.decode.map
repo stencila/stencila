@@ -6,9 +6,9 @@ start     end        offsets   node_type+property                   authorship
     73    105        (8, 34)   ImageObject
     73    105         (0, 0)   ImageObject
     51    110       (-22, 5)   Figure
-   139    176       (88, 66)   Paragraph
-   178    212       (39, 36)   ImageObject
-   178    212         (0, 0)   ImageObject
-   125    219       (-53, 7)   Figure
-   112    224       (-13, 5)   Section
-     0    225      (-112, 1)   Article
+   137    174       (86, 64)   Paragraph
+   176    210       (39, 36)   ImageObject
+   176    210         (0, 0)   ImageObject
+   125    215       (-51, 5)   Figure
+   112    220       (-13, 5)   Section
+     0    221      (-112, 1)   Article

@@ -577,7 +577,6 @@ impl MarkdownCodec for InstructionBlock {
             context.newline().newline();
 
             context
-                .increase_depth()
                 .push_prop_fn(NodeProperty::Suggestions, |context| {
                     context
                         .enter_node(suggestion.node_type(), suggestion.node_id())
@@ -585,8 +584,7 @@ impl MarkdownCodec for InstructionBlock {
                             suggestion.content.to_markdown(context)
                         })
                         .exit_node();
-                })
-                .decrease_depth();
+                });
 
             if suggestion.content.len() != 1 {
                 context.push_colons().newline().newline();

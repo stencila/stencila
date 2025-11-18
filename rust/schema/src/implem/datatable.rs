@@ -505,6 +505,10 @@ impl MarkdownCodec for Datatable {
         for (row_index, row) in cells.iter().enumerate() {
             for (col_index, cell) in row.iter().enumerate() {
                 if col_index == 0 {
+                    // Add indentation for SMD format
+                    if matches!(context.format, Format::Smd) {
+                        context.push_indent();
+                    }
                     context.push_str("|");
                 }
 
@@ -517,6 +521,10 @@ impl MarkdownCodec for Datatable {
 
             // Separator after first row
             if row_index == 0 {
+                // Add indentation for SMD format
+                if matches!(context.format, Format::Smd) {
+                    context.push_indent();
+                }
                 context.push_str("|");
                 for width in &column_widths {
                     context

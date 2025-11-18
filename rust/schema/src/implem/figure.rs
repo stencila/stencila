@@ -102,7 +102,7 @@ impl MarkdownCodec for Figure {
                 context.push_prop_str(NodeProperty::Label, label);
             }
 
-            context.push_str("\n\n").increase_depth();
+            context.push_str("\n\n");
 
             if let Some(caption) = &self.caption {
                 context.push_prop_fn(NodeProperty::Caption, |context| {
@@ -114,7 +114,6 @@ impl MarkdownCodec for Figure {
                 .push_prop_fn(NodeProperty::Content, |context| {
                     self.content.to_markdown(context)
                 })
-                .decrease_depth()
                 .push_colons()
                 .newline()
                 .exit_node()

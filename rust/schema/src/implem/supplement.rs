@@ -99,12 +99,9 @@ impl MarkdownCodec for Supplement {
             context.push_str("\n\n");
 
             if let Some(caption) = &self.caption {
-                context
-                    .increase_depth()
-                    .push_prop_fn(NodeProperty::Caption, |context| {
-                        caption.to_markdown(context)
-                    })
-                    .decrease_depth();
+                context.push_prop_fn(NodeProperty::Caption, |context| {
+                    caption.to_markdown(context)
+                });
             }
 
             if let Some(target) = &self.target {

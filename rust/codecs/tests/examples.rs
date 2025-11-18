@@ -254,6 +254,14 @@ static CONFIG: LazyLock<Config> = LazyLock::new(|| {
 /// files e.g.
 ///
 ///   UPDATE_EXAMPLES=true cargo test -p stencila-codecs examples
+///
+/// Use the `INCLUDE_EXAMPLES` environment variable to test only specific examples:
+///
+///   INCLUDE_EXAMPLES=article,heading cargo test -p stencila-codecs examples
+///
+/// Use the `EXCLUDE_EXAMPLES` environment variable to skip specific examples:
+///
+///   EXCLUDE_EXAMPLES=article,heading cargo test -p stencila-codecs examples
 #[tokio::test]
 #[allow(clippy::print_stderr)]
 async fn examples() -> Result<()> {
@@ -266,6 +274,9 @@ async fn examples() -> Result<()> {
 
     let update = env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true";
     let include = env::var("INCLUDE_EXAMPLES")
+        .ok()
+        .map(|var| var.split(',').map(String::from).collect_vec());
+    let exclude = env::var("EXCLUDE_EXAMPLES")
         .ok()
         .map(|var| var.split(',').map(String::from).collect_vec());
 
@@ -283,6 +294,12 @@ async fn examples() -> Result<()> {
 
         if let Some(include) = include.as_ref()
             && !include.contains(&name)
+        {
+            continue;
+        }
+
+        if let Some(exclude) = exclude.as_ref()
+            && exclude.contains(&name)
         {
             continue;
         }

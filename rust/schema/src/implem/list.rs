@@ -83,6 +83,11 @@ impl MarkdownCodec for List {
         let tight = self.items.iter().all(|item| item.content.len() == 1);
 
         for (index, item) in self.items.iter().enumerate() {
+            // Add indentation for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+
             if ordered {
                 context.push_str(&(index + 1).to_string()).push_str(". ")
             } else {

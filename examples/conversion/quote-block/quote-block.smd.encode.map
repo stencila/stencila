@@ -4,39 +4,39 @@ start     end        offsets   node_type+property                   authorship
      0     21         (0, 0)   Paragraph.content
      0     22         (0, 1)   Paragraph
     23     25        (23, 3)   QuoteBlock
-    28     49        (5, 24)   Text.value
-    28     49         (0, 0)   Text
-    28     49         (0, 0)   Paragraph.content
-    26     53        (-2, 4)   Paragraph
-    26     53         (0, 0)   QuoteBlock.content
+    26     49        (3, 24)   Text.value
+    26     49         (0, 0)   Text
+    26     49         (0, 0)   Paragraph.content
+    26     50         (0, 1)   Paragraph
+    26     53         (0, 3)   QuoteBlock.content
     26     50        (0, -3)   QuoteBlock
-    53     72       (27, 22)   Text.value
-    53     72         (0, 0)   Text
-    53     72         (0, 0)   Paragraph.content
-    51     76        (-2, 4)   Paragraph
-    78     96       (27, 20)   Text.value
-    78     96         (0, 0)   Text
-    78     96         (0, 0)   Paragraph.content
-    76    100        (-2, 4)   Paragraph
-    51    100       (-25, 0)   QuoteBlock.content
+    51     72       (25, 22)   Text.value
+    51     72         (0, 0)   Text
+    51     72         (0, 0)   Paragraph.content
+    51     73         (0, 1)   Paragraph
+    76     96       (25, 23)   Text.value
+    76     96         (0, 0)   Text
+    76     96         (0, 0)   Paragraph.content
+    76     97         (0, 1)   Paragraph
+    51    100       (-25, 3)   QuoteBlock.content
     51     97        (0, -3)   QuoteBlock
-   100    119       (49, 22)   Text.value
-   100    119         (0, 0)   Text
-   100    119         (0, 0)   Paragraph.content
-    98    123        (-2, 4)   Paragraph
-   127    149       (29, 26)   Text.value
-   127    149         (0, 0)   Text
-   127    149         (0, 0)   Paragraph.content
-   123    155        (-4, 6)   Paragraph
-   161    185       (38, 30)   Text.value
-   161    185         (0, 0)   Text
-   161    185         (0, 0)   Paragraph.content
-   155    193        (-6, 8)   Paragraph
-   155    193         (0, 0)   QuoteBlock.content
-   155    186        (0, -7)   QuoteBlock
-   123    187       (-32, 1)   QuoteBlock.content
-   123    186        (0, -1)   QuoteBlock
-    98    187       (-25, 1)   QuoteBlock.content
-    98    186        (0, -1)   QuoteBlock
+    98    119       (47, 22)   Text.value
+    98    119         (0, 0)   Text
+    98    119         (0, 0)   Paragraph.content
+    98    120         (0, 1)   Paragraph
+   123    149       (25, 29)   Text.value
+   123    149         (0, 0)   Text
+   123    149         (0, 0)   Paragraph.content
+   123    150         (0, 1)   Paragraph
+   155    185       (32, 35)   Text.value
+   155    185         (0, 0)   Text
+   155    185         (0, 0)   Paragraph.content
+   155    186         (0, 1)   Paragraph
+   155    193         (0, 7)   QuoteBlock.content
+   155    190        (0, -3)   QuoteBlock
+   123    191       (-32, 1)   QuoteBlock.content
+   123    188        (0, -3)   QuoteBlock
+    98    189       (-25, 1)   QuoteBlock.content
+    98    186        (0, -3)   QuoteBlock
      0    187       (-98, 1)   Article.content
      0    187         (0, 0)   Article

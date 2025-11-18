@@ -214,12 +214,9 @@ impl MarkdownCodec for Table {
             };
 
             if let Some(caption) = &self.caption {
-                context
-                    .increase_depth()
-                    .push_prop_fn(NodeProperty::Caption, |context| {
-                        caption.to_markdown(context)
-                    })
-                    .decrease_depth();
+                context.push_prop_fn(NodeProperty::Caption, |context| {
+                    caption.to_markdown(context)
+                });
             }
 
             encode_rows_to_markdown(&self.rows, context);
@@ -227,9 +224,7 @@ impl MarkdownCodec for Table {
             if let Some(notes) = &self.notes {
                 context
                     .newline()
-                    .increase_depth()
-                    .push_prop_fn(NodeProperty::Notes, |context| notes.to_markdown(context))
-                    .decrease_depth();
+                    .push_prop_fn(NodeProperty::Notes, |context| notes.to_markdown(context));
             }
 
             if wrapped {
@@ -295,6 +290,10 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
 
     // Rows
     let divider_row = |context: &mut MarkdownEncodeContext| {
+        // Add indentation for SMD format
+        if matches!(context.format, Format::Smd) {
+            context.push_indent();
+        }
         context.push_str("|");
         for (width, alignment) in column_widths.iter().zip(column_alignments.iter()) {
             match alignment {
@@ -327,6 +326,10 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
         context.newline();
     };
     let empty_row = |context: &mut MarkdownEncodeContext| {
+        // Add indentation for SMD format
+        if matches!(context.format, Format::Smd) {
+            context.push_indent();
+        }
         context.push_str("|");
         for width in &column_widths {
             context.push_str(&" ".repeat(width + 2)).push_str("|");
@@ -356,6 +359,10 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
         let cells = &rows[row_index];
         for (cell_index, cell) in row.cells.iter().enumerate() {
             if cell_index == 0 {
+                // Add indentation for SMD format
+                if matches!(context.format, Format::Smd) {
+                    context.push_indent();
+                }
                 context.push_str("|");
             }
 
