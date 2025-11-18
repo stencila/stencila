@@ -16,6 +16,7 @@ stencila-cloud = { path = "../cloud" }
 stencila-codec = { path = "../codec" }
 stencila-codec-dom = { path = "../codec-dom" }
 stencila-codec-utils = { path = "../codec-utils" }
+stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 stencila-node-media = { path = "../node-media" }
 tempfile = { workspace = true }

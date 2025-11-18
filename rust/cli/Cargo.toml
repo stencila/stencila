@@ -30,6 +30,7 @@ stencila-cloud = { path = "../cloud" }
 stencila-codec-site = { path = "../codec-site" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-codecs = { path = "../codecs" }
+stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }

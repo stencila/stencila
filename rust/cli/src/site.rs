@@ -1,7 +1,7 @@
 use std::env::current_dir;
 
 use clap::{Args, Parser, Subcommand};
-use eyre::{Result, bail};
+use eyre::{Result, bail, eyre};
 
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
 use stencila_cli_utils::{
@@ -11,9 +11,10 @@ use stencila_cli_utils::{
     tabulated::{Cell, CellAlignment, Color, Tabulated},
 };
 use stencila_cloud::sites::{
-    SiteConfig, delete_site, delete_site_branch, delete_site_domain, ensure_site, get_site,
+    default_site_url, delete_site, delete_site_branch, delete_site_domain, ensure_site, get_site,
     get_site_domain_status, list_site_branches, set_site_domain, update_site_access,
 };
+use stencila_config::{ConfigTarget, config, config_set, config_unset};
 
 /// Manage the workspace site
 #[derive(Debug, Parser)]
@@ -108,9 +109,10 @@ impl Show {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         // Read site config to get site ID
-        let config = match SiteConfig::read(&path).await {
-            Ok(config) => config,
-            Err(_) => {
+        let cfg = config(&path)?;
+        let site = match cfg.site {
+            Some(site) => site,
+            None => {
                 message(
                     cstr!(
                         "No site is enabled for this workspace. To create one, run <b>stencila site create</>"
@@ -120,9 +122,18 @@ impl Show {
                 return Ok(());
             }
         };
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Fetch site details from API
-        let details = get_site(&config.id).await?;
+        let details = get_site(site_id).await?;
+
+        // Sync domain to config
+        if let Some(domain) = &details.domain {
+            config_set("site.domain", domain, ConfigTarget::Nearest)?;
+        } else if site.domain.is_some() {
+            // Domain was removed on cloud, clear it from config
+            config_unset("site.domain", ConfigTarget::Nearest)?;
+        }
 
         // Format ownership info
         let ownership = if details.org_id.is_some() {
@@ -145,10 +156,7 @@ impl Show {
             other => format!("Unknown ({})", other),
         };
 
-        let url = details.domain.as_deref().map_or_else(
-            || config.default_url(),
-            |domain| format!("https://{domain}"),
-        );
+        let url = default_site_url(site_id, details.domain.as_deref());
 
         // Display site information
         let info = format!(
@@ -161,7 +169,7 @@ impl Show {
              Access:         {}\n\
              Access updated: {}",
             url,
-            config.id,
+            site_id,
             details.domain.as_deref().unwrap_or("None"),
             ownership,
             details.created_at,
@@ -200,8 +208,12 @@ impl Create {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        let (config, already_existed) = ensure_site(&path).await?;
-        let url = config.default_url();
+        let (site_id, already_existed) = ensure_site(&path).await?;
+
+        // Get the domain from config (if any)
+        let cfg = config(&path)?;
+        let domain = cfg.site.and_then(|s| s.domain);
+        let url = default_site_url(&site_id, domain.as_deref());
 
         if already_existed {
             message(
@@ -308,9 +320,10 @@ impl Access {
 
         // If no subcommand, show current access mode
         let Some(command) = self.command else {
-            let config = match SiteConfig::read(&path).await {
-                Ok(config) => config,
-                Err(_) => {
+            let cfg = config(&path)?;
+            let site = match cfg.site {
+                Some(site) => site,
+                None => {
                     message(
                         cstr!(
                             "No site is enabled for this workspace. To create one, run <b>stencila site create</>"
@@ -320,8 +333,9 @@ impl Access {
                     return Ok(());
                 }
             };
+            let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
-            let details = get_site(&config.id).await?;
+            let details = get_site(site_id).await?;
 
             let access = match details.access_restriction.as_str() {
                 "public" => "Public",
@@ -373,12 +387,15 @@ impl AccessPublic {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let domain = site.domain.as_deref();
 
-        update_site_access(&config.id, Some("public"), None, None).await?;
+        update_site_access(site_id, Some("public"), None, None).await?;
 
         message(
-            &format!("Site {} switched to public access", config.default_url()),
+            &format!("Site {} switched to public access", default_site_url(site_id, domain)),
             Some("✅"),
         );
 
@@ -418,7 +435,10 @@ impl AccessPassword {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let domain = site.domain.as_deref();
 
         // Set password_for_main based on the flag
         let access_restrict_main = if self.not_main {
@@ -430,7 +450,7 @@ impl AccessPassword {
         // First, try to switch to password mode without prompting for password
         // This will succeed if a password hash already exists in the database
         let result =
-            update_site_access(&config.id, Some("password"), None, access_restrict_main).await;
+            update_site_access(site_id, Some("password"), None, access_restrict_main).await;
 
         match result {
             Ok(()) => {
@@ -438,7 +458,7 @@ impl AccessPassword {
                 message(
                     &format!(
                         "Site {} switched to password-protected access{}",
-                        config.default_url(),
+                        default_site_url(site_id, domain),
                         if self.not_main {
                             " (excluding main/master branches)"
                         } else {
@@ -461,7 +481,7 @@ impl AccessPassword {
 
                     // Retry with password
                     update_site_access(
-                        &config.id,
+                        site_id,
                         Some("password"),
                         Some(Some(&password)),
                         access_restrict_main,
@@ -471,7 +491,7 @@ impl AccessPassword {
                     message(
                         &format!(
                             "Site {} switched to password-protected access{}",
-                            config.default_url(),
+                            default_site_url(site_id, domain),
                             if self.not_main {
                                 " (excluding main/master branches)"
                             } else {
@@ -533,7 +553,10 @@ impl AccessTeam {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let domain = site.domain.as_deref();
 
         // Determine accessRestrictMain value if flags are provided
         let access_restrict_main = if self.main {
@@ -544,12 +567,12 @@ impl AccessTeam {
             None
         };
 
-        update_site_access(&config.id, Some("auth"), None, access_restrict_main).await?;
+        update_site_access(site_id, Some("auth"), None, access_restrict_main).await?;
 
         message(
             &format!(
                 "Site {} switched to team-only access{}",
-                config.default_url(),
+                default_site_url(site_id, domain),
                 if self.not_main {
                     " (excluding main/master branches)"
                 } else if self.main {
@@ -649,8 +672,10 @@ impl PasswordSet {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        // Read site config to get site ID
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let domain = site.domain.as_deref();
 
         // Prompt for password securely
         let password = ask_for_password(cstr!(
@@ -669,7 +694,7 @@ impl PasswordSet {
 
         // Update password only (preserve current access mode)
         update_site_access(
-            &config.id,
+            site_id,
             None,                  // Don't change access mode
             Some(Some(&password)), // Update password
             access_restrict_main,  // Update main flag if specified
@@ -685,7 +710,7 @@ impl PasswordSet {
         };
 
         message(
-            &format!("Password updated for {}{}", config.default_url(), mode_msg),
+            &format!("Password updated for {}{}", default_site_url(site_id, domain), mode_msg),
             Some("✅"),
         );
 
@@ -718,8 +743,10 @@ impl PasswordClear {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        // Read site config to get site ID
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let domain = site.domain.as_deref();
 
         // Ask for confirmation
         let answer = ask_with(
@@ -741,10 +768,10 @@ impl PasswordClear {
         }
 
         // Call API to clear password (pass Some(None) to explicitly set password to null)
-        update_site_access(&config.id, None, Some(None), None).await?;
+        update_site_access(site_id, None, Some(None), None).await?;
 
         message(
-            &format!("Password cleared from {}", config.default_url()),
+            &format!("Password cleared from {}", default_site_url(site_id, domain)),
             Some("✅"),
         );
 
@@ -875,11 +902,15 @@ impl DomainSet {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        // Read site config to get site ID
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Set the domain via API
-        let response = set_site_domain(&config.id, &self.domain).await?;
+        let response = set_site_domain(site_id, &self.domain).await?;
+
+        // Sync domain to config
+        config_set("site.domain", &response.domain, ConfigTarget::Nearest)?;
 
         // Display appropriate message and instructions based on status
         match response.status.as_str() {
@@ -895,7 +926,7 @@ impl DomainSet {
                         2. Wait for DNS propagation (usually 5-30 minutes)\n\n\
                         3. Check status with: `stencila site domain status`\n\n\
                         Once the CNAME is detected, SSL will be provisioned automatically and your site will go live.",
-                        response.domain, config.id, cname_instructions
+                        response.domain, site_id, cname_instructions
                     ),
                     Some("⏳"),
                 );
@@ -976,11 +1007,12 @@ impl DomainStatus {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        // Read site config to get site ID
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Get domain status
-        let status = get_site_domain_status(&config.id).await?;
+        let status = get_site_domain_status(site_id).await?;
 
         if !status.configured {
             message("No custom domain is configured for this site", Some("ℹ️"));
@@ -1047,11 +1079,12 @@ impl DomainClear {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        // Read site config to get site ID
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Check if a domain is configured before prompting
-        let status = get_site_domain_status(&config.id).await?;
+        let status = get_site_domain_status(site_id).await?;
         if !status.configured {
             message("No custom domain is configured for this site", Some("ℹ️"));
             return Ok(());
@@ -1077,10 +1110,13 @@ impl DomainClear {
         }
 
         // Call API to clear domain
-        delete_site_domain(&config.id).await?;
+        delete_site_domain(site_id).await?;
+
+        // Clear domain from config
+        config_unset("site.domain", ConfigTarget::Nearest)?;
 
         message(
-            &format!("Custom domain removed from site {}", config.default_url()),
+            &format!("Custom domain removed from site {}", default_site_url(site_id, None)),
             Some("✅"),
         );
 
@@ -1149,11 +1185,13 @@ impl BranchList {
     pub async fn run(self) -> Result<()> {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
-        // Read site config to get site ID
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let domain = site.domain.as_deref();
 
         // Fetch branch list from API
-        let branches = list_site_branches(&config.id).await?;
+        let branches = list_site_branches(site_id).await?;
 
         if branches.is_empty() {
             message(
@@ -1165,7 +1203,7 @@ impl BranchList {
 
         // Display header message
         message(
-            &format!("Deployed branches for site {}:\n", config.default_url()),
+            &format!("Deployed branches for site {}:\n", default_site_url(site_id, domain)),
             None,
         );
 
@@ -1253,8 +1291,9 @@ impl BranchDelete {
             );
         }
 
-        // Read site config to get site ID
-        let config = SiteConfig::read(&path).await?;
+        let cfg = config(&path)?;
+        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Ask for confirmation unless --force is used
         if !self.force {
@@ -1281,7 +1320,7 @@ impl BranchDelete {
         }
 
         // Call API to delete branch
-        delete_site_branch(&config.id, &self.branch_name).await?;
+        delete_site_branch(site_id, &self.branch_name).await?;
 
         message(
             &format!(

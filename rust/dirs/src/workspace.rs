@@ -10,7 +10,6 @@ use tokio::fs::{create_dir_all, write};
 pub const STENCILA_DIR: &str = ".stencila";
 pub const CONFIG_FILE: &str = "config.yaml";
 pub const DOCS_FILE: &str = "docs.json";
-pub const SITE_FILE: &str = "site.yaml";
 pub const CACHE_DIR: &str = "cache";
 pub const ARTIFACTS_DIR: &str = "artifacts";
 pub const DB_FILE: &str = "db.kuzu";
@@ -77,17 +76,6 @@ pub async fn stencila_docs_file(stencila_dir: &Path, ensure: bool) -> Result<Pat
     }
 
     Ok(tracking_file)
-}
-
-/// Get the path of the `.stencila/site.yaml` file and optionally ensure it exists
-pub async fn stencila_site_file(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let site_file = stencila_dir.join(SITE_FILE);
-
-    if ensure && !site_file.exists() {
-        write(&site_file, "\n").await?;
-    }
-
-    Ok(site_file)
 }
 
 /// Get the path of the `.stencila/cache` directory and optionally ensure it exists
@@ -224,14 +212,6 @@ pub async fn closest_config_file(path: &Path, ensure: bool) -> Result<PathBuf> {
 pub async fn closest_docs_file(path: &Path, ensure: bool) -> Result<PathBuf> {
     let stencila_dir = closest_stencila_dir(path, ensure).await?;
     stencila_docs_file(&stencila_dir, ensure).await
-}
-
-/// Get the path of the closest `.stencila/site.yaml` file to a path
-///
-/// Unless `ensure` is true, the returned path may not exist
-pub async fn closest_site_file(path: &Path, ensure: bool) -> Result<PathBuf> {
-    let stencila_dir = closest_stencila_dir(path, ensure).await?;
-    stencila_site_file(&stencila_dir, ensure).await
 }
 
 /// Get the path of the workspace directory for a given Stencila directory

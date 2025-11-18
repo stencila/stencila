@@ -230,7 +230,7 @@ pub enum Command {
     New(new::Cli),
 
     Init(stencila_document::cli::Init),
-    Config(stencila_document::cli::Config),
+    Config(stencila_config::cli::Cli),
 
     Status(stencila_document::cli::Status),
     Move(stencila_document::cli::Move),

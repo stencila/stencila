@@ -5,12 +5,11 @@ use futures::future::try_join_all;
 use tempfile::TempDir;
 use url::Url;
 
-use stencila_cloud::sites::{
-    SiteConfig, ensure_site, last_modified, reconcile_prefix, upload_file,
-};
+use stencila_cloud::sites::{ensure_site, last_modified, reconcile_prefix, upload_file};
 use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
 use stencila_codec_dom::DomCodec;
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
+use stencila_config::RouteConfig;
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 /// Determine the URL route for a document file
@@ -25,7 +24,7 @@ use stencila_dirs::{closest_stencila_dir, workspace_dir};
 pub fn determine_route(
     file_path: &Path,
     workspace_dir: &Path,
-    config: &SiteConfig,
+    routes: &Option<Vec<RouteConfig>>,
 ) -> Result<String> {
     // Get path relative to project root
     let file_path = file_path.canonicalize()?;
@@ -38,11 +37,11 @@ pub fn determine_route(
     })?;
 
     // Normalize path separators to forward slashes for consistent comparison
-    // (route overrides in site.yaml use forward slashes)
+    // (route overrides use forward slashes)
     let rel_path_str = rel_path.to_string_lossy().replace('\\', "/");
 
     // Check route overrides first
-    if let Some(routes) = &config.routes {
+    if let Some(routes) = routes {
         for route in routes {
             if let Some(file) = &route.file
                 && rel_path_str == file.as_str()
@@ -160,8 +159,7 @@ pub async fn push(
     let workspace_dir = workspace_dir(&stencila_dir)?;
 
     // Ensure site configuration exists
-    let (site_config, _) = ensure_site(&start_path).await?;
-    let site_id = &site_config.id;
+    let (site_id, _) = ensure_site(&start_path).await?;
 
     // Get branch slug
     let branch_name = get_current_branch(Some(&start_path)).unwrap_or_else(|| "main".to_string());
@@ -202,7 +200,9 @@ pub async fn push(
 
     // Determine route based on doc_path or fallback to title-based heuristic
     let route = if let Some(path) = path {
-        determine_route(path, &workspace_dir, &site_config)?
+        // Get config to check for route overrides
+        let cfg = stencila_config::config(&workspace_dir)?;
+        determine_route(path, &workspace_dir, &cfg.routes)?
     } else if let Some(title) = title {
         // Fallback: use a simple heuristic based on title
         let cleaned = title.trim_end_matches(|c: char| !c.is_alphanumeric());
@@ -242,7 +242,7 @@ pub async fn push(
 
         if !media_files.is_empty() {
             let upload_futures = media_files.iter().map(|(storage_path, file_path)| {
-                upload_file(site_id, &branch_slug, storage_path, file_path)
+                upload_file(&site_id, &branch_slug, storage_path, file_path)
             });
             try_join_all(upload_futures).await?;
         }
@@ -261,10 +261,10 @@ pub async fn push(
     };
 
     // Upload HTML
-    upload_file(site_id, &branch_slug, &storage_path, &temp_html).await?;
+    upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
 
     // Reconcile media files at this route to clean up orphaned files
-    reconcile_prefix(site_id, &branch_slug, &media_prefix, current_media_files).await?;
+    reconcile_prefix(&site_id, &branch_slug, &media_prefix, current_media_files).await?;
 
     // Return the site URL with the route
     Ok(Url::parse(&format!("{base_url}{route}"))?)
