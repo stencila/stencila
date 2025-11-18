@@ -522,7 +522,6 @@ repository:
   if-block:
     patterns:
       - include: "#if-block.sql"
-      - include: "#if-block.cypher"
       - include: "#if-block.no-lang"
 
   if-block.sql:
@@ -537,19 +536,6 @@ repository:
             end: $
             contentName: meta.embedded.language.sql
             include: source.sql
-
-  if-block.cypher:
-    name: meta.stencila.if-block.cypher
-    match: ^\s*(:{3,})\s*(if|elif)\s+((MATCH|match)\s*.*)$
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # if
-      "3": # code
-        patterns:
-          - begin: .*
-            end: $
-            contentName: meta.embedded.language.cypher
-            include: source.cypher
 
   if-block.no-lang:
     name: meta.stencila.if-block
@@ -582,7 +568,6 @@ repository:
   for-block:
     patterns:
       - include: "#for-block.sql"
-      - include: "#for-block.cypher"
       - include: "#for-block.no-lang"
 
   for-block.sql:
@@ -599,21 +584,6 @@ repository:
             end: $
             contentName: meta.embedded.language.sql
             include: source.sql
-
-  for-block.cypher:
-    name: meta.stencila.for-block.cypher
-    match: ^\s*(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+((MATCH|match)\s*.*)$
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # for
-      "3": { name: variable.name } # variable
-      "4": { name: keyword.control.stencila } # in
-      "5": # code
-        patterns:
-          - begin: .*
-            end: $
-            contentName: meta.embedded.language.cypher
-            include: source.cypher
 
   for-block.no-lang:
     name: meta.stencila.for-block.no-lang
