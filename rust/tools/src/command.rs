@@ -176,7 +176,7 @@ impl ToolCommand {
 
             if !is_installed(tool.as_ref()) {
                 bail!(
-                    "{name_ver} is required for this operation but is not installed and cannot be auto-installed. Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"
+                    "`{name_ver}` is required for this operation but is not installed and cannot be auto-installed. Please install {name_ver} (e.g. using *stencila tools install {name}*) and try again"
                 );
             }
         }
@@ -408,7 +408,7 @@ impl AsyncToolCommand {
                 }
             } else {
                 bail!(format!(
-                    "Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"
+                    "Please install `{name_ver}` (e.g. using *stencila tools install {name}*) and try again"
                 ));
             }
         }

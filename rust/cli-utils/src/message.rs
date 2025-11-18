@@ -42,7 +42,45 @@ pub fn message(message: &str, icon: Option<&str>) {
     }
 }
 
-/// Add color to backticked content and URLs
+/// Colorize angle-bracket-enclosed words (e.g., <domain>) in green
+fn colorize_angle_brackets(content: &str) -> String {
+    let mut result = String::new();
+    let mut chars = content.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if ch == '<' {
+            // Found opening angle bracket, look for closing bracket
+            let mut word = String::new();
+            let mut found_closing = false;
+
+            for inner_ch in chars.by_ref() {
+                if inner_ch == '>' {
+                    found_closing = true;
+                    break;
+                }
+                word.push(inner_ch);
+            }
+
+            // Only colorize if it's a single word (no spaces) and not empty
+            if found_closing && !word.is_empty() && !word.contains(char::is_whitespace) {
+                // Reset blue, add green coloring for the angle-bracketed word, then restore blue
+                result.push_str(&format!("\x1b[0m\x1b[92m<{word}>\x1b[0m\x1b[94m"));
+            } else {
+                // Not a valid pattern, keep original
+                result.push('<');
+                result.push_str(&word);
+                if found_closing {
+                    result.push('>');
+                }
+            }
+        } else {
+            result.push(ch);
+        }
+    }
+    result
+}
+
+/// Add color to backticked content, asterisk pairs, and URLs
 fn colorize_message(message: &str) -> String {
     let mut result = String::new();
     let mut chars = message.chars().peekable();
@@ -70,6 +108,32 @@ fn colorize_message(message: &str) -> String {
                 result.push_str(&content);
                 if found_closing {
                     result.push('`');
+                }
+            }
+        } else if ch == '*' {
+            // Found opening asterisk, look for closing asterisk
+            let mut content = String::new();
+            let mut found_closing = false;
+
+            for inner_ch in chars.by_ref() {
+                if inner_ch == '*' {
+                    found_closing = true;
+                    break;
+                }
+                content.push(inner_ch);
+            }
+
+            if found_closing && !content.is_empty() {
+                // Process content to color angle-bracket-enclosed words green
+                let colored_content = colorize_angle_brackets(&content);
+                // Add blue coloring around the content (angle brackets will override)
+                result.push_str(&format!("\x1b[94m{colored_content}\x1b[0m"));
+            } else {
+                // No closing asterisk found or empty content, keep original
+                result.push('*');
+                result.push_str(&content);
+                if found_closing {
+                    result.push('*');
                 }
             }
         } else if ch == 'h' {
@@ -229,5 +293,78 @@ mod tests {
         let input = "The word http does not start a URL";
         let output = colorize_message(input);
         assert_eq!(output, input, "Non-URL content should remain unchanged");
+    }
+
+    #[test]
+    fn test_colorize_asterisks() {
+        let input = "This is *important* text";
+        let output = colorize_message(input);
+        assert!(
+            output.contains("\x1b[94mimportant\x1b[0m"),
+            "Asterisk-wrapped content should be colored blue"
+        );
+    }
+
+    #[test]
+    fn test_colorize_unclosed_asterisks() {
+        let input = "Unclosed *asterisk";
+        let output = colorize_message(input);
+        assert_eq!(
+            output, "Unclosed *asterisk",
+            "Unclosed asterisks should remain unchanged"
+        );
+    }
+
+    #[test]
+    fn test_colorize_mixed_backticks_and_asterisks() {
+        let input = "Use `command` for *emphasis*";
+        let output = colorize_message(input);
+        assert!(
+            output.contains("\x1b[38;5;208mcommand\x1b[0m"),
+            "Backticked content should be colored orange"
+        );
+        assert!(
+            output.contains("\x1b[94memphasis\x1b[0m"),
+            "Asterisk-wrapped content should be colored blue"
+        );
+    }
+
+    #[test]
+    fn test_colorize_angle_brackets_in_asterisks() {
+        let input = "*stencila site domain set <domain>*";
+        let output = colorize_message(input);
+        assert!(
+            output.contains("\x1b[92m<domain>\x1b[0m"),
+            "Angle-bracketed arguments should be colored green"
+        );
+        assert!(
+            output.contains("\x1b[94m"),
+            "Non-argument content should be colored blue"
+        );
+    }
+
+    #[test]
+    fn test_colorize_multiple_angle_brackets() {
+        let input = "*command <arg1> and <arg2>*";
+        let output = colorize_message(input);
+        assert!(
+            output.contains("\x1b[92m<arg1>\x1b[0m"),
+            "First argument should be colored green"
+        );
+        assert!(
+            output.contains("\x1b[92m<arg2>\x1b[0m"),
+            "Second argument should be colored green"
+        );
+    }
+
+    #[test]
+    fn test_colorize_angle_brackets_with_spaces() {
+        let input = "*text <not a word>*";
+        let output = colorize_message(input);
+        // Angle brackets with spaces should not be specially colored
+        assert!(
+            !output.contains("\x1b[92m<not a word>\x1b[0m"),
+            "Angle brackets with spaces should not be specially colored"
+        );
     }
 }

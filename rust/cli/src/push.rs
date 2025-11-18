@@ -518,7 +518,7 @@ impl Cli {
         let tracking_entries = Document::tracking_all(&cwd).await?;
 
         let Some(entries) = tracking_entries else {
-            bail!("No tracked files found. Use `stencila status` to see tracked files.");
+            bail!("No tracked files found. Use *stencila status* to see tracked files.");
         };
 
         // Filter to only files with remotes

@@ -924,7 +924,7 @@ impl DomainSet {
                         To complete setup:\n\n\
                         1. {}\n\n\
                         2. Wait for DNS propagation (usually 5-30 minutes)\n\n\
-                        3. Check status with: `stencila site domain status`\n\n\
+                        3. Check status with: *stencila site domain status*\n\n\
                         Once the CNAME is detected, SSL will be provisioned automatically and your site will go live.",
                         response.domain, site_id, cname_instructions
                     ),
@@ -942,7 +942,7 @@ impl DomainSet {
                 if let Some(true) = response.cname_configured {
                     message(
                         "\nCNAME record detected! SSL certificate is being provisioned...\n\n\
-                        Check status with: `stencila site domain status`",
+                        Check status with: *stencila site domain status*",
                         None,
                     );
                 } else {
@@ -953,7 +953,7 @@ impl DomainSet {
                         &format!(
                             "\nTo complete setup:\n\n\
                             1. {}\n\n\
-                            2. Monitor progress with: `stencila site domain status`",
+                            2. Monitor progress with: *stencila site domain status*",
                             cname_instructions
                         ),
                         None,
@@ -968,7 +968,7 @@ impl DomainSet {
             }
             "failed" => {
                 bail!(
-                    "Domain setup failed for `{}`. Run `stencila site domain status` for details.",
+                    "Domain setup failed for `{}`. Run *stencila site domain status* for details.",
                     response.domain
                 );
             }

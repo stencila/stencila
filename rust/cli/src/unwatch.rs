@@ -164,7 +164,7 @@ impl Cli {
         // Success message
         message(
             &format!(
-                "Stopped watching `{path_display}` (link to remote remains, see `stencila status`)"
+                "Stopped watching `{path_display}` (link to remote remains, see *stencila status*)"
             ),
             None,
         );

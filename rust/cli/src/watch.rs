@@ -87,7 +87,7 @@ impl Cli {
         let no_remotes = || {
             message(
                 &format!(
-                    "File `{path_display}` has no remotes to watch yet. Please push the document to a remote first e.g. `stencila push {path_display} gdoc`"
+                    "File `{path_display}` has no remotes to watch yet. Please push the document to a remote first e.g. *stencila push {path_display} gdoc*"
                 ),
                 Some("⚠️ "),
             );

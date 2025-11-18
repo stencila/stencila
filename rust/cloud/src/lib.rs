@@ -212,7 +212,7 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
 /// Get an authenticated client for the Stencila Cloud API
 pub async fn client() -> Result<Client> {
     let Some(token) = api_token() else {
-        bail!("Please `stencila signin` first and try again.")
+        bail!("Please *stencila signin* first and try again.")
     };
 
     let client = Client::builder()

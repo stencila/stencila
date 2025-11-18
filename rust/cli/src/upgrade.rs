@@ -26,7 +26,7 @@ use tokio::{
 use tracing;
 use zip::ZipArchive;
 
-use stencila_cli_utils::color_print::cstr;
+use stencila_cli_utils::{color_print::cstr, message};
 use stencila_dirs::{DirType, get_app_dir};
 use stencila_version::{STENCILA_USER_AGENT, STENCILA_VERSION};
 
@@ -109,7 +109,7 @@ pub fn check(force: bool) -> JoinHandle<Option<String>> {
 #[allow(clippy::print_stderr)]
 pub fn notify() {
     if UPGRADE_AVAILABLE.load(Ordering::SeqCst) {
-        eprintln!("🎂 A newer version is available. Get it using `stencila upgrade`");
+        message!("🎂 A newer version is available. Get it using *stencila upgrade*");
     }
 }
 

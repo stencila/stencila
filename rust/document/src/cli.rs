@@ -841,20 +841,20 @@ impl Status {
 
             if seen_statuses.contains(&Ahead) {
                 parts.push(cstr!(
-                    "<cyan>Ahead</>: run `stencila pull` to merge remote changes into local."
+                    "<cyan>Ahead</>: run *stencila pull <<file>>* to merge remote changes into local."
                 ));
             }
             if seen_statuses.contains(&Behind) {
                 parts.push(cstr!(
-                    "<yellow>Behind</>: run `stencila push` to upload local changes to remote."
+                    "<yellow>Behind</>: run *stencila push <<file>>* to upload local changes to remote."
                 ));
             }
             if seen_statuses.contains(&Diverged) {
-                parts.push(cstr!("<magenta>Diverged</>: run `stencila pull` to create a local branch and merge remote changes."));
+                parts.push(cstr!("<magenta>Diverged</>: run *stencila pull <<file>>* to create a local branch and merge remote changes."));
             }
             if seen_statuses.contains(&Deleted) {
                 parts.push(cstr!(
-                    "<red>Deleted</>: run `stencila untrack` to stop tracking deleted file."
+                    "<red>Deleted</>: run *stencila untrack <<file>>* to stop tracking deleted file."
                 ));
             }
 
