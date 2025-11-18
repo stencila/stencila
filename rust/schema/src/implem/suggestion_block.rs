@@ -71,11 +71,9 @@ impl MarkdownCodec for SuggestionBlock {
 
                 context
                     .push_str("\n\n")
-                    .increase_depth()
                     .push_prop_fn(NodeProperty::Content, |context| {
                         self.content.to_markdown(context)
-                    })
-                    .decrease_depth();
+                    });
 
                 if self.content.len() > 1 {
                     context.push_colons().newline();

@@ -157,9 +157,20 @@ impl MarkdownEncodeContext {
         self
     }
 
+    /// Push indentation corresponding to the current depth onto the content
+    pub fn push_indent(&mut self) -> &mut Self {
+        self.content.push_str(&" ".repeat(self.depth * 4));
+        self
+    }
+
     /// Push the colons for a fenced div onto the content
     pub fn push_colons(&mut self) -> &mut Self {
-        self.content.push_str(&":".repeat(3 + self.depth * 2));
+        if matches!(self.format, Format::Smd) {
+            self.push_indent();
+            self.content.push_str(":::");
+        } else {
+            self.content.push_str(&":".repeat(3 + self.depth * 2));
+        }
         self
     }
 
@@ -214,6 +225,28 @@ impl MarkdownEncodeContext {
             }
         } else {
             value.to_string()
+        };
+
+        // For SMD format, add indentation after newlines when depth > 0
+        let value = if matches!(self.format, Format::Smd) && self.depth > 0 {
+            let indent = " ".repeat(self.depth * 4);
+            // Replace all newlines (that aren't at the end) with newline + indent
+            if value.contains('\n') {
+                let mut result = String::new();
+                let mut chars = value.chars().peekable();
+                while let Some(ch) = chars.next() {
+                    result.push(ch);
+                    // If this is a newline and there's more content after it, add indentation
+                    if ch == '\n' && chars.peek().is_some() {
+                        result.push_str(&indent);
+                    }
+                }
+                result
+            } else {
+                value
+            }
+        } else {
+            value
         };
 
         if let Some(escape) = &self.escape_char {
@@ -390,6 +423,20 @@ impl MarkdownEncodeContext {
     /// Add a single newline to the end of the content
     pub fn newline(&mut self) -> &mut Self {
         self.content.push('\n');
+
+        // Apply line prefixing for empty lines when requested
+        // This is needed for formats like SMD and MyST that use blockquote-style nesting
+        if !self.line_prefix.is_empty() && self.prefix_empty_lines {
+            // Check if the content now ends with an empty line that needs prefixing
+            // (i.e., ends with \n\n where the second \n starts an empty line)
+            if self.content.ends_with("\n\n") {
+                // Remove the last newline, add prefix, then add newline back
+                self.content.pop();
+                self.content.push_str(&self.line_prefix.join(""));
+                self.content.push('\n');
+            }
+        }
+
         self
     }
 

@@ -3,21 +3,21 @@ start     end        offsets   node_type+property                   authorship
     34     76       (16, 44)   Paragraph
      0     81       (-34, 5)   Section
     96    113       (96, 32)   Heading
-   130    146       (34, 33)   Heading
-   165    194       (35, 48)   Heading
-   196    233       (31, 39)   Paragraph
-   148    242       (-48, 9)   Section
-   261    291      (113, 49)   Heading
-   293    331       (32, 40)   Paragraph
-   244    340       (-49, 9)   Section
-   115    347      (-129, 7)   Section
-    83    352       (-32, 5)   Section
-   366    384      (283, 32)   Paragraph
-   354    389       (-12, 5)   Section
-   409    433       (55, 44)   Paragraph
-   391    438       (-18, 5)   Section
-   456    478       (65, 40)   Paragraph
-   440    483       (-16, 5)   Section
-   497    515       (57, 32)   Paragraph
-   485    520       (-12, 5)   Section
-     0    521      (-485, 1)   Article
+   128    144       (32, 31)   Heading
+   159    188       (31, 44)   Heading
+   190    227       (31, 39)   Paragraph
+   146    232       (-44, 5)   Section
+   247    277      (101, 45)   Heading
+   279    317       (32, 40)   Paragraph
+   234    322       (-45, 5)   Section
+   115    327      (-119, 5)   Section
+    83    332       (-32, 5)   Section
+   346    364      (263, 32)   Paragraph
+   334    369       (-12, 5)   Section
+   389    413       (55, 44)   Paragraph
+   371    418       (-18, 5)   Section
+   436    458       (65, 40)   Paragraph
+   420    463       (-16, 5)   Section
+   477    495       (57, 32)   Paragraph
+   465    500       (-12, 5)   Section
+     0    501      (-465, 1)   Article

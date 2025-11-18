@@ -13,11 +13,19 @@ pub fn check(md: &str, _format: &Format) -> Messages {
     let mut dollar_fences = Vec::new();
     for (index, line) in md.lines().enumerate() {
         // Count the number of successive leading colons, backticks, or dollars
+        // First skip any leading whitespace (for indented fences)
         let mut colons = 0;
         let mut backticks = 0;
         let mut dollars = 0;
         let mut trailing_chars = false;
+        let mut skipped_whitespace = false;
         for char in line.chars() {
+            // Skip leading whitespace
+            if !skipped_whitespace && (char == ' ' || char == '\t') {
+                continue;
+            }
+            skipped_whitespace = true;
+
             if char == ':' {
                 if backticks == 0 && dollars == 0 {
                     colons += 1;

@@ -10,27 +10,27 @@ Sections will usually start with a header.
 
 # Nested sections
 
-::::: section
+::: section
 
 ## Inner section
 
-::::::: section
+::: section
 
 ### First inner-inner section
 
 This is the first inner-inner section
 
-:::::::
+:::
 
-::::::: section
+::: section
 
 ### Second inner-inner section
 
 This is the second inner-inner section
 
-:::::::
+:::
 
-:::::
+:::
 
 :::
 

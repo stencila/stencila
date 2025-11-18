@@ -20,7 +20,7 @@
     "derive": false
   },
   "markdown": {
-    "template": "{{content}}\\n\\n"
+    "derive": false
   },
   "proptest": {},
   "required": [

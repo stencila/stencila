@@ -37,7 +37,6 @@ repository:
       - include: "#styled-block"
       - include: "#chat"
       - include: "#chat-message"
-      - include: "#raw_block"
       - include: "#link-def"
       - include: "#table"
       - include: "#paragraph"
@@ -89,10 +88,10 @@ repository:
 
   math-block:
     name: meta.stencila.math-block
-    begin: ^(\$\$)$
+    begin: ^\s*(\$\$)$
     beginCaptures:
       "1": { name: markup.heading } # $$
-    end: ^(\$\$)$
+    end: ^\s*(\$\$)$
     endCaptures:
       "1": { name: markup.heading } # $$
     patterns:
@@ -122,7 +121,7 @@ repository:
     name: meta.stencila.code-block.LANG_NAME
     begin: >
       (?x)
-      ^
+      ^\s*
         (`{3,})
         \s*
         (LANG_ALIASES)
@@ -135,7 +134,7 @@ repository:
       "1": { name: markup.heading } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # raw
-    end: ^(`{3,})\s*$
+    end: ^\s*(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
     patterns:
@@ -145,7 +144,7 @@ repository:
     name: meta.stencila.code-block.unknown-lang
     begin: >
       (?x)
-      ^
+      ^\s*
         (`{3,})
         \s*
         (\w*)
@@ -158,7 +157,7 @@ repository:
       "1": { name: markup.heading } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # raw
-    end: ^(`{3,})\s*$
+    end: ^\s*(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
 
@@ -174,7 +173,7 @@ repository:
     name: meta.stencila.code-chunk.LANG_NAME
     begin: >
       (?x)
-      ^
+      ^\s*
         (`{3,})
         \s*
         (LANG_ALIASES)
@@ -198,7 +197,7 @@ repository:
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
       "4": { name: keyword.control.stencila } # keywords
-    end: ^(`{3,})\s*$
+    end: ^\s*(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
     patterns:
@@ -219,7 +218,7 @@ repository:
     name: meta.stencila.code-chunk.unknown-lang
     begin: >
       (?x)
-      ^
+      ^\s*
         (`{3,})
         \s*
         (\w+)
@@ -243,7 +242,7 @@ repository:
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
       "4": { name: keyword.control.stencila } # keywords
-    end: ^(`{3,})\s*$
+    end: ^\s*(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
 
@@ -251,7 +250,7 @@ repository:
     name: meta.stencila.code-chunk.no-lang
     begin: >
       (?x)
-      ^
+      ^\s*
         (`{3,})
         \s*
         (exec)
@@ -272,7 +271,7 @@ repository:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: keyword.control.stencila } # exec
       "3": { name: keyword.control.stencila } # keywords
-    end: ^(`{3,})\s*$
+    end: ^\s*(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading.stencila } # backticks
 
@@ -282,7 +281,7 @@ repository:
     name: meta.stencila.instruction-block
     match: >
       (?x)
-      ^
+      ^\s*
         (:{3,})\s*
         (?:
           (create|edit|fix|describe)\b
@@ -362,7 +361,7 @@ repository:
     name: meta.stencila.chat
     match: >
       (?x)
-      ^
+      ^\s*
         (/)\s*
         (create|edit|fix|describe|discuss)\b
         (?:
@@ -407,7 +406,7 @@ repository:
     name: meta.stencila.chat-message
     match: >
       (?x)
-      ^
+      ^\s*
         (:{3,})
         \s*
         (msg)\/(system|user|model|group)
@@ -428,7 +427,7 @@ repository:
     name: meta.stencila.suggestion-block
     match: >
       (?x)
-      ^
+      ^\s*
         (:{3,})
         \s*
         (suggest)
@@ -468,7 +467,7 @@ repository:
     name: meta.stencila.prompt-block
     match: >
       (?x)
-      ^
+      ^\s*
         (:{3,})\s*
         (prompt)
         (?:
@@ -502,7 +501,7 @@ repository:
 
   include-block:
     name: meta.stencila.include-block
-    match: ^(:{3,})\s*(include)\s+(.*)$
+    match: ^\s*(:{3,})\s*(include)\s+(.*)$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # include
@@ -512,7 +511,7 @@ repository:
 
   call-block:
     name: meta.stencila.call-block
-    match: ^(:{3,})\s*(call)\s+(.*)$
+    match: ^\s*(:{3,})\s*(call)\s+(.*)$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # include
@@ -523,12 +522,11 @@ repository:
   if-block:
     patterns:
       - include: "#if-block.sql"
-      - include: "#if-block.cypher"
       - include: "#if-block.no-lang"
 
   if-block.sql:
     name: meta.stencila.if-block.sql
-    match: ^(:{3,})\s*(if|elif)\s+((SELECT|select)\s*.*)$
+    match: ^\s*(:{3,})\s*(if|elif)\s+((SELECT|select)\s*.*)$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # if
@@ -539,22 +537,9 @@ repository:
             contentName: meta.embedded.language.sql
             include: source.sql
 
-  if-block.cypher:
-    name: meta.stencila.if-block.cypher
-    match: ^(:{3,})\s*(if|elif)\s+((MATCH|match)\s*.*)$
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # if
-      "3": # code
-        patterns:
-          - begin: .*
-            end: $
-            contentName: meta.embedded.language.cypher
-            include: source.cypher
-
-  if-block-no-lang:
+  if-block.no-lang:
     name: meta.stencila.if-block
-    match: ^(:{3,})\s*(if|elif)\s+(.*)$
+    match: ^\s*(:{3,})\s*(if|elif)\s+(.*)$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # if
@@ -567,14 +552,14 @@ repository:
 
   else-block:
     name: meta.stencila.else-block
-    match: ^(:{3,})\s*(else)\s*$
+    match: ^\s*(:{3,})\s*(else)\s*$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # else
 
   end-block:
     name: meta.stencila.end-block
-    match: ^(:{3,})\s*$
+    match: ^\s*(:{3,})\s*$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
 
@@ -583,12 +568,11 @@ repository:
   for-block:
     patterns:
       - include: "#for-block.sql"
-      - include: "#for-block.cypher"
       - include: "#for-block.no-lang"
 
   for-block.sql:
     name: meta.stencila.for-block.sql
-    match: ^(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+((SELECT|select)\s*.*)$
+    match: ^\s*(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+((SELECT|select)\s*.*)$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # for
@@ -601,24 +585,9 @@ repository:
             contentName: meta.embedded.language.sql
             include: source.sql
 
-  for-block.cypher:
-    name: meta.stencila.for-block.cypher
-    match: ^(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+((MATCH|match)\s*.*)$
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # for
-      "3": { name: variable.name } # variable
-      "4": { name: keyword.control.stencila } # in
-      "5": # code
-        patterns:
-          - begin: .*
-            end: $
-            contentName: meta.embedded.language.cypher
-            include: source.cypher
-
   for-block.no-lang:
     name: meta.stencila.for-block.no-lang
-    match: ^(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+(.*)$
+    match: ^\s*(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+(.*)$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # for
@@ -637,7 +606,7 @@ repository:
     name: meta.stencila.figure-block
     match: >
       (?x)
-      ^
+      ^\s*
         (:{3,})
         \s*
         (figure)
@@ -653,7 +622,7 @@ repository:
     name: meta.stencila.table-block
     match: >
       (?x)
-      ^
+      ^\s*
         (:{3,})
         \s*
         (table)
@@ -671,7 +640,7 @@ repository:
     name: meta.stencila.styled-block
     match: >
       (?x)
-      ^
+      ^\s*
         (:{3,})
         \s*
         (style)
@@ -904,14 +873,6 @@ repository:
           - { include: "#block" }
           - { include: "#list_paragraph" }
         while: ((^|\G)([ ]{2,4}|\t))|(^[ \t]*$)
-
-  raw_block:
-    {
-      begin: '(^|\G)([ ]{4}|\t)',
-      name: markup.raw.block.markdown,
-      while: '(^|\G)([
-        ]{4}|\t)',
-    }
 
   separator:
     {

@@ -27,19 +27,39 @@ impl MarkdownCodec for QuoteBlock {
             .merge_losses(lost_options!(self, id, source));
 
         if self.content.is_empty() {
-            context.push_str(">");
+            // Add indentation for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+            context.push_str(">").newline();
         } else {
+            // For SMD format, include indentation in the line prefix
+            let prefix = if matches!(context.format, Format::Smd) {
+                [&" ".repeat(context.depth * 4), "> "].concat()
+            } else {
+                "> ".to_string()
+            };
+
             context
-                .push_line_prefix("> ")
+                .push_line_prefix(&prefix)
                 .prefix_empty_lines(true)
                 .push_prop_fn(NodeProperty::Content, |context| {
                     self.content.to_markdown(context)
-                })
-                .trim_end_matches(|char| char == '\n' || char == ' ' || char == '>')
-                .prefix_empty_lines(false)
-                .pop_line_prefix();
+                });
+
+            // Clean up trailing prefix if the content ends with an empty prefixed line
+            // Only remove the specific prefix we added, not parent prefixes
+            let trailing_pattern = format!("{}\n", prefix);
+            if context.content.ends_with(&trailing_pattern) {
+                for _ in 0..trailing_pattern.len() {
+                    context.content.pop();
+                }
+                // Don't add newline back here - the subsequent newline() calls will handle spacing
+            }
+
+            context.prefix_empty_lines(false).pop_line_prefix();
         }
 
-        context.newline().exit_node().newline();
+        context.exit_node().newline();
     }
 }

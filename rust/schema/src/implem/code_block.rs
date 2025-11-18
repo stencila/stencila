@@ -66,6 +66,11 @@ impl MarkdownCodec for CodeBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
+        // Add indentation for SMD format
+        if matches!(context.format, Format::Smd) {
+            context.push_indent();
+        }
+
         let backticks = context.enclosing_backticks(&self.code);
         context.push_str(&backticks);
 
@@ -79,6 +84,11 @@ impl MarkdownCodec for CodeBlock {
 
         if !self.code.ends_with('\n') {
             context.newline();
+        }
+
+        // Add indentation before closing fence for SMD format
+        if matches!(context.format, Format::Smd) {
+            context.push_indent();
         }
 
         context.push_str(&backticks).newline().exit_node().newline();

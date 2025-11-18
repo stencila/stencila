@@ -159,19 +159,41 @@ impl MarkdownCodec for MathBlock {
             .to_lowercase();
 
         if lang == "tex" || lang == "latex" || lang == "math" {
+            // Add indentation for opening fence for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+
             context
                 .push_str("$$\n")
                 .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
-                .push_str(if self.code.ends_with('\n') { "" } else { "\n" })
-                .push_str("$$");
+                .push_str(if self.code.ends_with('\n') { "" } else { "\n" });
+
+            // Add indentation for closing fence for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+
+            context.push_str("$$");
         } else {
+            // Add indentation for opening fence for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+
             context
                 .push_str("```")
                 .push_prop_str(NodeProperty::MathLanguage, &lang)
                 .newline()
                 .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
-                .push_str(if self.code.ends_with('\n') { "" } else { "\n" })
-                .push_str("```");
+                .push_str(if self.code.ends_with('\n') { "" } else { "\n" });
+
+            // Add indentation for closing fence for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+
+            context.push_str("```");
         }
 
         context.newline().exit_node().newline();

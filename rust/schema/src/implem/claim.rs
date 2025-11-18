@@ -49,11 +49,9 @@ impl MarkdownCodec for Claim {
 
             context
                 .push_str("\n\n")
-                .increase_depth()
                 .push_prop_fn(NodeProperty::Content, |context| {
                     self.content.to_markdown(context)
                 })
-                .decrease_depth()
                 .push_colons()
                 .newline()
                 .exit_node()

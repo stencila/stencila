@@ -89,6 +89,7 @@ mod table;
 mod table_cell;
 mod table_row;
 mod text;
+mod thematic_break;
 mod thing;
 mod time;
 mod timestamp;

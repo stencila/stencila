@@ -19,7 +19,7 @@
     "elem": "hr"
   },
   "markdown": {
-    "template": "***\\n\\n"
+    "derive": false
   },
   "proptest": {},
   "required": [

@@ -15,3 +15,20 @@ impl LatexCodec for Paragraph {
             .newline();
     }
 }
+
+impl MarkdownCodec for Paragraph {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if matches!(context.format, Format::Smd) {
+            context.push_indent();
+        }
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
+            .newline()
+            .exit_node()
+            .newline();
+    }
+}

@@ -19,10 +19,10 @@ start     end        offsets   node_type+property                   authorship
    159    175         (0, 0)   Text
    159    175         (0, 0)   Paragraph.content
    159    176         (0, 1)   Paragraph
-   181    198       (22, 22)   Text.value
-   181    198         (0, 0)   Text
-   181    198         (0, 0)   Paragraph.content
-   177    199        (-4, 1)   Paragraph
+   177    198       (18, 22)   Text.value
+   177    198         (0, 0)   Text
+   177    198         (0, 0)   Paragraph.content
+   177    199         (0, 1)   Paragraph
    153    199       (-24, 0)   Note
    206    218       (53, 19)   Text.value
    206    218         (0, 0)   Text
@@ -30,11 +30,11 @@ start     end        offsets   node_type+property                   authorship
    206    219         (0, 1)   Paragraph
    228    244       (22, 25)   CodeBlock.code
    220    253        (-8, 9)   CodeBlock
-   260    273       (40, 20)   Text.value
-   260    273         (0, 0)   Text
-   260    273         (0, 0)   Paragraph.content
-   254    281        (-6, 8)   Paragraph
-   254    281         (0, 0)   QuoteBlock.content
-   254    274        (0, -7)   QuoteBlock
-   200    274       (-54, 0)   Note
-     0    275      (-200, 1)   Article
+   254    273       (34, 20)   Text.value
+   254    273         (0, 0)   Text
+   254    273         (0, 0)   Paragraph.content
+   254    274         (0, 1)   Paragraph
+   254    281         (0, 7)   QuoteBlock.content
+   254    278        (0, -3)   QuoteBlock
+   200    279       (-54, 1)   Note
+     0    279      (-200, 0)   Article
