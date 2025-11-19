@@ -3,7 +3,9 @@ use std::path::Path;
 use clap::ValueEnum;
 use url::Url;
 
-use stencila_codec::{eyre::Result, stencila_format::Format, stencila_schema::Node};
+use stencila_codec::{
+    PushDryRunOptions, PushResult, eyre::Result, stencila_format::Format, stencila_schema::Node,
+};
 
 /// Remote document services
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -97,11 +99,12 @@ impl RemoteService {
         path: Option<&Path>,
         title: Option<&str>,
         url: Option<&Url>,
-    ) -> Result<Url> {
+        dry_run: Option<PushDryRunOptions>,
+    ) -> Result<PushResult> {
         match self {
-            Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url).await,
-            Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url).await,
-            Self::StencilaSites => stencila_codec_site::push(node, path, title, url).await,
+            Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url, dry_run).await,
+            Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url, dry_run).await,
+            Self::StencilaSites => stencila_codec_site::push(node, path, title, url, dry_run).await,
         }
     }
 

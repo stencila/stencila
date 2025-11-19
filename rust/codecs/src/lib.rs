@@ -22,8 +22,8 @@ use stencila_codec::stencila_schema::{
 pub use stencila_codec::{
     CitationStyle, Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo,
     EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
-    PageSelector, PoshMap, Position8, Position16, Positions, Range8, Range16, StructuringOperation,
-    StructuringOptions,
+    PageSelector, PoshMap, Position8, Position16, Positions, PushDryRunFile, PushDryRunOptions,
+    PushResult, Range8, Range16, StructuringOperation, StructuringOptions,
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
 };
@@ -1048,9 +1048,9 @@ async fn check_git_for_merge(path: &Path, commit: &str, other: &Path, force: boo
     Ok(true)
 }
 
-/// Pull a document from a remote service
+/// Push a document to a remote service
 ///
-/// Downloads the document from the remote service and saves it to the specified path.
+/// Uploads the document to the remote service and returns the result.
 #[tracing::instrument(skip(node))]
 pub async fn push(
     service: &remotes::RemoteService,
@@ -1059,8 +1059,9 @@ pub async fn push(
     title: Option<&str>,
     url: Option<&Url>,
     doc_path: Option<&Path>,
-) -> Result<Url> {
-    service.push(node, path, title, url).await
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
+    service.push(node, path, title, url, dry_run).await
 }
 
 /// Pull a document from a remote service and update a local file

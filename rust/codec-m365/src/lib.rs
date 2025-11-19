@@ -20,7 +20,7 @@
 use std::path::{Path, PathBuf};
 
 use chrono::{DateTime, Utc};
-use eyre::{Result, bail};
+use eyre::{Result, bail, eyre};
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use reqwest::Client;
 use serde::Deserialize;
@@ -39,7 +39,9 @@ const ONEDRIVE_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'[')
     .add(b']');
 
-use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
+use stencila_codec::{
+    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_schema::Node,
+};
 use stencila_codec_docx::DocxCodec;
 
 /// Response from Microsoft Graph API when uploading a file
@@ -66,31 +68,36 @@ struct DriveItemMetadata {
 /// This function will obtain a Microsoft access token from Stencila Cloud,
 /// prompting the user to connect their account if necessary.
 ///
-/// Returns the URL of the OneDrive document.
+/// Returns a PushResult with the URL of the OneDrive document.
 pub async fn push(
     node: &Node,
     path: Option<&Path>,
     title: Option<&str>,
     url: Option<&Url>,
-) -> Result<Url> {
-    let access_token = stencila_cloud::get_token("microsoft").await?;
-
-    if let Some(url) = url {
-        // Update existing document by extracting filename from URL
-        let filename = extract_filename(url)?;
-        // Use upload which will overwrite the existing file
-        upload(node, &filename, path, &access_token).await
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
+    // Get access token only if not in dry-run mode
+    let access_token = if dry_run.is_none() {
+        Some(stencila_cloud::get_token("microsoft").await?)
     } else {
-        // Create new document
+        None
+    };
+
+    // Determine filename
+    let filename = if let Some(url) = &url {
+        // Extract filename from existing URL
+        extract_filename(url)?
+    } else {
+        // Create filename from title
         let title = title.unwrap_or("Untitled.docx");
-        // Ensure .docx extension
-        let filename = if title.ends_with(".docx") {
+        if title.ends_with(".docx") {
             title.to_string()
         } else {
-            format!("{title}.docx")
-        };
-        upload(node, &filename, path, &access_token).await
-    }
+            format!("{}.docx", title)
+        }
+    };
+
+    upload(node, &filename, path, access_token.as_deref(), url, dry_run).await
 }
 
 /// Upload a document to OneDrive app folder
@@ -101,8 +108,10 @@ async fn upload(
     node: &Node,
     filename: &str,
     path: Option<&Path>,
-    access_token: &str,
-) -> Result<Url> {
+    access_token: Option<&str>,
+    url: Option<&Url>,
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
     // Export document to DOCX in a temporary file
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
@@ -118,6 +127,44 @@ async fn upload(
             }),
         )
         .await?;
+
+    // Handle dry-run mode
+    if let Some(dry_run_opts) = dry_run {
+        let metadata = tokio::fs::metadata(temp_path).await?;
+        let file_size = metadata.len();
+
+        let local_path = if let Some(output_dir) = &dry_run_opts.output_dir {
+            let dest_path = output_dir.join(filename);
+            tokio::fs::create_dir_all(output_dir).await?;
+            tokio::fs::copy(temp_path, &dest_path).await?;
+            Some(dest_path)
+        } else {
+            None
+        };
+
+        let mock_url = if let Some(existing_url) = url {
+            existing_url.clone()
+        } else {
+            Url::parse("https://onedrive.live.com/...")?
+        };
+
+        let dry_run_file = PushDryRunFile {
+            storage_path: filename.to_string(),
+            local_path,
+            size: file_size,
+            compressed: false,
+            route: None,
+        };
+
+        return Ok(PushResult::DryRun {
+            url: mock_url,
+            files: vec![dry_run_file],
+            output_dir: dry_run_opts.output_dir,
+        });
+    }
+
+    // Normal upload mode - access_token must be present
+    let access_token = access_token.ok_or_else(|| eyre!("Access token required for upload"))?;
 
     // Read the DOCX file
     let docx_bytes = tokio::fs::read(temp_path).await?;
@@ -171,7 +218,7 @@ async fn upload(
     let drive_response: DriveItemResponse = response.json().await?;
     let url = Url::parse(&drive_response.web_url)?;
 
-    Ok(url)
+    Ok(PushResult::Uploaded(url))
 }
 
 /// Pull a document from Microsoft 365 / OneDrive

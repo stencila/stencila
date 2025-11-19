@@ -7,7 +7,7 @@ use url::Url;
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
-use stencila_codecs::remotes::RemoteService;
+use stencila_codecs::{PushResult, remotes::RemoteService};
 use stencila_document::{Document, WatchDirection, WatchPrMode};
 
 /// Push a document to a remote service
@@ -70,6 +70,17 @@ pub struct Cli {
     #[arg(long, value_parser = clap::value_parser!(u64).range(10..=86400), requires = "watch")]
     debounce_seconds: Option<u64>,
 
+    /// Perform a dry run (Stencila Sites only)
+    ///
+    /// Instead of uploading to the remote site, write the generated files
+    /// to a local directory for inspection. If no directory is specified,
+    /// files are generated in memory without being written to disk.
+    ///
+    /// The directory structure mirrors the R2 bucket layout:
+    /// {output_dir}/{site_id}/{branch_slug}/{path}
+    #[arg(long, value_name = "DIR", num_args = 0..=1, default_missing_value = "", conflicts_with = "watch")]
+    dry_run: Option<String>,
+
     /// Arguments to pass to the document for execution
     ///
     /// If provided, the document will be executed with these arguments
@@ -106,15 +117,55 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Force push even if up-to-date (useful for sites)</dim>
   <b>stencila push</> <g>document.smd</> <g>site</> <c>--force</>
+
+  <dim># Perform a dry-run to inspect generated files without uploading</dim>
+  <b>stencila push</> <g>document.smd</> <g>site</> <c>--dry-run=./temp</>
 "
 );
 
+/// Get the display URL for a pushed document
+///
+/// For Stencila Sites, returns the browseable (branch-aware) URL.
+/// For other services, returns the canonical URL.
+fn get_display_url(service: &RemoteService, url: &Url, doc_path: Option<&std::path::Path>) -> Url {
+    if matches!(service, RemoteService::StencilaSites) {
+        stencila_codec_site::browseable_url(url, doc_path).unwrap_or_else(|_| url.clone())
+    } else {
+        url.clone()
+    }
+}
+
 impl Cli {
     pub async fn run(self) -> Result<()> {
+        // Validate and construct dry-run options
+        let dry_run_opts = if let Some(ref dir_str) = self.dry_run {
+            let output_dir = if dir_str.is_empty() {
+                None
+            } else {
+                Some(PathBuf::from(dir_str))
+            };
+            Some(stencila_codecs::PushDryRunOptions {
+                enabled: true,
+                output_dir,
+            })
+        } else {
+            None
+        };
+
+        let is_dry_run = dry_run_opts.is_some();
+
         // Handle pushing all tracked files when no input is provided
         let Some(path) = self.path else {
             return self.push_all().await;
         };
+
+        // Display early dry-run notification
+        if is_dry_run {
+            message(
+                "Performing dry-run, no remotes will actually be created or updated",
+                Some("ℹ️ "),
+            );
+        }
 
         let path_display = path.display();
 
@@ -216,6 +267,13 @@ impl Cli {
 
             // If multiple remotes, push to all of them
             if remotes.len() > 1 {
+                // Validate dry-run is not allowed with multiple remotes
+                if is_dry_run {
+                    bail!(
+                        "Cannot use `--dry-run` when pushing to multiple remotes. Specify a target remote to use dry-run."
+                    );
+                }
+
                 message(
                     &format!(
                         "Pushing `{path_display}` to {} tracked remotes",
@@ -257,21 +315,17 @@ impl Cli {
                         doc.file_name(),
                         Some(&remote_url),
                         doc.path(),
+                        dry_run_opts.clone(),
                     )
                     .await
                     {
-                        Ok(url) => {
+                        Ok(result) => {
+                            let url = result.url();
                             if let Err(e) = doc.track_remote_pushed(url.clone()).await {
                                 errors.push((remote_url, format!("Failed to track remote: {}", e)));
                             } else {
-                                // For Stencila Sites, display browsable URL
                                 let display_url =
-                                    if matches!(remote_service, RemoteService::StencilaSites) {
-                                        stencila_codec_site::browseable_url(&url, doc.path())
-                                            .unwrap_or_else(|_| url.clone())
-                                    } else {
-                                        url.clone()
-                                    };
+                                    get_display_url(&remote_service, &url, doc.path());
                                 message(
                                     &format!("Successfully pushed to {display_url}"),
                                     Some("✅"),
@@ -405,24 +459,78 @@ impl Cli {
         }
 
         // Push to the remote service
-        let url = stencila_codecs::push(
+        let result = stencila_codecs::push(
             &service,
             &doc.root().await,
             doc.path(),
             doc.file_name(),
             existing_url.as_ref(),
             doc.path(),
+            dry_run_opts.clone(),
         )
         .await?;
 
-        // For Stencila Sites, display the browsable (branch-aware) URL but track the canonical URL
-        let display_url = if matches!(service, RemoteService::StencilaSites) {
-            stencila_codec_site::browseable_url(&url, doc.path()).unwrap_or_else(|_| url.clone())
-        } else {
-            url.clone()
+        // Handle the result based on whether it was a dry-run or actual push
+        let url = match result {
+            PushResult::Uploaded(url) => {
+                let display_url = get_display_url(&service, &url, doc.path());
+                message(&format!("Successfully pushed to {display_url}"), Some("✅"));
+                url
+            }
+            PushResult::DryRun {
+                url,
+                files,
+                output_dir,
+            } => {
+                // Display dry-run results
+                let total_size: u64 = files.iter().map(|f| f.size).sum();
+                let compressed_count = files.iter().filter(|f| f.compressed).count();
+
+                message(
+                    &format!(
+                        "Dry-run complete. Would upload {} file(s), total size: {} bytes ({} compressed)",
+                        files.len(),
+                        total_size,
+                        compressed_count
+                    ),
+                    Some("📊"),
+                );
+
+                if let Some(dir) = output_dir {
+                    message(&format!("Files written to: {}", dir.display()), Some("📁"));
+                }
+
+                // Display file list
+                for file in &files {
+                    let compressed_marker = if file.compressed { " (gzipped)" } else { "" };
+                    let route_info = if let Some(route) = &file.route {
+                        format!(" → {}", route)
+                    } else {
+                        String::new()
+                    };
+                    message(
+                        &format!(
+                            "  {}{}{} ({} bytes)",
+                            file.storage_path, compressed_marker, route_info, file.size
+                        ),
+                        Some("  "),
+                    );
+                }
+
+                let display_url = get_display_url(&service, &url, doc.path());
+                message(
+                    &format!("Would be available at: {}", display_url),
+                    Some("🔗"),
+                );
+
+                url
+            }
         };
 
-        message(&format!("Successfully pushed to {display_url}"), Some("✅"));
+        if is_dry_run {
+            // Skip tracking and watching if this is a dry run
+            return Ok(());
+        }
 
         // Track the remote (always use canonical URL for tracking)
         doc.track_remote_pushed(url.clone()).await?;
@@ -509,7 +617,14 @@ impl Cli {
         // Validate watch flag is not allowed with multiple files
         if self.watch {
             bail!(
-                "Cannot use --watch when pushing multiple files. Specify a file path to enable watch."
+                "Cannot use `--watch` when pushing multiple files. Specify a file path to enable watch."
+            );
+        }
+
+        // Validate dry-run flag is not allowed with multiple files
+        if self.dry_run.is_some() {
+            bail!(
+                "Cannot use `--dry-run` when pushing multiple files. Specify a file path to use dry-run."
             );
         }
 
@@ -640,18 +755,13 @@ impl Cli {
                     doc.file_name(),
                     Some(remote_url),
                     doc.path(),
+                    None, // Dry-run not supported in push_all
                 )
                 .await
                 {
-                    Ok(url) => {
-                        // For Stencila Sites, display browsable URL
-                        let display_url = if matches!(remote_service, RemoteService::StencilaSites)
-                        {
-                            stencila_codec_site::browseable_url(&url, doc.path())
-                                .unwrap_or_else(|_| url.clone())
-                        } else {
-                            url.clone()
-                        };
+                    Ok(result) => {
+                        let url = result.url();
+                        let display_url = get_display_url(&remote_service, &url, doc.path());
 
                         if let Err(e) = doc.track_remote_pushed(url.clone()).await {
                             message(

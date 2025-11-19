@@ -24,6 +24,7 @@ stencila-schema = { path = "../schema" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+url = { workspace = true }
 
 [lints]
 workspace = true

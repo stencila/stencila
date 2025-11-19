@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use eyre::{Result, bail, eyre};
 use futures::future::try_join_all;
@@ -7,7 +7,9 @@ use tempfile::TempDir;
 use url::Url;
 
 use stencila_cloud::sites::{ensure_site, last_modified, reconcile_prefix, upload_file};
-use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
+use stencila_codec::{
+    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_schema::Node,
+};
 use stencila_codec_dom::DomCodec;
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 use stencila_config::{Config, RouteConfig};
@@ -198,12 +200,16 @@ fn find_route_config(
 /// Creates and uploads a special `.redirect` file that the Cloudflare Worker
 /// can recognize and handle. The file contains JSON with the redirect URL
 /// and HTTP status code.
+///
+/// Returns information about the generated file if in dry-run mode.
 async fn handle_redirect_route(
     site_id: &str,
     branch_slug: &str,
     route: &str,
     config: &RouteConfig,
-) -> Result<()> {
+    is_dry_run: bool,
+    dry_run_output_dir: &Option<PathBuf>,
+) -> Result<Option<PushDryRunFile>> {
     // Extract redirect URL and status code
     let redirect_url = config
         .redirect
@@ -236,19 +242,50 @@ async fn handle_redirect_route(
     // Write to temp file
     let temp_dir = TempDir::new()?;
     let temp_redirect = temp_dir.path().join("redirect");
-    tokio::fs::write(&temp_redirect, redirect_content.to_string()).await?;
+    let content_str = redirect_content.to_string();
+    tokio::fs::write(&temp_redirect, &content_str).await?;
 
-    // Upload redirect file
-    upload_file(site_id, branch_slug, &storage_path, &temp_redirect).await?;
+    let full_storage_path = format!("{site_id}/{branch_slug}/{storage_path}");
+    let file_size = content_str.len() as u64;
 
-    tracing::info!(
-        "Uploaded redirect from {} to {} (status {})",
-        route,
-        redirect_url,
-        status_code
-    );
+    if is_dry_run {
+        // Dry-run mode: write to local directory if specified
+        let local_path = if let Some(output_dir) = dry_run_output_dir {
+            let dest_path = output_dir.join(&full_storage_path);
+            tokio::fs::create_dir_all(dest_path.parent().unwrap()).await?;
+            tokio::fs::copy(&temp_redirect, &dest_path).await?;
+            Some(dest_path)
+        } else {
+            None
+        };
 
-    Ok(())
+        tracing::info!(
+            "Dry-run: would upload redirect from {} to {} (status {})",
+            route,
+            redirect_url,
+            status_code
+        );
+
+        Ok(Some(PushDryRunFile {
+            storage_path: full_storage_path,
+            local_path,
+            size: file_size,
+            compressed: false,
+            route: Some(route.to_string()),
+        }))
+    } else {
+        // Normal mode: upload to R2
+        upload_file(site_id, branch_slug, &storage_path, &temp_redirect).await?;
+
+        tracing::info!(
+            "Uploaded redirect from {} to {} (status {})",
+            route,
+            redirect_url,
+            status_code
+        );
+
+        Ok(None)
+    }
 }
 
 /// Push a document to a Stencila Site
@@ -256,13 +293,16 @@ async fn handle_redirect_route(
 /// If `url` is provided, updates the existing document at that site.
 /// Otherwise, creates or updates a document in the configured site.
 ///
-/// Returns the URL of the published document on the site.
+/// If `dry_run` is provided, files are generated but not uploaded.
+///
+/// Returns the result of the push operation.
 pub async fn push(
     node: &Node,
     path: Option<&Path>,
     title: Option<&str>,
     url: Option<&Url>,
-) -> Result<Url> {
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
     // Find the workspace root directory
     let start_path = if let Some(path) = path {
         path.to_path_buf()
@@ -275,6 +315,11 @@ pub async fn push(
 
     // Ensure site configuration exists
     let (site_id, _) = ensure_site(&start_path).await?;
+
+    // Initialize dry-run tracking
+    let mut dry_run_files = Vec::new();
+    let is_dry_run = dry_run.as_ref().is_some_and(|opts| opts.enabled);
+    let dry_run_output_dir = dry_run.as_ref().and_then(|opts| opts.output_dir.clone());
 
     // Get branch slug
     let branch_name = get_current_branch(Some(&start_path)).unwrap_or_else(|| "main".to_string());
@@ -337,8 +382,31 @@ pub async fn push(
             && route_config.redirect.is_some()
         {
             // Handle redirect route - upload .redirect file and return early
-            handle_redirect_route(&site_id, &branch_slug, &route, &route_config).await?;
-            return Ok(Url::parse(&format!("{base_url}{route}"))?);
+            let dry_run_file = handle_redirect_route(
+                &site_id,
+                &branch_slug,
+                &route,
+                &route_config,
+                is_dry_run,
+                &dry_run_output_dir,
+            )
+            .await?;
+
+            if let Some(file) = dry_run_file {
+                dry_run_files.push(file);
+            }
+
+            let url = Url::parse(&format!("{base_url}{route}"))?;
+
+            return if is_dry_run {
+                Ok(PushResult::DryRun {
+                    url,
+                    files: dry_run_files,
+                    output_dir: dry_run_output_dir,
+                })
+            } else {
+                Ok(PushResult::Uploaded(url))
+            };
         }
     }
 
@@ -368,10 +436,36 @@ pub async fn push(
         }
 
         if !media_files.is_empty() {
-            let upload_futures = media_files.iter().map(|(storage_path, file_path)| {
-                upload_file(&site_id, &branch_slug, storage_path, file_path)
-            });
-            try_join_all(upload_futures).await?;
+            if is_dry_run {
+                // Dry-run mode: write media files to local directory if specified
+                for (storage_path, file_path) in &media_files {
+                    let full_storage_path = format!("{site_id}/{branch_slug}/{storage_path}");
+                    let metadata = tokio::fs::metadata(file_path).await?;
+
+                    let local_path = if let Some(output_dir) = &dry_run_output_dir {
+                        let dest_path = output_dir.join(&full_storage_path);
+                        tokio::fs::create_dir_all(dest_path.parent().unwrap()).await?;
+                        tokio::fs::copy(file_path, &dest_path).await?;
+                        Some(dest_path)
+                    } else {
+                        None
+                    };
+
+                    dry_run_files.push(PushDryRunFile {
+                        storage_path: full_storage_path,
+                        local_path,
+                        size: metadata.len(),
+                        compressed: false,
+                        route: None,
+                    });
+                }
+            } else {
+                // Normal mode: upload to R2
+                let upload_futures = media_files.iter().map(|(storage_path, file_path)| {
+                    upload_file(&site_id, &branch_slug, storage_path, file_path)
+                });
+                try_join_all(upload_futures).await?;
+            }
         }
     }
 
@@ -387,14 +481,62 @@ pub async fn push(
         format!("{trimmed}/index.html")
     };
 
-    // Upload HTML
-    upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
+    // Upload HTML (with compression)
+    let html_metadata = tokio::fs::metadata(&temp_html).await?;
+    let full_html_path = format!("{site_id}/{branch_slug}/{storage_path}.gz");
 
-    // Reconcile media files at this route to clean up orphaned files
-    reconcile_prefix(&site_id, &branch_slug, &media_prefix, current_media_files).await?;
+    if is_dry_run {
+        // Dry-run mode: write HTML file to local directory if specified
+        // Note: In actual upload, HTML is gzipped, so we simulate that here
+        let local_path = if let Some(output_dir) = &dry_run_output_dir {
+            let dest_path = output_dir.join(&full_html_path);
+            tokio::fs::create_dir_all(dest_path.parent().unwrap()).await?;
 
-    // Return the site URL with the route
-    Ok(Url::parse(&format!("{base_url}{route}"))?)
+            // Compress HTML before writing (matching actual upload behavior)
+            use flate2::Compression;
+            use flate2::write::GzEncoder;
+            use std::io::Write;
+
+            let html_content = tokio::fs::read(&temp_html).await?;
+            let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+            encoder.write_all(&html_content)?;
+            let compressed = encoder.finish()?;
+
+            tokio::fs::write(&dest_path, &compressed).await?;
+            Some(dest_path)
+        } else {
+            None
+        };
+
+        dry_run_files.push(PushDryRunFile {
+            storage_path: full_html_path,
+            local_path,
+            size: html_metadata.len(),
+            compressed: true,
+            route: Some(route.clone()),
+        });
+
+        // Skip reconciliation in dry-run mode
+    } else {
+        // Normal mode: upload to R2
+        upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
+
+        // Reconcile media files at this route to clean up orphaned files
+        reconcile_prefix(&site_id, &branch_slug, &media_prefix, current_media_files).await?;
+    }
+
+    // Return the result
+    let url = Url::parse(&format!("{base_url}{route}"))?;
+
+    if is_dry_run {
+        Ok(PushResult::DryRun {
+            url,
+            files: dry_run_files,
+            output_dir: dry_run_output_dir,
+        })
+    } else {
+        Ok(PushResult::Uploaded(url))
+    }
 }
 
 /// Pull a document from a Stencila Site

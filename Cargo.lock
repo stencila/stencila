@@ -8494,6 +8494,7 @@ dependencies = [
  "strum",
  "tokio",
  "tracing",
+ "url",
 ]
 
 [[package]]

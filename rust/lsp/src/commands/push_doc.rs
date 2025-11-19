@@ -205,10 +205,12 @@ pub(crate) async fn push_doc(
                         doc.file_name(),
                         Some(remote_url),
                         doc.path(),
+                        None, // LSP doesn't support dry-run yet
                     )
                     .await
                     {
-                        Ok(url) => {
+                        Ok(result) => {
+                            let url = result.url();
                             if let Err(error) = doc.track_remote_pushed(url.clone()).await {
                                 failures.push((
                                     remote_url.to_string(),
@@ -312,10 +314,11 @@ pub(crate) async fn push_doc(
         doc.file_name(),
         existing_url.as_ref(),
         doc.path(),
+        None, // LSP doesn't support dry-run yet
     )
     .await
     {
-        Ok(url) => url,
+        Ok(result) => result.url(),
         Err(error) => {
             progress.send((100, None)).ok();
             client

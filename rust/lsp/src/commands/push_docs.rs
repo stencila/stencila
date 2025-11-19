@@ -119,11 +119,12 @@ pub(crate) async fn push_docs(
                 doc.file_name(),
                 Some(remote_url),
                 doc.path(),
+                None, // LSP doesn't support dry-run yet
             )
             .await
             {
-                Ok(url) => {
-                    if doc.track_remote_pushed(url).await.is_ok() {
+                Ok(result) => {
+                    if doc.track_remote_pushed(result.url()).await.is_ok() {
                         total_successes += 1;
                     } else {
                         total_errors += 1;

@@ -7,7 +7,10 @@ use serde::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
 use url::Url;
 
-use stencila_codec::{Codec, EncodeOptions, stencila_format::Format, stencila_schema::Node};
+use stencila_codec::{
+    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_format::Format,
+    stencila_schema::Node,
+};
 use stencila_codec_docx::DocxCodec;
 
 /// Information about a Google Doc
@@ -40,22 +43,28 @@ struct DriveFileMetadata {
 /// This function will obtain a Google Drive access token from Stencila Cloud,
 /// prompting the user to connect their account if necessary.
 ///
-/// Returns the URL of the Google Doc.
+/// Returns a PushResult with the URL of the Google Doc.
 pub async fn push(
     node: &Node,
     path: Option<&Path>,
     title: Option<&str>,
     url: Option<&Url>,
-) -> Result<Url> {
-    let access_token = stencila_cloud::get_token("google").await?;
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
+    // Get access token only if not in dry-run mode
+    let access_token = if dry_run.is_none() {
+        Some(stencila_cloud::get_token("google").await?)
+    } else {
+        None
+    };
 
     if let Some(url) = url {
         // Update existing document
         let doc_id = extract_doc_id(url)?;
-        update(node, path, &access_token, &doc_id).await
+        update(node, path, access_token.as_deref(), &doc_id, dry_run).await
     } else {
         // Create new document
-        upload(node, path, title, &access_token).await
+        upload(node, path, title, access_token.as_deref(), dry_run).await
     }
 }
 
@@ -64,8 +73,9 @@ async fn upload(
     node: &Node,
     path: Option<&Path>,
     title: Option<&str>,
-    access_token: &str,
-) -> Result<Url> {
+    access_token: Option<&str>,
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
     // Export document to DOCX in a temporary file
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
@@ -82,6 +92,42 @@ async fn upload(
             }),
         )
         .await?;
+
+    // Handle dry-run mode
+    if let Some(dry_run_opts) = dry_run {
+        let metadata = tokio::fs::metadata(temp_path).await?;
+        let file_size = metadata.len();
+
+        let filename = format!("{}.docx", title.unwrap_or("Untitled"));
+
+        let local_path = if let Some(output_dir) = &dry_run_opts.output_dir {
+            let dest_path = output_dir.join(&filename);
+            tokio::fs::create_dir_all(output_dir).await?;
+            tokio::fs::copy(temp_path, &dest_path).await?;
+            Some(dest_path)
+        } else {
+            None
+        };
+
+        let mock_url = Url::parse("https://docs.google.com/document/d/...")?;
+
+        let dry_run_file = PushDryRunFile {
+            storage_path: filename,
+            local_path,
+            size: file_size,
+            compressed: false,
+            route: None,
+        };
+
+        return Ok(PushResult::DryRun {
+            url: mock_url,
+            files: vec![dry_run_file],
+            output_dir: dry_run_opts.output_dir,
+        });
+    }
+
+    // Normal upload mode - access_token must be present
+    let access_token = access_token.ok_or_else(|| eyre!("Access token required for upload"))?;
 
     // Read the DOCX file
     let docx_bytes = tokio::fs::read(temp_path).await?;
@@ -129,11 +175,17 @@ async fn upload(
         drive_response.id
     ))?;
 
-    Ok(url)
+    Ok(PushResult::Uploaded(url))
 }
 
 /// Update an existing Google Doc
-async fn update(node: &Node, path: Option<&Path>, access_token: &str, doc_id: &str) -> Result<Url> {
+async fn update(
+    node: &Node,
+    path: Option<&Path>,
+    access_token: Option<&str>,
+    doc_id: &str,
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
     // Export document to DOCX in a temporary file
     let temp_file = NamedTempFile::new()?;
     let temp_path = temp_file.path();
@@ -150,6 +202,42 @@ async fn update(node: &Node, path: Option<&Path>, access_token: &str, doc_id: &s
             }),
         )
         .await?;
+
+    // Handle dry-run mode
+    if let Some(dry_run_opts) = dry_run {
+        let metadata = tokio::fs::metadata(temp_path).await?;
+        let file_size = metadata.len();
+
+        let filename = format!("{}.docx", doc_id);
+
+        let local_path = if let Some(output_dir) = &dry_run_opts.output_dir {
+            let dest_path = output_dir.join(&filename);
+            tokio::fs::create_dir_all(output_dir).await?;
+            tokio::fs::copy(temp_path, &dest_path).await?;
+            Some(dest_path)
+        } else {
+            None
+        };
+
+        let url = Url::parse(&format!("https://docs.google.com/document/d/{doc_id}"))?;
+
+        let dry_run_file = PushDryRunFile {
+            storage_path: filename,
+            local_path,
+            size: file_size,
+            compressed: false,
+            route: None,
+        };
+
+        return Ok(PushResult::DryRun {
+            url,
+            files: vec![dry_run_file],
+            output_dir: dry_run_opts.output_dir,
+        });
+    }
+
+    // Normal update mode - access_token must be present
+    let access_token = access_token.ok_or_else(|| eyre!("Access token required for update"))?;
 
     // Read the DOCX file
     let docx_bytes = tokio::fs::read(temp_path).await?;
@@ -178,7 +266,7 @@ async fn update(node: &Node, path: Option<&Path>, access_token: &str, doc_id: &s
     // Construct Google Docs URL
     let url = Url::parse(&format!("https://docs.google.com/document/d/{doc_id}"))?;
 
-    Ok(url)
+    Ok(PushResult::Uploaded(url))
 }
 
 /// Pull a document from Google Docs

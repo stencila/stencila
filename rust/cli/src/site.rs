@@ -122,7 +122,10 @@ impl Show {
                 return Ok(());
             }
         };
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Fetch site details from API
         let details = get_site(site_id).await?;
@@ -333,7 +336,10 @@ impl Access {
                     return Ok(());
                 }
             };
-            let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+            let site_id = site
+                .id
+                .as_ref()
+                .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
             let details = get_site(site_id).await?;
 
@@ -388,14 +394,22 @@ impl AccessPublic {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
         let domain = site.domain.as_deref();
 
         update_site_access(site_id, Some("public"), None, None).await?;
 
         message(
-            &format!("Site {} switched to public access", default_site_url(site_id, domain)),
+            &format!(
+                "Site {} switched to public access",
+                default_site_url(site_id, domain)
+            ),
             Some("✅"),
         );
 
@@ -436,8 +450,13 @@ impl AccessPassword {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
         let domain = site.domain.as_deref();
 
         // Set password_for_main based on the flag
@@ -554,8 +573,13 @@ impl AccessTeam {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
         let domain = site.domain.as_deref();
 
         // Determine accessRestrictMain value if flags are provided
@@ -673,8 +697,13 @@ impl PasswordSet {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
         let domain = site.domain.as_deref();
 
         // Prompt for password securely
@@ -710,7 +739,11 @@ impl PasswordSet {
         };
 
         message(
-            &format!("Password updated for {}{}", default_site_url(site_id, domain), mode_msg),
+            &format!(
+                "Password updated for {}{}",
+                default_site_url(site_id, domain),
+                mode_msg
+            ),
             Some("✅"),
         );
 
@@ -744,8 +777,13 @@ impl PasswordClear {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
         let domain = site.domain.as_deref();
 
         // Ask for confirmation
@@ -771,7 +809,10 @@ impl PasswordClear {
         update_site_access(site_id, None, Some(None), None).await?;
 
         message(
-            &format!("Password cleared from {}", default_site_url(site_id, domain)),
+            &format!(
+                "Password cleared from {}",
+                default_site_url(site_id, domain)
+            ),
             Some("✅"),
         );
 
@@ -903,8 +944,13 @@ impl DomainSet {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Set the domain via API
         let response = set_site_domain(site_id, &self.domain).await?;
@@ -1008,8 +1054,13 @@ impl DomainStatus {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Get domain status
         let status = get_site_domain_status(site_id).await?;
@@ -1080,8 +1131,13 @@ impl DomainClear {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Check if a domain is configured before prompting
         let status = get_site_domain_status(site_id).await?;
@@ -1116,7 +1172,10 @@ impl DomainClear {
         config_unset("site.domain", ConfigTarget::Nearest)?;
 
         message(
-            &format!("Custom domain removed from site {}", default_site_url(site_id, None)),
+            &format!(
+                "Custom domain removed from site {}",
+                default_site_url(site_id, None)
+            ),
             Some("✅"),
         );
 
@@ -1186,8 +1245,13 @@ impl BranchList {
         let path = self.path.map_or_else(current_dir, Ok)?;
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
         let domain = site.domain.as_deref();
 
         // Fetch branch list from API
@@ -1203,7 +1267,10 @@ impl BranchList {
 
         // Display header message
         message(
-            &format!("Deployed branches for site {}:\n", default_site_url(site_id, domain)),
+            &format!(
+                "Deployed branches for site {}:\n",
+                default_site_url(site_id, domain)
+            ),
             None,
         );
 
@@ -1292,8 +1359,13 @@ impl BranchDelete {
         }
 
         let cfg = config(&path)?;
-        let site = cfg.site.ok_or_else(|| eyre!("No site configured for this workspace"))?;
-        let site_id = site.id.as_ref().ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        let site = cfg
+            .site
+            .ok_or_else(|| eyre!("No site configured for this workspace"))?;
+        let site_id = site
+            .id
+            .as_ref()
+            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
 
         // Ask for confirmation unless --force is used
         if !self.force {
