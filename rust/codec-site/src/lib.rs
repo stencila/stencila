@@ -2,6 +2,7 @@ use std::path::Path;
 
 use eyre::{Result, bail, eyre};
 use futures::future::try_join_all;
+use serde_json::json;
 use tempfile::TempDir;
 use url::Url;
 
@@ -9,7 +10,7 @@ use stencila_cloud::sites::{ensure_site, last_modified, reconcile_prefix, upload
 use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
 use stencila_codec_dom::DomCodec;
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
-use stencila_config::RouteConfig;
+use stencila_config::{Config, RouteConfig};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 /// Determine the URL route for a document file
@@ -21,18 +22,29 @@ use stencila_dirs::{closest_stencila_dir, workspace_dir};
 /// - Index files (`index.*`, `main.*`, `README.*`) → `/`
 /// - Subdirectories are preserved: `docs/report.md` → `/docs/report/`
 /// - All routes end with trailing slash
-pub fn determine_route(
-    file_path: &Path,
-    workspace_dir: &Path,
-    routes: &Option<Vec<RouteConfig>>,
-) -> Result<String> {
-    // Get path relative to project root
+///
+/// # Site root:
+/// - If `config.site.root` is set, routes are calculated relative to that directory
+/// - Otherwise, routes are relative to the workspace directory
+pub fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) -> Result<String> {
+    // Determine the base directory for route calculation
+    // If site.root is configured, resolve it relative to the workspace directory
+    // (in the future, this could be enhanced to resolve relative to the config file)
+    let base_dir = if let Some(site) = &config.site
+        && let Some(root) = &site.root
+    {
+        root.resolve(workspace_dir)
+    } else {
+        workspace_dir.to_path_buf()
+    };
+
+    // Get path relative to base directory
     let file_path = file_path.canonicalize()?;
-    let rel_path = file_path.strip_prefix(workspace_dir).map_err(|_| {
+    let rel_path = file_path.strip_prefix(&base_dir).map_err(|_| {
         eyre!(
-            "File path {} is not within project directory {}",
+            "File path {} is not within site root {}",
             file_path.display(),
-            workspace_dir.display()
+            base_dir.display()
         )
     })?;
 
@@ -41,7 +53,7 @@ pub fn determine_route(
     let rel_path_str = rel_path.to_string_lossy().replace('\\', "/");
 
     // Check route overrides first
-    if let Some(routes) = routes {
+    if let Some(routes) = &config.routes {
         for route in routes {
             if let Some(file) = &route.file
                 && rel_path_str == file.as_str()
@@ -136,6 +148,109 @@ pub fn browseable_url(canonical: &Url, path: Option<&Path>) -> Result<Url> {
     Ok(browseable)
 }
 
+/// Find the route configuration for a given file path
+///
+/// Searches through the config routes to find a matching route based on the file path.
+/// Returns the matching RouteConfig if found.
+fn find_route_config(
+    file_path: Option<&Path>,
+    workspace_dir: &Path,
+    config: &Config,
+) -> Result<Option<RouteConfig>> {
+    let Some(path) = file_path else {
+        return Ok(None);
+    };
+
+    let file_path = path.canonicalize()?;
+    let base_dir = if let Some(site) = &config.site
+        && let Some(root) = &site.root
+    {
+        root.resolve(workspace_dir)
+    } else {
+        workspace_dir.to_path_buf()
+    };
+
+    let rel_path = file_path.strip_prefix(&base_dir).map_err(|_| {
+        eyre!(
+            "File path {} is not within site root {}",
+            file_path.display(),
+            base_dir.display()
+        )
+    })?;
+
+    let rel_path_str = rel_path.to_string_lossy().replace('\\', "/");
+
+    if let Some(routes) = &config.routes {
+        for route in routes {
+            if let Some(file) = &route.file
+                && rel_path_str == file.as_str()
+            {
+                return Ok(Some(route.clone()));
+            }
+        }
+    }
+
+    Ok(None)
+}
+
+/// Handle uploading a redirect route
+///
+/// Creates and uploads a special `.redirect` file that the Cloudflare Worker
+/// can recognize and handle. The file contains JSON with the redirect URL
+/// and HTTP status code.
+async fn handle_redirect_route(
+    site_id: &str,
+    branch_slug: &str,
+    route: &str,
+    config: &RouteConfig,
+) -> Result<()> {
+    // Extract redirect URL and status code
+    let redirect_url = config
+        .redirect
+        .as_ref()
+        .ok_or_else(|| eyre!("Route has no redirect URL"))?;
+    let status_code = config.status.unwrap_or(302); // Default to 302 temporary redirect
+
+    // Validate status code is appropriate for redirects
+    if ![301, 302, 303, 307, 308].contains(&status_code) {
+        bail!(
+            "Invalid redirect status code: {}. Must be 301, 302, 303, 307, or 308",
+            status_code
+        );
+    }
+
+    // Calculate storage path
+    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
+    let storage_path = if trimmed.is_empty() {
+        ".redirect".to_string()
+    } else {
+        format!("{trimmed}/.redirect")
+    };
+
+    // Create redirect file content (JSON format)
+    let redirect_content = json!({
+        "redirect": redirect_url,
+        "status": status_code
+    });
+
+    // Write to temp file
+    let temp_dir = TempDir::new()?;
+    let temp_redirect = temp_dir.path().join("redirect");
+    tokio::fs::write(&temp_redirect, redirect_content.to_string()).await?;
+
+    // Upload redirect file
+    upload_file(site_id, branch_slug, &storage_path, &temp_redirect).await?;
+
+    tracing::info!(
+        "Uploaded redirect from {} to {} (status {})",
+        route,
+        redirect_url,
+        status_code
+    );
+
+    Ok(())
+}
+
 /// Push a document to a Stencila Site
 ///
 /// If `url` is provided, updates the existing document at that site.
@@ -200,9 +315,9 @@ pub async fn push(
 
     // Determine route based on doc_path or fallback to title-based heuristic
     let route = if let Some(path) = path {
-        // Get config to check for route overrides
+        // Get config to check for route overrides and site.root
         let cfg = stencila_config::config(&workspace_dir)?;
-        determine_route(path, &workspace_dir, &cfg.routes)?
+        determine_route(path, &workspace_dir, &cfg)?
     } else if let Some(title) = title {
         // Fallback: use a simple heuristic based on title
         let cleaned = title.trim_end_matches(|c: char| !c.is_alphanumeric());
@@ -214,6 +329,18 @@ pub async fn push(
     } else {
         "/document/".to_string()
     };
+
+    // Check if this route has a redirect configured
+    if let Some(path) = path {
+        let cfg = stencila_config::config(&workspace_dir)?;
+        if let Some(route_config) = find_route_config(Some(path), &workspace_dir, &cfg)?
+            && route_config.redirect.is_some()
+        {
+            // Handle redirect route - upload .redirect file and return early
+            handle_redirect_route(&site_id, &branch_slug, &route, &route_config).await?;
+            return Ok(Url::parse(&format!("{base_url}{route}"))?);
+        }
+    }
 
     // Calculate media prefix for this route
     let trimmed = route.trim_start_matches('/').trim_end_matches('/');

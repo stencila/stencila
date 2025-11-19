@@ -148,7 +148,10 @@ fn test_config_missing_files_ok() -> Result<()> {
     let cfg = config_isolated(temp_dir.path())?;
 
     // Should succeed with an empty config (all fields None)
-    assert!(cfg.site.is_none(), "Config should be empty when no config files exist");
+    assert!(
+        cfg.site.is_none(),
+        "Config should be empty when no config files exist"
+    );
 
     Ok(())
 }

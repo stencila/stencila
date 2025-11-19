@@ -6,8 +6,8 @@ use std::{
 use eyre::{Result, eyre};
 use figment::{
     Figment,
-    providers::Serialized,
-    value::{Map, Value},
+    providers::{Format, Yaml},
+    value::Value,
 };
 
 /// Normalize a path, handling both files and directories
@@ -135,34 +135,10 @@ pub(crate) fn build_figment(path: &Path, include_user_config: bool) -> Result<Fi
 
         tracing::debug!("Loading config from: {}", config_path.display());
 
-        // Try to read and parse this config file individually
-        match fs::read_to_string(config_path) {
-            Ok(contents) => {
-                // Try to parse the YAML
-                match serde_yaml::from_str::<Map<String, Value>>(&contents) {
-                    Ok(data) => {
-                        // Successfully parsed - merge into figment
-                        figment = figment.merge(Serialized::defaults(data));
-                    }
-                    Err(error) => {
-                        // Malformed YAML - log warning and skip
-                        tracing::warn!(
-                            "Skipping malformed config file {}: {}",
-                            config_path.display(),
-                            error
-                        );
-                    }
-                }
-            }
-            Err(error) => {
-                // File read error - log warning and skip
-                tracing::warn!(
-                    "Failed to read config file {}: {}",
-                    config_path.display(),
-                    error
-                );
-            }
-        }
+        // Use Yaml::file() provider to load config with metadata tracking
+        // This enables RelativePathBuf to resolve paths relative to the config file
+        // Note: With Yaml::file(), parse errors are deferred until extraction time
+        figment = figment.merge(Yaml::file(config_path));
     }
 
     Ok(figment)

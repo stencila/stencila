@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use eyre::{Result, eyre};
 use schemars::JsonSchema;
@@ -13,6 +13,27 @@ pub mod cli;
 
 #[cfg(test)]
 mod tests;
+
+/// A path that is resolved relative to the configuration file it was defined in
+///
+/// This wrapper provides JsonSchema implementation and stores paths as strings.
+/// The paths will be resolved relative to the config file directory during use.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(transparent)]
+#[serde(transparent)]
+pub struct ConfigRelativePath(pub String);
+
+impl ConfigRelativePath {
+    /// Get the path string as originally specified in the config
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+
+    /// Resolve the path relative to a base directory
+    pub fn resolve(&self, base_dir: &Path) -> PathBuf {
+        base_dir.join(&self.0)
+    }
+}
 
 /// Resolve a configuration at a path
 ///
@@ -33,7 +54,16 @@ mod tests;
 /// constructed or if path normalization fails.
 pub fn config(path: &Path) -> Result<Config> {
     let figment = build_figment(path, true)?;
-    figment.extract().map_err(|error| eyre!("{error}"))
+    let config: Config = figment.extract().map_err(|error| eyre!("{error}"))?;
+
+    // Validate all route configurations
+    if let Some(routes) = &config.routes {
+        for route in routes {
+            route.validate()?;
+        }
+    }
+
+    Ok(config)
 }
 
 /// A configuration key that is managed by a specific command
@@ -96,21 +126,103 @@ pub struct SiteConfig {
     /// when site details are fetched or the domain is modified.
     /// The canonical source is the Stencila Cloud API.
     pub domain: Option<String>,
+
+    /// Root directory for site content
+    ///
+    /// Path relative to the config file containing this setting.
+    /// When set, only files within this directory will be published
+    /// to the site, and routes will be calculated relative to this
+    /// directory rather than the workspace root.
+    ///
+    /// Example: If set to "docs" in /myproject/stencila.yaml,
+    /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
+    pub root: Option<ConfigRelativePath>,
 }
 
 /// A route configuration for a site
+///
+/// Routes allow you to customize how URLs map to files, create redirects,
+/// or serve specific files at custom paths. They are evaluated in order,
+/// with earlier routes taking precedence over later ones.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct RouteConfig {
-    /// The path pattern for this route
+    /// The URL path pattern for this route
+    ///
+    /// Must start with `/` and typically ends with `/` for directory-like routes.
+    /// This is the URL path that will be matched against incoming requests.
+    ///
+    /// Examples:
+    /// - `/about/` - Matches exactly `/about/`
+    /// - `/docs/guide/` - Matches exactly `/docs/guide/`
     pub path: String,
 
     /// The file to serve for this route
-    pub file: Option<String>,
+    ///
+    /// Path relative to the workspace directory (or `site.root` if configured).
+    /// When a request matches this route's `path`, the specified file will be served.
+    ///
+    /// Cannot be used together with `redirect`. Either specify a `file` to serve
+    /// content, or a `redirect` to redirect to another URL.
+    ///
+    /// Examples:
+    /// - `"README.md"` - Serves the README from the workspace root
+    /// - `"docs/overview.ipynb"` - Serves a specific document
+    pub file: Option<ConfigRelativePath>,
 
     /// A redirect URL for this route
+    ///
+    /// When a request matches this route's `path`, the user will be redirected
+    /// to this URL. Can be an absolute URL or a relative path.
+    ///
+    /// Cannot be used together with `file`. Use `status` to control the redirect
+    /// type (301 for permanent, 302 for temporary, etc.).
+    ///
+    /// Examples:
+    /// - `"/new-location/"` - Redirect to another path on the same site
+    /// - `"https://example.com"` - Redirect to an external URL
     pub redirect: Option<String>,
 
     /// HTTP status code for this route
+    ///
+    /// Controls the HTTP status code returned for this route. Common values:
+    /// - `200` - OK (default for file routes)
+    /// - `301` - Moved Permanently (permanent redirect)
+    /// - `302` - Found (temporary redirect, default for redirects)
+    /// - `404` - Not Found
+    ///
+    /// When used with `redirect`, determines whether the redirect is permanent (301)
+    /// or temporary (302). When used with `file`, can be used to serve custom error pages.
     pub status: Option<u16>,
+}
+
+impl RouteConfig {
+    /// Validate the route configuration
+    ///
+    /// Ensures that:
+    /// - `file` and `redirect` are mutually exclusive
+    /// - If `redirect` is set, `status` (if provided) is a valid redirect code
+    pub fn validate(&self) -> Result<()> {
+        // Check that file and redirect are mutually exclusive
+        if self.file.is_some() && self.redirect.is_some() {
+            return Err(eyre!(
+                "Route '{}' cannot have both 'file' and 'redirect' set. They are mutually exclusive.",
+                self.path
+            ));
+        }
+
+        // Validate redirect status codes
+        if self.redirect.is_some()
+            && let Some(status) = self.status
+            && ![301, 302, 303, 307, 308].contains(&status)
+        {
+            return Err(eyre!(
+                "Route '{}' has invalid redirect status code {}. Must be 301, 302, 303, 307, or 308.",
+                self.path,
+                status
+            ));
+        }
+
+        Ok(())
+    }
 }
