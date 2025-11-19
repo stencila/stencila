@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stencila Config",
+  "description": "Configuration for Stencila workspaces",
+  "type": "object",
+  "properties": {
+    "site": {
+      "description": "Site configuration",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/SiteConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "routes": {
+      "description": "Custom routes for serving content\n\nRoutes can be used by both remote sites (e.g., stencila.site) and\nlocal development servers to map URL paths to files or redirects.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/RouteConfig"
+      }
+    }
+  },
+  "definitions": {
+    "SiteConfig": {
+      "description": "Configuration for a site",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id of the Stencila Site\n\nEight characters, lowercase letters or digits, returned by\nStencila Cloud when a site is created.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "domain": {
+          "description": "Custom domain for the site\n\nThis is a cached value that is kept in sync with Stencila Cloud\nwhen site details are fetched or the domain is modified.\nThe canonical source is the Stencila Cloud API.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "RouteConfig": {
+      "description": "A route configuration for a site",
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "The path pattern for this route",
+          "type": "string"
+        },
+        "file": {
+          "description": "The file to serve for this route",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "redirect": {
+          "description": "A redirect URL for this route",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "description": "HTTP status code for this route",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint16",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      },
+      "required": [
+        "path"
+      ]
+    }
+  },
+  "$id": "https://stencila.org/stencila-config.schema.json"
+}

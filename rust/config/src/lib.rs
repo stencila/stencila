@@ -1,14 +1,14 @@
 use std::path::Path;
 
 use eyre::{Result, eyre};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 mod utils;
-use serde_with::skip_serializing_none;
 use utils::build_figment;
 pub use utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file};
 
-#[cfg(feature = "cli")]
 pub mod cli;
 
 #[cfg(test)]
@@ -68,7 +68,7 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 
 /// Stencila configuration
 #[skip_serializing_none]
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct Config {
     /// Site configuration
     pub site: Option<SiteConfig>,
@@ -82,7 +82,7 @@ pub struct Config {
 
 /// Configuration for a site
 #[skip_serializing_none]
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct SiteConfig {
     /// The id of the Stencila Site
     ///
@@ -100,7 +100,7 @@ pub struct SiteConfig {
 
 /// A route configuration for a site
 #[skip_serializing_none]
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct RouteConfig {
     /// The path pattern for this route
     pub path: String,

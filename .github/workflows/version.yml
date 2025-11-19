@@ -24,3 +24,6 @@ jobs:
 
       - name: Trigger Web distribution publishing workflow
         run: gh workflow run release-web.yml -f tag=${{ github.ref_name }}
+
+      - name: Trigger SchemaStore publishing workflow
+        run: gh workflow run release-schemastore.yml -f tag=${{ github.ref_name }}

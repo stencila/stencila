@@ -3,24 +3,19 @@ name = "stencila-config"
 edition = "2024"
 version.workspace = true
 
-[features]
-default = ["cli"]
-cli = ["dep:clap", "dep:stencila-cli-utils", "dep:stencila-format"]
-
 [dependencies]
+clap = { workspace = true }
 eyre = { workspace = true }
 figment = { version = "0.10.19", features = ["yaml"] }
+schemars = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
 serde_yaml = { workspace = true }
-stencila-dirs = { path = "../dirs"}
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-dirs = { path = "../dirs" }
+stencila-format = { path = "../format" }
 tracing = { workspace = true }
-
-# CLI dependencies
-clap = { workspace = true, optional = true }
-stencila-cli-utils = { path = "../cli-utils", optional = true }
-stencila-format = { path = "../format", optional = true }
 
 [dev-dependencies]
 serial_test = "3.2.0"

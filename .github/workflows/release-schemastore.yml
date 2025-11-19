@@ -1,0 +1,115 @@
+# Workflow for publishing Stencila Config schema to SchemaStore
+#
+# Prerequisites:
+# - A fork of SchemaStore/schemastore must exist at stencila/schemastore
+# - The GITHUB_TOKEN must have permission to push to stencila/schemastore
+#
+# This workflow:
+# 1. Syncs the Stencila fork with upstream SchemaStore/schemastore
+# 2. Creates a branch and updates the catalog entry
+# 3. Pushes to the Stencila fork
+# 4. Creates a PR from stencila/schemastore to SchemaStore/schemastore
+
+name: Release SchemaStore
+
+on:
+  # Allow this workflow to be triggered by the `version.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/release-schemastore.yml
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to create the PR for e.g. v2.1.0
+        type: string
+        required: true
+
+jobs:
+  publish-schemastore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Stencila repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Checkout Stencila fork of SchemaStore
+        uses: actions/checkout@v4
+        with:
+          repository: stencila/schemastore
+          path: schemastore
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config --global user.name "stencila[bot]"
+          git config --global user.email "47797644+stencila[bot]@users.noreply.github.com"
+
+      - name: Sync fork with upstream and create branch
+        run: |
+          cd schemastore
+          git remote add upstream https://github.com/SchemaStore/schemastore.git
+          git fetch upstream
+          git checkout -b stencila-config-${{ inputs.tag }} upstream/main
+
+      - name: Update SchemaStore catalog
+        run: |
+          cd schemastore
+
+          # Check if entry already exists
+          if grep -q "stencila-config.schema.json" src/api/json/catalog.json; then
+            echo "Entry already exists, updating URL..."
+            # Update existing entry (in case we need to change the URL structure)
+            sed -i 's|"url": "https://stencila.org/[^"]*stencila-config.schema.json"|"url": "https://stencila.org/stencila-config.schema.json"|g' src/api/json/catalog.json
+          else
+            echo "Adding new entry to catalog..."
+            # Add new entry to catalog.json
+            # This uses jq to insert the new entry in the schemas array
+            jq '.schemas += [{
+              "name": "Stencila Config",
+              "description": "Configuration for Stencila workspaces",
+              "fileMatch": ["stencila.yaml", "stencila.*.yaml", ".stencila.yaml"],
+              "url": "https://stencila.org/stencila-config.schema.json"
+            }]' src/api/json/catalog.json > catalog.tmp.json
+            mv catalog.tmp.json src/api/json/catalog.json
+          fi
+
+      - name: Commit and push changes
+        id: commit
+        run: |
+          cd schemastore
+          git add src/api/json/catalog.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "Add/update Stencila Config schema (${{ inputs.tag }})"
+            git push origin stencila-config-${{ inputs.tag }}
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.commit.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd schemastore
+          gh pr create \
+            --repo SchemaStore/schemastore \
+            --title "Add/update Stencila Config schema" \
+            --body "This PR adds/updates the JSON Schema catalog entry for Stencila configuration files.
+
+          **Schema URL:** https://stencila.org/stencila-config.schema.json
+          **File patterns:** \`stencila.yaml\`, \`stencila.*.yaml\`, \`.stencila.yaml\`
+
+          The schema is automatically generated from the Rust types in the [Stencila repository](https://github.com/stencila/stencila) and published at stencila.org.
+
+          This PR was automatically created by the Stencila release workflow for version ${{ inputs.tag }}." \
+            --base main \
+            --head stencila:stencila-config-${{ inputs.tag }}
+
+      - name: Output result
+        run: |
+          if [ "${{ steps.commit.outputs.has_changes }}" == "true" ]; then
+            echo "✅ Pull request created successfully"
+          else
+            echo "ℹ️ No changes needed - catalog entry is up to date"
+          fi

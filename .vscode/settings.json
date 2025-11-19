@@ -16,6 +16,7 @@
     },
     "yaml.schemas": {
         "json/meta.schema.json": "schema/*.yaml",
+        "json/stencila-config.schema.json": ["stencila.yaml", "stencila.*.yaml"],
         "https://json.schemastore.org/tmlanguage.json": "vscode/syntaxes/smd.tmGrammar.yaml"
     },
     "cSpell.words": [
