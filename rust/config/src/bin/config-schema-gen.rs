@@ -37,7 +37,5 @@ fn main() -> Result<()> {
     let json = serde_json::to_string_pretty(&schema_value)?;
     std::fs::write(&output_path, json)?;
 
-    eprintln!("Generated JSON Schema at {}", output_path.display());
-
     Ok(())
 }

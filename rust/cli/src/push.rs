@@ -384,7 +384,7 @@ impl Cli {
             let remote_infos = get_remotes_for_path(&path, None).await?;
             if remote_infos.is_empty() {
                 bail!(
-                    "No remotes configured for `{path_display}`. Add remotes to stencila.yaml or specify a service (gdoc/m365/site) to push to.",
+                    "No remotes configured for `{path_display}`. Add remotes to stencila.toml or specify a service (gdoc/m365/site) to push to.",
                 );
             }
 
@@ -567,7 +567,7 @@ impl Cli {
         if existing_url.is_none() {
             message(
                 &format!(
-                    "New {} remote for `{path_display}` (add to stencila.yaml to track)",
+                    "New {} remote for `{path_display}` (add to stencila.toml to track)",
                     service.display_name()
                 ),
                 Some("💾"),
@@ -611,7 +611,7 @@ impl Cli {
             };
             let response = create_watch(request).await?;
 
-            // Update stencila.yaml with watch ID
+            // Update stencila.toml with watch ID
             stencila_config::config_update_remote_watch(
                 &path,
                 url.as_ref(),
@@ -664,7 +664,7 @@ impl Cli {
 
         let Some(remotes_config) = config.remotes else {
             bail!(
-                "No remotes configured in `stencila.yaml`. Add remotes to the config file to push."
+                "No remotes configured in `stencila.toml`. Add remotes to the config file to push."
             );
         };
 
@@ -703,7 +703,7 @@ impl Cli {
 
         if files_with_remotes.is_empty() {
             bail!(
-                "No files found with configured remotes. Check that paths in stencila.yaml exist."
+                "No files found with configured remotes. Check that paths in stencila.toml exist."
             );
         }
 

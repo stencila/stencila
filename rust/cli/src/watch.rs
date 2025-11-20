@@ -204,7 +204,7 @@ impl Cli {
         // Call Cloud API to create watch
         let response = create_watch(request).await?;
 
-        // Update stencila.yaml with watch ID
+        // Update stencila.toml with watch ID
         config_update_remote_watch(
             &self.path,
             remote_info.url.as_ref(),

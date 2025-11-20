@@ -232,7 +232,7 @@ pub(crate) async fn watch_doc(
         }
     };
 
-    // Store watch ID in stencila.yaml config
+    // Store watch ID in stencila.toml config
     progress
         .send((80, Some("updating config".to_string())))
         .ok();

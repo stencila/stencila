@@ -11,11 +11,11 @@
 //!
 //! Remote information is combined from two sources:
 //!
-//! 1. **`stencila.yaml`**: Configuration (paths, URLs, watch IDs)
+//! 1. **`stencila.toml`**: Configuration (paths, URLs, watch IDs)
 //! 2. **`.stencila/remotes.json`**: Tracking timestamps (pulled_at, pushed_at)
 //!
 //! ```text
-//! stencila.yaml          .stencila/remotes.json
+//! stencila.toml          .stencila/remotes.json
 //! (config + watch)       (timestamps)
 //!       \                      /
 //!        \                    /
@@ -60,9 +60,9 @@ pub type RemoteEntries = BTreeMap<PathBuf, BTreeMap<Url, RemoteInfo>>;
 /// Remote information combining config and tracking data
 ///
 /// This unified type contains all information about a remote:
-/// - Configuration from stencila.yaml (url, path, etc.)
+/// - Configuration from stencila.toml (url, path, etc.)
 /// - Tracking timestamps from .stencila/remotes.json
-/// - Watch configuration from stencila.yaml
+/// - Watch configuration from stencila.toml
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -71,7 +71,7 @@ pub struct RemoteInfo {
     #[serde(skip, default = "RemoteInfo::default_url")]
     pub url: Url,
 
-    /// Remote configuration from stencila.yaml
+    /// Remote configuration from stencila.toml
     #[serde(skip, default = "RemoteInfo::default_config")]
     pub config: RemoteConfig,
 
@@ -84,7 +84,7 @@ pub struct RemoteInfo {
     /// The watch ID from Stencila Cloud if watching is enabled
     pub watch_id: Option<String>,
 
-    /// The watch direction (from stencila.yaml or Cloud API)
+    /// The watch direction (from stencila.toml or Cloud API)
     pub watch_direction: Option<WatchDirection>,
 }
 
@@ -94,7 +94,7 @@ impl RemoteInfo {
         Url::parse("http://placeholder").expect("valid placeholder URL")
     }
 
-    /// Default RemoteConfig for deserialization (will be replaced from stencila.yaml)
+    /// Default RemoteConfig for deserialization (will be replaced from stencila.toml)
     fn default_config() -> RemoteConfig {
         RemoteConfig {
             path: ConfigRelativePath(".".to_string()),
@@ -590,12 +590,12 @@ fn collect_files_recursive(dir: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
 
 /// Get all remote entries for files with configured remotes
 ///
-/// This function enumerates all files that have remote configurations in stencila.yaml
+/// This function enumerates all files that have remote configurations in stencila.toml
 /// and combines tracking data from two sources:
-/// 1. stencila.yaml - Remote configurations and watch IDs
+/// 1. stencila.toml - Remote configurations and watch IDs
 /// 2. .stencila/remotes.json - Pull/push timestamps
 ///
-/// Returns `None` if no remotes are configured in stencila.yaml.
+/// Returns `None` if no remotes are configured in stencila.toml.
 /// Returns `Some(RemoteEntries)` with all files and their remote data.
 pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<RemoteEntries>> {
     // Load config to get remote configurations
@@ -668,14 +668,14 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
     }
 }
 
-/// Update the watch ID for a remote in stencila.yaml configuration
+/// Update the watch ID for a remote in stencila.toml configuration
 ///
 /// This stores or removes a watch ID in the configuration file for a specific
 /// remote URL. Watch IDs are assigned by Stencila Cloud when watching is enabled.
 ///
 /// # Arguments
 ///
-/// * `path` - Path to a file in the workspace (used to locate stencila.yaml)
+/// * `path` - Path to a file in the workspace (used to locate stencila.toml)
 /// * `url` - The remote URL to update
 /// * `watch_id` - The watch ID to set, or None to remove watching
 pub async fn update_watch_id(path: &Path, url: &str, watch_id: Option<String>) -> Result<()> {
@@ -685,7 +685,7 @@ pub async fn update_watch_id(path: &Path, url: &str, watch_id: Option<String>) -
 
 /// Remove watch_ids that no longer exist on Stencila Cloud
 ///
-/// Takes a set of valid watch IDs and removes any watch_id from the stencila.yaml
+/// Takes a set of valid watch IDs and removes any watch_id from the stencila.toml
 /// config that is not in the provided set. Returns a list of removed watches
 /// for display purposes.
 pub async fn remove_deleted_watches(

@@ -10,7 +10,7 @@ use serial_test::serial;
 use tempfile::TempDir;
 
 use crate::{
-    Config, find_config_file,
+    CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, find_config_file,
     utils::{
         ConfigTarget, collect_config_paths, config_set, config_unset, config_update_remote_watch,
         config_value, normalize_path,
@@ -31,7 +31,7 @@ fn config_isolated(path: &Path) -> Result<Config> {
         }
 
         match fs::read_to_string(config_path) {
-            Ok(contents) => match serde_yaml::from_str::<Map<String, Value>>(&contents) {
+            Ok(contents) => match toml::from_str::<Map<String, Value>>(&contents) {
                 Ok(data) => {
                     figment = figment.merge(Serialized::defaults(data));
                 }
@@ -62,10 +62,10 @@ fn test_config_simple() -> Result<()> {
 
     // Create a simple config file
     let config_content = r#"
-site:
-  id: test1234
+[site]
+id = "test1234"
 "#;
-    fs::write(temp_dir.path().join("stencila.yaml"), config_content)?;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
     // Test loading the config (isolated from user config)
     let cfg = config_isolated(temp_dir.path())?;
@@ -86,17 +86,17 @@ fn test_config_hierarchical_merge() -> Result<()> {
 
     // Parent config
     let parent_config = r#"
-site:
-  id: parent99
+[site]
+id = "parent99"
 "#;
-    fs::write(temp_dir.path().join("stencila.yaml"), parent_config)?;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), parent_config)?;
 
     // Child config (should override parent)
     let child_config = r#"
-site:
-  id: child123
+[site]
+id = "child123"
 "#;
-    fs::write(child_dir.join("stencila.yaml"), child_config)?;
+    fs::write(child_dir.join(CONFIG_FILENAME), child_config)?;
 
     // Test loading from child - should get child's value (isolated from user config)
     let cfg = config_isolated(&child_dir)?;
@@ -116,17 +116,17 @@ fn test_config_local_override() -> Result<()> {
 
     // Regular config
     let regular_config = r#"
-site:
-  id: regular1
+[site]
+id = "regular1"
 "#;
-    fs::write(temp_dir.path().join("stencila.yaml"), regular_config)?;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), regular_config)?;
 
     // Local override
     let local_config = r#"
-site:
-  id: local999
+[site]
+id = "local999"
 "#;
-    fs::write(temp_dir.path().join("stencila.local.yaml"), local_config)?;
+    fs::write(temp_dir.path().join(CONFIG_LOCAL_FILENAME), local_config)?;
 
     // Test loading - local should override regular (isolated from user config)
     let cfg = config_isolated(temp_dir.path())?;
@@ -163,20 +163,20 @@ fn test_config_malformed_file_skipped() -> Result<()> {
     let child_dir = temp_dir.path().join("child");
     fs::create_dir_all(&child_dir)?;
 
-    // Parent config - MALFORMED (invalid YAML syntax)
+    // Parent config - MALFORMED (invalid TOML syntax)
     let malformed_config = r#"
-site:
-  id: parent99
-  this is not valid yaml: [ { missing closing brackets
+[site]
+id = "parent99"
+this is not valid toml: [ { missing closing brackets
 "#;
-    fs::write(temp_dir.path().join("stencila.yaml"), malformed_config)?;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), malformed_config)?;
 
     // Child config - VALID (should still load despite parent being malformed)
     let valid_config = r#"
-site:
-  id: child123
+[site]
+id = "child123"
 "#;
-    fs::write(child_dir.join("stencila.yaml"), valid_config)?;
+    fs::write(child_dir.join(CONFIG_FILENAME), valid_config)?;
 
     // Test loading from child - should succeed with child's config (isolated from user config)
     let cfg = config_isolated(&child_dir)?;
@@ -196,11 +196,11 @@ fn test_config_all_malformed_fails() -> Result<()> {
 
     // Create only malformed config files
     let malformed_config = r#"
-this is: { not: valid yaml [
+this is = { not valid toml [
 "#;
-    fs::write(temp_dir.path().join("stencila.yaml"), malformed_config)?;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), malformed_config)?;
     fs::write(
-        temp_dir.path().join("stencila.local.yaml"),
+        temp_dir.path().join(CONFIG_LOCAL_FILENAME),
         malformed_config,
     )?;
 
@@ -221,10 +221,10 @@ fn test_config_value_get_simple() -> Result<()> {
     let temp_dir = TempDir::new()?;
 
     let config_content = r#"
-site:
-  id: test1234
+[site]
+id = "test1234"
 "#;
-    fs::write(temp_dir.path().join("stencila.yaml"), config_content)?;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
     // Test getting a nested value
     let value = config_value(temp_dir.path(), "site.id")?;
@@ -244,10 +244,10 @@ fn test_config_value_missing_key() -> Result<()> {
     let temp_dir = TempDir::new()?;
 
     let config_content = r#"
-site:
-  id: test1234
+[site]
+id = "test1234"
 "#;
-    fs::write(temp_dir.path().join("stencila.yaml"), config_content)?;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
     // Test getting a non-existent value
     let value = config_value(temp_dir.path(), "nonexistent.key")?;
@@ -263,11 +263,14 @@ fn test_find_config_file_finds_nearest() -> Result<()> {
     fs::create_dir_all(&child_dir)?;
 
     // Create config in parent
-    fs::write(temp_dir.path().join("stencila.yaml"), "site:\n  id: parent")?;
+    fs::write(
+        temp_dir.path().join(CONFIG_FILENAME),
+        "[site]\nid = \"parent\"",
+    )?;
 
     // Search from child should find parent's config
-    let found = find_config_file(&child_dir, "stencila.yaml");
-    assert_eq!(found, Some(temp_dir.path().join("stencila.yaml")));
+    let found = find_config_file(&child_dir, CONFIG_FILENAME);
+    assert_eq!(found, Some(temp_dir.path().join(CONFIG_FILENAME)));
 
     Ok(())
 }
@@ -277,7 +280,7 @@ fn test_find_config_file_returns_none() -> Result<()> {
     let temp_dir = TempDir::new()?;
 
     // Search for non-existent config
-    let found = find_config_file(temp_dir.path(), "stencila.yaml");
+    let found = find_config_file(temp_dir.path(), CONFIG_FILENAME);
     assert!(found.is_none());
 
     Ok(())
@@ -294,12 +297,12 @@ fn test_config_set_and_get() -> Result<()> {
 
     // Set a simple value
     let config_path = config_set("site.id", "newsite123", ConfigTarget::Nearest)?;
-    assert_eq!(config_path, temp_dir.path().join("stencila.yaml"));
+    assert_eq!(config_path, temp_dir.path().join(CONFIG_FILENAME));
 
     // Verify the file was created and contains the value
     let contents = fs::read_to_string(&config_path)?;
-    assert!(contents.contains("site:"));
-    assert!(contents.contains("id: newsite123"));
+    assert!(contents.contains("[site]"));
+    assert!(contents.contains("id = \"newsite123\""));
 
     // Restore original directory
     std::env::set_current_dir(original_dir)?;
@@ -318,10 +321,9 @@ fn test_config_set_nested_path() -> Result<()> {
     config_set("site.settings.theme", "dark", ConfigTarget::Nearest)?;
 
     // Verify the nested structure was created
-    let contents = fs::read_to_string(temp_dir.path().join("stencila.yaml"))?;
-    assert!(contents.contains("site:"));
-    assert!(contents.contains("settings:"));
-    assert!(contents.contains("theme: dark"));
+    let contents = fs::read_to_string(temp_dir.path().join(CONFIG_FILENAME))?;
+    assert!(contents.contains("[site.settings]"));
+    assert!(contents.contains("theme = \"dark\""));
 
     std::env::set_current_dir(original_dir)?;
 
@@ -341,13 +343,13 @@ fn test_config_set_type_inference() -> Result<()> {
     config_set("float_value", "3.14", ConfigTarget::Nearest)?;
     config_set("string_value", "hello", ConfigTarget::Nearest)?;
 
-    let contents = fs::read_to_string(temp_dir.path().join("stencila.yaml"))?;
+    let contents = fs::read_to_string(temp_dir.path().join(CONFIG_FILENAME))?;
 
     // Verify types are preserved (not all strings)
-    assert!(contents.contains("bool_value: true"));
-    assert!(contents.contains("int_value: 42"));
-    assert!(contents.contains("float_value: 3.14"));
-    assert!(contents.contains("string_value: hello"));
+    assert!(contents.contains("bool_value = true"));
+    assert!(contents.contains("int_value = 42"));
+    assert!(contents.contains("float_value = 3.14"));
+    assert!(contents.contains("string_value = \"hello\""));
 
     std::env::set_current_dir(original_dir)?;
 
@@ -363,7 +365,7 @@ fn test_config_set_local_target() -> Result<()> {
 
     // Set value in local config
     let config_path = config_set("site.id", "local123", ConfigTarget::Local)?;
-    assert_eq!(config_path, temp_dir.path().join("stencila.local.yaml"));
+    assert_eq!(config_path, temp_dir.path().join(CONFIG_LOCAL_FILENAME));
 
     // Verify the file was created
     assert!(config_path.exists());
@@ -384,15 +386,15 @@ fn test_config_unset_removes_value() -> Result<()> {
     config_set("site.id", "test123", ConfigTarget::Nearest)?;
 
     // Verify it exists
-    let contents_before = fs::read_to_string(temp_dir.path().join("stencila.yaml"))?;
-    assert!(contents_before.contains("id: test123"));
+    let contents_before = fs::read_to_string(temp_dir.path().join(CONFIG_FILENAME))?;
+    assert!(contents_before.contains("id = \"test123\""));
 
     // Now unset it
     config_unset("site.id", ConfigTarget::Nearest)?;
 
     // Verify it was removed
-    let contents_after = fs::read_to_string(temp_dir.path().join("stencila.yaml"))?;
-    assert!(!contents_after.contains("id: test123"));
+    let contents_after = fs::read_to_string(temp_dir.path().join(CONFIG_FILENAME))?;
+    assert!(!contents_after.contains("id = \"test123\""));
 
     std::env::set_current_dir(original_dir)?;
 
@@ -472,10 +474,10 @@ fn test_collect_config_paths_order() -> Result<()> {
 
     // Check that paths come in correct order:
     // - Configs from root directories should come before deeper ones
-    // - At each level, .yaml should come before .local.yaml
+    // - At each level, .toml should come before .local.toml
 
-    let current_yaml = current_dir.join("stencila.yaml");
-    let current_local = current_dir.join("stencila.local.yaml");
+    let current_yaml = current_dir.join(CONFIG_FILENAME);
+    let current_local = current_dir.join(CONFIG_LOCAL_FILENAME);
 
     let yaml_pos = paths.iter().position(|p| p == &current_yaml);
     let local_pos = paths.iter().position(|p| p == &current_local);
@@ -484,7 +486,7 @@ fn test_collect_config_paths_order() -> Result<()> {
     assert!(yaml_pos.is_some());
     assert!(local_pos.is_some());
 
-    // .yaml should come before .local.yaml
+    // .toml should come before .local.toml
     if let (Some(yaml), Some(local)) = (yaml_pos, local_pos) {
         assert!(yaml < local);
     }
@@ -500,24 +502,24 @@ fn test_user_config_includes_local() -> Result<()> {
 
     // Get user config directory
     if let Ok(user_config_dir) = stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, false) {
-        let user_yaml = user_config_dir.join("stencila.yaml");
-        let user_local = user_config_dir.join("stencila.local.yaml");
+        let user_yaml = user_config_dir.join(CONFIG_FILENAME);
+        let user_local = user_config_dir.join(CONFIG_LOCAL_FILENAME);
 
         // Both user config files should be in the paths
         let yaml_pos = paths.iter().position(|p| p == &user_yaml);
         let local_pos = paths.iter().position(|p| p == &user_local);
 
-        assert!(yaml_pos.is_some(), "User stencila.yaml should be included");
+        assert!(yaml_pos.is_some(), "User stencila.toml should be included");
         assert!(
             local_pos.is_some(),
-            "User stencila.local.yaml should be included"
+            "User stencila.local.toml should be included"
         );
 
-        // .yaml should come before .local.yaml
+        // .toml should come before .local.toml
         if let (Some(yaml), Some(local)) = (yaml_pos, local_pos) {
             assert!(
                 yaml < local,
-                "User stencila.yaml should come before stencila.local.yaml"
+                "User stencila.toml should come before stencila.local.toml"
             );
         }
     }
@@ -535,14 +537,14 @@ fn test_config_update_remote_watch_finds_config_from_file_path() -> Result<()> {
     let docs_dir = workspace_path.join("docs");
     fs::create_dir_all(&docs_dir)?;
 
-    // Create a stencila.yaml in the workspace root
-    let config_path = workspace_path.join("stencila.yaml");
+    // Create a stencila.toml in the workspace root
+    let config_path = workspace_path.join(CONFIG_FILENAME);
     fs::write(
         &config_path,
         r#"
-remotes:
-  - path: docs/test.md
-    url: https://docs.google.com/document/d/abc123
+[[remotes]]
+path = "docs/test.md"
+url = "https://docs.google.com/document/d/abc123"
 "#,
     )?;
 
@@ -562,8 +564,11 @@ remotes:
         Some("watch_123".to_string()),
     );
 
-    // Restore original directory
-    std::env::set_current_dir(original_dir)?;
+    // Restore original directory first before temp_cwd is dropped
+    std::env::set_current_dir(&original_dir)?;
+
+    // Keep temp_cwd alive until after we restore directory
+    drop(temp_cwd);
 
     // Verify the update succeeded
     assert!(
@@ -579,7 +584,7 @@ remotes:
         "Config should contain the watch ID"
     );
     assert!(
-        updated_config.contains("watch: watch_123"),
+        updated_config.contains("watch = \"watch_123\""),
         "Watch field should be set correctly"
     );
 
@@ -592,15 +597,15 @@ fn test_config_update_remote_watch_removes_watch_id() -> Result<()> {
     let workspace = TempDir::new()?;
     let workspace_path = workspace.path();
 
-    // Create stencila.yaml with an existing watch ID
-    let config_path = workspace_path.join("stencila.yaml");
+    // Create stencila.toml with an existing watch ID
+    let config_path = workspace_path.join(CONFIG_FILENAME);
     fs::write(
         &config_path,
         r#"
-remotes:
-  - path: test.md
-    url: https://docs.google.com/document/d/abc123
-    watch: watch_123
+[[remotes]]
+path = "test.md"
+url = "https://docs.google.com/document/d/abc123"
+watch = "watch_123"
 "#,
     )?;
 
@@ -614,7 +619,7 @@ remotes:
     // Verify the watch field was removed
     let updated_config = fs::read_to_string(&config_path)?;
     assert!(
-        !updated_config.contains("watch:"),
+        !updated_config.contains("watch ="),
         "Watch field should be removed: {}",
         updated_config
     );

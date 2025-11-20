@@ -66,7 +66,7 @@ jobs:
             jq '.schemas += [{
               "name": "Stencila Config",
               "description": "Configuration for Stencila workspaces",
-              "fileMatch": ["stencila.yaml", "stencila.*.yaml", ".stencila.yaml"],
+              "fileMatch": ["stencila.toml", "stencila.*.toml"],
               "url": "https://stencila.org/stencila-config.schema.json"
             }]' src/api/json/catalog.json > catalog.tmp.json
             mv catalog.tmp.json src/api/json/catalog.json
@@ -98,7 +98,7 @@ jobs:
             --body "This PR adds/updates the JSON Schema catalog entry for Stencila configuration files.
 
           **Schema URL:** https://stencila.org/stencila-config.schema.json
-          **File patterns:** \`stencila.yaml\`, \`stencila.*.yaml\`, \`.stencila.yaml\`
+          **File patterns:** \`stencila.toml\`, \`stencila.*.toml\`
 
           The schema is automatically generated from the Rust types in the [Stencila repository](https://github.com/stencila/stencila) and published at stencila.org.
 

@@ -29,7 +29,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Get a specific config value</dim>
   <b>stencila config get</b> <g>site.id</g>
 
-  <dim># Set a value in the nearest stencila.yaml</dim>
+  <dim># Set a value in the nearest stencila.toml</dim>
   <b>stencila config set</b> <g>site.id</g> <g>mysite123</g>
 
   <dim># Set a value in user config</dim>
@@ -103,18 +103,13 @@ pub static GET_AFTER_LONG_HELP: &str = cstr!(
 impl Get {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
+        let format = self.r#as.map(Into::into).unwrap_or(Format::Toml);
 
         if let Some(key) = self.key {
             // Get specific value using Figment's find_value()
             match config_value(&cwd, &key)? {
                 Some(value) => {
-                    // Display the value as YAML by default
-                    let format = self.r#as.map(Into::into).unwrap_or(Format::Yaml);
-                    let output = match format {
-                        Format::Json => serde_json::to_string_pretty(&value)?,
-                        _ => serde_yaml::to_string(&value)?,
-                    };
-                    Code::new(format, &output).to_stdout();
+                    Code::new_from(format, &value)?.to_stdout();
                 }
                 None => {
                     bail!("Config key `{}` not found", key);
@@ -130,12 +125,11 @@ impl Get {
                     cstr!(
                         "No configuration values are currently set.\n\n\
                         Use <b>stencila config set</> <g>key</> <g>value</> to set a value, \
-                        or add a `stencila.yaml` file."
+                        or add a `stencila.toml` file."
                     ),
                     Some("💡"),
                 );
             } else {
-                let format = self.r#as.map(Into::into).unwrap_or(Format::Yaml);
                 Code::new_from(format, &cfg)?.to_stdout();
             }
         }
@@ -156,7 +150,7 @@ struct Set {
     /// Values are automatically parsed as bool, number, or string.
     value: String,
 
-    /// Set in user config (~/.config/stencila/stencila.yaml)
+    /// Set in user config (~/.config/stencila/stencila.toml)
     ///
     /// Creates the file if it doesn't exist.
     #[arg(long, conflicts_with = "local")]
@@ -173,7 +167,7 @@ struct Set {
 pub static SET_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
 
-  <dim># Set in nearest stencila.yaml (or create in CWD)</dim>
+  <dim># Set in nearest stencila.toml (or create in CWD)</dim>
   <b>stencila config set</b> <g>site.id</g> <g>mysite123</g>
 
   <dim># Set in user config</dim>
@@ -247,7 +241,7 @@ struct Unset {
 pub static UNSET_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
 
-  <dim># Remove from nearest stencila.yaml</dim>
+  <dim># Remove from nearest stencila.toml</dim>
   <b>stencila config unset</b> <g>site.id</g>
 
   <dim># Remove from user config</dim>
@@ -286,6 +280,7 @@ impl Unset {
 #[derive(Debug, Clone, Copy)]
 enum AsFormat {
     Json,
+    Toml,
     Yaml,
 }
 
@@ -293,6 +288,7 @@ impl From<AsFormat> for Format {
     fn from(format: AsFormat) -> Self {
         match format {
             AsFormat::Json => Format::Json,
+            AsFormat::Toml => Format::Toml,
             AsFormat::Yaml => Format::Yaml,
         }
     }
@@ -304,6 +300,7 @@ impl std::str::FromStr for AsFormat {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "json" => Ok(AsFormat::Json),
+            "toml" => Ok(AsFormat::Toml),
             "yaml" | "yml" => Ok(AsFormat::Yaml),
             _ => Err(format!("Unknown format: {}", s)),
         }

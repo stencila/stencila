@@ -6,6 +6,12 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::Display;
 
+/// Main configuration file name
+pub const CONFIG_FILENAME: &str = "stencila.toml";
+
+/// Local configuration file name (for local overrides, typically gitignored)
+pub const CONFIG_LOCAL_FILENAME: &str = "stencila.local.toml";
+
 mod utils;
 use utils::build_figment;
 pub use utils::{
@@ -42,14 +48,14 @@ impl ConfigRelativePath {
 /// Resolve a configuration at a path
 ///
 /// Searches up the directory tree from the path, and then finally in
-/// `~/.config/stencila`, looking for `stencila.yaml` and `stencila.local.yaml`
+/// `~/.config/stencila`, looking for `stencila.toml` and `stencila.local.toml`
 /// files and merges them into a path-specific config.
 ///
 /// # Precedence (highest to lowest)
 ///
-/// 1. Current directory: `stencila.local.yaml` → `stencila.yaml`
-/// 2. Parent directories: `../stencila.local.yaml` → `../stencila.yaml` (and so on)
-/// 3. User config: `~/.config/stencila/stencila.yaml`
+/// 1. Current directory: `stencila.local.toml` → `stencila.toml`
+/// 2. Parent directories: `../stencila.local.toml` → `../stencila.toml` (and so on)
+/// 3. User config: `~/.config/stencila/stencila.toml`
 ///
 /// # Error Handling
 ///
@@ -146,7 +152,7 @@ pub struct SiteConfig {
     /// to the site, and routes will be calculated relative to this
     /// directory rather than the workspace root.
     ///
-    /// Example: If set to "docs" in /myproject/stencila.yaml,
+    /// Example: If set to "docs" in /myproject/stencila.toml,
     /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
     pub root: Option<ConfigRelativePath>,
 

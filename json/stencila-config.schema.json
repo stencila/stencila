@@ -93,7 +93,7 @@
           "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$"
         },
         "root": {
-          "description": "Root directory for site content\n\nPath relative to the config file containing this setting.\nWhen set, only files within this directory will be published\nto the site, and routes will be calculated relative to this\ndirectory rather than the workspace root.\n\nExample: If set to \"docs\" in /myproject/stencila.yaml,\nthen /myproject/docs/guide.md → /guide/ (not /docs/guide/)",
+          "description": "Root directory for site content\n\nPath relative to the config file containing this setting.\nWhen set, only files within this directory will be published\nto the site, and routes will be calculated relative to this\ndirectory rather than the workspace root.\n\nExample: If set to \"docs\" in /myproject/stencila.toml,\nthen /myproject/docs/guide.md → /guide/ (not /docs/guide/)",
           "anyOf": [
             {
               "$ref": "#/definitions/ConfigRelativePath"

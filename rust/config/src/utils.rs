@@ -6,9 +6,10 @@ use std::{
 use eyre::{Result, eyre};
 use figment::{
     Figment,
-    providers::{Format, Yaml},
+    providers::{Format, Toml},
     value::Value,
 };
+use toml_edit::{DocumentMut, Item, Table, value};
 
 /// Normalize a path, handling both files and directories
 ///
@@ -49,13 +50,15 @@ pub(crate) fn normalize_path(path: &Path) -> Result<PathBuf> {
 /// Collect all config file paths in merge order (lowest to highest precedence)
 ///
 /// Returns paths in the order they should be merged:
-/// 1. User config (~/.config/stencila/stencila.yaml and stencila.local.yaml) - if included
+/// 1. User config (~/.config/stencila/stencila.toml and stencila.local.toml) - if included
 /// 2. Ancestor configs (from root down to current directory)
-/// 3. Each level: stencila.yaml then stencila.local.yaml
+/// 3. Each level: stencila.toml then stencila.local.toml
 pub(crate) fn collect_config_paths(
     start_dir: &Path,
     include_user_config: bool,
 ) -> Result<Vec<PathBuf>> {
+    use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME};
+
     let mut paths = Vec::new();
 
     // 1. Add user config (lowest precedence) - only if requested
@@ -63,8 +66,8 @@ pub(crate) fn collect_config_paths(
         && let Ok(user_config_dir) =
             stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, false)
     {
-        paths.push(user_config_dir.join("stencila.yaml"));
-        paths.push(user_config_dir.join("stencila.local.yaml"));
+        paths.push(user_config_dir.join(CONFIG_FILENAME));
+        paths.push(user_config_dir.join(CONFIG_LOCAL_FILENAME));
     }
 
     // 2. Collect all ancestor directories (from start up to root)
@@ -85,8 +88,8 @@ pub(crate) fn collect_config_paths(
 
     for ancestor in ancestors {
         // Add regular config first, then local override
-        paths.push(ancestor.join("stencila.yaml"));
-        paths.push(ancestor.join("stencila.local.yaml"));
+        paths.push(ancestor.join(CONFIG_FILENAME));
+        paths.push(ancestor.join(CONFIG_LOCAL_FILENAME));
     }
 
     Ok(paths)
@@ -135,10 +138,10 @@ pub(crate) fn build_figment(path: &Path, include_user_config: bool) -> Result<Fi
 
         tracing::debug!("Loading config from: {}", config_path.display());
 
-        // Use Yaml::file() provider to load config with metadata tracking
+        // Use Toml::file() provider to load config with metadata tracking
         // This enables RelativePathBuf to resolve paths relative to the config file
-        // Note: With Yaml::file(), parse errors are deferred until extraction time
-        figment = figment.merge(Yaml::file(config_path));
+        // Note: With Toml::file(), parse errors are deferred until extraction time
+        figment = figment.merge(Toml::file(config_path));
     }
 
     Ok(figment)
@@ -163,11 +166,11 @@ pub fn config_value(path: &Path, key: &str) -> Result<Option<Value>> {
 /// Target location for config operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConfigTarget {
-    /// Nearest stencila.yaml (or create in CWD if none exists)
+    /// Nearest stencila.toml (or create in CWD if none exists)
     Nearest,
-    /// User-level stencila.yaml (~/.config/stencila/stencila.yaml)
+    /// User-level stencila.toml (~/.config/stencila/stencila.toml)
     User,
-    /// Nearest stencila.local.yaml (or create in CWD if none exists)
+    /// Nearest stencila.local.toml (or create in CWD if none exists)
     Local,
 }
 
@@ -175,40 +178,45 @@ pub enum ConfigTarget {
 ///
 /// Finds or creates the appropriate config file based on the target,
 /// updates the value at the specified key path, and writes the file back.
+/// Preserves formatting and comments in the TOML file.
 ///
 /// Returns the path to the modified config file.
-pub fn config_set(key: &str, value: &str, target: ConfigTarget) -> Result<std::path::PathBuf> {
+pub fn config_set(key: &str, value_str: &str, target: ConfigTarget) -> Result<std::path::PathBuf> {
+    use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME};
+
     // Determine the target file path
     let config_path = match target {
         ConfigTarget::Nearest => {
             let cwd = std::env::current_dir()?;
-            find_config_file(&cwd, "stencila.yaml").unwrap_or_else(|| cwd.join("stencila.yaml"))
+            find_config_file(&cwd, CONFIG_FILENAME).unwrap_or_else(|| cwd.join(CONFIG_FILENAME))
         }
         ConfigTarget::User => {
             let user_config_dir = stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, true)?;
-            user_config_dir.join("stencila.yaml")
+            user_config_dir.join(CONFIG_FILENAME)
         }
         ConfigTarget::Local => {
             let cwd = std::env::current_dir()?;
-            find_config_file(&cwd, "stencila.local.yaml")
-                .unwrap_or_else(|| cwd.join("stencila.local.yaml"))
+            find_config_file(&cwd, CONFIG_LOCAL_FILENAME)
+                .unwrap_or_else(|| cwd.join(CONFIG_LOCAL_FILENAME))
         }
     };
 
     // Load existing config or create empty
-    let mut config_value: serde_yaml::Value = if config_path.exists() {
-        let contents = fs::read_to_string(&config_path)?;
-        serde_yaml::from_str(&contents)?
+    let contents = if config_path.exists() {
+        fs::read_to_string(&config_path)?
     } else {
-        serde_yaml::Value::Mapping(serde_yaml::Mapping::new())
+        String::new()
     };
 
-    // Navigate/create the nested path and set the value
-    set_nested_value(&mut config_value, key, value)?;
+    let mut doc = contents
+        .parse::<DocumentMut>()
+        .unwrap_or_else(|_| DocumentMut::new());
 
-    // Write back to file
-    let yaml_string = serde_yaml::to_string(&config_value)?;
-    fs::write(&config_path, yaml_string)?;
+    // Navigate/create the nested path and set the value
+    set_nested_value_toml(&mut doc, key, value_str)?;
+
+    // Write back to file, preserving formatting
+    fs::write(&config_path, doc.to_string())?;
 
     Ok(config_path)
 }
@@ -216,21 +224,23 @@ pub fn config_set(key: &str, value: &str, target: ConfigTarget) -> Result<std::p
 /// Remove a configuration value
 ///
 /// Finds the appropriate config file based on the target and removes
-/// the value at the specified key path.
+/// the value at the specified key path. Preserves formatting and comments.
 ///
 /// Returns the path to the modified config file.
 pub fn config_unset(key: &str, target: ConfigTarget) -> Result<std::path::PathBuf> {
+    use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME};
+
     // Determine the target file path
     let config_path = match target {
         ConfigTarget::Nearest => {
             let cwd = std::env::current_dir()?;
-            find_config_file(&cwd, "stencila.yaml")
-                .ok_or_else(|| eyre!("No stencila.yaml found"))?
+            find_config_file(&cwd, CONFIG_FILENAME)
+                .ok_or_else(|| eyre!("No {} found", CONFIG_FILENAME))?
         }
         ConfigTarget::User => {
             let user_config_dir =
                 stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, false)?;
-            let path = user_config_dir.join("stencila.yaml");
+            let path = user_config_dir.join(CONFIG_FILENAME);
             if !path.exists() {
                 return Err(eyre!("User config file does not exist"));
             }
@@ -238,112 +248,104 @@ pub fn config_unset(key: &str, target: ConfigTarget) -> Result<std::path::PathBu
         }
         ConfigTarget::Local => {
             let cwd = std::env::current_dir()?;
-            find_config_file(&cwd, "stencila.local.yaml")
-                .ok_or_else(|| eyre!("No stencila.local.yaml found"))?
+            find_config_file(&cwd, CONFIG_LOCAL_FILENAME)
+                .ok_or_else(|| eyre!("No {} found", CONFIG_LOCAL_FILENAME))?
         }
     };
 
     // Load existing config
     let contents = fs::read_to_string(&config_path)?;
-    let mut config_value: serde_yaml::Value = serde_yaml::from_str(&contents)?;
+    let mut doc = contents.parse::<DocumentMut>()?;
 
     // Remove the nested value
-    unset_nested_value(&mut config_value, key)?;
+    unset_nested_value_toml(&mut doc, key)?;
 
-    // Write back to file
-    let yaml_string = serde_yaml::to_string(&config_value)?;
-    fs::write(&config_path, yaml_string)?;
+    // Write back to file, preserving formatting
+    fs::write(&config_path, doc.to_string())?;
 
     Ok(config_path)
 }
 
-/// Helper to set a nested value in a YAML structure using dot notation
-pub(crate) fn set_nested_value(root: &mut serde_yaml::Value, key: &str, value: &str) -> Result<()> {
+/// Helper to set a nested value in a TOML document using dot notation
+///
+/// Preserves all formatting and comments while updating the value.
+pub(crate) fn set_nested_value_toml(
+    doc: &mut DocumentMut,
+    key: &str,
+    value_str: &str,
+) -> Result<()> {
     let parts: Vec<&str> = key.split('.').collect();
 
     if parts.is_empty() {
         return Err(eyre!("Empty key path"));
     }
 
-    // Navigate to the parent, creating nested maps as needed
-    let mut current = root;
+    // Navigate to the parent table, creating nested tables as needed
+    let mut current = doc.as_table_mut();
+
     for part in &parts[..parts.len() - 1] {
-        if !current.is_mapping() {
-            *current = serde_yaml::Value::Mapping(serde_yaml::Mapping::new());
-        }
-
-        let map = current
-            .as_mapping_mut()
-            .ok_or_else(|| eyre!("Expected mapping"))?;
-        let key = serde_yaml::Value::String(part.to_string());
-
-        current = map
-            .entry(key.clone())
-            .or_insert_with(|| serde_yaml::Value::Mapping(serde_yaml::Mapping::new()));
+        current = current
+            .entry(part)
+            .or_insert(Item::Table(Table::new()))
+            .as_table_mut()
+            .ok_or_else(|| eyre!("Expected table at key '{}'", part))?;
     }
 
-    // Set the final value
-    if !current.is_mapping() {
-        *current = serde_yaml::Value::Mapping(serde_yaml::Mapping::new());
-    }
+    // Set the final value with type inference
+    let final_key = parts[parts.len() - 1];
+    let parsed_value = infer_toml_value(value_str);
 
-    let map = current
-        .as_mapping_mut()
-        .ok_or_else(|| eyre!("Expected mapping"))?;
-    let final_key = serde_yaml::Value::String(parts[parts.len() - 1].to_string());
-
-    // Try to parse value as different types
-    let parsed_value = if let Ok(b) = value.parse::<bool>() {
-        serde_yaml::Value::Bool(b)
-    } else if let Ok(n) = value.parse::<i64>() {
-        serde_yaml::Value::Number(n.into())
-    } else if let Ok(f) = value.parse::<f64>() {
-        serde_yaml::Value::Number(serde_yaml::Number::from(f))
-    } else {
-        serde_yaml::Value::String(value.to_string())
-    };
-
-    map.insert(final_key, parsed_value);
+    current[final_key] = parsed_value;
 
     Ok(())
 }
 
-/// Helper to remove a nested value from a YAML structure using dot notation
-pub(crate) fn unset_nested_value(root: &mut serde_yaml::Value, key: &str) -> Result<()> {
+/// Helper to infer TOML value type from string
+fn infer_toml_value(value_str: &str) -> Item {
+    // Try to parse as bool
+    if let Ok(b) = value_str.parse::<bool>() {
+        return value(b);
+    }
+
+    // Try to parse as i64
+    if let Ok(n) = value_str.parse::<i64>() {
+        return value(n);
+    }
+
+    // Try to parse as f64
+    if let Ok(f) = value_str.parse::<f64>() {
+        return value(f);
+    }
+
+    // Default to string
+    value(value_str)
+}
+
+/// Helper to remove a nested value from a TOML document using dot notation
+///
+/// Preserves all formatting and comments while removing the value.
+pub(crate) fn unset_nested_value_toml(doc: &mut DocumentMut, key: &str) -> Result<()> {
     let parts: Vec<&str> = key.split('.').collect();
 
     if parts.is_empty() {
         return Err(eyre!("Empty key path"));
     }
 
-    // Navigate to the parent
-    let mut current = root;
+    // Navigate to the parent table
+    let mut current = doc.as_table_mut();
+
     for part in &parts[..parts.len() - 1] {
-        if !current.is_mapping() {
-            return Err(eyre!("Key path not found: {}", key));
-        }
-
-        let map = current
-            .as_mapping_mut()
-            .ok_or_else(|| eyre!("Expected mapping"))?;
-        let key_value = serde_yaml::Value::String(part.to_string());
-
-        current = map
-            .get_mut(&key_value)
-            .ok_or_else(|| eyre!("Key path not found: {}", key))?;
+        current = current
+            .get_mut(part)
+            .ok_or_else(|| eyre!("Key path not found: {}", key))?
+            .as_table_mut()
+            .ok_or_else(|| eyre!("Expected table at key '{}'", part))?;
     }
 
     // Remove the final key
-    if !current.is_mapping() {
-        return Err(eyre!("Key path not found: {}", key));
-    }
-
-    let map = current
-        .as_mapping_mut()
-        .ok_or_else(|| eyre!("Expected mapping"))?;
-    let final_key = serde_yaml::Value::String(parts[parts.len() - 1].to_string());
-
-    map.remove(&final_key)
+    let final_key = parts[parts.len() - 1];
+    current
+        .remove(final_key)
         .ok_or_else(|| eyre!("Key not found: {}", key))?;
 
     Ok(())
@@ -353,9 +355,10 @@ pub(crate) fn unset_nested_value(root: &mut serde_yaml::Value, key: &str) -> Res
 ///
 /// Finds the remote configuration matching the given file path and URL,
 /// then updates its watch field. If watch_id is None, the watch field is removed.
+/// Preserves formatting and comments in the TOML file.
 ///
 /// This function:
-/// 1. Finds the nearest stencila.yaml file (or creates one if none exists)
+/// 1. Finds the nearest stencila.toml file (or creates one if none exists)
 /// 2. Locates the remote entry matching both path and URL
 /// 3. Updates the watch field
 /// 4. Writes the config back to the file
@@ -366,7 +369,9 @@ pub fn config_update_remote_watch(
     remote_url: &str,
     watch_id: Option<String>,
 ) -> Result<PathBuf> {
-    // Find the nearest stencila.yaml starting from the file's directory
+    use crate::CONFIG_FILENAME;
+
+    // Find the nearest stencila.toml starting from the file's directory
     // This ensures we find the config even when CWD is outside the workspace
     let search_dir = if file_path.is_file() {
         file_path
@@ -376,30 +381,26 @@ pub fn config_update_remote_watch(
         file_path
     };
 
-    let config_path = find_config_file(search_dir, "stencila.yaml")
-        .unwrap_or_else(|| search_dir.join("stencila.yaml"));
+    let config_path = find_config_file(search_dir, CONFIG_FILENAME)
+        .unwrap_or_else(|| search_dir.join(CONFIG_FILENAME));
 
     // Load existing config or create empty
-    let mut config_value: serde_yaml::Value = if config_path.exists() {
-        let contents = fs::read_to_string(&config_path)?;
-        serde_yaml::from_str(&contents)?
+    let contents = if config_path.exists() {
+        fs::read_to_string(&config_path)?
     } else {
-        serde_yaml::Value::Mapping(serde_yaml::Mapping::new())
+        String::new()
     };
 
+    let mut doc = contents
+        .parse::<DocumentMut>()
+        .unwrap_or_else(|_| DocumentMut::new());
+
     // Get the remotes array
-    let remotes_key = serde_yaml::Value::String("remotes".to_string());
-    let mapping = config_value
-        .as_mapping_mut()
-        .ok_or_else(|| eyre!("Config is not a mapping"))?;
-
-    let remotes = mapping
-        .get_mut(&remotes_key)
-        .ok_or_else(|| eyre!("No remotes configured in stencila.yaml"))?;
-
-    let remotes_array = remotes
-        .as_sequence_mut()
-        .ok_or_else(|| eyre!("remotes field is not an array"))?;
+    let remotes_array = doc
+        .get_mut("remotes")
+        .ok_or_else(|| eyre!("No remotes configured in {}", CONFIG_FILENAME))?
+        .as_array_of_tables_mut()
+        .ok_or_else(|| eyre!("remotes field is not an array of tables"))?;
 
     // Get workspace directory (parent of config file)
     let workspace_dir = config_path
@@ -428,23 +429,9 @@ pub fn config_update_remote_watch(
     // Find matching remote by path and URL
     let mut found = false;
     for remote in remotes_array.iter_mut() {
-        let remote_map = remote
-            .as_mapping_mut()
-            .ok_or_else(|| eyre!("Remote entry is not a mapping"))?;
-
-        let path_key = serde_yaml::Value::String("path".to_string());
-        let url_key = serde_yaml::Value::String("url".to_string());
-        let watch_key = serde_yaml::Value::String("watch".to_string());
-
         // Check if this remote matches our path and URL
-        let remote_path_str = remote_map
-            .get(&path_key)
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
-        let remote_url_value = remote_map
-            .get(&url_key)
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let remote_path_str = remote.get("path").and_then(|v| v.as_str()).unwrap_or("");
+        let remote_url_value = remote.get("url").and_then(|v| v.as_str()).unwrap_or("");
 
         // Resolve and canonicalize the remote path
         let remote_path = workspace_dir.join(remote_path_str);
@@ -464,9 +451,9 @@ pub fn config_update_remote_watch(
         if path_matches && remote_url_value == remote_url {
             // Update or remove the watch field
             if let Some(id) = &watch_id {
-                remote_map.insert(watch_key, serde_yaml::Value::String(id.clone()));
+                remote["watch"] = value(id.as_str());
             } else {
-                remote_map.remove(&watch_key);
+                remote.remove("watch");
             }
             found = true;
             break;
@@ -482,9 +469,8 @@ pub fn config_update_remote_watch(
         ));
     }
 
-    // Write back to file
-    let yaml_string = serde_yaml::to_string(&config_value)?;
-    fs::write(&config_path, yaml_string)?;
+    // Write back to file, preserving formatting
+    fs::write(&config_path, doc.to_string())?;
 
     Ok(config_path)
 }

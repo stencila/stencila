@@ -316,7 +316,7 @@ pub static TRACK_AFTER_LONG_HELP: &str = cstr!(
 
 <bold><b>Note</b></bold>
   Tracking enables version control and change detection for documents.
-  Configure remotes in stencila.yaml for synchronization with external systems.
+  Configure remotes in stencila.toml for synchronization with external systems.
 "
 );
 

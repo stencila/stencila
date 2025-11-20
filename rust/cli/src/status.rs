@@ -75,7 +75,7 @@ impl Cli {
             match get_all_remote_entries(&workspace_dir).await? {
                 Some(entries) => entries,
                 None => {
-                    message!("✖️  No remotes configured in `stencila.yaml`");
+                    message!("✖️  No remotes configured in `stencila.toml`");
                     return Ok(());
                 }
             }

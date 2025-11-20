@@ -438,7 +438,7 @@ pub(crate) async fn push_doc(
 
             match create_watch(request).await {
                 Ok(response) => {
-                    // Store watch ID in stencila.yaml config
+                    // Store watch ID in stencila.toml config
                     if let Err(error) =
                         update_watch_id(&path, url.as_ref(), Some(response.id.to_string())).await
                     {

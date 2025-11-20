@@ -148,7 +148,7 @@ impl Cli {
             .ok_or_else(|| eyre!("No watch ID found"))?;
         delete_watch(watch_id).await?;
 
-        // Remove watch ID from stencila.yaml
+        // Remove watch ID from stencila.toml
         config_update_remote_watch(&self.path, remote_info.url.as_ref(), None)?;
 
         // Success message

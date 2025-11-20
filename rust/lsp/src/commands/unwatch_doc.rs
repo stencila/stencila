@@ -182,7 +182,7 @@ pub(crate) async fn unwatch_doc(
         .send((80, Some("updating config".to_string())))
         .ok();
 
-    // Remove watch ID from stencila.yaml config
+    // Remove watch ID from stencila.toml config
     if let Err(error) = stencila_remotes::update_watch_id(&path, remote_url.as_ref(), None).await {
         progress.send((100, None)).ok();
         client
