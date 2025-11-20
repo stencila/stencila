@@ -6,7 +6,6 @@ use std::{
 };
 
 use chrono::TimeDelta;
-use chrono_humanize;
 use clap::Parser;
 use eyre::{Result, bail};
 use inflector::Inflector;

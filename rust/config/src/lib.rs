@@ -127,9 +127,8 @@ pub struct Config {
 pub struct SiteConfig {
     /// The id of the Stencila Site
     ///
-    /// Eight characters, lowercase letters or digits, returned by
-    /// Stencila Cloud when a site is created.
-    #[schemars(regex(pattern = r"^[a-z0-9]{8}$"))]
+    /// Returned by Stencila Cloud when a site is created.
+    #[schemars(regex(pattern = r"^s[a-z0-9]{9}$"))]
     pub id: Option<String>,
 
     /// Custom domain for the site
@@ -321,5 +320,6 @@ pub struct RemoteConfig {
     /// debounce) is stored in Stencila Cloud and queried via the API.
     ///
     /// If no watch exists, this field is omitted.
+    #[schemars(regex(pattern = r"^w[a-zA-Z0-9]{9}$"))]
     pub watch: Option<String>,
 }
