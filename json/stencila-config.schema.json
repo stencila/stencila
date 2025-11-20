@@ -4,6 +4,16 @@
   "description": "Configuration for Stencila workspaces",
   "type": "object",
   "properties": {
+    "remotes": {
+      "description": "Remote synchronization configuration\n\nDefines mappings between local files/directories and remote services\n(Google Docs, Microsoft 365, Stencila Sites). Directory paths are\nimplicitly recursive, that is, they match all files within that directory.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/RemoteConfig"
+      }
+    },
     "site": {
       "description": "Site configuration",
       "anyOf": [
@@ -24,19 +34,44 @@
       "items": {
         "$ref": "#/definitions/RouteConfig"
       }
-    },
-    "remotes": {
-      "description": "Remote synchronization configuration\n\nDefines mappings between local files/directories and remote services\n(Google Docs, Microsoft 365, Stencila Sites). Directory paths are\nimplicitly recursive - they match all files within that directory.",
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "$ref": "#/definitions/RemoteConfig"
-      }
     }
   },
   "definitions": {
+    "RemoteConfig": {
+      "description": "Configuration for a remote synchronization target\n\nRemotes define how local files or directories map to external services\nlike Google Docs, Microsoft 365, or Stencila Sites. Each remote specifies\na path (file, directory, or pattern) and a URL to synchronize with.",
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "Path relative to workspace root\n\nCan be:\n- Single file: \"file.md\", \"report.ipynb\"\n- Directory: \"site\", \"docs\" (implicitly includes all files recursively)\n- Pattern: \"*.md\" (for matching specific files, optional)\n\nDirectory paths are automatically treated as recursive - they match\nall files within that directory and its subdirectories.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ConfigRelativePath"
+            }
+          ]
+        },
+        "url": {
+          "description": "Remote URL\n\nThe service type is inferred from the URL host:\n- Google Docs: https://docs.google.com/document/d/...\n- Microsoft 365: https://*.sharepoint.com/...\n- Stencila Sites: https://*.stencila.site/...",
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "watch": {
+          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.\n\nIf no watch exists, this field is omitted.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^w[a-zA-Z0-9]{9}$"
+        }
+      },
+      "required": [
+        "path",
+        "url"
+      ]
+    },
+    "ConfigRelativePath": {
+      "description": "A path that is resolved relative to the configuration file it was defined in\n\nThis wrapper provides JsonSchema implementation and stores paths as strings.\nThe paths will be resolved relative to the config file directory during use.",
+      "type": "string"
+    },
     "SiteConfig": {
       "description": "Configuration for a site",
       "type": "object",
@@ -67,12 +102,28 @@
               "type": "null"
             }
           ]
+        },
+        "include": {
+          "description": "Glob patterns for files to include when publishing\n\nWhen specified, only files matching these patterns will be included.\nPatterns are relative to `root` (if set) or the workspace root.\nSupports standard glob syntax: `**/*.md`, `assets/**`, etc.\n\nExample: `[\"**/*.md\", \"**/*.html\", \"assets/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude": {
+          "description": "Glob patterns for files to exclude when publishing\n\nFiles matching these patterns will be excluded from publishing.\nExclude patterns take precedence over include patterns.\nPatterns are relative to `root` (if set) or the workspace root.\nDefault exclusions (`.git/`, `node_modules/`, etc.) are applied automatically.\n\nExample: `[\"**/*.draft.md\", \"temp/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
         }
       }
-    },
-    "ConfigRelativePath": {
-      "description": "A path that is resolved relative to the configuration file it was defined in\n\nThis wrapper provides JsonSchema implementation and stores paths as strings.\nThe paths will be resolved relative to the config file directory during use.",
-      "type": "string"
     },
     "RouteConfig": {
       "description": "A route configuration for a site\n\nRoutes allow you to customize how URLs map to files, create redirects,\nor serve specific files at custom paths. They are evaluated in order,\nwith earlier routes taking precedence over later ones.",
@@ -126,37 +177,6 @@
         303,
         307,
         308
-      ]
-    },
-    "RemoteConfig": {
-      "description": "Configuration for a remote synchronization target\n\nRemotes define how local files or directories map to external services\nlike Google Docs, Microsoft 365, or Stencila Sites. Each remote specifies\na path (file, directory, or pattern) and a URL to synchronize with.",
-      "type": "object",
-      "properties": {
-        "path": {
-          "description": "Path relative to workspace root\n\nCan be:\n- Single file: \"file.md\", \"report.ipynb\"\n- Directory: \"site\", \"docs\" (implicitly includes all files recursively)\n- Pattern: \"*.md\" (for matching specific files, optional)\n\nDirectory paths are automatically treated as recursive - they match\nall files within that directory and its subdirectories.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/ConfigRelativePath"
-            }
-          ]
-        },
-        "url": {
-          "description": "Remote URL\n\nThe service type is inferred from the URL host:\n- Google Docs: https://docs.google.com/document/d/...\n- Microsoft 365: https://*.sharepoint.com/...\n- Stencila Sites: https://*.stencila.site/...",
-          "type": "string",
-          "pattern": "^https?://"
-        },
-        "watch": {
-          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.\n\nIf no watch exists, this field is omitted.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^w[a-zA-Z0-9]{9}$"
-        }
-      },
-      "required": [
-        "path",
-        "url"
       ]
     }
   },

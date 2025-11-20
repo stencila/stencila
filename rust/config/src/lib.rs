@@ -104,6 +104,13 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct Config {
+    /// Remote synchronization configuration
+    ///
+    /// Defines mappings between local files/directories and remote services
+    /// (Google Docs, Microsoft 365, Stencila Sites). Directory paths are
+    /// implicitly recursive, that is, they match all files within that directory.
+    pub remotes: Option<Vec<RemoteConfig>>,
+
     /// Site configuration
     pub site: Option<SiteConfig>,
 
@@ -112,13 +119,6 @@ pub struct Config {
     /// Routes can be used by both remote sites (e.g., stencila.site) and
     /// local development servers to map URL paths to files or redirects.
     pub routes: Option<Vec<RouteConfig>>,
-
-    /// Remote synchronization configuration
-    ///
-    /// Defines mappings between local files/directories and remote services
-    /// (Google Docs, Microsoft 365, Stencila Sites). Directory paths are
-    /// implicitly recursive - they match all files within that directory.
-    pub remotes: Option<Vec<RemoteConfig>>,
 }
 
 /// Configuration for a site
@@ -149,6 +149,25 @@ pub struct SiteConfig {
     /// Example: If set to "docs" in /myproject/stencila.yaml,
     /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
     pub root: Option<ConfigRelativePath>,
+
+    /// Glob patterns for files to include when publishing
+    ///
+    /// When specified, only files matching these patterns will be included.
+    /// Patterns are relative to `root` (if set) or the workspace root.
+    /// Supports standard glob syntax: `**/*.md`, `assets/**`, etc.
+    ///
+    /// Example: `["**/*.md", "**/*.html", "assets/**"]`
+    pub include: Option<Vec<String>>,
+
+    /// Glob patterns for files to exclude when publishing
+    ///
+    /// Files matching these patterns will be excluded from publishing.
+    /// Exclude patterns take precedence over include patterns.
+    /// Patterns are relative to `root` (if set) or the workspace root.
+    /// Default exclusions (`.git/`, `node_modules/`, etc.) are applied automatically.
+    ///
+    /// Example: `["**/*.draft.md", "temp/**"]`
+    pub exclude: Option<Vec<String>>,
 }
 
 /// A route configuration for a site
