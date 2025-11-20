@@ -4,6 +4,7 @@ use eyre::{Result, bail, eyre};
 use futures::future::try_join_all;
 use serde_json::json;
 use tempfile::TempDir;
+use tokio::fs::{copy, create_dir_all, metadata, read, read_dir, write};
 use url::Url;
 
 use stencila_cloud::sites::{ensure_site, last_modified, reconcile_prefix, upload_file};
@@ -197,7 +198,7 @@ fn find_route_config(
 
 /// Handle uploading a redirect route
 ///
-/// Creates and uploads a special `.redirect` file that the Cloudflare Worker
+/// Creates and uploads a special `redirect.json` file that the Cloudflare Worker
 /// can recognize and handle. The file contains JSON with the redirect URL
 /// and HTTP status code.
 ///
@@ -211,41 +212,42 @@ async fn handle_redirect_route(
     dry_run_output_dir: &Option<PathBuf>,
 ) -> Result<Option<PushDryRunFile>> {
     // Extract redirect URL and status code
-    let redirect_url = config
+    let location = config
         .redirect
         .as_ref()
         .ok_or_else(|| eyre!("Route has no redirect URL"))?;
     let status_code = config.status.unwrap_or(RedirectStatus::Found); // Default to 302 temporary redirect
 
+    const REDIRECT_FILENAME: &str = "redirect.json";
+
     // Calculate storage path
     let trimmed = route.trim_start_matches('/').trim_end_matches('/');
     let storage_path = if trimmed.is_empty() {
-        ".redirect".to_string()
+        REDIRECT_FILENAME.to_string()
     } else {
-        format!("{trimmed}/.redirect")
+        format!("{trimmed}/{REDIRECT_FILENAME}")
     };
 
     // Create redirect file content (JSON format)
-    let redirect_content = json!({
-        "redirect": redirect_url,
+    let redirect_content = serde_json::to_string(&json!({
+        "location": location,
         "status": status_code
-    });
+    }))?;
 
     // Write to temp file
     let temp_dir = TempDir::new()?;
-    let temp_redirect = temp_dir.path().join("redirect");
-    let content_str = redirect_content.to_string();
-    tokio::fs::write(&temp_redirect, &content_str).await?;
+    let temp_redirect = temp_dir.path().join(REDIRECT_FILENAME);
+    write(&temp_redirect, &redirect_content).await?;
 
     let full_storage_path = format!("{site_id}/{branch_slug}/{storage_path}");
-    let file_size = content_str.len() as u64;
+    let file_size = redirect_content.len() as u64;
 
     if is_dry_run {
         // Dry-run mode: write to local directory if specified
         let local_path = if let Some(output_dir) = dry_run_output_dir {
             let dest_path = output_dir.join(&full_storage_path);
-            tokio::fs::create_dir_all(dest_path.parent().unwrap()).await?;
-            tokio::fs::copy(&temp_redirect, &dest_path).await?;
+            create_dir_all(dest_path.parent().unwrap()).await?;
+            copy(&temp_redirect, &dest_path).await?;
             Some(dest_path)
         } else {
             None
@@ -254,7 +256,7 @@ async fn handle_redirect_route(
         tracing::info!(
             "Dry-run: would upload redirect from {} to {} (status {})",
             route,
-            redirect_url,
+            location,
             status_code
         );
 
@@ -272,7 +274,7 @@ async fn handle_redirect_route(
         tracing::info!(
             "Uploaded redirect from {} to {} (status {})",
             route,
-            redirect_url,
+            location,
             status_code
         );
 
@@ -413,7 +415,7 @@ pub async fn push(
     // Upload media files in parallel and track filenames for reconciliation
     let mut current_media_files = Vec::new();
     if media_dir.exists() {
-        let mut entries = tokio::fs::read_dir(&media_dir).await?;
+        let mut entries = read_dir(&media_dir).await?;
         let mut media_files = Vec::new();
 
         while let Some(entry) = entries.next_entry().await? {
@@ -432,12 +434,12 @@ pub async fn push(
                 // Dry-run mode: write media files to local directory if specified
                 for (storage_path, file_path) in &media_files {
                     let full_storage_path = format!("{site_id}/{branch_slug}/{storage_path}");
-                    let metadata = tokio::fs::metadata(file_path).await?;
+                    let metadata = metadata(file_path).await?;
 
                     let local_path = if let Some(output_dir) = &dry_run_output_dir {
                         let dest_path = output_dir.join(&full_storage_path);
-                        tokio::fs::create_dir_all(dest_path.parent().unwrap()).await?;
-                        tokio::fs::copy(file_path, &dest_path).await?;
+                        create_dir_all(dest_path.parent().unwrap()).await?;
+                        copy(file_path, &dest_path).await?;
                         Some(dest_path)
                     } else {
                         None
@@ -474,7 +476,7 @@ pub async fn push(
     };
 
     // Upload HTML (with compression)
-    let html_metadata = tokio::fs::metadata(&temp_html).await?;
+    let html_metadata = metadata(&temp_html).await?;
     let full_html_path = format!("{site_id}/{branch_slug}/{storage_path}.gz");
 
     if is_dry_run {
@@ -482,19 +484,19 @@ pub async fn push(
         // Note: In actual upload, HTML is gzipped, so we simulate that here
         let local_path = if let Some(output_dir) = &dry_run_output_dir {
             let dest_path = output_dir.join(&full_html_path);
-            tokio::fs::create_dir_all(dest_path.parent().unwrap()).await?;
+            create_dir_all(dest_path.parent().unwrap()).await?;
 
             // Compress HTML before writing (matching actual upload behavior)
             use flate2::Compression;
             use flate2::write::GzEncoder;
             use std::io::Write;
 
-            let html_content = tokio::fs::read(&temp_html).await?;
+            let html_content = read(&temp_html).await?;
             let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
             encoder.write_all(&html_content)?;
             let compressed = encoder.finish()?;
 
-            tokio::fs::write(&dest_path, &compressed).await?;
+            write(&dest_path, &compressed).await?;
             Some(dest_path)
         } else {
             None
