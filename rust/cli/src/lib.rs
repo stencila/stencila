@@ -20,6 +20,7 @@ mod pull;
 mod push;
 mod render;
 mod site;
+mod status;
 mod sync;
 mod uninstall;
 mod unwatch;
@@ -95,7 +96,7 @@ mod tests {
             // Document module help strings
             ("document::init", stencila_document::cli::INIT_AFTER_LONG_HELP),
             ("document::config", stencila_document::cli::CONFIG_AFTER_LONG_HELP),
-            ("document::status", stencila_document::cli::STATUS_AFTER_LONG_HELP),
+            ("status", crate::status::CLI_AFTER_LONG_HELP),
             ("document::move", stencila_document::cli::MOVE_AFTER_LONG_HELP),
             ("document::track", stencila_document::cli::TRACK_AFTER_LONG_HELP),
             ("document::untrack", stencila_document::cli::UNTRACK_AFTER_LONG_HELP),

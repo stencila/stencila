@@ -1,5 +1,6 @@
-use std::{path::PathBuf, process::exit};
+use std::{collections::BTreeMap, path::PathBuf, process::exit};
 
+use chrono::Utc;
 use clap::Parser;
 use eyre::{Result, bail, eyre};
 use url::Url;
@@ -7,8 +8,13 @@ use url::Url;
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
-use stencila_codecs::{PushResult, remotes::RemoteService};
-use stencila_document::{Document, WatchDirection, WatchPrMode};
+use stencila_codecs::PushResult;
+use stencila_dirs::closest_workspace_dir;
+use stencila_document::Document;
+use stencila_remotes::{
+    RemoteService, WatchDirection, WatchPrMode, expand_path_to_files, get_remotes_for_path,
+    update_remote_timestamp,
+};
 
 /// Push a document to a remote service
 #[derive(Debug, Parser)]
@@ -179,11 +185,11 @@ impl Cli {
 
         // Early validation: --watch is not compatible with multiple remotes
         if self.watch && self.target.is_none() {
-            let remotes = doc.remotes().await?;
-            if remotes.len() > 1 {
-                let urls_list = remotes
+            let remote_infos = get_remotes_for_path(&path, None).await?;
+            if remote_infos.len() > 1 {
+                let urls_list = remote_infos
                     .iter()
-                    .map(|url| format!("  - {}", url))
+                    .map(|info| format!("  - {}", info.url))
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
@@ -257,16 +263,16 @@ impl Cli {
 
         // Handle multi-remote push when no service/target is specified
         if service.is_none() && explicit_target.is_none() {
-            let remotes = doc.remotes().await?;
+            let remote_infos = get_remotes_for_path(&path, None).await?;
 
-            if remotes.is_empty() {
+            if remote_infos.is_empty() {
                 bail!(
-                    "No tracked remotes for `{path_display}`. Specify a service (gdoc/m365) to push to.",
+                    "No remotes configured for `{path_display}`. Add remotes to stencila.yaml or specify a service (gdoc/m365/site) to push to.",
                 );
             }
 
             // If multiple remotes, push to all of them
-            if remotes.len() > 1 {
+            if remote_infos.len() > 1 {
                 // Validate dry-run is not allowed with multiple remotes
                 if is_dry_run {
                     bail!(
@@ -276,8 +282,8 @@ impl Cli {
 
                 message(
                     &format!(
-                        "Pushing `{path_display}` to {} tracked remotes",
-                        remotes.len()
+                        "Pushing `{path_display}` to {} configured remotes",
+                        remote_infos.len()
                     ),
                     Some("☁️ "),
                 );
@@ -285,8 +291,9 @@ impl Cli {
                 let mut successes: Vec<Url> = Vec::new();
                 let mut errors: Vec<(Url, String)> = Vec::new();
 
-                for remote_url in remotes {
-                    let remote_service = match RemoteService::from_url(&remote_url) {
+                for remote_info in remote_infos {
+                    let remote_url = &remote_info.url;
+                    let remote_service = match RemoteService::from_url(remote_url) {
                         Some(svc) => svc,
                         None => {
                             errors.push((
@@ -313,7 +320,7 @@ impl Cli {
                         &doc.root().await,
                         doc.path(),
                         doc.file_name(),
-                        Some(&remote_url),
+                        Some(remote_url),
                         doc.path(),
                         dry_run_opts.clone(),
                     )
@@ -321,8 +328,18 @@ impl Cli {
                     {
                         Ok(result) => {
                             let url = result.url();
-                            if let Err(e) = doc.track_remote_pushed(url.clone()).await {
-                                errors.push((remote_url, format!("Failed to track remote: {}", e)));
+                            if let Err(e) = update_remote_timestamp(
+                                &path,
+                                url.as_ref(),
+                                None,
+                                Some(Utc::now().timestamp() as u64),
+                            )
+                            .await
+                            {
+                                errors.push((
+                                    remote_url.clone(),
+                                    format!("Failed to track remote: {}", e),
+                                ));
                             } else {
                                 let display_url =
                                     get_display_url(&remote_service, &url, doc.path());
@@ -335,7 +352,7 @@ impl Cli {
                         }
                         Err(e) => {
                             message(&format!("Failed to push to {remote_url}: {e}"), Some("❌"));
-                            errors.push((remote_url, e.to_string()));
+                            errors.push((remote_url.clone(), e.to_string()));
                         }
                     }
                 }
@@ -358,32 +375,34 @@ impl Cli {
             }
         }
 
-        // Determine target remote service from tracked remotes if not specified
+        // Determine target remote service from config remotes if not specified
         let service = if let Some(svc) = service {
             svc
         } else {
-            // Check tracked remotes
-            let remotes = doc.remotes().await?;
-            if remotes.is_empty() {
+            // Check config remotes
+            let remote_infos = get_remotes_for_path(&path, None).await?;
+            if remote_infos.is_empty() {
                 bail!(
-                    "No tracked remotes for `{path_display}`. Specify a service (gdoc/m365) to push to.",
+                    "No remotes configured for `{path_display}`. Add remotes to stencila.yaml or specify a service (gdoc/m365/site) to push to.",
                 );
             }
 
-            // Find which service(s) the tracked remotes belong to
-            let remote_services: Vec<(RemoteService, &Url)> = remotes
+            // Find which service(s) the configured remotes belong to
+            let remote_services: Vec<(RemoteService, &Url)> = remote_infos
                 .iter()
-                .filter_map(|url| RemoteService::from_url(url).map(|service| (service, url)))
+                .filter_map(|info| {
+                    RemoteService::from_url(&info.url).map(|service| (service, &info.url))
+                })
                 .collect();
 
             if remote_services.is_empty() {
-                let urls_list = remotes
+                let urls_list = remote_infos
                     .iter()
-                    .map(|url| format!("  - {}", url))
+                    .map(|info| format!("  - {}", info.url))
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "No supported remotes tracked for `{path_display}`:\n{urls_list}\n\nSpecify a service (gdoc/m365) to push to.",
+                    "No supported remotes configured for `{path_display}`:\n{urls_list}\n\nSpecify a service (gdoc/m365/site) to push to.",
                 );
             }
 
@@ -411,7 +430,7 @@ impl Cli {
                     Some("⚠️"),
                 );
                 bail!(
-                    "Specify '{}' with `--force-new` to create a new document, or untrack remotes you don't want.",
+                    "Specify '{}' with `--new` to create a new document, or use a specific URL as target.",
                     first_service.cli_name()
                 );
             }
@@ -430,16 +449,19 @@ impl Cli {
         let existing_url = if let Some(url) = explicit_target {
             // Explicit target provided - use it directly
             if self.new {
-                bail!("Cannot use both an explicit target and --force-new flag");
+                bail!("Cannot use both an explicit target and --new flag");
             }
             Some(url)
         } else if self.new {
             // Force new document creation
             None
         } else {
-            // Get tracked remotes for this service
-            let remotes = doc.remotes().await?;
-            remotes.iter().find(|url| service.matches_url(url)).cloned()
+            // Get configured remotes for this service
+            let remote_infos = get_remotes_for_path(&path, None).await?;
+            remote_infos
+                .iter()
+                .find(|info| service.matches_url(&info.url))
+                .map(|info| info.url.clone())
         };
 
         // Display appropriate message
@@ -533,12 +555,18 @@ impl Cli {
         }
 
         // Track the remote (always use canonical URL for tracking)
-        doc.track_remote_pushed(url.clone()).await?;
+        update_remote_timestamp(
+            &path,
+            url.as_ref(),
+            None,
+            Some(Utc::now().timestamp() as u64),
+        )
+        .await?;
 
         if existing_url.is_none() {
             message(
                 &format!(
-                    "Tracking new {} as remote for `{path_display}`",
+                    "New {} remote for `{path_display}` (add to stencila.yaml to track)",
                     service.display_name()
                 ),
                 Some("💾"),
@@ -558,8 +586,8 @@ impl Cli {
                 );
             };
 
-            // Get tracking information to get doc_id
-            let Some((.., Some(tracking))) = doc.tracking().await? else {
+            // Verify tracking information exists
+            let Some(..) = doc.tracking().await? else {
                 bail!("Failed to get tracking information for document");
             };
 
@@ -582,16 +610,14 @@ impl Cli {
             };
             let response = create_watch(request).await?;
 
-            // Update docs.json with watch metadata
-            let mut remote_info = tracking
-                .remotes
-                .and_then(|mut remotes| remotes.remove(&url))
-                .unwrap_or_default();
-            remote_info.watch_id = Some(response.id.to_string());
-            remote_info.watch_direction = self.direction;
+            // Update stencila.yaml with watch ID
+            stencila_config::config_update_remote_watch(
+                &path,
+                url.as_ref(),
+                Some(response.id.to_string()),
+            )?;
 
             let url_str = url.to_string();
-            doc.track(Some((url, remote_info))).await?;
 
             // Success message
             let direction_desc = match self.direction.unwrap_or_default() {
@@ -628,34 +654,61 @@ impl Cli {
             );
         }
 
-        // Get all tracked files
+        // Load config to find remotes
         let cwd = std::env::current_dir()?;
-        let tracking_entries = Document::tracking_all(&cwd).await?;
 
-        let Some(entries) = tracking_entries else {
-            bail!("No tracked files found. Use *stencila status* to see tracked files.");
+        // Find workspace directory to resolve config paths correctly
+        let workspace_dir = closest_workspace_dir(&cwd, false).await?;
+        let config = stencila_config::config(&workspace_dir)?;
+
+        let Some(remotes_config) = config.remotes else {
+            bail!(
+                "No remotes configured in `stencila.yaml`. Add remotes to the config file to push."
+            );
         };
 
-        // Filter to only files with remotes
-        let files_with_remotes: Vec<_> = entries
-            .iter()
-            .filter(|(_, tracking)| {
-                tracking
-                    .remotes
-                    .as_ref()
-                    .is_some_and(|remotes| !remotes.is_empty())
-            })
-            .collect();
+        // Collect all files with their remotes
+        let mut files_with_remotes: BTreeMap<PathBuf, Vec<Url>> = BTreeMap::new();
+
+        for remote_config in remotes_config {
+            let config_path = remote_config.path.resolve(&workspace_dir);
+
+            // Expand path to actual files
+            let files = expand_path_to_files(&config_path)?;
+
+            // Parse remote URL
+            let remote_url = match Url::parse(&remote_config.url) {
+                Ok(url) => url,
+                Err(e) => {
+                    message(
+                        &format!(
+                            "Skipping invalid URL '{}' in config: {}",
+                            remote_config.url, e
+                        ),
+                        Some("⚠️"),
+                    );
+                    continue;
+                }
+            };
+
+            // Add to files map
+            for file in files {
+                files_with_remotes
+                    .entry(file)
+                    .or_default()
+                    .push(remote_url.clone());
+            }
+        }
 
         if files_with_remotes.is_empty() {
             bail!(
-                "No tracked files with remotes found. Push individual files to a remote service first."
+                "No files found with configured remotes. Check that paths in stencila.yaml exist."
             );
         }
 
         message(
             &format!(
-                "Pushing {} tracked file(s) to their remotes",
+                "Pushing {} file(s) with configured remotes",
                 files_with_remotes.len()
             ),
             Some("☁️ "),
@@ -665,25 +718,24 @@ impl Cli {
         let mut total_errors = 0;
         let mut file_results: Vec<(PathBuf, usize, usize)> = Vec::new();
 
-        for (file_path, tracking) in files_with_remotes {
+        for (file_path, remote_urls) in files_with_remotes {
             let file_display = file_path.display();
-            let remotes = tracking
-                .remotes
-                .as_ref()
-                .expect("tracking should have remotes");
 
             message(
-                &format!("Processing `{file_display}` ({} remote(s))", remotes.len()),
+                &format!(
+                    "Processing `{file_display}` ({} remote(s))",
+                    remote_urls.len()
+                ),
                 Some("📄"),
             );
 
             // Open the document
-            let doc = match Document::open(file_path, None).await {
+            let doc = match Document::open(&file_path, None).await {
                 Ok(d) => d,
                 Err(e) => {
                     message(&format!("Failed to open `{file_display}`: {e}"), Some("❌"));
-                    total_errors += remotes.len();
-                    file_results.push((file_path.clone(), 0, remotes.len()));
+                    total_errors += remote_urls.len();
+                    file_results.push((file_path.clone(), 0, remote_urls.len()));
                     continue;
                 }
             };
@@ -717,8 +769,8 @@ impl Cli {
                         &format!("Failed to execute `{file_display}`: {e}"),
                         Some("❌"),
                     );
-                    total_errors += remotes.len();
-                    file_results.push((file_path.clone(), 0, remotes.len()));
+                    total_errors += remote_urls.len();
+                    file_results.push((file_path.clone(), 0, remote_urls.len()));
                     continue;
                 }
             }
@@ -727,8 +779,8 @@ impl Cli {
             let mut file_successes = 0;
             let mut file_errors = 0;
 
-            for remote_url in remotes.keys() {
-                let remote_service = match RemoteService::from_url(remote_url) {
+            for remote_url in remote_urls {
+                let remote_service = match RemoteService::from_url(&remote_url) {
                     Some(svc) => svc,
                     None => {
                         message(
@@ -753,7 +805,7 @@ impl Cli {
                     &doc.root().await,
                     doc.path(),
                     doc.file_name(),
-                    Some(remote_url),
+                    Some(&remote_url),
                     doc.path(),
                     None, // Dry-run not supported in push_all
                 )
@@ -763,7 +815,14 @@ impl Cli {
                         let url = result.url();
                         let display_url = get_display_url(&remote_service, &url, doc.path());
 
-                        if let Err(e) = doc.track_remote_pushed(url.clone()).await {
+                        if let Err(e) = update_remote_timestamp(
+                            &file_path,
+                            url.as_ref(),
+                            None,
+                            Some(Utc::now().timestamp() as u64),
+                        )
+                        .await
+                        {
                             message(
                                 &format!(
                                     "Pushed to {display_url} but failed to update tracking: {e}"

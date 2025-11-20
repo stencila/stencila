@@ -24,6 +24,16 @@
       "items": {
         "$ref": "#/definitions/RouteConfig"
       }
+    },
+    "remotes": {
+      "description": "Remote synchronization configuration\n\nDefines mappings between local files/directories and remote services\n(Google Docs, Microsoft 365, Stencila Sites). Directory paths are\nimplicitly recursive - they match all files within that directory.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/RemoteConfig"
+      }
     }
   },
   "definitions": {
@@ -116,6 +126,36 @@
         303,
         307,
         308
+      ]
+    },
+    "RemoteConfig": {
+      "description": "Configuration for a remote synchronization target\n\nRemotes define how local files or directories map to external services\nlike Google Docs, Microsoft 365, or Stencila Sites. Each remote specifies\na path (file, directory, or pattern) and a URL to synchronize with.",
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "Path relative to workspace root\n\nCan be:\n- Single file: \"file.md\", \"report.ipynb\"\n- Directory: \"site\", \"docs\" (implicitly includes all files recursively)\n- Pattern: \"*.md\" (for matching specific files, optional)\n\nDirectory paths are automatically treated as recursive - they match\nall files within that directory and its subdirectories.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ConfigRelativePath"
+            }
+          ]
+        },
+        "url": {
+          "description": "Remote URL\n\nThe service type is inferred from the URL host:\n- Google Docs: https://docs.google.com/document/d/...\n- Microsoft 365: https://*.sharepoint.com/...\n- Stencila Sites: https://*.stencila.site/...",
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "watch": {
+          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.\n\nIf no watch exists, this field is omitted.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "path",
+        "url"
       ]
     }
   },

@@ -71,8 +71,9 @@ use stencila_codec_zenodo::ZenodoCodec;
 //#[cfg(feature = "stencila-codec-polars")]
 //use stencila_codec_polars::PolarsCodec;
 
+use stencila_remotes::RemoteService;
+
 pub mod cli;
-pub mod remotes;
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
@@ -1053,7 +1054,7 @@ async fn check_git_for_merge(path: &Path, commit: &str, other: &Path, force: boo
 /// Uploads the document to the remote service and returns the result.
 #[tracing::instrument(skip(node))]
 pub async fn push(
-    service: &remotes::RemoteService,
+    service: &RemoteService,
     node: &Node,
     path: Option<&Path>,
     title: Option<&str>,
@@ -1072,7 +1073,7 @@ pub async fn push(
 /// Returns `Some(paths)` with modified file paths, or `None` if merge was cancelled.
 #[tracing::instrument]
 pub async fn pull(
-    service: &remotes::RemoteService,
+    service: &RemoteService,
     url: &Url,
     dest: &Path,
     merge: bool,

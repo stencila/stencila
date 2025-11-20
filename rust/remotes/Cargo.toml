@@ -1,0 +1,27 @@
+[package]
+name = "stencila-remotes"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+chrono = { workspace = true }
+clap = { workspace = true }
+eyre = { workspace = true }
+futures = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+stencila-cloud = { path = "../cloud" }
+stencila-codec = { path = "../codec" }
+stencila-codec-gdoc = { path = "../codec-gdoc" }
+stencila-codec-m365 = { path = "../codec-m365" }
+stencila-codec-site = { path = "../codec-site" }
+stencila-config = { path = "../config" }
+stencila-dirs = { path = "../dirs" }
+strum = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+
+[lints]
+workspace = true

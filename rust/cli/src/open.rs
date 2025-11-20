@@ -5,8 +5,8 @@ use eyre::{OptionExt, Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_codecs::remotes::RemoteService;
 use stencila_document::{Document, SyncDirection};
+use stencila_remotes::{RemoteService, get_remotes_for_path};
 use stencila_server::{ServeOptions, get_server_token};
 
 /// Open a document in the browser
@@ -104,9 +104,8 @@ impl Cli {
         let file = file.canonicalize()?;
         let path_display = self.path.display();
 
-        // Open the document to get tracked remotes
-        let doc = Document::open(&file, None).await?;
-        let remotes = doc.remotes().await?;
+        // Get remotes for the resolved file (not the original path which might be a directory)
+        let remote_infos = get_remotes_for_path(&file, None).await?;
 
         // Parse the target argument to determine what to open
         let (open_local, remote_to_open) = if let Some(ref target_str) = self.target {
@@ -117,29 +116,29 @@ impl Cli {
                 }
                 "gdoc" | "gdocs" => {
                     // Find Google Docs remote
-                    let remote = remotes
+                    let remote = remote_infos
                         .iter()
-                        .find(|url| RemoteService::GoogleDocs.matches_url(url))
-                        .ok_or_else(|| eyre!("No Google Doc tracked for `{path_display}`"))?;
-                    (false, Some(remote.clone()))
+                        .find(|info| RemoteService::GoogleDocs.matches_url(&info.url))
+                        .ok_or_else(|| eyre!("No Google Doc configured for `{path_display}`"))?;
+                    (false, Some(remote.url.clone()))
                 }
                 "m365" => {
                     // Find Microsoft 365 remote
-                    let remote = remotes
+                    let remote = remote_infos
                         .iter()
-                        .find(|url| RemoteService::Microsoft365.matches_url(url))
+                        .find(|info| RemoteService::Microsoft365.matches_url(&info.url))
                         .ok_or_else(|| {
-                            eyre!("No Microsoft 365 doc tracked for `{path_display}`",)
+                            eyre!("No Microsoft 365 doc configured for `{path_display}`",)
                         })?;
-                    (false, Some(remote.clone()))
+                    (false, Some(remote.url.clone()))
                 }
                 "site" | "sites" => {
                     // Find Stencila Site
-                    let remote = remotes
+                    let remote = remote_infos
                         .iter()
-                        .find(|url| RemoteService::StencilaSites.matches_url(url))
-                        .ok_or_else(|| eyre!("No Stencila Site tracked for `{path_display}`"))?;
-                    (false, Some(remote.clone()))
+                        .find(|info| RemoteService::StencilaSites.matches_url(&info.url))
+                        .ok_or_else(|| eyre!("No Stencila Site configured for `{path_display}`"))?;
+                    (false, Some(remote.url.clone()))
                 }
                 _ => {
                     // Try to parse as full URL
@@ -153,9 +152,9 @@ impl Cli {
                     let _service = RemoteService::from_url(&url)
                         .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
 
-                    // Check if this URL is tracked for the document
-                    if !remotes.contains(&url) {
-                        bail!("URL {url} is not tracked for `{path_display}`");
+                    // Check if this URL is configured for the document
+                    if !remote_infos.iter().any(|info| info.url == url) {
+                        bail!("URL {url} is not configured for `{path_display}`");
                     }
 
                     (false, Some(url))
@@ -179,14 +178,18 @@ impl Cli {
             // Open only the specified remote
             message(&format!("Opening {url_to_open} in browser"), Some("🌐"));
             webbrowser::open(url_to_open.as_str())?;
-        } else if self.target.is_none() && !self.no_remotes && !remotes.is_empty() {
+        } else if self.target.is_none() && !self.no_remotes && !remote_infos.is_empty() {
             // No target specified and remotes not disabled - open all remotes
             message(
-                &format!("Opening {} tracked remote(s) in browser", remotes.len()),
+                &format!(
+                    "Opening {} configured remote(s) in browser",
+                    remote_infos.len()
+                ),
                 Some("🌐"),
             );
-            for remote_url in &remotes {
+            for info in &remote_infos {
                 // Convert to browseable URL for Stencila Sites
+                let remote_url = &info.url;
                 let url_to_open = if RemoteService::StencilaSites.matches_url(remote_url) {
                     stencila_codec_site::browseable_url(remote_url, Some(&file))
                         .unwrap_or_else(|_| remote_url.clone())

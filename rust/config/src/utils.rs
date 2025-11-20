@@ -348,3 +348,143 @@ pub(crate) fn unset_nested_value(root: &mut serde_yaml::Value, key: &str) -> Res
 
     Ok(())
 }
+
+/// Update the watch ID for a specific remote in the config
+///
+/// Finds the remote configuration matching the given file path and URL,
+/// then updates its watch field. If watch_id is None, the watch field is removed.
+///
+/// This function:
+/// 1. Finds the nearest stencila.yaml file (or creates one if none exists)
+/// 2. Locates the remote entry matching both path and URL
+/// 3. Updates the watch field
+/// 4. Writes the config back to the file
+///
+/// Returns the path to the modified config file.
+pub fn config_update_remote_watch(
+    file_path: &Path,
+    remote_url: &str,
+    watch_id: Option<String>,
+) -> Result<PathBuf> {
+    // Find the nearest stencila.yaml starting from the file's directory
+    // This ensures we find the config even when CWD is outside the workspace
+    let search_dir = if file_path.is_file() {
+        file_path
+            .parent()
+            .ok_or_else(|| eyre!("File has no parent directory"))?
+    } else {
+        file_path
+    };
+
+    let config_path = find_config_file(search_dir, "stencila.yaml")
+        .unwrap_or_else(|| search_dir.join("stencila.yaml"));
+
+    // Load existing config or create empty
+    let mut config_value: serde_yaml::Value = if config_path.exists() {
+        let contents = fs::read_to_string(&config_path)?;
+        serde_yaml::from_str(&contents)?
+    } else {
+        serde_yaml::Value::Mapping(serde_yaml::Mapping::new())
+    };
+
+    // Get the remotes array
+    let remotes_key = serde_yaml::Value::String("remotes".to_string());
+    let mapping = config_value
+        .as_mapping_mut()
+        .ok_or_else(|| eyre!("Config is not a mapping"))?;
+
+    let remotes = mapping
+        .get_mut(&remotes_key)
+        .ok_or_else(|| eyre!("No remotes configured in stencila.yaml"))?;
+
+    let remotes_array = remotes
+        .as_sequence_mut()
+        .ok_or_else(|| eyre!("remotes field is not an array"))?;
+
+    // Get workspace directory (parent of config file)
+    let workspace_dir = config_path
+        .parent()
+        .ok_or_else(|| eyre!("Config file has no parent directory"))?;
+
+    // Canonicalize and make file_path workspace-relative
+    let file_canonical = match file_path.canonicalize() {
+        Ok(path) => path,
+        Err(_) => {
+            // If file doesn't exist, try to canonicalize its parent and rejoin filename
+            let parent = file_path
+                .parent()
+                .ok_or_else(|| eyre!("File path has no parent"))?;
+            let filename = file_path
+                .file_name()
+                .ok_or_else(|| eyre!("File path has no filename"))?;
+            parent.canonicalize()?.join(filename)
+        }
+    };
+
+    let file_relative = file_canonical
+        .strip_prefix(workspace_dir)
+        .unwrap_or(&file_canonical);
+
+    // Find matching remote by path and URL
+    let mut found = false;
+    for remote in remotes_array.iter_mut() {
+        let remote_map = remote
+            .as_mapping_mut()
+            .ok_or_else(|| eyre!("Remote entry is not a mapping"))?;
+
+        let path_key = serde_yaml::Value::String("path".to_string());
+        let url_key = serde_yaml::Value::String("url".to_string());
+        let watch_key = serde_yaml::Value::String("watch".to_string());
+
+        // Check if this remote matches our path and URL
+        let remote_path_str = remote_map
+            .get(&path_key)
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        let remote_url_value = remote_map
+            .get(&url_key)
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+
+        // Resolve and canonicalize the remote path
+        let remote_path = workspace_dir.join(remote_path_str);
+        let remote_canonical = remote_path.canonicalize().or_else(|_| {
+            // If path doesn't exist (e.g., directory not created yet), use as-is
+            Ok::<PathBuf, eyre::Error>(remote_path.clone())
+        })?;
+
+        let remote_relative = remote_canonical
+            .strip_prefix(workspace_dir)
+            .unwrap_or(&remote_canonical);
+
+        // Match if either the paths are equal (file match) or file is under remote dir (directory match)
+        let path_matches = file_relative == remote_relative
+            || (remote_canonical.is_dir() && file_relative.starts_with(remote_relative));
+
+        if path_matches && remote_url_value == remote_url {
+            // Update or remove the watch field
+            if let Some(id) = &watch_id {
+                remote_map.insert(watch_key, serde_yaml::Value::String(id.clone()));
+            } else {
+                remote_map.remove(&watch_key);
+            }
+            found = true;
+            break;
+        }
+    }
+
+    if !found {
+        return Err(eyre!(
+            "No remote found matching path '{}' (workspace-relative: '{}') and URL '{}'",
+            file_path.display(),
+            file_relative.display(),
+            remote_url
+        ));
+    }
+
+    // Write back to file
+    let yaml_string = serde_yaml::to_string(&config_value)?;
+    fs::write(&config_path, yaml_string)?;
+
+    Ok(config_path)
+}

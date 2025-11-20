@@ -47,9 +47,7 @@ pub use stencila_codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResp
 pub use stencila_node_execute::ExecuteOptions;
 pub use stencila_schema;
 pub use sync_dom::DomPatch;
-pub use track::{
-    DocumentTracking, DocumentTrackingEntries, DocumentTrackingStatus, WatchDirection, WatchPrMode,
-};
+pub use track::{DocumentTracking, DocumentTrackingEntries, RemoteStatus};
 
 /// The synchronization mode between documents and external resources
 ///
@@ -456,7 +454,7 @@ impl Document {
         // and save it (which create the file itself)
         let doc = Self::at(path, None, Some(node_type)).await?;
         doc.save().await?;
-        doc.track(None).await?;
+        doc.track().await?;
         Ok(doc)
     }
 

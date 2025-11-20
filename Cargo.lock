@@ -8369,7 +8369,9 @@ dependencies = [
 name = "stencila-cli"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "chrono",
+ "chrono-humanize",
  "clap",
  "color-eyre",
  "console-subscriber",
@@ -8402,6 +8404,7 @@ dependencies = [
  "stencila-node-supplements",
  "stencila-prompts",
  "stencila-publish",
+ "stencila-remotes",
  "stencila-schema",
  "stencila-secrets",
  "stencila-server",
@@ -9382,6 +9385,7 @@ dependencies = [
  "stencila-codec-zenodo",
  "stencila-node-strip",
  "stencila-node-structuring",
+ "stencila-remotes",
  "strum",
  "tempfile",
  "tokio",
@@ -9480,6 +9484,7 @@ dependencies = [
  "stencila-codec-text",
  "stencila-codec-utils",
  "stencila-codecs",
+ "stencila-config",
  "stencila-dirs",
  "stencila-format",
  "stencila-kernels",
@@ -9491,6 +9496,7 @@ dependencies = [
  "stencila-node-first",
  "stencila-node-map",
  "stencila-node-strip",
+ "stencila-remotes",
  "stencila-schema",
  "stencila-tools",
  "strum",
@@ -9928,6 +9934,7 @@ dependencies = [
  "Inflector",
  "async-lsp",
  "async-trait",
+ "chrono",
  "eyre",
  "itertools 0.14.0",
  "percent-encoding",
@@ -9949,6 +9956,7 @@ dependencies = [
  "stencila-node-execute",
  "stencila-node-find",
  "stencila-prompts",
+ "stencila-remotes",
  "stencila-schema",
  "tokio",
  "tokio-util",
@@ -10497,6 +10505,7 @@ dependencies = [
  "stencila-codec-text",
  "stencila-document",
  "stencila-node-media",
+ "stencila-remotes",
  "stencila-secrets",
  "strum",
  "tempfile",
@@ -10554,6 +10563,30 @@ dependencies = [
  "pyo3-async-runtimes",
  "serde_json",
  "stencila-codecs",
+]
+
+[[package]]
+name = "stencila-remotes"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "eyre",
+ "futures",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "stencila-cloud",
+ "stencila-codec",
+ "stencila-codec-gdoc",
+ "stencila-codec-m365",
+ "stencila-codec-site",
+ "stencila-config",
+ "stencila-dirs",
+ "strum",
+ "tokio",
+ "tracing",
+ "url",
 ]
 
 [[package]]

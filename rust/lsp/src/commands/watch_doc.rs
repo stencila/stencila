@@ -1,14 +1,16 @@
+use std::collections::BTreeMap;
+
 use async_lsp::{
     ClientSocket, LanguageClient, ResponseError,
     lsp_types::{MessageType, ShowMessageParams},
 };
 use eyre::Result;
+use reqwest::Url;
 use serde_json::{Value, json};
 
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
-use stencila_codecs::remotes::RemoteService;
-use stencila_document::Document;
+use stencila_remotes::RemoteService;
 
 use super::{internal_error, invalid_request, path_buf_arg, progress::create_progress};
 
@@ -84,24 +86,6 @@ pub(crate) async fn watch_doc(
         return Ok(None);
     };
 
-    // Open the document
-    progress
-        .send((20, Some("opening document".to_string())))
-        .ok();
-    let doc = match Document::open(&path, None).await {
-        Ok(doc) => doc,
-        Err(error) => {
-            progress.send((100, None)).ok();
-            client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::ERROR,
-                    message: format!("Failed to open document: {error}"),
-                })
-                .ok();
-            return Ok(None);
-        }
-    };
-
     // Get tracking information
     progress
         .send((30, Some("checking remotes".to_string())))
@@ -113,18 +97,25 @@ pub(crate) async fn watch_doc(
             "message": "No tracked remotes found. Please push to a remote first."
         })))
     };
-    let Some((.., Some(tracking))) = doc.tracking().await.map_err(internal_error)? else {
-        return no_remotes();
-    };
-    let Some(remotes) = tracking.remotes else {
-        return no_remotes();
-    };
-    if remotes.is_empty() {
+    // Get remotes for this document
+    let workspace_dir = stencila_dirs::closest_workspace_dir(&path, false)
+        .await
+        .map_err(internal_error)?;
+    let remote_infos = stencila_remotes::get_remotes_for_path(&path, Some(&workspace_dir))
+        .await
+        .map_err(internal_error)?;
+    if remote_infos.is_empty() {
         return no_remotes();
     }
 
+    // Convert to BTreeMap
+    let remotes: BTreeMap<Url, stencila_remotes::RemoteInfo> = remote_infos
+        .into_iter()
+        .map(|r| (r.url.clone(), r))
+        .collect();
+
     // Determine which remote to watch based on target argument or tracked remotes
-    let (remote_url, mut remote_info) = if let Some(target_str) = target {
+    let (remote_url, remote_info) = if let Some(target_str) = target {
         // Parse target as service shorthand or URL
         let target_url = match target_str {
             "gdoc" | "gdocs" => {
@@ -241,19 +232,19 @@ pub(crate) async fn watch_doc(
         }
     };
 
-    // Update docs.json with watch metadata
+    // Store watch ID in stencila.yaml config
     progress
-        .send((80, Some("updating tracking".to_string())))
+        .send((80, Some("updating config".to_string())))
         .ok();
-    remote_info.watch_id = Some(response.id.to_string());
-    remote_info.watch_direction = direction.and_then(|d| d.parse().ok());
-
-    if let Err(error) = doc.track(Some((remote_url.clone(), remote_info))).await {
+    if let Err(error) =
+        stencila_remotes::update_watch_id(&path, remote_url.as_ref(), Some(response.id.to_string()))
+            .await
+    {
         progress.send((100, None)).ok();
         client
             .show_message(ShowMessageParams {
                 typ: MessageType::ERROR,
-                message: format!("Failed to update watch tracking: {error}"),
+                message: format!("Failed to update watch config: {error}"),
             })
             .ok();
         return Ok(None);

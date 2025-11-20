@@ -6,8 +6,8 @@ use eyre::{Result, bail, eyre};
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
-use stencila_codecs::remotes::RemoteService;
-use stencila_document::{Document, WatchDirection, WatchPrMode};
+use stencila_config::config_update_remote_watch;
+use stencila_remotes::{RemoteService, WatchDirection, WatchPrMode, get_remotes_for_path};
 use url::Url;
 
 /// Enable automatic sync between a document and its remote
@@ -94,42 +94,34 @@ impl Cli {
             Ok(())
         };
 
-        // Open the document and get tracking information
-        let doc = Document::open(&self.path, None).await?;
-        let Some((.., Some(tracking))) = doc.tracking().await? else {
-            return no_remotes();
-        };
-
-        // Get tracked remotes
-        let Some(remotes) = tracking.remotes else {
-            return no_remotes();
-        };
-        if remotes.is_empty() {
+        // Get remotes from config
+        let remote_infos = get_remotes_for_path(&self.path, None).await?;
+        if remote_infos.is_empty() {
             return no_remotes();
         }
 
-        // Determine which remote to watch based on target argument or tracked remotes
-        let (remote_url, mut remote_info) = if let Some(target_str) = self.target {
+        // Determine which remote to watch based on target argument or configured remotes
+        let remote_info = if let Some(target_str) = self.target {
             // Parse target or service shorthand
             let target_url = match target_str.as_str() {
                 "gdoc" | "gdocs" => {
                     // Find the Google Docs remote
-                    remotes
+                    remote_infos
                         .iter()
-                        .find(|(url, _)| RemoteService::GoogleDocs.matches_url(url))
+                        .find(|info| RemoteService::GoogleDocs.matches_url(&info.url))
                         .ok_or_else(|| eyre!("No Google Doc found for `{path_display}`"))?
-                        .0
+                        .url
                         .clone()
                 }
                 "m365" => {
                     // Find the M365 remote
-                    remotes
+                    remote_infos
                         .iter()
-                        .find(|(url, _)| RemoteService::Microsoft365.matches_url(url))
+                        .find(|info| RemoteService::Microsoft365.matches_url(&info.url))
                         .ok_or_else(|| {
                             eyre!("No Microsoft 365 document found for `{path_display}`")
                         })?
-                        .0
+                        .url
                         .clone()
                 }
                 _ => {
@@ -143,23 +135,26 @@ impl Cli {
                 }
             };
 
-            // Find the remote in the tracked remotes
-            remotes
+            // Find the remote in the configured remotes
+            remote_infos
                 .into_iter()
-                .find(|(url, _)| url == &target_url)
+                .find(|info| info.url == target_url)
                 .ok_or_else(|| {
-                    eyre!("Remote target not found in tracked remotes: {}", target_url)
+                    eyre!(
+                        "Remote target not found in configured remotes: {}",
+                        target_url
+                    )
                 })?
         } else {
             // No target specified - check if there's only one remote
-            if remotes.len() > 1 {
-                let remotes_list = remotes
-                    .keys()
-                    .map(|url| {
-                        let service = RemoteService::from_url(url)
+            if remote_infos.len() > 1 {
+                let remotes_list = remote_infos
+                    .iter()
+                    .map(|info| {
+                        let service = RemoteService::from_url(&info.url)
                             .map(|s| s.cli_name().to_string())
                             .unwrap_or_else(|| "unknown".to_string());
-                        format!("  - {}: {}", service, url)
+                        format!("  - {}: {}", service, info.url)
                     })
                     .collect::<Vec<_>>()
                     .join("\n");
@@ -169,17 +164,17 @@ impl Cli {
             }
 
             // Get the single remote
-            remotes
+            remote_infos
                 .into_iter()
                 .next()
                 .ok_or_else(|| eyre!("No remote found (this should not happen)"))?
         };
 
         // Check if already being watched
-        if remote_info.is_watched() {
-            let service_name = RemoteService::from_url(&remote_url)
+        if remote_info.config.watch.is_some() {
+            let service_name = RemoteService::from_url(&remote_info.url)
                 .map(|s| s.display_name_plural().to_string())
-                .unwrap_or_else(|| remote_url.to_string());
+                .unwrap_or_else(|| remote_info.url.to_string());
             message(
                 &format!("File `{path_display}` is already being watched on `{service_name}`."),
                 Some("👁️ "),
@@ -198,7 +193,7 @@ impl Cli {
 
         // Create watch request
         let request = WatchRequest {
-            remote_url: remote_url.to_string(),
+            remote_url: remote_info.url.to_string(),
             repo_url,
             file_path,
             direction: self.direction.map(|dir| dir.to_string()),
@@ -209,12 +204,14 @@ impl Cli {
         // Call Cloud API to create watch
         let response = create_watch(request).await?;
 
-        // Update docs.json with watch metadata
-        remote_info.watch_id = Some(response.id.to_string());
-        remote_info.watch_direction = self.direction;
+        // Update stencila.yaml with watch ID
+        config_update_remote_watch(
+            &self.path,
+            remote_info.url.as_ref(),
+            Some(response.id.to_string()),
+        )?;
 
-        let remote_url_str = remote_url.to_string();
-        doc.track(Some((remote_url, remote_info))).await?;
+        let remote_url_str = remote_info.url.to_string();
 
         // Success message
         let direction_desc = match self.direction.unwrap_or_default() {

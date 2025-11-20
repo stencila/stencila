@@ -2,10 +2,13 @@ use async_lsp::{
     ClientSocket, LanguageClient, ResponseError,
     lsp_types::{ExecuteCommandParams, MessageType, ShowMessageParams},
 };
+use chrono::Utc;
 use eyre::Result;
 use serde_json::{Value, json};
 
+use stencila_dirs::closest_workspace_dir;
 use stencila_document::Document;
+use stencila_remotes::{get_all_remote_entries, update_remote_timestamp};
 
 use super::internal_error;
 
@@ -25,36 +28,32 @@ pub(crate) async fn push_docs(
         .unwrap_or(false);
     let args_str = options.get("args").and_then(|v| v.as_str());
 
-    // Get current directory and all tracked files
+    // Get current directory and workspace
     let cwd = std::env::current_dir().map_err(internal_error)?;
-    let tracking_entries = Document::tracking_all(&cwd).await.map_err(internal_error)?;
+    let workspace_dir = closest_workspace_dir(&cwd, false)
+        .await
+        .map_err(internal_error)?;
 
-    let Some(entries) = tracking_entries else {
+    // Get all files with remotes
+    let file_entries = get_all_remote_entries(&workspace_dir)
+        .await
+        .map_err(internal_error)?;
+
+    let Some(entries) = file_entries else {
         client
             .show_message(ShowMessageParams {
                 typ: MessageType::ERROR,
-                message: "No tracked files found".to_string(),
+                message: "No files with remotes found".to_string(),
             })
             .ok();
         return Ok(None);
     };
 
-    // Filter to files with remotes
-    let files_with_remotes: Vec<_> = entries
-        .iter()
-        .filter(|(_, tracking)| {
-            tracking
-                .remotes
-                .as_ref()
-                .is_some_and(|remotes| !remotes.is_empty())
-        })
-        .collect();
-
-    if files_with_remotes.is_empty() {
+    if entries.is_empty() {
         client
             .show_message(ShowMessageParams {
                 typ: MessageType::ERROR,
-                message: "No tracked files with remotes found".to_string(),
+                message: "No files with remotes found".to_string(),
             })
             .ok();
         return Ok(None);
@@ -63,16 +62,11 @@ pub(crate) async fn push_docs(
     let mut total_successes = 0;
     let mut total_errors = 0;
 
-    use stencila_codecs::remotes::RemoteService;
+    use stencila_remotes::RemoteService;
 
-    for (file_path, tracking) in files_with_remotes {
-        let remotes = tracking
-            .remotes
-            .as_ref()
-            .expect("tracking should have remotes");
-
+    for (file_path, remotes) in entries {
         // Open document
-        let doc = match Document::open(file_path, None).await {
+        let doc = match Document::open(&file_path, None).await {
             Ok(d) => d,
             Err(_) => {
                 total_errors += remotes.len();
@@ -124,10 +118,22 @@ pub(crate) async fn push_docs(
             .await
             {
                 Ok(result) => {
-                    if doc.track_remote_pushed(result.url()).await.is_ok() {
-                        total_successes += 1;
+                    if let Some(doc_path) = doc.path() {
+                        if update_remote_timestamp(
+                            doc_path,
+                            result.url().as_ref(),
+                            None,
+                            Some(Utc::now().timestamp() as u64),
+                        )
+                        .await
+                        .is_ok()
+                        {
+                            total_successes += 1;
+                        } else {
+                            total_errors += 1;
+                        }
                     } else {
-                        total_errors += 1;
+                        total_successes += 1; // Count as success even if we can't track
                     }
                 }
                 Err(_) => {

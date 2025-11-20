@@ -2,11 +2,13 @@ use async_lsp::{
     ClientSocket, LanguageClient, ResponseError,
     lsp_types::{ExecuteCommandParams, MessageType, ShowMessageParams, Url},
 };
+use chrono::Utc;
 use eyre::Result;
 use serde_json::{Value, json};
 
 use stencila_codecs::{DecodeOptions, EncodeOptions};
 use stencila_document::Document;
+use stencila_remotes::{RemoteService, get_remotes_for_path, update_remote_timestamp};
 
 use super::{internal_error, invalid_request, path_buf_arg, progress::create_progress};
 
@@ -48,7 +50,7 @@ pub(crate) async fn pull_doc(
 
     // Open the document
     progress.send((20, Some("opening".to_string()))).ok();
-    let doc = match Document::open(&path, None).await {
+    let _doc = match Document::open(&path, None).await {
         Ok(doc) => doc,
         Err(error) => {
             progress.send((100, None)).ok();
@@ -66,27 +68,28 @@ pub(crate) async fn pull_doc(
     progress
         .send((30, Some("determining remote".to_string())))
         .ok();
-    use stencila_codecs::remotes::RemoteService;
 
     let (service, url) = if let Some(target_str) = target {
         match target_str {
             "gdoc" | "gdocs" => {
-                let remotes = doc.remotes().await.map_err(internal_error)?;
-                let url = remotes
+                let remote_infos = get_remotes_for_path(&path, None)
+                    .await
+                    .map_err(internal_error)?;
+                let remote_info = remote_infos
                     .iter()
-                    .find(|u| RemoteService::GoogleDocs.matches_url(u))
-                    .ok_or_else(|| invalid_request("No Google Docs remote found"))?
-                    .clone();
-                (RemoteService::GoogleDocs, url)
+                    .find(|info| RemoteService::GoogleDocs.matches_url(&info.url))
+                    .ok_or_else(|| invalid_request("No Google Docs remote configured"))?;
+                (RemoteService::GoogleDocs, remote_info.url.clone())
             }
             "m365" => {
-                let remotes = doc.remotes().await.map_err(internal_error)?;
-                let url = remotes
+                let remote_infos = get_remotes_for_path(&path, None)
+                    .await
+                    .map_err(internal_error)?;
+                let remote_info = remote_infos
                     .iter()
-                    .find(|u| RemoteService::Microsoft365.matches_url(u))
-                    .ok_or_else(|| invalid_request("No Microsoft 365 remote found"))?
-                    .clone();
-                (RemoteService::Microsoft365, url)
+                    .find(|info| RemoteService::Microsoft365.matches_url(&info.url))
+                    .ok_or_else(|| invalid_request("No Microsoft 365 remote configured"))?;
+                (RemoteService::Microsoft365, remote_info.url.clone())
             }
             _ => {
                 let url = Url::parse(target_str)
@@ -101,30 +104,32 @@ pub(crate) async fn pull_doc(
             }
         }
     } else {
-        // Use tracked remotes
-        let remotes = doc.remotes().await.map_err(internal_error)?;
-        if remotes.is_empty() {
+        // Use configured remotes
+        let remote_infos = get_remotes_for_path(&path, None)
+            .await
+            .map_err(internal_error)?;
+        if remote_infos.is_empty() {
             // Close progress before returning status response
             progress.send((100, None)).ok();
             // Return a status response indicating no remotes (not an error, requires user input)
             return Ok(Some(json!({
                 "status": "no_remotes",
-                "message": "No tracked remotes found. Please select a target."
+                "message": "No configured remotes found. Please select a target."
             })));
         }
 
         // If multiple remotes, we need the user to specify which one
-        if remotes.len() > 1 {
+        if remote_infos.len() > 1 {
             // Close progress before returning status response
             progress.send((100, None)).ok();
             // Return status response with list of remotes for VSCode to prompt user
-            let remotes_json: Vec<_> = remotes
+            let remotes_json: Vec<_> = remote_infos
                 .iter()
-                .filter_map(|url| {
-                    RemoteService::from_url(url).map(|service| {
+                .filter_map(|info| {
+                    RemoteService::from_url(&info.url).map(|service| {
                         json!({
                             "service": service.display_name(),
-                            "url": url.to_string()
+                            "url": info.url.to_string()
                         })
                     })
                 })
@@ -137,15 +142,15 @@ pub(crate) async fn pull_doc(
             })));
         }
 
-        let remote_url = &remotes[0];
-        let service = RemoteService::from_url(remote_url).ok_or_else(|| {
+        let remote_info = &remote_infos[0];
+        let service = RemoteService::from_url(&remote_info.url).ok_or_else(|| {
             invalid_request(format!(
-                "Tracked remote {} is not from a supported service",
-                remote_url
+                "Configured remote {} is not from a supported service",
+                remote_info.url
             ))
         })?;
 
-        (service, remote_url.clone())
+        (service, remote_info.url.clone())
     };
 
     // Pull from remote
@@ -175,7 +180,14 @@ pub(crate) async fn pull_doc(
 
     // Track the remote pull
     progress.send((80, Some("recording".to_string()))).ok();
-    if let Err(error) = doc.track_remote_pulled(url).await {
+    if let Err(error) = update_remote_timestamp(
+        &path,
+        url.as_ref(),
+        Some(Utc::now().timestamp() as u64),
+        None,
+    )
+    .await
+    {
         client
             .show_message(ShowMessageParams {
                 typ: MessageType::ERROR,

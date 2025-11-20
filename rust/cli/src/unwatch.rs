@@ -5,8 +5,8 @@ use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::delete_watch;
-use stencila_codecs::remotes::RemoteService;
-use stencila_document::Document;
+use stencila_config::config_update_remote_watch;
+use stencila_remotes::{RemoteService, get_remotes_for_path};
 use url::Url;
 
 /// Disable automatic sync for a document
@@ -57,42 +57,34 @@ impl Cli {
             Ok(())
         };
 
-        // Open the document and get tracking information
-        let doc = Document::open(&self.path, None).await?;
-        let Some((.., Some(tracking))) = doc.tracking().await? else {
-            return not_watched();
-        };
-
-        // Get tracked remotes
-        let Some(remotes) = tracking.remotes else {
-            return not_watched();
-        };
-        if remotes.is_empty() {
+        // Get remotes from config
+        let remote_infos = get_remotes_for_path(&self.path, None).await?;
+        if remote_infos.is_empty() {
             return not_watched();
         }
 
         // Determine which remote to unwatch based on target argument
-        let (remote_url, mut remote_info) = if let Some(target_str) = self.target {
+        let remote_info = if let Some(target_str) = self.target {
             // Parse target or service shorthand
             let target_url = match target_str.as_str() {
                 "gdoc" | "gdocs" => {
                     // Find the Google Docs remote
-                    remotes
+                    remote_infos
                         .iter()
-                        .find(|(url, _)| RemoteService::GoogleDocs.matches_url(url))
+                        .find(|info| RemoteService::GoogleDocs.matches_url(&info.url))
                         .ok_or_else(|| eyre!("No Google Doc found for `{path_display}`"))?
-                        .0
+                        .url
                         .clone()
                 }
                 "m365" => {
                     // Find the M365 remote
-                    remotes
+                    remote_infos
                         .iter()
-                        .find(|(url, _)| RemoteService::Microsoft365.matches_url(url))
+                        .find(|info| RemoteService::Microsoft365.matches_url(&info.url))
                         .ok_or_else(|| {
                             eyre!("No Microsoft 365 document found for `{path_display}`")
                         })?
-                        .0
+                        .url
                         .clone()
                 }
                 _ => {
@@ -105,16 +97,18 @@ impl Cli {
                 }
             };
 
-            // Find the remote in the tracked remotes
-            remotes
+            // Find the remote in the configured remotes
+            remote_infos
                 .into_iter()
-                .find(|(url, _)| url == &target_url)
-                .ok_or_else(|| eyre!("Remote target not found in tracked remotes: {target_url}"))?
+                .find(|info| info.url == target_url)
+                .ok_or_else(|| {
+                    eyre!("Remote target not found in configured remotes: {target_url}")
+                })?
         } else {
             // No target specified - check if there's only one watched remote
-            let watched_remotes: Vec<_> = remotes
+            let watched_remotes: Vec<_> = remote_infos
                 .iter()
-                .filter(|(_, info)| info.is_watched())
+                .filter(|info| info.config.watch.is_some())
                 .collect();
 
             if watched_remotes.is_empty() {
@@ -124,11 +118,11 @@ impl Cli {
             if watched_remotes.len() > 1 {
                 let urls_list = watched_remotes
                     .iter()
-                    .map(|(url, _)| {
-                        let service = RemoteService::from_url(url)
+                    .map(|info| {
+                        let service = RemoteService::from_url(&info.url)
                             .map(|s| s.cli_name().to_string())
                             .unwrap_or_else(|| "unknown".to_string());
-                        format!("  - {}: {}", service, url)
+                        format!("  - {}: {}", service, info.url)
                     })
                     .collect::<Vec<_>>()
                     .join("\n");
@@ -138,28 +132,24 @@ impl Cli {
             }
 
             // Get the single watched remote
-            let (url, info) = watched_remotes[0];
-            (url.clone(), info.clone())
+            watched_remotes[0].clone()
         };
 
         // Check if remote is actually being watched
-        if !remote_info.is_watched() {
-            bail!("Remote {remote_url} is not being watched.");
+        if remote_info.config.watch.is_none() {
+            bail!("Remote {} is not being watched.", remote_info.url);
         }
 
         // Call Cloud API to delete watch
         let watch_id = remote_info
-            .watch_id
+            .config
+            .watch
             .as_ref()
             .ok_or_else(|| eyre!("No watch ID found"))?;
         delete_watch(watch_id).await?;
 
-        // Clear watch metadata (but preserve other tracking info)
-        remote_info.watch_id = None;
-        remote_info.watch_direction = None;
-
-        // Update docs.json
-        doc.track(Some((remote_url, remote_info))).await?;
+        // Remove watch ID from stencila.yaml
+        config_update_remote_watch(&self.path, remote_info.url.as_ref(), None)?;
 
         // Success message
         message(

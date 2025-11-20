@@ -12,7 +12,8 @@ use tempfile::TempDir;
 use crate::{
     Config, find_config_file,
     utils::{
-        ConfigTarget, collect_config_paths, config_set, config_unset, config_value, normalize_path,
+        ConfigTarget, collect_config_paths, config_set, config_unset, config_update_remote_watch,
+        config_value, normalize_path,
     },
 };
 
@@ -520,6 +521,103 @@ fn test_user_config_includes_local() -> Result<()> {
             );
         }
     }
+
+    Ok(())
+}
+
+#[test]
+fn test_config_update_remote_watch_finds_config_from_file_path() -> Result<()> {
+    // Create a temporary workspace with a config file and a document
+    let workspace = TempDir::new()?;
+    let workspace_path = workspace.path();
+
+    // Create a nested directory structure
+    let docs_dir = workspace_path.join("docs");
+    fs::create_dir_all(&docs_dir)?;
+
+    // Create a stencila.yaml in the workspace root
+    let config_path = workspace_path.join("stencila.yaml");
+    fs::write(
+        &config_path,
+        r#"
+remotes:
+  - path: docs/test.md
+    url: https://docs.google.com/document/d/abc123
+"#,
+    )?;
+
+    // Create the document file
+    let doc_path = docs_dir.join("test.md");
+    fs::write(&doc_path, "# Test")?;
+
+    // Change to a completely different directory (simulating running command from outside workspace)
+    let original_dir = std::env::current_dir()?;
+    let temp_cwd = TempDir::new()?;
+    std::env::set_current_dir(temp_cwd.path())?;
+
+    // Try to update watch ID - this should find the config based on file path, not CWD
+    let result = config_update_remote_watch(
+        &doc_path,
+        "https://docs.google.com/document/d/abc123",
+        Some("watch_123".to_string()),
+    );
+
+    // Restore original directory
+    std::env::set_current_dir(original_dir)?;
+
+    // Verify the update succeeded
+    assert!(
+        result.is_ok(),
+        "Should find config based on file path, not CWD: {:?}",
+        result.err()
+    );
+
+    // Verify the config was actually updated
+    let updated_config = fs::read_to_string(&config_path)?;
+    assert!(
+        updated_config.contains("watch_123"),
+        "Config should contain the watch ID"
+    );
+    assert!(
+        updated_config.contains("watch: watch_123"),
+        "Watch field should be set correctly"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn test_config_update_remote_watch_removes_watch_id() -> Result<()> {
+    // Create a temporary workspace
+    let workspace = TempDir::new()?;
+    let workspace_path = workspace.path();
+
+    // Create stencila.yaml with an existing watch ID
+    let config_path = workspace_path.join("stencila.yaml");
+    fs::write(
+        &config_path,
+        r#"
+remotes:
+  - path: test.md
+    url: https://docs.google.com/document/d/abc123
+    watch: watch_123
+"#,
+    )?;
+
+    // Create the document file
+    let doc_path = workspace_path.join("test.md");
+    fs::write(&doc_path, "# Test")?;
+
+    // Remove the watch ID by passing None
+    config_update_remote_watch(&doc_path, "https://docs.google.com/document/d/abc123", None)?;
+
+    // Verify the watch field was removed
+    let updated_config = fs::read_to_string(&config_path)?;
+    assert!(
+        !updated_config.contains("watch:"),
+        "Watch field should be removed: {}",
+        updated_config
+    );
 
     Ok(())
 }

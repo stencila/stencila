@@ -9,11 +9,9 @@ use async_lsp::lsp_types::request::Request;
 use serde::{Deserialize, Serialize};
 
 use stencila_codec_utils::git_info;
-use stencila_codecs::remotes::RemoteService;
 use stencila_dirs::closest_workspace_dir;
-use stencila_document::{
-    Document, DocumentTrackingEntries, DocumentTrackingStatus, WatchDirection,
-};
+use stencila_document::{Document, DocumentTrackingEntries, RemoteStatus};
+use stencila_remotes::{RemoteService, WatchDirection, calculate_remote_statuses};
 use stencila_schema::NodeId;
 
 /// Enriched document tracking with service information for display
@@ -40,7 +38,7 @@ pub struct EnrichedDocumentRemote {
     pub display_name: Option<String>,
 
     // Sync status (calculated by comparing with remote)
-    pub status: Option<DocumentTrackingStatus>,
+    pub status: Option<RemoteStatus>,
 
     // Watch status fields
     pub watch_status: Option<String>,
@@ -102,13 +100,31 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
         let (doc_status, modified_at) = if let Some(workspace_dir) = &workspace_dir {
             tracking.status(workspace_dir, &path)
         } else {
-            (DocumentTrackingStatus::Unknown, None)
+            (RemoteStatus::Unknown, None)
+        };
+
+        // Get remotes for this path from the remotes crate
+        let remotes_info = if let Some(workspace_dir) = &workspace_dir {
+            match stencila_remotes::get_remotes_for_path(&path, Some(workspace_dir)).await {
+                Ok(remotes) => {
+                    let remote_map: BTreeMap<_, _> =
+                        remotes.into_iter().map(|r| (r.url.clone(), r)).collect();
+                    Some(remote_map)
+                }
+                Err(_) => None,
+            }
+        } else {
+            None
         };
 
         // Fetch remote statuses (this compares with actual remote modification times)
-        let remote_statuses = tracking.remote_statuses(doc_status, modified_at).await;
+        let remote_statuses = if let Some(ref remotes) = remotes_info {
+            calculate_remote_statuses(remotes, doc_status, modified_at).await
+        } else {
+            BTreeMap::new()
+        };
 
-        let enriched_remotes = tracking.remotes.map(|remotes| {
+        let enriched_remotes = remotes_info.map(|remotes| {
             remotes
                 .into_iter()
                 .map(|(url, remote)| {

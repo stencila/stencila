@@ -16,6 +16,7 @@ stencila-cli-utils = { "path" = "../cli-utils" }
 stencila-codec-text = { "path" = "../codec-text" }
 stencila-document = { path = "../document" }
 stencila-node-media = { "path" = "../node-media" }
+stencila-remotes = { path = "../remotes" }
 stencila-secrets = { "path" = "../secrets" }
 strum = { workspace = true }
 tempfile = { workspace = true }

@@ -8,7 +8,10 @@ use strum::Display;
 
 mod utils;
 use utils::build_figment;
-pub use utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file};
+pub use utils::{
+    ConfigTarget, config_set, config_unset, config_update_remote_watch, config_value,
+    find_config_file,
+};
 
 pub mod cli;
 
@@ -109,6 +112,13 @@ pub struct Config {
     /// Routes can be used by both remote sites (e.g., stencila.site) and
     /// local development servers to map URL paths to files or redirects.
     pub routes: Option<Vec<RouteConfig>>,
+
+    /// Remote synchronization configuration
+    ///
+    /// Defines mappings between local files/directories and remote services
+    /// (Google Docs, Microsoft 365, Stencila Sites). Directory paths are
+    /// implicitly recursive - they match all files within that directory.
+    pub remotes: Option<Vec<RemoteConfig>>,
 }
 
 /// Configuration for a site
@@ -274,4 +284,42 @@ impl TryFrom<u16> for RedirectStatus {
             )),
         }
     }
+}
+
+/// Configuration for a remote synchronization target
+///
+/// Remotes define how local files or directories map to external services
+/// like Google Docs, Microsoft 365, or Stencila Sites. Each remote specifies
+/// a path (file, directory, or pattern) and a URL to synchronize with.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct RemoteConfig {
+    /// Path relative to workspace root
+    ///
+    /// Can be:
+    /// - Single file: "file.md", "report.ipynb"
+    /// - Directory: "site", "docs" (implicitly includes all files recursively)
+    /// - Pattern: "*.md" (for matching specific files, optional)
+    ///
+    /// Directory paths are automatically treated as recursive - they match
+    /// all files within that directory and its subdirectories.
+    pub path: ConfigRelativePath,
+
+    /// Remote URL
+    ///
+    /// The service type is inferred from the URL host:
+    /// - Google Docs: https://docs.google.com/document/d/...
+    /// - Microsoft 365: https://*.sharepoint.com/...
+    /// - Stencila Sites: https://*.stencila.site/...
+    #[schemars(regex(pattern = r"^https?://"))]
+    pub url: String,
+
+    /// Watch ID from Stencila Cloud
+    ///
+    /// If this remote is being watched for automatic synchronization, this
+    /// field contains the watch ID. Watch configuration (direction, PR mode,
+    /// debounce) is stored in Stencila Cloud and queried via the API.
+    ///
+    /// If no watch exists, this field is omitted.
+    pub watch: Option<String>,
 }

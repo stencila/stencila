@@ -19,6 +19,7 @@ use stencila_document::{
     DecodeOptions, Document, EncodeOptions, Format, LossesResponse, stencila_codecs,
     stencila_schema::{ConfigPublishGhostState, ConfigPublishGhostType, Node, shortcuts::t},
 };
+use stencila_remotes::{get_remotes_for_path, update_remote_timestamp};
 
 const API_KEY_NAME: &str = "GHOST_ADMIN_API_KEY";
 
@@ -182,9 +183,10 @@ impl Cli {
                 if self.post { "posts" } else { "pages" }
             ))
         } else {
-            // Try to find Ghost URL in the document's remotes
-            doc.remotes().await?.iter().find_map(|url| {
-                let url = url.to_string();
+            // Try to find Ghost URL in the document's configured remotes
+            let remote_infos = get_remotes_for_path(path, None).await?;
+            remote_infos.iter().find_map(|remote_info| {
+                let url = remote_info.url.to_string();
                 if let Some(host) = &self.domain {
                     // If a host is provided then return the first URL on that host
                     if url.starts_with(&format!("https://{host}/ghost/api/admin/")) {
@@ -291,7 +293,15 @@ impl Cli {
 
         // Track that the document was pushed to Ghost
         let url = url::Url::from_str(&doc_url)?;
-        doc.track_remote_pushed(url).await?;
+        if let Some(doc_path) = doc.path() {
+            update_remote_timestamp(
+                doc_path,
+                url.as_ref(),
+                None,
+                Some(Utc::now().timestamp() as u64),
+            )
+            .await?;
+        }
 
         tracing::info!(
             "Successfully created {doc_url} from {}",
@@ -354,7 +364,15 @@ impl Cli {
         if response.status().is_success() {
             // Track that the doc was pushed to Ghost
             let url = url::Url::from_str(&doc_url)?;
-            doc.track_remote_pushed(url).await?;
+            if let Some(doc_path) = doc.path() {
+                update_remote_timestamp(
+                    doc_path,
+                    url.as_ref(),
+                    None,
+                    Some(Utc::now().timestamp() as u64),
+                )
+                .await?;
+            }
 
             tracing::info!(
                 "Successfully updated {doc_url} from {}",
@@ -478,7 +496,15 @@ impl Cli {
 
         // Track that the doc was pulled from Ghost
         let url = url::Url::from_str(&doc_url)?;
-        doc.track_remote_pulled(url).await?;
+        if let Some(doc_path) = doc.path() {
+            update_remote_timestamp(
+                doc_path,
+                url.as_ref(),
+                Some(Utc::now().timestamp() as u64),
+                None,
+            )
+            .await?;
+        }
 
         tracing::info!(
             "Successfully updated {} from {doc_url}",

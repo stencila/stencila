@@ -7,6 +7,7 @@ edition = "2024"
 Inflector = { workspace = true }
 async-lsp = { version = "0.2.2", features = ["tokio"] }
 async-trait = { workspace = true }
+chrono = { workspace = true }
 eyre = { workspace = true }
 itertools = { workspace = true }
 percent-encoding = { workspace = true }
@@ -28,6 +29,7 @@ stencila-models = { path = "../models" }
 stencila-node-execute = { path = "../node-execute" }
 stencila-node-find = { path = "../node-find" }
 stencila-prompts = { path = "../prompts" }
+stencila-remotes = { path = "../remotes" }
 stencila-schema = { path = "../schema" }
 tokio = { workspace = true }
 tokio-util = { version = "0.7.17", features = ["compat"] }

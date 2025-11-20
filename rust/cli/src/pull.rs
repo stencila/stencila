@@ -1,12 +1,13 @@
 use std::path::PathBuf;
 
+use chrono::Utc;
 use clap::Parser;
 use eyre::{Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_codecs::{DecodeOptions, EncodeOptions, remotes::RemoteService};
-use stencila_document::Document;
+use stencila_codecs::{DecodeOptions, EncodeOptions};
+use stencila_remotes::{RemoteService, get_remotes_for_path, update_remote_timestamp};
 
 /// Pull a document from a remote service
 #[derive(Debug, Parser)]
@@ -58,52 +59,42 @@ impl Cli {
             bail!("File `{path_display}` does not exist");
         }
 
-        // Open the document
-        let doc = Document::open(&self.path, None).await?;
+        // Get remotes for the path
+        let remote_infos = get_remotes_for_path(&self.path, None).await?;
 
         // Determine the target to pull from
         let (service, url) = if let Some(target_str) = &self.target {
             // Target or service shorthand specified
             match target_str.as_str() {
                 "gdoc" | "gdocs" => {
-                    // Find tracked Google Docs remote
-                    let remotes = doc.remotes().await?;
-                    let url = remotes
+                    // Find configured Google Docs remote
+                    let url = remote_infos
                         .iter()
-                        .find(|u| RemoteService::GoogleDocs.matches_url(u))
-                        .ok_or_else(|| {
-                            eyre!(
-                                "No tracked Google Doc found for `{path_display}`. Use a full URL to specify one."
-                            )
-                        })?
+                        .find(|info| RemoteService::GoogleDocs.matches_url(&info.url))
+                        .ok_or_else(|| eyre!("No Google Doc configured for `{path_display}`"))?
+                        .url
                         .clone();
                     (RemoteService::GoogleDocs, url)
                 }
                 "m365" => {
-                    // Find tracked Microsoft 365 remote
-                    let remotes = doc.remotes().await?;
-                    let url = remotes
+                    // Find configured Microsoft 365 remote
+                    let url = remote_infos
                         .iter()
-                        .find(|u| RemoteService::Microsoft365.matches_url(u))
+                        .find(|info| RemoteService::Microsoft365.matches_url(&info.url))
                         .ok_or_else(|| {
-                            eyre!(
-                                "No tracked Microsoft 365 document found for `{path_display}`. Use a full URL to specify one."
-                            )
+                            eyre!("No Microsoft 365 document configured for `{path_display}`")
                         })?
+                        .url
                         .clone();
                     (RemoteService::Microsoft365, url)
                 }
                 "site" | "sites" => {
-                    // Find tracked Stencila Site remote
-                    let remotes = doc.remotes().await?;
-                    let url = remotes
+                    // Find configured Stencila Site remote
+                    let url = remote_infos
                         .iter()
-                        .find(|u| RemoteService::StencilaSites.matches_url(u))
-                        .ok_or_else(|| {
-                            eyre!(
-                                "No tracked Stencila Site found for `{path_display}`. Use a full URL to specify one."
-                            )
-                        })?
+                        .find(|info| RemoteService::StencilaSites.matches_url(&info.url))
+                        .ok_or_else(|| eyre!("No Stencila Site configured for `{path_display}`"))?
+                        .url
                         .clone();
                     (RemoteService::StencilaSites, url)
                 }
@@ -117,38 +108,38 @@ impl Cli {
                 }
             }
         } else {
-            // No target or service specified, find any tracked remote
-            let remotes = doc.remotes().await?;
-            if remotes.is_empty() {
-                bail!(
-                    "No tracked remotes for `{path_display}`. Specify a target or service to pull from.",
-                );
+            // No target or service specified, find any configured remote
+            if remote_infos.is_empty() {
+                bail!("No remotes configured for `{path_display}`",);
             }
 
-            // Error if multiple remotes are tracked
-            if remotes.len() > 1 {
-                let remotes_list = remotes
+            // Error if multiple remotes are configured
+            if remote_infos.len() > 1 {
+                let remotes_list = remote_infos
                     .iter()
-                    .map(|url| {
-                        let service = RemoteService::from_url(url)
+                    .map(|info| {
+                        let service = RemoteService::from_url(&info.url)
                             .map(|s| s.cli_name().to_string())
                             .unwrap_or_else(|| "unknown".to_string());
-                        format!("  - {}: {}", service, url)
+                        format!("  - {}: {}", service, info.url)
                     })
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "Multiple remotes found for `{path_display}`:\n{remotes_list}\n\nSpecify which one to pull using a service (gdoc/m365) or full URL."
+                    "Multiple remotes configured for `{path_display}`:\n{remotes_list}\n\nSpecify which one to pull using a service (gdoc/m365/site) or full URL."
                 );
             }
 
-            // Find which service the tracked remote belongs to
-            let remote_url = &remotes[0];
-            let service = RemoteService::from_url(remote_url).ok_or_else(|| {
-                eyre!("Tracked remote {remote_url} is not from a supported service",)
+            // Find which service the configured remote belongs to
+            let remote_info = &remote_infos[0];
+            let service = RemoteService::from_url(&remote_info.url).ok_or_else(|| {
+                eyre!(
+                    "Configured remote {} is not from a supported service",
+                    remote_info.url
+                )
             })?;
 
-            (service, remote_url.clone())
+            (service, remote_info.url.clone())
         };
 
         message(
@@ -190,7 +181,13 @@ impl Cli {
         }
 
         // Track the remote pull
-        doc.track_remote_pulled(url.clone()).await?;
+        update_remote_timestamp(
+            &self.path,
+            url.as_ref(),
+            Some(Utc::now().timestamp() as u64),
+            None,
+        )
+        .await?;
 
         Ok(())
     }

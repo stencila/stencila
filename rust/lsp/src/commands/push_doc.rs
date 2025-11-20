@@ -2,11 +2,14 @@ use async_lsp::{
     ClientSocket, LanguageClient, ResponseError,
     lsp_types::{ExecuteCommandParams, MessageType, ShowMessageParams, Url},
 };
+use chrono::Utc;
 use eyre::Result;
 use serde_json::{Value, json};
 
-use stencila_codecs::remotes::RemoteService;
 use stencila_document::Document;
+use stencila_remotes::{
+    RemoteService, get_remotes_for_path, update_remote_timestamp, update_watch_id,
+};
 
 use super::{internal_error, invalid_request, path_buf_arg, progress::create_progress};
 
@@ -116,22 +119,26 @@ pub(crate) async fn push_doc(
         // Parse target as service or URL
         match target_str {
             "gdoc" | "gdocs" => {
-                let remotes = doc.remotes().await.map_err(internal_error)?;
-                let url = remotes
+                let remote_infos = get_remotes_for_path(&path, None)
+                    .await
+                    .map_err(internal_error)?;
+                let url = remote_infos
                     .iter()
-                    .find(|u| RemoteService::GoogleDocs.matches_url(u))
-                    .cloned();
+                    .find(|info| RemoteService::GoogleDocs.matches_url(&info.url))
+                    .map(|info| info.url.clone());
                 (
                     RemoteService::GoogleDocs,
                     if force_new { None } else { url },
                 )
             }
             "m365" => {
-                let remotes = doc.remotes().await.map_err(internal_error)?;
-                let url = remotes
+                let remote_infos = get_remotes_for_path(&path, None)
+                    .await
+                    .map_err(internal_error)?;
+                let url = remote_infos
                     .iter()
-                    .find(|u| RemoteService::Microsoft365.matches_url(u))
-                    .cloned();
+                    .find(|info| RemoteService::Microsoft365.matches_url(&info.url))
+                    .map(|info| info.url.clone());
                 (
                     RemoteService::Microsoft365,
                     if force_new { None } else { url },
@@ -151,38 +158,43 @@ pub(crate) async fn push_doc(
             }
         }
     } else {
-        // Use tracked remotes
-        let remotes = doc.remotes().await.map_err(internal_error)?;
-        if remotes.is_empty() {
+        // Use configured remotes
+        let remote_infos = get_remotes_for_path(&path, None)
+            .await
+            .map_err(internal_error)?;
+        if remote_infos.is_empty() {
             // Close progress before returning status response
             progress.send((100, None)).ok();
             // Return a status response indicating no remotes (not an error, requires user input)
             return Ok(Some(json!({
                 "status": "no_remotes",
-                "message": "No tracked remotes found. Please select a target."
+                "message": "No configured remotes found. Please select a target."
             })));
         }
 
         // If multiple remotes, either push to all or return list for user selection
-        if remotes.len() > 1 {
+        if remote_infos.len() > 1 {
             if push_all_remotes {
                 // Push to all remotes
                 progress
-                    .send((40, Some(format!("pushing to {} remotes", remotes.len()))))
+                    .send((
+                        40,
+                        Some(format!("pushing to {} remotes", remote_infos.len())),
+                    ))
                     .ok();
 
                 let mut successes: Vec<String> = Vec::new();
                 let mut failures: Vec<(String, String)> = Vec::new();
 
-                for (index, remote_url) in remotes.iter().enumerate() {
-                    let remote_service = match RemoteService::from_url(remote_url) {
+                for (index, remote_info) in remote_infos.iter().enumerate() {
+                    let remote_service = match RemoteService::from_url(&remote_info.url) {
                         Some(svc) => svc,
                         None => {
                             failures.push((
-                                remote_url.to_string(),
+                                remote_info.url.to_string(),
                                 format!(
                                     "URL {} is not from a supported remote service",
-                                    remote_url
+                                    remote_info.url
                                 ),
                             ));
                             continue;
@@ -190,7 +202,7 @@ pub(crate) async fn push_doc(
                     };
 
                     // Update progress for each remote
-                    let remote_progress = 40 + (40 * (index + 1) / remotes.len()) as u32;
+                    let remote_progress = 40 + (40 * (index + 1) / remote_infos.len()) as u32;
                     progress
                         .send((
                             remote_progress,
@@ -203,7 +215,7 @@ pub(crate) async fn push_doc(
                         &doc.root().await,
                         doc.path(),
                         doc.file_name(),
-                        Some(remote_url),
+                        Some(&remote_info.url),
                         doc.path(),
                         None, // LSP doesn't support dry-run yet
                     )
@@ -211,17 +223,28 @@ pub(crate) async fn push_doc(
                     {
                         Ok(result) => {
                             let url = result.url();
-                            if let Err(error) = doc.track_remote_pushed(url.clone()).await {
-                                failures.push((
-                                    remote_url.to_string(),
-                                    format!("Failed to track remote: {}", error),
-                                ));
+                            if let Some(doc_path) = doc.path() {
+                                if let Err(error) = update_remote_timestamp(
+                                    doc_path,
+                                    url.as_ref(),
+                                    None,
+                                    Some(Utc::now().timestamp() as u64),
+                                )
+                                .await
+                                {
+                                    failures.push((
+                                        remote_info.url.to_string(),
+                                        format!("Failed to track remote: {}", error),
+                                    ));
+                                } else {
+                                    successes.push(url.to_string());
+                                }
                             } else {
                                 successes.push(url.to_string());
                             }
                         }
                         Err(error) => {
-                            failures.push((remote_url.to_string(), error.to_string()));
+                            failures.push((remote_info.url.to_string(), error.to_string()));
                         }
                     }
                 }
@@ -268,13 +291,13 @@ pub(crate) async fn push_doc(
                 // Close progress before returning status response
                 progress.send((100, None)).ok();
                 // Return status response with list of remotes for VSCode to prompt user
-                let remotes_json: Vec<_> = remotes
+                let remotes_json: Vec<_> = remote_infos
                     .iter()
-                    .filter_map(|url| {
-                        RemoteService::from_url(url).map(|service| {
+                    .filter_map(|info| {
+                        RemoteService::from_url(&info.url).map(|service| {
                             json!({
                                 "service": service.display_name(),
-                                "url": url.to_string()
+                                "url": info.url.to_string()
                             })
                         })
                     })
@@ -288,10 +311,11 @@ pub(crate) async fn push_doc(
             }
         }
 
-        let remote_url = &remotes[0];
-        let service = RemoteService::from_url(remote_url).ok_or_else(|| {
+        let remote_info = &remote_infos[0];
+        let service = RemoteService::from_url(&remote_info.url).ok_or_else(|| {
             invalid_request(format!(
-                "Tracked remote {remote_url} is not from a supported service",
+                "Configured remote {} is not from a supported service",
+                remote_info.url
             ))
         })?;
 
@@ -300,7 +324,7 @@ pub(crate) async fn push_doc(
             if force_new {
                 None
             } else {
-                Some(remote_url.clone())
+                Some(remote_info.url.clone())
             },
         )
     };
@@ -333,7 +357,15 @@ pub(crate) async fn push_doc(
 
     // Track the remote
     progress.send((80, Some("recording".to_string()))).ok();
-    if let Err(error) = doc.track_remote_pushed(url.clone()).await {
+    if let Some(doc_path) = doc.path()
+        && let Err(error) = update_remote_timestamp(
+            doc_path,
+            url.as_ref(),
+            None,
+            Some(Utc::now().timestamp() as u64),
+        )
+        .await
+    {
         progress.send((100, None)).ok();
         client
             .show_message(ShowMessageParams {
@@ -406,23 +438,16 @@ pub(crate) async fn push_doc(
 
             match create_watch(request).await {
                 Ok(response) => {
-                    // Update tracking with watch ID
-                    if let Ok(Some((_, Some(tracking)))) = doc.tracking().await {
-                        let mut remote_info = tracking
-                            .remotes
-                            .and_then(|mut remotes| remotes.remove(&url))
-                            .unwrap_or_default();
-                        remote_info.watch_id = Some(response.id.to_string());
-                        remote_info.watch_direction = direction.and_then(|d| d.parse().ok());
-
-                        if let Err(error) = doc.track(Some((url.clone(), remote_info))).await {
-                            client
-                                .show_message(ShowMessageParams {
-                                    typ: MessageType::ERROR,
-                                    message: format!("Failed to update watch tracking: {error}"),
-                                })
-                                .ok();
-                        }
+                    // Store watch ID in stencila.yaml config
+                    if let Err(error) =
+                        update_watch_id(&path, url.as_ref(), Some(response.id.to_string())).await
+                    {
+                        client
+                            .show_message(ShowMessageParams {
+                                typ: MessageType::ERROR,
+                                message: format!("Failed to update watch tracking: {error}"),
+                            })
+                            .ok();
                     }
                 }
                 Err(error) => {

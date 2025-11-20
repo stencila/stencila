@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashSet, btree_map::Entry},
+    collections::{BTreeMap, btree_map::Entry},
     env::current_dir,
     fs::read_dir,
     path::{Path, PathBuf},
@@ -8,20 +8,16 @@ use std::{
 };
 
 use chrono::Utc;
-use clap::ValueEnum;
 use eyre::{OptionExt, Result, bail};
-use futures::future::join_all;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use strum::{Display, EnumString};
 use tokio::{
     self,
     fs::{read_to_string, remove_dir_all, remove_file, rename, write},
 };
-use url::Url;
 
-use stencila_codecs::{DecodeOptions, EncodeOptions, remotes::RemoteService};
+use stencila_codecs::{DecodeOptions, EncodeOptions};
 use stencila_dirs::{
     CACHE_DIR, DB_FILE, DOCS_FILE, closest_stencila_dir, stencila_artifacts_dir,
     stencila_cache_dir, stencila_db_file, stencila_docs_file, workspace_dir,
@@ -66,7 +62,7 @@ async fn read_entries(stencila_dir: &Path) -> Result<DocumentTrackingEntries> {
     let docs_file = stencila_dir.join(DOCS_FILE);
 
     let json = read_to_string(&docs_file).await?;
-    let entries = serde_json::from_str(&json)?;
+    let entries: DocumentTrackingEntries = serde_json::from_str(&json)?;
 
     Ok(entries)
 }
@@ -81,51 +77,8 @@ async fn write_entries(stencila_dir: &Path, entries: &DocumentTrackingEntries) -
     Ok(())
 }
 
-/// Remove watch_ids that no longer exist on Stencila Cloud
-///
-/// Takes a set of valid watch IDs and removes any watch_id from the tracking
-/// entries that is not in the provided set. Returns a list of removed watches
-/// for display purposes.
-pub async fn remove_deleted_watches(
-    path: &Path,
-    valid_watch_ids: &HashSet<u64>,
-) -> Result<Vec<(PathBuf, Url, u64)>> {
-    let mut deleted_watches = Vec::new();
-
-    let Some((stencila_dir, mut entries)) = closest_entries(path, false).await? else {
-        return Ok(deleted_watches);
-    };
-
-    let mut write_needed = false;
-
-    for (path, tracking) in entries.iter_mut() {
-        if let Some(remotes) = &mut tracking.remotes {
-            for (remote_url, remote) in remotes.iter_mut() {
-                if let Some(watch_id_str) = &remote.watch_id
-                    && let Ok(watch_id) = watch_id_str.parse::<u64>()
-                    && !valid_watch_ids.contains(&watch_id)
-                {
-                    // Watch no longer exists, remove it
-                    remote.watch_id = None;
-                    remote.watch_direction = None;
-                    write_needed = true;
-
-                    deleted_watches.push((path.clone(), remote_url.clone(), watch_id));
-                }
-            }
-        }
-    }
-
-    // Write back to docs.json if any watch_ids were removed
-    if write_needed {
-        write_entries(&stencila_dir, &entries).await?;
-    }
-
-    Ok(deleted_watches)
-}
-
 /// Create a new document id
-fn new_id() -> NodeId {
+pub(crate) fn new_id() -> NodeId {
     NodeId::random(*b"doc")
 }
 
@@ -141,11 +94,10 @@ fn time_modified(path: &Path) -> Result<u64> {
 }
 
 pub type DocumentTrackingEntries = BTreeMap<PathBuf, DocumentTracking>;
-pub type DocumentRemoteEntries = BTreeMap<Url, DocumentRemote>;
 
 /// Tracking information for a tracked location
 #[skip_serializing_none]
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentTracking {
     /// The tracking id for the document
@@ -156,9 +108,6 @@ pub struct DocumentTracking {
 
     /// The last time the document was added to the workspace database
     pub added_at: Option<u64>,
-
-    /// The remotes that are tracked for the path
-    pub remotes: Option<BTreeMap<Url, DocumentRemote>>,
 }
 
 impl Default for DocumentTracking {
@@ -167,7 +116,6 @@ impl Default for DocumentTracking {
             id: new_id(),
             cached_at: Default::default(),
             added_at: Default::default(),
-            remotes: Default::default(),
         }
     }
 }
@@ -181,254 +129,30 @@ impl DocumentTracking {
         stencila_dir.join(CACHE_DIR).join(self.store_file())
     }
 
-    pub fn status(
-        &self,
-        workspace_dir: &Path,
-        path: &Path,
-    ) -> (DocumentTrackingStatus, Option<u64>) {
+    pub fn status(&self, workspace_dir: &Path, path: &Path) -> (RemoteStatus, Option<u64>) {
         let path = workspace_dir.join(path);
 
         if !path.exists() {
-            return (DocumentTrackingStatus::Deleted, None);
+            return (RemoteStatus::Deleted, None);
         }
 
         let modified_at = time_modified(&path).ok();
 
         let status = if modified_at >= self.cached_at.map(|cached_at| cached_at.saturating_add(10))
         {
-            DocumentTrackingStatus::Ahead
+            RemoteStatus::Ahead
         } else if modified_at < self.cached_at {
-            DocumentTrackingStatus::Behind
+            RemoteStatus::Behind
         } else {
-            DocumentTrackingStatus::Synced
+            RemoteStatus::Synced
         };
 
         (status, modified_at)
     }
-
-    /// Get the status and modification time for all tracked remotes
-    ///
-    /// Fetches metadata from each remote service in parallel and compares with local modification time,
-    /// as well as pulled_at and pushed_at times to detect divergence.
-    /// Returns a map of URL to (remote_modified_at, status).
-    ///
-    /// If fetching metadata fails for a remote, it will be included in the result with None for modified_at
-    /// and Unknown status.
-    pub async fn remote_statuses(
-        &self,
-        local_status: DocumentTrackingStatus,
-        local_modified_at: Option<u64>,
-    ) -> BTreeMap<Url, (Option<u64>, DocumentTrackingStatus)> {
-        let Some(remotes) = &self.remotes else {
-            return BTreeMap::new();
-        };
-
-        // Create futures to fetch metadata for each remote
-        let futures = remotes.iter().map(|(url, remote)| async move {
-            // Fetch metadata from remote service
-            let remote_modified_at = async {
-                match RemoteService::from_url(url) {
-                    Some(RemoteService::GoogleDocs) => stencila_codec_gdoc::modified_at(url).await,
-                    Some(RemoteService::Microsoft365) => {
-                        stencila_codec_m365::modified_at(url).await
-                    }
-                    Some(RemoteService::StencilaSites) => {
-                        stencila_codec_site::modified_at(url).await
-                    }
-                    None => bail!("Unsupported remote service: {url}"),
-                }
-            }
-            .await
-            .ok();
-
-            tracing::debug!("Remote {url} modified at {remote_modified_at:?}");
-
-            /// Tolerance in seconds for local file modification time comparisons
-            const LOCAL_TOLERANCE: u64 = 5;
-
-            /// Tolerance in seconds for remote modification time comparisons
-            /// (accounts for cloud service processing delays)
-            const REMOTE_TOLERANCE: u64 = 30;
-
-            // Calculate status by comparing local/remote modified times with pushed_at/pulled_at
-            let status = if local_status == DocumentTrackingStatus::Deleted {
-                DocumentTrackingStatus::Ahead
-            } else {
-                match (
-                    local_modified_at,
-                    remote_modified_at,
-                    remote.pushed_at,
-                    remote.pulled_at,
-                ) {
-                    (Some(local), Some(remote_mod), Some(pushed), Some(pulled)) => {
-                        // Use the most recent sync time (push or pull) as our reference point
-                        let last_synced = pushed.max(pulled);
-
-                        // Check if local or remote have changed since last sync
-                        let local_changed = local > last_synced.saturating_add(LOCAL_TOLERANCE);
-                        let remote_changed =
-                            remote_mod > last_synced.saturating_add(REMOTE_TOLERANCE);
-
-                        if local_changed && remote_changed {
-                            DocumentTrackingStatus::Diverged
-                        } else if local_changed {
-                            DocumentTrackingStatus::Behind
-                        } else if remote_changed {
-                            DocumentTrackingStatus::Ahead
-                        } else {
-                            DocumentTrackingStatus::Synced
-                        }
-                    }
-                    (Some(local), Some(remote_mod), Some(pushed), None) => {
-                        // Only pushed_at exists, use it as reference
-                        let local_changed = local > pushed.saturating_add(LOCAL_TOLERANCE);
-                        let remote_changed = remote_mod > pushed.saturating_add(REMOTE_TOLERANCE);
-
-                        if local_changed && remote_changed {
-                            DocumentTrackingStatus::Diverged
-                        } else if local_changed {
-                            DocumentTrackingStatus::Behind
-                        } else if remote_changed {
-                            DocumentTrackingStatus::Ahead
-                        } else {
-                            DocumentTrackingStatus::Synced
-                        }
-                    }
-                    (Some(local), Some(remote_mod), None, Some(pulled)) => {
-                        // Only pulled_at exists, use it as reference
-                        let local_changed = local > pulled.saturating_add(LOCAL_TOLERANCE);
-                        let remote_changed = remote_mod > pulled.saturating_add(REMOTE_TOLERANCE);
-
-                        if local_changed && remote_changed {
-                            DocumentTrackingStatus::Diverged
-                        } else if local_changed {
-                            DocumentTrackingStatus::Behind
-                        } else if remote_changed {
-                            DocumentTrackingStatus::Ahead
-                        } else {
-                            DocumentTrackingStatus::Synced
-                        }
-                    }
-                    (Some(local), Some(remote_mod), _, _) => {
-                        // Fallback: if we don't have pushed_at/pulled_at, just compare modified times
-                        if local > remote_mod.saturating_add(REMOTE_TOLERANCE) {
-                            DocumentTrackingStatus::Behind
-                        } else if remote_mod > local.saturating_add(REMOTE_TOLERANCE) {
-                            DocumentTrackingStatus::Ahead
-                        } else {
-                            DocumentTrackingStatus::Synced
-                        }
-                    }
-                    _ => DocumentTrackingStatus::Unknown,
-                }
-            };
-
-            (url.clone(), (remote_modified_at, status))
-        });
-
-        // Execute all futures in parallel and collect results into a BTreeMap
-        join_all(futures).await.into_iter().collect()
-    }
 }
 
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DocumentRemote {
-    /// The last time the document was pulled from the remote
-    pub pulled_at: Option<u64>,
-
-    /// The last time the document was pushed from the remote
-    pub pushed_at: Option<u64>,
-
-    /// The watch ID from Stencila Cloud (if watch is enabled)
-    pub watch_id: Option<String>,
-
-    /// The watch direction (bi-directional, from-remote, or to-remote)
-    pub watch_direction: Option<WatchDirection>,
-}
-
-/// The direction of synchronization for a watched remote
-#[derive(
-    Debug,
-    Default,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Serialize,
-    Deserialize,
-    Display,
-    EnumString,
-    ValueEnum,
-)]
-#[serde(rename_all = "kebab-case")]
-#[strum(serialize_all = "kebab-case")]
-pub enum WatchDirection {
-    /// Bi-directional sync: changes from remote create PRs, changes to repo push to remote
-    #[default]
-    Bi,
-
-    /// One-way sync from remote: only remote changes create PRs
-    FromRemote,
-
-    /// One-way sync to remote: only repo changes push to remote
-    ToRemote,
-}
-
-/// The pull request mode for a watched remote
-#[derive(
-    Debug,
-    Default,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Serialize,
-    Deserialize,
-    Display,
-    EnumString,
-    ValueEnum,
-)]
-#[serde(rename_all = "kebab-case")]
-#[strum(serialize_all = "kebab-case")]
-pub enum WatchPrMode {
-    /// Create PRs as drafts (default)
-    #[default]
-    Draft,
-
-    /// Create PRs ready for review
-    Ready,
-}
-
-impl DocumentRemote {
-    /// Check if this remote is being watched
-    pub fn is_watched(&self) -> bool {
-        self.watch_id.is_some()
-    }
-}
-
-#[derive(Debug, Default, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum DocumentTrackingStatus {
-    #[default]
-    Unknown,
-
-    /// There is an entry for the file but that path no longer exists in the
-    /// workspace directory
-    Deleted,
-
-    /// Remote has changes that need to be pulled
-    Ahead,
-
-    /// Local file has changes that need to be pushed
-    Behind,
-
-    /// Both local and remote have changes since last sync
-    Diverged,
-
-    /// Local and remote are in sync
-    Synced,
-}
+// Re-export types from remotes crate (moved there for better separation)
+pub use stencila_remotes::RemoteStatus;
 
 impl Document {
     /// Start, or continue, tracking the document
@@ -438,60 +162,14 @@ impl Document {
     ///
     /// See [`Document::track_path`].
     #[tracing::instrument(skip(self))]
-    pub async fn track(&self, remote: Option<(Url, DocumentRemote)>) -> Result<()> {
+    pub async fn track(&self) -> Result<()> {
         let Some(path) = &self.path else {
             bail!("Can't track document, it has no path yet; save it first")
         };
 
-        if let Some(remote) = remote {
-            Document::track_path_with_remote(path, remote).await?;
-        } else {
-            Document::track_path(path, None, None).await?;
-        }
+        Document::track_path(path, None, None).await?;
 
         Ok(())
-    }
-
-    /// Start, or continue, tracking the document with a record of it
-    /// being pulled from a remote
-    pub async fn track_remote_pulled(&self, remote: Url) -> Result<()> {
-        let tracking = self
-            .tracking()
-            .await?
-            .and_then(|(.., entry)| entry)
-            .and_then(|entry| entry.remotes)
-            .and_then(|mut remotes| remotes.remove(&remote))
-            .unwrap_or_default();
-
-        self.track(Some((
-            remote,
-            DocumentRemote {
-                pulled_at: Some(time_now()),
-                ..tracking
-            },
-        )))
-        .await
-    }
-
-    /// Start, or continue, tracking the document with a record of it
-    /// being pushed to a remote
-    pub async fn track_remote_pushed(&self, remote: Url) -> Result<()> {
-        let tracking = self
-            .tracking()
-            .await?
-            .and_then(|(.., entry)| entry)
-            .and_then(|entry| entry.remotes)
-            .and_then(|mut remotes| remotes.remove(&remote))
-            .unwrap_or_default();
-
-        self.track(Some((
-            remote,
-            DocumentRemote {
-                pushed_at: Some(time_now()),
-                ..tracking
-            },
-        )))
-        .await
     }
 
     /// Store the document in the workspace's `.stencila` directory
@@ -599,72 +277,6 @@ impl Document {
                 Ok((id, false, cache_path, db_path))
             }
         }
-    }
-
-    /// Start tracking a document remote
-    ///
-    /// Starts tracking the remote by saving the document at the path
-    /// to `.stencila/track/<ID>.json` and, if necessary, adding an
-    /// entry to the tracking file at `.stencila/docs.json`.
-    ///
-    /// If the path or remote is already being tracked (i.e. there is
-    /// a corresponding entry in the tracking file) the exiting
-    /// document id will be used. Returns true if both the path and the
-    /// remote are being tracked, otherwise false.
-    #[tracing::instrument]
-    pub async fn track_path_with_remote(
-        path: &Path,
-        (url, remote): (Url, DocumentRemote),
-    ) -> Result<bool> {
-        if !(path.exists() && path.is_file()) {
-            bail!("Path does not exist or is not a file: {}", path.display())
-        }
-
-        if !stencila_codecs::from_path_is_supported(path) {
-            bail!("File format is not supported: {}", path.display())
-        }
-
-        let (stencila_dir, mut entries) = closest_entries(path, true)
-            .await?
-            .ok_or_eyre("no tracking file despite ensure")?;
-        let relative_path = workspace_relative_path(&stencila_dir, path, true)?;
-
-        // Reuse existing id or create a new one, update existing remotes or create new ones
-        let (already_tracked, id, remotes) = match entries.get_mut(&relative_path) {
-            Some(entry) => {
-                let (already_tracked, remotes) = if let Some(remotes) = entry.remotes.as_mut() {
-                    remotes.insert(url, remote);
-                    (true, Some(remotes.clone()))
-                } else {
-                    (
-                        false,
-                        Some(DocumentRemoteEntries::from([(url.clone(), remote)])),
-                    )
-                };
-
-                (already_tracked, entry.id.clone(), remotes)
-            }
-            None => (
-                false,
-                new_id(),
-                Some(DocumentRemoteEntries::from([(url.clone(), remote)])),
-            ),
-        };
-
-        // Update tracking file
-        entries
-            .entry(relative_path)
-            .and_modify(|entry| {
-                entry.remotes = remotes.clone();
-            })
-            .or_insert_with(|| DocumentTracking {
-                id,
-                remotes,
-                ..Default::default()
-            });
-        write_entries(&stencila_dir, &entries).await?;
-
-        Ok(already_tracked)
     }
 
     /// Add documents to a workspace database
@@ -801,46 +413,6 @@ impl Document {
         Ok(())
     }
 
-    /// Stop tracking a document remote
-    ///
-    /// Removes the entry for the remote in the tracking file at `.stencila/docs.json`
-    /// but does not remove the corresponding `.stencila/track/<ID>.json`.
-    ///
-    /// Gives a warning if the path, or the remote, is not being tracked.
-    #[tracing::instrument]
-    pub async fn untrack_remote(path: &Path, remote: &Url) -> Result<()> {
-        let Some((stencila_dir, mut entries)) = closest_entries(path, false).await? else {
-            tracing::warn!("Path is not being tracked: {}", path.display());
-            return Ok(());
-        };
-        let relative_path = workspace_relative_path(&stencila_dir, path, false)?;
-
-        let Some(entry) = entries.get_mut(&relative_path) else {
-            tracing::warn!("Path is not being tracked: {}", path.display());
-            return Ok(());
-        };
-
-        // Remove the remote
-        if entry
-            .remotes
-            .as_mut()
-            .and_then(|remotes| remotes.remove(remote))
-            .is_none()
-        {
-            tracing::warn!(
-                "Remote is note being tracked for path `{}`: {}",
-                path.display(),
-                remote
-            );
-            return Ok(());
-        }
-
-        // Update tracking file
-        write_entries(&stencila_dir, &entries).await?;
-
-        Ok(())
-    }
-
     /// Untrack all paths currently tracked files
     pub async fn untrack_all(dir: &Path) -> Result<()> {
         let statuses = match Document::tracking_all(dir).await? {
@@ -910,7 +482,7 @@ impl Document {
 
         // Untrack all deleted paths
         for (path, tracking) in statuses {
-            if let (DocumentTrackingStatus::Deleted, ..) = tracking.status(&workspace_dir, &path) {
+            if let (RemoteStatus::Deleted, ..) = tracking.status(&workspace_dir, &path) {
                 Document::untrack_path(&path).await?;
             }
         }
@@ -1027,22 +599,5 @@ impl Document {
         Self::add_docs(&stencila_dir, &identifiers, None, true).await?;
 
         Ok(())
-    }
-
-    /// Returns a list of tracked remotes for a document
-    ///
-    /// Used when pushing or pulling the document. If the document is not tracked
-    /// or has no tracked remotes, will return an empty vector.
-    pub async fn remotes(&self) -> Result<Vec<Url>> {
-        match self
-            .tracking()
-            .await?
-            .and_then(|(.., entry)| entry)
-            .and_then(|entry| entry.remotes)
-            .map(|remotes| remotes.keys().cloned().collect_vec())
-        {
-            Some(urls) => Ok(urls),
-            None => Ok(Vec::new()),
-        }
     }
 }

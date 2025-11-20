@@ -62,6 +62,7 @@ stencila-codec-yaml = { path = "../codec-yaml" }
 stencila-codec-zenodo = { path = "../codec-zenodo" }
 stencila-node-strip = { path = "../node-strip" }
 stencila-node-structuring = { path = "../node-structuring" }
+stencila-remotes = { path = "../remotes" }
 strum = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }

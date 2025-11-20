@@ -9,7 +9,7 @@ use stencila_version::STENCILA_VERSION;
 use crate::{
     compile, convert, db, demo, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, open, pull, push, render, site, sync, uninstall, unwatch, upgrade, watch,
+    merge, new, open, pull, push, render, site, status, sync, uninstall, unwatch, upgrade, watch,
 };
 
 /// CLI subcommands and global options
@@ -232,7 +232,7 @@ pub enum Command {
     Init(stencila_document::cli::Init),
     Config(stencila_config::cli::Cli),
 
-    Status(stencila_document::cli::Status),
+    Status(status::Cli),
     Move(stencila_document::cli::Move),
     Track(stencila_document::cli::Track),
     Untrack(stencila_document::cli::Untrack),

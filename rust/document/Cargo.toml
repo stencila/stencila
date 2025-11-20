@@ -33,6 +33,7 @@ stencila-codec-m365 = { path = "../codec-m365" }
 stencila-codec-site = { path = "../codec-site" }
 stencila-codec-text = { path = "../codec-text" }
 stencila-codecs = { path = "../codecs" }
+stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 stencila-format = { path = "../format" }
 stencila-kernels = { path = "../kernels" }
@@ -44,6 +45,7 @@ stencila-node-find = { path = "../node-find" }
 stencila-node-first = { path = "../node-first" }
 stencila-node-map = { path = "../node-map" }
 stencila-node-strip = { path = "../node-strip" }
+stencila-remotes = { path = "../remotes" }
 stencila-schema = { path = "../schema" }
 stencila-tools = { path = "../tools" }
 strum = { workspace = true }
