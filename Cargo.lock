@@ -8451,6 +8451,7 @@ dependencies = [
  "syntect",
  "terminal_size",
  "textwrap",
+ "toml 0.9.8",
  "url",
 ]
 

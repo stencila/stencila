@@ -26,6 +26,7 @@ pub struct Code {
 pub enum AsFormat {
     Json,
     Yaml,
+    Toml
 }
 
 impl From<AsFormat> for Format {
@@ -33,6 +34,7 @@ impl From<AsFormat> for Format {
         match value {
             AsFormat::Json => Format::Json,
             AsFormat::Yaml => Format::Yaml,
+            AsFormat::Toml => Format::Toml,
         }
     }
 }
@@ -52,6 +54,7 @@ impl Code {
         let content = match format {
             Format::Json => serde_json::to_string_pretty(value)?,
             Format::Yaml => serde_yaml::to_string(value)?,
+            Format::Toml => toml::to_string(value)?,
             _ => bail!("Unsupported serialization format: {format}"),
         };
 

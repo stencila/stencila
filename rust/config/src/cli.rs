@@ -1,7 +1,7 @@
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
 
-use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
+use stencila_cli_utils::{AsFormat, Code, ToStdout, color_print::cstr, message};
 use stencila_format::Format;
 
 use crate::{
@@ -75,7 +75,7 @@ struct Get {
     /// Supports nested paths and array access (e.g., `packages[0].name`).
     key: Option<String>,
 
-    /// Output format (json or yaml, default: yaml)
+    /// Output format (toml, json, or yaml, default: toml)
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 }
@@ -273,36 +273,5 @@ impl Unset {
         );
 
         Ok(())
-    }
-}
-
-/// Output format for config display
-#[derive(Debug, Clone, Copy)]
-enum AsFormat {
-    Json,
-    Toml,
-    Yaml,
-}
-
-impl From<AsFormat> for Format {
-    fn from(format: AsFormat) -> Self {
-        match format {
-            AsFormat::Json => Format::Json,
-            AsFormat::Toml => Format::Toml,
-            AsFormat::Yaml => Format::Yaml,
-        }
-    }
-}
-
-impl std::str::FromStr for AsFormat {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "json" => Ok(AsFormat::Json),
-            "toml" => Ok(AsFormat::Toml),
-            "yaml" | "yml" => Ok(AsFormat::Yaml),
-            _ => Err(format!("Unknown format: {}", s)),
-        }
     }
 }
