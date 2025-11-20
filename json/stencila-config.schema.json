@@ -36,52 +36,86 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "pattern": "^[a-z0-9]{8}$"
         },
         "domain": {
           "description": "Custom domain for the site\n\nThis is a cached value that is kept in sync with Stencila Cloud\nwhen site details are fetched or the domain is modified.\nThe canonical source is the Stencila Cloud API.",
           "type": [
             "string",
             "null"
+          ],
+          "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$"
+        },
+        "root": {
+          "description": "Root directory for site content\n\nPath relative to the config file containing this setting.\nWhen set, only files within this directory will be published\nto the site, and routes will be calculated relative to this\ndirectory rather than the workspace root.\n\nExample: If set to \"docs\" in /myproject/stencila.yaml,\nthen /myproject/docs/guide.md → /guide/ (not /docs/guide/)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ConfigRelativePath"
+            },
+            {
+              "type": "null"
+            }
           ]
         }
       }
     },
+    "ConfigRelativePath": {
+      "description": "A path that is resolved relative to the configuration file it was defined in\n\nThis wrapper provides JsonSchema implementation and stores paths as strings.\nThe paths will be resolved relative to the config file directory during use.",
+      "type": "string"
+    },
     "RouteConfig": {
-      "description": "A route configuration for a site",
+      "description": "A route configuration for a site\n\nRoutes allow you to customize how URLs map to files, create redirects,\nor serve specific files at custom paths. They are evaluated in order,\nwith earlier routes taking precedence over later ones.",
       "type": "object",
       "properties": {
         "path": {
-          "description": "The path pattern for this route",
-          "type": "string"
+          "description": "The URL path pattern for this route\n\nMust start with `/` and typically ends with `/` for directory-like routes.\nThis is the URL path that will be matched against incoming requests.\n\nExamples:\n- /about/ - Matches exactly /about/\n- /docs/guide/ - Matches exactly /docs/guide/",
+          "type": "string",
+          "pattern": "^/"
         },
         "file": {
-          "description": "The file to serve for this route",
-          "type": [
-            "string",
-            "null"
+          "description": "The file to serve for this route\n\nPath relative to the workspace directory (or `site.root` if configured).\nWhen a request matches this route's `path`, the specified file will be served.\n\nCannot be used together with `redirect`. Either specify a `file` to serve\ncontent, or a `redirect` to redirect to another URL.\n\nExamples:\n- README.md - Serves the README from the workspace root\n- docs/overview.ipynb - Serves a specific document",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ConfigRelativePath"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "redirect": {
-          "description": "A redirect URL for this route",
+          "description": "A redirect URL for this route\n\nWhen a request matches this route's `path`, the user will be redirected\nto this URL. Can be an absolute URL or a relative path.\n\nCannot be used together with `file`. Use `status` to control the redirect\ntype (301 for permanent, 302 for temporary, etc.).\n\nExamples:\n- /new-location/ - Redirect to another path on the same site\n- https://example.com - Redirect to an external URL",
           "type": [
             "string",
             "null"
           ]
         },
         "status": {
-          "description": "HTTP status code for this route",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint16",
-          "minimum": 0,
-          "maximum": 65535
+          "description": "HTTP status code for redirects\n\nDetermines the type of redirect. Common values:\n- 301 - Moved Permanently (permanent redirect)\n- 302 - Found (temporary redirect, default)\n- 303 - See Other\n- 307 - Temporary Redirect\n- 308 - Permanent Redirect\n\nCan only be used with `redirect`. If not specified, defaults to 302 (temporary redirect).",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RedirectStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
         "path"
+      ]
+    },
+    "RedirectStatus": {
+      "description": "HTTP status code for redirects",
+      "type": "integer",
+      "enum": [
+        301,
+        302,
+        303,
+        307,
+        308
       ]
     }
   },

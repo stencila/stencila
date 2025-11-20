@@ -4,6 +4,7 @@ use eyre::{Result, eyre};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use strum::Display;
 
 mod utils;
 use utils::build_figment;
@@ -118,6 +119,7 @@ pub struct SiteConfig {
     ///
     /// Eight characters, lowercase letters or digits, returned by
     /// Stencila Cloud when a site is created.
+    #[schemars(regex(pattern = r"^[a-z0-9]{8}$"))]
     pub id: Option<String>,
 
     /// Custom domain for the site
@@ -125,6 +127,7 @@ pub struct SiteConfig {
     /// This is a cached value that is kept in sync with Stencila Cloud
     /// when site details are fetched or the domain is modified.
     /// The canonical source is the Stencila Cloud API.
+    #[schemars(regex(pattern = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"))]
     pub domain: Option<String>,
 
     /// Root directory for site content
@@ -153,8 +156,9 @@ pub struct RouteConfig {
     /// This is the URL path that will be matched against incoming requests.
     ///
     /// Examples:
-    /// - `/about/` - Matches exactly `/about/`
-    /// - `/docs/guide/` - Matches exactly `/docs/guide/`
+    /// - /about/ - Matches exactly /about/
+    /// - /docs/guide/ - Matches exactly /docs/guide/
+    #[schemars(regex(pattern = r"^/"))]
     pub path: String,
 
     /// The file to serve for this route
@@ -166,8 +170,8 @@ pub struct RouteConfig {
     /// content, or a `redirect` to redirect to another URL.
     ///
     /// Examples:
-    /// - `"README.md"` - Serves the README from the workspace root
-    /// - `"docs/overview.ipynb"` - Serves a specific document
+    /// - README.md - Serves the README from the workspace root
+    /// - docs/overview.ipynb - Serves a specific document
     pub file: Option<ConfigRelativePath>,
 
     /// A redirect URL for this route
@@ -179,21 +183,21 @@ pub struct RouteConfig {
     /// type (301 for permanent, 302 for temporary, etc.).
     ///
     /// Examples:
-    /// - `"/new-location/"` - Redirect to another path on the same site
-    /// - `"https://example.com"` - Redirect to an external URL
+    /// - /new-location/ - Redirect to another path on the same site
+    /// - https://example.com - Redirect to an external URL
     pub redirect: Option<String>,
 
-    /// HTTP status code for this route
+    /// HTTP status code for redirects
     ///
-    /// Controls the HTTP status code returned for this route. Common values:
-    /// - `200` - OK (default for file routes)
-    /// - `301` - Moved Permanently (permanent redirect)
-    /// - `302` - Found (temporary redirect, default for redirects)
-    /// - `404` - Not Found
+    /// Determines the type of redirect. Common values:
+    /// - 301 - Moved Permanently (permanent redirect)
+    /// - 302 - Found (temporary redirect, default)
+    /// - 303 - See Other
+    /// - 307 - Temporary Redirect
+    /// - 308 - Permanent Redirect
     ///
-    /// When used with `redirect`, determines whether the redirect is permanent (301)
-    /// or temporary (302). When used with `file`, can be used to serve custom error pages.
-    pub status: Option<u16>,
+    /// Can only be used with `redirect`. If not specified, defaults to 302 (temporary redirect).
+    pub status: Option<RedirectStatus>,
 }
 
 impl RouteConfig {
@@ -201,7 +205,7 @@ impl RouteConfig {
     ///
     /// Ensures that:
     /// - `file` and `redirect` are mutually exclusive
-    /// - If `redirect` is set, `status` (if provided) is a valid redirect code
+    /// - `status` can only be used with `redirect`, not with `file`
     pub fn validate(&self) -> Result<()> {
         // Check that file and redirect are mutually exclusive
         if self.file.is_some() && self.redirect.is_some() {
@@ -211,18 +215,63 @@ impl RouteConfig {
             ));
         }
 
-        // Validate redirect status codes
-        if self.redirect.is_some()
-            && let Some(status) = self.status
-            && ![301, 302, 303, 307, 308].contains(&status)
-        {
+        // Check that status is only used with redirect
+        if self.status.is_some() && self.redirect.is_none() {
             return Err(eyre!(
-                "Route '{}' has invalid redirect status code {}. Must be 301, 302, 303, 307, or 308.",
-                self.path,
-                status
+                "Route '{}' has 'status' set but no 'redirect'. Status codes can only be used with redirects.",
+                self.path
             ));
         }
 
         Ok(())
+    }
+}
+
+/// HTTP status code for redirects
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(into = "u16", try_from = "u16")]
+#[schemars(schema_with = "redirect_status_schema")]
+pub enum RedirectStatus {
+    /// 301 Moved Permanently
+    MovedPermanently = 301,
+    /// 302 Found (temporary redirect)
+    Found = 302,
+    /// 303 See Other
+    SeeOther = 303,
+    /// 307 Temporary Redirect
+    TemporaryRedirect = 307,
+    /// 308 Permanent Redirect
+    PermanentRedirect = 308,
+}
+
+fn redirect_status_schema(_generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    serde_json::from_value(serde_json::json!({
+        "type": "integer",
+        "enum": [301, 302, 303, 307, 308],
+        "description": "HTTP redirect status code."
+    }))
+    .expect("invalid JSON Schema")
+}
+
+impl From<RedirectStatus> for u16 {
+    fn from(status: RedirectStatus) -> Self {
+        status as u16
+    }
+}
+
+impl TryFrom<u16> for RedirectStatus {
+    type Error = String;
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        match value {
+            301 => Ok(RedirectStatus::MovedPermanently),
+            302 => Ok(RedirectStatus::Found),
+            303 => Ok(RedirectStatus::SeeOther),
+            307 => Ok(RedirectStatus::TemporaryRedirect),
+            308 => Ok(RedirectStatus::PermanentRedirect),
+            _ => Err(format!(
+                "Invalid redirect status code: {value} (must be 301, 302, 303, 307, or 308)",
+            )),
+        }
     }
 }

@@ -12,7 +12,7 @@ use stencila_codec::{
 };
 use stencila_codec_dom::DomCodec;
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
-use stencila_config::{Config, RouteConfig};
+use stencila_config::{Config, RedirectStatus, RouteConfig};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 /// Determine the URL route for a document file
@@ -215,15 +215,7 @@ async fn handle_redirect_route(
         .redirect
         .as_ref()
         .ok_or_else(|| eyre!("Route has no redirect URL"))?;
-    let status_code = config.status.unwrap_or(302); // Default to 302 temporary redirect
-
-    // Validate status code is appropriate for redirects
-    if ![301, 302, 303, 307, 308].contains(&status_code) {
-        bail!(
-            "Invalid redirect status code: {}. Must be 301, 302, 303, 307, or 308",
-            status_code
-        );
-    }
+    let status_code = config.status.unwrap_or(RedirectStatus::Found); // Default to 302 temporary redirect
 
     // Calculate storage path
     let trimmed = route.trim_start_matches('/').trim_end_matches('/');

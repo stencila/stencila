@@ -15,6 +15,7 @@ serde_yaml = { workspace = true }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-format = { path = "../format" }
+strum = { workspace = true }
 tracing = { workspace = true }
 
 [dev-dependencies]
