@@ -21,7 +21,8 @@ pub struct Cli {
     /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
     /// service shorthand (e.g "gdoc" or "m365"). Omit to use the tracked
     /// remote (errors if multiple remotes are tracked).
-    target: Option<String>,
+    #[arg(long, short)]
+    from: Option<String>,
 
     /// Do not merge, just replace
     ///
@@ -37,13 +38,13 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila pull</> <g>document.smd</>
 
   <dim># Pull from tracked Google Doc</dim>
-  <b>stencila pull</> <g>document.smd</> <g>gdoc</>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdoc</>
 
   <dim># Pull from tracked Microsoft 365 document</dim>
-  <b>stencila pull</> <g>document.smd</> <g>m365</>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>m365</>
 
   <dim># Pull from specific URL</dim>
-  <b>stencila pull</> <g>document.smd</> <g>https://docs.google.com/document/d/abc123</>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>https://docs.google.com/document/d/abc123</>
 
   <dim># Pull without merging (replace local file)</dim>
   <b>stencila pull</> <g>document.smd</> <g>gdoc</> <c>--no-merge</>
@@ -63,7 +64,7 @@ impl Cli {
         let remote_infos = get_remotes_for_path(&self.path, None).await?;
 
         // Determine the target to pull from
-        let (service, url) = if let Some(target_str) = &self.target {
+        let (service, url) = if let Some(target_str) = &self.from {
             // Target or service shorthand specified
             match target_str.as_str() {
                 "gdoc" | "gdocs" => {

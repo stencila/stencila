@@ -30,7 +30,8 @@ pub struct Cli {
     /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
     /// service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked
     /// remotes for the path.
-    target: Option<String>,
+    #[arg(long, short)]
+    to: Option<String>,
 
     /// Create a new document instead of updating an existing one
     ///
@@ -101,31 +102,31 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila push</>
 
   <dim># Push a document to Google Docs</dim>
-  <b>stencila push</> <g>document.smd</> <g>gdoc</>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</>
 
   <dim># Push a document to Microsoft 365</dim>
-  <b>stencila push</> <g>document.smd</> <g>m365</>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>m365</>
 
   <dim># Push a document to a Stencila Site</dim>
-  <b>stencila push</> <g>document.smd</> <g>site</>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>site</>
 
   <dim># Push to file to all tracked remotes</dim>
   <b>stencila push</> <g>document.smd</>
 
   <dim># Push to specific remote</dim>
-  <b>stencila push</> <g>document.smd</> <g>https://docs.google.com/document/d/abc123</>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>https://docs.google.com/document/d/abc123</>
 
   <dim># Push with execution first</dim>
-  <b>stencila push</> <g>report.smd</> <g>gdoc</> <c>--</> <c>arg1=value1</>
+  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--</> <c>arg1=value1</>
 
   <dim># Force create new document</dim>
-  <b>stencila push</> <g>document.smd</> <g>gdoc</> <c>--new</>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</> <c>--new</>
 
   <dim># Force push even if up-to-date (useful for sites)</dim>
-  <b>stencila push</> <g>document.smd</> <g>site</> <c>--force</>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>site</> <c>--force</>
 
   <dim># Perform a dry-run to inspect generated files without uploading</dim>
-  <b>stencila push</> <g>document.smd</> <g>site</> <c>--dry-run=./temp</>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>site</> <c>--dry-run=./temp</>
 "
 );
 
@@ -184,7 +185,7 @@ impl Cli {
         let doc = Document::open(&path, None).await?;
 
         // Early validation: --watch is not compatible with multiple remotes
-        if self.watch && self.target.is_none() {
+        if self.watch && self.to.is_none() {
             let remote_infos = get_remotes_for_path(&path, None).await?;
             if remote_infos.len() > 1 {
                 let urls_list = remote_infos
@@ -200,7 +201,7 @@ impl Cli {
 
         // Determine target remote service, explicit URL, and execution args
         // If the target string looks like an execution arg (starts with '-' or contains '='), treat it as such
-        let (service, explicit_target, execution_args) = if let Some(target_str) = self.target {
+        let (service, explicit_target, execution_args) = if let Some(target_str) = self.to {
             if target_str.starts_with('-') || target_str.contains('=') {
                 // Looks like an execution arg, not a target/service
                 let mut args = vec![target_str];
@@ -267,7 +268,7 @@ impl Cli {
 
             if remote_infos.is_empty() {
                 bail!(
-                    "No remotes configured for `{path_display}`. Add remotes to stencila.yaml or specify a service (gdoc/m365/site) to push to.",
+                    "No remotes configured for `{path_display}`. Specify a service (gdoc/m365/site) to push to.",
                 );
             }
 
