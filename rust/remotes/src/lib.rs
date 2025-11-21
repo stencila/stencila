@@ -617,9 +617,6 @@ fn collect_files_recursive(dir: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
 pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<RemoteEntries>> {
     // Load config to get remote configurations
     let config = stencila_config::config(workspace_dir)?;
-    let Some(remotes) = &config.remotes else {
-        return Ok(None);
-    };
 
     // Load .stencila/remotes.json for pull/push timestamps
     let stencila_dir = closest_stencila_dir(workspace_dir, false).await?;
@@ -628,7 +625,9 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
     // Collect all files from config
     let mut result: RemoteEntries = BTreeMap::new();
 
-    for (path_key, value) in remotes {
+    // Process explicit remotes from [remotes] section if it exists
+    if let Some(remotes) = &config.remotes {
+        for (path_key, value) in remotes {
         let config_path = ConfigRelativePath(path_key.clone()).resolve(workspace_dir);
 
         // Expand to actual files, or use the config path itself if it doesn't exist yet
@@ -672,7 +671,54 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
                     .insert(remote_url.clone(), file_remote_info);
             }
         }
+        }
     }
+
+    // Process implicit site remotes
+    // If site.id is configured, check for tracked files under site.root
+    if let Some(site_config) = &config.site
+        && site_config.id.is_some() {
+            // Check tracking data for files under site root
+            for (tracked_path, url_map) in &remotes_tracking {
+                // Resolve the tracked path relative to workspace
+                let absolute_tracked_path = workspace_dir.join(tracked_path);
+
+                // Check if this file is under site root
+                if !config.path_matches_site_root(&absolute_tracked_path, workspace_dir) {
+                    continue;
+                }
+
+                // Process each remote URL for this file
+                for (remote_url, tracking_info) in url_map {
+                    // Check if this is a Stencila Sites URL
+                    if !matches!(RemoteService::from_url(remote_url), Some(RemoteService::StencilaSites)) {
+                        continue;
+                    }
+
+                    // Skip if we already have this remote from explicit config
+                    if result.contains_key(tracked_path)
+                        && result[tracked_path].contains_key(remote_url) {
+                        continue;
+                    }
+
+                    // Create implicit remote info
+                    let file_remote_info = RemoteInfo {
+                        url: remote_url.clone(),
+                        path: ConfigRelativePath(tracked_path.to_string_lossy().to_string()),
+                        pulled_at: tracking_info.pulled_at,
+                        pushed_at: tracking_info.pushed_at,
+                        watch_id: None, // Implicit remotes don't have watches
+                        watch_direction: None,
+                    };
+
+                    // Add implicit remote
+                    result
+                        .entry(tracked_path.clone())
+                        .or_default()
+                        .insert(remote_url.clone(), file_remote_info);
+                }
+            }
+        }
 
     if result.is_empty() {
         Ok(None)

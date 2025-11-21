@@ -169,7 +169,47 @@ pub struct Config {
     pub routes: Option<HashMap<String, RouteTarget>>,
 }
 
-impl Config {}
+impl Config {
+    /// Check if a path is under the configured site root
+    ///
+    /// Returns true if the path is within (or is) the directory
+    /// specified by `site.root` in the configuration.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The path to check (can be relative or absolute)
+    /// * `workspace_dir` - The workspace directory used to resolve relative paths
+    ///
+    /// # Returns
+    ///
+    /// Returns `true` if:
+    /// - `site.root` is configured AND
+    /// - The path is under (or is) the site root directory
+    ///
+    /// Returns `false` if:
+    /// - `site` is not configured
+    /// - `site.root` is not configured
+    /// - The path is not under the site root
+    pub fn path_matches_site_root(&self, path: &Path, workspace_dir: &Path) -> bool {
+        if let Some(site_config) = &self.site {
+            if let Some(site_root) = &site_config.root {
+                let site_root_path = site_root.resolve(workspace_dir);
+
+                // Normalize both paths for comparison
+                let path_canonical = path.canonicalize().ok();
+                let site_root_canonical = site_root_path.canonicalize().ok();
+
+                if let (Some(path_canon), Some(site_canon)) =
+                    (path_canonical, site_root_canonical)
+                {
+                    // Check if path is under site_root or is the site_root itself
+                    return path_canon.starts_with(&site_canon) || path_canon == site_canon;
+                }
+            }
+        }
+        false
+    }
+}
 
 /// Configuration for a site
 #[skip_serializing_none]

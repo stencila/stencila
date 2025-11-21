@@ -201,7 +201,7 @@ impl Cli {
 
         // Determine target remote service, explicit URL, and execution args
         // If the target string looks like an execution arg (starts with '-' or contains '='), treat it as such
-        let (service, explicit_target, execution_args) = if let Some(target_str) = self.to {
+        let (mut service, explicit_target, execution_args) = if let Some(target_str) = self.to {
             if target_str.starts_with('-') || target_str.contains('=') {
                 // Looks like an execution arg, not a target/service
                 let mut args = vec![target_str];
@@ -267,9 +267,42 @@ impl Cli {
             let remote_infos = get_remotes_for_path(&path, None).await?;
 
             if remote_infos.is_empty() {
-                bail!(
-                    "No remotes configured for `{path_display}`. Specify a service (gdoc/m365/site) to push to.",
-                );
+                // No explicit remotes configured - try smart fallback to Stencila Sites
+                // Get workspace directory and config to check for site configuration
+                let workspace_dir = closest_workspace_dir(&path, false).await?;
+                let config = stencila_config::config(&workspace_dir)?;
+
+                // Priority 1: Check if path matches site.root
+                let matches_site_root = config.path_matches_site_root(&path, &workspace_dir);
+
+                // Priority 2: Check if site.id is configured (general fallback)
+                let has_site_id = config.site.as_ref().and_then(|s| s.id.as_ref()).is_some();
+
+                if matches_site_root || has_site_id {
+                    // Use Stencila Sites as the default service
+                    service = Some(RemoteService::StencilaSites);
+
+                    if matches_site_root {
+                        message(
+                            &format!(
+                                "Path `{path_display}` matches site root, using Stencila Sites"
+                            ),
+                            Some("ℹ️ "),
+                        );
+                    } else {
+                        message(
+                            &format!(
+                                "Using Stencila Sites for `{path_display}` (site configured in stencila.toml)"
+                            ),
+                            Some("ℹ️ "),
+                        );
+                    }
+                    // Service is now set, will fall through to single-remote push logic below
+                } else {
+                    bail!(
+                        "No remotes configured for `{path_display}`. Specify a service (gdoc/m365/site) to push to.",
+                    );
+                }
             }
 
             // If multiple remotes, push to all of them
@@ -672,7 +705,8 @@ impl Cli {
         let mut files_with_remotes: BTreeMap<PathBuf, Vec<Url>> = BTreeMap::new();
 
         for (path_key, value) in remotes {
-            let config_path = stencila_config::ConfigRelativePath(path_key.clone()).resolve(&workspace_dir);
+            let config_path =
+                stencila_config::ConfigRelativePath(path_key.clone()).resolve(&workspace_dir);
 
             // Expand path to actual files
             let files = expand_path_to_files(&config_path)?;
