@@ -43,6 +43,7 @@ pub fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) 
 
     // Get path relative to base directory
     let file_path = file_path.canonicalize()?;
+    let base_dir = base_dir.canonicalize()?;
     let rel_path = file_path.strip_prefix(&base_dir).map_err(|_| {
         eyre!(
             "File path {} is not within site root {}",
@@ -54,6 +55,11 @@ pub fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) 
     // Normalize path separators to forward slashes for consistent comparison
     // (route overrides use forward slashes)
     let rel_path_str = rel_path.to_string_lossy().replace('\\', "/");
+
+    // If the file path equals the base directory (site root), route to /
+    if rel_path_str.is_empty() {
+        return Ok("/".to_string());
+    }
 
     // Check route overrides first
     if let Some(routes) = &config.routes {
@@ -514,6 +520,51 @@ pub async fn push(
 
         // Reconcile media files at this route to clean up orphaned files
         reconcile_prefix(&site_id, &branch_slug, &media_prefix, current_media_files).await?;
+    }
+
+    // Process standalone redirect routes from config
+    // Only upload redirects when pushing the site root directory itself (not individual files within it)
+    if let Some(path) = path {
+        let cfg = stencila_config::config(&workspace_dir)?;
+
+        // Check if the path is exactly the site root directory
+        let is_site_root_dir = if let Some(site) = &cfg.site {
+            if let Some(root) = &site.root {
+                let site_root_path = root.resolve(&workspace_dir);
+                if let (Ok(path_canon), Ok(site_canon)) =
+                    (path.canonicalize(), site_root_path.canonicalize())
+                {
+                    path_canon == site_canon
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        } else {
+            false
+        };
+
+        if is_site_root_dir
+            && let Some(routes) = &cfg.routes {
+                for (route_path, target) in routes {
+                    if let Some(redirect) = target.redirect() {
+                        let dry_run_file = handle_redirect_route(
+                            &site_id,
+                            &branch_slug,
+                            route_path,
+                            redirect,
+                            is_dry_run,
+                            &dry_run_output_dir,
+                        )
+                        .await?;
+
+                        if let Some(file) = dry_run_file {
+                            dry_run_files.push(file);
+                        }
+                    }
+                }
+            }
     }
 
     // Return the result
