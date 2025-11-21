@@ -125,7 +125,7 @@ impl Show {
         let site_id = site
             .id
             .as_ref()
-            .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+            .ok_or_else(|| eyre!("No site id in configuration"))?;
 
         // Fetch site details from API
         let details = get_site(site_id).await?;

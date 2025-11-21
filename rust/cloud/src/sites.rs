@@ -113,7 +113,7 @@ pub async fn ensure_site(path: &Path) -> Result<(String, bool)> {
     }
 
     // Need to create new configuration
-    tracing::info!("No site configuration found, creating new site");
+    tracing::info!("No site id found, creating new Stencila Site");
     let id = create_site().await?;
 
     // Write to config
