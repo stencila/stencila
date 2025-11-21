@@ -26,13 +26,13 @@
       ]
     },
     "routes": {
-      "description": "Custom routes for serving content\n\nRoutes can be used by both remote sites (e.g., stencila.site) and\nlocal development servers to map URL paths to files or redirects.",
+      "description": "Custom routes for serving content\n\nRoutes map URL paths to files or redirects. The key is the URL path,\nand the value can be either:\n- A simple string for the file path: `\"/about/\" = \"README.md\"`\n- An object for redirects: `\"/old/\" = { redirect = \"/new/\", status = 301 }`\n\nRoutes can be used by both remote sites (e.g., stencila.site) and\nlocal development servers.\n\nExample:\n```toml\n[routes]\n\"/\" = \"index.md\"\n\"/about/\" = \"README.md\"\n\"/old-page/\" = { redirect = \"/new-page/\", status = 301 }\n\"/external/\" = { redirect = \"https://example.com\" }\n```",
       "type": [
-        "array",
+        "object",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/RouteConfig"
+      "additionalProperties": {
+        "$ref": "#/definitions/RouteTarget"
       }
     }
   },
@@ -125,35 +125,37 @@
         }
       }
     },
-    "RouteConfig": {
-      "description": "A route configuration for a site\n\nRoutes allow you to customize how URLs map to files, create redirects,\nor serve specific files at custom paths. They are evaluated in order,\nwith earlier routes taking precedence over later ones.",
-      "type": "object",
-      "properties": {
-        "path": {
-          "description": "The URL path pattern for this route\n\nMust start with `/` and typically ends with `/` for directory-like routes.\nThis is the URL path that will be matched against incoming requests.\n\nExamples:\n- /about/ - Matches exactly /about/\n- /docs/guide/ - Matches exactly /docs/guide/",
-          "type": "string",
-          "pattern": "^/"
-        },
-        "file": {
-          "description": "The file to serve for this route\n\nPath relative to the workspace directory (or `site.root` if configured).\nWhen a request matches this route's `path`, the specified file will be served.\n\nCannot be used together with `redirect`. Either specify a `file` to serve\ncontent, or a `redirect` to redirect to another URL.\n\nExamples:\n- README.md - Serves the README from the workspace root\n- docs/overview.ipynb - Serves a specific document",
-          "anyOf": [
+    "RouteTarget": {
+      "description": "Target for a route - either a file path or a redirect\n\nRoutes can either serve a file or redirect to another URL.\nThis enum allows for a clean representation where simple file\npaths are strings, and redirects are objects.",
+      "anyOf": [
+        {
+          "description": "Serve a file at this path\n\nPath relative to the workspace directory (or `site.root` if configured).\n\nExample in TOML:\n```toml\n[routes]\n\"/about/\" = \"README.md\"\n```",
+          "allOf": [
             {
               "$ref": "#/definitions/ConfigRelativePath"
-            },
-            {
-              "type": "null"
             }
           ]
         },
-        "redirect": {
-          "description": "A redirect URL for this route\n\nWhen a request matches this route's `path`, the user will be redirected\nto this URL. Can be an absolute URL or a relative path.\n\nCannot be used together with `file`. Use `status` to control the redirect\ntype (301 for permanent, 302 for temporary, etc.).\n\nExamples:\n- /new-location/ - Redirect to another path on the same site\n- https://example.com - Redirect to an external URL",
-          "type": [
-            "string",
-            "null"
+        {
+          "description": "Redirect to another URL\n\nExample in TOML:\n```toml\n[routes]\n\"/old/\" = { redirect = \"/new/\", status = 301 }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RouteRedirect"
+            }
           ]
+        }
+      ]
+    },
+    "RouteRedirect": {
+      "description": "A redirect configuration",
+      "type": "object",
+      "properties": {
+        "redirect": {
+          "description": "The URL to redirect to\n\nCan be an absolute URL or a relative path.\n\nExamples:\n- /new-location/ - Redirect to another path on the same site\n- https://example.com - Redirect to an external URL",
+          "type": "string"
         },
         "status": {
-          "description": "HTTP status code for redirects\n\nDetermines the type of redirect. Common values:\n- 301 - Moved Permanently (permanent redirect)\n- 302 - Found (temporary redirect, default)\n- 303 - See Other\n- 307 - Temporary Redirect\n- 308 - Permanent Redirect\n\nCan only be used with `redirect`. If not specified, defaults to 302 (temporary redirect).",
+          "description": "HTTP status code for the redirect\n\nDetermines the type of redirect. Common values:\n- 301 - Moved Permanently (permanent redirect)\n- 302 - Found (temporary redirect, default)\n- 303 - See Other\n- 307 - Temporary Redirect\n- 308 - Permanent Redirect\n\nIf not specified, defaults to 302 (temporary redirect).",
           "anyOf": [
             {
               "$ref": "#/definitions/RedirectStatus"
@@ -165,7 +167,7 @@
         }
       },
       "required": [
-        "path"
+        "redirect"
       ]
     },
     "RedirectStatus": {

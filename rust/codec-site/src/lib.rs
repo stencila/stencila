@@ -13,7 +13,7 @@ use stencila_codec::{
 };
 use stencila_codec_dom::DomCodec;
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
-use stencila_config::{Config, RedirectStatus, RouteConfig};
+use stencila_config::{Config, RedirectStatus, RouteRedirect, RouteTarget};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 /// Determine the URL route for a document file
@@ -57,11 +57,11 @@ pub fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) 
 
     // Check route overrides first
     if let Some(routes) = &config.routes {
-        for route in routes {
-            if let Some(file) = &route.file
+        for (route_path, target) in routes {
+            if let Some(file) = target.file()
                 && rel_path_str == file.as_str()
             {
-                return Ok(route.path.clone());
+                return Ok(route_path.clone());
             }
         }
     }
@@ -154,12 +154,12 @@ pub fn browseable_url(canonical: &Url, path: Option<&Path>) -> Result<Url> {
 /// Find the route configuration for a given file path
 ///
 /// Searches through the config routes to find a matching route based on the file path.
-/// Returns the matching RouteConfig if found.
+/// Returns the matching route path and target if found.
 fn find_route_config(
     file_path: Option<&Path>,
     workspace_dir: &Path,
     config: &Config,
-) -> Result<Option<RouteConfig>> {
+) -> Result<Option<(String, RouteTarget)>> {
     let Some(path) = file_path else {
         return Ok(None);
     };
@@ -184,11 +184,11 @@ fn find_route_config(
     let rel_path_str = rel_path.to_string_lossy().replace('\\', "/");
 
     if let Some(routes) = &config.routes {
-        for route in routes {
-            if let Some(file) = &route.file
+        for (route_path, target) in routes {
+            if let Some(file) = target.file()
                 && rel_path_str == file.as_str()
             {
-                return Ok(Some(route.clone()));
+                return Ok(Some((route_path.clone(), target.clone())));
             }
         }
     }
@@ -207,16 +207,13 @@ async fn handle_redirect_route(
     site_id: &str,
     branch_slug: &str,
     route: &str,
-    config: &RouteConfig,
+    redirect: &RouteRedirect,
     is_dry_run: bool,
     dry_run_output_dir: &Option<PathBuf>,
 ) -> Result<Option<PushDryRunFile>> {
     // Extract redirect URL and status code
-    let location = config
-        .redirect
-        .as_ref()
-        .ok_or_else(|| eyre!("Route has no redirect URL"))?;
-    let status_code = config.status.unwrap_or(RedirectStatus::Found); // Default to 302 temporary redirect
+    let location = &redirect.redirect;
+    let status_code = redirect.status.unwrap_or(RedirectStatus::Found); // Default to 302 temporary redirect
 
     const REDIRECT_FILENAME: &str = "redirect.json";
 
@@ -372,15 +369,15 @@ pub async fn push(
     // Check if this route has a redirect configured
     if let Some(path) = path {
         let cfg = stencila_config::config(&workspace_dir)?;
-        if let Some(route_config) = find_route_config(Some(path), &workspace_dir, &cfg)?
-            && route_config.redirect.is_some()
+        if let Some((route_path, target)) = find_route_config(Some(path), &workspace_dir, &cfg)?
+            && let Some(redirect) = target.redirect()
         {
             // Handle redirect route - upload .redirect file and return early
             let dry_run_file = handle_redirect_route(
                 &site_id,
                 &branch_slug,
-                &route,
-                &route_config,
+                &route_path,
+                redirect,
                 is_dry_run,
                 &dry_run_output_dir,
             )
@@ -390,7 +387,7 @@ pub async fn push(
                 dry_run_files.push(file);
             }
 
-            let url = Url::parse(&format!("{base_url}{route}"))?;
+            let url = Url::parse(&format!("{base_url}{route_path}"))?;
 
             return if is_dry_run {
                 Ok(PushResult::DryRun {

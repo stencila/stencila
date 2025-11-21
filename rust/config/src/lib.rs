@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use eyre::{Result, eyre};
 use schemars::JsonSchema;
@@ -68,8 +71,8 @@ pub fn config(path: &Path) -> Result<Config> {
 
     // Validate all route configurations
     if let Some(routes) = &config.routes {
-        for route in routes {
-            route.validate()?;
+        for (path_key, target) in routes {
+            target.validate(path_key)?;
         }
     }
 
@@ -122,9 +125,24 @@ pub struct Config {
 
     /// Custom routes for serving content
     ///
+    /// Routes map URL paths to files or redirects. The key is the URL path,
+    /// and the value can be either:
+    /// - A simple string for the file path: `"/about/" = "README.md"`
+    /// - An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
+    ///
     /// Routes can be used by both remote sites (e.g., stencila.site) and
-    /// local development servers to map URL paths to files or redirects.
-    pub routes: Option<Vec<RouteConfig>>,
+    /// local development servers.
+    ///
+    /// Example:
+    /// ```toml
+    /// [routes]
+    /// "/" = "index.md"
+    /// "/about/" = "README.md"
+    /// "/old-page/" = { redirect = "/new-page/", status = 301 }
+    /// "/external/" = { redirect = "https://example.com" }
+    /// ```
+    #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
+    pub routes: Option<HashMap<String, RouteTarget>>,
 }
 
 /// Configuration for a site
@@ -176,52 +194,83 @@ pub struct SiteConfig {
     pub exclude: Option<Vec<String>>,
 }
 
-/// A route configuration for a site
+/// Target for a route - either a file path or a redirect
 ///
-/// Routes allow you to customize how URLs map to files, create redirects,
-/// or serve specific files at custom paths. They are evaluated in order,
-/// with earlier routes taking precedence over later ones.
-#[skip_serializing_none]
+/// Routes can either serve a file or redirect to another URL.
+/// This enum allows for a clean representation where simple file
+/// paths are strings, and redirects are objects.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
-pub struct RouteConfig {
-    /// The URL path pattern for this route
-    ///
-    /// Must start with `/` and typically ends with `/` for directory-like routes.
-    /// This is the URL path that will be matched against incoming requests.
-    ///
-    /// Examples:
-    /// - /about/ - Matches exactly /about/
-    /// - /docs/guide/ - Matches exactly /docs/guide/
-    #[schemars(regex(pattern = r"^/"))]
-    pub path: String,
-
-    /// The file to serve for this route
+#[serde(untagged)]
+pub enum RouteTarget {
+    /// Serve a file at this path
     ///
     /// Path relative to the workspace directory (or `site.root` if configured).
-    /// When a request matches this route's `path`, the specified file will be served.
     ///
-    /// Cannot be used together with `redirect`. Either specify a `file` to serve
-    /// content, or a `redirect` to redirect to another URL.
-    ///
-    /// Examples:
-    /// - README.md - Serves the README from the workspace root
-    /// - docs/overview.ipynb - Serves a specific document
-    pub file: Option<ConfigRelativePath>,
+    /// Example in TOML:
+    /// ```toml
+    /// [routes]
+    /// "/about/" = "README.md"
+    /// ```
+    File(ConfigRelativePath),
 
-    /// A redirect URL for this route
+    /// Redirect to another URL
     ///
-    /// When a request matches this route's `path`, the user will be redirected
-    /// to this URL. Can be an absolute URL or a relative path.
+    /// Example in TOML:
+    /// ```toml
+    /// [routes]
+    /// "/old/" = { redirect = "/new/", status = 301 }
+    /// ```
+    Redirect(RouteRedirect),
+}
+
+impl RouteTarget {
+    /// Validate the route target configuration
     ///
-    /// Cannot be used together with `file`. Use `status` to control the redirect
-    /// type (301 for permanent, 302 for temporary, etc.).
+    /// Ensures that:
+    /// - `status` can only be used with `redirect`
+    pub fn validate(&self, path: &str) -> Result<()> {
+        match self {
+            RouteTarget::File(_) => Ok(()),
+            RouteTarget::Redirect(redirect) => {
+                if redirect.redirect.is_empty() {
+                    return Err(eyre!("Route '{}' has an empty redirect URL", path));
+                }
+                Ok(())
+            }
+        }
+    }
+
+    /// Get the file path if this is a file route
+    pub fn file(&self) -> Option<&ConfigRelativePath> {
+        match self {
+            RouteTarget::File(path) => Some(path),
+            RouteTarget::Redirect(_) => None,
+        }
+    }
+
+    /// Get the redirect info if this is a redirect route
+    pub fn redirect(&self) -> Option<&RouteRedirect> {
+        match self {
+            RouteTarget::File(_) => None,
+            RouteTarget::Redirect(redirect) => Some(redirect),
+        }
+    }
+}
+
+/// A redirect configuration
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct RouteRedirect {
+    /// The URL to redirect to
+    ///
+    /// Can be an absolute URL or a relative path.
     ///
     /// Examples:
     /// - /new-location/ - Redirect to another path on the same site
     /// - https://example.com - Redirect to an external URL
-    pub redirect: Option<String>,
+    pub redirect: String,
 
-    /// HTTP status code for redirects
+    /// HTTP status code for the redirect
     ///
     /// Determines the type of redirect. Common values:
     /// - 301 - Moved Permanently (permanent redirect)
@@ -230,35 +279,8 @@ pub struct RouteConfig {
     /// - 307 - Temporary Redirect
     /// - 308 - Permanent Redirect
     ///
-    /// Can only be used with `redirect`. If not specified, defaults to 302 (temporary redirect).
+    /// If not specified, defaults to 302 (temporary redirect).
     pub status: Option<RedirectStatus>,
-}
-
-impl RouteConfig {
-    /// Validate the route configuration
-    ///
-    /// Ensures that:
-    /// - `file` and `redirect` are mutually exclusive
-    /// - `status` can only be used with `redirect`, not with `file`
-    pub fn validate(&self) -> Result<()> {
-        // Check that file and redirect are mutually exclusive
-        if self.file.is_some() && self.redirect.is_some() {
-            return Err(eyre!(
-                "Route '{}' cannot have both 'file' and 'redirect' set. They are mutually exclusive.",
-                self.path
-            ));
-        }
-
-        // Check that status is only used with redirect
-        if self.status.is_some() && self.redirect.is_none() {
-            return Err(eyre!(
-                "Route '{}' has 'status' set but no 'redirect'. Status codes can only be used with redirects.",
-                self.path
-            ));
-        }
-
-        Ok(())
-    }
 }
 
 /// HTTP status code for redirects
