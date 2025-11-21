@@ -18,6 +18,9 @@
         "json/meta.schema.json": "schema/*.yaml",
         "https://json.schemastore.org/tmlanguage.json": "vscode/syntaxes/smd.tmGrammar.yaml"
     },
+    "evenBetterToml.schema.associations": {
+        "stencila.toml": "./json/stencila-config.schema.json"
+    },
     "cSpell.words": [
         "arethetypeswrong",
         "asciimath",
