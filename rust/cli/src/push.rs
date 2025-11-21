@@ -3,8 +3,10 @@ use std::{collections::BTreeMap, path::PathBuf, process::exit};
 use chrono::Utc;
 use clap::Parser;
 use eyre::{Result, bail, eyre};
+use tokio::fs::remove_dir_all;
 use url::Url;
 
+use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
@@ -149,7 +151,28 @@ impl Cli {
             let output_dir = if dir_str.is_empty() {
                 None
             } else {
-                Some(PathBuf::from(dir_str))
+                let dir = PathBuf::from(dir_str);
+
+                if dir.exists() {
+                    let answer = ask_with(
+                        &format!(
+                            "Directory `{}` already exists. Clear it first?",
+                            dir.display()
+                        ),
+                        AskOptions {
+                            level: AskLevel::Warning,
+                            default: Some(Answer::Yes),
+                            ..Default::default()
+                        },
+                    )
+                    .await?;
+
+                    if answer.is_yes() {
+                        remove_dir_all(&dir).await?;
+                    }
+                }
+
+                Some(dir)
             };
             Some(stencila_codecs::PushDryRunOptions {
                 enabled: true,
