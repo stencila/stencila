@@ -76,6 +76,7 @@ tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter", "json"] }
 url = { version = "2.5.7", features = ["serde"] }
 uuid = { version = "1.18.1", features = ["v4"] }
+walkdir = "2.5.0"
 webbrowser = "1.0.6"
 which = "8.0.0"
 winnow = "0.7.13"

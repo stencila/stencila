@@ -68,7 +68,7 @@ tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 url = { workspace = true }
-walkdir = "2.5.0"
+walkdir = { workspace = true }
 
 [dev-dependencies]
 glob = { workspace = true }

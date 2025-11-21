@@ -9273,6 +9273,8 @@ dependencies = [
  "reqwest",
  "sha2 0.10.9",
  "similar",
+ "tempfile",
+ "walkdir",
  "which",
 ]
 
