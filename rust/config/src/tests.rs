@@ -10,7 +10,8 @@ use serial_test::serial;
 use tempfile::TempDir;
 
 use crate::{
-    CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, find_config_file,
+    CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, RedirectStatus, RemoteTarget, RemoteValue,
+    find_config_file,
     utils::{
         ConfigTarget, collect_config_paths, config_set, config_unset, config_update_remote_watch,
         config_value, normalize_path,
@@ -352,11 +353,23 @@ fn test_config_set_type_inference() -> Result<()> {
     let contents = fs::read_to_string(temp_path.join(CONFIG_FILENAME))?;
 
     // Verify types are preserved (not all strings)
-    assert!(contents.contains("bool_value = true"), "bool_value should be unquoted true");
-    assert!(contents.contains("int_value = 42"), "int_value should be unquoted 42");
+    assert!(
+        contents.contains("bool_value = true"),
+        "bool_value should be unquoted true"
+    );
+    assert!(
+        contents.contains("int_value = 42"),
+        "int_value should be unquoted 42"
+    );
     // Float might be formatted as "3.14" or "3.1400000000000001" depending on precision
-    assert!(contents.contains("float_value = 3.1"), "float_value should start with 3.1");
-    assert!(contents.contains("string_value = \"hello\""), "string_value should be quoted");
+    assert!(
+        contents.contains("float_value = 3.1"),
+        "float_value should start with 3.1"
+    );
+    assert!(
+        contents.contains("string_value = \"hello\""),
+        "string_value should be quoted"
+    );
 
     // Restore directory BEFORE temp_dir is dropped
     std::env::set_current_dir(original_dir)?;
@@ -562,9 +575,8 @@ fn test_config_update_remote_watch_finds_config_from_file_path() -> Result<()> {
     fs::write(
         &config_path,
         r#"
-[[remotes]]
-path = "docs/test.md"
-url = "https://docs.google.com/document/d/abc123"
+[remotes]
+"docs/test.md" = "https://docs.google.com/document/d/abc123"
 "#,
     )?;
 
@@ -623,10 +635,8 @@ fn test_config_update_remote_watch_removes_watch_id() -> Result<()> {
     fs::write(
         &config_path,
         r#"
-[[remotes]]
-path = "test.md"
-url = "https://docs.google.com/document/d/abc123"
-watch = "watch_123"
+[remotes]
+"test.md" = { url = "https://docs.google.com/document/d/abc123", watch = "watch_123" }
 "#,
     )?;
 
@@ -637,13 +647,27 @@ watch = "watch_123"
     // Remove the watch ID by passing None
     config_update_remote_watch(&doc_path, "https://docs.google.com/document/d/abc123", None)?;
 
-    // Verify the watch field was removed
+    // Verify the watch field was removed and entry converted back to plain string
     let updated_config = fs::read_to_string(&config_path)?;
     assert!(
         !updated_config.contains("watch ="),
         "Watch field should be removed: {}",
         updated_config
     );
+    assert!(
+        updated_config.contains(r#""test.md" = "https://docs.google.com/document/d/abc123""#),
+        "Entry should be converted back to plain string: {}",
+        updated_config
+    );
+
+    // Verify the config can still be parsed correctly
+    let cfg = config_isolated(workspace_path)?;
+    let remotes = cfg.remotes.as_ref().expect("Expected remotes");
+    let test_md = remotes.get("test.md").expect("Expected test.md remote");
+    assert!(matches!(test_md, RemoteValue::Single(RemoteTarget::Url(_))));
+    if let RemoteValue::Single(RemoteTarget::Url(url)) = test_md {
+        assert_eq!(url.as_str(), "https://docs.google.com/document/d/abc123");
+    }
 
     Ok(())
 }
@@ -698,10 +722,7 @@ fn test_config_routes_redirect() -> Result<()> {
     let target = routes.get("/old/").expect("Expected /old/ route");
     let redirect = target.redirect().expect("Expected redirect");
     assert_eq!(redirect.redirect, "/new/");
-    assert_eq!(
-        redirect.status,
-        Some(crate::RedirectStatus::MovedPermanently)
-    );
+    assert_eq!(redirect.status, Some(RedirectStatus::MovedPermanently));
 
     // Check the redirect without status (defaults to 302)
     let target = routes.get("/external/").expect("Expected /external/ route");
@@ -762,13 +783,183 @@ fn test_config_routes_duplicate_keys_fails() -> Result<()> {
     let result = config_isolated(temp_dir.path());
 
     // Either it errors, or the last value wins (both are acceptable TOML behavior)
-    if let Ok(cfg) = result {
-        if let Some(routes) = &cfg.routes {
-            // If parsing succeeded, verify only one entry exists (last one wins)
-            assert_eq!(routes.len(), 1);
-            let target = routes.get("/test/").expect("Expected /test/ route");
-            assert_eq!(target.file().expect("Expected file").as_str(), "file2.md");
+    if let Ok(cfg) = result
+        && let Some(routes) = &cfg.routes
+    {
+        // If parsing succeeded, verify only one entry exists (last one wins)
+        assert_eq!(routes.len(), 1);
+        let target = routes.get("/test/").expect("Expected /test/ route");
+        assert_eq!(target.file().expect("Expected file").as_str(), "file2.md");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_config_remotes_simple_url() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with simple URL remotes
+    let config_content = r#"
+[remotes]
+"site" = "https://example.stencila.site/"
+"docs" = "https://docs.google.com/document/d/abc123"
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let remotes = cfg.remotes.as_ref().expect("Expected remotes");
+    assert_eq!(remotes.len(), 2);
+
+    // Check simple URL values
+    let site = remotes.get("site").expect("Expected site remote");
+    assert!(matches!(site, RemoteValue::Single(RemoteTarget::Url(_))));
+    if let RemoteValue::Single(RemoteTarget::Url(url)) = site {
+        assert_eq!(url.as_str(), "https://example.stencila.site/");
+    }
+
+    let docs = remotes.get("docs").expect("Expected docs remote");
+    assert!(matches!(docs, RemoteValue::Single(RemoteTarget::Url(_))));
+    if let RemoteValue::Single(RemoteTarget::Url(url)) = docs {
+        assert_eq!(url.as_str(), "https://docs.google.com/document/d/abc123");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_config_remotes_with_watch() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with watch IDs
+    let config_content = r#"
+[remotes]
+"docs/report.md" = { url = "https://docs.google.com/...", watch = "w123456789" }
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let remotes = cfg.remotes.as_ref().expect("Expected remotes");
+    assert_eq!(remotes.len(), 1);
+
+    let report = remotes
+        .get("docs/report.md")
+        .expect("Expected docs/report.md remote");
+    assert!(matches!(
+        report,
+        RemoteValue::Single(RemoteTarget::Object(_))
+    ));
+    if let RemoteValue::Single(RemoteTarget::Object(info)) = report {
+        assert_eq!(info.url, "https://docs.google.com/...");
+        assert_eq!(info.watch, Some("w123456789".to_string()));
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_config_remotes_with_url_object_no_watch() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with object format but no watch field
+    let config_content = r#"
+[remotes]
+"article.md" = { url = "https://docs.google.com/document/d/xyz789" }
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let remotes = cfg.remotes.as_ref().expect("Expected remotes");
+    assert_eq!(remotes.len(), 1);
+
+    let article = remotes
+        .get("article.md")
+        .expect("Expected article.md remote");
+    assert!(matches!(
+        article,
+        RemoteValue::Single(RemoteTarget::Object(_))
+    ));
+    if let RemoteValue::Single(RemoteTarget::Object(info)) = article {
+        assert_eq!(info.url, "https://docs.google.com/document/d/xyz789");
+        assert_eq!(info.watch, None);
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_config_remotes_multiple() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with multiple remotes for same path
+    let config_content = r#"
+[remotes]
+"article.md" = [
+  { url = "https://docs.google.com/...", watch = "w456" },
+  "https://sharepoint.com/..."
+]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let remotes = cfg.remotes.as_ref().expect("Expected remotes");
+    assert_eq!(remotes.len(), 1);
+
+    let article = remotes
+        .get("article.md")
+        .expect("Expected article.md remote");
+    assert!(matches!(article, RemoteValue::Multiple(_)));
+
+    if let RemoteValue::Multiple(targets) = article {
+        assert_eq!(targets.len(), 2);
+
+        // Check we have one with watch and one without
+        let with_watch = targets
+            .iter()
+            .find(|t| matches!(t, RemoteTarget::Object(_)))
+            .expect("Expected target with watch");
+        if let RemoteTarget::Object(info) = with_watch {
+            assert_eq!(info.url, "https://docs.google.com/...");
+            assert_eq!(info.watch, Some("w456".to_string()));
         }
+
+        let without_watch = targets
+            .iter()
+            .find(|t| matches!(t, RemoteTarget::Url(_)))
+            .expect("Expected URL-only target");
+        if let RemoteTarget::Url(url) = without_watch {
+            assert_eq!(url.as_str(), "https://sharepoint.com/...");
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_config_remotes_duplicate_keys_fails() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // TOML should reject duplicate keys
+    let config_content = r#"
+[remotes]
+"test.md" = "https://url1.com"
+"test.md" = "https://url2.com"
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    // This should fail because TOML doesn't allow duplicate keys
+    let result = config_isolated(temp_dir.path());
+
+    // Either it errors, or the last value wins (both are acceptable TOML behavior)
+    if let Ok(cfg) = result
+        && let Some(remotes) = &cfg.remotes
+    {
+        // If parsing succeeded, verify only one entry exists
+        assert_eq!(remotes.len(), 1);
     }
 
     Ok(())

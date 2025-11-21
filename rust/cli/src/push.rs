@@ -662,7 +662,7 @@ impl Cli {
         let workspace_dir = closest_workspace_dir(&cwd, false).await?;
         let config = stencila_config::config(&workspace_dir)?;
 
-        let Some(remotes_config) = config.remotes else {
+        let Some(remotes) = &config.remotes else {
             bail!(
                 "No remotes configured in `stencila.toml`. Add remotes to the config file to push."
             );
@@ -671,33 +671,23 @@ impl Cli {
         // Collect all files with their remotes
         let mut files_with_remotes: BTreeMap<PathBuf, Vec<Url>> = BTreeMap::new();
 
-        for remote_config in remotes_config {
-            let config_path = remote_config.path.resolve(&workspace_dir);
+        for (path_key, value) in remotes {
+            let config_path = stencila_config::ConfigRelativePath(path_key.clone()).resolve(&workspace_dir);
 
             // Expand path to actual files
             let files = expand_path_to_files(&config_path)?;
 
-            // Parse remote URL
-            let remote_url = match Url::parse(&remote_config.url) {
-                Ok(url) => url,
-                Err(e) => {
-                    message(
-                        &format!(
-                            "Skipping invalid URL '{}' in config: {}",
-                            remote_config.url, e
-                        ),
-                        Some("⚠️"),
-                    );
-                    continue;
-                }
-            };
+            // Process each target for this path
+            for target in value.to_vec() {
+                let remote_url = target.url_owned();
 
-            // Add to files map
-            for file in files {
-                files_with_remotes
-                    .entry(file)
-                    .or_default()
-                    .push(remote_url.clone());
+                // Add to files map
+                for file in &files {
+                    files_with_remotes
+                        .entry(file.clone())
+                        .or_default()
+                        .push(remote_url.clone());
+                }
             }
         }
 

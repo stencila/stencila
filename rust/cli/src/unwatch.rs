@@ -108,7 +108,7 @@ impl Cli {
             // No target specified - check if there's only one watched remote
             let watched_remotes: Vec<_> = remote_infos
                 .iter()
-                .filter(|info| info.config.watch.is_some())
+                .filter(|info| info.watch_id.is_some())
                 .collect();
 
             if watched_remotes.is_empty() {
@@ -136,14 +136,13 @@ impl Cli {
         };
 
         // Check if remote is actually being watched
-        if remote_info.config.watch.is_none() {
+        if remote_info.watch_id.is_none() {
             bail!("Remote {} is not being watched.", remote_info.url);
         }
 
         // Call Cloud API to delete watch
         let watch_id = remote_info
-            .config
-            .watch
+            .watch_id
             .as_ref()
             .ok_or_else(|| eyre!("No watch ID found"))?;
         delete_watch(watch_id).await?;

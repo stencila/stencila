@@ -5,13 +5,13 @@
   "type": "object",
   "properties": {
     "remotes": {
-      "description": "Remote synchronization configuration\n\nDefines mappings between local files/directories and remote services\n(Google Docs, Microsoft 365, Stencila Sites). Directory paths are\nimplicitly recursive, that is, they match all files within that directory.",
+      "description": "Remote synchronization configuration\n\nMaps local paths to remote service URLs. The key is the local path\n(file, directory, or pattern), and the value can be:\n- A simple URL string: `\"site\" = \"https://example.stencila.site/\"`\n- An object with watch: `\"file.md\" = { url = \"...\", watch = \"w123\" }`\n- Multiple remotes: `\"file.md\" = [{ url = \"...\", watch = \"...\" }, \"https://...\"]`\n\nDirectory paths are implicitly recursive, matching all files within.\n\nExample:\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"docs/report.md\" = { url = \"https://docs.google.com/...\", watch = \"w123\" }\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
       "type": [
-        "array",
+        "object",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/RemoteConfig"
+      "additionalProperties": {
+        "$ref": "#/definitions/RemoteValue"
       }
     },
     "site": {
@@ -37,25 +37,55 @@
     }
   },
   "definitions": {
-    "RemoteConfig": {
-      "description": "Configuration for a remote synchronization target\n\nRemotes define how local files or directories map to external services\nlike Google Docs, Microsoft 365, or Stencila Sites. Each remote specifies\na path (file, directory, or pattern) and a URL to synchronize with.",
-      "type": "object",
-      "properties": {
-        "path": {
-          "description": "Path relative to workspace root\n\nCan be:\n- Single file: \"file.md\", \"report.ipynb\"\n- Directory: \"site\", \"docs\" (implicitly includes all files recursively)\n- Pattern: \"*.md\" (for matching specific files, optional)\n\nDirectory paths are automatically treated as recursive - they match\nall files within that directory and its subdirectories.",
+    "RemoteValue": {
+      "description": "Value for a remote configuration entry - can be single or multiple targets\n\nSupports both simple cases (one URL) and complex cases (multiple URLs per path).\nEach target can be a simple URL string or an object with a watch ID.",
+      "anyOf": [
+        {
+          "description": "Single remote target\n\nExample in TOML:\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"file.md\" = { url = \"https://...\", watch = \"w123\" }\n```",
           "allOf": [
             {
-              "$ref": "#/definitions/ConfigRelativePath"
+              "$ref": "#/definitions/RemoteTarget"
             }
           ]
         },
+        {
+          "description": "Multiple remote targets for the same path\n\nExample in TOML:\n```toml\n[remotes]\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RemoteTarget"
+          }
+        }
+      ]
+    },
+    "RemoteTarget": {
+      "description": "A remote synchronization target - either a URL or URL with watch info\n\nCan be either a simple URL string (for remotes without watch IDs)\nor an object containing URL and watch ID.",
+      "anyOf": [
+        {
+          "description": "Simple URL string (no watch)\n\nExample: `\"https://example.stencila.site/\"`",
+          "type": "string",
+          "format": "uri"
+        },
+        {
+          "description": "URL with watch information\n\nExample: `{ url = \"https://...\", watch = \"w123\" }`",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RemoteInfo"
+            }
+          ]
+        }
+      ]
+    },
+    "RemoteInfo": {
+      "description": "Remote synchronization information with watch ID",
+      "type": "object",
+      "properties": {
         "url": {
           "description": "Remote URL\n\nThe service type is inferred from the URL host:\n- Google Docs: https://docs.google.com/document/d/...\n- Microsoft 365: https://*.sharepoint.com/...\n- Stencila Sites: https://*.stencila.site/...",
           "type": "string",
           "pattern": "^https?://"
         },
         "watch": {
-          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.\n\nIf no watch exists, this field is omitted.",
+          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.",
           "type": [
             "string",
             "null"
@@ -64,13 +94,8 @@
         }
       },
       "required": [
-        "path",
         "url"
       ]
-    },
-    "ConfigRelativePath": {
-      "description": "A path that is resolved relative to the configuration file it was defined in\n\nThis wrapper provides JsonSchema implementation and stores paths as strings.\nThe paths will be resolved relative to the config file directory during use.",
-      "type": "string"
     },
     "SiteConfig": {
       "description": "Configuration for a site",
@@ -124,6 +149,10 @@
           }
         }
       }
+    },
+    "ConfigRelativePath": {
+      "description": "A path that is resolved relative to the configuration file it was defined in\n\nThis wrapper provides JsonSchema implementation and stores paths as strings.\nThe paths will be resolved relative to the config file directory during use.",
+      "type": "string"
     },
     "RouteTarget": {
       "description": "Target for a route - either a file path or a redirect\n\nRoutes can either serve a file or redirect to another URL.\nThis enum allows for a clean representation where simple file\npaths are strings, and redirects are objects.",

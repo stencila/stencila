@@ -9,7 +9,7 @@ use figment::{
     providers::{Format, Toml},
     value::Value,
 };
-use toml_edit::{DocumentMut, Item, Table, value};
+use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 /// Normalize a path, handling both files and directories
 ///
@@ -395,12 +395,12 @@ pub fn config_update_remote_watch(
         .parse::<DocumentMut>()
         .unwrap_or_else(|_| DocumentMut::new());
 
-    // Get the remotes array
-    let remotes_array = doc
+    // Get the remotes table (HashMap structure)
+    let remotes_table = doc
         .get_mut("remotes")
         .ok_or_else(|| eyre!("No remotes configured in {}", CONFIG_FILENAME))?
-        .as_array_of_tables_mut()
-        .ok_or_else(|| eyre!("remotes field is not an array of tables"))?;
+        .as_table_mut()
+        .ok_or_else(|| eyre!("remotes field is not a table"))?;
 
     // Get workspace directory (parent of config file)
     let workspace_dir = config_path
@@ -426,15 +426,12 @@ pub fn config_update_remote_watch(
         .strip_prefix(workspace_dir)
         .unwrap_or(&file_canonical);
 
-    // Find matching remote by path and URL
+    // Find matching remote by path (key) and URL (in value)
     let mut found = false;
-    for remote in remotes_array.iter_mut() {
-        // Check if this remote matches our path and URL
-        let remote_path_str = remote.get("path").and_then(|v| v.as_str()).unwrap_or("");
-        let remote_url_value = remote.get("url").and_then(|v| v.as_str()).unwrap_or("");
-
-        // Resolve and canonicalize the remote path
-        let remote_path = workspace_dir.join(remote_path_str);
+    for (path_key, remote_value) in remotes_table.iter_mut() {
+        // Resolve and canonicalize the remote path (from the HashMap key)
+        let path_key_str = path_key.get();
+        let remote_path = workspace_dir.join(path_key_str);
         let remote_canonical = remote_path.canonicalize().or_else(|_| {
             // If path doesn't exist (e.g., directory not created yet), use as-is
             Ok::<PathBuf, eyre::Error>(remote_path.clone())
@@ -448,14 +445,110 @@ pub fn config_update_remote_watch(
         let path_matches = file_relative == remote_relative
             || (remote_canonical.is_dir() && file_relative.starts_with(remote_relative));
 
-        if path_matches && remote_url_value == remote_url {
-            // Update or remove the watch field
-            if let Some(id) = &watch_id {
-                remote["watch"] = value(id.as_str());
+        if !path_matches {
+            continue;
+        }
+
+        // Helper function to update a single remote entry
+        let update_entry = |entry: &mut Item| -> Result<bool> {
+            // Check if this entry matches the URL
+            let matches_url = if let Some(url_str) = entry.as_str() {
+                // Simple string value
+                url_str == remote_url
+            } else if let Some(inline_table) = entry.as_inline_table() {
+                // Inline table with url field
+                inline_table.get("url").and_then(|v| v.as_str()) == Some(remote_url)
+            } else if let Some(table) = entry.as_table() {
+                // Regular table with url field
+                table.get("url").and_then(|v| v.as_str()) == Some(remote_url)
             } else {
-                remote.remove("watch");
+                false
+            };
+
+            if !matches_url {
+                return Ok(false);
             }
-            found = true;
+
+            // Found a match! Update or remove watch
+            if let Some(inline_table) = entry.as_inline_table_mut() {
+                // It's an inline table
+                if let Some(id) = &watch_id {
+                    // Adding/updating watch ID
+                    inline_table.insert("watch", id.as_str().into());
+                } else {
+                    // Removing watch ID - convert back to plain string
+                    if let Some(url_value) = inline_table.get("url") {
+                        if let Some(url_str) = url_value.as_str() {
+                            *entry = value(url_str);
+                        } else {
+                            // If URL is not a string, just remove watch field
+                            inline_table.remove("watch");
+                        }
+                    } else {
+                        // No URL field, just remove watch
+                        inline_table.remove("watch");
+                    }
+                }
+            } else if let Some(table) = entry.as_table_mut() {
+                // It's a regular table
+                if let Some(id) = &watch_id {
+                    // Adding/updating watch ID
+                    table["watch"] = value(id.as_str());
+                } else {
+                    // Removing watch ID - convert back to plain string
+                    if let Some(url_item) = table.get("url") {
+                        if let Some(url_str) = url_item.as_str() {
+                            *entry = value(url_str);
+                        } else {
+                            // If URL is not a string, just remove watch field
+                            table.remove("watch");
+                        }
+                    } else {
+                        // No URL field, just remove watch
+                        table.remove("watch");
+                    }
+                }
+            } else if let Some(url_str) = entry.as_str() {
+                // It's a string, need to convert to inline table with watch
+                if let Some(id) = &watch_id {
+                    let mut new_table = InlineTable::new();
+                    new_table.insert("url", url_str.into());
+                    new_table.insert("watch", id.as_str().into());
+                    *entry = value(new_table);
+                }
+                // If removing watch from a string entry, nothing to do (already a string)
+            }
+            Ok(true)
+        };
+
+        // The value can be:
+        // 1. A simple string
+        // 2. An inline table { url = "...", watch = "..." }
+        // 3. An array of strings/tables
+        if let Some(array) = remote_value.as_array_mut() {
+            // Array of targets - array contains Values which we need to convert to Items
+            for i in 0..array.len() {
+                if let Some(item) = array.get_mut(i) {
+                    // Convert Value to Item for the update
+                    let mut item_wrapper = Item::Value(item.clone());
+                    if update_entry(&mut item_wrapper)? {
+                        // Update the array element with the modified value
+                        if let Item::Value(updated_val) = item_wrapper {
+                            *item = updated_val;
+                        }
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            // Single target
+            if update_entry(remote_value)? {
+                found = true;
+            }
+        }
+
+        if found {
             break;
         }
     }

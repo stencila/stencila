@@ -61,7 +61,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila watch</> <g>report.md</> <g>gdoc</> <c>--pr-mode ready</>
 
   <dim># Note: The document must already be pushed to a remote</dim>
-  <b>stencila push</> <g>report.md</> <g>gdoc</>
+  <b>stencila push</> <g>report.md</> <c>--to</> <g>gdoc</>
   <b>stencila watch</> <g>report.md</>
 "
 );
@@ -87,7 +87,7 @@ impl Cli {
         let no_remotes = || {
             message(
                 &format!(
-                    "File `{path_display}` has no remotes to watch yet. Please push the document to a remote first e.g. *stencila push {path_display} gdoc*"
+                    "File `{path_display}` has no remotes to watch yet. Please push the document to a remote first e.g. *stencila push {path_display} --to gdoc*"
                 ),
                 Some("⚠️ "),
             );
@@ -171,7 +171,7 @@ impl Cli {
         };
 
         // Check if already being watched
-        if remote_info.config.watch.is_some() {
+        if remote_info.watch_id.is_some() {
             let service_name = RemoteService::from_url(&remote_info.url)
                 .map(|s| s.display_name_plural().to_string())
                 .unwrap_or_else(|| remote_info.url.to_string());

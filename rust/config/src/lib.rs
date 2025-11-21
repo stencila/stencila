@@ -8,6 +8,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::Display;
+use url::Url;
 
 /// Main configuration file name
 pub const CONFIG_FILENAME: &str = "stencila.toml";
@@ -76,6 +77,13 @@ pub fn config(path: &Path) -> Result<Config> {
         }
     }
 
+    // Validate all remote configurations
+    if let Some(remotes) = &config.remotes {
+        for (path_key, value) in remotes {
+            value.validate(path_key)?;
+        }
+    }
+
     Ok(config)
 }
 
@@ -115,10 +123,26 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 pub struct Config {
     /// Remote synchronization configuration
     ///
-    /// Defines mappings between local files/directories and remote services
-    /// (Google Docs, Microsoft 365, Stencila Sites). Directory paths are
-    /// implicitly recursive, that is, they match all files within that directory.
-    pub remotes: Option<Vec<RemoteConfig>>,
+    /// Maps local paths to remote service URLs. The key is the local path
+    /// (file, directory, or pattern), and the value can be:
+    /// - A simple URL string: `"site" = "https://example.stencila.site/"`
+    /// - An object with watch: `"file.md" = { url = "...", watch = "w123" }`
+    /// - Multiple remotes: `"file.md" = [{ url = "...", watch = "..." }, "https://..."]`
+    ///
+    /// Directory paths are implicitly recursive, matching all files within.
+    ///
+    /// Example:
+    /// ```toml
+    /// [remotes]
+    /// "site" = "https://example.stencila.site/"
+    /// "docs/report.md" = { url = "https://docs.google.com/...", watch = "w123" }
+    /// "article.md" = [
+    ///   { url = "https://docs.google.com/...", watch = "w456" },
+    ///   "https://sharepoint.com/..."
+    /// ]
+    /// ```
+    #[schemars(with = "Option<HashMap<String, RemoteValue>>")]
+    pub remotes: Option<HashMap<String, RemoteValue>>,
 
     /// Site configuration
     pub site: Option<SiteConfig>,
@@ -144,6 +168,8 @@ pub struct Config {
     #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
     pub routes: Option<HashMap<String, RouteTarget>>,
 }
+
+impl Config {}
 
 /// Configuration for a site
 #[skip_serializing_none]
@@ -332,25 +358,135 @@ impl TryFrom<u16> for RedirectStatus {
     }
 }
 
-/// Configuration for a remote synchronization target
+/// Value for a remote configuration entry - can be single or multiple targets
 ///
-/// Remotes define how local files or directories map to external services
-/// like Google Docs, Microsoft 365, or Stencila Sites. Each remote specifies
-/// a path (file, directory, or pattern) and a URL to synchronize with.
+/// Supports both simple cases (one URL) and complex cases (multiple URLs per path).
+/// Each target can be a simple URL string or an object with a watch ID.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum RemoteValue {
+    /// Single remote target
+    ///
+    /// Example in TOML:
+    /// ```toml
+    /// [remotes]
+    /// "site" = "https://example.stencila.site/"
+    /// "file.md" = { url = "https://...", watch = "w123" }
+    /// ```
+    Single(RemoteTarget),
+
+    /// Multiple remote targets for the same path
+    ///
+    /// Example in TOML:
+    /// ```toml
+    /// [remotes]
+    /// "article.md" = [
+    ///   { url = "https://docs.google.com/...", watch = "w456" },
+    ///   "https://sharepoint.com/..."
+    /// ]
+    /// ```
+    Multiple(Vec<RemoteTarget>),
+}
+
+impl RemoteValue {
+    /// Convert to a vector of targets, flattening single or multiple variants
+    pub fn to_vec(&self) -> Vec<&RemoteTarget> {
+        match self {
+            RemoteValue::Single(target) => vec![target],
+            RemoteValue::Multiple(targets) => targets.iter().collect(),
+        }
+    }
+
+    /// Find the watch ID for a specific URL, if it exists
+    pub fn find_watch(&self, url: &str) -> Option<&str> {
+        for target in self.to_vec() {
+            if target.url() == url {
+                return target.watch();
+            }
+        }
+        None
+    }
+
+    /// Validate the remote value configuration
+    ///
+    /// Ensures that:
+    /// - All URLs are non-empty
+    /// - Multiple targets array is not empty
+    pub fn validate(&self, path: &str) -> Result<()> {
+        match self {
+            RemoteValue::Single(target) => {
+                if target.url().is_empty() {
+                    return Err(eyre!("Remote for path '{}' has an empty URL", path));
+                }
+            }
+            RemoteValue::Multiple(targets) => {
+                if targets.is_empty() {
+                    return Err(eyre!(
+                        "Remote for path '{}' has an empty array of targets",
+                        path
+                    ));
+                }
+                for target in targets {
+                    if target.url().is_empty() {
+                        return Err(eyre!("Remote for path '{}' has an empty URL", path));
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+/// A remote synchronization target - either a URL or URL with watch info
+///
+/// Can be either a simple URL string (for remotes without watch IDs)
+/// or an object containing URL and watch ID.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum RemoteTarget {
+    /// Simple URL string (no watch)
+    ///
+    /// Example: `"https://example.stencila.site/"`
+    Url(Url),
+
+    /// URL with watch information
+    ///
+    /// Example: `{ url = "https://...", watch = "w123" }`
+    Object(RemoteInfo),
+}
+
+impl RemoteTarget {
+    /// Get the URL from this target as a string slice
+    pub fn url(&self) -> &str {
+        match self {
+            RemoteTarget::Url(url) => url.as_str(),
+            RemoteTarget::Object(info) => &info.url,
+        }
+    }
+
+    /// Get the URL from this target as an owned Url
+    pub fn url_owned(&self) -> Url {
+        match self {
+            RemoteTarget::Url(url) => url.clone(),
+            RemoteTarget::Object(info) => {
+                Url::parse(&info.url).expect("RemoteInfo.url should be valid")
+            }
+        }
+    }
+
+    /// Get the watch ID if this target has one
+    pub fn watch(&self) -> Option<&str> {
+        match self {
+            RemoteTarget::Url(_) => None,
+            RemoteTarget::Object(info) => info.watch.as_deref(),
+        }
+    }
+}
+
+/// Remote synchronization information with watch ID
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
-pub struct RemoteConfig {
-    /// Path relative to workspace root
-    ///
-    /// Can be:
-    /// - Single file: "file.md", "report.ipynb"
-    /// - Directory: "site", "docs" (implicitly includes all files recursively)
-    /// - Pattern: "*.md" (for matching specific files, optional)
-    ///
-    /// Directory paths are automatically treated as recursive - they match
-    /// all files within that directory and its subdirectories.
-    pub path: ConfigRelativePath,
-
+pub struct RemoteInfo {
     /// Remote URL
     ///
     /// The service type is inferred from the URL host:
@@ -365,8 +501,6 @@ pub struct RemoteConfig {
     /// If this remote is being watched for automatic synchronization, this
     /// field contains the watch ID. Watch configuration (direction, PR mode,
     /// debounce) is stored in Stencila Cloud and queried via the API.
-    ///
-    /// If no watch exists, this field is omitted.
     #[schemars(regex(pattern = r"^w[a-zA-Z0-9]{9}$"))]
     pub watch: Option<String>,
 }
