@@ -177,7 +177,7 @@ impl Show {
             ownership,
             details.created_at,
             access,
-            details.access_updated_at
+            details.access_updated_at.as_deref().unwrap_or("Never")
         );
 
         message(&info, Some("🌐"));

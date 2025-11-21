@@ -48,7 +48,7 @@ pub struct SiteDetails {
     pub created_at: String,
     pub access_restriction: String,
     pub access_restrict_main: bool,
-    pub access_updated_at: String,
+    pub access_updated_at: Option<String>,
 }
 
 /// Response from POST /sites/{id}/domain
