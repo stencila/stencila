@@ -260,10 +260,13 @@ pub async fn reconcile_prefix(
 /// 2. Call DELETE /sites/{id} to remove the site from Stencila Cloud
 /// 3. Remove the site.id from the local config
 ///
+/// Returns the site ID that was deleted so that callers can perform additional
+/// cleanup (e.g., removing remote tracking entries).
+///
 /// Note: This function does not prompt for user confirmation. Callers should
 /// handle confirmation before calling this function.
 #[tracing::instrument]
-pub async fn delete_site(path: &Path) -> Result<()> {
+pub async fn delete_site(path: &Path) -> Result<String> {
     // Read existing site config to get the site ID
     let cfg = config(path)?;
     let site = cfg
@@ -293,7 +296,7 @@ pub async fn delete_site(path: &Path) -> Result<()> {
 
     tracing::debug!("Site deleted successfully");
 
-    Ok(())
+    Ok(site_id)
 }
 
 /// Update site access settings

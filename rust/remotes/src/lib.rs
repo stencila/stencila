@@ -337,6 +337,47 @@ pub async fn write_remote_entries(stencila_dir: &Path, entries: &RemoteEntries) 
     Ok(())
 }
 
+/// Remove remote tracking entries for a specific Stencila Site
+///
+/// This function removes all entries from `.stencila/remotes.json` that are
+/// associated with the given site ID. This should be called when a site is
+/// deleted to clean up implicit remote tracking.
+///
+/// # Arguments
+///
+/// * `stencila_dir` - The `.stencila` directory path
+/// * `site_id` - The site ID to remove entries for
+///
+/// # Returns
+///
+/// The number of entries removed
+pub async fn remove_site_remotes(stencila_dir: &Path, site_id: &str) -> Result<usize> {
+    let mut entries = read_remote_entries(stencila_dir).await?;
+    let mut removed_count = 0;
+
+    // Remove entries for this site
+    entries.retain(|_file_path, url_map| {
+        url_map.retain(|url, _info| {
+            let url_str = url.as_str();
+            let is_this_site = url_str.contains(site_id) && url_str.contains(".stencila.site");
+
+            if is_this_site {
+                removed_count += 1;
+            }
+
+            !is_this_site
+        });
+        !url_map.is_empty()
+    });
+
+    if removed_count > 0 {
+        write_remote_entries(stencila_dir, &entries).await?;
+        tracing::debug!("Removed {removed_count} implicit remote entries for site {site_id}");
+    }
+
+    Ok(removed_count)
+}
+
 /// Normalize a path by removing leading "./" and normalizing separators
 ///
 /// This ensures paths like "./docs/file.md" match config entries like "docs/file.md"
@@ -628,97 +669,102 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
     // Process explicit remotes from [remotes] section if it exists
     if let Some(remotes) = &config.remotes {
         for (path_key, value) in remotes {
-        let config_path = ConfigRelativePath(path_key.clone()).resolve(workspace_dir);
+            let config_path = ConfigRelativePath(path_key.clone()).resolve(workspace_dir);
 
-        // Expand to actual files, or use the config path itself if it doesn't exist yet
-        let files = if config_path.exists() {
-            expand_path_to_files(&config_path)?
-        } else {
-            // Path doesn't exist yet (remote-first workflow) - include it anyway
-            vec![config_path]
-        };
+            // Expand to actual files, or use the config path itself if it doesn't exist yet
+            let files = if config_path.exists() {
+                expand_path_to_files(&config_path)?
+            } else {
+                // Path doesn't exist yet (remote-first workflow) - include it anyway
+                vec![config_path]
+            };
 
-        for target in value.to_vec() {
-            let remote_url = target.url_owned();
-            let watch_id = target.watch().map(|s| s.to_string());
+            for target in value.to_vec() {
+                let remote_url = target.url_owned();
+                let watch_id = target.watch().map(|s| s.to_string());
 
-            for file in &files {
-                // Get relative path for tracking lookup
-                let relative_path = match file.strip_prefix(workspace_dir) {
-                    Ok(rel) => rel.to_path_buf(),
-                    Err(_) => file.clone(),
-                };
+                for file in &files {
+                    // Get relative path for tracking lookup
+                    let relative_path = match file.strip_prefix(workspace_dir) {
+                        Ok(rel) => rel.to_path_buf(),
+                        Err(_) => file.clone(),
+                    };
 
-                // Get tracking data from remotes.json (look up by Url, not String)
-                let existing = remotes_tracking
-                    .get(&relative_path)
-                    .and_then(|url_map| url_map.get(&remote_url));
+                    // Get tracking data from remotes.json (look up by Url, not String)
+                    let existing = remotes_tracking
+                        .get(&relative_path)
+                        .and_then(|url_map| url_map.get(&remote_url));
 
-                // Create RemoteInfo
-                let file_remote_info = RemoteInfo {
-                    url: remote_url.clone(),
-                    path: ConfigRelativePath(path_key.clone()),
-                    pulled_at: existing.and_then(|t| t.pulled_at),
-                    pushed_at: existing.and_then(|t| t.pushed_at),
-                    watch_id: watch_id.clone(),
-                    watch_direction: None, // Will be filled from Cloud API later if needed
-                };
+                    // Create RemoteInfo
+                    let file_remote_info = RemoteInfo {
+                        url: remote_url.clone(),
+                        path: ConfigRelativePath(path_key.clone()),
+                        pulled_at: existing.and_then(|t| t.pulled_at),
+                        pushed_at: existing.and_then(|t| t.pushed_at),
+                        watch_id: watch_id.clone(),
+                        watch_direction: None, // Will be filled from Cloud API later if needed
+                    };
 
-                // Add remote to tracking
-                result
-                    .entry(relative_path.clone())
-                    .or_default()
-                    .insert(remote_url.clone(), file_remote_info);
+                    // Add remote to tracking
+                    result
+                        .entry(relative_path.clone())
+                        .or_default()
+                        .insert(remote_url.clone(), file_remote_info);
+                }
             }
-        }
         }
     }
 
     // Process implicit site remotes
     // If site.id is configured, check for tracked files under site.root
     if let Some(site_config) = &config.site
-        && site_config.id.is_some() {
-            // Check tracking data for files under site root
-            for (tracked_path, url_map) in &remotes_tracking {
-                // Resolve the tracked path relative to workspace
-                let absolute_tracked_path = workspace_dir.join(tracked_path);
+        && site_config.id.is_some()
+    {
+        // Check tracking data for files under site root
+        for (tracked_path, url_map) in &remotes_tracking {
+            // Resolve the tracked path relative to workspace
+            let absolute_tracked_path = workspace_dir.join(tracked_path);
 
-                // Check if this file is under site root
-                if !config.path_matches_site_root(&absolute_tracked_path, workspace_dir) {
+            // Check if this file is under site root
+            if !config.path_matches_site_root(&absolute_tracked_path, workspace_dir) {
+                continue;
+            }
+
+            // Process each remote URL for this file
+            for (remote_url, tracking_info) in url_map {
+                // Check if this is a Stencila Sites URL
+                if !matches!(
+                    RemoteService::from_url(remote_url),
+                    Some(RemoteService::StencilaSites)
+                ) {
                     continue;
                 }
 
-                // Process each remote URL for this file
-                for (remote_url, tracking_info) in url_map {
-                    // Check if this is a Stencila Sites URL
-                    if !matches!(RemoteService::from_url(remote_url), Some(RemoteService::StencilaSites)) {
-                        continue;
-                    }
-
-                    // Skip if we already have this remote from explicit config
-                    if result.contains_key(tracked_path)
-                        && result[tracked_path].contains_key(remote_url) {
-                        continue;
-                    }
-
-                    // Create implicit remote info
-                    let file_remote_info = RemoteInfo {
-                        url: remote_url.clone(),
-                        path: ConfigRelativePath(tracked_path.to_string_lossy().to_string()),
-                        pulled_at: tracking_info.pulled_at,
-                        pushed_at: tracking_info.pushed_at,
-                        watch_id: None, // Implicit remotes don't have watches
-                        watch_direction: None,
-                    };
-
-                    // Add implicit remote
-                    result
-                        .entry(tracked_path.clone())
-                        .or_default()
-                        .insert(remote_url.clone(), file_remote_info);
+                // Skip if we already have this remote from explicit config
+                if result.contains_key(tracked_path)
+                    && result[tracked_path].contains_key(remote_url)
+                {
+                    continue;
                 }
+
+                // Create implicit remote info
+                let file_remote_info = RemoteInfo {
+                    url: remote_url.clone(),
+                    path: ConfigRelativePath(tracked_path.to_string_lossy().to_string()),
+                    pulled_at: tracking_info.pulled_at,
+                    pushed_at: tracking_info.pushed_at,
+                    watch_id: None, // Implicit remotes don't have watches
+                    watch_direction: None,
+                };
+
+                // Add implicit remote
+                result
+                    .entry(tracked_path.clone())
+                    .or_default()
+                    .insert(remote_url.clone(), file_remote_info);
             }
         }
+    }
 
     if result.is_empty() {
         Ok(None)
