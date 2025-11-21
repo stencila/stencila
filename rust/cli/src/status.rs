@@ -18,7 +18,7 @@ use stencila_cli_utils::{
     message,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
-use stencila_codec_utils::git_info;
+use stencila_codec_utils::{git_info, modification_time};
 use stencila_dirs::closest_workspace_dir;
 use stencila_remotes::{
     RemoteService, RemoteStatus, calculate_remote_statuses, get_all_remote_entries,
@@ -75,7 +75,7 @@ impl Cli {
             match get_all_remote_entries(&workspace_dir).await? {
                 Some(entries) => entries,
                 None => {
-                    message!("✖️  No remotes configured in `stencila.toml`");
+                    message!("✖️  No remotes found");
                     return Ok(());
                 }
             }
@@ -171,14 +171,10 @@ impl Cli {
             .collect();
 
         for (path, entry) in file_entries {
-            // Calculate file modification time for status comparison
+            // Calculate file/directory modification time for status comparison
+            // For directories, this returns the latest modification time of any file within
             let (file_status, modified_at) = if path.exists() {
-                let modified = path
-                    .metadata()
-                    .ok()
-                    .and_then(|m| m.modified().ok())
-                    .and_then(|t| t.duration_since(UNIX_EPOCH).ok().map(|d| d.as_secs()))
-                    .unwrap_or(0);
+                let modified = modification_time(&path).unwrap_or(0);
                 (RemoteStatus::Unknown, Some(modified))
             } else {
                 (RemoteStatus::Deleted, None)
@@ -202,7 +198,33 @@ impl Cli {
                 calculate_remote_statuses(&entry, file_status, modified_at).await
             };
 
-            // Only show remotes (no local file row)
+            // Add file/directory row first
+            let path_display = if let Ok(rel_path) = path.strip_prefix(&workspace_dir) {
+                rel_path.to_string_lossy().to_string()
+            } else {
+                path.to_string_lossy().to_string()
+            };
+
+            table.add_row([
+                // File path
+                Cell::new(path_display),
+                // Status (only show if Deleted)
+                Cell::new(if matches!(file_status, Deleted) {
+                    file_status.to_string()
+                } else {
+                    String::new()
+                })
+                .fg(status_color(&file_status)),
+                // File modification time
+                Cell::new(humanize_timestamp(modified_at)?).set_alignment(CellAlignment::Right),
+                // Pulled & push time (not applicable to files)
+                Cell::new(""),
+                Cell::new(""),
+                // Watch (not applicable to files)
+                Cell::new(""),
+            ]);
+
+            // Add remote rows (indented with "└ ")
             for (url, remote) in &entry {
                 // Mark that we have at least one remote
                 has_remotes = true;
