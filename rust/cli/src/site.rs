@@ -15,8 +15,6 @@ use stencila_cloud::sites::{
     get_site_domain_status, list_site_branches, set_site_domain, update_site_access,
 };
 use stencila_config::{ConfigTarget, config, config_set, config_unset};
-use stencila_dirs;
-use stencila_remotes;
 
 /// Manage the workspace site
 #[derive(Debug, Parser)]
@@ -286,11 +284,9 @@ impl Delete {
         let stencila_dir = stencila_dirs::closest_stencila_dir(&path, false).await?;
         if let Ok(removed_count) =
             stencila_remotes::remove_site_remotes(&stencila_dir, &site_id).await
-        {
-            if removed_count > 0 {
+            && removed_count > 0 {
                 tracing::debug!("Removed {removed_count} remote tracking entries");
             }
-        }
 
         message("Site deleted successfully", Some("✅"));
 
