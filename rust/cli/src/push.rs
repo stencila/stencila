@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, path::PathBuf, process::exit};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+    process::exit,
+};
 
 use chrono::Utc;
 use clap::Parser;
@@ -185,7 +189,7 @@ impl Cli {
         let is_dry_run = dry_run_opts.is_some();
 
         // Handle pushing all tracked files when no input is provided
-        let Some(path) = self.path else {
+        let Some(ref path) = self.path else {
             return self.push_all().await;
         };
 
@@ -199,17 +203,22 @@ impl Cli {
 
         let path_display = path.display();
 
-        // Validate input file exists
+        // Validate input path exists
         if !path.exists() {
-            bail!("Input file `{path_display}` does not exist");
+            bail!("Input path `{path_display}` does not exist");
+        }
+
+        // Check if path is a directory - if so, use directory push
+        if path.is_dir() {
+            return self.push_directory(path, dry_run_opts).await;
         }
 
         // Open the document
-        let doc = Document::open(&path, None).await?;
+        let doc = Document::open(path, None).await?;
 
         // Early validation: --watch is not compatible with multiple remotes
         if self.watch && self.to.is_none() {
-            let remote_infos = get_remotes_for_path(&path, None).await?;
+            let remote_infos = get_remotes_for_path(path, None).await?;
             if remote_infos.len() > 1 {
                 let urls_list = remote_infos
                     .iter()
@@ -287,16 +296,16 @@ impl Cli {
 
         // Handle multi-remote push when no service/target is specified
         if service.is_none() && explicit_target.is_none() {
-            let remote_infos = get_remotes_for_path(&path, None).await?;
+            let remote_infos = get_remotes_for_path(path, None).await?;
 
             if remote_infos.is_empty() {
                 // No explicit remotes configured - try smart fallback to Stencila Sites
                 // Get workspace directory and config to check for site configuration
-                let workspace_dir = closest_workspace_dir(&path, false).await?;
+                let workspace_dir = closest_workspace_dir(path, false).await?;
                 let config = stencila_config::config(&workspace_dir)?;
 
                 // Priority 1: Check if path matches site.root
-                let matches_site_root = config.path_matches_site_root(&path, &workspace_dir);
+                let matches_site_root = config.path_matches_site_root(path, &workspace_dir);
 
                 // Priority 2: Check if site.id is configured (general fallback)
                 let has_site_id = config.site.as_ref().and_then(|s| s.id.as_ref()).is_some();
@@ -386,7 +395,7 @@ impl Cli {
                         Ok(result) => {
                             let url = result.url();
                             if let Err(e) = update_remote_timestamp(
-                                &path,
+                                path,
                                 url.as_ref(),
                                 None,
                                 Some(Utc::now().timestamp() as u64),
@@ -437,7 +446,7 @@ impl Cli {
             svc
         } else {
             // Check config remotes
-            let remote_infos = get_remotes_for_path(&path, None).await?;
+            let remote_infos = get_remotes_for_path(path, None).await?;
             if remote_infos.is_empty() {
                 bail!(
                     "No remotes configured for `{path_display}`. Add remotes to stencila.toml or specify a service (gdoc/m365/site) to push to.",
@@ -514,7 +523,7 @@ impl Cli {
             None
         } else {
             // Get configured remotes for this service
-            let remote_infos = get_remotes_for_path(&path, None).await?;
+            let remote_infos = get_remotes_for_path(path, None).await?;
             remote_infos
                 .iter()
                 .find(|info| service.matches_url(&info.url))
@@ -613,7 +622,7 @@ impl Cli {
 
         // Track the remote (always use canonical URL for tracking)
         update_remote_timestamp(
-            &path,
+            path,
             url.as_ref(),
             None,
             Some(Utc::now().timestamp() as u64),
@@ -633,10 +642,10 @@ impl Cli {
         // Enable watch if requested
         if self.watch {
             // Validate file exists on the default branch (also validates it's in a git repo)
-            validate_file_on_default_branch(&path)?;
+            validate_file_on_default_branch(path)?;
 
             // Get git repository information
-            let git_info = git_info(&path)?;
+            let git_info = git_info(path)?;
             let Some(repo_url) = git_info.origin else {
                 bail!(
                     "File is not in a git repository. Cannot enable watch without git repository."
@@ -669,7 +678,7 @@ impl Cli {
 
             // Update stencila.toml with watch ID
             stencila_config::config_update_remote_watch(
-                &path,
+                path,
                 url.as_ref(),
                 Some(response.id.to_string()),
             )?;
@@ -931,6 +940,158 @@ impl Cli {
             exit(1)
         }
 
+        Ok(())
+    }
+
+    /// Push a directory to a Stencila Site
+    async fn push_directory(
+        &self,
+        path: &Path,
+        dry_run_opts: Option<stencila_codecs::PushDryRunOptions>,
+    ) -> Result<()> {
+        use stencila_cloud::sites::ensure_site;
+        use stencila_codec_site::PushProgress;
+
+        let path_display = path.display();
+
+        // Validate: --watch is not supported for directory push
+        if self.watch {
+            bail!("Watch is not supported for directory push. Sites are write-only remotes.");
+        }
+
+        // Ensure site configuration exists
+        let (site_id, _) = ensure_site(path).await?;
+
+        // Set up dry-run path
+        let dry_run_path = dry_run_opts
+            .as_ref()
+            .and_then(|opts| opts.output_dir.as_ref());
+
+        // Set up progress channel
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<PushProgress>(100);
+
+        // Spawn a task to handle progress updates
+        let progress_handle = tokio::spawn(async move {
+            while let Some(progress) = rx.recv().await {
+                match progress {
+                    PushProgress::WalkingDirectory => {
+                        message("Walking directory...", Some("📁"));
+                    }
+                    PushProgress::FilesFound {
+                        documents,
+                        static_files,
+                    } => {
+                        message(
+                            &format!("Found {documents} documents, {static_files} static files",),
+                            Some("📊"),
+                        );
+                    }
+                    PushProgress::EncodingDocument { path, index, total } => {
+                        message(
+                            &format!(
+                                "Encoding document {}/{}: {}",
+                                index + 1,
+                                total,
+                                path.display()
+                            ),
+                            Some("⚙️ "),
+                        );
+                    }
+                    PushProgress::DocumentEncoded { .. } => {
+                        //
+                    }
+                    PushProgress::DocumentFailed { path, error } => {
+                        message(
+                            &format!("Failed to encode {}: {}", path.display(), error),
+                            Some("❌"),
+                        );
+                    }
+                    PushProgress::Uploading { uploaded, total } => {
+                        if uploaded == total {
+                            message(&format!("Uploaded {uploaded}/{total} files"), Some("☁️ "));
+                        }
+                    }
+                    PushProgress::Reconciling { prefix } => {
+                        message(&format!("Reconciling prefix: {prefix}"), Some("🔄"));
+                    }
+                    PushProgress::Complete(_) => {
+                        // Summary is printed separately
+                    }
+                }
+            }
+        });
+
+        message(
+            &format!("Pushing directory `{path_display}` to site {site_id}..."),
+            Some("☁️ "),
+        );
+
+        // Determine dry-run state
+        let is_dry_run = dry_run_opts.is_some();
+
+        // Call push_directory with a decoder function
+        let result = stencila_codec_site::push_directory(
+            path,
+            &site_id,
+            None, // Use current branch
+            is_dry_run,
+            dry_run_path.map(|p| p.as_path()),
+            Some(tx),
+            |doc_path| async move { stencila_codecs::from_path(&doc_path, None).await },
+        )
+        .await;
+
+        // Wait for progress handler to finish (tx is dropped by the block ending)
+        let _ = progress_handle.await;
+
+        // Handle result
+        let result = result?;
+
+        // Print summary
+        let action = if is_dry_run {
+            "Dry-run complete"
+        } else {
+            "Push complete"
+        };
+
+        message(
+            &format!(
+                "{}: {} documents, {} redirects, {} static files, {} media files",
+                action,
+                result.documents_ok.len(),
+                result.redirects.len(),
+                result.static_files_ok.len(),
+                result.media_files_count
+            ),
+            Some("✅"),
+        );
+
+        if result.media_duplicates_eliminated > 0 {
+            message(
+                &format!(
+                    "  {} media duplicates eliminated",
+                    result.media_duplicates_eliminated
+                ),
+                Some("♻️ "),
+            );
+        }
+
+        if !result.documents_failed.is_empty() {
+            message(
+                &format!("  {} documents failed:", result.documents_failed.len()),
+                Some("⚠️"),
+            );
+            for (path, error) in &result.documents_failed {
+                message(&format!("    - {}: {}", path.display(), error), Some("  "));
+            }
+        }
+
+        if !is_dry_run {
+            message(
+                &format!("Site available at: https://{}.stencila.site", site_id),
+                Some("🔗"),
+            );
+        }
         Ok(())
     }
 }

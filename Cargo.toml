@@ -25,6 +25,7 @@ flate2 = "1.1.5"
 futures = "0.3.31"
 glob = "0.3.3"
 governor = { version = "0.10.1", default-features = false, features = ["std"] }
+ignore = "0.4.25"
 headless_chrome = { version = "1.0.18", features = ["rustls"] }
 indexmap = { version = "2.12.0", features = ["serde"] }
 image = { version = "0.25.8", default-features = false, features = ["png", "jpeg", "gif", "tiff"] }
