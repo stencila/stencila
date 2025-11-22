@@ -128,16 +128,6 @@
             }
           ]
         },
-        "include": {
-          "description": "Glob patterns for files to include when publishing\n\nWhen specified, only files matching these patterns will be included.\nPatterns are relative to `root` (if set) or the workspace root.\nSupports standard glob syntax: `**/*.md`, `assets/**`, etc.\n\nExample: `[\"**/*.md\", \"**/*.html\", \"assets/**\"]`",
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
         "exclude": {
           "description": "Glob patterns for files to exclude when publishing\n\nFiles matching these patterns will be excluded from publishing.\nExclude patterns take precedence over include patterns.\nPatterns are relative to `root` (if set) or the workspace root.\nDefault exclusions (`.git/`, `node_modules/`, etc.) are applied automatically.\n\nExample: `[\"**/*.draft.md\", \"temp/**\"]`",
           "type": [

@@ -240,15 +240,6 @@ pub struct SiteConfig {
     /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
     pub root: Option<ConfigRelativePath>,
 
-    /// Glob patterns for files to include when publishing
-    ///
-    /// When specified, only files matching these patterns will be included.
-    /// Patterns are relative to `root` (if set) or the workspace root.
-    /// Supports standard glob syntax: `**/*.md`, `assets/**`, etc.
-    ///
-    /// Example: `["**/*.md", "**/*.html", "assets/**"]`
-    pub include: Option<Vec<String>>,
-
     /// Glob patterns for files to exclude when publishing
     ///
     /// Files matching these patterns will be excluded from publishing.
