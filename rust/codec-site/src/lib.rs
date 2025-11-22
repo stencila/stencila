@@ -115,10 +115,14 @@ pub enum PushProgress {
     DocumentEncoded { path: PathBuf, route: String },
     /// Document encoding failed (continues with next)
     DocumentFailed { path: PathBuf, error: String },
-    /// Uploading files
-    Uploading { uploaded: usize, total: usize },
-    /// Reconciling a prefix
-    Reconciling { prefix: String },
+    /// Processing files (uploading or skipping unchanged)
+    Processing {
+        processed: usize,
+        uploaded: usize,
+        total: usize,
+    },
+    /// Reconciling files
+    Reconciling,
     /// Push complete
     Complete(DirectoryPushResult),
 }
@@ -1283,7 +1287,8 @@ where
                 std::fs::write(&html_path, compressed)?;
 
                 uploaded_count += 1;
-                send_progress!(PushProgress::Uploading {
+                send_progress!(PushProgress::Processing {
+                    processed: uploaded_count,
                     uploaded: uploaded_count,
                     total: total_uploads,
                 });
@@ -1305,7 +1310,8 @@ where
                 std::fs::write(&redirect_path, redirect_content)?;
 
                 uploaded_count += 1;
-                send_progress!(PushProgress::Uploading {
+                send_progress!(PushProgress::Processing {
+                    processed: uploaded_count,
                     uploaded: uploaded_count,
                     total: total_uploads,
                 });
@@ -1318,7 +1324,8 @@ where
                 std::fs::copy(src_path, media_dest.join(filename))?;
 
                 uploaded_count += 1;
-                send_progress!(PushProgress::Uploading {
+                send_progress!(PushProgress::Processing {
+                    processed: uploaded_count,
                     uploaded: uploaded_count,
                     total: total_uploads,
                 });
@@ -1339,7 +1346,8 @@ where
                 std::fs::copy(static_path, &dest_path)?;
 
                 uploaded_count += 1;
-                send_progress!(PushProgress::Uploading {
+                send_progress!(PushProgress::Processing {
+                    processed: uploaded_count,
                     uploaded: uploaded_count,
                     total: total_uploads,
                 });
@@ -1427,6 +1435,7 @@ where
         };
 
         // Upload files, skipping unchanged ones
+        let mut actually_uploaded_count = 0;
         for file in files_to_upload {
             // Calculate local ETag
             let local_etag = calculate_etag(&file.content);
@@ -1476,11 +1485,13 @@ where
                     tokio::fs::write(&temp_path, &file.content).await?;
                     upload_file(site_id, &branch_slug, &file.storage_path, &temp_path).await?;
                 }
+                actually_uploaded_count += 1;
             }
 
             uploaded_count += 1;
-            send_progress!(PushProgress::Uploading {
-                uploaded: uploaded_count,
+            send_progress!(PushProgress::Processing {
+                processed: uploaded_count,
+                uploaded: actually_uploaded_count,
                 total: total_uploads,
             });
         }
@@ -1489,9 +1500,7 @@ where
         // This ensures that when documents/files are deleted locally, they are
         // also removed from the site. The API will delete any files not in
         // all_uploaded_files.
-        send_progress!(PushProgress::Reconciling {
-            prefix: String::new(),
-        });
+        send_progress!(PushProgress::Reconciling);
         reconcile_prefix(site_id, &branch_slug, "", all_uploaded_files).await?;
     }
 

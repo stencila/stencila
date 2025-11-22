@@ -989,12 +989,12 @@ impl Cli {
                     PushProgress::EncodingDocument { path, index, total } => {
                         message(
                             &format!(
-                                "Encoding document {}/{}: {}",
+                                "Processing document {}/{}: {}",
                                 index + 1,
                                 total,
                                 path.display()
                             ),
-                            Some("⚙️ "),
+                            Some("📃"),
                         );
                     }
                     PushProgress::DocumentEncoded { .. } => {
@@ -1006,13 +1006,23 @@ impl Cli {
                             Some("❌"),
                         );
                     }
-                    PushProgress::Uploading { uploaded, total } => {
-                        if uploaded == total {
-                            message(&format!("Uploaded {uploaded}/{total} files"), Some("☁️ "));
+                    PushProgress::Processing {
+                        processed,
+                        uploaded,
+                        total,
+                    } => {
+                        if processed == total {
+                            let unchanged = total - uploaded;
+                            message(
+                                &format!(
+                                    "Processed {total}/{total} files ({uploaded} new, {unchanged} unchanged)"
+                                ),
+                                Some("⚙️ "),
+                            );
                         }
                     }
-                    PushProgress::Reconciling { prefix } => {
-                        message(&format!("Reconciling prefix: {prefix}"), Some("🔄"));
+                    PushProgress::Reconciling => {
+                        message("Reconciling files", Some("🔄"));
                     }
                     PushProgress::Complete(_) => {
                         // Summary is printed separately
