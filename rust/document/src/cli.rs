@@ -1,7 +1,4 @@
-use std::{
-    env::current_dir,
-    path::PathBuf,
-};
+use std::{env::current_dir, path::PathBuf};
 
 use clap::Parser;
 use eyre::{Result, bail};
@@ -9,14 +6,9 @@ use itertools::Itertools;
 use tokio::fs::create_dir_all;
 
 use stencila_ask::{Answer, ask_with_default};
-use stencila_cli_utils::{
-    Code, ToStdout,
-    color_print::cstr,
-};
+use stencila_cli_utils::{Code, ToStdout, color_print::cstr};
 use stencila_codecs::{EncodeOptions, LossesResponse};
-use stencila_dirs::{
-    CreateStencilaDirOptions, STENCILA_DIR, stencila_dir_create,
-};
+use stencila_dirs::{CreateStencilaDirOptions, STENCILA_DIR, stencila_dir_create};
 use stencila_format::Format;
 use stencila_node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 use stencila_schema::{Article, Block, Collection, CreativeWorkVariant, Node, NodeId, NodeType};
@@ -457,4 +449,3 @@ impl Clean {
         Document::clean(&current_dir()?).await
     }
 }
-

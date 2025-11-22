@@ -65,6 +65,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Cli {
+    #[allow(clippy::print_stderr)]
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         // Use workspace root (not CWD) so paths are resolved correctly regardless of where command is run

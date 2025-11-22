@@ -58,12 +58,11 @@ fn find_latest_mtime_in_dir(dir: &Path) -> Result<u64> {
         }
 
         // Try to get the modification time
-        if let Ok(metadata) = entry.metadata() {
-            if let Ok(modified) = metadata.modified() {
-                if let Ok(duration) = modified.duration_since(UNIX_EPOCH) {
-                    latest = latest.max(duration.as_secs());
-                }
-            }
+        if let Ok(metadata) = entry.metadata()
+            && let Ok(modified) = metadata.modified()
+            && let Ok(duration) = modified.duration_since(UNIX_EPOCH)
+        {
+            latest = latest.max(duration.as_secs());
         }
     }
 

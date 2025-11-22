@@ -26,7 +26,7 @@ pub struct Code {
 pub enum AsFormat {
     Json,
     Yaml,
-    Toml
+    Toml,
 }
 
 impl From<AsFormat> for Format {

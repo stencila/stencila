@@ -267,7 +267,6 @@ impl Document {
                     id: id.clone(),
                     cached_at,
                     added_at,
-                    ..Default::default()
                 };
                 let cache_path = cache_dir.join(entry.store_file());
 

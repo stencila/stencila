@@ -576,15 +576,14 @@ impl MarkdownCodec for InstructionBlock {
             }
             context.newline().newline();
 
-            context
-                .push_prop_fn(NodeProperty::Suggestions, |context| {
-                    context
-                        .enter_node(suggestion.node_type(), suggestion.node_id())
-                        .push_prop_fn(NodeProperty::Content, |context| {
-                            suggestion.content.to_markdown(context)
-                        })
-                        .exit_node();
-                });
+            context.push_prop_fn(NodeProperty::Suggestions, |context| {
+                context
+                    .enter_node(suggestion.node_type(), suggestion.node_id())
+                    .push_prop_fn(NodeProperty::Content, |context| {
+                        suggestion.content.to_markdown(context)
+                    })
+                    .exit_node();
+            });
 
             if suggestion.content.len() != 1 {
                 context.push_colons().newline().newline();

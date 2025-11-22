@@ -191,20 +191,18 @@ impl Config {
     /// - `site.root` is not configured
     /// - The path is not under the site root
     pub fn path_matches_site_root(&self, path: &Path, workspace_dir: &Path) -> bool {
-        if let Some(site_config) = &self.site {
-            if let Some(site_root) = &site_config.root {
-                let site_root_path = site_root.resolve(workspace_dir);
+        if let Some(site_config) = &self.site
+            && let Some(site_root) = &site_config.root
+        {
+            let site_root_path = site_root.resolve(workspace_dir);
 
-                // Normalize both paths for comparison
-                let path_canonical = path.canonicalize().ok();
-                let site_root_canonical = site_root_path.canonicalize().ok();
+            // Normalize both paths for comparison
+            let path_canonical = path.canonicalize().ok();
+            let site_root_canonical = site_root_path.canonicalize().ok();
 
-                if let (Some(path_canon), Some(site_canon)) =
-                    (path_canonical, site_root_canonical)
-                {
-                    // Check if path is under site_root or is the site_root itself
-                    return path_canon.starts_with(&site_canon) || path_canon == site_canon;
-                }
+            if let (Some(path_canon), Some(site_canon)) = (path_canonical, site_root_canonical) {
+                // Check if path is under site_root or is the site_root itself
+                return path_canon.starts_with(&site_canon) || path_canon == site_canon;
             }
         }
         false
