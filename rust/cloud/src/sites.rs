@@ -2,6 +2,7 @@
 //!
 //! Functions for interacting with Stencila Sites via the Cloud API.
 
+use std::collections::HashMap;
 use std::io::Write;
 use std::path::Path;
 
@@ -210,6 +211,46 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
 
     tracing::debug!("Last modified timestamp for {url}: {timestamp}");
     Ok(timestamp)
+}
+
+/// Get ETags for a list of storage paths on a site branch
+///
+/// Used for incremental pushes: compare local content hashes with server ETags
+/// to skip uploading unchanged files.
+///
+/// # Arguments
+///
+/// * `site_id` - The site identifier
+/// * `branch_slug` - The branch slug (e.g., "main", "feature-foo")
+/// * `paths` - List of storage paths to get ETags for
+///
+/// # Returns
+///
+/// A map of storage path to ETag (quoted MD5 hex string like `"abc123..."`).
+/// Paths that don't exist on the server are omitted from the response.
+#[tracing::instrument]
+pub async fn get_etags(
+    site_id: &str,
+    branch_slug: &str,
+    paths: Vec<String>,
+) -> Result<HashMap<String, String>> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Getting ETags for {} paths", paths.len());
+
+    let client = Client::new();
+    let response = client
+        .post(format!(
+            "{}/sites/{site_id}/{branch_slug}/etags",
+            base_url()
+        ))
+        .bearer_auth(token)
+        .json(&paths)
+        .send()
+        .await?;
+
+    process_response(response).await
 }
 
 /// Reconcile files at a prefix by cleaning up orphaned files

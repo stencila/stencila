@@ -9208,6 +9208,7 @@ dependencies = [
  "flate2",
  "futures",
  "ignore",
+ "md-5",
  "reqwest",
  "serde",
  "serde_json",

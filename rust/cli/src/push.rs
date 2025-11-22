@@ -1034,6 +1034,7 @@ impl Cli {
             path,
             &site_id,
             None, // Use current branch
+            self.force,
             is_dry_run,
             dry_run_path.map(|p| p.as_path()),
             Some(tx),
@@ -1073,6 +1074,16 @@ impl Cli {
                     result.media_duplicates_eliminated
                 ),
                 Some("♻️ "),
+            );
+        }
+
+        if result.files_skipped > 0 {
+            message(
+                &format!(
+                    "  {} unchanged files skipped (use --force to upload all)",
+                    result.files_skipped
+                ),
+                Some("⏭️ "),
             );
         }
 

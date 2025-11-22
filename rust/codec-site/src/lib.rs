@@ -1,8 +1,10 @@
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     io::Write as IoWrite,
     path::{Path, PathBuf},
 };
+
+use md5::{Digest, Md5};
 
 use eyre::{Result, bail, eyre};
 use flate2::{Compression, write::GzEncoder};
@@ -13,7 +15,7 @@ use tempfile::TempDir;
 use tokio::fs::{copy, create_dir_all, metadata, read, read_dir, write};
 use url::Url;
 
-use stencila_cloud::sites::{ensure_site, last_modified, reconcile_prefix, upload_file};
+use stencila_cloud::sites::{ensure_site, get_etags, last_modified, reconcile_prefix, upload_file};
 use stencila_codec::{
     Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_schema::Node,
 };
@@ -89,6 +91,8 @@ pub struct DirectoryPushResult {
     pub media_files_count: usize,
     /// Number of media file duplicates eliminated
     pub media_duplicates_eliminated: usize,
+    /// Number of files skipped because content unchanged (ETag match)
+    pub files_skipped: usize,
 }
 
 /// Progress events emitted during directory push
@@ -223,6 +227,15 @@ pub fn extract_filename(storage_path: &str) -> String {
 /// - `"assets\\style.css"` -> `"assets/style.css"` (normalized on Windows)
 pub fn normalize_storage_path(path: &str) -> String {
     path.replace('\\', "/")
+}
+
+/// Calculate an ETag for content (MD5 hash in quoted hex format).
+///
+/// This must match how Stencila Cloud calculates ETags for uploaded files.
+/// Format: `"<hex-encoded-md5>"` (quotes included as per HTTP ETag spec)
+pub fn calculate_etag(content: &[u8]) -> String {
+    let hash = Md5::digest(content);
+    format!("\"{:x}\"", hash)
 }
 
 /// Convert a route to redirect storage path
@@ -1065,6 +1078,7 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
 /// * `path` - The directory path to push (must be the site root)
 /// * `site_id` - The site ID to push to
 /// * `branch` - Optional branch name (defaults to current git branch or "main")
+/// * `force` - Force upload all files even if unchanged (skip ETag comparison)
 /// * `is_dry_run` - Whether this is a dry run (skip uploads even if no output path)
 /// * `dry_run_output` - Optional path to write files for dry run inspection
 /// * `progress` - Optional channel to send progress events
@@ -1074,10 +1088,12 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
 /// - **Encoding phase**: Continue on error - if one document fails, log it and continue
 /// - **Upload phase**: Stop on first error - partial uploads leave site inconsistent
 /// - **Reconciliation phase**: Stop on first error
+#[allow(clippy::too_many_arguments)]
 pub async fn push_directory<F, Fut>(
     path: &Path,
     site_id: &str,
     branch: Option<&str>,
+    force: bool,
     is_dry_run: bool,
     dry_run_output: Option<&Path>,
     progress: Option<tokio::sync::mpsc::Sender<PushProgress>>,
@@ -1243,6 +1259,9 @@ where
         encoded_docs.len() + redirects.len() + media_to_upload.len() + static_files.len();
     let mut uploaded_count = 0;
 
+    // Track files skipped due to ETag match (only in upload mode, not dry-run)
+    let mut files_skipped: usize = 0;
+
     // Handle dry-run vs actual upload
     if is_dry_run {
         // DRY RUN MODE: Write files locally if output path provided, otherwise just skip uploads
@@ -1330,74 +1349,134 @@ where
     } else {
         // UPLOAD MODE: Actually upload to R2
 
-        // Upload HTML files
+        // Prepare all files to upload with their content and storage paths
+        struct FileToUpload {
+            storage_path: String,
+            content: Vec<u8>,
+            /// For files that can be uploaded directly from disk
+            source_path: Option<PathBuf>,
+        }
+
+        let mut files_to_upload: Vec<FileToUpload> = Vec::new();
+
+        // Collect HTML files
         for doc in &encoded_docs {
-            // Write HTML to temp file for upload
-            let temp_dir = TempDir::new()?;
-            let temp_html = temp_dir.path().join("index.html");
-            tokio::fs::write(&temp_html, &doc.html_content).await?;
+            // Note: upload_file adds .gz suffix for HTML, but we calculate ETag on compressed content
+            let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+            encoder.write_all(&doc.html_content)?;
+            let compressed = encoder.finish()?;
 
-            upload_file(site_id, &branch_slug, &doc.html_storage_path, &temp_html).await?;
-
-            // Track full storage path with .gz suffix (upload_file adds .gz for HTML)
-            all_uploaded_files.push(format!("{}.gz", doc.html_storage_path));
-
-            uploaded_count += 1;
-            send_progress!(PushProgress::Uploading {
-                uploaded: uploaded_count,
-                total: total_uploads,
+            files_to_upload.push(FileToUpload {
+                storage_path: format!("{}.gz", doc.html_storage_path),
+                content: compressed,
+                source_path: None,
             });
         }
 
-        // Upload redirect files
+        // Collect redirect files
         for (route, target, status) in &redirects {
             let storage_path = route_to_redirect_storage_path(route);
-
-            let temp_dir = TempDir::new()?;
-            let temp_redirect = temp_dir.path().join("redirect.json");
             let redirect_content = serde_json::to_string(&json!({
                 "location": target,
                 "status": status
             }))?;
-            tokio::fs::write(&temp_redirect, &redirect_content).await?;
 
-            upload_file(site_id, &branch_slug, &storage_path, &temp_redirect).await?;
-
-            // Track full storage path
-            all_uploaded_files.push(storage_path);
-
-            uploaded_count += 1;
-            send_progress!(PushProgress::Uploading {
-                uploaded: uploaded_count,
-                total: total_uploads,
+            files_to_upload.push(FileToUpload {
+                storage_path,
+                content: redirect_content.into_bytes(),
+                source_path: None,
             });
         }
 
-        // Upload media to shared /media/ prefix
+        // Collect media files
         for (filename, file_path) in &media_to_upload {
             let storage_path = format!("media/{}", filename);
-            upload_file(site_id, &branch_slug, &storage_path, file_path).await?;
+            let content = tokio::fs::read(file_path).await?;
 
-            // Track full storage path
-            all_uploaded_files.push(storage_path);
-
-            uploaded_count += 1;
-            send_progress!(PushProgress::Uploading {
-                uploaded: uploaded_count,
-                total: total_uploads,
+            files_to_upload.push(FileToUpload {
+                storage_path,
+                content,
+                source_path: Some(file_path.clone()),
             });
         }
 
-        // Upload static files (preserving relative paths from site_root)
+        // Collect static files
         for static_path in &static_files {
             let relative = static_path.strip_prefix(&site_root)?;
-            // Normalize path separators for cross-platform compatibility
-            // Windows produces backslashes which break cloud storage keys
             let storage_path = normalize_storage_path(&relative.to_string_lossy());
-            upload_file(site_id, &branch_slug, &storage_path, static_path).await?;
+            let content = tokio::fs::read(static_path).await?;
 
-            // Track full storage path
-            all_uploaded_files.push(storage_path);
+            files_to_upload.push(FileToUpload {
+                storage_path,
+                content,
+                source_path: Some(static_path.clone()),
+            });
+        }
+
+        // Get server ETags for incremental upload (unless --force)
+        let server_etags: HashMap<String, String> = if force {
+            HashMap::new()
+        } else {
+            let paths: Vec<String> = files_to_upload
+                .iter()
+                .map(|f| f.storage_path.clone())
+                .collect();
+            get_etags(site_id, &branch_slug, paths)
+                .await
+                .unwrap_or_default()
+        };
+
+        // Upload files, skipping unchanged ones
+        for file in files_to_upload {
+            // Calculate local ETag
+            let local_etag = calculate_etag(&file.content);
+
+            // Check if file is unchanged (ETag matches)
+            let should_skip = !force
+                && server_etags
+                    .get(&file.storage_path)
+                    .map(|server_etag| server_etag == &local_etag)
+                    .unwrap_or(false);
+
+            // Always track for reconciliation (even if skipped)
+            all_uploaded_files.push(file.storage_path.clone());
+
+            if should_skip {
+                files_skipped += 1;
+            } else {
+                // Upload the file
+                // For HTML files (.gz suffix), we already have compressed content
+                // For other files, upload directly
+                if file.storage_path.ends_with(".html.gz") {
+                    // Write compressed content to temp file and upload
+                    // Note: upload_file expects uncompressed HTML and compresses it,
+                    // but we already compressed it. We need to upload the raw bytes.
+                    // For now, write to temp and use a direct upload approach.
+                    let temp_dir = TempDir::new()?;
+                    let temp_path = temp_dir.path().join("content.gz");
+                    tokio::fs::write(&temp_path, &file.content).await?;
+
+                    // Upload using the storage path without .gz (upload_file adds it)
+                    let html_path = file.storage_path.trim_end_matches(".gz");
+                    let temp_html = temp_dir.path().join("index.html");
+                    // Decompress to get original HTML for upload_file
+                    let mut decoder = flate2::read::GzDecoder::new(&file.content[..]);
+                    let mut html_content = Vec::new();
+                    std::io::Read::read_to_end(&mut decoder, &mut html_content)?;
+                    tokio::fs::write(&temp_html, &html_content).await?;
+
+                    upload_file(site_id, &branch_slug, html_path, &temp_html).await?;
+                } else if let Some(source) = &file.source_path {
+                    // Upload directly from source file
+                    upload_file(site_id, &branch_slug, &file.storage_path, source).await?;
+                } else {
+                    // Write content to temp file and upload
+                    let temp_dir = TempDir::new()?;
+                    let temp_path = temp_dir.path().join("content");
+                    tokio::fs::write(&temp_path, &file.content).await?;
+                    upload_file(site_id, &branch_slug, &file.storage_path, &temp_path).await?;
+                }
+            }
 
             uploaded_count += 1;
             send_progress!(PushProgress::Uploading {
@@ -1437,6 +1516,7 @@ where
         static_files_failed: Vec::new(), // We stopped on error, so no partial failures
         media_files_count: media_to_upload.len(),
         media_duplicates_eliminated: duplicate_count,
+        files_skipped,
     };
 
     send_progress!(PushProgress::Complete(result.clone()));

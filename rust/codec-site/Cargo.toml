@@ -9,6 +9,7 @@ eyre = { workspace = true }
 flate2 = { workspace = true }
 futures = { workspace = true }
 ignore = { workspace = true }
+md-5 = "0.10"
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
