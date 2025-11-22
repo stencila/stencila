@@ -351,6 +351,10 @@ pub struct CompileOptions {
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
 #[serde(default)]
 pub struct ExecuteOptions {
+    /// Ignore any errors while executing document
+    #[arg(long, help_heading = "Execution Options")]
+    pub ignore_errors: bool,
+
     /// Re-execute all node types regardless of current state
     #[arg(long, help_heading = "Execution Options")]
     pub force_all: bool,

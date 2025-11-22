@@ -8410,6 +8410,7 @@ dependencies = [
  "stencila-secrets",
  "stencila-server",
  "stencila-snap",
+ "stencila-spread",
  "stencila-themes",
  "stencila-tools",
  "stencila-version",
@@ -10757,6 +10758,18 @@ dependencies = [
  "test-log",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "stencila-spread"
+version = "2.8.0"
+dependencies = [
+ "clap",
+ "indexmap 2.12.0",
+ "itertools 0.14.0",
+ "regex",
+ "strum",
+ "thiserror 2.0.17",
 ]
 
 [[package]]

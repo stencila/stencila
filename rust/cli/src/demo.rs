@@ -3,7 +3,7 @@ use std::{path::PathBuf, process::exit};
 use clap::Parser;
 use eyre::Result;
 
-use stencila_cli_utils::color_print::cstr;
+use stencila_cli_utils::{color_print::cstr, message};
 use stencila_document::{Document, demo::DemoOptions};
 use stencila_node_execute::ExecuteOptions;
 
@@ -16,10 +16,6 @@ pub struct Demo {
 
     #[clap(flatten)]
     demo_options: DemoOptions,
-
-    /// Ignore any errors while executing document
-    #[arg(long)]
-    ignore_errors: bool,
 
     /// Do not execute the document before running the demo
     #[arg(long)]
@@ -39,6 +35,8 @@ impl Demo {
     pub async fn run(self) -> Result<()> {
         let doc = Document::open(&self.input, None).await?;
 
+        let ignore_errors = self.execute_options.ignore_errors;
+
         if !self.no_execute {
             doc.compile().await?;
             doc.execute(self.execute_options).await?;
@@ -46,10 +44,10 @@ impl Demo {
             let (errors, ..) = doc.diagnostics_print().await?;
 
             if errors > 0 {
-                if self.ignore_errors {
-                    eprintln!("▶️  Ignoring execution errors")
+                if ignore_errors {
+                    message!("▶️  Ignoring execution errors")
                 } else {
-                    eprintln!(
+                    message!(
                         "🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue demo regardless)"
                     );
                     exit(1)

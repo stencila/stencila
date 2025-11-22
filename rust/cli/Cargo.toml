@@ -52,6 +52,7 @@ stencila-schema = { path = "../schema" }
 stencila-secrets = { path = "../secrets" }
 stencila-server = { path = "../server" }
 stencila-snap = { path = "../snap" }
+stencila-spread = { path = "../spread" }
 stencila-themes = { path = "../themes" }
 stencila-tools = { path = "../tools" }
 stencila-version = { path = "../version" }
