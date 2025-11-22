@@ -82,23 +82,19 @@ impl Status {
 
         match (status.token, status.token_source) {
             (Some(redacted_token), Some(source)) => {
-                message(
-                    &format!(
-                        "Signed in to Stencila Cloud\n Access token: {redacted_token} (set via {source})\n"
-                    ),
-                    Some("✅"),
+                message!(
+                    "✅ Signed in to Stencila Cloud\n Access token: {} (set via {})\n",
+                    redacted_token,
+                    source
                 );
-                message(cstr!("To sign out, run <b>stencila signout</>"), Some("💡"));
+                message("💡 To sign out, run *stencila signout*");
             }
             (None, None) => {
-                message("Not signed in to Stencila Cloud\n", Some("❌"));
-                message(
-                    cstr!("To sign in, run <b>stencila cloud signin</>"),
-                    Some("💡"),
-                );
+                message("❌ Not signed in to Stencila Cloud\n");
+                message("💡 To sign in, run *stencila cloud signin*");
             }
             _ => {
-                message!("⚠️  Unknown authentication status");
+                message!("⚠️ Unknown authentication status");
             }
         }
 
@@ -159,16 +155,13 @@ impl Signin {
         callback.query_pairs_mut().append_pair("sst", &server_token);
         let url = format!("https://stencila.cloud/signin/cli?callback={callback}");
 
-        message(
-            cstr!("Opening browser to signin at <b>https://stencila.cloud</>"),
-            Some("☁️"),
-        );
+        message("☁️ Opening browser to signin at https://stencila.cloud");
         webbrowser::open(&url)?;
 
         // Await the serve task (it will stop gracefully when auth_success triggers shutdown)
         match serve.await {
             Ok(Ok(())) => {
-                message("✅ Signed in successfully!", None);
+                message("✅ Signed in successfully!");
             }
             Ok(Err(error)) => bail!(error),
             Err(error) => bail!(error),
@@ -199,28 +192,20 @@ impl Signout {
         let status_before = stencila_cloud::signout()?;
 
         match (status_before.token, status_before.token_source) {
-            (Some(_), Some(TokenSource::Keyring)) => message(
-                "Signed out from Stencila Cloud
- Access token removed from keyring",
-                Some("✅"),
-            ),
+            (Some(_), Some(TokenSource::Keyring)) => {
+                message("✅ Signed out from Stencila Cloud\n Access token removed from keyring")
+            }
             (Some(_), Some(TokenSource::EnvVar)) => {
+                message("⚠️ Cannot sign out: token is set via environment variable.\n");
                 message(
-                    "Cannot sign out: token is set via environment variable.\n",
-                    Some("⚠️"),
-                );
-                message(
-                    cstr!(
-                        "To sign out, remove the <b>STENCILA_API_TOKEN</> environment variable from your shell profile or system environment."
-                    ),
-                    Some("💡"),
+                    "💡 To sign out, remove the `STENCILA_API_TOKEN` environment variable from your shell profile or system environment.",
                 )
             }
             (None, None) => {
-                message!("ℹ️  Already signed out from Stencila Cloud");
+                message!("ℹ️ Already signed out from Stencila Cloud");
             }
             _ => {
-                message!("⚠️  Unknown authentication status during sign out");
+                message!("⚠️ Unknown authentication status during sign out");
             }
         }
 

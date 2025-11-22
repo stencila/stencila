@@ -195,10 +195,7 @@ impl Cli {
 
         // Display early dry-run notification
         if is_dry_run {
-            message(
-                "Performing dry-run, no remotes will actually be created or updated",
-                Some("ℹ️ "),
-            );
+            message("ℹ️ Performing dry-run, no remotes will actually be created or updated");
         }
 
         let path_display = path.display();
@@ -270,12 +267,7 @@ impl Cli {
 
         // Execute document if args provided
         if !self.no_execute {
-            message(
-                &format!(
-                    "Executing `{path_display}` before pushing it (use `--no-execute` to skip)"
-                ),
-                Some("⚙️ "),
-            );
+            message!("⚙️ Executing `{path_display}` before pushing it (use `--no-execute` to skip)");
 
             // Parse arguments as key=value pairs
             let arguments: Vec<(&str, &str)> = execution_args
@@ -315,18 +307,12 @@ impl Cli {
                     service = Some(RemoteService::StencilaSites);
 
                     if matches_site_root {
-                        message(
-                            &format!(
-                                "Path `{path_display}` matches site root, using Stencila Sites"
-                            ),
-                            Some("ℹ️ "),
+                        message!(
+                            "ℹ️ Path `{path_display}` matches site root, using Stencila Sites"
                         );
                     } else {
-                        message(
-                            &format!(
-                                "Using Stencila Sites for `{path_display}` (site configured in stencila.toml)"
-                            ),
-                            Some("ℹ️ "),
+                        message!(
+                            "ℹ️ Using Stencila Sites for `{path_display}` (site configured in stencila.toml)"
                         );
                     }
                     // Service is now set, will fall through to single-remote push logic below
@@ -346,12 +332,9 @@ impl Cli {
                     );
                 }
 
-                message(
-                    &format!(
-                        "Pushing `{path_display}` to {} configured remotes",
-                        remote_infos.len()
-                    ),
-                    Some("☁️ "),
+                message!(
+                    "☁️ Pushing `{path_display}` to {} configured remotes",
+                    remote_infos.len()
                 );
 
                 let mut successes: Vec<Url> = Vec::new();
@@ -373,12 +356,9 @@ impl Cli {
                         }
                     };
 
-                    message(
-                        &format!(
-                            "Updating {} linked to `{path_display}`",
-                            remote_service.display_name()
-                        ),
-                        Some("🔄"),
+                    message!(
+                        "🔄 Updating {} linked to `{path_display}`",
+                        remote_service.display_name()
                     );
 
                     match stencila_codecs::push(
@@ -409,28 +389,22 @@ impl Cli {
                             } else {
                                 let display_url =
                                     get_display_url(&remote_service, &url, doc.path());
-                                message(
-                                    &format!("Successfully pushed to {display_url}"),
-                                    Some("✅"),
-                                );
+                                message!("✅ Successfully pushed to {display_url}");
                                 successes.push(url);
                             }
                         }
                         Err(e) => {
-                            message(&format!("Failed to push to {remote_url}: {e}"), Some("❌"));
+                            message!("❌ Failed to push to {remote_url}: {e}");
                             errors.push((remote_url.clone(), e.to_string()));
                         }
                     }
                 }
 
                 // Display summary
-                message(
-                    &format!(
-                        "Push complete: {} succeeded, {} failed",
-                        successes.len(),
-                        errors.len()
-                    ),
-                    Some("📊"),
+                message!(
+                    "📊 Push complete: {} succeeded, {} failed",
+                    successes.len(),
+                    errors.len()
                 );
 
                 if !errors.is_empty() {
@@ -488,12 +462,9 @@ impl Cli {
                     .map(|url| format!("  - {}", url))
                     .collect::<Vec<_>>()
                     .join("\n");
-                message(
-                    &format!(
-                        "Multiple {} remotes found:\n{urls_list}",
-                        first_service.display_name_plural()
-                    ),
-                    Some("⚠️"),
+                message!(
+                    "⚠️ Multiple {} remotes found:\n{urls_list}",
+                    first_service.display_name_plural()
                 );
                 bail!(
                     "Specify '{}' with `--new` to create a new document, or use a specific URL as target.",
@@ -532,18 +503,12 @@ impl Cli {
 
         // Display appropriate message
         if existing_url.is_some() {
-            message(
-                &format!(
-                    "Updating existing {} linked to `{path_display}`",
-                    service.display_name()
-                ),
-                Some("🔄"),
+            message!(
+                "🔄 Updating existing {} linked to `{path_display}`",
+                service.display_name()
             );
         } else {
-            message(
-                &format!("Creating new {}", service.display_name()),
-                Some("☁️ "),
-            );
+            message!("☁️ Creating new {}", service.display_name());
         }
 
         // Push to the remote service
@@ -562,7 +527,7 @@ impl Cli {
         let url = match result {
             PushResult::Uploaded(url) => {
                 let display_url = get_display_url(&service, &url, doc.path());
-                message(&format!("Successfully pushed to {display_url}"), Some("✅"));
+                message!("✅ Successfully pushed to {}", display_url);
                 url
             }
             PushResult::DryRun {
@@ -574,18 +539,15 @@ impl Cli {
                 let total_size: u64 = files.iter().map(|f| f.size).sum();
                 let compressed_count = files.iter().filter(|f| f.compressed).count();
 
-                message(
-                    &format!(
-                        "Dry-run complete. Would upload {} file(s), total size: {} bytes ({} compressed)",
-                        files.len(),
-                        total_size,
-                        compressed_count
-                    ),
-                    Some("📊"),
+                message!(
+                    "📊 Dry-run complete. Would upload {} file(s), total size: {} bytes ({} compressed)",
+                    files.len(),
+                    total_size,
+                    compressed_count
                 );
 
                 if let Some(dir) = output_dir {
-                    message(&format!("Files written to: {}", dir.display()), Some("📁"));
+                    message!("📁 Files written to: {}", dir.display());
                 }
 
                 // Display file list
@@ -596,20 +558,17 @@ impl Cli {
                     } else {
                         String::new()
                     };
-                    message(
-                        &format!(
-                            "  {}{}{} ({} bytes)",
-                            file.storage_path, compressed_marker, route_info, file.size
-                        ),
-                        Some("  "),
+                    message!(
+                        "   {}{}{} ({} bytes)",
+                        file.storage_path,
+                        compressed_marker,
+                        route_info,
+                        file.size
                     );
                 }
 
                 let display_url = get_display_url(&service, &url, doc.path());
-                message(
-                    &format!("Would be available at: {}", display_url),
-                    Some("🔗"),
-                );
+                message!("🔗 Would be available at: {}", display_url);
 
                 url
             }
@@ -630,12 +589,9 @@ impl Cli {
         .await?;
 
         if existing_url.is_none() {
-            message(
-                &format!(
-                    "New {} remote for `{path_display}` (add to stencila.toml to track)",
-                    service.display_name()
-                ),
-                Some("💾"),
+            message!(
+                "💾 New {} remote for `{path_display}` (add to stencila.toml to track)",
+                service.display_name()
             );
         }
 
@@ -692,11 +648,8 @@ impl Cli {
                 WatchDirection::ToRemote => "to remote only",
             };
 
-            message(
-                &format!(
-                    "Watching `{path_display}` ({direction_desc}). PRs will be opened/updated on changes from {url_str}."
-                ),
-                Some("👁️ "),
+            message!(
+                "👁️ Watching `{path_display}` ({direction_desc}). PRs will be opened/updated on changes from {url_str}.",
             );
         }
 
@@ -763,12 +716,9 @@ impl Cli {
             );
         }
 
-        message(
-            &format!(
-                "Pushing {} file(s) with configured remotes",
-                files_with_remotes.len()
-            ),
-            Some("☁️ "),
+        message!(
+            "☁️ Pushing {} file(s) with configured remotes",
+            files_with_remotes.len()
         );
 
         let mut total_successes = 0;
@@ -778,19 +728,16 @@ impl Cli {
         for (file_path, remote_urls) in files_with_remotes {
             let file_display = file_path.display();
 
-            message(
-                &format!(
-                    "Processing `{file_display}` ({} remote(s))",
-                    remote_urls.len()
-                ),
-                Some("📄"),
+            message!(
+                "📄 Processing `{file_display}` ({} remote(s))",
+                remote_urls.len()
             );
 
             // Open the document
             let doc = match Document::open(&file_path, None).await {
                 Ok(d) => d,
                 Err(e) => {
-                    message(&format!("Failed to open `{file_display}`: {e}"), Some("❌"));
+                    message!("❌ Failed to open `{file_display}`: {e}");
                     total_errors += remote_urls.len();
                     file_results.push((file_path.clone(), 0, remote_urls.len()));
                     continue;
@@ -799,10 +746,7 @@ impl Cli {
 
             // Execute document if needed
             if !self.no_execute {
-                message(
-                    &format!("Executing `{file_display}` before pushing"),
-                    Some("⚙️ "),
-                );
+                message!("⚙️ Executing `{file_display}` before pushing");
 
                 // Parse arguments as key=value pairs
                 let arguments: Vec<(&str, &str)> = self
@@ -822,10 +766,7 @@ impl Cli {
                     .call(&arguments, stencila_document::ExecuteOptions::default())
                     .await
                 {
-                    message(
-                        &format!("Failed to execute `{file_display}`: {e}"),
-                        Some("❌"),
-                    );
+                    message!("❌ Failed to execute `{file_display}`: {e}");
                     total_errors += remote_urls.len();
                     file_results.push((file_path.clone(), 0, remote_urls.len()));
                     continue;
@@ -840,21 +781,15 @@ impl Cli {
                 let remote_service = match RemoteService::from_url(&remote_url) {
                     Some(svc) => svc,
                     None => {
-                        message(
-                            &format!("Skipping unsupported remote: {remote_url}"),
-                            Some("⚠️"),
-                        );
+                        message!("⚠️ Skipping unsupported remote: {remote_url}");
                         file_errors += 1;
                         continue;
                     }
                 };
 
-                message(
-                    &format!(
-                        "Updating {} linked to `{file_display}`",
-                        remote_service.display_name()
-                    ),
-                    Some("🔄"),
+                message!(
+                    "🔄 Updating {} linked to `{file_display}`",
+                    remote_service.display_name()
                 );
 
                 match stencila_codecs::push(
@@ -880,20 +815,17 @@ impl Cli {
                         )
                         .await
                         {
-                            message(
-                                &format!(
-                                    "Pushed to {display_url} but failed to update tracking: {e}"
-                                ),
-                                Some("⚠️"),
+                            message!(
+                                "⚠️ Pushed to {display_url} but failed to update tracking: {e}"
                             );
                             file_errors += 1;
                         } else {
-                            message(&format!("Successfully pushed to {display_url}"), Some("✅"));
+                            message!("✅ Successfully pushed to {display_url}");
                             file_successes += 1;
                         }
                     }
                     Err(e) => {
-                        message(&format!("Failed to push to {remote_url}: {e}"), Some("❌"));
+                        message!("❌ Failed to push to {remote_url}: {e}");
                         file_errors += 1;
                     }
                 }
@@ -906,14 +838,11 @@ impl Cli {
 
         // Display summary
         eprintln!(); // Empty line for spacing
-        message(
-            &format!(
-                "Push complete: {} file(s) processed, {} push(es) succeeded, {} failed",
-                file_results.len(),
-                total_successes,
-                total_errors
-            ),
-            Some("📊"),
+        message!(
+            "📊 Push complete: {} file(s) processed, {} push(es) succeeded, {} failed",
+            file_results.len(),
+            total_successes,
+            total_errors
         );
 
         // Show per-file summary
@@ -925,14 +854,11 @@ impl Cli {
             } else {
                 "⚠️"
             };
-            message(
-                &format!(
-                    "  {}: {} succeeded, {} failed",
-                    file_path.display(),
-                    successes,
-                    errors
-                ),
-                Some(status),
+            message!(
+                "{status} {}: {} succeeded, {} failed",
+                file_path.display(),
+                successes,
+                errors
             );
         }
 
@@ -975,36 +901,27 @@ impl Cli {
             while let Some(progress) = rx.recv().await {
                 match progress {
                     PushProgress::WalkingDirectory => {
-                        message("Walking directory...", Some("📁"));
+                        message("📁 Walking directory...");
                     }
                     PushProgress::FilesFound {
                         documents,
                         static_files,
                     } => {
-                        message(
-                            &format!("Found {documents} documents, {static_files} static files",),
-                            Some("📊"),
-                        );
+                        message!("📊 Found {documents} documents, {static_files} static files");
                     }
                     PushProgress::EncodingDocument { path, index, total } => {
-                        message(
-                            &format!(
-                                "Processing document {}/{}: {}",
-                                index + 1,
-                                total,
-                                path.display()
-                            ),
-                            Some("📃"),
+                        message!(
+                            "📃 Processing document {}/{}: {}",
+                            index + 1,
+                            total,
+                            path.display()
                         );
                     }
                     PushProgress::DocumentEncoded { .. } => {
                         //
                     }
                     PushProgress::DocumentFailed { path, error } => {
-                        message(
-                            &format!("Failed to encode {}: {}", path.display(), error),
-                            Some("❌"),
-                        );
+                        message!("❌ Failed to encode {}: {}", path.display(), error);
                     }
                     PushProgress::Processing {
                         processed,
@@ -1013,16 +930,13 @@ impl Cli {
                     } => {
                         if processed == total {
                             let unchanged = total - uploaded;
-                            message(
-                                &format!(
-                                    "Processed {total}/{total} files ({uploaded} new, {unchanged} unchanged)"
-                                ),
-                                Some("⚙️ "),
+                            message!(
+                                "⚙️ Processed {total}/{total} files ({uploaded} new, {unchanged} unchanged)"
                             );
                         }
                     }
                     PushProgress::Reconciling => {
-                        message("Reconciling files", Some("🔄"));
+                        message("🔄 Reconciling files");
                     }
                     PushProgress::Complete(_) => {
                         // Summary is printed separately
@@ -1031,10 +945,7 @@ impl Cli {
             }
         });
 
-        message(
-            &format!("Pushing directory `{path_display}` to site {site_id}..."),
-            Some("☁️ "),
-        );
+        message!("☁️ Pushing directory `{path_display}` to site {site_id}...");
 
         // Determine dry-run state
         let is_dry_run = dry_run_opts.is_some();
@@ -1065,45 +976,33 @@ impl Cli {
             "Push complete"
         };
 
-        message(
-            &format!(
-                "{}: {} documents, {} redirects, {} static files, {} media files",
-                action,
-                result.documents_ok.len(),
-                result.redirects.len(),
-                result.static_files_ok.len(),
-                result.media_files_count
-            ),
-            Some("✅"),
+        message!(
+            "✅ {}: {} documents, {} redirects, {} static files, {} media files",
+            action,
+            result.documents_ok.len(),
+            result.redirects.len(),
+            result.static_files_ok.len(),
+            result.media_files_count
         );
 
         if result.media_duplicates_eliminated > 0 {
-            message(
-                &format!(
-                    "  {} media duplicates eliminated",
-                    result.media_duplicates_eliminated
-                ),
-                Some("♻️ "),
+            message!(
+                "♻️ {} media duplicates eliminated",
+                result.media_duplicates_eliminated
             );
         }
 
         if result.files_skipped > 0 {
-            message(
-                &format!(
-                    "  {} unchanged files skipped (use --force to upload all)",
-                    result.files_skipped
-                ),
-                Some("⏭️ "),
+            message!(
+                "⏭️ {} unchanged files skipped (use --force to upload all)",
+                result.files_skipped
             );
         }
 
         if !result.documents_failed.is_empty() {
-            message(
-                &format!("  {} documents failed:", result.documents_failed.len()),
-                Some("⚠️"),
-            );
+            message!("⚠️ {} documents failed:", result.documents_failed.len());
             for (path, error) in &result.documents_failed {
-                message(&format!("    - {}: {}", path.display(), error), Some("  "));
+                message!("     - {}: {}", path.display(), error);
             }
         }
 
@@ -1120,7 +1019,7 @@ impl Cli {
 
             let url = Url::parse(&url)?;
             let url = stencila_codec_site::browseable_url(&url, Some(path))?;
-            message(&format!("Site available at: {url}",), Some("🔗"));
+            message!("🔗 Site available at: {url}");
         }
         Ok(())
     }

@@ -113,12 +113,9 @@ impl Show {
         let site = match cfg.site {
             Some(site) => site,
             None => {
-                message(
-                    cstr!(
-                        "No site is enabled for this workspace. To create one, run <b>stencila site create</>"
-                    ),
-                    Some("💡"),
-                );
+                message(cstr!(
+                    "💡 No site is enabled for this workspace. To create one, run <b>stencila site create</>"
+                ));
                 return Ok(());
             }
         };
@@ -180,7 +177,7 @@ impl Show {
             details.access_updated_at.as_deref().unwrap_or("Never")
         );
 
-        message(&info, Some("🌐"));
+        message!("🌐 {info}");
 
         Ok(())
     }
@@ -219,15 +216,9 @@ impl Create {
         let url = default_site_url(&site_id, domain.as_deref());
 
         if already_existed {
-            message(
-                &format!("Site already exists for workspace: {url}"),
-                Some("ℹ️"),
-            );
+            message!("ℹ️ Site already exists for workspace: {url}");
         } else {
-            message(
-                &format!("Site successfully created for workspace: {url}"),
-                Some("✅"),
-            );
+            message!("✅ Site successfully created for workspace: {url}");
         }
 
         Ok(())
@@ -274,7 +265,7 @@ impl Delete {
         .await?;
 
         if !answer.is_yes() {
-            message("Site deletion cancelled", Some("ℹ️"));
+            message("ℹ️ Site deletion cancelled");
             return Ok(());
         }
 
@@ -289,7 +280,7 @@ impl Delete {
             tracing::debug!("Removed {removed_count} remote tracking entries");
         }
 
-        message("Site deleted successfully", Some("✅"));
+        message("✅ Site deleted successfully");
 
         Ok(())
     }
@@ -336,12 +327,9 @@ impl Access {
             let site = match cfg.site {
                 Some(site) => site,
                 None => {
-                    message(
-                        cstr!(
-                            "No site is enabled for this workspace. To create one, run <b>stencila site create</>"
-                        ),
-                        Some("💡"),
-                    );
+                    message(cstr!(
+                        "💡 No site is enabled for this workspace. To create one, run <b>stencila site create</>"
+                    ));
                     return Ok(());
                 }
             };
@@ -365,7 +353,7 @@ impl Access {
                 other => other,
             };
 
-            message(&format!("Access mode: {}", access), Some("ℹ️"));
+            message!("ℹ️ Access mode: {}", access);
             return Ok(());
         };
 
@@ -414,12 +402,9 @@ impl AccessPublic {
 
         update_site_access(site_id, Some("public"), None, None).await?;
 
-        message(
-            &format!(
-                "Site {} switched to public access",
-                default_site_url(site_id, domain)
-            ),
-            Some("✅"),
+        message!(
+            "✅ Site {} switched to public access",
+            default_site_url(site_id, domain)
         );
 
         Ok(())
@@ -483,17 +468,14 @@ impl AccessPassword {
         match result {
             Ok(()) => {
                 // Successfully switched to password mode using existing password hash
-                message(
-                    &format!(
-                        "Site {} switched to password-protected access{}",
-                        default_site_url(site_id, domain),
-                        if self.not_main {
-                            " (excluding main/master branches)"
-                        } else {
-                            ""
-                        }
-                    ),
-                    Some("✅"),
+                message!(
+                    "✅ Site {} switched to password-protected access{}",
+                    default_site_url(site_id, domain),
+                    if self.not_main {
+                        " (excluding main/master branches)"
+                    } else {
+                        ""
+                    }
                 );
                 Ok(())
             }
@@ -516,17 +498,14 @@ impl AccessPassword {
                     )
                     .await?;
 
-                    message(
-                        &format!(
-                            "Site {} switched to password-protected access{}",
-                            default_site_url(site_id, domain),
-                            if self.not_main {
-                                " (excluding main/master branches)"
-                            } else {
-                                ""
-                            }
-                        ),
-                        Some("✅"),
+                    message!(
+                        "✅ Site {} switched to password-protected access{}",
+                        default_site_url(site_id, domain),
+                        if self.not_main {
+                            " (excluding main/master branches)"
+                        } else {
+                            ""
+                        }
                     );
 
                     Ok(())
@@ -602,19 +581,16 @@ impl AccessTeam {
 
         update_site_access(site_id, Some("auth"), None, access_restrict_main).await?;
 
-        message(
-            &format!(
-                "Site {} switched to team-only access{}",
-                default_site_url(site_id, domain),
-                if self.not_main {
-                    " (excluding main/master branches)"
-                } else if self.main {
-                    " (including main/master branches)"
-                } else {
-                    ""
-                }
-            ),
-            Some("✅"),
+        message!(
+            "✅ Site {} switched to team-only access{}",
+            default_site_url(site_id, domain),
+            if self.not_main {
+                " (excluding main/master branches)"
+            } else if self.main {
+                " (including main/master branches)"
+            } else {
+                ""
+            }
         );
 
         Ok(())
@@ -747,13 +723,10 @@ impl PasswordSet {
             ""
         };
 
-        message(
-            &format!(
-                "Password updated for {}{}",
-                default_site_url(site_id, domain),
-                mode_msg
-            ),
-            Some("✅"),
+        message!(
+            "✅ Password updated for {}{}",
+            default_site_url(site_id, domain),
+            mode_msg
         );
 
         Ok(())
@@ -810,19 +783,16 @@ impl PasswordClear {
         .await?;
 
         if !answer.is_yes() {
-            message("Password clear cancelled", Some("ℹ️"));
+            message("ℹ️ Password clear cancelled");
             return Ok(());
         }
 
         // Call API to clear password (pass Some(None) to explicitly set password to null)
         update_site_access(site_id, None, Some(None), None).await?;
 
-        message(
-            &format!(
-                "Password cleared from {}",
-                default_site_url(site_id, domain)
-            ),
-            Some("✅"),
+        message!(
+            "✅ Password cleared from {}",
+            default_site_url(site_id, domain)
         );
 
         Ok(())
@@ -973,53 +943,42 @@ impl DomainSet {
                 let cname_instructions =
                     format_cname_instructions(&response.cname_record, &response.cname_target);
 
-                message(
-                    &format!(
-                        "Custom domain `{}` set for site `{}`\n\n\
-                        To complete setup:\n\n\
-                        1. {}\n\n\
-                        2. Wait for DNS propagation (usually 5-30 minutes)\n\n\
-                        3. Check status with: *stencila site domain status*\n\n\
-                        Once the CNAME is detected, SSL will be provisioned automatically and your site will go live.",
-                        response.domain, site_id, cname_instructions
-                    ),
-                    Some("⏳"),
+                message!(
+                    "⏳ Custom domain `{}` set for site `{}`\n\n\
+                    To complete setup:\n\n\
+                    1. {}\n\n\
+                    2. Wait for DNS propagation (usually 5-30 minutes)\n\n\
+                    3. Check status with: *stencila site domain status*\n\n\
+                    Once the CNAME is detected, SSL will be provisioned automatically and your site will go live.",
+                    response.domain,
+                    site_id,
+                    cname_instructions
                 );
             }
             "ssl_initializing"
             | "ssl_pending_validation"
             | "ssl_pending_issuance"
             | "ssl_pending_deployment" => {
-                message(
-                    &format!("🔄 SSL provisioning started for `{}`", response.domain),
-                    None,
-                );
+                message!("🔄 SSL provisioning started for `{}`", response.domain);
                 if let Some(true) = response.cname_configured {
                     message(
                         "\nCNAME record detected! SSL certificate is being provisioned...\n\n\
                         Check status with: *stencila site domain status*",
-                        None,
                     );
                 } else {
                     let cname_instructions =
                         format_cname_instructions(&response.cname_record, &response.cname_target);
 
-                    message(
-                        &format!(
-                            "\nTo complete setup:\n\n\
-                            1. {}\n\n\
-                            2. Monitor progress with: *stencila site domain status*",
-                            cname_instructions
-                        ),
-                        None,
+                    message!(
+                        "\nTo complete setup:\n\n\
+                        1. {}\n\n\
+                        2. Monitor progress with: *stencila site domain status*",
+                        cname_instructions
                     );
                 }
             }
             "active" => {
-                message(
-                    &format!("Your site is now live at https://{}", response.domain),
-                    Some("🎉"),
-                );
+                message!("🎉 Your site is now live at https://{}", response.domain);
             }
             "failed" => {
                 bail!(
@@ -1028,7 +987,7 @@ impl DomainSet {
                 );
             }
             _ => {
-                message(&format!("Status: {}", response.status), Some("🔄"));
+                message!("🔄 Status: {}", response.status);
             }
         }
 
@@ -1075,14 +1034,11 @@ impl DomainStatus {
         let status = get_site_domain_status(site_id).await?;
 
         if !status.configured {
-            message("No custom domain is configured for this site", Some("ℹ️"));
+            message("ℹ️ No custom domain is configured for this site");
         } else if let Some("active") = status.status.as_deref()
             && let Some(domain) = &status.domain
         {
-            message(
-                &format!("Your site is live at https://{domain}"),
-                Some("🎉"),
-            );
+            message!("🎉 Your site is live at https://{domain}");
         } else {
             let emoji = match status.status.as_deref() {
                 Some("active") => "✅",
@@ -1107,7 +1063,7 @@ impl DomainStatus {
                 parts.push(format_cname_instructions(cname_record, cname_target));
             }
 
-            message(&parts.join("\n "), Some(emoji));
+            message!("{emoji} {}", parts.join("\n "));
         }
 
         Ok(())
@@ -1151,7 +1107,7 @@ impl DomainClear {
         // Check if a domain is configured before prompting
         let status = get_site_domain_status(site_id).await?;
         if !status.configured {
-            message("No custom domain is configured for this site", Some("ℹ️"));
+            message("ℹ️ No custom domain is configured for this site");
             return Ok(());
         }
 
@@ -1170,7 +1126,7 @@ impl DomainClear {
         .await?;
 
         if !answer.is_yes() {
-            message("Domain removal cancelled", Some("ℹ️"));
+            message("ℹ️ Domain removal cancelled");
             return Ok(());
         }
 
@@ -1180,12 +1136,9 @@ impl DomainClear {
         // Clear domain from config
         config_unset("site.domain", ConfigTarget::Nearest)?;
 
-        message(
-            &format!(
-                "Custom domain removed from site {}",
-                default_site_url(site_id, None)
-            ),
-            Some("✅"),
+        message!(
+            "✅ Custom domain removed from site {}",
+            default_site_url(site_id, None)
         );
 
         Ok(())
@@ -1267,20 +1220,14 @@ impl BranchList {
         let branches = list_site_branches(site_id).await?;
 
         if branches.is_empty() {
-            message(
-                "No branches have been deployed to this site yet",
-                Some("ℹ️"),
-            );
+            message("ℹ️ No branches have been deployed to this site yet");
             return Ok(());
         }
 
         // Display header message
-        message(
-            &format!(
-                "Deployed branches for site {}:\n",
-                default_site_url(site_id, domain)
-            ),
-            None,
+        message!(
+            "Deployed branches for site {}:\n",
+            default_site_url(site_id, domain)
         );
 
         // Create and populate table
@@ -1395,7 +1342,7 @@ impl BranchDelete {
             .await?;
 
             if !answer.is_yes() {
-                message("Branch deletion cancelled", Some("ℹ️"));
+                message("ℹ️ Branch deletion cancelled");
                 return Ok(());
             }
         }
@@ -1403,12 +1350,9 @@ impl BranchDelete {
         // Call API to delete branch
         delete_site_branch(site_id, &self.branch_name).await?;
 
-        message(
-            &format!(
-                "Branch '{}' deletion started. Files will be removed in the background.",
-                self.branch_name
-            ),
-            Some("✅"),
+        message!(
+            "✅ Branch '{}' deletion started. Files will be removed in the background.",
+            self.branch_name
         );
 
         Ok(())

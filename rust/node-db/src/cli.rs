@@ -62,10 +62,7 @@ impl New {
 
         NodeDatabase::new(&path)?;
 
-        message(
-            &format!("Created a new document database at `{}`", path.display()),
-            Some("🎂"),
-        );
+        message!("🎂 Created a new document database at `{}`", path.display());
 
         Ok(())
     }
@@ -108,7 +105,7 @@ impl Migrate {
         let executed_migrations = runner.execute_pending_migrations(self.dry_run)?;
 
         if executed_migrations.is_empty() {
-            message("No pending migrations to apply", Some("✅"));
+            message("✅ No pending migrations to apply");
             return Ok(());
         }
 
@@ -118,20 +115,14 @@ impl Migrate {
             .join(" → ");
 
         if self.dry_run {
-            message(
-                &format!(
-                    "Would apply {} migration(s): {versions}",
-                    executed_migrations.len()
-                ),
-                Some("📋"),
+            message!(
+                "📋 Would apply {} migration(s): {versions}",
+                executed_migrations.len()
             );
         } else {
-            message(
-                &format!(
-                    "Applied {} migration(s): {versions}",
-                    executed_migrations.len()
-                ),
-                Some("⏩"),
+            message!(
+                "⏩ Applied {} migration(s): {versions}",
+                executed_migrations.len()
             );
         }
 
@@ -178,12 +169,9 @@ impl Migrations {
         }
 
         if status.applied_count + status.pending_count == 0 {
-            message(
-                cstr!(
-                    "No migrations required for this database, it is up to date with this version of Stencila"
-                ),
-                Some("✅"),
-            );
+            message(cstr!(
+                "✅ No migrations required for this database, it is up to date with this version of Stencila"
+            ));
             return Ok(());
         }
 
@@ -207,15 +195,9 @@ impl Migrations {
         table.to_stdout();
 
         if status.pending_count == 0 {
-            message(
-                cstr!("All migrations have been successfully applied"),
-                Some("🎉"),
-            );
+            message("🎉 All migrations have been successfully applied");
         } else {
-            message(
-                cstr!("Run <b>stencila db migrate</> to apply pending migrations"),
-                Some("💡"),
-            );
+            message("💡 Run *stencila db migrate* to apply pending migrations");
         }
 
         if let Err(error) = runner.check_version_compatibility() {

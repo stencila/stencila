@@ -136,7 +136,7 @@ impl Show {
             }
             None => {
                 let name = self.name.as_deref().unwrap_or("default");
-                message(&format!("Theme `{name}` not found"), None);
+                message!("🔍 Theme `{name}` not found");
                 Ok(())
             }
         }
@@ -177,10 +177,7 @@ struct New {
 impl New {
     async fn run(self) -> Result<()> {
         if let Some(path) = new(self.name, self.force).await? {
-            message(
-                &format!("Created theme at `{}`", path.display()),
-                Some("🎨"),
-            );
+            message!("🎨 Created theme at `{}`", path.display());
         }
 
         Ok(())
@@ -216,7 +213,7 @@ impl Remove {
     async fn run(self) -> Result<()> {
         remove(&self.name, self.force).await?;
 
-        message(&format!("Removed theme `{}`", self.name), Some("🗑️"));
+        message!("🗑️ Removed theme `{}`", self.name);
 
         Ok(())
     }

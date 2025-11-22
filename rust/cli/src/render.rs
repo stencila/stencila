@@ -207,7 +207,7 @@ impl Cli {
         }
 
         if self.execute_options.ignore_errors {
-            message(&format!("Ignoring {errors} execution errors"), Some("▶️"));
+            message!("▶️ Ignoring {errors} execution errors");
             return Ok(true);
         }
 
@@ -223,13 +223,10 @@ impl Cli {
         .await?
         .is_yes()
         {
-            message(
-                "Tip: use `--ignore-errors` to continue without prompts",
-                Some("💡"),
-            );
+            message("💡 Tip: use `--ignore-errors` to continue without prompts");
             Ok(true)
         } else {
-            message("Stopping due to execution errors", Some("🛑"));
+            message("🛑 Stopping due to execution errors");
             Ok(false)
         }
     }
@@ -291,18 +288,15 @@ impl Cli {
                 )
             };
 
-            message(
-                &format!("Spread rendering {input_display} ({mode} mode, {run_count} runs)"),
-                Some("📊"),
-            );
+            message!("📊 Spread rendering {input_display} ({mode} mode, {run_count} runs)");
 
             // Emit spread warnings
             for warning in config.check_warnings(run_count, &output_template, &self.arguments) {
-                message(&warning.message(), Some("⚠️ "));
+                message!("⚠️ {}", warning.message());
             }
 
             if self.execute_options.dry_run {
-                message("Dry-run: no files will be actually rendered", Some("⚠️ "));
+                message("⚠️ Dry-run: no files will be actually rendered");
             }
 
             // Execute each run
@@ -310,15 +304,12 @@ impl Cli {
                 let output_path_str = apply_template(&output_template.to_string_lossy(), run)?;
                 let output_path = PathBuf::from(&output_path_str);
 
-                message(
-                    &format!(
-                        "Rendering {}/{}: {} → {}",
-                        run.index,
-                        run_count,
-                        run,
-                        output_path.display()
-                    ),
-                    Some("📃"),
+                message!(
+                    "📃 Rendering {}/{}: {} → {}",
+                    run.index,
+                    run_count,
+                    run,
+                    output_path.display()
                 );
 
                 // Dry run: continue without rendering
@@ -363,14 +354,11 @@ impl Cli {
                     .await?;
 
                 if !completed {
-                    message("Skipped (no changes)", Some("⏭️"));
+                    message("⏭️ Skipped (no changes)");
                 }
             }
 
-            message(
-                &format!("Spread render complete: {run_count} runs finished successfully"),
-                Some("✅"),
-            );
+            message!("✅ Spread render complete: {run_count} runs finished successfully");
         } else {
             // Dry-run: just print what would be rendered and exit
             if self.execute_options.dry_run {
@@ -382,25 +370,16 @@ impl Cli {
                         .map(|format| Format::from_name(format))
                         .or_else(|| input_is_stdin.then_some(Format::Markdown))
                     {
-                        message(
-                            &format!("Would render: {input_display} → stdout ({format})"),
-                            Some("📋"),
-                        );
+                        message!("📋 Would render: {input_display} → stdout ({format})");
                     } else {
-                        message(
-                            &format!("Would render: {input_display} → browser"),
-                            Some("📋"),
-                        );
+                        message!("📋 Would render: {input_display} → browser");
                     }
                 } else {
                     for output in outputs {
-                        message(
-                            &format!("Would render: {input_display} → {}", output.display()),
-                            Some("📋"),
-                        );
+                        message!("📋 Would render: {input_display} → {}", output.display());
                     }
                 }
-                message("Preview complete (no files rendered)", Some("✅"));
+                message("✅ Preview complete (no files rendered)");
                 return Ok(());
             }
 

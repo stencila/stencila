@@ -271,7 +271,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 impl Show {
     async fn run(self) -> Result<()> {
         let Some(tool) = get(&self.name) else {
-            message(&format!("No tool with name `{}`", self.name), Some("🔍"));
+            message!("🔍 No tool with name `{}`", self.name);
             exit(1)
         };
 
@@ -391,81 +391,63 @@ impl Install {
     #[tracing::instrument(skip(self))]
     async fn install_tool(&self, name: &str) -> Result<()> {
         let Some(tool) = get(name) else {
-            message(&format!("No known tool with name `{name}`"), Some("🔍"));
+            message!("🔍 No known tool with name `{name}`");
             exit(1)
         };
 
         // Check if already installed (unless --force is used)
         if let Some(path) = tool.path_in_env() {
             if !self.force {
-                message(
-                    &format!(
-                        "`{}` is already installed at `{}` (use `--force` to reinstall)",
-                        tool.name(),
-                        strip_home_dir(&path)
-                    ),
-                    Some("👍"),
+                message!(
+                    "👍 `{}` is already installed at `{}` (use `--force` to reinstall)",
+                    tool.name(),
+                    strip_home_dir(&path)
                 );
                 return Ok(());
             } else {
-                message(
-                    &format!(
-                        "`{}` is already installed at `{}`, but forcing reinstallation",
-                        tool.name(),
-                        strip_home_dir(&path)
-                    ),
-                    Some("🔄"),
+                message!(
+                    "🔄 `{}` is already installed at `{}`, but forcing reinstallation",
+                    tool.name(),
+                    strip_home_dir(&path)
                 );
             }
         }
 
         // Check if installation is supported
         if !tool.is_installable() {
-            message(
-                &format!(
-                    "`{}` does not support automated installation. Please visit {} for installation instructions",
-                    tool.name(),
-                    tool.url()
-                ),
-                Some("❌"),
+            message!(
+                "❌ `{}` does not support automated installation. Please visit {} for installation instructions",
+                tool.name(),
+                tool.url()
             );
             exit(1)
         }
 
-        message(&format!("Installing `{}`...", tool.name()), Some("📥"));
+        message!("📥 Installing `{}`...", tool.name());
 
         match install_tool(tool.as_ref(), self.force, true).await {
             Ok(()) => {
                 if self.dry_run {
-                    message(
-                        &format!("Would have installed `{}`", tool.name()),
-                        Some("📋"),
-                    );
+                    message!("📋 Would have installed `{}`", tool.name());
                     return Ok(());
                 }
 
-                message(
-                    &format!("`{}` installed successfully", tool.name()),
-                    Some("✅"),
-                );
+                message!("✅ `{}` installed successfully", tool.name());
 
                 // Verify installation
                 if let Some(path) = tool.path_in_env() {
-                    message(&format!("   Path: `{}`", strip_home_dir(&path)), None);
+                    message!("   Path: `{}`", strip_home_dir(&path));
                     if let Some(version) = tool.version_available_in_env() {
-                        message(&format!("   Version: `{version}`"), None);
+                        message!("   Version: `{version}`");
                     }
                 }
             }
             Err(error) => {
-                message(
-                    &format!(
-                        "Failed to install `{}`: `{}`. Please visit {} for manual installation",
-                        tool.name(),
-                        error,
-                        tool.url()
-                    ),
-                    Some("❌"),
+                message!(
+                    "❌ Failed to install `{}`: `{}`. Please visit {} for manual installation",
+                    tool.name(),
+                    error,
+                    tool.url()
                 );
                 exit(1)
             }
@@ -500,9 +482,9 @@ impl Install {
         }
 
         if installed > 0 {
-            message("Installation complete!", Some("🎉"));
+            message("🎉 Installation complete!");
         } else {
-            message("No tool configurations found", Some("⚠️"));
+            message("⚠️ No tool configurations found");
         }
 
         Ok(())
@@ -518,29 +500,23 @@ impl Install {
 
         for (manager, config_path) in managers {
             if self.dry_run {
-                message(
-                    &format!(
-                        "Would install tools from `{}` using `{}`",
-                        strip_home_dir(&config_path),
-                        manager.name()
-                    ),
-                    Some("📋"),
+                message!(
+                    "📋 Would install tools from `{}` using `{}`",
+                    strip_home_dir(&config_path),
+                    manager.name()
                 );
                 continue;
             }
 
-            message(
-                &format!(
-                    "Installing tools from `{}` using `{}`",
-                    strip_home_dir(&config_path),
-                    manager.name()
-                ),
-                Some("🔧"),
+            message!(
+                "🔧 Installing tools from `{}` using `{}`",
+                strip_home_dir(&config_path),
+                manager.name()
             );
 
             // Install the environment manager if needed
             if !is_installed(manager.as_ref()) {
-                message(&format!("Installing `{}`", manager.name()), Some("📥"));
+                message!("📥 Installing `{}`", manager.name());
                 install_tool(manager.as_ref(), self.force, true).await?;
             }
 
@@ -571,17 +547,11 @@ impl Install {
 
         if pyproject_path.exists() {
             if self.dry_run {
-                message(
-                    "Would install Python dependencies from `pyproject.toml`",
-                    Some("📋"),
-                );
+                message("📋 Would install Python dependencies from `pyproject.toml`");
                 return Ok(0);
             }
 
-            message(
-                "Installing dependencies from `pyproject.toml` using `uv`",
-                Some("🐍"),
-            );
+            message("🐍 Installing dependencies from `pyproject.toml` using `uv`");
 
             // Install dependencies (creates venv automatically if needed)
             let status = Uv
@@ -599,17 +569,11 @@ impl Install {
             Ok(1)
         } else if requirements_path.exists() {
             if self.dry_run {
-                message(
-                    "Would install Python dependencies from `requirements.txt`",
-                    Some("📋"),
-                );
+                message("📋 Would install Python dependencies from `requirements.txt`");
                 return Ok(1);
             }
 
-            message(
-                "Installing dependencies from `requirements.txt` using `uv`",
-                Some("🐍"),
-            );
+            message("🐍 Installing dependencies from `requirements.txt` using `uv`");
 
             // Create virtual environment first (uv pip requires it)
             let status = Uv
@@ -650,14 +614,11 @@ impl Install {
 
         if renv_path.exists() {
             if self.dry_run {
-                message("Would install R dependencies from `renv.lock`", Some("📋"));
+                message("📋 Would install R dependencies from `renv.lock`");
                 return Ok(1);
             }
 
-            message(
-                "Installing dependencies from `renv.lock` file using `renv`",
-                Some("📦"),
-            );
+            message("📦 Installing dependencies from `renv.lock` file using `renv`");
 
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
@@ -677,17 +638,11 @@ impl Install {
             Ok(1)
         } else if description_path.exists() {
             if self.dry_run {
-                message(
-                    "Would install R dependencies from `DESCRIPTION`",
-                    Some("📋"),
-                );
+                message("📋 Would install R dependencies from `DESCRIPTION`");
                 return Ok(1);
             }
 
-            message(
-                "Installing dependencies from `DESCRIPTION` file using `renv`",
-                Some("📦"),
-            );
+            message("📦 Installing dependencies from `DESCRIPTION` file using `renv`");
 
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
@@ -753,12 +708,9 @@ impl Env {
         let managers = detect_managers(&path, &[ToolType::Environments, ToolType::Packages]);
 
         if managers.is_empty() {
-            message(
-                &format!(
-                    "No environment or package manager configuration found for directory `{}`",
-                    strip_home_dir(&path)
-                ),
-                Some("🔍"),
+            message!(
+                "🔍 No environment or package manager configuration found for directory `{}`",
+                strip_home_dir(&path)
             );
             exit(1)
         };

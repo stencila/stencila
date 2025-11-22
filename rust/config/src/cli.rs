@@ -121,14 +121,11 @@ impl Get {
 
             // Check if config is empty (all fields are None)
             if cfg.site.is_none() && cfg.routes.is_none() {
-                message(
-                    cstr!(
-                        "No configuration values are currently set.\n\n\
-                        Use <b>stencila config set</> <g>key</> <g>value</> to set a value, \
-                        or add a `stencila.toml` file."
-                    ),
-                    Some("💡"),
-                );
+                message(cstr!(
+                    "💡 No configuration values are currently set.\n\n\
+                    Use <b>stencila config set</> <g>key</> <g>value</> to set a value, \
+                    or add a `stencila.toml` file."
+                ));
             } else {
                 Code::new_from(format, &cfg)?.to_stdout();
             }
@@ -213,10 +210,7 @@ impl Set {
 
         let config_file = config_set(&self.key, &self.value, target)?;
 
-        message(
-            &format!("Set `{}` in `{}`", self.key, config_file.display()),
-            Some("✓"),
-        );
+        message!("✅ Set `{}` in `{}`", self.key, config_file.display());
 
         Ok(())
     }
@@ -267,10 +261,7 @@ impl Unset {
 
         let config_file = config_unset(&self.key, target)?;
 
-        message(
-            &format!("Removed `{}` from `{}`", self.key, config_file.display()),
-            Some("🗑️"),
-        );
+        message!("🗑️ Removed `{}` from `{}`", self.key, config_file.display());
 
         Ok(())
     }

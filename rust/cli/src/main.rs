@@ -59,7 +59,7 @@ async fn main() -> Result<()> {
 
         if let Err(error) = cli.run().await {
             if error_details == "none" || (error_details == "auto" && !cfg!(debug_assertions)) {
-                message(&error.to_string(), Some("💥"));
+                message!("💥 {error}");
                 exit(1);
             } else {
                 return Err(error);

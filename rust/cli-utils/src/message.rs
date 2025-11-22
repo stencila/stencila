@@ -1,45 +1,185 @@
 use std::env;
 
 use textwrap::{Options, termwidth, wrap};
+use unicode_width::UnicodeWidthStr;
 
-/// Create a wrapped and formatted user message on the terminal
+/// Convenience macro for creating formatted CLI messages.
+///
+/// This macro wraps [`message`] to allow `format!`-style string interpolation.
+/// If the message starts with an emoji, it will be automatically detected
+/// and used as an icon with proper indentation for wrapped lines.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Simple message with emoji icon
+/// message!("✅ Operation completed");
+///
+/// // Message with format arguments
+/// message!("📁 Processing file: {filename}");
+///
+/// // Warning with dynamic content
+/// message!("⚠️ Found {count} errors in {path}");
+/// ```
+#[macro_export]
+macro_rules! message {
+    ($($arg:tt)*) => {
+        stencila_cli_utils::message(&format!($($arg)*))
+    };
+}
+
+/// Create a wrapped and formatted CLI messages.
+///
+/// If the message starts with an emoji, it is automatically detected and used
+/// as an icon with proper indentation for wrapped lines.
+///
+/// # Example
+///
+/// ```ignore
+/// message("✅ Operation completed successfully");
+/// message("⚠️ Warning: this may take a while");
+/// message("Plain message without icon");
+/// ```
 #[allow(clippy::print_stderr)]
-pub fn message(message: &str, icon: Option<&str>) {
+pub fn message(message: &str) {
     // Check if message contains URLs to determine if we should skip wrapping
     let contains_url = message.contains("http://") || message.contains("https://");
 
-    // Colorize the message (if not NO_COLOR)
+    // Extract leading emoji if present
+    let (emoji, text) = match extract_leading_emoji(message) {
+        Some((emoji, rest)) => (Some(emoji), rest),
+        None => (None, message),
+    };
+
+    // Colorize the message text (if not NO_COLOR)
     let colored = if env::var_os("NO_COLOR").is_none() {
-        colorize_message(message)
+        colorize_message(text)
     } else {
-        message.to_string()
+        text.to_string()
     };
 
     // Skip wrapping if message contains URLs to avoid breaking it
     if contains_url {
-        if let Some(icon) = icon {
-            eprintln!("{icon}  {colored}");
+        if let Some(emoji) = emoji {
+            let (padding, _) = emoji_padding(emoji);
+            eprintln!("{emoji}{padding}{colored}");
         } else {
             eprintln!("{colored}");
         }
+    } else if let Some(emoji) = emoji {
+        let (padding, indent_width) = emoji_padding(emoji);
+        let subsequent_indent = " ".repeat(indent_width + padding.len());
+
+        let options = Options::new(termwidth())
+            .initial_indent("")
+            .subsequent_indent(&subsequent_indent);
+
+        let wrapped = wrap(&colored, options).join("\n");
+        eprintln!("{emoji}{padding}{wrapped}");
     } else {
-        let initial_indent = icon.map(|icon| [icon, "  "].concat());
-        let subsequent_indent = initial_indent
-            .as_ref()
-            .map(|indent| " ".repeat(indent.chars().count()));
-
-        let options = if let (Some(initial_indent), Some(subsequent_indent)) =
-            (&initial_indent, &subsequent_indent)
-        {
-            Options::new(termwidth())
-                .initial_indent(initial_indent)
-                .subsequent_indent(subsequent_indent)
-        } else {
-            Options::new(termwidth())
-        };
-
+        let options = Options::new(termwidth());
         eprintln!("{}", wrap(&colored, options).join("\n"));
     }
+}
+
+/// Calculate padding and indent width for an emoji.
+///
+/// Returns `(padding, indent_width)` where:
+/// - `padding`: The space string to insert after the emoji (" " or "  ")
+/// - `indent_width`: The visual width to use for subsequent line indentation
+///
+/// Emojis with variation selectors (like ℹ️, ☁️, ⚙️) render inconsistently
+/// across terminals, so they get extra padding for a consistent visible gap.
+fn emoji_padding(emoji: &str) -> (&'static str, usize) {
+    let has_variation_selector = emoji.contains('\u{FE0F}');
+    let raw_width = UnicodeWidthStr::width(emoji);
+
+    let padding = if has_variation_selector || raw_width <= 1 {
+        "  "
+    } else {
+        " "
+    };
+
+    // For variation selector emojis, use width 3; otherwise at least 2
+    let indent_width = if has_variation_selector {
+        3
+    } else {
+        raw_width.max(2)
+    };
+
+    (padding, indent_width)
+}
+
+/// Extract leading emoji from a message string.
+///
+/// Returns `Some((emoji, rest))` if the message starts with an emoji,
+/// where `emoji` is the full emoji (including any variation selectors)
+/// and `rest` is the remainder of the message with leading whitespace trimmed.
+///
+/// Returns `None` if the message doesn't start with an emoji.
+fn extract_leading_emoji(message: &str) -> Option<(&str, &str)> {
+    let mut chars = message.chars();
+    let first = chars.next()?;
+
+    if !is_emoji_char(first) {
+        return None;
+    }
+
+    // Find where the emoji ends (include variation selectors and ZWJ sequences)
+    let mut emoji_end = first.len_utf8();
+    let rest = &message[emoji_end..];
+
+    for c in rest.chars() {
+        if c == '\u{FE0F}' || c == '\u{FE0E}' || c == '\u{200D}' || is_emoji_char(c) {
+            // Variation selector, zero-width joiner, or continuation emoji
+            emoji_end += c.len_utf8();
+        } else {
+            break;
+        }
+    }
+
+    let emoji = &message[..emoji_end];
+    let rest = message[emoji_end..].trim_start();
+
+    Some((emoji, rest))
+}
+
+/// Check if a character is an emoji
+///
+/// This checks for common emoji ranges and variation selectors.
+fn is_emoji_char(c: char) -> bool {
+    matches!(c,
+        // Emoticons
+        '\u{1F600}'..='\u{1F64F}' |
+        // Misc symbols and pictographs
+        '\u{1F300}'..='\u{1F5FF}' |
+        // Transport and map symbols
+        '\u{1F680}'..='\u{1F6FF}' |
+        // Supplemental symbols and pictographs
+        '\u{1F900}'..='\u{1F9FF}' |
+        // Symbols and pictographs extended-A
+        '\u{1FA00}'..='\u{1FA6F}' |
+        // Symbols and pictographs extended-B
+        '\u{1FA70}'..='\u{1FAFF}' |
+        // Dingbats
+        '\u{2700}'..='\u{27BF}' |
+        // Misc symbols (includes ☁️, ⚙️, ✅, etc.)
+        '\u{2600}'..='\u{26FF}' |
+        // Letterlike symbols (includes ℹ️)
+        '\u{2100}'..='\u{214F}' |
+        // Arrows and other symbols often used as emoji
+        '\u{2190}'..='\u{21FF}' |
+        // Enclosed alphanumerics
+        '\u{2460}'..='\u{24FF}' |
+        // Box drawing (used for some symbols)
+        '\u{25A0}'..='\u{25FF}' |
+        // Misc technical (includes some symbols)
+        '\u{2300}'..='\u{23FF}' |
+        // Regional indicator symbols (flags)
+        '\u{1F1E0}'..='\u{1F1FF}' |
+        // Variation selectors (emoji presentation)
+        '\u{FE00}'..='\u{FE0F}'
+    )
 }
 
 /// Colorize angle-bracket-enclosed words (e.g., <domain>) in green
@@ -199,17 +339,6 @@ fn colorize_message(message: &str) -> String {
     result
 }
 
-#[macro_export]
-macro_rules! message {
-    ($str:literal, $($arg:tt)*) => {
-        stencila_cli_utils::message(&format!($str, $($arg)*), None)
-    };
-
-    ($str:literal) => {
-        stencila_cli_utils::message($str, None)
-    };
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -366,5 +495,68 @@ mod tests {
             !output.contains("\x1b[92m<not a word>\x1b[0m"),
             "Angle brackets with spaces should not be specially colored"
         );
+    }
+
+    #[test]
+    fn test_emoji_char_detection() {
+        // Test narrow emojis with variation selectors
+        assert!(is_emoji_char('\u{2139}')); // ℹ (info)
+        assert!(is_emoji_char('\u{2601}')); // ☁ (cloud)
+        assert!(is_emoji_char('\u{2699}')); // ⚙ (gear)
+
+        // Test wide emojis
+        assert!(is_emoji_char('\u{1F4C1}')); // 📁 (folder)
+        assert!(is_emoji_char('\u{2705}')); // ✅ (check mark)
+
+        // Test variation selector
+        assert!(is_emoji_char('\u{FE0F}')); // variation selector
+    }
+
+    #[test]
+    fn test_emoji_extraction() {
+        // Test extraction of narrow emojis with variation selectors
+        let (emoji, rest) = extract_leading_emoji("ℹ️ Info message").unwrap();
+        assert_eq!(emoji, "ℹ️");
+        assert_eq!(rest, "Info message");
+
+        let (emoji, rest) = extract_leading_emoji("☁️ Cloud message").unwrap();
+        assert_eq!(emoji, "☁️");
+        assert_eq!(rest, "Cloud message");
+
+        let (emoji, rest) = extract_leading_emoji("⚙️ Gear message").unwrap();
+        assert_eq!(emoji, "⚙️");
+        assert_eq!(rest, "Gear message");
+
+        // Test extraction of wide emojis
+        let (emoji, rest) = extract_leading_emoji("📁 Folder message").unwrap();
+        assert_eq!(emoji, "📁");
+        assert_eq!(rest, "Folder message");
+    }
+
+    #[test]
+    fn test_emoji_width_and_padding() {
+        use unicode_width::UnicodeWidthStr;
+
+        // Narrow emojis should get width 1 or 2
+        let info_width = UnicodeWidthStr::width("ℹ️");
+        let cloud_width = UnicodeWidthStr::width("☁️");
+        let gear_width = UnicodeWidthStr::width("⚙️");
+
+        // Wide emojis typically get width 2
+        let folder_width = UnicodeWidthStr::width("📁");
+        let check_width = UnicodeWidthStr::width("✅");
+
+        println!("ℹ️ width: {info_width}");
+        println!("☁️ width: {cloud_width}");
+        println!("⚙️ width: {gear_width}");
+        println!("📁 width: {folder_width}");
+        println!("✅ width: {check_width}");
+
+        // Verify our padding logic: narrow (<=1) gets 2 spaces, wide (>=2) gets 1 space
+        let info_padding = if info_width <= 1 { 2 } else { 1 };
+        let folder_padding = if folder_width <= 1 { 2 } else { 1 };
+
+        println!("ℹ️ padding: {info_padding} spaces");
+        println!("📁 padding: {folder_padding} spaces");
     }
 }

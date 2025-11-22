@@ -19,6 +19,7 @@ syntect = "5.3.0"
 terminal_size = "0.4.3"
 textwrap = { workspace = true }
 toml = { workspace = true }
+unicode-width = "0.2.2"
 url = { workspace = true }
 
 [lints]

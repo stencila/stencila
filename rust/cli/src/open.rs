@@ -176,16 +176,13 @@ impl Cli {
             };
 
             // Open only the specified remote
-            message(&format!("Opening {url_to_open} in browser"), Some("🌐"));
+            message("🌐 Opening {url_to_open} in browser");
             webbrowser::open(url_to_open.as_str())?;
         } else if self.target.is_none() && !self.no_remotes && !remote_infos.is_empty() {
             // No target specified and remotes not disabled - open all remotes
-            message(
-                &format!(
-                    "Opening {} configured remote(s) in browser",
-                    remote_infos.len()
-                ),
-                Some("🌐"),
+            message!(
+                "🌐 Opening {} configured remote(s) in browser",
+                remote_infos.len(),
             );
             for info in &remote_infos {
                 // Convert to browseable URL for Stencila Sites
@@ -198,7 +195,7 @@ impl Cli {
                 };
 
                 webbrowser::open(url_to_open.as_str())?;
-                message(&format!("Opened {url_to_open}"), Some("↗️"));
+                message("↗️ Opened {url_to_open}");
             }
         }
 
@@ -213,7 +210,7 @@ impl Cli {
             // Get (or generate) a server token so it can be included in the URL
             let server_token = get_server_token();
 
-            message("Starting local preview server", Some("🖥️ "));
+            message("🖥️ Starting local preview server");
 
             // Serve the directory
             let options = ServeOptions {

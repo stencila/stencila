@@ -291,7 +291,7 @@ impl Query {
         }
 
         if nodes.is_empty() {
-            message("No nodes matching query", Some("🔍"));
+            message("🔍 No nodes matching query");
             return Ok(());
         }
 

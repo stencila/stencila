@@ -143,10 +143,7 @@ impl Cli {
             (service, remote_info.url.clone())
         };
 
-        message(
-            &format!("Pulling from {} at {url}", service.display_name()),
-            Some("⬇️ "),
-        );
+        message!("⬇️ Pulling from {} at {url}", service.display_name());
 
         // Pull and update the local file
         let modified_files = stencila_codecs::pull(
@@ -159,26 +156,23 @@ impl Cli {
         )
         .await?;
 
-        message("Successfully pulled from remote", Some("✅"));
+        message("✅ Successfully pulled from remote");
 
         if let Some(modified_files) = modified_files {
             if self.no_merge {
-                message("Local file replaced successfully", Some("✅"));
+                message("✅ Local file replaced successfully");
             } else {
-                message(
-                    &format!(
-                        "Merge completed, {}",
-                        match modified_files.len() {
-                            0 => "no changes detected".to_string(),
-                            1 => "1 file modified".to_string(),
-                            count => format!("{count} files modified"),
-                        }
-                    ),
-                    Some("✅"),
+                message!(
+                    "✅ Merge completed, {}",
+                    match modified_files.len() {
+                        0 => "no changes detected".to_string(),
+                        1 => "1 file modified".to_string(),
+                        count => format!("{count} files modified"),
+                    },
                 );
             }
         } else {
-            message("Merge cancelled", Some("🚫"));
+            message("🚫 Merge cancelled");
         }
 
         // Track the remote pull

@@ -50,10 +50,7 @@ impl Cli {
         }
 
         let not_watched = || {
-            message(
-                &format!("File `{path_display}` is not begin watched."),
-                Some("ℹ️"),
-            );
+            message!("ℹ️ File `{path_display}` is not being watched.");
             Ok(())
         };
 
@@ -151,11 +148,8 @@ impl Cli {
         config_update_remote_watch(&self.path, remote_info.url.as_ref(), None)?;
 
         // Success message
-        message(
-            &format!(
-                "Stopped watching `{path_display}` (link to remote remains, see *stencila status*)"
-            ),
-            None,
+        message!(
+            "👁️ Stopped watching `{path_display}` (link to remote remains, see *stencila status*)"
         );
 
         Ok(())
