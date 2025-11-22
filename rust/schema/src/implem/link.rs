@@ -92,6 +92,7 @@ impl MarkdownCodec for Link {
         if let (1, Some(Inline::Text(content)), None) =
             (self.content.len(), self.content.first(), &self.title)
             && content.value.string == self.target
+            && (self.target.starts_with("http://") || self.target.starts_with("https://"))
         {
             context
                 .push_prop_fn(NodeProperty::Content, |context| {
