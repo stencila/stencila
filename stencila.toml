@@ -1,0 +1,8 @@
+[site]
+id = "s49e0kpi63"
+root = "site"
+exclude = ["tests/excluded.smd"]
+
+[routes]
+"tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
+

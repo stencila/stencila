@@ -1,0 +1,1 @@
+This file should be excluded from the site because it is in the `site.exclude` of the `stencila.toml`.

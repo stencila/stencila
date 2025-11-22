@@ -1,0 +1,5 @@
+Test examples for Stencila Sites.
+
+- The file `./excluded.smd` should not be pushed to the site because it is in the `site.exclude` of the `stencila.toml`.
+
+- This [redirect](redirect) should redirect to our Github repo as specified in one of the `routes` in `stencila.toml`.
