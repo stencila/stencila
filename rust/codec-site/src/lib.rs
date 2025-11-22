@@ -1046,8 +1046,9 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
         && let Some(excludes) = &site.exclude
     {
         for pattern in excludes {
-            // Add pattern directly - in overrides, patterns are treated as ignore patterns
-            overrides.add(pattern)?;
+            // In OverrideBuilder, '!' prefix means "ignore/exclude" (inverted from gitignore)
+            let exclude_pattern = format!("!{pattern}");
+            overrides.add(&exclude_pattern)?;
         }
     }
 
