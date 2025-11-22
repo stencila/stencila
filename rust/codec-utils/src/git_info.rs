@@ -97,11 +97,11 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
         });
     }
 
-    // File is tracked *and* clean – return the current HEAD commit SHA.
+    // File is tracked *and* clean – return the commit SHA when the file was last changed.
     let head_out = Command::new("git")
         .arg("-C")
         .arg(&repo_root)
-        .args(["rev-parse", "HEAD"])
+        .args(["log", "-1", "--format=%H", "--", &relative_path])
         .output()?;
 
     if !head_out.status.success() {
