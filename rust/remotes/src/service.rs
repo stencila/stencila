@@ -92,6 +92,15 @@ impl RemoteService {
         }
     }
 
+    /// Check if this remote service is write-only (push only, no pull support)
+    ///
+    /// Write-only remotes like Stencila Sites can only be pushed to.
+    /// Status calculations should not show "Diverged" or "Ahead" for these
+    /// since pulling is not supported.
+    pub fn is_write_only(&self) -> bool {
+        matches!(self, Self::StencilaSites)
+    }
+
     /// Push a document to this remote service
     pub async fn push(
         &self,

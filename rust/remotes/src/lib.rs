@@ -213,9 +213,13 @@ pub async fn calculate_remote_statuses(
 
     // Create futures to fetch metadata for each remote
     let futures = remotes.iter().map(|(url, remote)| async move {
+        // Check if this is a write-only remote (like Stencila Sites)
+        let service = RemoteService::from_url(url);
+        let is_write_only = service.map(|s| s.is_write_only()).unwrap_or(false);
+
         // Fetch metadata from remote service
         let remote_modified_at = async {
-            match RemoteService::from_url(url) {
+            match service {
                 Some(RemoteService::GoogleDocs) => stencila_codec_gdoc::modified_at(url).await,
                 Some(RemoteService::Microsoft365) => stencila_codec_m365::modified_at(url).await,
                 Some(RemoteService::StencilaSites) => stencila_codec_site::modified_at(url).await,
@@ -229,12 +233,30 @@ pub async fn calculate_remote_statuses(
 
         // Calculate status by comparing local/remote modified times with pushed_at/pulled_at
         let status = if local_status == RemoteStatus::Deleted {
-            // Only mark as Ahead if we can confirm the remote exists
-            if remote_modified_at.is_some() {
+            // For write-only remotes, deleted local files just need to be untracked
+            // For other remotes, mark as Ahead if remote exists (suggesting pull)
+            if is_write_only {
+                RemoteStatus::Unknown
+            } else if remote_modified_at.is_some() {
                 RemoteStatus::Ahead
             } else {
                 // Remote metadata unavailable - could be deleted, network issue, etc.
                 RemoteStatus::Unknown
+            }
+        } else if is_write_only {
+            // For write-only remotes (e.g., Stencila Sites), only show Behind or Synced
+            // - Never "Diverged" (can't pull to reconcile)
+            // - Never "Ahead" (remote changes don't matter, can't pull them)
+            match (local_modified_at, remote.pushed_at) {
+                (Some(local), Some(pushed)) => {
+                    if local > pushed.saturating_add(LOCAL_TOLERANCE_SECS) {
+                        RemoteStatus::Behind // Local changed, need to push
+                    } else {
+                        RemoteStatus::Synced
+                    }
+                }
+                (Some(_), None) => RemoteStatus::Behind, // Never pushed, need to push
+                _ => RemoteStatus::Unknown,
             }
         } else {
             match (

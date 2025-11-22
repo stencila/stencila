@@ -1087,10 +1087,19 @@ impl Cli {
         }
 
         if !is_dry_run {
-            message(
-                &format!("Site available at: https://{}.stencila.site", site_id),
-                Some("🔗"),
-            );
+            let url = format!("https://{site_id}.stencila.site");
+
+            update_remote_timestamp(
+                path,
+                &url,
+                None, // pulled_at unchanged
+                Some(Utc::now().timestamp() as u64),
+            )
+            .await?;
+
+            let url = Url::parse(&url)?;
+            let url = stencila_codec_site::browseable_url(&url, Some(path))?;
+            message(&format!("Site available at: {url}",), Some("🔗"));
         }
         Ok(())
     }
