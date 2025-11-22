@@ -120,7 +120,7 @@ impl Codec for DomCodec {
 /// Encode a node to DOM HTML with options
 async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     // Encode to DOM HTML
-    let mut context = DomEncodeContext::new();
+    let mut context = DomEncodeContext::new(options.as_ref().and_then(|opts| opts.view.as_deref()));
     node.to_dom(&mut context);
 
     // Add the root attribute to the root node (the first opening tag)

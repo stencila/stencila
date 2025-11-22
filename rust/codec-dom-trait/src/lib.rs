@@ -18,7 +18,7 @@ pub fn to_dom<T>(node: &T) -> String
 where
     T: DomCodec,
 {
-    let mut context = DomEncodeContext::new();
+    let mut context = DomEncodeContext::new(None);
     node.to_dom(&mut context);
     context.content
 }
@@ -117,6 +117,12 @@ where
 
 #[derive(SmartDefault)]
 pub struct DomEncodeContext {
+    /// Whether encoding the "static" view
+    ///
+    /// Used to determine whether to encode the node id and other attributes
+    /// that are only needed for views where nodes will be updated.
+    view_is_static: bool,
+
     /// The DOM HTML content
     content: String,
 
@@ -144,8 +150,11 @@ pub struct DomEncodeContext {
 }
 
 impl DomEncodeContext {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(view: Option<&str>) -> Self {
+        Self {
+            view_is_static: view == Some("static"),
+            ..Default::default()
+        }
     }
 
     /// Enter an element
@@ -197,10 +206,15 @@ impl DomEncodeContext {
             .map(|node_type| node_type.to_string())
             .join(".");
 
-        self.enter_elem_attrs(
-            name,
-            [("id", &id), ("depth", &depth), ("ancestors", &ancestors)],
-        );
+        if self.view_is_static {
+            self.enter_elem(name);
+        } else {
+            self.enter_elem_attrs(
+                name,
+                [("id", &id), ("depth", &depth), ("ancestors", &ancestors)],
+            );
+        };
+
         self.node_types.push(node_type);
 
         self
