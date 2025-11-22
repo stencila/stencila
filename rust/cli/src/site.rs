@@ -284,9 +284,10 @@ impl Delete {
         let stencila_dir = stencila_dirs::closest_stencila_dir(&path, false).await?;
         if let Ok(removed_count) =
             stencila_remotes::remove_site_remotes(&stencila_dir, &site_id).await
-            && removed_count > 0 {
-                tracing::debug!("Removed {removed_count} remote tracking entries");
-            }
+            && removed_count > 0
+        {
+            tracing::debug!("Removed {removed_count} remote tracking entries");
+        }
 
         message("Site deleted successfully", Some("✅"));
 
