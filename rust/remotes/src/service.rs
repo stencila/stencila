@@ -1,6 +1,6 @@
-use std::path::Path;
+use std::{path::Path, str::FromStr};
 
-use clap::ValueEnum;
+use eyre::{Report, eyre};
 use url::Url;
 
 use stencila_codec::{
@@ -8,19 +8,35 @@ use stencila_codec::{
 };
 
 /// Remote document services
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone, Copy)]
 pub enum RemoteService {
     /// Google Docs / Drive
-    #[value(name = "gdoc", alias = "gdocs")]
     GoogleDocs,
 
     /// Microsoft 365 / OneDrive
-    #[value(name = "m365")]
     Microsoft365,
 
     /// Stencila Sites
-    #[value(name = "site", alias = "sites")]
     StencilaSites,
+}
+
+impl FromStr for RemoteService {
+    type Err = Report;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "gdoc" | "gdocs" => Ok(RemoteService::GoogleDocs),
+            "m365" => Ok(RemoteService::Microsoft365),
+            "site" | "sites" => Ok(RemoteService::StencilaSites),
+            _ => {
+                let url = Url::parse(s).map_err(|_| {
+                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'site', or a full URL.")
+                    })?;
+                RemoteService::from_url(&url)
+                    .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))
+            }
+        }
+    }
 }
 
 impl RemoteService {

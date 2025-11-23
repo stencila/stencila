@@ -402,6 +402,126 @@ pub fn browseable_url(canonical: &Url, path: Option<&Path>) -> Result<Url> {
     Ok(browseable)
 }
 
+/// A spread route variant ready for pushing
+#[derive(Debug, Clone)]
+pub struct SpreadRouteVariant {
+    /// The source file path
+    pub file: String,
+    /// The generated route (with placeholders filled in)
+    pub route: String,
+    /// The arguments for this variant
+    pub arguments: HashMap<String, String>,
+}
+
+/// Generate all spread route variants from config
+///
+/// Reads `[routes.spread]` from config and expands all variants.
+/// Returns a list of (route_template, file, variants) tuples.
+pub fn generate_spread_routes(config: &Config) -> Result<Vec<SpreadRouteVariant>> {
+    let Some(routes_spread) = &config.routes_spread else {
+        return Ok(Vec::new());
+    };
+
+    let mut variants = Vec::new();
+
+    for (route_template, spread_config) in routes_spread {
+        let file = &spread_config.file;
+        let mode = spread_config.mode.unwrap_or_default();
+
+        // Build runs from params
+        let runs = generate_spread_runs(mode, &spread_config.params)?;
+
+        for run in runs {
+            // Apply template to generate route
+            let route = apply_spread_template(route_template, &run)?;
+
+            variants.push(SpreadRouteVariant {
+                file: file.clone(),
+                route,
+                arguments: run,
+            });
+        }
+    }
+
+    Ok(variants)
+}
+
+/// Generate spread runs from params based on mode
+fn generate_spread_runs(
+    mode: stencila_config::SpreadMode,
+    params: &HashMap<String, Vec<String>>,
+) -> Result<Vec<HashMap<String, String>>> {
+    if params.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let keys: Vec<&String> = params.keys().collect();
+    let values: Vec<&Vec<String>> = keys.iter().map(|k| &params[*k]).collect();
+
+    match mode {
+        stencila_config::SpreadMode::Grid => {
+            // Cartesian product
+            let mut runs = vec![HashMap::new()];
+            for (key, vals) in keys.iter().zip(values.iter()) {
+                let mut new_runs = Vec::new();
+                for run in &runs {
+                    for val in *vals {
+                        let mut new_run = run.clone();
+                        new_run.insert((*key).clone(), val.clone());
+                        new_runs.push(new_run);
+                    }
+                }
+                runs = new_runs;
+            }
+            Ok(runs)
+        }
+        stencila_config::SpreadMode::Zip => {
+            // Positional pairing - all must have same length
+            let len = values.first().map(|v| v.len()).unwrap_or(0);
+            for vals in &values {
+                if vals.len() != len {
+                    bail!("Zip mode requires all parameters to have the same number of values");
+                }
+            }
+
+            let mut runs = Vec::new();
+            for i in 0..len {
+                let mut run = HashMap::new();
+                for (key, vals) in keys.iter().zip(values.iter()) {
+                    run.insert((*key).clone(), vals[i].clone());
+                }
+                runs.push(run);
+            }
+            Ok(runs)
+        }
+    }
+}
+
+/// Apply a template by replacing {placeholder} with values
+fn apply_spread_template(template: &str, values: &HashMap<String, String>) -> Result<String> {
+    let mut result = template.to_string();
+    for (key, value) in values {
+        let placeholder = format!("{{{}}}", key);
+        result = result.replace(&placeholder, value);
+    }
+
+    // Check for unresolved placeholders
+    if result.contains('{') && result.contains('}') {
+        bail!(
+            "Template '{}' has unresolved placeholders after applying values: {:?}",
+            template,
+            values
+        );
+    }
+
+    // Ensure route ends with /
+    if !result.ends_with('/') {
+        result.push('/');
+    }
+
+    Ok(result)
+}
+
 /// Find the route configuration for a given file path
 ///
 /// Searches through the config routes to find a matching route based on the file path.
@@ -956,6 +1076,166 @@ pub async fn push(
     }
 
     // Return the result
+    let url = Url::parse(&format!("{base_url}{route}"))?;
+
+    if is_dry_run {
+        Ok(PushResult::DryRun {
+            url,
+            files: dry_run_files,
+            output_dir: dry_run_output_dir,
+        })
+    } else {
+        Ok(PushResult::Uploaded(url))
+    }
+}
+
+/// Push a document to a site with an explicit route
+///
+/// This is used for spread routes where the route is generated from a template
+/// rather than derived from the file path.
+///
+/// # Arguments
+/// * `node` - The document node to push
+/// * `path` - Optional path to the source file (for media collection)
+/// * `route` - The explicit route to use (e.g., "/north/ABC/")
+/// * `dry_run` - Optional dry-run configuration
+///
+/// Returns the result of the push operation.
+pub async fn push_with_route(
+    node: &Node,
+    path: Option<&Path>,
+    route: &str,
+    dry_run: Option<PushDryRunOptions>,
+) -> Result<PushResult> {
+    // Find the workspace root directory
+    let start_path = if let Some(path) = path {
+        path.to_path_buf()
+    } else {
+        std::env::current_dir()?
+    };
+
+    let stencila_dir = closest_stencila_dir(&start_path, true).await?;
+    let _workspace_dir = workspace_dir(&stencila_dir)?;
+
+    // Ensure site configuration exists
+    let (site_id, _) = ensure_site(&start_path).await?;
+
+    // Initialize dry-run tracking
+    let mut dry_run_files = Vec::new();
+    let is_dry_run = dry_run.as_ref().is_some_and(|opts| opts.enabled);
+    let dry_run_output_dir = dry_run.as_ref().and_then(|opts| opts.output_dir.clone());
+
+    // Get branch slug
+    let branch_name = get_current_branch(Some(&start_path)).unwrap_or_else(|| "main".to_string());
+    let branch_slug = slugify_branch_name(&branch_name);
+
+    // Build base URL for the site
+    let base_url = format!("https://{site_id}.stencila.site");
+
+    // Create temporary directory for HTML and extracted and collected media
+    let temp_dir = TempDir::new()?;
+    let temp_html = temp_dir.path().join("temp.html");
+    let media_dir = temp_dir.path().join("media");
+
+    // Encode HTML
+    DomCodec
+        .to_path(
+            node,
+            &temp_html,
+            Some(EncodeOptions {
+                standalone: Some(true),
+                base_url: Some(base_url.to_string()),
+                from_path: path.map(|path| path.to_path_buf()),
+                to_path: Some(temp_html.clone()),
+                extract_media: Some(media_dir.clone()),
+                collect_media: Some(media_dir.clone()),
+                view: Some("static".into()),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    // Use the provided route, ensuring it ends with /
+    let route = if route.ends_with('/') {
+        route.to_string()
+    } else {
+        format!("{}/", route)
+    };
+
+    // Calculate storage path from route
+    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
+    let storage_path = if trimmed.is_empty() {
+        "index.html".to_string()
+    } else {
+        format!("{trimmed}/index.html")
+    };
+
+    // Upload HTML (with compression)
+    let html_metadata = metadata(&temp_html).await?;
+    let full_html_path = format!("{site_id}/{branch_slug}/{storage_path}.gz");
+
+    if is_dry_run {
+        // Dry-run mode: write HTML file to local directory if specified
+        let local_path = if let Some(output_dir) = &dry_run_output_dir {
+            let dest_path = output_dir.join(&full_html_path);
+            if let Some(parent) = dest_path.parent() {
+                create_dir_all(parent).await?;
+            }
+
+            // Compress HTML before writing
+            let html_content = read(&temp_html).await?;
+            let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+            encoder.write_all(&html_content)?;
+            let compressed = encoder.finish()?;
+
+            write(&dest_path, &compressed).await?;
+            Some(dest_path)
+        } else {
+            None
+        };
+
+        dry_run_files.push(PushDryRunFile {
+            storage_path: full_html_path,
+            local_path,
+            size: html_metadata.len(),
+            compressed: true,
+            route: Some(route.clone()),
+        });
+    } else {
+        // Normal mode: upload to R2
+        // Upload media files FIRST (before HTML) to avoid broken image references
+        let media_prefix = if trimmed.is_empty() {
+            "media/".to_string()
+        } else {
+            format!("{trimmed}/media/")
+        };
+
+        let mut current_media_files = Vec::new();
+        if media_dir.exists() {
+            let mut entries = read_dir(&media_dir).await?;
+            while let Some(entry) = entries.next_entry().await? {
+                let media_path = entry.path();
+                if let Some(filename) = media_path.file_name().and_then(|n| n.to_str()) {
+                    // Include route prefix so media paths match HTML references
+                    let media_storage_path = if trimmed.is_empty() {
+                        format!("media/{filename}")
+                    } else {
+                        format!("{trimmed}/media/{filename}")
+                    };
+                    upload_file(&site_id, &branch_slug, &media_storage_path, &media_path).await?;
+                    current_media_files.push(media_storage_path);
+                }
+            }
+        }
+
+        // Reconcile media files at this route to clean up orphaned files
+        reconcile_prefix(&site_id, &branch_slug, &media_prefix, current_media_files).await?;
+
+        // Upload HTML LAST (after media) so visitors always see complete content
+        upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
+    }
+
+    // Build URL for result
     let url = Url::parse(&format!("{base_url}{route}"))?;
 
     if is_dry_run {

@@ -144,6 +144,19 @@ pub struct Config {
     #[schemars(with = "Option<HashMap<String, RemoteValue>>")]
     pub remotes: Option<HashMap<String, RemoteValue>>,
 
+    /// Spread configuration for remotes
+    ///
+    /// Defines spread parameters for multi-variant document pushing.
+    /// Key is the file path, value contains service, title template, and spread params.
+    ///
+    /// Example:
+    /// ```toml
+    /// [remotes.spread]
+    /// "quarterly-report.smd" = { service = "gdoc", title = "Q4 Report - {region}", region = ["north", "south"] }
+    /// ```
+    #[serde(rename = "remotes.spread")]
+    pub remotes_spread: Option<HashMap<String, RemoteSpreadConfig>>,
+
     /// Site configuration
     pub site: Option<SiteConfig>,
 
@@ -167,6 +180,19 @@ pub struct Config {
     /// ```
     #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
     pub routes: Option<HashMap<String, RouteTarget>>,
+
+    /// Spread configuration for routes
+    ///
+    /// Defines spread parameters for multi-variant site routes.
+    /// Key is the route template, value contains file and spread params.
+    ///
+    /// Example:
+    /// ```toml
+    /// [routes.spread]
+    /// "/{region}/{species}/" = { file = "report.smd", region = ["north", "south"], species = ["ABC", "DEF"] }
+    /// ```
+    #[serde(rename = "routes.spread")]
+    pub routes_spread: Option<HashMap<String, RouteSpreadConfig>>,
 }
 
 impl Config {
@@ -525,6 +551,13 @@ pub struct RemoteInfo {
     #[schemars(regex(pattern = r"^https?://"))]
     pub url: String,
 
+    /// Arguments used when pushing to this remote (for spread variants)
+    ///
+    /// When a document is pushed with spread parameters, each variant is tracked
+    /// with its specific argument values. This allows matching variants on
+    /// subsequent pushes.
+    pub arguments: Option<HashMap<String, String>>,
+
     /// Watch ID from Stencila Cloud
     ///
     /// If this remote is being watched for automatic synchronization, this
@@ -532,4 +565,52 @@ pub struct RemoteInfo {
     /// debounce) is stored in Stencila Cloud and queried via the API.
     #[schemars(regex(pattern = r"^w[a-zA-Z0-9]{9}$"))]
     pub watch: Option<String>,
+}
+
+/// Spread mode for multi-variant execution
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum SpreadMode {
+    /// Cartesian product of all parameter values (default)
+    #[default]
+    Grid,
+    /// Positional pairing of values (all params must have same length)
+    Zip,
+}
+
+/// Configuration for a spread remote in [remotes.spread]
+///
+/// Defines how to push multiple variants of a document to a remote service.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct RemoteSpreadConfig {
+    /// Target service (gdoc, m365)
+    pub service: String,
+
+    /// Title template with placeholders e.g. "Report - {region}"
+    pub title: Option<String>,
+
+    /// Spread mode (default: grid)
+    pub mode: Option<SpreadMode>,
+
+    /// Parameter values - keys are param names, values are arrays
+    #[serde(flatten)]
+    pub params: HashMap<String, Vec<String>>,
+}
+
+/// Configuration for a spread route in [routes.spread]
+///
+/// Key is the route template (e.g. "/{region}/{species}/"), value contains file and spread params.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct RouteSpreadConfig {
+    /// The source file for this spread route
+    pub file: String,
+
+    /// Spread mode (default: grid)
+    pub mode: Option<SpreadMode>,
+
+    /// Parameter values - keys are param names, values are arrays
+    #[serde(flatten)]
+    pub params: HashMap<String, Vec<String>>,
 }

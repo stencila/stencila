@@ -1,7 +1,8 @@
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashMap},
     path::{Path, PathBuf},
     process::exit,
+    str::FromStr,
 };
 
 use chrono::Utc;
@@ -14,13 +15,15 @@ use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
-use stencila_codecs::PushResult;
+use stencila_codecs::{PushDryRunOptions, PushResult};
 use stencila_dirs::closest_workspace_dir;
 use stencila_document::Document;
 use stencila_remotes::{
-    RemoteService, WatchDirection, WatchPrMode, expand_path_to_files, get_remotes_for_path,
-    update_remote_timestamp,
+    RemoteService, WatchDirection, WatchPrMode, expand_path_to_files, find_remote_for_arguments,
+    get_remotes_for_path, get_tracked_remotes_for_path, update_remote_timestamp,
+    update_spread_remote_timestamp,
 };
+use stencila_spread::{Run, SpreadConfig, SpreadMode, apply_template};
 
 /// Push a document to a remote service
 #[derive(Debug, Parser)]
@@ -94,6 +97,46 @@ pub struct Cli {
     #[arg(long, value_name = "DIR", num_args = 0..=1, default_missing_value = "", conflicts_with = "watch")]
     dry_run: Option<String>,
 
+    /// Enable spread push mode for multi-variant execution
+    ///
+    /// Spread mode allows pushing multiple variants of a document to separate
+    /// remote documents, each with different parameter values. Supports:
+    /// - grid: Cartesian product of all parameter values (default)
+    /// - zip: Positional pairing of values (all must have same length)
+    /// - cases: Explicit parameter sets via --case
+    #[arg(long, value_name = "MODE", num_args = 0..=1, default_missing_value = "grid", conflicts_with = "watch")]
+    spread: Option<stencila_spread::SpreadMode>,
+
+    /// Explicit cases for spread=cases mode
+    ///
+    /// Each --case defines one variant with specific parameter values.
+    /// Example: --case="region=north species=ABC"
+    #[arg(long, value_name = "PARAMS", action = clap::ArgAction::Append)]
+    case: Vec<String>,
+
+    /// Title template for GDocs/M365 spread push
+    ///
+    /// Placeholders like {param} are replaced with parameter values.
+    /// Example: --title="Report - {region}"
+    #[arg(long, value_name = "TITLE")]
+    title: Option<String>,
+
+    /// Route template for site spread push
+    ///
+    /// Placeholders like {param} are replaced with parameter values.
+    /// Routes always end with / and render as index.html.
+    /// Example: --route="/{region}/{species}/"
+    #[arg(long, value_name = "ROUTE")]
+    route: Option<String>,
+
+    /// Stop on first error instead of continuing with remaining variants
+    #[arg(long)]
+    fail_fast: bool,
+
+    /// Maximum number of spread runs allowed (default: 100)
+    #[arg(long, default_value = "100")]
+    spread_max: usize,
+
     /// Arguments to pass to the document for execution
     ///
     /// If provided, the document will be executed with these arguments
@@ -133,6 +176,21 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Perform a dry-run to inspect generated files without uploading</dim>
   <b>stencila push</> <g>document.smd</> <c>--to</> <g>site</> <c>--dry-run=./temp</>
+
+  <dim># Spread push to GDocs (creates multiple docs)</dim>
+  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread</> <c>--</> <c>region=north,south</>
+
+  <dim># Spread push with custom title template</dim>
+  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread</> <c>--title=\"Report - {region}\"</> <c>--</> <c>region=north,south</>
+
+  <dim># Spread push with zip mode (positional pairing)</dim>
+  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread=zip</> <c>--</> <c>region=north,south code=N,S</>
+
+  <dim># Spread push dry run to preview operations</dim>
+  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread</> <c>--dry-run</> <c>--</> <c>region=north,south</>
+
+  <dim># Spread push to site with route template</dim>
+  <b>stencila push</> <g>report.smd</> <c>--to</> <g>site</> <c>--spread</> <c>--route=\"/{region}/{species}/\"</> <c>--</> <c>region=north,south species=ABC,DEF</>
 "
 );
 
@@ -213,6 +271,11 @@ impl Cli {
         // Open the document
         let doc = Document::open(path, None).await?;
 
+        // Handle spread push mode
+        if let Some(mode) = self.spread {
+            return self.push_spread(path, &doc, mode, dry_run_opts).await;
+        }
+
         // Early validation: --watch is not compatible with multiple remotes
         if self.watch && self.to.is_none() {
             let remote_infos = get_remotes_for_path(path, None).await?;
@@ -267,7 +330,9 @@ impl Cli {
 
         // Execute document if args provided
         if !self.no_execute {
-            message!("⚙️ Executing `{path_display}` before pushing it (use `--no-execute` to skip)");
+            message!(
+                "⚙️ Executing `{path_display}` before pushing it (use `--no-execute` to skip)"
+            );
 
             // Parse arguments as key=value pairs
             let arguments: Vec<(&str, &str)> = execution_args
@@ -1023,4 +1088,460 @@ impl Cli {
         }
         Ok(())
     }
+
+    /// Push document with spread parameters (multi-variant execution)
+    async fn push_spread(
+        &self,
+        path: &Path,
+        doc: &Document,
+        mode: SpreadMode,
+        dry_run_opts: Option<PushDryRunOptions>,
+    ) -> Result<()> {
+        let path_display = path.display();
+        let is_dry_run = dry_run_opts.as_ref().is_some_and(|opts| opts.enabled);
+
+        // Determine target service - from CLI --to or from config
+        let service_from_cli = self
+            .to
+            .as_deref()
+            .map(RemoteService::from_str)
+            .transpose()?;
+
+        // Parse arguments from CLI
+        let cli_arguments: Vec<(&str, &str)> = self
+            .args
+            .iter()
+            .filter_map(|arg| {
+                let parts: Vec<&str> = arg.splitn(2, '=').collect();
+                if parts.len() == 2 {
+                    Some((parts[0], parts[1]))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // Build spread config - either from CLI args or from [remotes.spread] config
+        // Returns (spread_config, title_template, service_from_config)
+        let (config, title_template, service_from_config) = if cli_arguments.is_empty()
+            && self.case.is_empty()
+        {
+            // Try to read from [remotes.spread] config
+            let workspace_dir = closest_workspace_dir(path, false).await?;
+            let toml_config = stencila_config::config(&workspace_dir)?;
+
+            let file_key = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("")
+                .to_string();
+
+            if let Some(spread_config) = toml_config
+                .remotes_spread
+                .as_ref()
+                .and_then(|rs| rs.get(&file_key))
+            {
+                // Build arguments from config params
+                let config_args: Vec<(String, String)> = spread_config
+                    .params
+                    .iter()
+                    .map(|(k, v)| (k.clone(), v.join(",")))
+                    .collect();
+                let config_args_refs: Vec<(&str, &str)> = config_args
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str()))
+                    .collect();
+
+                let spread_mode = match spread_config.mode {
+                    Some(stencila_config::SpreadMode::Zip) => SpreadMode::Zip,
+                    _ => mode, // Use CLI mode or default to Grid
+                };
+
+                let cfg = SpreadConfig::from_arguments(
+                    spread_mode,
+                    &config_args_refs,
+                    &[],
+                    self.spread_max,
+                )?;
+
+                // Parse service from config
+                let config_service = RemoteService::from_str(&spread_config.service)?;
+
+                (cfg, spread_config.title.clone(), Some(config_service))
+            } else {
+                bail!(
+                    "No spread parameters provided. Use `-- param=val1,val2` or configure [remotes.spread] in stencila.toml"
+                );
+            }
+        } else {
+            let cfg =
+                SpreadConfig::from_arguments(mode, &cli_arguments, &self.case, self.spread_max)?;
+            (cfg, self.title.clone(), None)
+        };
+
+        // Determine final service: CLI takes precedence over config
+        let service = service_from_cli
+            .or(service_from_config)
+            .ok_or_else(|| eyre!("Spread push requires a target service (--to gdoc/m365/site) or configure service in [remotes.spread]"))?;
+
+        let run_count = config.validate()?;
+        let runs = config.generate_runs()?;
+
+        // For site spread pushes, auto-generate a route template if not provided
+        // This ensures each variant gets a unique route
+        let effective_route_template = if matches!(service, RemoteService::StencilaSites) {
+            if let Some(ref route) = self.route {
+                Some(route.clone())
+            } else {
+                // Auto-generate route template from base route + spread parameters
+                let workspace_dir = closest_workspace_dir(path, false).await?;
+                let site_config = stencila_config::config(&workspace_dir)?;
+                let base_route =
+                    stencila_codec_site::determine_route(path, &workspace_dir, &site_config)?;
+
+                // Append all spread parameter names as placeholders
+                let param_names: Vec<&String> = config.params.iter().map(|(k, _)| k).collect();
+                if param_names.is_empty() {
+                    Some(base_route)
+                } else {
+                    let params_path = param_names
+                        .iter()
+                        .map(|name| format!("{{{name}}}"))
+                        .collect::<Vec<_>>()
+                        .join("/");
+                    let base = base_route.trim_end_matches('/');
+                    Some(format!("{base}/{params_path}/"))
+                }
+            }
+        } else {
+            self.route.clone()
+        };
+
+        message!(
+            "📊 Spread pushing `{path_display}` to {} ({} mode, {} variants)",
+            service.display_name(),
+            mode,
+            run_count
+        );
+
+        // Get existing spread remotes from tracking file (not from config)
+        // Spread variants are stored in .stencila/remotes.json, not in stencila.toml
+        let tracked_remotes = get_tracked_remotes_for_path(path).await?;
+        let existing_spread_remotes: Vec<_> = tracked_remotes
+            .into_iter()
+            .filter(|r| r.arguments.is_some() && service.matches_url(&r.url))
+            .collect();
+
+        // Calculate new vs update counts (using service-filtered remotes)
+        let mut creates = Vec::new();
+        let mut updates = Vec::new();
+        for run in &runs {
+            let run_args: HashMap<String, String> = run
+                .values
+                .iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect();
+            if find_remote_for_arguments(&existing_spread_remotes, &run_args).is_some() {
+                updates.push(run);
+            } else {
+                creates.push(run);
+            }
+        }
+
+        // Dry run - process variants and generate files without uploading
+        if is_dry_run {
+            let has_output_dir = dry_run_opts
+                .as_ref()
+                .is_some_and(|opts| opts.output_dir.is_some());
+
+            for (i, run) in runs.iter().enumerate() {
+                let run_args: HashMap<String, String> = run
+                    .values
+                    .iter()
+                    .map(|(k, v)| (k.clone(), v.clone()))
+                    .collect();
+                let action =
+                    if find_remote_for_arguments(&existing_spread_remotes, &run_args).is_some() {
+                        "update"
+                    } else {
+                        "create"
+                    };
+
+                // Execute document with run parameters
+                if !self.no_execute {
+                    let run_arguments: Vec<(&str, &str)> = run
+                        .values
+                        .iter()
+                        .map(|(k, v)| (k.as_str(), v.as_str()))
+                        .collect();
+                    doc.call(&run_arguments, stencila_document::ExecuteOptions::default())
+                        .await?;
+                }
+
+                // Generate target description for display
+                let target_desc = if let (RemoteService::StencilaSites, Some(template)) =
+                    (&service, &effective_route_template)
+                {
+                    generate_route_from_template(template, run)?
+                } else {
+                    self.generate_title(doc.file_name(), run, title_template.as_deref())
+                };
+
+                message!(
+                    "📤 Pushing {}/{}: {} → {} {}",
+                    i + 1,
+                    run_count,
+                    run,
+                    action,
+                    target_desc
+                );
+
+                // If output directory specified, generate the files
+                if has_output_dir {
+                    let generated_route = if let (RemoteService::StencilaSites, Some(template)) =
+                        (&service, &effective_route_template)
+                    {
+                        Some(generate_route_from_template(template, run)?)
+                    } else {
+                        None
+                    };
+
+                    let title =
+                        self.generate_title(doc.file_name(), run, title_template.as_deref());
+
+                    // Push with dry-run options to generate files
+                    let push_result = if let Some(route) = &generated_route {
+                        stencila_codec_site::push_with_route(
+                            &doc.root().await,
+                            doc.path(),
+                            route,
+                            dry_run_opts.clone(),
+                        )
+                        .await
+                    } else {
+                        stencila_codecs::push(
+                            &service,
+                            &doc.root().await,
+                            doc.path(),
+                            Some(&title),
+                            None,
+                            doc.path(),
+                            dry_run_opts.clone(),
+                        )
+                        .await
+                    };
+
+                    match push_result {
+                        Ok(PushResult::DryRun { files, .. }) => {
+                            for file in files {
+                                message!("    → {}", file.storage_path);
+                            }
+                        }
+                        Ok(_) => {}
+                        Err(e) => {
+                            message!("    ✗ Error generating: {}", e);
+                        }
+                    }
+                }
+            }
+
+            message!("✅ Spread push dry-run complete: {run_count} variants previewed");
+            return Ok(());
+        }
+
+        // Confirmation prompt if creating many new docs
+        // Note: The global --yes flag is handled automatically by ask_with()
+        let threshold = match service {
+            RemoteService::GoogleDocs | RemoteService::Microsoft365 => 5,
+            RemoteService::StencilaSites => 20,
+        };
+        if creates.len() > threshold {
+            let answer = ask_with(
+                &format!(
+                    "This will create {} new {}. Continue?",
+                    creates.len(),
+                    service.display_name_plural()
+                ),
+                AskOptions {
+                    level: AskLevel::Warning,
+                    default: Some(Answer::No),
+                    ..Default::default()
+                },
+            )
+            .await?;
+
+            if !answer.is_yes() {
+                bail!("Aborted by user");
+            }
+        }
+
+        // Process each run sequentially
+        let total = runs.len();
+        let mut successes: Vec<(HashMap<String, String>, Url)> = Vec::new();
+        let mut errors: Vec<(HashMap<String, String>, String)> = Vec::new();
+        let mut processed_arguments: Vec<HashMap<String, String>> = Vec::new();
+
+        for (i, run) in runs.iter().enumerate() {
+            let run_args: HashMap<String, String> = run
+                .values
+                .iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect();
+            processed_arguments.push(run_args.clone());
+
+            message!("[{}/{}] Processing {:?}", i + 1, total, run_args);
+
+            // Execute document with run parameters
+            if !self.no_execute {
+                let run_arguments: Vec<(&str, &str)> = run
+                    .values
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str()))
+                    .collect();
+                doc.call(&run_arguments, stencila_document::ExecuteOptions::default())
+                    .await?;
+            }
+
+            // Find existing remote for these arguments (scoped to current service)
+            let existing_url = find_remote_for_arguments(&existing_spread_remotes, &run_args)
+                .map(|r| r.url.clone());
+
+            // Generate title using template (for GDocs/M365)
+            let title = self.generate_title(doc.file_name(), run, title_template.as_deref());
+
+            // For sites with route template, generate the route
+            let generated_route = if let (RemoteService::StencilaSites, Some(template)) =
+                (&service, &effective_route_template)
+            {
+                Some(generate_route_from_template(template, run)?)
+            } else {
+                None
+            };
+
+            // Push to service - use push_with_route for sites with custom routes
+            let push_result = if let Some(route) = &generated_route {
+                stencila_codec_site::push_with_route(&doc.root().await, doc.path(), route, None)
+                    .await
+            } else {
+                stencila_codecs::push(
+                    &service,
+                    &doc.root().await,
+                    doc.path(),
+                    Some(&title),
+                    existing_url.as_ref(),
+                    doc.path(),
+                    None,
+                )
+                .await
+            };
+
+            match push_result {
+                Ok(result) => {
+                    let url = result.url();
+                    let action = if existing_url.is_some() {
+                        "updated"
+                    } else {
+                        "created"
+                    };
+                    let display_url = get_display_url(&service, &url, doc.path());
+                    message!("  ✓ {} {}", action, display_url);
+
+                    // Track the remote with arguments
+                    update_spread_remote_timestamp(
+                        path,
+                        url.as_ref(),
+                        &run_args,
+                        Utc::now().timestamp() as u64,
+                    )
+                    .await?;
+
+                    successes.push((run_args, url));
+                }
+                Err(e) => {
+                    message!("  ✗ Error: {}", e);
+                    errors.push((run_args.clone(), e.to_string()));
+
+                    // Stop on first error if --fail-fast
+                    if self.fail_fast {
+                        let skipped = total - i - 1;
+                        message!(
+                            "Spread push aborted: {} succeeded, {} failed, {} skipped",
+                            successes.len(),
+                            errors.len(),
+                            skipped
+                        );
+                        bail!("Push failed for {:?}", run_args);
+                    }
+                }
+            }
+        }
+
+        // Warn about orphaned remotes (existing but not in current spread)
+        for existing in &existing_spread_remotes {
+            if let Some(args) = &existing.arguments
+                && !processed_arguments.iter().any(|a| a == args)
+            {
+                message!(
+                    "⚠️ Orphaned remote not in current spread: {:?} → {}",
+                    args,
+                    existing.url
+                );
+            }
+        }
+
+        // Print summary
+        message!(
+            "📊 Spread push complete: {} succeeded, {} failed",
+            successes.len(),
+            errors.len()
+        );
+
+        if !errors.is_empty() {
+            bail!("{} variants failed to push", errors.len());
+        }
+
+        Ok(())
+    }
+
+    /// Generate title for a spread variant
+    ///
+    /// Uses the provided template if given, otherwise auto-generates from filename and params.
+    fn generate_title(&self, filename: Option<&str>, run: &Run, template: Option<&str>) -> String {
+        let base = filename.unwrap_or("Document");
+        let base = base
+            .strip_suffix(".smd")
+            .or_else(|| base.strip_suffix(".md"))
+            .unwrap_or(base);
+
+        // Priority: CLI --title > config template > auto-generate
+        let effective_template = self.title.as_deref().or(template);
+
+        if let Some(tmpl) = effective_template {
+            // Use provided template
+            apply_template(tmpl, run).unwrap_or_else(|_| base.to_string())
+        } else {
+            // Auto-generate: "Filename - param1-param2"
+            let variant_str = run
+                .values
+                .iter()
+                .map(|(_, v)| v.as_str())
+                .collect::<Vec<_>>()
+                .join("-");
+            format!("{} - {}", base, variant_str)
+        }
+    }
+}
+
+/// Generate route for a spread variant from a template
+///
+/// Applies the route template with run values.
+fn generate_route_from_template(template: &str, run: &Run) -> Result<String> {
+    let mut route = apply_template(template, run)?;
+
+    // Ensure route ends with /
+    if !route.ends_with('/') {
+        route.push('/');
+    }
+
+    Ok(route)
 }
