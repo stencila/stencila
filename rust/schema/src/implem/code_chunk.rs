@@ -628,3 +628,15 @@ impl MarkdownCodec for CodeChunk {
         }
     }
 }
+
+impl TextCodec for CodeChunk {
+    fn to_text(&self) -> String {
+        // If any outputs then render those to text (i.e. similar to render mode for Markdown),
+        // otherwise, encode the code.
+        if let Some(outputs) = &self.outputs {
+            outputs.to_text()
+        } else {
+            self.code.to_text()
+        }
+    }
+}

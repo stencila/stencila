@@ -22,6 +22,9 @@
   "markdown": {
     "derive": false
   },
+  "text": {
+    "derive": false
+  },
   "proptest": {},
   "required": [
     "type",

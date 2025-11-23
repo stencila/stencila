@@ -541,7 +541,9 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
                 derives.push("MarkdownCodec");
             }
 
-            derives.push("TextCodec");
+            if schema.text.as_ref().map(|spec| spec.derive).unwrap_or(true) {
+                derives.push("TextCodec");
+            }
         }
 
         attrs.push(format!("#[derive({})]", derives.join(", ")));

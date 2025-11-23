@@ -161,3 +161,15 @@ impl MarkdownCodec for CodeExpression {
         context.exit_node();
     }
 }
+
+impl TextCodec for CodeExpression {
+    fn to_text(&self) -> String {
+        // If any output then render that to text (i.e. similar to render mode for Markdown),
+        // otherwise, encode the code.
+        if let Some(output) = &self.output {
+            output.to_text()
+        } else {
+            self.code.to_text()
+        }
+    }
+}

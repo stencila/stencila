@@ -14,6 +14,8 @@ latex:
   derive: false
 markdown:
   derive: false
+text:
+  derive: false
 proptest: {}
 core:
   - labelType

@@ -185,6 +185,17 @@
         }
       ]
     },
+    "text": {
+      "description": "Options for encoding the type or property to plain text",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TextOptions"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "proptest": {
       "description": "Options for property testing",
       "type": [
@@ -669,6 +680,17 @@
             "string",
             "null"
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "TextOptions": {
+      "description": "Options for deriving the `TextCodec` trait",
+      "type": "object",
+      "properties": {
+        "derive": {
+          "description": "Whether the `TextCodec` trait should be derived for the type",
+          "type": "boolean"
         }
       },
       "additionalProperties": false

@@ -142,6 +142,9 @@ pub struct Schema {
     /// Options for encoding the type or property to Markdown
     pub markdown: Option<MarkdownOptions>,
 
+    /// Options for encoding the type or property to plain text
+    pub text: Option<TextOptions>,
+
     /// Options for property testing
     pub proptest: Option<BTreeMap<ProptestLevel, ProptestOptions>>,
 
@@ -751,6 +754,17 @@ pub struct MarkdownOptions {
 
     /// Character to escape when using the template to encode to Markdown
     pub escape: Option<String>,
+}
+
+/// Options for deriving the `TextCodec` trait
+#[skip_serializing_none]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
+pub struct TextOptions {
+    /// Whether the `TextCodec` trait should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
 }
 
 impl Schema {
