@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use stencila_codec_markdown_trait::to_markdown;
+use stencila_codec_markdown_trait::to_markdown_with;
 use stencila_codec_text_trait::to_text;
 
 use crate::{
@@ -386,31 +386,53 @@ impl MarkdownCodec for Article {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
-        let yaml = if let Some(yaml) = &self.frontmatter {
-            // Front matter is already defined for the article so just use that
-            yaml.clone()
-        } else if self.title.is_some() || self.r#abstract.is_some() {
-            // If there are frontmatter related properties on the article, create YAML frontmatter
+        let yaml = if self.title.is_some() || self.r#abstract.is_some() {
+            // If there are frontmatter related properties on the article, create, or update existing, YAML frontmatter
             // See `rust/codec-markdown/src/decode/frontmatter.rs` for how frontmatter is decoded.
             // This should be compatible with that if possible
-            let mut yaml = serde_yaml::Mapping::new();
+            let mut yaml: Option<serde_yaml::Mapping> = if let Some(yaml) = &self.frontmatter {
+                // Parse existing frontmatter so it can be updated
+                serde_yaml::from_str(yaml).ok()
+            } else {
+                // Start with empty frontmatter
+                Some(serde_yaml::Mapping::new())
+            };
 
-            if let Some(title) = &self.title {
-                yaml.insert("title".into(), to_markdown(title).into());
+            if let Some(yaml) = &mut yaml {
+                // Update the title and abstract of the work, which may include executable code expressions,
+                // which if render: true will be encoded differently from in any original template.
+
+                if let Some(title) = &self.title {
+                    yaml.insert(
+                        "title".into(),
+                        to_markdown_with(title, context.format.clone(), context.render).into(),
+                    );
+                }
+
+                if let Some(date_published) = &self.date_published {
+                    yaml.insert("date".into(), date_published.value.clone().into());
+                }
+
+                if let Some(r#abstract) = &self.r#abstract {
+                    yaml.insert(
+                        "abstract".into(),
+                        to_markdown_with(r#abstract, context.format.clone(), context.render).into(),
+                    );
+                }
+
+                serde_yaml::to_string(&yaml)
+                    .unwrap_or_default()
+                    .trim()
+                    .to_string()
+            } else {
+                // Should only end up here if there is already frontmatter but
+                // that errored when parsed. So just return it  verbatim,
+                // without trying to update it.
+                self.frontmatter.clone().unwrap_or_default()
             }
-
-            if let Some(date_published) = &self.date_published {
-                yaml.insert("date".into(), date_published.value.clone().into());
-            }
-
-            if let Some(r#abstract) = &self.r#abstract {
-                yaml.insert("abstract".into(), to_markdown(r#abstract).into());
-            }
-
-            serde_yaml::to_string(&yaml)
-                .unwrap_or_default()
-                .trim()
-                .to_string()
+        } else if let Some(yaml) = &self.frontmatter {
+            // Front matter is already defined for the article so just use that
+            yaml.clone()
         } else {
             String::new()
         };

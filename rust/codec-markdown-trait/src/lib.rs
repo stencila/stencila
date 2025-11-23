@@ -38,6 +38,18 @@ where
     context.content.trim().to_string()
 }
 
+/// Encode a node that implements `MarkdownCodec` to Markdown with options
+///
+/// A convenience function to save the caller from having to create a context etc.
+pub fn to_markdown_with<T>(node: &T, format: Format, render: bool) -> String
+where
+    T: MarkdownCodec,
+{
+    let mut context = MarkdownEncodeContext::new(Some(format), Some(render));
+    node.to_markdown(&mut context);
+    context.content.trim().to_string()
+}
+
 #[derive(Default)]
 pub struct MarkdownEncodeContext {
     /// The format to render to
