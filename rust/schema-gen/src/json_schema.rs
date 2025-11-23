@@ -24,6 +24,7 @@ impl Schemas {
         // Remove all existing *.schema.json files
         let futures = glob(&dir.join("*.schema.json").to_string_lossy())?
             .flatten()
+            .filter(|file| file != &PathBuf::from("stencila-config.schema.json"))
             .map(|file| async { remove_file(file).await });
         try_join_all(futures).await?;
 
