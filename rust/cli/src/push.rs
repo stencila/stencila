@@ -23,7 +23,7 @@ use stencila_remotes::{
     get_remotes_for_path, get_tracked_remotes_for_path, update_remote_timestamp,
     update_spread_remote_timestamp,
 };
-use stencila_spread::{Run, SpreadConfig, SpreadMode, apply_template};
+use stencila_spread::{Run, SpreadConfig, SpreadMode, apply_template, infer_spread_mode};
 
 /// Push a document to a remote service
 #[derive(Debug, Parser)]
@@ -271,8 +271,35 @@ impl Cli {
         // Open the document
         let doc = Document::open(path, None).await?;
 
+        // Infer spread mode if not explicitly set but --route or --title has placeholders with multi-valued args
+        let mode = self.spread.or_else(|| {
+            let arguments: Vec<(&str, &str)> = self
+                .args
+                .iter()
+                .filter_map(|arg| arg.split_once('='))
+                .collect();
+
+            // Check --route template (for sites)
+            if let Some(ref route) = self.route
+                && let Some(mode) = infer_spread_mode(route, &arguments)
+            {
+                message!("📊 Auto-detected spread mode `{mode}` from --route template");
+                return Some(mode);
+            }
+
+            // Check --title template (for gdocs/m365)
+            if let Some(ref title) = self.title
+                && let Some(mode) = infer_spread_mode(title, &arguments)
+            {
+                message!("📊 Auto-detected spread mode `{mode}` from --title template");
+                return Some(mode);
+            }
+
+            None
+        });
+
         // Handle spread push mode
-        if let Some(mode) = self.spread {
+        if let Some(mode) = mode {
             return self.push_spread(path, &doc, mode, dry_run_opts).await;
         }
 

@@ -10,6 +10,7 @@ use stencila_format::Format;
 use stencila_node_execute::ExecuteOptions;
 use stencila_spread::{
     SpreadConfig, SpreadMode, apply_template, auto_append_placeholders_for_spread,
+    infer_spread_mode,
 };
 
 use crate::{
@@ -264,7 +265,18 @@ impl Cli {
         // Compile document (only needs to be done once)
         doc.compile().await?;
 
-        if let Some(mode) = self.spread {
+        // Infer spread mode if not explicitly set but output has placeholders with multi-valued args
+        let mode = self.spread.or_else(|| {
+            if outputs.len() == 1
+                && let Some(mode) = infer_spread_mode(&outputs[0].to_string_lossy(), &arguments)
+            {
+                message!("📊 Auto-detected spread mode `{mode}` from output path template");
+                return Some(mode);
+            }
+            None
+        });
+
+        if let Some(mode) = mode {
             // Build spread config
             let config =
                 SpreadConfig::from_arguments(mode, &arguments, &self.case, self.spread_max)?;

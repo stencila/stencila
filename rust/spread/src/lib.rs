@@ -137,7 +137,8 @@ pub type Result<T> = std::result::Result<T, SpreadError>;
 pub use generation::{Run, count_runs, generate_runs_cases, generate_runs_grid, generate_runs_zip};
 pub use parsing::{CaseParameters, ParameterValues, Parameters, parse_case};
 pub use template::{
-    apply_template, auto_append_placeholders, auto_append_placeholders_for_spread, has_placeholders,
+    apply_template, auto_append_placeholders, auto_append_placeholders_for_spread,
+    has_placeholders, infer_spread_mode,
 };
 pub use warnings::{SpreadWarning, check_warnings};
 

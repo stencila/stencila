@@ -234,6 +234,56 @@ fn append_suffix_to_path(output: &Path, suffix: &str) -> PathBuf {
     output.with_file_name(new_filename)
 }
 
+/// Infer spread mode from a template string's placeholders and arguments.
+///
+/// Returns `Some(SpreadMode::Grid)` if:
+/// - The template contains `{name}` placeholders (excluding `{i}`)
+/// - At least one of those placeholder names appears in arguments with comma-separated values
+///
+/// This enables automatic spread mode detection without requiring the `--spread` flag.
+/// Works with output path templates, route templates, or title templates.
+///
+/// # Examples
+///
+/// ```
+/// use stencila_spread::{SpreadMode, infer_spread_mode};
+///
+/// // Placeholders with multi-valued args -> infer Grid mode
+/// let args = [("region", "north,south"), ("year", "2024")];
+/// assert_eq!(infer_spread_mode("report-{region}-{year}.pdf", &args), Some(SpreadMode::Grid));
+///
+/// // No placeholders -> None
+/// assert_eq!(infer_spread_mode("report.pdf", &args), None);
+///
+/// // Placeholders but no multi-valued args -> None
+/// let args = [("region", "north")];
+/// assert_eq!(infer_spread_mode("report-{region}.pdf", &args), None);
+///
+/// // Only {i} placeholder -> None
+/// let args = [("region", "north,south")];
+/// assert_eq!(infer_spread_mode("report-{i}.pdf", &args), None);
+/// ```
+#[must_use]
+pub fn infer_spread_mode(template: &str, arguments: &[(&str, &str)]) -> Option<super::SpreadMode> {
+    // Extract placeholder names from template (excluding {i})
+    let placeholder_names: std::collections::HashSet<&str> = PLACEHOLDER_RE
+        .captures_iter(template)
+        .filter_map(|c| c.get(1).map(|m| m.as_str()))
+        .filter(|name| *name != "i")
+        .collect();
+
+    if placeholder_names.is_empty() {
+        return None;
+    }
+
+    // Check if any placeholder has comma-separated values in arguments
+    let has_multi_valued = arguments
+        .iter()
+        .any(|(name, value)| placeholder_names.contains(name) && value.contains(','));
+
+    has_multi_valued.then_some(super::SpreadMode::Grid)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -400,5 +450,75 @@ mod tests {
         // Should not modify since it already has placeholders
         assert_eq!(result, PathBuf::from("report-{i}.pdf"));
         Ok(())
+    }
+
+    #[test]
+    fn test_infer_spread_mode_with_placeholders_and_multi_valued() {
+        use super::super::SpreadMode;
+
+        let args = [("region", "north,south"), ("year", "2024")];
+        assert_eq!(
+            infer_spread_mode("report-{region}-{year}.pdf", &args),
+            Some(SpreadMode::Grid)
+        );
+    }
+
+    #[test]
+    fn test_infer_spread_mode_no_placeholders() {
+        let args = [("region", "north,south")];
+        assert_eq!(infer_spread_mode("report.pdf", &args), None);
+    }
+
+    #[test]
+    fn test_infer_spread_mode_no_multi_valued() {
+        let args = [("region", "north")];
+        assert_eq!(infer_spread_mode("report-{region}.pdf", &args), None);
+    }
+
+    #[test]
+    fn test_infer_spread_mode_only_index_placeholder() {
+        let args = [("region", "north,south")];
+        assert_eq!(infer_spread_mode("report-{i}.pdf", &args), None);
+    }
+
+    #[test]
+    fn test_infer_spread_mode_placeholder_not_in_args() {
+        let args = [("species", "cat,dog")];
+        assert_eq!(infer_spread_mode("report-{region}.pdf", &args), None);
+    }
+
+    #[test]
+    fn test_infer_spread_mode_nested_path() {
+        use super::super::SpreadMode;
+
+        let args = [("region", "north,south"), ("species", "cat,dog")];
+        assert_eq!(
+            infer_spread_mode("output/{region}/{species}/report.pdf", &args),
+            Some(SpreadMode::Grid)
+        );
+    }
+
+    #[test]
+    fn test_infer_spread_mode_route_template() {
+        use super::super::SpreadMode;
+
+        // Route template (for push --route)
+        let args = [("environ", "earth,sea"), ("region", "north,south")];
+        assert_eq!(
+            infer_spread_mode("/{environ}/{region}/", &args),
+            Some(SpreadMode::Grid)
+        );
+    }
+
+    #[test]
+    fn test_infer_spread_mode_title_template() {
+        use super::super::SpreadMode;
+
+        // Title template (for push --title)
+        let args = [("region", "north,south")];
+        assert_eq!(
+            infer_spread_mode("Report - {region}", &args),
+            Some(SpreadMode::Grid)
+        );
     }
 }
