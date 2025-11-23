@@ -208,7 +208,7 @@ impl Cli {
 
             table.add_row([
                 // File path
-                Cell::new(path_display),
+                Cell::new(path_display).add_attribute(Attribute::Bold),
                 // Status (only show if Deleted)
                 Cell::new(if matches!(file_status, Deleted) {
                     file_status.to_string()
@@ -226,7 +226,28 @@ impl Cli {
             ]);
 
             // Add remote rows (indented with "└ ")
-            for (url, remote) in &entry {
+            // Sort remotes: non-spread (no arguments) first, then spread variants sorted by arguments
+            let mut sorted_remotes: Vec<_> = entry.iter().collect();
+            sorted_remotes.sort_by(|(_, a), (_, b)| {
+                match (&a.arguments, &b.arguments) {
+                    // Non-spread remotes come first
+                    (None, Some(_)) => std::cmp::Ordering::Less,
+                    (Some(_), None) => std::cmp::Ordering::Greater,
+                    // Both non-spread: maintain URL order
+                    (None, None) => std::cmp::Ordering::Equal,
+                    // Both spread: sort by arguments
+                    (Some(args_a), Some(args_b)) => {
+                        // Sort by argument keys/values lexicographically
+                        let a_str: Vec<_> =
+                            args_a.iter().map(|(k, v)| format!("{k}={v}")).collect();
+                        let b_str: Vec<_> =
+                            args_b.iter().map(|(k, v)| format!("{k}={v}")).collect();
+                        a_str.cmp(&b_str)
+                    }
+                }
+            });
+
+            for (url, remote) in sorted_remotes {
                 // Mark that we have at least one remote
                 has_remotes = true;
 
@@ -315,9 +336,20 @@ impl Cli {
                     Cell::new("-").fg(Color::DarkGrey)
                 };
 
+                // Format remote name, including spread variant arguments if present
+                let mut remote_display = format!("└ {}", service_name(url));
+                if let Some(ref args) = remote.arguments {
+                    let args = args
+                        .iter()
+                        .map(|(k, v)| format!("{k}={v}"))
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    remote_display += &format!(" ({args})")
+                };
+
                 table.add_row([
-                    // Remote name
-                    Cell::new(format!("└ {}", service_name(url))),
+                    // Remote name with optional spread variant
+                    Cell::new(remote_display),
                     // Remote status
                     Cell::new(if matches!(remote_status, RemoteStatus::Unknown) {
                         String::new()
