@@ -36,7 +36,7 @@ pub struct WatchRequest {
 #[serde(rename_all = "camelCase")]
 pub struct WatchResponse {
     /// The watch id
-    pub id: u64,
+    pub id: String,
 }
 
 /// Create a watch for a document
