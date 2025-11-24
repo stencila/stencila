@@ -276,7 +276,7 @@ impl Cli {
             if outputs.len() == 1
                 && let Some(mode) = infer_spread_mode(&outputs[0].to_string_lossy(), &arguments)
             {
-                message!("📊 Auto-detected spread mode `{mode}` from output path template");
+                message!("ℹ️ Auto-detected spread mode `{mode}` from output path template");
                 return Some(mode);
             }
             None
@@ -286,6 +286,10 @@ impl Cli {
             // Validate: --case is only valid with --spread=cases
             if !self.case.is_empty() && mode != SpreadMode::Cases {
                 bail!("`--case` is only valid with `--spread=cases`, not `--spread={mode}`");
+            }
+
+            if self.execute_options.dry_run {
+                message("⚠️ Performing dry-run, no files will be actually rendered");
             }
 
             // Build spread config
@@ -318,20 +322,16 @@ impl Cli {
                 message!("⚠️ {}", warning.message());
             }
 
-            if self.execute_options.dry_run {
-                message("⚠️ Dry-run: no files will be actually rendered");
-            }
-
             // Execute each run
             for run in &runs {
                 let output_path_str = apply_template(&output_template.to_string_lossy(), run)?;
                 let output_path = PathBuf::from(&output_path_str);
 
                 message!(
-                    "📃 Rendering {}/{}: {} → {}",
+                    "📃 Rendering {}/{}: {} → `{}`",
                     run.index,
                     run_count,
-                    run,
+                    run.to_terminal(),
                     output_path.display()
                 );
 

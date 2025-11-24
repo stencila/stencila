@@ -10769,6 +10769,7 @@ dependencies = [
  "indexmap 2.12.0",
  "itertools 0.14.0",
  "regex",
+ "stencila-cli-utils",
  "strum",
  "thiserror 2.0.17",
 ]

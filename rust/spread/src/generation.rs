@@ -4,6 +4,7 @@ use std::fmt;
 
 use indexmap::IndexMap;
 use itertools::Itertools;
+use stencila_cli_utils::color_print::cformat;
 
 use super::parsing::{CaseParameters, ParameterValues, Parameters};
 use super::{Result, SpreadError, SpreadMode};
@@ -32,6 +33,13 @@ impl Run {
             index,
             values: sorted,
         }
+    }
+
+    pub fn to_terminal(&self) -> String {
+        self.values
+            .iter()
+            .map(|(k, v)| cformat!("<c>{k}</><dim>=</><g>{v}</g>"))
+            .join(" ")
     }
 }
 

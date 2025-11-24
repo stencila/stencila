@@ -253,7 +253,7 @@ impl Cli {
 
         // Display early dry-run notification
         if is_dry_run {
-            message("ℹ️ Performing dry-run, no remotes will actually be created or updated");
+            message("⚠️ Performing dry-run, no remotes will actually be created or updated");
         }
 
         let path_display = path.display();
@@ -288,7 +288,7 @@ impl Cli {
             if let Some(ref route) = self.route
                 && let Some(mode) = infer_spread_mode(route, &arguments)
             {
-                message!("📊 Auto-detected spread mode `{mode}` from --route template");
+                message!("ℹ️ Auto-detected spread mode `{mode}` from --route template");
                 return Some(mode);
             }
 
@@ -296,7 +296,7 @@ impl Cli {
             if let Some(ref title) = self.title
                 && let Some(mode) = infer_spread_mode(title, &arguments)
             {
-                message!("📊 Auto-detected spread mode `{mode}` from --title template");
+                message!("ℹ️ Auto-detected spread mode `{mode}` from --title template");
                 return Some(mode);
             }
 
@@ -1325,10 +1325,10 @@ impl Cli {
                 };
 
                 message!(
-                    "📤 Pushing {}/{}: {} → {} {}",
+                    "📤 Pushing {}/{}: {} → {} `{}`",
                     i + 1,
                     run_count,
-                    run,
+                    run.to_terminal(),
                     action,
                     target_desc
                 );

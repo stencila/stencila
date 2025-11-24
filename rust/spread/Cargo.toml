@@ -8,6 +8,7 @@ clap = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 regex = { workspace = true }
+stencila-cli-utils = { path = "../cli-utils" }
 strum = { workspace = true }
 thiserror = { workspace = true }
 
