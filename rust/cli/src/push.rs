@@ -8,7 +8,7 @@ use std::{
 
 use chrono::Utc;
 use clap::Parser;
-use eyre::{Result, bail, eyre};
+use eyre::{OptionExt, Result, bail, eyre};
 use pathdiff::diff_paths;
 use tokio::fs::remove_dir_all;
 use url::Url;
@@ -730,11 +730,9 @@ impl Cli {
 
             // Get git repository information
             let git_info = git_info(path)?;
-            let Some(repo_url) = git_info.origin else {
-                bail!(
-                    "File is not in a git repository. Cannot enable watch without git repository."
-                );
-            };
+            let repo_url = git_info
+                .origin
+                .ok_or_eyre("Repository has no origin remote")?;
 
             // Verify tracking information exists
             let Some(..) = doc.tracking().await? else {

@@ -1,7 +1,7 @@
 use std::{path::PathBuf, str::FromStr};
 
 use clap::Parser;
-use eyre::{Result, bail, eyre};
+use eyre::{OptionExt, Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
@@ -80,9 +80,9 @@ impl Cli {
 
         // Get git repository information
         let git_info = git_info(&self.path)?;
-        let Some(repo_url) = git_info.origin else {
-            bail!("File is not in a git repository. Please initialize a git repository first.");
-        };
+        let repo_url = git_info
+            .origin
+            .ok_or_eyre("Repository has no origin remote")?;
 
         let no_remotes = || {
             message!(
