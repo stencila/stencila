@@ -108,7 +108,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila render</b> <g>temp.md</g> <g>output.html</g> <c>--no-store</c>
 
   <dim># Spread render with multiple parameter combinations (grid)</dim>
-  <b>stencila render</b> <g>report.md</g> <g>'report-{region}-{species}.pdf'</g> <c>--spread</c> -- <c>region</c>=<g>north,south</g> <c>species</c>=<g>ABC,DEF</g>
+  <b>stencila render</b> <g>report.md</g> <g>'report-{region}-{species}.pdf'</g> -- <c>region</c>=<g>north,south</g> <c>species</c>=<g>ABC,DEF</g>
 
   <dim># Spread render with positional pairing (zip) and output to nested folders</dim>
   <b>stencila render</b> <g>report.md</g> <g>'{region}/{species}/report.pdf'</g> <c>--spread=zip</c> -- <c>region</c>=<g>north,south</g> <c>species</c>=<g>ABC,DEF</g>
@@ -265,8 +265,14 @@ impl Cli {
         // Compile document (only needs to be done once)
         doc.compile().await?;
 
-        // Infer spread mode if not explicitly set but output has placeholders with multi-valued args
+        // Infer spread mode if not explicitly set
         let mode = self.spread.or_else(|| {
+            // If --case args provided, default to cases mode
+            if !self.case.is_empty() {
+                return Some(SpreadMode::Cases);
+            }
+
+            // Check output template for placeholders with multi-valued args
             if outputs.len() == 1
                 && let Some(mode) = infer_spread_mode(&outputs[0].to_string_lossy(), &arguments)
             {
@@ -277,6 +283,11 @@ impl Cli {
         });
 
         if let Some(mode) = mode {
+            // Validate: --case is only valid with --spread=cases
+            if !self.case.is_empty() && mode != SpreadMode::Cases {
+                bail!("`--case` is only valid with `--spread=cases`, not `--spread={mode}`");
+            }
+
             // Build spread config
             let config =
                 SpreadConfig::from_arguments(mode, &arguments, &self.case, self.spread_max)?;

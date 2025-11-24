@@ -271,8 +271,13 @@ impl Cli {
         // Open the document
         let doc = Document::open(path, None).await?;
 
-        // Infer spread mode if not explicitly set but --route or --title has placeholders with multi-valued args
+        // Infer spread mode if not explicitly set
         let mode = self.spread.or_else(|| {
+            // If --case args provided, default to cases mode
+            if !self.case.is_empty() {
+                return Some(SpreadMode::Cases);
+            }
+
             let arguments: Vec<(&str, &str)> = self
                 .args
                 .iter()
@@ -300,6 +305,11 @@ impl Cli {
 
         // Handle spread push mode
         if let Some(mode) = mode {
+            // Validate: --case is only valid with --spread=cases
+            if !self.case.is_empty() && mode != SpreadMode::Cases {
+                bail!("`--case` is only valid with `--spread=cases`, not `--spread={mode}`");
+            }
+
             return self.push_spread(path, &doc, mode, dry_run_opts).await;
         }
 
