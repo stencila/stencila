@@ -364,7 +364,9 @@ fn normalize_git_url(url: &str) -> Option<String> {
 /// Create a DNS-safe slug from a branch name for use as a subdomain
 ///
 /// This function creates a deterministic, DNS-compatible slug from a Git branch name
-/// that can be used as a subdomain for preview deployments.
+/// that can be used as a subdomain for preview deployments. The subdomain format is
+/// `{branchSlug}--{siteId}.stencila.site` where `siteId` is 10 characters, requiring
+/// a maximum of 51 characters for the branch slug (63-char DNS limit - 10 - 2).
 ///
 /// # Rules
 ///
@@ -373,10 +375,10 @@ fn normalize_git_url(url: &str) -> Option<String> {
 /// * Replaces non-alphanumeric characters (except `-`) with `-`
 /// * Collapses consecutive `-` into a single `-`
 /// * Trims leading and trailing `-`
-/// * If length > 53 characters:
-///   - Truncates to 43 characters
-///   - Appends `-` followed by first 9 hex characters of SHA256 hash
-///   - Total length: 53 characters
+/// * If length > 51 characters:
+///   - Truncates to 42 characters
+///   - Appends `-` followed by first 8 hex characters of SHA256 hash
+///   - Total length: 51 characters
 ///
 /// # Arguments
 ///
@@ -384,7 +386,7 @@ fn normalize_git_url(url: &str) -> Option<String> {
 ///
 /// # Returns
 ///
-/// A DNS-safe slug suitable for use as a subdomain (max 53 characters)
+/// A DNS-safe slug suitable for use as a subdomain (max 51 characters)
 ///
 /// # Examples
 ///
@@ -419,8 +421,8 @@ pub fn slugify_branch_name(branch_name: &str) -> String {
     slug = slug.trim_matches('-').to_string();
 
     // Step 5: Handle length limit with deterministic hashing
-    const MAX_LENGTH: usize = 53;
-    const HASH_LENGTH: usize = 9;
+    const MAX_LENGTH: usize = 51;
+    const HASH_LENGTH: usize = 8;
 
     if slug.len() > MAX_LENGTH {
         // Create SHA256 hash of the original branch name for uniqueness
@@ -429,8 +431,8 @@ pub fn slugify_branch_name(branch_name: &str) -> String {
         let hash_result = hasher.finalize();
         let hash_hex = format!("{:x}", hash_result);
 
-        // We want: prefix + "-" + 9-char-hash = 53 chars total
-        // So maximum prefix length is 53 - 1 - 9 = 43
+        // We want: prefix + "-" + 8-char-hash = 51 chars total
+        // So maximum prefix length is 51 - 1 - 8 = 42
         let max_prefix_length = MAX_LENGTH - 1 - HASH_LENGTH;
 
         // Truncate to max prefix length
@@ -582,17 +584,17 @@ mod tests {
     #[test]
     fn test_slugify_branch_name_long_names() {
         // Test truncation with hash
-        // 60 character branch name (exceeds 53 char limit)
+        // 60 character branch name (exceeds 51 char limit)
         let long_branch = "feature/very-long-branch-name-that-exceeds-max-length-limit";
         let slug = slugify_branch_name(long_branch);
 
-        // Should be at most 53 characters (may be slightly less if trailing hyphens trimmed)
-        assert!(slug.len() <= 53);
+        // Should be at most 51 characters (may be slightly less if trailing hyphens trimmed)
+        assert!(slug.len() <= 51);
 
-        // Should end with hyphen followed by 9 hex chars
+        // Should end with hyphen followed by 8 hex chars
         assert!(slug.contains('-'));
         let parts: Vec<&str> = slug.rsplitn(2, '-').collect();
-        assert_eq!(parts[0].len(), 9);
+        assert_eq!(parts[0].len(), 8);
         assert!(parts[0].chars().all(|c| c.is_ascii_hexdigit()));
 
         // Should be deterministic
@@ -609,9 +611,9 @@ mod tests {
         let slug1 = slugify_branch_name(branch1);
         let slug2 = slugify_branch_name(branch2);
 
-        // Both should be at most 53 chars
-        assert!(slug1.len() <= 53);
-        assert!(slug2.len() <= 53);
+        // Both should be at most 51 chars
+        assert!(slug1.len() <= 51);
+        assert!(slug2.len() <= 51);
 
         // Should have different hashes
         assert_ne!(slug1, slug2);
