@@ -216,7 +216,21 @@ async fn upload(
 
     // Parse response to get document URL
     let drive_response: DriveItemResponse = response.json().await?;
-    let url = Url::parse(&drive_response.web_url)?;
+    let mut url = Url::parse(&drive_response.web_url)?;
+
+    // Remove unnecessary query parameters added by OneDrive
+    let filtered_params: Vec<(String, String)> = url
+        .query_pairs()
+        .filter(|(key, _)| key != "action" && key != "mobileredirect")
+        .map(|(k, v)| (k.into_owned(), v.into_owned()))
+        .collect();
+    if filtered_params.is_empty() {
+        url.set_query(None);
+    } else {
+        url.query_pairs_mut()
+            .clear()
+            .extend_pairs(filtered_params);
+    }
 
     Ok(PushResult::Uploaded(url))
 }

@@ -39,6 +39,7 @@ use std::{
 
 use clap::ValueEnum;
 use eyre::Result;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::{Display, EnumString};
@@ -55,7 +56,7 @@ pub use service::RemoteService;
 ///
 /// Maps file paths to a map of remote URLs to tracking data.
 /// URLs are serialized as strings in JSON but use Url type in Rust.
-pub type RemoteEntries = BTreeMap<PathBuf, BTreeMap<Url, RemoteInfo>>;
+pub type RemoteEntries = BTreeMap<PathBuf, IndexMap<Url, RemoteInfo>>;
 
 /// Remote information combining config and tracking data
 ///
@@ -208,14 +209,14 @@ pub const REMOTE_TOLERANCE_SECS: u64 = 30;
 ///
 /// Returns a map of URL to (remote_modified_at, status) tuples
 pub async fn calculate_remote_statuses(
-    remotes: &BTreeMap<Url, RemoteInfo>,
+    remotes: &IndexMap<Url, RemoteInfo>,
     local_status: RemoteStatus,
     local_modified_at: Option<u64>,
-) -> BTreeMap<Url, (Option<u64>, RemoteStatus)> {
+) -> IndexMap<Url, (Option<u64>, RemoteStatus)> {
     use futures::future::join_all;
 
     if remotes.is_empty() {
-        return BTreeMap::new();
+        return IndexMap::new();
     }
 
     // Create futures to fetch metadata for each remote
@@ -338,7 +339,7 @@ pub async fn calculate_remote_statuses(
         (url.clone(), (remote_modified_at, status))
     });
 
-    // Execute all futures in parallel and collect results into a BTreeMap
+    // Execute all futures in parallel and collect results into a IndexMap
     join_all(futures).await.into_iter().collect()
 }
 
@@ -460,13 +461,11 @@ fn find_remotes_for_path(
 
         // Check if file matches this remote's path
         if path_matches(&config_relative, &relative_path, workspace_dir)? {
-            // Add all targets for this path
+            // Add all targets for this path (skip Spread targets which don't have URLs)
             for target in value.to_vec() {
-                matches.push((
-                    path_key.clone(),
-                    target.url_owned(),
-                    target.watch().map(|s| s.to_string()),
-                ));
+                if let Some(url) = target.url_owned() {
+                    matches.push((path_key.clone(), url, target.watch().map(|s| s.to_string())));
+                }
             }
         }
     }
@@ -574,12 +573,16 @@ pub async fn get_tracked_remotes_for_path(path: &Path) -> Result<Vec<RemoteInfo>
         Err(_) => return Ok(Vec::new()), // No .stencila dir means no tracking
     };
 
-    // Get relative path for lookup
-    let relative_path = if path.is_absolute() {
-        path.strip_prefix(&workspace).unwrap_or(path).to_path_buf()
-    } else {
+    // Canonicalize path to be relative to workspace
+    let absolute_path = if path.is_absolute() {
         path.to_path_buf()
+    } else {
+        std::env::current_dir()?.join(path)
     };
+    let relative_path = absolute_path
+        .strip_prefix(&workspace)
+        .unwrap_or(&absolute_path)
+        .to_path_buf();
 
     // Load tracking data
     let tracking_entries = read_remote_entries(&stencila_dir).await?;
@@ -589,8 +592,16 @@ pub async fn get_tracked_remotes_for_path(path: &Path) -> Result<Vec<RemoteInfo>
         return Ok(Vec::new());
     };
 
-    // Convert to Vec<RemoteInfo>
-    let results: Vec<RemoteInfo> = remotes_for_path.values().cloned().collect();
+    // Convert to Vec<RemoteInfo>, populating url from map key
+    // (url field has #[serde(skip)] so needs to be set from key)
+    let results: Vec<RemoteInfo> = remotes_for_path
+        .iter()
+        .map(|(url, info)| {
+            let mut info = info.clone();
+            info.url = url.clone();
+            info
+        })
+        .collect();
 
     Ok(results)
 }
@@ -608,12 +619,16 @@ pub async fn update_remote_timestamp(
     // Parse URL
     let parsed_url = Url::parse(url)?;
 
-    // Get relative path
-    let relative_path = if path.is_absolute() {
-        path.strip_prefix(&workspace).unwrap_or(path).to_path_buf()
-    } else {
+    // Canonicalize path to be relative to workspace
+    let absolute_path = if path.is_absolute() {
         path.to_path_buf()
+    } else {
+        std::env::current_dir()?.join(path)
     };
+    let relative_path = absolute_path
+        .strip_prefix(&workspace)
+        .unwrap_or(&absolute_path)
+        .to_path_buf();
 
     // Load existing tracking
     let mut tracking_entries = read_remote_entries(&stencila_dir).await?;
@@ -626,7 +641,7 @@ pub async fn update_remote_timestamp(
         let mut found_watch = None;
         for (path_key, value) in remotes {
             for target in value.to_vec() {
-                if target.url() == url {
+                if target.url() == Some(url) {
                     found_path = Some(path_key.clone());
                     found_watch = target.watch().map(|s| s.to_string());
                     break;
@@ -689,12 +704,16 @@ pub async fn update_spread_remote_timestamp(
     // Parse URL
     let parsed_url = Url::parse(url)?;
 
-    // Get relative path
-    let relative_path = if path.is_absolute() {
-        path.strip_prefix(&workspace).unwrap_or(path).to_path_buf()
-    } else {
+    // Canonicalize path to be relative to workspace
+    let absolute_path = if path.is_absolute() {
         path.to_path_buf()
+    } else {
+        std::env::current_dir()?.join(path)
     };
+    let relative_path = absolute_path
+        .strip_prefix(&workspace)
+        .unwrap_or(&absolute_path)
+        .to_path_buf();
 
     // Load existing tracking
     let mut tracking_entries = read_remote_entries(&stencila_dir).await?;
@@ -706,7 +725,7 @@ pub async fn update_spread_remote_timestamp(
         let mut found_path = None;
         for (path_key, value) in remotes {
             for target in value.to_vec() {
-                if target.url() == url {
+                if target.url() == Some(url) {
                     found_path = Some(path_key.clone());
                     break;
                 }
@@ -836,7 +855,10 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
             };
 
             for target in value.to_vec() {
-                let remote_url = target.url_owned();
+                // Skip Spread targets which don't have URLs
+                let Some(remote_url) = target.url_owned() else {
+                    continue;
+                };
                 let watch_id = target.watch().map(|s| s.to_string());
 
                 for file in &files {
@@ -883,7 +905,7 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
             let absolute_tracked_path = workspace_dir.join(tracked_path);
 
             // Check if this file is under site root
-            if !config.path_matches_site_root(&absolute_tracked_path, workspace_dir) {
+            if !config.path_is_in_site_root(&absolute_tracked_path, workspace_dir) {
                 continue;
             }
 
@@ -999,10 +1021,10 @@ pub async fn remove_deleted_watches(
             if let Some(watch_id_str) = target.watch()
                 && let Ok(watch_id) = watch_id_str.parse::<u64>()
                 && !valid_watch_ids.contains(&watch_id)
+                && let Some(url_str) = target.url()
             {
                 // Watch no longer exists, remove it from config
                 let remote_path = ConfigRelativePath(path_key.clone()).resolve(&workspace_dir);
-                let url_str = target.url();
 
                 // Remove the watch ID from the config
                 if stencila_config::config_update_remote_watch(

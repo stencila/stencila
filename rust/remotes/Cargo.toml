@@ -8,6 +8,7 @@ chrono = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
 futures = { workspace = true }
+indexmap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }

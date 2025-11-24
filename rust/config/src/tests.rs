@@ -849,10 +849,10 @@ fn test_config_remotes_with_watch() -> Result<()> {
         .expect("Expected docs/report.md remote");
     assert!(matches!(
         report,
-        RemoteValue::Single(RemoteTarget::Object(_))
+        RemoteValue::Single(RemoteTarget::Watch(_))
     ));
-    if let RemoteValue::Single(RemoteTarget::Object(info)) = report {
-        assert_eq!(info.url, "https://docs.google.com/...");
+    if let RemoteValue::Single(RemoteTarget::Watch(info)) = report {
+        assert_eq!(info.url.as_str(), "https://docs.google.com/...");
         assert_eq!(info.watch, Some("w123456789".to_string()));
     }
 
@@ -880,10 +880,13 @@ fn test_config_remotes_with_url_object_no_watch() -> Result<()> {
         .expect("Expected article.md remote");
     assert!(matches!(
         article,
-        RemoteValue::Single(RemoteTarget::Object(_))
+        RemoteValue::Single(RemoteTarget::Watch(_))
     ));
-    if let RemoteValue::Single(RemoteTarget::Object(info)) = article {
-        assert_eq!(info.url, "https://docs.google.com/document/d/xyz789");
+    if let RemoteValue::Single(RemoteTarget::Watch(info)) = article {
+        assert_eq!(
+            info.url.as_str(),
+            "https://docs.google.com/document/d/xyz789"
+        );
         assert_eq!(info.watch, None);
     }
 
@@ -920,10 +923,10 @@ fn test_config_remotes_multiple() -> Result<()> {
         // Check we have one with watch and one without
         let with_watch = targets
             .iter()
-            .find(|t| matches!(t, RemoteTarget::Object(_)))
+            .find(|t| matches!(t, RemoteTarget::Watch(_)))
             .expect("Expected target with watch");
-        if let RemoteTarget::Object(info) = with_watch {
-            assert_eq!(info.url, "https://docs.google.com/...");
+        if let RemoteTarget::Watch(info) = with_watch {
+            assert_eq!(info.url.as_str(), "https://docs.google.com/...");
             assert_eq!(info.watch, Some("w456".to_string()));
         }
 

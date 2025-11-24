@@ -6,6 +6,7 @@ use std::{
 };
 
 use async_lsp::lsp_types::request::Request;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 use stencila_codec_utils::git_info;
@@ -107,7 +108,7 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
         let remotes_info = if let Some(workspace_dir) = &workspace_dir {
             match stencila_remotes::get_remotes_for_path(&path, Some(workspace_dir)).await {
                 Ok(remotes) => {
-                    let remote_map: BTreeMap<_, _> =
+                    let remote_map: IndexMap<_, _> =
                         remotes.into_iter().map(|r| (r.url.clone(), r)).collect();
                     Some(remote_map)
                 }
@@ -121,7 +122,7 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
         let remote_statuses = if let Some(ref remotes) = remotes_info {
             calculate_remote_statuses(remotes, doc_status, modified_at).await
         } else {
-            BTreeMap::new()
+            IndexMap::new()
         };
 
         let enriched_remotes = remotes_info.map(|remotes| {

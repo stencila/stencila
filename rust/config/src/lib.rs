@@ -19,8 +19,8 @@ pub const CONFIG_LOCAL_FILENAME: &str = "stencila.local.toml";
 mod utils;
 use utils::build_figment;
 pub use utils::{
-    ConfigTarget, config_set, config_unset, config_update_remote_watch, config_value,
-    find_config_file,
+    ConfigTarget, config_add_remote, config_set, config_set_remote_spread, config_unset,
+    config_update_remote_watch, config_value, find_config_file,
 };
 
 pub mod cli;
@@ -144,19 +144,6 @@ pub struct Config {
     #[schemars(with = "Option<HashMap<String, RemoteValue>>")]
     pub remotes: Option<HashMap<String, RemoteValue>>,
 
-    /// Spread configuration for remotes
-    ///
-    /// Defines spread parameters for multi-variant document pushing.
-    /// Key is the file path, value contains service, title template, and spread params.
-    ///
-    /// Example:
-    /// ```toml
-    /// [remotes.spread]
-    /// "quarterly-report.smd" = { service = "gdoc", title = "Q4 Report - {region}", region = ["north", "south"] }
-    /// ```
-    #[serde(rename = "remotes.spread")]
-    pub remotes_spread: Option<HashMap<String, RemoteSpreadConfig>>,
-
     /// Site configuration
     pub site: Option<SiteConfig>,
 
@@ -216,7 +203,7 @@ impl Config {
     /// - `site` is not configured
     /// - `site.root` is not configured
     /// - The path is not under the site root
-    pub fn path_matches_site_root(&self, path: &Path, workspace_dir: &Path) -> bool {
+    pub fn path_is_in_site_root(&self, path: &Path, workspace_dir: &Path) -> bool {
         if let Some(site_config) = &self.site
             && let Some(site_root) = &site_config.root
         {
@@ -420,16 +407,6 @@ impl TryFrom<u16> for RedirectStatus {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(untagged)]
 pub enum RemoteValue {
-    /// Single remote target
-    ///
-    /// Example in TOML:
-    /// ```toml
-    /// [remotes]
-    /// "site" = "https://example.stencila.site/"
-    /// "file.md" = { url = "https://...", watch = "w123" }
-    /// ```
-    Single(RemoteTarget),
-
     /// Multiple remote targets for the same path
     ///
     /// Example in TOML:
@@ -440,7 +417,17 @@ pub enum RemoteValue {
     ///   "https://sharepoint.com/..."
     /// ]
     /// ```
-    Multiple(Vec<RemoteTarget>),
+    Multiple(Vec<RemoteTarget>), // Keep first for correct deserialization of multiple remotes
+
+    /// Single remote target
+    ///
+    /// Example in TOML:
+    /// ```toml
+    /// [remotes]
+    /// "site" = "https://example.stencila.site/"
+    /// "file.md" = { url = "https://...", watch = "w123" }
+    /// ```
+    Single(RemoteTarget),
 }
 
 impl RemoteValue {
@@ -455,7 +442,7 @@ impl RemoteValue {
     /// Find the watch ID for a specific URL, if it exists
     pub fn find_watch(&self, url: &str) -> Option<&str> {
         for target in self.to_vec() {
-            if target.url() == url {
+            if target.url() == Some(url) {
                 return target.watch();
             }
         }
@@ -465,15 +452,11 @@ impl RemoteValue {
     /// Validate the remote value configuration
     ///
     /// Ensures that:
-    /// - All URLs are non-empty
+    /// - Each target is valid
     /// - Multiple targets array is not empty
     pub fn validate(&self, path: &str) -> Result<()> {
         match self {
-            RemoteValue::Single(target) => {
-                if target.url().is_empty() {
-                    return Err(eyre!("Remote for path '{}' has an empty URL", path));
-                }
-            }
+            RemoteValue::Single(target) => target.validate(path)?,
             RemoteValue::Multiple(targets) => {
                 if targets.is_empty() {
                     return Err(eyre!(
@@ -482,9 +465,7 @@ impl RemoteValue {
                     ));
                 }
                 for target in targets {
-                    if target.url().is_empty() {
-                        return Err(eyre!("Remote for path '{}' has an empty URL", path));
-                    }
+                    target.validate(path)?;
                 }
             }
         }
@@ -492,10 +473,12 @@ impl RemoteValue {
     }
 }
 
-/// A remote synchronization target - either a URL or URL with watch info
+/// A remote synchronization target
 ///
-/// Can be either a simple URL string (for remotes without watch IDs)
-/// or an object containing URL and watch ID.
+/// Can be:
+/// - A simple URL string (for remotes without watch IDs)
+/// - An object with URL and watch ID
+/// - A spread configuration for multi-variant pushes
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(untagged)]
 pub enum RemoteTarget {
@@ -507,56 +490,98 @@ pub enum RemoteTarget {
     /// URL with watch information
     ///
     /// Example: `{ url = "https://...", watch = "w123" }`
-    Object(RemoteInfo),
+    Watch(RemoteWatch),
+
+    /// Spread configuration for multi-variant pushes
+    ///
+    /// Example: `{ service = "gdoc", title = "Report {region}", params = { region = ["north", "south"] } }`
+    Spread(RemoteSpread),
 }
 
 impl RemoteTarget {
-    /// Get the URL from this target as a string slice
-    pub fn url(&self) -> &str {
+    /// Get the URL from this target as a string slice (if it has one)
+    ///
+    /// Returns None for Spread targets which have a service instead of a URL.
+    pub fn url(&self) -> Option<&str> {
         match self {
-            RemoteTarget::Url(url) => url.as_str(),
-            RemoteTarget::Object(info) => &info.url,
+            RemoteTarget::Url(url) => Some(url.as_str()),
+            RemoteTarget::Watch(watch) => Some(watch.url.as_str()),
+            RemoteTarget::Spread(_) => None,
         }
     }
 
-    /// Get the URL from this target as an owned Url
-    pub fn url_owned(&self) -> Url {
+    /// Get the URL from this target as an owned Url (if it has one)
+    ///
+    /// Returns None for Spread targets which have a service instead of a URL.
+    pub fn url_owned(&self) -> Option<Url> {
         match self {
-            RemoteTarget::Url(url) => url.clone(),
-            RemoteTarget::Object(info) => {
-                Url::parse(&info.url).expect("RemoteInfo.url should be valid")
-            }
+            RemoteTarget::Url(url) => Some(url.clone()),
+            RemoteTarget::Watch(watch) => Some(watch.url.clone()),
+            RemoteTarget::Spread(_) => None,
         }
     }
 
     /// Get the watch ID if this target has one
     pub fn watch(&self) -> Option<&str> {
         match self {
-            RemoteTarget::Url(_) => None,
-            RemoteTarget::Object(info) => info.watch.as_deref(),
+            RemoteTarget::Url(_) | RemoteTarget::Spread(_) => None,
+            RemoteTarget::Watch(watch) => watch.watch.as_deref(),
         }
+    }
+
+    /// Get the spread configuration if this is a spread target
+    pub fn spread(&self) -> Option<&RemoteSpread> {
+        match self {
+            RemoteTarget::Spread(spread) => Some(spread),
+            _ => None,
+        }
+    }
+
+    /// Check if this is a spread target
+    pub fn is_spread(&self) -> bool {
+        matches!(self, RemoteTarget::Spread(_))
+    }
+
+    /// Validate the remote value configuration
+    ///
+    /// Ensures that:
+    /// - URL targets have non-empty URLs
+    /// - Spread targets have a non-empty service
+    /// - Multiple targets array is not empty
+    pub fn validate(&self, path: &str) -> Result<()> {
+        match self {
+            RemoteTarget::Url(url) | RemoteTarget::Watch(RemoteWatch { url, .. }) => {
+                if url.as_str().is_empty() {
+                    return Err(eyre!("Remote for path `{path}` has an empty URL"));
+                }
+            }
+            RemoteTarget::Spread(spread) => {
+                if spread.service.is_empty() {
+                    return Err(eyre!(
+                        "Spread remote for path `{path}` has an empty service"
+                    ));
+                }
+                if spread.arguments.is_empty() {
+                    return Err(eyre!("Spread remote for path `{path}` has no `params`"));
+                }
+            }
+        }
+
+        Ok(())
     }
 }
 
 /// Remote synchronization information with watch ID
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
-pub struct RemoteInfo {
+pub struct RemoteWatch {
     /// Remote URL
     ///
     /// The service type is inferred from the URL host:
     /// - Google Docs: https://docs.google.com/document/d/...
     /// - Microsoft 365: https://*.sharepoint.com/...
     /// - Stencila Sites: https://*.stencila.site/...
-    #[schemars(regex(pattern = r"^https?://"))]
-    pub url: String,
-
-    /// Arguments used when pushing to this remote (for spread variants)
-    ///
-    /// When a document is pushed with spread parameters, each variant is tracked
-    /// with its specific argument values. This allows matching variants on
-    /// subsequent pushes.
-    pub arguments: Option<HashMap<String, String>>,
+    pub url: Url,
 
     /// Watch ID from Stencila Cloud
     ///
@@ -565,6 +590,50 @@ pub struct RemoteInfo {
     /// debounce) is stored in Stencila Cloud and queried via the API.
     #[schemars(regex(pattern = r"^w[a-zA-Z0-9]{9}$"))]
     pub watch: Option<String>,
+}
+
+/// Spread configuration for multi-variant pushes
+///
+/// Used in `[remotes]` to configure spread pushing of a document to multiple
+/// remote variants with different parameter values.
+///
+/// Example:
+/// ```toml
+/// [remotes]
+/// "report.smd" = { service = "gdoc", title = "Report {region}", params = { region = ["north", "south"] } }
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct RemoteSpread {
+    /// Target service
+    ///
+    /// One of: "gdoc", "m365", "site"
+    pub service: String,
+
+    /// Title template with placeholders (for gdoc/m365)
+    ///
+    /// Placeholders like `{param}` are replaced with parameter values.
+    /// Example: "Report - {region}"
+    pub title: Option<String>,
+
+    /// Route template with placeholders (for site)
+    ///
+    /// Placeholders like `{param}` are replaced with parameter values.
+    /// Routes always end with `/` and render as index.html.
+    /// Example: "/{region}/{species}/"
+    pub route: Option<String>,
+
+    /// Spread mode
+    ///
+    /// - `grid`: Cartesian product of all parameter values (default)
+    /// - `zip`: Positional pairing of values (all params must have same length)
+    pub spread: Option<SpreadMode>,
+
+    /// Parameter values for spread variants
+    ///
+    /// Keys are parameter names, values are arrays of possible values.
+    /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
+    pub arguments: HashMap<String, Vec<String>>,
 }
 
 /// Spread mode for multi-variant execution
@@ -576,26 +645,6 @@ pub enum SpreadMode {
     Grid,
     /// Positional pairing of values (all params must have same length)
     Zip,
-}
-
-/// Configuration for a spread remote in [remotes.spread]
-///
-/// Defines how to push multiple variants of a document to a remote service.
-#[skip_serializing_none]
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
-pub struct RemoteSpreadConfig {
-    /// Target service (gdoc, m365)
-    pub service: String,
-
-    /// Title template with placeholders e.g. "Report - {region}"
-    pub title: Option<String>,
-
-    /// Spread mode (default: grid)
-    pub mode: Option<SpreadMode>,
-
-    /// Parameter values - keys are param names, values are arrays
-    #[serde(flatten)]
-    pub params: HashMap<String, Vec<String>>,
 }
 
 /// Configuration for a spread route in [routes.spread]

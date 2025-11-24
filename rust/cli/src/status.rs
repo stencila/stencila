@@ -1,5 +1,6 @@
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
     env::current_dir,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
@@ -8,7 +9,9 @@ use std::{
 use chrono::TimeDelta;
 use clap::Parser;
 use eyre::{Result, bail};
+use indexmap::IndexMap;
 use inflector::Inflector;
+use itertools::Itertools;
 use reqwest::Url;
 use stencila_cloud::DirectionState;
 
@@ -91,7 +94,7 @@ impl Cli {
             // Get remotes for specified files
             let mut entries = stencila_remotes::RemoteEntries::new();
             for path in self.files.iter() {
-                let remotes: BTreeMap<Url, stencila_remotes::RemoteInfo> =
+                let remotes: IndexMap<Url, stencila_remotes::RemoteInfo> =
                     get_remotes_for_path(path, Some(&workspace_dir))
                         .await?
                         .into_iter()
@@ -194,7 +197,7 @@ impl Cli {
 
             // Fetch remote statuses in parallel (unless --no-remotes flag is set)
             let remote_statuses = if self.no_remotes {
-                BTreeMap::new()
+                IndexMap::new()
             } else {
                 calculate_remote_statuses(&entry, file_status, modified_at).await
             };
@@ -225,42 +228,47 @@ impl Cli {
                 Cell::new(""),
             ]);
 
+            // Helper function to get service name from URL
+            let service_name = |url: &Url| -> String {
+                RemoteService::from_url(url)
+                    .map(|s| s.display_name_plural().to_string())
+                    .unwrap_or_else(|| url.to_string())
+            };
+
             // Add remote rows (indented with "└ ")
             // Sort remotes: non-spread (no arguments) first, then spread variants sorted by arguments
             let mut sorted_remotes: Vec<_> = entry.iter().collect();
             sorted_remotes.sort_by(|(_, a), (_, b)| {
                 match (&a.arguments, &b.arguments) {
                     // Non-spread remotes come first
-                    (None, Some(_)) => std::cmp::Ordering::Less,
-                    (Some(_), None) => std::cmp::Ordering::Greater,
+                    (None, Some(_)) => Ordering::Less,
+                    (Some(_), None) => Ordering::Greater,
                     // Both non-spread: maintain URL order
-                    (None, None) => std::cmp::Ordering::Equal,
-                    // Both spread: sort by arguments
+                    (None, None) => Ordering::Equal,
+                    // Both spread: sort by service and arguments
                     (Some(args_a), Some(args_b)) => {
-                        // Sort by argument keys/values lexicographically
-                        let a_str: Vec<_> =
-                            args_a.iter().map(|(k, v)| format!("{k}={v}")).collect();
-                        let b_str: Vec<_> =
-                            args_b.iter().map(|(k, v)| format!("{k}={v}")).collect();
-                        a_str.cmp(&b_str)
+                        match service_name(&a.url).cmp(&service_name(&b.url)) {
+                            Ordering::Equal => {
+                                // Sort by argument keys/values lexicographically
+                                let a_str =
+                                    args_a.iter().map(|(k, v)| format!("{k}={v}")).collect_vec();
+                                let b_str =
+                                    args_b.iter().map(|(k, v)| format!("{k}={v}")).collect_vec();
+                                a_str.cmp(&b_str)
+                            }
+                            ordering => ordering,
+                        }
                     }
                 }
             });
 
-            for (url, remote) in sorted_remotes {
+            for (url, remote) in entry {
                 // Mark that we have at least one remote
                 has_remotes = true;
 
-                // Helper function to get service name from URL
-                let service_name = |url: &Url| -> String {
-                    RemoteService::from_url(url)
-                        .map(|s| s.display_name_plural().to_string())
-                        .unwrap_or_else(|| url.to_string())
-                };
-
                 // Get remote status and modified time from fetched metadata
                 let (remote_modified_at, remote_status) = remote_statuses
-                    .get(url)
+                    .get(&url)
                     .cloned()
                     .unwrap_or((None, RemoteStatus::Unknown));
 
@@ -337,7 +345,7 @@ impl Cli {
                 };
 
                 // Format remote name, including spread variant arguments if present
-                let mut remote_display = format!("└ {}", service_name(url));
+                let mut remote_display = format!("└ {}", service_name(&url));
                 if let Some(ref args) = remote.arguments {
                     let args = args
                         .iter()

@@ -9,6 +9,7 @@ async-lsp = { version = "0.2.2", features = ["tokio"] }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 eyre = { workspace = true }
+indexmap = { workspace = true }
 itertools = { workspace = true }
 percent-encoding = { workspace = true }
 reqwest = { workspace = true }

@@ -187,6 +187,7 @@ pub async fn check_response(response: reqwest::Response) -> Result<()> {
 ///
 /// This function handles error responses by extracting meaningful error messages
 /// and returns the parsed response body for successful requests.
+#[tracing::instrument]
 pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) -> Result<T> {
     if !response.status().is_success() {
         let status = response.status();

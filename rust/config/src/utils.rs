@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use eyre::{Result, eyre};
+use eyre::{OptionExt, Result, eyre};
 use figment::{
     Figment,
     providers::{Format, Toml},
@@ -27,7 +27,7 @@ pub(crate) fn normalize_path(path: &Path) -> Result<PathBuf> {
                 if canonical.is_file() {
                     return canonical
                         .parent()
-                        .ok_or_else(|| eyre!("File has no parent directory"))
+                        .ok_or_eyre("File has no parent directory")
                         .map(|p| p.to_path_buf());
                 }
                 return Ok(canonical);
@@ -235,7 +235,7 @@ pub fn config_unset(key: &str, target: ConfigTarget) -> Result<std::path::PathBu
         ConfigTarget::Nearest => {
             let cwd = std::env::current_dir()?;
             find_config_file(&cwd, CONFIG_FILENAME)
-                .ok_or_else(|| eyre!("No {} found", CONFIG_FILENAME))?
+                .ok_or_else(|| eyre!("No `{CONFIG_FILENAME}` found"))?
         }
         ConfigTarget::User => {
             let user_config_dir =
@@ -249,7 +249,7 @@ pub fn config_unset(key: &str, target: ConfigTarget) -> Result<std::path::PathBu
         ConfigTarget::Local => {
             let cwd = std::env::current_dir()?;
             find_config_file(&cwd, CONFIG_LOCAL_FILENAME)
-                .ok_or_else(|| eyre!("No {} found", CONFIG_LOCAL_FILENAME))?
+                .ok_or_else(|| eyre!("No `{CONFIG_LOCAL_FILENAME}` found"))?
         }
     };
 
@@ -337,16 +337,16 @@ pub(crate) fn unset_nested_value_toml(doc: &mut DocumentMut, key: &str) -> Resul
     for part in &parts[..parts.len() - 1] {
         current = current
             .get_mut(part)
-            .ok_or_else(|| eyre!("Key path not found: {}", key))?
+            .ok_or_else(|| eyre!("Key path not found: {key}"))?
             .as_table_mut()
-            .ok_or_else(|| eyre!("Expected table at key '{}'", part))?;
+            .ok_or_else(|| eyre!("Expected table at key '{part}'"))?;
     }
 
     // Remove the final key
     let final_key = parts[parts.len() - 1];
     current
         .remove(final_key)
-        .ok_or_else(|| eyre!("Key not found: {}", key))?;
+        .ok_or_else(|| eyre!("Key not found: {key}"))?;
 
     Ok(())
 }
@@ -376,7 +376,7 @@ pub fn config_update_remote_watch(
     let search_dir = if file_path.is_file() {
         file_path
             .parent()
-            .ok_or_else(|| eyre!("File has no parent directory"))?
+            .ok_or_eyre("File has no parent directory")?
     } else {
         file_path
     };
@@ -398,26 +398,24 @@ pub fn config_update_remote_watch(
     // Get the remotes table (HashMap structure)
     let remotes_table = doc
         .get_mut("remotes")
-        .ok_or_else(|| eyre!("No remotes configured in {}", CONFIG_FILENAME))?
+        .ok_or_else(|| eyre!("No remotes configured in `{CONFIG_FILENAME}`"))?
         .as_table_mut()
-        .ok_or_else(|| eyre!("remotes field is not a table"))?;
+        .ok_or_eyre("remotes field is not a table")?;
 
     // Get workspace directory (parent of config file)
     let workspace_dir = config_path
         .parent()
-        .ok_or_else(|| eyre!("Config file has no parent directory"))?;
+        .ok_or_eyre("Config file has no parent directory")?;
 
     // Canonicalize and make file_path workspace-relative
     let file_canonical = match file_path.canonicalize() {
         Ok(path) => path,
         Err(_) => {
             // If file doesn't exist, try to canonicalize its parent and rejoin filename
-            let parent = file_path
-                .parent()
-                .ok_or_else(|| eyre!("File path has no parent"))?;
+            let parent = file_path.parent().ok_or_eyre("File path has no parent")?;
             let filename = file_path
                 .file_name()
-                .ok_or_else(|| eyre!("File path has no filename"))?;
+                .ok_or_eyre("File path has no filename")?;
             parent.canonicalize()?.join(filename)
         }
     };
@@ -563,6 +561,328 @@ pub fn config_update_remote_watch(
     }
 
     // Write back to file, preserving formatting
+    fs::write(&config_path, doc.to_string())?;
+
+    Ok(config_path)
+}
+
+/// Add a remote URL to the [remotes] section of stencila.toml
+///
+/// This function:
+/// 1. Finds the nearest stencila.toml (or creates one if none exists)
+/// 2. Adds or updates the remote entry for the given path
+/// 3. If the path already has remotes, converts to array and appends
+/// 4. Avoids duplicates - does nothing if URL already exists
+///
+/// Returns the path to the modified config file.
+pub fn config_add_remote(file_path: &Path, remote_url: &str) -> Result<PathBuf> {
+    use crate::CONFIG_FILENAME;
+
+    // Canonicalize file_path first to get absolute path
+    let file_path = file_path.canonicalize()?;
+
+    // Find the nearest stencila.toml starting from the file's directory
+    let search_dir = if file_path.is_file() {
+        file_path
+            .parent()
+            .ok_or_eyre("File has no parent directory")?
+    } else {
+        file_path.as_path()
+    };
+
+    let config_path = find_config_file(search_dir, CONFIG_FILENAME)
+        .unwrap_or_else(|| search_dir.join(CONFIG_FILENAME));
+
+    // Canonicalize config_path so we can compute workspace-relative paths
+    let config_path = if config_path.exists() {
+        config_path.canonicalize().unwrap_or(config_path)
+    } else {
+        // Config doesn't exist yet - canonicalize parent and rejoin filename
+        config_path
+            .parent()
+            .and_then(|p| p.canonicalize().ok())
+            .map(|p| p.join(CONFIG_FILENAME))
+            .unwrap_or(config_path)
+    };
+
+    // Load existing config or create empty
+    let contents = if config_path.exists() {
+        fs::read_to_string(&config_path)?
+    } else {
+        String::new()
+    };
+
+    let mut doc = contents
+        .parse::<DocumentMut>()
+        .unwrap_or_else(|_| DocumentMut::new());
+
+    // Ensure [remotes] table exists
+    if doc.get("remotes").is_none() {
+        doc["remotes"] = Item::Table(Table::new());
+    }
+
+    let remotes_table = doc
+        .get_mut("remotes")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("remotes field is not a table")?;
+
+    // Get workspace directory (parent of config file)
+    let workspace_dir = config_path
+        .parent()
+        .ok_or_eyre("Config file has no parent directory")?;
+
+    // Make file_path workspace-relative (file_path is already canonicalized)
+    let file_relative = file_path.strip_prefix(workspace_dir).unwrap_or(&file_path);
+
+    let path_key = file_relative.to_string_lossy().to_string();
+
+    // Check if entry already exists for this path
+    if let Some(existing) = remotes_table.get_mut(&path_key) {
+        // Check if URL already exists - if so, do nothing
+        let url_exists = if let Some(url_str) = existing.as_str() {
+            url_str == remote_url
+        } else if let Some(inline_table) = existing.as_inline_table() {
+            inline_table.get("url").and_then(|v| v.as_str()) == Some(remote_url)
+        } else if let Some(array) = existing.as_array() {
+            array.iter().any(|item| {
+                if let Some(url_str) = item.as_str() {
+                    url_str == remote_url
+                } else if let Some(inline_table) = item.as_inline_table() {
+                    inline_table.get("url").and_then(|v| v.as_str()) == Some(remote_url)
+                } else {
+                    false
+                }
+            })
+        } else {
+            false
+        };
+
+        if url_exists {
+            // URL already exists, nothing to do
+            return Ok(config_path);
+        }
+
+        // URL doesn't exist - need to add it
+        if let Some(array) = existing.as_array_mut() {
+            // Already an array, append
+            array.push(remote_url);
+        } else if let Some(old_value) = existing.as_value().cloned() {
+            // Single value - convert to array
+            let mut new_array = toml_edit::Array::new();
+            new_array.push(old_value);
+            new_array.push(remote_url);
+            *existing = Item::Value(toml_edit::Value::Array(new_array));
+        }
+    } else {
+        // No entry for this path - add simple string
+        remotes_table[&path_key] = value(remote_url);
+    }
+
+    // Write back to file
+    fs::write(&config_path, doc.to_string())?;
+
+    Ok(config_path)
+}
+
+/// Set a spread remote configuration in the [remotes] section of stencila.toml
+///
+/// This function:
+/// 1. Finds the nearest stencila.toml (or creates one if none exists)
+/// 2. Replaces any existing entry for the path with the spread config
+///
+/// Returns the path to the modified config file.
+pub fn config_set_remote_spread(file_path: &Path, spread: &crate::RemoteSpread) -> Result<PathBuf> {
+    /// Format an array to be multi-line for better readability
+    fn format_array_multiline(arr: &mut toml_edit::Array) {
+        // Set trailing newline on the array itself
+        arr.set_trailing("\n");
+        arr.set_trailing_comma(true);
+
+        // Add newline prefix to each item for multi-line formatting
+        for item in arr.iter_mut() {
+            let decor = item.decor_mut();
+            decor.set_prefix("\n  ");
+        }
+    }
+    use crate::CONFIG_FILENAME;
+
+    // Canonicalize file_path first to get absolute path
+    let file_path = file_path.canonicalize()?;
+
+    // Find the nearest stencila.toml starting from the file's directory
+    let search_dir = if file_path.is_file() {
+        file_path
+            .parent()
+            .ok_or_eyre("File has no parent directory")?
+    } else {
+        file_path.as_path()
+    };
+
+    let config_path = find_config_file(search_dir, CONFIG_FILENAME)
+        .unwrap_or_else(|| search_dir.join(CONFIG_FILENAME));
+
+    // Canonicalize config_path so we can compute workspace-relative paths
+    let config_path = if config_path.exists() {
+        config_path.canonicalize().unwrap_or(config_path)
+    } else {
+        // Config doesn't exist yet - canonicalize parent and rejoin filename
+        config_path
+            .parent()
+            .and_then(|p| p.canonicalize().ok())
+            .map(|p| p.join(CONFIG_FILENAME))
+            .unwrap_or(config_path)
+    };
+
+    // Load existing config or create empty
+    let contents = if config_path.exists() {
+        fs::read_to_string(&config_path)?
+    } else {
+        String::new()
+    };
+
+    let mut doc = contents
+        .parse::<DocumentMut>()
+        .unwrap_or_else(|_| DocumentMut::new());
+
+    // Ensure [remotes] table exists
+    if doc.get("remotes").is_none() {
+        doc["remotes"] = Item::Table(Table::new());
+    }
+
+    let remotes_table = doc
+        .get_mut("remotes")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("remotes field is not a table")?;
+
+    // Get workspace directory (parent of config file)
+    let workspace_dir = config_path
+        .parent()
+        .ok_or_eyre("Config file has no parent directory")?;
+
+    // Make file_path workspace-relative (file_path is already canonicalized)
+    let file_relative = file_path.strip_prefix(workspace_dir).unwrap_or(&file_path);
+
+    let path_key = file_relative.to_string_lossy().to_string();
+
+    // Build the spread config as an inline table
+    let mut spread_table = InlineTable::new();
+    spread_table.insert("service", spread.service.as_str().into());
+
+    if let Some(ref title) = spread.title {
+        spread_table.insert("title", title.as_str().into());
+    }
+
+    if let Some(ref route) = spread.route {
+        spread_table.insert("route", route.as_str().into());
+    }
+
+    if let Some(ref spread_mode) = spread.spread {
+        let spread_mode = match spread_mode {
+            crate::SpreadMode::Grid => "grid",
+            crate::SpreadMode::Zip => "zip",
+        };
+        spread_table.insert("spread", spread_mode.into());
+    }
+
+    // Build arguments as an inline table
+    if !spread.arguments.is_empty() {
+        let mut arguments_table = InlineTable::new();
+        for (key, values) in &spread.arguments {
+            let mut arr = toml_edit::Array::new();
+            for v in values {
+                arr.push(v.as_str());
+            }
+            arguments_table.insert(key.as_str(), toml_edit::Value::Array(arr));
+        }
+        spread_table.insert("arguments", toml_edit::Value::InlineTable(arguments_table));
+    }
+
+    // Check if there's an existing entry for this path
+    // Create Value version for array operations, Item version for direct assignment
+    let spread_value_for_array = toml_edit::Value::InlineTable(spread_table.clone());
+    let spread_item = value(spread_table);
+
+    if let Some(existing) = remotes_table
+        .get(&path_key)
+        .and_then(|item| item.as_value())
+    {
+        // Determine if existing is an array, URL string, or inline table
+        if let Some(arr) = existing.as_array() {
+            // Existing is already an array - find and replace any Spread, or append
+            let mut new_arr = toml_edit::Array::new();
+            let mut found_spread = false;
+
+            for item in arr.iter() {
+                // Check if this item is a spread config (inline table with "service" key)
+                if let Some(tbl) = item.as_inline_table()
+                    && tbl.contains_key("service")
+                {
+                    // Check if this spread is for the same service
+                    let same_service = tbl
+                        .get("service")
+                        .and_then(|v| v.as_str())
+                        .is_some_and(|s| s == spread.service);
+
+                    if same_service {
+                        // Replace existing spread for same service with new one
+                        if !found_spread {
+                            new_arr.push(spread_value_for_array.clone());
+                            found_spread = true;
+                        }
+                        // Skip this spread (replaced or duplicate)
+                        continue;
+                    }
+                    // Keep spreads for other services
+                }
+                // Keep non-spread items (URLs, watches) and spreads for other services
+                new_arr.push(item.clone());
+            }
+
+            // If no existing spread was found, append the new one
+            if !found_spread {
+                new_arr.push(spread_value_for_array);
+            }
+
+            format_array_multiline(&mut new_arr);
+            remotes_table[&path_key] = Item::Value(toml_edit::Value::Array(new_arr));
+        } else {
+            // Existing is a single value (URL string or inline table)
+            // Check if it's already a spread config
+            if let Some(tbl) = existing.as_inline_table()
+                && tbl.contains_key("service")
+            {
+                // Existing is a spread - check if same service
+                let same_service = tbl
+                    .get("service")
+                    .and_then(|v| v.as_str())
+                    .is_some_and(|s| s == spread.service);
+
+                if same_service {
+                    // Same service - just replace it
+                    remotes_table[&path_key] = spread_item;
+                } else {
+                    // Different service - convert to array with both spreads
+                    let mut arr = toml_edit::Array::new();
+                    arr.push(existing.clone());
+                    arr.push(spread_value_for_array);
+                    format_array_multiline(&mut arr);
+                    remotes_table[&path_key] = Item::Value(toml_edit::Value::Array(arr));
+                }
+            } else {
+                // Existing is a URL string or watch config - convert to array
+                let mut arr = toml_edit::Array::new();
+                arr.push(existing.clone());
+                arr.push(spread_value_for_array);
+                format_array_multiline(&mut arr);
+                remotes_table[&path_key] = Item::Value(toml_edit::Value::Array(arr));
+            }
+        }
+    } else {
+        // No existing entry - just set the spread config
+        remotes_table[&path_key] = spread_item;
+    }
+
+    // Write back to file
     fs::write(&config_path, doc.to_string())?;
 
     Ok(config_path)

@@ -1,0 +1,5 @@
+---
+title: Environment {{environ}}, region {{region}}
+---
+
+This report summarize the {{environ}} environment in the {{region}} region.
