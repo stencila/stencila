@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, str::FromStr};
 
 use clap::Parser;
 use eyre::{Result, bail, eyre};
@@ -100,8 +100,8 @@ impl Cli {
         // Determine which remote to watch based on target argument or configured remotes
         let remote_info = if let Some(target_str) = self.target {
             // Parse target or service shorthand
-            let target_url = match target_str.as_str() {
-                "gdoc" | "gdocs" => {
+            let target_url = match RemoteService::from_str(&target_str) {
+                Ok(RemoteService::GoogleDocs) => {
                     // Find the Google Docs remote
                     remote_infos
                         .iter()
@@ -110,7 +110,7 @@ impl Cli {
                         .url
                         .clone()
                 }
-                "m365" => {
+                Ok(RemoteService::Microsoft365) => {
                     // Find the M365 remote
                     remote_infos
                         .iter()
@@ -125,8 +125,7 @@ impl Cli {
                     // Try to parse as URL
                     Url::parse(&target_str).map_err(|_| {
                         eyre!(
-                            "Invalid target or service: '{}'. Use 'gdoc', 'm365', or a full URL.",
-                            target_str
+                            "Invalid target or service: `{target_str}`. Use `gdoc`, `m365`, or a full URL."
                         )
                     })?
                 }
@@ -137,10 +136,7 @@ impl Cli {
                 .into_iter()
                 .find(|info| info.url == target_url)
                 .ok_or_else(|| {
-                    eyre!(
-                        "Remote target not found in configured remotes: {}",
-                        target_url
-                    )
+                    eyre!("Remote target not found in configured remotes: {target_url}")
                 })?
         } else {
             // No target specified - check if there's only one remote

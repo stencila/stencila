@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, str::FromStr};
 
 use clap::Parser;
 use eyre::{Result, bail, eyre};
@@ -63,8 +63,8 @@ impl Cli {
         // Determine which remote to unwatch based on target argument
         let remote_info = if let Some(target_str) = self.target {
             // Parse target or service shorthand
-            let target_url = match target_str.as_str() {
-                "gdoc" | "gdocs" => {
+            let target_url = match RemoteService::from_str(&target_str) {
+                Ok(RemoteService::GoogleDocs) => {
                     // Find the Google Docs remote
                     remote_infos
                         .iter()
@@ -73,7 +73,7 @@ impl Cli {
                         .url
                         .clone()
                 }
-                "m365" => {
+                Ok(RemoteService::Microsoft365) => {
                     // Find the M365 remote
                     remote_infos
                         .iter()
