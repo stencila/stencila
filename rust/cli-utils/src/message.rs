@@ -513,6 +513,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::unwrap_used)]
     fn test_emoji_extraction() {
         // Test extraction of narrow emojis with variation selectors
         let (emoji, rest) = extract_leading_emoji("ℹ️ Info message").unwrap();
@@ -531,32 +532,5 @@ mod tests {
         let (emoji, rest) = extract_leading_emoji("📁 Folder message").unwrap();
         assert_eq!(emoji, "📁");
         assert_eq!(rest, "Folder message");
-    }
-
-    #[test]
-    fn test_emoji_width_and_padding() {
-        use unicode_width::UnicodeWidthStr;
-
-        // Narrow emojis should get width 1 or 2
-        let info_width = UnicodeWidthStr::width("ℹ️");
-        let cloud_width = UnicodeWidthStr::width("☁️");
-        let gear_width = UnicodeWidthStr::width("⚙️");
-
-        // Wide emojis typically get width 2
-        let folder_width = UnicodeWidthStr::width("📁");
-        let check_width = UnicodeWidthStr::width("✅");
-
-        println!("ℹ️ width: {info_width}");
-        println!("☁️ width: {cloud_width}");
-        println!("⚙️ width: {gear_width}");
-        println!("📁 width: {folder_width}");
-        println!("✅ width: {check_width}");
-
-        // Verify our padding logic: narrow (<=1) gets 2 spaces, wide (>=2) gets 1 space
-        let info_padding = if info_width <= 1 { 2 } else { 1 };
-        let folder_padding = if folder_width <= 1 { 2 } else { 1 };
-
-        println!("ℹ️ padding: {info_padding} spaces");
-        println!("📁 padding: {folder_padding} spaces");
     }
 }

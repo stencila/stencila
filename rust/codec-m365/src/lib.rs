@@ -227,9 +227,7 @@ async fn upload(
     if filtered_params.is_empty() {
         url.set_query(None);
     } else {
-        url.query_pairs_mut()
-            .clear()
-            .extend_pairs(filtered_params);
+        url.query_pairs_mut().clear().extend_pairs(filtered_params);
     }
 
     Ok(PushResult::Uploaded(url))
