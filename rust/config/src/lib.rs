@@ -19,8 +19,9 @@ pub const CONFIG_LOCAL_FILENAME: &str = "stencila.local.toml";
 mod utils;
 use utils::build_figment;
 pub use utils::{
-    ConfigTarget, config_add_remote, config_set, config_set_remote_spread, config_unset,
-    config_update_remote_watch, config_value, find_config_file,
+    ConfigTarget, config_add_remote, config_add_route, config_set, config_set_remote_spread,
+    config_set_route_spread, config_unset, config_update_remote_watch, config_value,
+    find_config_file,
 };
 
 pub mod cli;
@@ -121,6 +122,32 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct Config {
+    /// Site configuration
+    pub site: Option<SiteConfig>,
+
+    /// Custom routes for serving content
+    ///
+    /// Routes map URL paths to files, redirects, or spread configurations.
+    /// The key is the URL path (or path template for spreads), and the value can be:
+    /// - A simple string for the file path: `"/about/" = "README.md"`
+    /// - An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
+    /// - An object for spreads: `"/{region}/" = { file = "report.smd", arguments = { region = ["north", "south"] } }`
+    ///
+    /// Routes can be used by both remote sites (e.g., stencila.site) and
+    /// local development servers.
+    ///
+    /// Example:
+    /// ```toml
+    /// [routes]
+    /// "/" = "index.md"
+    /// "/about/" = "README.md"
+    /// "/old-page/" = { redirect = "/new-page/", status = 301 }
+    /// "/external/" = { redirect = "https://example.com" }
+    /// "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["ABC", "DEF"] } }
+    /// ```
+    #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
+    pub routes: Option<HashMap<String, RouteTarget>>,
+
     /// Remote synchronization configuration
     ///
     /// Maps local paths to remote service URLs. The key is the local path
@@ -143,43 +170,6 @@ pub struct Config {
     /// ```
     #[schemars(with = "Option<HashMap<String, RemoteValue>>")]
     pub remotes: Option<HashMap<String, RemoteValue>>,
-
-    /// Site configuration
-    pub site: Option<SiteConfig>,
-
-    /// Custom routes for serving content
-    ///
-    /// Routes map URL paths to files or redirects. The key is the URL path,
-    /// and the value can be either:
-    /// - A simple string for the file path: `"/about/" = "README.md"`
-    /// - An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
-    ///
-    /// Routes can be used by both remote sites (e.g., stencila.site) and
-    /// local development servers.
-    ///
-    /// Example:
-    /// ```toml
-    /// [routes]
-    /// "/" = "index.md"
-    /// "/about/" = "README.md"
-    /// "/old-page/" = { redirect = "/new-page/", status = 301 }
-    /// "/external/" = { redirect = "https://example.com" }
-    /// ```
-    #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
-    pub routes: Option<HashMap<String, RouteTarget>>,
-
-    /// Spread configuration for routes
-    ///
-    /// Defines spread parameters for multi-variant site routes.
-    /// Key is the route template, value contains file and spread params.
-    ///
-    /// Example:
-    /// ```toml
-    /// [routes.spread]
-    /// "/{region}/{species}/" = { file = "report.smd", region = ["north", "south"], species = ["ABC", "DEF"] }
-    /// ```
-    #[serde(rename = "routes.spread")]
-    pub routes_spread: Option<HashMap<String, RouteSpreadConfig>>,
 }
 
 impl Config {
@@ -262,11 +252,12 @@ pub struct SiteConfig {
     pub exclude: Option<Vec<String>>,
 }
 
-/// Target for a route - either a file path or a redirect
+/// Target for a route - either a file path, a redirect, or a spread
 ///
-/// Routes can either serve a file or redirect to another URL.
+/// Routes can either serve a file, redirect to another URL, or generate
+/// multiple variants using spread parameters.
 /// This enum allows for a clean representation where simple file
-/// paths are strings, and redirects are objects.
+/// paths are strings, and redirects/spreads are objects.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(untagged)]
 pub enum RouteTarget {
@@ -289,19 +280,44 @@ pub enum RouteTarget {
     /// "/old/" = { redirect = "/new/", status = 301 }
     /// ```
     Redirect(RouteRedirect),
+
+    /// Spread configuration for multi-variant routes
+    ///
+    /// Example in TOML:
+    /// ```toml
+    /// [routes]
+    /// "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["A", "B"] } }
+    /// ```
+    Spread(RouteSpread),
 }
 
 impl RouteTarget {
     /// Validate the route target configuration
     ///
     /// Ensures that:
+    /// - Route path starts with '/'
     /// - `status` can only be used with `redirect`
+    /// - Spread routes have a non-empty file and arguments
     pub fn validate(&self, path: &str) -> Result<()> {
+        // All routes must start with '/'
+        if !path.starts_with('/') {
+            return Err(eyre!("Route '{}' must start with '/'", path));
+        }
+
         match self {
             RouteTarget::File(_) => Ok(()),
             RouteTarget::Redirect(redirect) => {
                 if redirect.redirect.is_empty() {
                     return Err(eyre!("Route '{}' has an empty redirect URL", path));
+                }
+                Ok(())
+            }
+            RouteTarget::Spread(spread) => {
+                if spread.file.is_empty() {
+                    return Err(eyre!("Spread route '{}' has an empty file", path));
+                }
+                if spread.arguments.is_empty() {
+                    return Err(eyre!("Spread route '{}' has no arguments", path));
                 }
                 Ok(())
             }
@@ -312,16 +328,29 @@ impl RouteTarget {
     pub fn file(&self) -> Option<&ConfigRelativePath> {
         match self {
             RouteTarget::File(path) => Some(path),
-            RouteTarget::Redirect(_) => None,
+            RouteTarget::Redirect(_) | RouteTarget::Spread(_) => None,
         }
     }
 
     /// Get the redirect info if this is a redirect route
     pub fn redirect(&self) -> Option<&RouteRedirect> {
         match self {
-            RouteTarget::File(_) => None,
             RouteTarget::Redirect(redirect) => Some(redirect),
+            RouteTarget::File(_) | RouteTarget::Spread(_) => None,
         }
+    }
+
+    /// Get the spread configuration if this is a spread route
+    pub fn spread(&self) -> Option<&RouteSpread> {
+        match self {
+            RouteTarget::Spread(spread) => Some(spread),
+            RouteTarget::File(_) | RouteTarget::Redirect(_) => None,
+        }
+    }
+
+    /// Check if this is a spread route
+    pub fn is_spread(&self) -> bool {
+        matches!(self, RouteTarget::Spread(_))
     }
 }
 
@@ -398,6 +427,31 @@ impl TryFrom<u16> for RedirectStatus {
             )),
         }
     }
+}
+
+/// A spread configuration for multi-variant routes
+///
+/// Used to generate multiple route variants from a single source file
+/// with different parameter values.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct RouteSpread {
+    /// The source file for this spread route
+    ///
+    /// Path relative to the workspace directory (or `site.root` if configured).
+    pub file: String,
+
+    /// Spread mode
+    ///
+    /// - `grid`: Cartesian product of all parameter values (default)
+    /// - `zip`: Positional pairing of values (all params must have same length)
+    pub spread: Option<SpreadMode>,
+
+    /// Parameter values for spread variants
+    ///
+    /// Keys are parameter names, values are arrays of possible values.
+    /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
+    pub arguments: HashMap<String, Vec<String>>,
 }
 
 /// Value for a remote configuration entry - can be single or multiple targets
@@ -600,28 +654,21 @@ pub struct RemoteWatch {
 /// Example:
 /// ```toml
 /// [remotes]
-/// "report.smd" = { service = "gdoc", title = "Report {region}", params = { region = ["north", "south"] } }
+/// "report.smd" = { service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south"] } }
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct RemoteSpread {
     /// Target service
     ///
-    /// One of: "gdoc", "m365", "site"
+    /// One of: "gdoc", "m365"
     pub service: String,
 
-    /// Title template with placeholders (for gdoc/m365)
+    /// Title template with placeholders
     ///
     /// Placeholders like `{param}` are replaced with parameter values.
     /// Example: "Report - {region}"
     pub title: Option<String>,
-
-    /// Route template with placeholders (for site)
-    ///
-    /// Placeholders like `{param}` are replaced with parameter values.
-    /// Routes always end with `/` and render as index.html.
-    /// Example: "/{region}/{species}/"
-    pub route: Option<String>,
 
     /// Spread mode
     ///
@@ -645,21 +692,4 @@ pub enum SpreadMode {
     Grid,
     /// Positional pairing of values (all params must have same length)
     Zip,
-}
-
-/// Configuration for a spread route in [routes.spread]
-///
-/// Key is the route template (e.g. "/{region}/{species}/"), value contains file and spread params.
-#[skip_serializing_none]
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
-pub struct RouteSpreadConfig {
-    /// The source file for this spread route
-    pub file: String,
-
-    /// Spread mode (default: grid)
-    pub mode: Option<SpreadMode>,
-
-    /// Parameter values - keys are param names, values are arrays
-    #[serde(flatten)]
-    pub params: HashMap<String, Vec<String>>,
 }

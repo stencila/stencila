@@ -415,21 +415,25 @@ pub struct SpreadRouteVariant {
 
 /// Generate all spread route variants from config
 ///
-/// Reads `[routes.spread]` from config and expands all variants.
+/// Reads `[routes]` from config and expands all `RouteTarget::Spread` variants.
 /// Returns a list of (route_template, file, variants) tuples.
 pub fn generate_spread_routes(config: &Config) -> Result<Vec<SpreadRouteVariant>> {
-    let Some(routes_spread) = &config.routes_spread else {
+    let Some(routes) = &config.routes else {
         return Ok(Vec::new());
     };
 
     let mut variants = Vec::new();
 
-    for (route_template, spread_config) in routes_spread {
-        let file = &spread_config.file;
-        let mode = spread_config.mode.unwrap_or_default();
+    for (route_template, target) in routes {
+        let Some(spread) = target.spread() else {
+            continue;
+        };
 
-        // Build runs from params
-        let runs = generate_spread_runs(mode, &spread_config.params)?;
+        let file = &spread.file;
+        let mode = spread.spread.unwrap_or_default();
+
+        // Build runs from arguments
+        let runs = generate_spread_runs(mode, &spread.arguments)?;
 
         for run in runs {
             // Apply template to generate route

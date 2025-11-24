@@ -775,10 +775,6 @@ pub fn config_set_remote_spread(file_path: &Path, spread: &crate::RemoteSpread) 
         spread_table.insert("title", title.as_str().into());
     }
 
-    if let Some(ref route) = spread.route {
-        spread_table.insert("route", route.as_str().into());
-    }
-
     if let Some(ref spread_mode) = spread.spread {
         let spread_mode = match spread_mode {
             crate::SpreadMode::Grid => "grid",
@@ -884,6 +880,192 @@ pub fn config_set_remote_spread(file_path: &Path, spread: &crate::RemoteSpread) 
         // No existing entry - just set the spread config
         remotes_table[&path_key] = spread_item;
     }
+
+    // Write back to file
+    fs::write(&config_path, doc.to_string())?;
+
+    Ok(config_path)
+}
+
+/// Add a route to the [routes] section of stencila.toml
+///
+/// This function:
+/// 1. Finds the nearest stencila.toml (or creates one if none exists)
+/// 2. Adds the route entry mapping route path to file path
+/// 3. Avoids duplicates - does nothing if route already exists
+///
+/// Returns the path to the modified config file.
+pub fn config_add_route(file_path: &Path, route: &str) -> Result<PathBuf> {
+    use crate::CONFIG_FILENAME;
+
+    // Canonicalize file_path first to get absolute path
+    let file_path = file_path.canonicalize()?;
+
+    // Find the nearest stencila.toml starting from the file's directory
+    let search_dir = if file_path.is_file() {
+        file_path
+            .parent()
+            .ok_or_eyre("File has no parent directory")?
+    } else {
+        file_path.as_path()
+    };
+
+    let config_path = find_config_file(search_dir, CONFIG_FILENAME)
+        .unwrap_or_else(|| search_dir.join(CONFIG_FILENAME));
+
+    // Canonicalize config_path so we can compute workspace-relative paths
+    let config_path = if config_path.exists() {
+        config_path.canonicalize().unwrap_or(config_path)
+    } else {
+        // Config doesn't exist yet - canonicalize parent and rejoin filename
+        config_path
+            .parent()
+            .and_then(|p| p.canonicalize().ok())
+            .map(|p| p.join(CONFIG_FILENAME))
+            .unwrap_or(config_path)
+    };
+
+    // Load existing config or create empty
+    let contents = if config_path.exists() {
+        fs::read_to_string(&config_path)?
+    } else {
+        String::new()
+    };
+
+    let mut doc = contents
+        .parse::<DocumentMut>()
+        .unwrap_or_else(|_| DocumentMut::new());
+
+    // Ensure [routes] table exists
+    if doc.get("routes").is_none() {
+        doc["routes"] = Item::Table(Table::new());
+    }
+
+    let routes_table = doc
+        .get_mut("routes")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("routes field is not a table")?;
+
+    // Get workspace directory (parent of config file)
+    let workspace_dir = config_path
+        .parent()
+        .ok_or_eyre("Config file has no parent directory")?;
+
+    // Make file_path workspace-relative (file_path is already canonicalized)
+    let file_relative = file_path.strip_prefix(workspace_dir).unwrap_or(&file_path);
+    let file_relative_str = file_relative.to_string_lossy().to_string();
+
+    // Check if route already exists
+    if let Some(existing) = routes_table.get(route) {
+        // Check if it's the same file path
+        if let Some(existing_file) = existing.as_str()
+            && existing_file == file_relative_str
+        {
+            // Route already exists with same file, nothing to do
+            return Ok(config_path);
+        }
+        // Route exists but points to different file or is a different type
+        // We'll update it to the new file
+    }
+
+    // Set the route to the file path
+    routes_table[route] = value(&file_relative_str);
+
+    // Write back to file
+    fs::write(&config_path, doc.to_string())?;
+
+    Ok(config_path)
+}
+
+/// Set a spread route configuration in the [routes] section of stencila.toml
+///
+/// This function:
+/// 1. Finds the nearest stencila.toml (or creates one if none exists)
+/// 2. Adds or replaces the spread route entry
+///
+/// Returns the path to the modified config file.
+pub fn config_set_route_spread(
+    file_path: &Path,
+    route_template: &str,
+    spread: &crate::RouteSpread,
+) -> Result<PathBuf> {
+    use crate::CONFIG_FILENAME;
+
+    // Canonicalize file_path first to get absolute path
+    let file_path = file_path.canonicalize()?;
+
+    // Find the nearest stencila.toml starting from the file's directory
+    let search_dir = if file_path.is_file() {
+        file_path
+            .parent()
+            .ok_or_eyre("File has no parent directory")?
+    } else {
+        file_path.as_path()
+    };
+
+    let config_path = find_config_file(search_dir, CONFIG_FILENAME)
+        .unwrap_or_else(|| search_dir.join(CONFIG_FILENAME));
+
+    // Canonicalize config_path so we can compute workspace-relative paths
+    let config_path = if config_path.exists() {
+        config_path.canonicalize().unwrap_or(config_path)
+    } else {
+        // Config doesn't exist yet - canonicalize parent and rejoin filename
+        config_path
+            .parent()
+            .and_then(|p| p.canonicalize().ok())
+            .map(|p| p.join(CONFIG_FILENAME))
+            .unwrap_or(config_path)
+    };
+
+    // Load existing config or create empty
+    let contents = if config_path.exists() {
+        fs::read_to_string(&config_path)?
+    } else {
+        String::new()
+    };
+
+    let mut doc = contents
+        .parse::<DocumentMut>()
+        .unwrap_or_else(|_| DocumentMut::new());
+
+    // Ensure [routes] table exists
+    if doc.get("routes").is_none() {
+        doc["routes"] = Item::Table(Table::new());
+    }
+
+    let routes_table = doc
+        .get_mut("routes")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("routes field is not a table")?;
+
+    // Build the spread config as an inline table
+    let mut spread_table = InlineTable::new();
+    spread_table.insert("file", spread.file.as_str().into());
+
+    if let Some(ref spread_mode) = spread.spread {
+        let spread_mode_str = match spread_mode {
+            crate::SpreadMode::Grid => "grid",
+            crate::SpreadMode::Zip => "zip",
+        };
+        spread_table.insert("spread", spread_mode_str.into());
+    }
+
+    // Build arguments as an inline table
+    if !spread.arguments.is_empty() {
+        let mut arguments_table = InlineTable::new();
+        for (key, values) in &spread.arguments {
+            let mut arr = toml_edit::Array::new();
+            for v in values {
+                arr.push(v.as_str());
+            }
+            arguments_table.insert(key.as_str(), toml_edit::Value::Array(arr));
+        }
+        spread_table.insert("arguments", toml_edit::Value::InlineTable(arguments_table));
+    }
+
+    // Set the route to the spread config
+    routes_table[route_template] = value(spread_table);
 
     // Write back to file
     fs::write(&config_path, doc.to_string())?;

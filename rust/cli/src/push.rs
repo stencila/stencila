@@ -687,21 +687,36 @@ impl Cli {
         )
         .await?;
 
-        // Save to config if this is a new remote (and not --no-config and not a site)
-        if existing_url.is_none()
-            && !self.no_config
-            && !matches!(service, RemoteService::StencilaSites)
-        {
-            match stencila_config::config_add_remote(path, url.as_ref()) {
-                Ok(config_path) => {
-                    let config_path = current_dir()
-                        .ok()
-                        .and_then(|cwd| diff_paths(&config_path, cwd))
-                        .unwrap_or_else(|| config_path.clone());
-                    message!("📝 Remote added to `{}`", config_path.display());
+        // Save to config if this is a new remote (and not --no-config)
+        if existing_url.is_none() && !self.no_config {
+            if matches!(service, RemoteService::StencilaSites) {
+                // For sites, save the route to [routes] section
+                let route = url.path().to_string();
+                match stencila_config::config_add_route(path, &route) {
+                    Ok(config_path) => {
+                        let config_path = current_dir()
+                            .ok()
+                            .and_then(|cwd| diff_paths(&config_path, cwd))
+                            .unwrap_or_else(|| config_path.clone());
+                        message!("📝 Route added to `{}`", config_path.display());
+                    }
+                    Err(error) => {
+                        message!("⚠️ Could not add route to config: {error}");
+                    }
                 }
-                Err(error) => {
-                    message!("⚠️ Could not add to config: {error}");
+            } else {
+                // For other services (gdocs, m365), save to [remotes] section
+                match stencila_config::config_add_remote(path, url.as_ref()) {
+                    Ok(config_path) => {
+                        let config_path = current_dir()
+                            .ok()
+                            .and_then(|cwd| diff_paths(&config_path, cwd))
+                            .unwrap_or_else(|| config_path.clone());
+                        message!("📝 Remote added to `{}`", config_path.display());
+                    }
+                    Err(error) => {
+                        message!("⚠️ Could not add to config: {error}");
+                    }
                 }
             }
         } else if existing_url.is_none() && self.no_config {
@@ -939,8 +954,8 @@ impl Cli {
                             file_successes += 1;
                         }
                     }
-                    Err(e) => {
-                        message!("❌ Failed to push to {remote_url}: {e}");
+                    Err(error) => {
+                        message!("❌ Failed to push to {remote_url}: {error}");
                         file_errors += 1;
                     }
                 }
@@ -952,7 +967,6 @@ impl Cli {
         }
 
         // Display summary
-        eprintln!(); // Empty line for spacing
         message!(
             "📊 Push complete: {} file(s) processed, {} push(es) succeeded, {} failed",
             file_results.len(),
@@ -970,7 +984,7 @@ impl Cli {
                 "⚠️"
             };
             message!(
-                "{status} {}: {} succeeded, {} failed",
+                "{status}   `{}`: {} succeeded, {} failed",
                 file_path.display(),
                 successes,
                 errors
@@ -1227,7 +1241,7 @@ impl Cli {
                 (
                     cfg,
                     spread_config.title.clone(),
-                    spread_config.route.clone(),
+                    None, // Route templates are now handled via [routes] section, not [remotes]
                     Some(config_service),
                 )
             } else {
@@ -1283,6 +1297,15 @@ impl Cli {
         } else {
             self.route.clone().or(route_template)
         };
+
+        // Normalize route template to ensure it starts with '/'
+        let effective_route_template = effective_route_template.map(|r| {
+            if r.starts_with('/') {
+                r
+            } else {
+                format!("/{r}")
+            }
+        });
 
         message!(
             "📊 Spread pushing `{path_display}` to {} ({} mode, {} variants)",
@@ -1592,32 +1615,75 @@ impl Cli {
 
         // Save spread config to stencila.toml (unless --no-config)
         if !self.no_config {
-            let spread_config = stencila_config::RemoteSpread {
-                service: service.cli_name().to_string(),
-                title: title_template,
-                route: effective_route_template,
-                spread: Some(match mode {
-                    SpreadMode::Grid => stencila_config::SpreadMode::Grid,
-                    SpreadMode::Zip => stencila_config::SpreadMode::Zip,
-                    SpreadMode::Cases => stencila_config::SpreadMode::Grid, // Cases mode not in config yet
-                }),
-                arguments: config
-                    .params
-                    .iter()
-                    .map(|(k, v)| (k.clone(), v.0.clone()))
-                    .collect(),
-            };
+            if matches!(service, RemoteService::StencilaSites) {
+                // For sites, save to [routes] section with RouteSpread
+                if let Some(ref route_template) = effective_route_template {
+                    let route_spread = stencila_config::RouteSpread {
+                        file: path
+                            .file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("unknown")
+                            .to_string(),
+                        spread: Some(match mode {
+                            SpreadMode::Grid => stencila_config::SpreadMode::Grid,
+                            SpreadMode::Zip => stencila_config::SpreadMode::Zip,
+                            SpreadMode::Cases => stencila_config::SpreadMode::Grid,
+                        }),
+                        arguments: config
+                            .params
+                            .iter()
+                            .map(|(k, v)| (k.clone(), v.0.clone()))
+                            .collect(),
+                    };
 
-            match stencila_config::config_set_remote_spread(path, &spread_config) {
-                Ok(config_path) => {
-                    let config_path = current_dir()
-                        .ok()
-                        .and_then(|cwd| diff_paths(&config_path, cwd))
-                        .unwrap_or_else(|| config_path.clone());
-                    message!("📝 Spread config saved to `{}`", config_path.display());
+                    match stencila_config::config_set_route_spread(
+                        path,
+                        route_template,
+                        &route_spread,
+                    ) {
+                        Ok(config_path) => {
+                            let config_path = current_dir()
+                                .ok()
+                                .and_then(|cwd| diff_paths(&config_path, cwd))
+                                .unwrap_or_else(|| config_path.clone());
+                            message!(
+                                "📝 Route spread config saved to `{}`",
+                                config_path.display()
+                            );
+                        }
+                        Err(error) => {
+                            message!("⚠️ Could not save route spread config: {error}");
+                        }
+                    }
                 }
-                Err(error) => {
-                    message!("⚠️ Could not save spread config: {error}");
+            } else {
+                // For other services (gdocs, m365), save to [remotes] section
+                let spread_config = stencila_config::RemoteSpread {
+                    service: service.cli_name().to_string(),
+                    title: title_template,
+                    spread: Some(match mode {
+                        SpreadMode::Grid => stencila_config::SpreadMode::Grid,
+                        SpreadMode::Zip => stencila_config::SpreadMode::Zip,
+                        SpreadMode::Cases => stencila_config::SpreadMode::Grid,
+                    }),
+                    arguments: config
+                        .params
+                        .iter()
+                        .map(|(k, v)| (k.clone(), v.0.clone()))
+                        .collect(),
+                };
+
+                match stencila_config::config_set_remote_spread(path, &spread_config) {
+                    Ok(config_path) => {
+                        let config_path = current_dir()
+                            .ok()
+                            .and_then(|cwd| diff_paths(&config_path, cwd))
+                            .unwrap_or_else(|| config_path.clone());
+                        message!("📝 Spread config saved to `{}`", config_path.display());
+                    }
+                    Err(error) => {
+                        message!("⚠️ Could not save spread config: {error}");
+                    }
                 }
             }
         }
