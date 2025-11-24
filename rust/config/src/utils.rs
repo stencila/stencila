@@ -11,6 +11,19 @@ use figment::{
 };
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
+/// Format a TOML array to be multi-line for better readability
+fn format_array_multiline(arr: &mut toml_edit::Array) {
+    // Set trailing newline on the array itself
+    arr.set_trailing("\n");
+    arr.set_trailing_comma(true);
+
+    // Add newline prefix to each item for multi-line formatting
+    for item in arr.iter_mut() {
+        let decor = item.decor_mut();
+        decor.set_prefix("\n  ");
+    }
+}
+
 /// Normalize a path, handling both files and directories
 ///
 /// If the path is a file, returns its parent directory.
@@ -539,6 +552,8 @@ pub fn config_update_remote_watch(
                     }
                 }
             }
+            // Format array for multi-line readability
+            format_array_multiline(array);
         } else {
             // Single target
             if update_entry(remote_value)? {
@@ -692,18 +707,6 @@ pub fn config_add_remote(file_path: &Path, remote_url: &str) -> Result<PathBuf> 
 ///
 /// Returns the path to the modified config file.
 pub fn config_set_remote_spread(file_path: &Path, spread: &crate::RemoteSpread) -> Result<PathBuf> {
-    /// Format an array to be multi-line for better readability
-    fn format_array_multiline(arr: &mut toml_edit::Array) {
-        // Set trailing newline on the array itself
-        arr.set_trailing("\n");
-        arr.set_trailing_comma(true);
-
-        // Add newline prefix to each item for multi-line formatting
-        for item in arr.iter_mut() {
-            let decor = item.decor_mut();
-            decor.set_prefix("\n  ");
-        }
-    }
     use crate::CONFIG_FILENAME;
 
     // Canonicalize file_path first to get absolute path
