@@ -402,11 +402,24 @@ impl MarkdownCodec for Article {
                 // Update the title and abstract of the work, which may include executable code expressions,
                 // which if render: true will be encoded differently from in any original template.
 
+                // Track whether title or abstract changed to avoid unnecessary reformatting
+                let mut title_changed = false;
+                let mut abstract_changed = false;
+
                 if let Some(title) = &self.title {
-                    yaml.insert(
-                        "title".into(),
-                        to_markdown_with(title, context.format.clone(), context.render).into(),
-                    );
+                    let new_markdown = to_markdown_with(title, context.format.clone(), context.render);
+
+                    // Only update if the content has actually changed
+                    let should_update = if let Some(existing) = yaml.get("title").and_then(|v| v.as_str()) {
+                        existing.trim() != new_markdown.trim()
+                    } else {
+                        true // No existing title, definitely update
+                    };
+
+                    if should_update {
+                        yaml.insert("title".into(), new_markdown.into());
+                        title_changed = true;
+                    }
                 }
 
                 if let Some(date_published) = &self.date_published {
@@ -414,16 +427,30 @@ impl MarkdownCodec for Article {
                 }
 
                 if let Some(r#abstract) = &self.r#abstract {
-                    yaml.insert(
-                        "abstract".into(),
-                        to_markdown_with(r#abstract, context.format.clone(), context.render).into(),
-                    );
+                    let new_markdown = to_markdown_with(r#abstract, context.format.clone(), context.render);
+
+                    // Only update if the content has actually changed
+                    let should_update = if let Some(existing) = yaml.get("abstract").and_then(|v| v.as_str()) {
+                        existing.trim() != new_markdown.trim()
+                    } else {
+                        true // No existing abstract, definitely update
+                    };
+
+                    if should_update {
+                        yaml.insert("abstract".into(), new_markdown.into());
+                        abstract_changed = true;
+                    }
                 }
 
-                serde_yaml::to_string(&yaml)
-                    .unwrap_or_default()
-                    .trim()
-                    .to_string()
+                // If neither title nor abstract changed, return original frontmatter to avoid reformatting
+                if !title_changed && !abstract_changed && self.frontmatter.is_some() {
+                    self.frontmatter.clone().unwrap_or_default()
+                } else {
+                    serde_yaml::to_string(&yaml)
+                        .unwrap_or_default()
+                        .trim()
+                        .to_string()
+                }
             } else {
                 // Should only end up here if there is already frontmatter but
                 // that errored when parsed. So just return it  verbatim,
