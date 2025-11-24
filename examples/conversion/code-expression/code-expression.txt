@@ -1,10 +1,10 @@
-With a number output 6 * 7.
+With a number output 42.
 
-With a string output 'a string'.
+With a string output a string.
 
-With an array output [1, 2, 3].
+With an array output 1 2 3 .
 
-With an object output dict(a=1,b=dict()).
+With an object output 1  .
 
 With no language specified and no output a + b.
 
