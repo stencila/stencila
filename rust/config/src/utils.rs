@@ -977,6 +977,55 @@ pub fn config_add_route(file_path: &Path, route: &str) -> Result<PathBuf> {
     Ok(config_path)
 }
 
+/// Update the watch ID for a site in the [site] section of stencila.toml
+///
+/// This function:
+/// 1. Finds the nearest stencila.toml (starting from the given path)
+/// 2. Updates the site.watch field with the watch ID
+/// 3. If watch_id is None, removes the watch field
+///
+/// Returns the path to the modified config file.
+pub fn config_update_site_watch(path: &Path, watch_id: Option<String>) -> Result<PathBuf> {
+    use crate::CONFIG_FILENAME;
+
+    // Find the nearest stencila.toml starting from the path
+    let search_dir = if path.is_file() {
+        path.parent().ok_or_eyre("File has no parent directory")?
+    } else {
+        path
+    };
+
+    let config_path = find_config_file(search_dir, CONFIG_FILENAME)
+        .ok_or_else(|| eyre!("No `{CONFIG_FILENAME}` found"))?;
+
+    // Load existing config
+    let contents = fs::read_to_string(&config_path)?;
+    let mut doc = contents.parse::<DocumentMut>()?;
+
+    // Ensure [site] table exists
+    if doc.get("site").is_none() {
+        return Err(eyre!(
+            "No [site] section in `{CONFIG_FILENAME}`. Create a site first with `stencila site create`."
+        ));
+    }
+
+    let site_table = doc
+        .get_mut("site")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("site field is not a table")?;
+
+    if let Some(id) = watch_id {
+        site_table["watch"] = value(&id);
+    } else {
+        site_table.remove("watch");
+    }
+
+    // Write back to file
+    fs::write(&config_path, doc.to_string())?;
+
+    Ok(config_path)
+}
+
 /// Set a spread route configuration in the [routes] section of stencila.toml
 ///
 /// This function:

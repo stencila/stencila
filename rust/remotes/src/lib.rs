@@ -904,7 +904,7 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
             // Resolve the tracked path relative to workspace
             let absolute_tracked_path = workspace_dir.join(tracked_path);
 
-            // Check if this file is under site root
+            // Check if this file is under site root (or is the site root itself)
             if !config.path_is_in_site_root(&absolute_tracked_path, workspace_dir) {
                 continue;
             }
@@ -927,13 +927,14 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
                 }
 
                 // Create implicit remote info
+                // Site watches are stored in [site].watch, not [remotes]
                 let file_remote_info = RemoteInfo {
                     url: remote_url.clone(),
                     path: ConfigRelativePath(tracked_path.to_string_lossy().to_string()),
                     pulled_at: tracking_info.pulled_at,
                     pushed_at: tracking_info.pushed_at,
-                    watch_id: None, // Implicit remotes don't have watches
-                    watch_direction: None,
+                    watch_id: site_config.watch.clone(),
+                    watch_direction: site_config.watch.as_ref().map(|_| WatchDirection::ToRemote),
                     arguments: tracking_info.arguments.clone(),
                 };
 
@@ -1003,8 +1004,8 @@ pub async fn update_watch_id(path: &Path, url: &str, watch_id: Option<String>) -
 /// for display purposes.
 pub async fn remove_deleted_watches(
     path: &Path,
-    valid_watch_ids: &HashSet<u64>,
-) -> Result<Vec<(PathBuf, Url, u64)>> {
+    valid_watch_ids: &HashSet<String>,
+) -> Result<Vec<(PathBuf, Url, String)>> {
     let mut deleted_watches = Vec::new();
 
     // Load the config to find remotes with watch IDs
@@ -1018,9 +1019,8 @@ pub async fn remove_deleted_watches(
     // Check each remote for watch IDs that need to be removed
     for (path_key, value) in remotes {
         for target in value.to_vec() {
-            if let Some(watch_id_str) = target.watch()
-                && let Ok(watch_id) = watch_id_str.parse::<u64>()
-                && !valid_watch_ids.contains(&watch_id)
+            if let Some(watch_id) = target.watch()
+                && !valid_watch_ids.contains(watch_id)
                 && let Some(url_str) = target.url()
             {
                 // Watch no longer exists, remove it from config
@@ -1034,7 +1034,7 @@ pub async fn remove_deleted_watches(
                 )
                 .is_ok()
                 {
-                    deleted_watches.push((remote_path, Url::parse(url_str)?, watch_id));
+                    deleted_watches.push((remote_path, Url::parse(url_str)?, watch_id.to_string()));
                 }
             }
         }

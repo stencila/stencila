@@ -119,16 +119,16 @@ impl Cli {
 
         // Fetch watch details from API if not skipping remotes or watches
         let (watch_details_map, removed_watches): (
-            HashMap<u64, stencila_cloud::WatchDetailsResponse>,
+            HashMap<String, stencila_cloud::WatchDetailsResponse>,
             Vec<_>,
         ) = if !self.no_watches {
             match stencila_cloud::get_watches(repo_url.as_deref()).await {
                 Ok(watches) => {
-                    let watch_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> =
-                        watches.into_iter().map(|w| (w.id, w)).collect();
+                    let watch_map: HashMap<String, stencila_cloud::WatchDetailsResponse> =
+                        watches.into_iter().map(|w| (w.id.clone(), w)).collect();
 
                     // Clean up watch_ids that no longer exist in the cloud
-                    let valid_watch_ids: HashSet<u64> = watch_map.keys().copied().collect();
+                    let valid_watch_ids: HashSet<String> = watch_map.keys().cloned().collect();
                     let removed_watches =
                         match remove_deleted_watches(&current_dir()?, &valid_watch_ids).await {
                             Ok(removed) => removed,
@@ -283,17 +283,13 @@ impl Cli {
                     Cell::new("Removed")
                         .fg(Color::DarkGrey)
                         .add_attribute(Attribute::Dim)
-                } else if let Some(watch_id) = remote
-                    .watch_id
-                    .as_ref()
-                    .and_then(|id| id.parse::<u64>().ok())
-                {
+                } else if let Some(watch_id) = remote.watch_id.as_ref() {
                     use stencila_remotes::WatchDirection;
                     let direction = remote.watch_direction.unwrap_or_default();
 
                     // Get watch details from API if available
                     let (watch_status_color, watch_status_text) = watch_details_map
-                        .get(&watch_id)
+                        .get(watch_id)
                         .map(|details| {
                             use stencila_cloud::WatchStatus;
                             let color = match details.status {
@@ -310,7 +306,7 @@ impl Cli {
 
                     // Collect watch details for display (unless --no-watch-details is set)
                     if !self.no_watches
-                        && let Some(details) = watch_details_map.get(&watch_id)
+                        && let Some(details) = watch_details_map.get(watch_id)
                     {
                         watch_details_for_display.push((
                             path.clone(),
@@ -561,6 +557,10 @@ impl Cli {
                     );
                     message_parts.push(pr);
                 }
+
+                // Add link to watch on Stencila Cloud
+                let watch_url = format!("https://stencila.cloud/watches/{}", details.id);
+                message_parts.push(format!("Watch details and logs: {watch_url}"));
 
                 // Print the combined message
                 if !message_parts.is_empty() {

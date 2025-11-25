@@ -1028,7 +1028,7 @@ impl Cli {
             while let Some(progress) = rx.recv().await {
                 match progress {
                     PushProgress::WalkingDirectory => {
-                        message("📁 Walking directory...");
+                        message("📁 Walking directory");
                     }
                     PushProgress::FilesFound {
                         documents,
@@ -1072,7 +1072,7 @@ impl Cli {
             }
         });
 
-        message!("☁️ Pushing directory `{path_display}` to site {site_id}...");
+        message!("☁️ Pushing directory `{path_display}` to site `{site_id}`");
 
         // Determine dry-run state
         let is_dry_run = dry_run_opts.is_some();

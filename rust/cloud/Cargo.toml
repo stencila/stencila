@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 cached = { workspace = true }
 chrono = { workspace = true }
+clap = { workspace = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
 reqwest = { workspace = true }

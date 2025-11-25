@@ -20,7 +20,7 @@ use stencila_codec::{
     Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_schema::Node,
 };
 use stencila_codec_dom::DomCodec;
-use stencila_codec_utils::{get_current_branch, slugify_branch_name};
+use stencila_codec_utils::{get_current_branch, git_info, slugify_branch_name};
 use stencila_config::{Config, RedirectStatus, RouteRedirect, RouteTarget};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 use stencila_format::Format;
@@ -1031,8 +1031,22 @@ pub async fn push(
         // Normal mode: upload to R2
         upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
 
+        // Get repo URL for PR comments
+        let repo_url = git_info(&start_path)
+            .ok()
+            .and_then(|info| info.origin)
+            .unwrap_or_default();
+
         // Reconcile media files at this route to clean up orphaned files
-        reconcile_prefix(&site_id, &branch_slug, &media_prefix, current_media_files).await?;
+        reconcile_prefix(
+            &site_id,
+            &repo_url,
+            &branch_name,
+            &branch_slug,
+            &media_prefix,
+            current_media_files,
+        )
+        .await?;
     }
 
     // Process standalone redirect routes from config
@@ -1232,8 +1246,22 @@ pub async fn push_with_route(
             }
         }
 
+        // Get repo URL for PR comments
+        let repo_url = git_info(&start_path)
+            .ok()
+            .and_then(|info| info.origin)
+            .unwrap_or_default();
+
         // Reconcile media files at this route to clean up orphaned files
-        reconcile_prefix(&site_id, &branch_slug, &media_prefix, current_media_files).await?;
+        reconcile_prefix(
+            &site_id,
+            &repo_url,
+            &branch_name,
+            &branch_slug,
+            &media_prefix,
+            current_media_files,
+        )
+        .await?;
 
         // Upload HTML LAST (after media) so visitors always see complete content
         upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
@@ -1781,12 +1809,26 @@ where
             });
         }
 
+        // Get repo URL for PR comments
+        let repo_url = git_info(path)
+            .ok()
+            .and_then(|info| info.origin)
+            .unwrap_or_default();
+
         // Reconcile entire branch with empty prefix to clean up ALL stale files.
         // This ensures that when documents/files are deleted locally, they are
         // also removed from the site. The API will delete any files not in
         // all_uploaded_files.
         send_progress!(PushProgress::Reconciling);
-        reconcile_prefix(site_id, &branch_slug, "", all_uploaded_files).await?;
+        reconcile_prefix(
+            site_id,
+            &repo_url,
+            &branch_name,
+            &branch_slug,
+            "",
+            all_uploaded_files,
+        )
+        .await?;
     }
 
     // Calculate how many duplicate media files were eliminated

@@ -140,7 +140,7 @@ pub struct DirectionDetailsMap {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WatchDetailsResponse {
-    pub id: u64,
+    pub id: String,
     pub created_by: String,
     pub created_at: String,
     pub updated_at: String,

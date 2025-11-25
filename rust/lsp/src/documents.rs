@@ -84,9 +84,9 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
         .and_then(|info| info.origin);
 
     // Fetch watch details from API
-    let watch_details_map: HashMap<u64, stencila_cloud::WatchDetailsResponse> =
+    let watch_details_map: HashMap<String, stencila_cloud::WatchDetailsResponse> =
         match stencila_cloud::get_watches(repo_url.as_deref()).await {
-            Ok(watches) => watches.into_iter().map(|w| (w.id, w)).collect(),
+            Ok(watches) => watches.into_iter().map(|w| (w.id.clone(), w)).collect(),
             Err(error) => {
                 tracing::debug!("Failed to fetch watch details from API: {error}");
                 HashMap::new()
@@ -141,29 +141,23 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
 
                     // Get watch details if watch_id exists
                     let (watch_status, watch_status_summary, watch_last_error, current_pr) =
-                        if let Some(watch_id_str) = &remote.watch_id {
-                            if let Ok(watch_id) = watch_id_str.parse::<u64>() {
-                                if let Some(details) = watch_details_map.get(&watch_id) {
-                                    let status = Some(details.status.to_string());
-                                    let summary = if !details.status_details.summary.is_empty() {
-                                        Some(details.status_details.summary.clone())
-                                    } else {
-                                        None
-                                    };
-                                    let error = details.status_details.last_error.clone();
-                                    let pr = details.status_details.current_pr.as_ref().map(|pr| {
-                                        PullRequestInfo {
-                                            status: pr.status.clone(),
-                                            url: pr.url.clone(),
-                                        }
-                                    });
-                                    (status, summary, error, pr)
-                                } else {
-                                    (None, None, None, None)
-                                }
+                        if let Some(watch_id) = &remote.watch_id
+                            && let Some(details) = watch_details_map.get(watch_id)
+                        {
+                            let status = Some(details.status.to_string());
+                            let summary = if !details.status_details.summary.is_empty() {
+                                Some(details.status_details.summary.clone())
                             } else {
-                                (None, None, None, None)
-                            }
+                                None
+                            };
+                            let error = details.status_details.last_error.clone();
+                            let pr = details.status_details.current_pr.as_ref().map(|pr| {
+                                PullRequestInfo {
+                                    status: pr.status.clone(),
+                                    url: pr.url.clone(),
+                                }
+                            });
+                            (status, summary, error, pr)
                         } else {
                             (None, None, None, None)
                         };

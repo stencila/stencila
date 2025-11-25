@@ -16,6 +16,7 @@ mod microsoft;
 pub mod sites;
 mod watch;
 
+pub use sites::AccessMode;
 pub use watch::*;
 
 /// The base URL for the Stencila Cloud API

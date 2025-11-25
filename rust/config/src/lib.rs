@@ -20,8 +20,8 @@ mod utils;
 use utils::build_figment;
 pub use utils::{
     ConfigTarget, config_add_remote, config_add_route, config_set, config_set_remote_spread,
-    config_set_route_spread, config_unset, config_update_remote_watch, config_value,
-    find_config_file,
+    config_set_route_spread, config_unset, config_update_remote_watch, config_update_site_watch,
+    config_value, find_config_file,
 };
 
 pub mod cli;
@@ -173,6 +173,32 @@ pub struct Config {
 }
 
 impl Config {
+    /// Check if a path is exactly the site root directory
+    ///
+    /// Unlike `path_is_in_site_root`, this returns `true` only if the path
+    /// is exactly the configured `site.root`, not a subdirectory.
+    ///
+    /// Returns `false` if:
+    /// - `site` is not configured
+    /// - `site.root` is not configured
+    /// - The path is not exactly the site root
+    pub fn path_is_site_root(&self, path: &Path, workspace_dir: &Path) -> bool {
+        if let Some(site_config) = &self.site
+            && let Some(site_root) = &site_config.root
+        {
+            let site_root_path = site_root.resolve(workspace_dir);
+
+            // Normalize both paths for comparison
+            let path_canonical = path.canonicalize().ok();
+            let site_root_canonical = site_root_path.canonicalize().ok();
+
+            if let (Some(path_canon), Some(site_canon)) = (path_canonical, site_root_canonical) {
+                return path_canon == site_canon;
+            }
+        }
+        false
+    }
+
     /// Check if a path is under the configured site root
     ///
     /// Returns true if the path is within (or is) the directory
@@ -221,6 +247,14 @@ pub struct SiteConfig {
     /// Returned by Stencila Cloud when a site is created.
     #[schemars(regex(pattern = r"^s[a-z0-9]{9}$"))]
     pub id: Option<String>,
+
+    /// Watch ID from Stencila Cloud
+    ///
+    /// If watching is enabled for this site, this field contains the watch ID.
+    /// The watch enables unidirectional sync from repository to site - when
+    /// changes are pushed to the repository, the site is automatically updated.
+    #[schemars(regex(pattern = r"^\d+$"))]
+    pub watch: Option<String>,
 
     /// Custom domain for the site
     ///
