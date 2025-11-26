@@ -10,10 +10,9 @@ use chrono::TimeDelta;
 use clap::Parser;
 use eyre::{Result, bail};
 use indexmap::IndexMap;
-use inflector::Inflector;
 use itertools::Itertools;
 use reqwest::Url;
-use stencila_cloud::DirectionState;
+use stencila_cloud::WatchDirectionStatus;
 
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
@@ -288,19 +287,31 @@ impl Cli {
                     let direction = remote.watch_direction.unwrap_or_default();
 
                     // Get watch details from API if available
+                    // Compute overall status from direction statuses (priority: error > blocked > running > pending > ok)
                     let (watch_status_color, watch_status_text) = watch_details_map
                         .get(watch_id)
                         .map(|details| {
-                            use stencila_cloud::WatchStatus;
-                            let color = match details.status {
-                                WatchStatus::Ok => Color::Green,
-                                WatchStatus::Pending => Color::Yellow,
-                                WatchStatus::Syncing => Color::Cyan,
-                                WatchStatus::Blocked => Color::Magenta,
-                                WatchStatus::Error => Color::Red,
+                            let statuses = [details.from_remote_status, details.to_remote_status];
+
+                            // Find the highest priority status
+                            let overall_status =
+                                statuses.into_iter().flatten().max_by_key(|s| match s {
+                                    WatchDirectionStatus::Ok => 0,
+                                    WatchDirectionStatus::Pending => 1,
+                                    WatchDirectionStatus::Running => 2,
+                                    WatchDirectionStatus::Blocked => 3,
+                                    WatchDirectionStatus::Error => 4,
+                                });
+
+                            let (color, text) = match overall_status {
+                                Some(WatchDirectionStatus::Ok) => (Color::Green, "OK"),
+                                Some(WatchDirectionStatus::Pending) => (Color::Yellow, "Pending"),
+                                Some(WatchDirectionStatus::Running) => (Color::Cyan, "Running"),
+                                Some(WatchDirectionStatus::Blocked) => (Color::Magenta, "Blocked"),
+                                Some(WatchDirectionStatus::Error) => (Color::Red, "Error"),
+                                None => (Color::DarkGrey, "Waiting"),
                             };
-                            let text = details.status.to_string();
-                            (color, text)
+                            (color, text.to_string())
                         })
                         .unzip();
 
@@ -423,13 +434,12 @@ impl Cli {
 
         // Display detailed watch information (unless --no-watch-details is set)
         if !self.no_watches && !watch_details_for_display.is_empty() {
-            let direction_state_color = |state| match state {
-                DirectionState::Ok => Color::Green,
-                DirectionState::Pending => Color::Yellow,
-                DirectionState::Running => Color::Cyan,
-                DirectionState::Blocked => Color::Magenta,
-                DirectionState::Error => Color::Red,
-                DirectionState::Disabled => Color::DarkGrey,
+            let direction_status_color = |status: WatchDirectionStatus| match status {
+                WatchDirectionStatus::Ok => Color::Green,
+                WatchDirectionStatus::Pending => Color::Yellow,
+                WatchDirectionStatus::Running => Color::Cyan,
+                WatchDirectionStatus::Blocked => Color::Magenta,
+                WatchDirectionStatus::Error => Color::Red,
             };
 
             for (file_path, remote_url, details) in watch_details_for_display {
@@ -438,7 +448,11 @@ impl Cli {
                 // Create a separate table for this watch
                 let mut watch_table = Tabulated::new();
                 watch_table.set_header([
-                    "Watch", "Status", "Received", "Started", "Finished", "Reason",
+                    "Watch",
+                    "Status",
+                    "Last change",
+                    "Last sync",
+                    "Last error",
                 ]);
 
                 // Determine service name for display
@@ -453,114 +467,122 @@ impl Cli {
                     Cell::new(""),
                     Cell::new(""),
                     Cell::new(""),
-                    Cell::new(""),
                 ]);
 
-                // Add row for to_remote direction if present
-                if let Some(to_remote) = &details.status_details.directions.to_remote {
-                    let state_color = direction_state_color(to_remote.state);
-                    let state_text = to_remote.state.to_string();
+                // Check if to_remote direction is enabled (bi or to-remote)
+                let to_remote_enabled =
+                    details.direction == "bi" || details.direction == "to-remote";
 
-                    let received = to_remote
-                        .last_received_at
+                // Check if from_remote direction is enabled (bi or from-remote)
+                let from_remote_enabled =
+                    details.direction == "bi" || details.direction == "from-remote";
+
+                // Add row for to_remote direction if enabled
+                if to_remote_enabled {
+                    let (status_color, status_text) = match details.to_remote_status {
+                        Some(status) => (direction_status_color(status), status.to_string()),
+                        None => (Color::DarkGrey, "waiting".to_string()),
+                    };
+
+                    // Show "Never" if status is None (waiting), otherwise show timestamps
+                    let (received, processed) = if details.to_remote_status.is_none() {
+                        ("Never".to_string(), "Never".to_string())
+                    } else {
+                        (
+                            details
+                                .last_repo_received_at
+                                .as_ref()
+                                .map(|t| format_timestamp(t))
+                                .unwrap_or_else(|| "-".to_string()),
+                            details
+                                .last_repo_processed_at
+                                .as_ref()
+                                .map(|t| format_timestamp(t))
+                                .unwrap_or_else(|| "-".to_string()),
+                        )
+                    };
+
+                    let error = details
+                        .last_repo_error
                         .as_ref()
-                        .map(|t| format_timestamp(t))
+                        .map(|e| e.to_string())
                         .unwrap_or_else(|| "-".to_string());
-
-                    let queued = to_remote
-                        .last_queued_at
-                        .as_ref()
-                        .map(|t| format_timestamp(t))
-                        .unwrap_or_else(|| "-".to_string());
-
-                    let processed = to_remote
-                        .last_processed_at
-                        .as_ref()
-                        .map(|t| format_timestamp(t))
-                        .unwrap_or_else(|| "-".to_string());
-
-                    let reason = format_reason(&to_remote.reason, &to_remote.recommended_action);
 
                     watch_table.add_row([
                         Cell::new(format!("└ To {service_name}")),
-                        Cell::new(state_text).fg(state_color),
+                        Cell::new(status_text).fg(status_color),
                         Cell::new(received),
-                        Cell::new(queued),
                         Cell::new(processed),
-                        Cell::new(reason),
+                        Cell::new(error),
                     ]);
                 }
 
-                // Add row for from_remote direction if present
-                if let Some(from_remote) = &details.status_details.directions.from_remote {
-                    let state_color = direction_state_color(from_remote.state);
-                    let state_text = from_remote.state.to_string();
+                // Add row for from_remote direction if enabled
+                if from_remote_enabled {
+                    let (status_color, status_text) = match details.from_remote_status {
+                        Some(status) => (direction_status_color(status), status.to_string()),
+                        None => (Color::DarkGrey, "Waiting".to_string()),
+                    };
 
-                    let received = from_remote
-                        .last_received_at
+                    // Show "Never" if status is None (waiting), otherwise show timestamps
+                    let (received, processed) = if details.from_remote_status.is_none() {
+                        ("Never".to_string(), "Never".to_string())
+                    } else {
+                        (
+                            details
+                                .last_remote_received_at
+                                .as_ref()
+                                .map(|t| format_timestamp(t))
+                                .unwrap_or_else(|| "-".to_string()),
+                            details
+                                .last_remote_processed_at
+                                .as_ref()
+                                .map(|t| format_timestamp(t))
+                                .unwrap_or_else(|| "-".to_string()),
+                        )
+                    };
+
+                    let error = details
+                        .last_remote_error
                         .as_ref()
-                        .map(|t| format_timestamp(t))
+                        .map(|e| e.to_string())
                         .unwrap_or_else(|| "-".to_string());
-
-                    let queued = from_remote
-                        .last_queued_at
-                        .as_ref()
-                        .map(|t| format_timestamp(t))
-                        .unwrap_or_else(|| "-".to_string());
-
-                    let processed = from_remote
-                        .last_processed_at
-                        .as_ref()
-                        .map(|t| format_timestamp(t))
-                        .unwrap_or_else(|| "-".to_string());
-
-                    let reason =
-                        format_reason(&from_remote.reason, &from_remote.recommended_action);
 
                     watch_table.add_row([
                         Cell::new(format!("└ From {service_name}")),
-                        Cell::new(state_text).fg(state_color),
+                        Cell::new(status_text).fg(status_color),
                         Cell::new(received),
-                        Cell::new(queued),
                         Cell::new(processed),
-                        Cell::new(reason),
+                        Cell::new(error),
                     ]);
                 }
 
                 watch_table.to_stdout();
 
-                // Display summary message after the table
+                // Display PR info and link to watch
                 let mut message_parts = Vec::new();
 
-                // Add summary
-                if !details.status_details.summary.is_empty() {
-                    message_parts.push(details.status_details.summary.clone());
-                }
-
-                // Add error in red if present
-                if let Some(error) = &details.status_details.last_error {
-                    message_parts.push(format!("{} {}", cstr!("<red>Error:</>"), error));
-                }
-
-                // Add recommended actions if present
-                if let Some(actions) = details.status_details.recommended_actions
-                    && !actions.is_empty()
-                {
-                    message_parts.extend(actions);
-                }
-
-                // Add link to PR is there is any
-                if let Some(pr) = details.status_details.current_pr {
-                    let pr = format!(
-                        "Current {service_name} to repo PR is `{}`: {}",
-                        pr.status, pr.url
-                    );
-                    message_parts.push(pr);
+                // Add link to PR if there is one
+                if let Some(pr_number) = details.current_pr_number {
+                    // Extract owner/repo from repo_url to construct PR URL
+                    if let Ok(url) = Url::parse(&details.repo_url) {
+                        let path = url.path().trim_start_matches('/').trim_end_matches(".git");
+                        let pr_status = details
+                            .current_pr_status
+                            .map(|s| s.to_string())
+                            .unwrap_or_else(|| "unknown".to_string());
+                        let pr = format!(
+                            "Watch PR `{pr_status}`: https://github.com/{path}/pull/{pr_number}"
+                        );
+                        message_parts.push(pr);
+                    }
                 }
 
                 // Add link to watch on Stencila Cloud
-                let watch_url = format!("https://stencila.cloud/watches/{}", details.id);
-                message_parts.push(format!("Watch details and logs: {watch_url}"));
+                message_parts.push(format!(
+                    "Watch details and logs: https://stencila.cloud/watches/{}",
+                    details.id
+                ));
 
                 // Print the combined message
                 if !message_parts.is_empty() {
@@ -596,19 +618,6 @@ fn format_timestamp(iso_timestamp: &str) -> String {
 
     // Fallback to showing the raw timestamp if parsing fails
     iso_timestamp.to_string()
-}
-
-/// Format reason and recommended action for display
-fn format_reason(reason: &Option<String>, recommended_action: &Option<String>) -> String {
-    let reason_text = reason.as_ref().map(|r| r.to_sentence_case());
-    let action_text = recommended_action.as_deref();
-
-    match (reason_text, action_text) {
-        (Some(r), Some(a)) => format!("{}. {}", r, a),
-        (Some(r), None) => r,
-        (None, Some(a)) => a.to_string(),
-        (None, None) => "-".to_string(),
-    }
 }
 
 fn humanize_timestamp(time: Option<u64>) -> Result<String> {

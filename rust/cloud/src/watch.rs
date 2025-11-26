@@ -69,71 +69,25 @@ pub async fn delete_watch(watch_id: &str) -> Result<()> {
     Ok(())
 }
 
-/// Overall watch status enum
-///
-/// Priority: error > blocked > syncing > pending > ok
+/// Direction status for a watch
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Display)]
 #[serde(rename_all = "lowercase")]
-pub enum WatchStatus {
-    Ok,
-    Pending,
-    Syncing,
-    Blocked,
-    Error,
-}
-
-/// Direction-specific state
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Display)]
-#[serde(rename_all = "lowercase")]
-pub enum DirectionState {
+pub enum WatchDirectionStatus {
     Ok,
     Pending,
     Running,
     Blocked,
     Error,
-    Disabled,
 }
 
-/// Direction details for a single sync direction
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DirectionDetails {
-    pub state: DirectionState,
-    pub last_received_at: Option<String>,
-    pub last_queued_at: Option<String>,
-    pub last_processed_at: Option<String>,
-    pub pending_since: Option<String>,
-    pub reason: Option<String>,
-    pub recommended_action: Option<String>,
-}
-
-/// Current PR information within status details
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CurrentPr {
-    pub number: u64,
-    pub status: String,
-    pub url: String,
-}
-
-/// Structured status details for a watch
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct StatusDetails {
-    pub summary: String,
-    pub directions: DirectionDetailsMap,
-    pub current_pr: Option<CurrentPr>,
-    pub last_error: Option<String>,
-    pub first_sync: Option<bool>,
-    pub recommended_actions: Option<Vec<String>>,
-}
-
-/// Map of direction details
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DirectionDetailsMap {
-    pub from_remote: Option<DirectionDetails>,
-    pub to_remote: Option<DirectionDetails>,
+/// PR status for a watch
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Display)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum PrStatus {
+    Open,
+    Closed,
+    Merged,
 }
 
 /// Full watch details response from the API
@@ -144,7 +98,7 @@ pub struct WatchDetailsResponse {
     pub created_by: String,
     pub created_at: String,
     pub updated_at: String,
-    pub user_id: String,
+    pub user_id: Option<String>,
     pub org_id: Option<String>,
     pub repo_url: String,
     pub file_path: String,
@@ -153,8 +107,18 @@ pub struct WatchDetailsResponse {
     pub direction: String,
     pub pr_mode: String,
     pub debounce_seconds: u64,
-    pub status: WatchStatus,
-    pub status_details: StatusDetails,
+    pub current_pr_number: Option<u64>,
+    pub current_pr_status: Option<PrStatus>,
+    pub last_remote_received_at: Option<String>,
+    pub last_remote_processed_at: Option<String>,
+    pub last_repo_received_at: Option<String>,
+    pub last_repo_processed_at: Option<String>,
+    pub last_repo_skipped_at: Option<String>,
+    pub last_repo_skip_reason: Option<String>,
+    pub from_remote_status: Option<WatchDirectionStatus>,
+    pub to_remote_status: Option<WatchDirectionStatus>,
+    pub last_remote_error: Option<String>,
+    pub last_repo_error: Option<String>,
 }
 
 /// Get all watches for the authenticated user
