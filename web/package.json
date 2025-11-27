@@ -121,7 +121,7 @@
     "@tailwindcss/postcss": "4.1.16",
     "@types/katex": "0.16.7",
     "@types/plotly.js-dist-min": "2.3.4",
-    "glob": "11.0.3",
+    "glob": "11.1.0",
     "parcel": "2.16.0",
     "postcss-import": "16.1.1",
     "tsx": "4.20.6"
