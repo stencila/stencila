@@ -407,14 +407,16 @@ impl MarkdownCodec for Article {
                 let mut abstract_changed = false;
 
                 if let Some(title) = &self.title {
-                    let new_markdown = to_markdown_with(title, context.format.clone(), context.render);
+                    let new_markdown =
+                        to_markdown_with(title, context.format.clone(), context.render);
 
                     // Only update if the content has actually changed
-                    let should_update = if let Some(existing) = yaml.get("title").and_then(|v| v.as_str()) {
-                        existing.trim() != new_markdown.trim()
-                    } else {
-                        true // No existing title, definitely update
-                    };
+                    let should_update =
+                        if let Some(existing) = yaml.get("title").and_then(|v| v.as_str()) {
+                            existing.trim() != new_markdown.trim()
+                        } else {
+                            true // No existing title, definitely update
+                        };
 
                     if should_update {
                         yaml.insert("title".into(), new_markdown.into());
@@ -427,14 +429,16 @@ impl MarkdownCodec for Article {
                 }
 
                 if let Some(r#abstract) = &self.r#abstract {
-                    let new_markdown = to_markdown_with(r#abstract, context.format.clone(), context.render);
+                    let new_markdown =
+                        to_markdown_with(r#abstract, context.format.clone(), context.render);
 
                     // Only update if the content has actually changed
-                    let should_update = if let Some(existing) = yaml.get("abstract").and_then(|v| v.as_str()) {
-                        existing.trim() != new_markdown.trim()
-                    } else {
-                        true // No existing abstract, definitely update
-                    };
+                    let should_update =
+                        if let Some(existing) = yaml.get("abstract").and_then(|v| v.as_str()) {
+                            existing.trim() != new_markdown.trim()
+                        } else {
+                            true // No existing abstract, definitely update
+                        };
 
                     if should_update {
                         yaml.insert("abstract".into(), new_markdown.into());
