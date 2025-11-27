@@ -107,7 +107,7 @@
     "moment": "2.30.1",
     "plotly.js-dist-min": "3.1.2",
     "pretty-ms": "9.3.0",
-    "tailwindcss": "4.1.16",
+    "tailwindcss": "4.1.17",
     "vega": "5.33.0",
     "vega-embed": "6.29.0",
     "vega-lite": "5.23.0"
