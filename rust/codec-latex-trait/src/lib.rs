@@ -163,11 +163,19 @@ pub fn use_packages(latex: &str) -> String {
     {
         packages.push("floatrow");
     }
-    // booktabs: \toprule, \midrule, \bottomrule etc
-    if (has(r"\toprule") || has(r"\midrule") || has(r"\bottomrule") || has(r"\addlinespace"))
+    // booktabs: \toprule, \midrule, \bottomrule, \cmidrule etc
+    if (has(r"\toprule")
+        || has(r"\midrule")
+        || has(r"\bottomrule")
+        || has(r"\addlinespace")
+        || has(r"\cmidrule"))
         && !has_pkg("booktabs")
     {
         packages.push("booktabs");
+    }
+    // multirow: cells spanning multiple rows
+    if has(r"\multirow") && !has_pkg("multirow") {
+        packages.push("multirow");
     }
     // enumitem: customized lists
     if (has(r"\setlist") || has(r"\begin{itemize}[") || has(r"\begin{enumerate}["))
@@ -226,6 +234,33 @@ pub fn use_packages(latex: &str) -> String {
             }
         })
         .join("\n")
+}
+
+/// Extract undefined control sequence names from a LaTeX log
+fn extract_undefined_commands(log: &str) -> Vec<String> {
+    let mut commands = Vec::new();
+    let lines: Vec<&str> = log.lines().collect();
+
+    for (i, line) in lines.iter().enumerate() {
+        if line.contains("! Undefined control sequence.") {
+            // The command is usually on the next line after "<recently read>"
+            if let Some(next_line) = lines.get(i + 1)
+                && let Some(cmd_start) = next_line.find('\\')
+            {
+                // Extract the command name (ends at space or end of line)
+                let cmd_part = &next_line[cmd_start..];
+                let cmd_end = cmd_part
+                    .find(|c: char| c.is_whitespace())
+                    .unwrap_or(cmd_part.len());
+                let cmd = &cmd_part[..cmd_end];
+                if !cmd.is_empty() && !commands.contains(&cmd.to_string()) {
+                    commands.push(cmd.to_string());
+                }
+            }
+        }
+    }
+
+    commands
 }
 
 /// Encode a node to PNG using `latex` binary
@@ -368,7 +403,18 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
     }
 
     if !latex_status.success() {
-        bail!("{latex_tool} failed:\n\n{log}");
+        let undefined_cmds = extract_undefined_commands(&log);
+        if !undefined_cmds.is_empty() {
+            let cmd_list = undefined_cmds.join(", ");
+            bail!(
+                "{latex_tool} failed: undefined control sequence(s): {cmd_list}\n\n\
+                 These commands are not defined. You may need to:\n\
+                 - Add a \\usepackage{{}} for the package that defines them\n\
+                 - Define them in your document preamble"
+            );
+        } else {
+            bail!("{latex_tool} failed:\n\n{log}");
+        }
     }
     if !image_status.map(|status| status.success()).unwrap_or(true) {
         bail!("{image_tool} failed");
