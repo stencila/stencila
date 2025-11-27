@@ -410,9 +410,9 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
             }
 
             if let (Some(id), None) = (&id, &label_type) {
-                if id.starts_with("tab:") {
+                if id.starts_with("tab:") || id.starts_with("tbl-") {
                     label_type = Some(LabelType::TableLabel);
-                } else if id.starts_with("fig:") {
+                } else if id.starts_with("fig:") || id.starts_with("fig-") {
                     label_type = Some(LabelType::FigureLabel);
                 }
             }
