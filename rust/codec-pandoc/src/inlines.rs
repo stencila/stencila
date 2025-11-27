@@ -257,13 +257,13 @@ fn link_from_pandoc(
     // revert these. Some software also places a %20 at the start of the URL.
     target = target.trim_start_matches("%20").to_string();
     if let Some(rest) = target.strip_prefix("#tab%3A") {
-        target = format!("tab:{rest}");
+        target = format!("#tab:{rest}");
     } else if let Some(rest) = target.strip_prefix("#fig%3A") {
-        target = format!("fig:{rest}");
+        target = format!("#fig:{rest}");
     } else if let Some(rest) = target.strip_prefix("#equ%3A") {
-        target = format!("equ:{rest}");
+        target = format!("#equ:{rest}");
     } else if let Some(rest) = target.strip_prefix("#app%3A") {
-        target = format!("app:{rest}");
+        target = format!("#app:{rest}");
     }
 
     let label_only = if !target.starts_with("https://") && !target.starts_with("http://") {

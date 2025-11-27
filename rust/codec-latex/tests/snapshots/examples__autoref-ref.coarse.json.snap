@@ -18,7 +18,7 @@ expression: article
         {
           "type": "Link",
           "content": [],
-          "target": "tab:one"
+          "target": "#tab:one"
         }
       ]
     },
@@ -35,7 +35,7 @@ expression: article
         {
           "type": "Link",
           "content": [],
-          "target": "tab:one",
+          "target": "#tab:one",
           "labelOnly": true
         }
       ]

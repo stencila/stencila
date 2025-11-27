@@ -231,7 +231,7 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
                 }),
             ])));
         } else if let Some(mat) = captures.name("ref") {
-            let target = mat.as_str().into();
+            let target = ["#", mat.as_str()].concat();
             let label_only = captures[0].contains("\\ref{").then_some(true);
 
             blocks.push(Block::InlinesBlock(InlinesBlock::new(vec![Inline::Link(
