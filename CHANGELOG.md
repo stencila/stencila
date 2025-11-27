@@ -1,3 +1,33 @@
+# [2.9.0](https://github.com/stencila/stencila/compare/v2.8.0...v2.9.0) (2025-11-27)
+
+
+### Bug Fixes
+
+* **Cloud:** End `logs --follow` when logs are complete ([e1b36dd](https://github.com/stencila/stencila/commit/e1b36dd95f))
+* **Codecs:** Be consistent with use of `#` for internal links ([849ddaf](https://github.com/stencila/stencila/commit/849ddaf516))
+* **LaTeX codec:** Allow for `tbl-` and `fig-` style labels ([ba2d534](https://github.com/stencila/stencila/commit/ba2d53470f)), add more command to package registrations ([3e56074](https://github.com/stencila/stencila/commit/3e56074220))
+* **Markdown codec:** Avoid unnecessary reformatting of frontmatter ([86b7627](https://github.com/stencila/stencila/commit/86b762767e)), render executable title and abstract ([dd3791f](https://github.com/stencila/stencila/commit/dd3791fbc7)), only encode autolink if target is HTTP ([1f336fc](https://github.com/stencila/stencila/commit/1f336fccd7)), improve indentation for for, if and style blocks ([a521f90](https://github.com/stencila/stencila/commit/a521f90f7))
+* **Node execution:** Do not skip compile of existing content ([ece9bc6](https://github.com/stencila/stencila/commit/ece9bc68d3))
+* **Text codec:** Add newlines after code chunks as for other blocks ([1f47120](https://github.com/stencila/stencila/commit/1f471203d3)), encode outputs for executable code expressions and chunks ([dd3791f](https://github.com/stencila/stencila/commit/9a1c80eba5))
+
+
+### Features
+
+* **CLI:** Add `site` command with subcommands for managing sites including branches, domains, access control, and passwords ([5249f0c](https://github.com/stencila/stencila/commit/5249f0ca9e))
+* **CLI:** Add spread rendering and push modes ([5382110](https://github.com/stencila/stencila/commit/5382110f46)), infer spread mode from output path, route, or title templates ([583410](https://github.com/stencila/stencila/commit/583410585a))
+* **CLI:** Expose island decoding options ([265d9c2](https://github.com/stencila/stencila/commit/265d9c227f))
+* **CLI:** Add dry run option for pushing to remotes ([fedbefd](https://github.com/stencila/stencila/commit/fedbefdad4))
+* **Config:** Move to `stencila.toml` for configuration ([2c10e5b](https://github.com/stencila/stencila/commit/2c10e5bfac)), generate JSON schema for config ([ccd318c](https://github.com/stencila/stencila/commit/ccd318cce7)), introduce managed config keys ([bf9f1d1](https://github.com/stencila/stencila/commit/bf9f1d1f7b))
+* **DOM codec:** Do not encode unnecessary attributes for static views ([584bab8](https://github.com/stencila/stencila/commit/584bab80cf))
+* **Node media:** Collect media within raw HTML blocks ([ceef9fc](https://github.com/stencila/stencila/commit/ceef9fcc84))
+
+
+### Performance Improvements
+
+* **Site codec:** Only upload files that have changed ([a8a40cd](https://github.com/stencila/stencila/commit/a8a40cd448)), upload compressed HTML ([76d1848](https://github.com/stencila/stencila/commit/76d1848469))
+
+
+
 # [2.8.0](https://github.com/stencila/stencila/compare/v2.7.0...v2.8.0) (2025-11-10)
 
 

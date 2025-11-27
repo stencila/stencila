@@ -3,7 +3,7 @@
   "displayName": "Stencila",
   "publisher": "stencila",
   "description": "Documents with Scientific Intelligence",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
   "homepage": "https://github.com/stencila/stencila/tree/main/vscode#readme",

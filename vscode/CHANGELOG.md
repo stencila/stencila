@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.9.0 2025-11-27
+
+- Based on Stencila CLI [v2.9.0](https://github.com/stencila/stencila/releases/tag/v2.9.0) which includes new `site` commands for managing Stencila Cloud sites (branches, domains, access, passwords), spread rendering and push modes, configuration improvements with `stencila.toml`, and various codec fixes for LaTeX, Markdown, and text formats.
+
+
+
 ## 2.8.0 2025-11-10
 
 - Adds document tree view for viewing and managing Stencila documents in your workspace.

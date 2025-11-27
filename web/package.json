@@ -1,6 +1,6 @@
 {
   "name": "@stencila/web",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "description": "Web Components for types in the Stencila Schema",
   "license": "Apache-2.0",
   "author": "Nokome Bentley <nokome@stencila.io>",
