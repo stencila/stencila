@@ -80,9 +80,15 @@ sed -i "1i# [$VERSION](https://github.com/stencila/stencila/compare/$PREV_VERSIO
 
 # 9. Prompt user to update changelogs before committing
 echo ""
-echo "⚠️  Please update the following changelogs with release notes for v$VERSION:"
+echo "✏️  Please update the following changelogs with release notes for v$VERSION:"
 echo "   - CHANGELOG.md (main changelog with categorized sections)"
 echo "   - vscode/CHANGELOG.md (VSCode extension changelog)"
+echo ""
+echo "   Tips for writing release notes:"
+echo "   - Focus on user-facing changes and highlights, not every commit"
+echo "   - Group related changes into paragraphs rather than listing individually"
+echo "   - Emphasize new features, important fixes, and breaking changes"
+echo "   - Use 'git log --oneline $PREV_VERSION..HEAD' to review commits"
 echo ""
 read -p "Press Enter when you have updated the changelogs and are ready to commit..." -r
 echo ""
