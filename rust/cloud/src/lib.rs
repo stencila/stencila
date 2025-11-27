@@ -252,6 +252,13 @@ pub struct LogEntry {
     pub message: String,
 }
 
+/// Response from fetching logs, including completion status
+#[derive(Debug)]
+pub struct LogsResponse {
+    pub logs: Vec<LogEntry>,
+    pub is_complete: bool,
+}
+
 /// Get logs for a session from Stencila Cloud
 ///
 /// # Arguments
@@ -260,10 +267,21 @@ pub struct LogEntry {
 ///
 /// # Returns
 ///
-/// A vector of log entries containing timestamp, level, and message
-pub async fn get_logs(session_id: &str) -> Result<Vec<LogEntry>> {
+/// A `LogsResponse` containing log entries and whether logs are complete
+pub async fn get_logs(session_id: &str) -> Result<LogsResponse> {
     let client = client().await?;
     let url = format!("{}/sessions/{}/logs", base_url(), session_id);
     let response = client.get(&url).send().await?;
-    process_response(response).await
+
+    // Check for X-Logs-Complete header before consuming response
+    let is_complete = response
+        .headers()
+        .get("X-Logs-Complete")
+        .and_then(|v| v.to_str().ok())
+        .map(|v| v.eq_ignore_ascii_case("true"))
+        .unwrap_or(false);
+
+    let logs = process_response(response).await?;
+
+    Ok(LogsResponse { logs, is_complete })
 }

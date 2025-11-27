@@ -310,7 +310,8 @@ impl Logs {
 
         loop {
             // Fetch logs from API
-            let logs = stencila_cloud::get_logs(&self.session).await?;
+            let stencila_cloud::LogsResponse { logs, is_complete } =
+                stencila_cloud::get_logs(&self.session).await?;
 
             // Filter by level if specified
             let logs: Vec<_> = if let Some(ref level) = self.level {
@@ -372,6 +373,14 @@ impl Logs {
 
             // Update last log count for follow mode
             last_log_count = logs.len();
+
+            // If logs are complete, exit follow mode
+            if is_complete {
+                if self.follow.is_some() {
+                    message!("🏁 No more logs, ending follow");
+                }
+                break;
+            }
 
             // If not following, exit after first display
             let Some(poll_interval) = self.follow else {
