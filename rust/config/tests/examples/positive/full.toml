@@ -1,0 +1,38 @@
+# Comprehensive Stencila configuration using all features
+
+[site]
+id = "s123456789"
+watch = "987654321"
+domain = "docs.example.org"
+root = "site"
+exclude = ["**/*.draft.md", "_drafts/**", "node_modules/**"]
+
+[routes]
+# File routes
+"/" = "index.md"
+"/about/" = "about/README.md"
+"/docs/" = "documentation/index.smd"
+
+# Redirect routes
+"/old-docs/" = { redirect = "/docs/", status = 301 }
+"/legacy/" = { redirect = "https://legacy.example.org" }
+
+# Spread routes
+"/{region}/report/" = { file = "reports/regional.smd", arguments = { region = ["americas", "emea", "apac"] } }
+"/{year}/{quarter}/" = { file = "quarterly.smd", spread = "zip", arguments = { year = ["2024", "2024"], quarter = ["Q1", "Q2"] } }
+
+[remotes]
+# Simple URL remotes
+"site" = "https://example.stencila.site/"
+
+# Remote with watch
+"docs/main.md" = { url = "https://docs.google.com/document/d/main123/edit", watch = "wMaIn12345" }
+
+# Multiple remotes for one path
+"shared.md" = [
+  { url = "https://docs.google.com/document/d/shared1/edit", watch = "wShArEd123" },
+  "https://backup.sharepoint.com/shared"
+]
+
+# Spread remote
+"report.smd" = { service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south", "east", "west"] } }

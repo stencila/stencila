@@ -1,0 +1,14 @@
+# Remote configuration with multiple targets per path
+
+[remotes]
+# Single file synced to multiple remotes
+"article.md" = [
+  { url = "https://docs.google.com/document/d/gdoc123/edit", watch = "wGdOc12345" },
+  "https://example.sharepoint.com/document/sp456"
+]
+
+# Another example with mixed target types
+"report.smd" = [
+  "https://primary.stencila.site/",
+  { url = "https://backup.stencila.site/", watch = "wBaCkUp123" }
+]

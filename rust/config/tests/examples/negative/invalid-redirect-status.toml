@@ -1,0 +1,4 @@
+# Invalid: Redirect status must be one of 301, 302, 303, 307, 308
+
+[routes]
+"/old/" = { redirect = "/new/", status = 404 }

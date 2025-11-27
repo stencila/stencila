@@ -1,0 +1,8 @@
+# Invalid: Route paths must start with /
+#
+# This is validated by Stencila at runtime, NOT by JSON Schema.
+# This file passes schema validation but fails when loaded by Stencila.
+# It is NOT submitted to SchemaStore.
+
+[routes]
+"about" = "README.md"

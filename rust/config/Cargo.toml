@@ -21,6 +21,7 @@ tracing = { workspace = true }
 url = { workspace = true }
 
 [dev-dependencies]
+jsonschema = "0.37"
 serial_test = "3.2.0"
 tempfile = { workspace = true }
 

@@ -1,0 +1,8 @@
+# Full site configuration example
+
+[site]
+id = "sabcdefgh1"
+watch = "123456789"
+domain = "docs.example.com"
+root = "docs"
+exclude = ["**/*.draft.md", "temp/**", "_private/**"]

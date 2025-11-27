@@ -1,0 +1,11 @@
+# Remote configuration with spread (multi-variant pushes)
+
+[remotes]
+# Spread to Google Docs with grid mode (default)
+"report.smd" = { service = "gdoc", title = "Report - {region}", arguments = { region = ["north", "south"] } }
+
+# Spread with explicit grid mode and multiple parameters
+"analysis.smd" = { service = "gdoc", spread = "grid", title = "{year} {quarter} Analysis", arguments = { year = ["2023", "2024"], quarter = ["Q1", "Q2"] } }
+
+# Spread with zip mode
+"summary.smd" = { service = "m365", spread = "zip", arguments = { dept = ["sales", "engineering"] } }

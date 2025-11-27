@@ -72,11 +72,21 @@ jobs:
             mv catalog.tmp.json src/api/json/catalog.json
           fi
 
+      - name: Copy test files
+        run: |
+          # Copy positive test examples
+          mkdir -p schemastore/src/test/stencila-config
+          cp rust/config/tests/examples/positive/*.toml schemastore/src/test/stencila-config/
+
+          # Copy negative test examples
+          mkdir -p schemastore/src/negative_test/stencila-config
+          cp rust/config/tests/examples/negative/*.toml schemastore/src/negative_test/stencila-config/
+
       - name: Commit and push changes
         id: commit
         run: |
           cd schemastore
-          git add src/api/json/catalog.json
+          git add src/api/json/catalog.json src/test/stencila-config src/negative_test/stencila-config
           if git diff --staged --quiet; then
             echo "No changes to commit"
             echo "has_changes=false" >> $GITHUB_OUTPUT
@@ -101,6 +111,10 @@ jobs:
           **File patterns:** \`stencila.toml\`, \`stencila.*.toml\`
 
           The schema is automatically generated from the Rust types in the [Stencila repository](https://github.com/stencila/stencila) and published at stencila.org.
+
+          **Test files included:**
+          - Positive tests in \`src/test/stencila-config/\`
+          - Negative tests in \`src/negative_test/stencila-config/\`
 
           This PR was automatically created by the Stencila release workflow for version ${{ inputs.tag }}." \
             --base main \

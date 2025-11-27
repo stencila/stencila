@@ -1,0 +1,11 @@
+# Route configuration with spread (multi-variant routes)
+
+[routes]
+# Grid spread (cartesian product) - generates 4 routes: /north/A/, /north/B/, /south/A/, /south/B/
+"/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["A", "B"] } }
+
+# Explicit grid mode
+"/{year}/" = { file = "annual-report.smd", spread = "grid", arguments = { year = ["2023", "2024"] } }
+
+# Zip spread (positional pairing) - generates 2 routes: /q1-report/, /q2-report/
+"/{quarter}-report/" = { file = "quarterly.smd", spread = "zip", arguments = { quarter = ["q1", "q2"] } }

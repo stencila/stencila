@@ -1,0 +1,6 @@
+# Remote configuration with simple URLs
+
+[remotes]
+"site" = "https://example.stencila.site/"
+"docs" = "https://docs.stencila.site/"
+"report.md" = "https://docs.google.com/document/d/1234567890/edit"

@@ -1,0 +1,7 @@
+# Route configuration with file mappings
+
+[routes]
+"/" = "index.md"
+"/about/" = "README.md"
+"/docs/guide/" = "docs/user-guide.md"
+"/api/" = "reference/api.smd"

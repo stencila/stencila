@@ -1,0 +1,4 @@
+# Invalid: Domain must match DNS pattern
+
+[site]
+domain = "not a valid domain!"

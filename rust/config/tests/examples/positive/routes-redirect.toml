@@ -1,0 +1,20 @@
+# Route configuration with redirects
+
+[routes]
+# Permanent redirect (301)
+"/old-page/" = { redirect = "/new-page/", status = 301 }
+
+# Temporary redirect (302, default)
+"/temp/" = { redirect = "/temporary-location/" }
+
+# External redirect
+"/external/" = { redirect = "https://example.com/external" }
+
+# See Other (303)
+"/see-other/" = { redirect = "/other/", status = 303 }
+
+# Temporary Redirect (307)
+"/temp-307/" = { redirect = "/destination/", status = 307 }
+
+# Permanent Redirect (308)
+"/perm-308/" = { redirect = "/final/", status = 308 }
