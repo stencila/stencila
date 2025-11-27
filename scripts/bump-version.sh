@@ -21,6 +21,27 @@ else
     echo "Bumping all components to version $VERSION"
 fi
 
+# 0. Ensure generated files are up-to-date
+echo "Checking generated files are up-to-date..."
+make -C rust generated
+
+if [[ -n $(git status -s) ]]; then
+    echo ""
+    echo "⚠️  Generated files are out of date. The following files were modified:"
+    git status -s
+    echo ""
+    read -p "Would you like to commit these changes now? [y/N] " -r REPLY
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        git add .
+        git commit -m "chore(*): update generated files"
+        echo "✅ Generated files committed."
+    else
+        echo "Aborting release. Please commit or stash the generated file changes first."
+        exit 1
+    fi
+fi
+
 # 1. Update workspace version in root Cargo.toml (source of truth)
 echo "Updating root Cargo.toml..."
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
