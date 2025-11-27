@@ -93,7 +93,7 @@ Support and degree of loss by node type:
 | [List](https://stencila.ghost.io/docs/reference/schema/list)                                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
 | [ListItem](https://stencila.ghost.io/docs/reference/schema/list_item)                        | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
 | [Note](https://stencila.ghost.io/docs/reference/schema/note)                                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [Paragraph](https://stencila.ghost.io/docs/reference/schema/paragraph)                       | 🟢 No loss    | 🟢 No loss  | Encoded as `{{content}}\n\n`       |
+| [Paragraph](https://stencila.ghost.io/docs/reference/schema/paragraph)                       | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
 | [QuoteBlock](https://stencila.ghost.io/docs/reference/schema/quote_block)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
 | [QuoteInline](https://stencila.ghost.io/docs/reference/schema/quote_inline)                  | ⚠️ High loss |            | Encoded as `<q>{{content}}</q>`    |
 | [Section](https://stencila.ghost.io/docs/reference/schema/section)                           | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
@@ -103,7 +103,7 @@ Support and degree of loss by node type:
 | [Subscript](https://stencila.ghost.io/docs/reference/schema/subscript)                       | 🟢 No loss    | 🟢 No loss  | Encoded as `~{{content}}~`         |
 | [Superscript](https://stencila.ghost.io/docs/reference/schema/superscript)                   | 🟢 No loss    | 🟢 No loss  | Encoded as `^{{content}}^`         |
 | [Text](https://stencila.ghost.io/docs/reference/schema/text)                                 | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [ThematicBreak](https://stencila.ghost.io/docs/reference/schema/thematic_break)              | 🟢 No loss    | 🟢 No loss  | Encoded as `***\n\n`               |
+| [ThematicBreak](https://stencila.ghost.io/docs/reference/schema/thematic_break)              | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
 | [Underline](https://stencila.ghost.io/docs/reference/schema/underline)                       | 🟢 No loss    | 🟢 No loss  | Encoded as `<u>{{content}}</u>`    |
 | **Math**                                                                                     |
 | [MathBlock](https://stencila.ghost.io/docs/reference/schema/math_block)                      | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |

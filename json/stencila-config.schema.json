@@ -4,16 +4,6 @@
   "description": "Configuration for Stencila workspaces",
   "type": "object",
   "properties": {
-    "remotes": {
-      "description": "Remote synchronization configuration\n\nMaps local paths to remote service URLs. The key is the local path\n(file, directory, or pattern), and the value can be:\n- A simple URL string: `\"site\" = \"https://example.stencila.site/\"`\n- An object with watch: `\"file.md\" = { url = \"...\", watch = \"w123\" }`\n- Multiple remotes: `\"file.md\" = [{ url = \"...\", watch = \"...\" }, \"https://...\"]`\n\nDirectory paths are implicitly recursive, matching all files within.\n\nExample:\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"docs/report.md\" = { url = \"https://docs.google.com/...\", watch = \"w123\" }\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
-      "type": [
-        "object",
-        "null"
-      ],
-      "additionalProperties": {
-        "$ref": "#/definitions/RemoteValue"
-      }
-    },
     "site": {
       "description": "Site configuration",
       "anyOf": [
@@ -26,7 +16,7 @@
       ]
     },
     "routes": {
-      "description": "Custom routes for serving content\n\nRoutes map URL paths to files or redirects. The key is the URL path,\nand the value can be either:\n- A simple string for the file path: `\"/about/\" = \"README.md\"`\n- An object for redirects: `\"/old/\" = { redirect = \"/new/\", status = 301 }`\n\nRoutes can be used by both remote sites (e.g., stencila.site) and\nlocal development servers.\n\nExample:\n```toml\n[routes]\n\"/\" = \"index.md\"\n\"/about/\" = \"README.md\"\n\"/old-page/\" = { redirect = \"/new-page/\", status = 301 }\n\"/external/\" = { redirect = \"https://example.com\" }\n```",
+      "description": "Custom routes for serving content\n\nRoutes map URL paths to files, redirects, or spread configurations.\nThe key is the URL path (or path template for spreads), and the value can be:\n- A simple string for the file path: `\"/about/\" = \"README.md\"`\n- An object for redirects: `\"/old/\" = { redirect = \"/new/\", status = 301 }`\n- An object for spreads: `\"/{region}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"] } }`\n\nRoutes can be used by both remote sites (e.g., stencila.site) and\nlocal development servers.\n\nExample:\n```toml\n[routes]\n\"/\" = \"index.md\"\n\"/about/\" = \"README.md\"\n\"/old-page/\" = { redirect = \"/new-page/\", status = 301 }\n\"/external/\" = { redirect = \"https://example.com\" }\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"ABC\", \"DEF\"] } }\n```",
       "type": [
         "object",
         "null"
@@ -34,69 +24,19 @@
       "additionalProperties": {
         "$ref": "#/definitions/RouteTarget"
       }
+    },
+    "remotes": {
+      "description": "Remote synchronization configuration\n\nMaps local paths to remote service URLs. The key is the local path\n(file, directory, or pattern), and the value can be:\n- A simple URL string: `\"site\" = \"https://example.stencila.site/\"`\n- An object with watch: `\"file.md\" = { url = \"...\", watch = \"w123\" }`\n- Multiple remotes: `\"file.md\" = [{ url = \"...\", watch = \"...\" }, \"https://...\"]`\n\nDirectory paths are implicitly recursive, matching all files within.\n\nExample:\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"docs/report.md\" = { url = \"https://docs.google.com/...\", watch = \"w123\" }\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "$ref": "#/definitions/RemoteValue"
+      }
     }
   },
   "definitions": {
-    "RemoteValue": {
-      "description": "Value for a remote configuration entry - can be single or multiple targets\n\nSupports both simple cases (one URL) and complex cases (multiple URLs per path).\nEach target can be a simple URL string or an object with a watch ID.",
-      "anyOf": [
-        {
-          "description": "Single remote target\n\nExample in TOML:\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"file.md\" = { url = \"https://...\", watch = \"w123\" }\n```",
-          "allOf": [
-            {
-              "$ref": "#/definitions/RemoteTarget"
-            }
-          ]
-        },
-        {
-          "description": "Multiple remote targets for the same path\n\nExample in TOML:\n```toml\n[remotes]\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/RemoteTarget"
-          }
-        }
-      ]
-    },
-    "RemoteTarget": {
-      "description": "A remote synchronization target - either a URL or URL with watch info\n\nCan be either a simple URL string (for remotes without watch IDs)\nor an object containing URL and watch ID.",
-      "anyOf": [
-        {
-          "description": "Simple URL string (no watch)\n\nExample: `\"https://example.stencila.site/\"`",
-          "type": "string",
-          "format": "uri"
-        },
-        {
-          "description": "URL with watch information\n\nExample: `{ url = \"https://...\", watch = \"w123\" }`",
-          "allOf": [
-            {
-              "$ref": "#/definitions/RemoteInfo"
-            }
-          ]
-        }
-      ]
-    },
-    "RemoteInfo": {
-      "description": "Remote synchronization information with watch ID",
-      "type": "object",
-      "properties": {
-        "url": {
-          "description": "Remote URL\n\nThe service type is inferred from the URL host:\n- Google Docs: https://docs.google.com/document/d/...\n- Microsoft 365: https://*.sharepoint.com/...\n- Stencila Sites: https://*.stencila.site/...",
-          "type": "string",
-          "pattern": "^https?://"
-        },
-        "watch": {
-          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^w[a-zA-Z0-9]{9}$"
-        }
-      },
-      "required": [
-        "url"
-      ]
-    },
     "SiteConfig": {
       "description": "Configuration for a site",
       "type": "object",
@@ -108,6 +48,14 @@
             "null"
           ],
           "pattern": "^s[a-z0-9]{9}$"
+        },
+        "watch": {
+          "description": "Watch ID from Stencila Cloud\n\nIf watching is enabled for this site, this field contains the watch ID.\nThe watch enables unidirectional sync from repository to site - when\nchanges are pushed to the repository, the site is automatically updated.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^\\d+$"
         },
         "domain": {
           "description": "Custom domain for the site\n\nThis is a cached value that is kept in sync with Stencila Cloud\nwhen site details are fetched or the domain is modified.\nThe canonical source is the Stencila Cloud API.",
@@ -145,7 +93,7 @@
       "type": "string"
     },
     "RouteTarget": {
-      "description": "Target for a route - either a file path or a redirect\n\nRoutes can either serve a file or redirect to another URL.\nThis enum allows for a clean representation where simple file\npaths are strings, and redirects are objects.",
+      "description": "Target for a route - either a file path, a redirect, or a spread\n\nRoutes can either serve a file, redirect to another URL, or generate\nmultiple variants using spread parameters.\nThis enum allows for a clean representation where simple file\npaths are strings, and redirects/spreads are objects.",
       "anyOf": [
         {
           "description": "Serve a file at this path\n\nPath relative to the workspace directory (or `site.root` if configured).\n\nExample in TOML:\n```toml\n[routes]\n\"/about/\" = \"README.md\"\n```",
@@ -160,6 +108,14 @@
           "allOf": [
             {
               "$ref": "#/definitions/RouteRedirect"
+            }
+          ]
+        },
+        {
+          "description": "Spread configuration for multi-variant routes\n\nExample in TOML:\n```toml\n[routes]\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"A\", \"B\"] } }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RouteSpread"
             }
           ]
         }
@@ -198,6 +154,166 @@
         303,
         307,
         308
+      ]
+    },
+    "RouteSpread": {
+      "description": "A spread configuration for multi-variant routes\n\nUsed to generate multiple route variants from a single source file\nwith different parameter values.",
+      "type": "object",
+      "properties": {
+        "file": {
+          "description": "The source file for this spread route\n\nPath relative to the workspace directory (or `site.root` if configured).",
+          "type": "string"
+        },
+        "spread": {
+          "description": "Spread mode\n\n- `grid`: Cartesian product of all parameter values (default)\n- `zip`: Positional pairing of values (all params must have same length)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SpreadMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "description": "Parameter values for spread variants\n\nKeys are parameter names, values are arrays of possible values.\nExample: `{ region = [\"north\", \"south\"], species = [\"A\", \"B\"] }`",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "file",
+        "arguments"
+      ]
+    },
+    "SpreadMode": {
+      "description": "Spread mode for multi-variant execution",
+      "oneOf": [
+        {
+          "description": "Cartesian product of all parameter values (default)",
+          "type": "string",
+          "const": "grid"
+        },
+        {
+          "description": "Positional pairing of values (all params must have same length)",
+          "type": "string",
+          "const": "zip"
+        }
+      ]
+    },
+    "RemoteValue": {
+      "description": "Value for a remote configuration entry - can be single or multiple targets\n\nSupports both simple cases (one URL) and complex cases (multiple URLs per path).\nEach target can be a simple URL string or an object with a watch ID.",
+      "anyOf": [
+        {
+          "description": "Multiple remote targets for the same path\n\nExample in TOML:\n```toml\n[remotes]\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RemoteTarget"
+          }
+        },
+        {
+          "description": "Single remote target\n\nExample in TOML:\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"file.md\" = { url = \"https://...\", watch = \"w123\" }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RemoteTarget"
+            }
+          ]
+        }
+      ]
+    },
+    "RemoteTarget": {
+      "description": "A remote synchronization target\n\nCan be:\n- A simple URL string (for remotes without watch IDs)\n- An object with URL and watch ID\n- A spread configuration for multi-variant pushes",
+      "anyOf": [
+        {
+          "description": "Simple URL string (no watch)\n\nExample: `\"https://example.stencila.site/\"`",
+          "type": "string",
+          "format": "uri"
+        },
+        {
+          "description": "URL with watch information\n\nExample: `{ url = \"https://...\", watch = \"w123\" }`",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RemoteWatch"
+            }
+          ]
+        },
+        {
+          "description": "Spread configuration for multi-variant pushes\n\nExample: `{ service = \"gdoc\", title = \"Report {region}\", params = { region = [\"north\", \"south\"] } }`",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RemoteSpread"
+            }
+          ]
+        }
+      ]
+    },
+    "RemoteWatch": {
+      "description": "Remote synchronization information with watch ID",
+      "type": "object",
+      "properties": {
+        "url": {
+          "description": "Remote URL\n\nThe service type is inferred from the URL host:\n- Google Docs: https://docs.google.com/document/d/...\n- Microsoft 365: https://*.sharepoint.com/...\n- Stencila Sites: https://*.stencila.site/...",
+          "type": "string",
+          "format": "uri"
+        },
+        "watch": {
+          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^w[a-zA-Z0-9]{9}$"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    },
+    "RemoteSpread": {
+      "description": "Spread configuration for multi-variant pushes\n\nUsed in `[remotes]` to configure spread pushing of a document to multiple\nremote variants with different parameter values.\n\nExample:\n```toml\n[remotes]\n\"report.smd\" = { service = \"gdoc\", title = \"Report {region}\", arguments = { region = [\"north\", \"south\"] } }\n```",
+      "type": "object",
+      "properties": {
+        "service": {
+          "description": "Target service\n\nOne of: \"gdoc\", \"m365\"",
+          "type": "string"
+        },
+        "title": {
+          "description": "Title template with placeholders\n\nPlaceholders like `{param}` are replaced with parameter values.\nExample: \"Report - {region}\"",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "spread": {
+          "description": "Spread mode\n\n- `grid`: Cartesian product of all parameter values (default)\n- `zip`: Positional pairing of values (all params must have same length)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SpreadMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "description": "Parameter values for spread variants\n\nKeys are parameter names, values are arrays of possible values.\nExample: `{ region = [\"north\", \"south\"], species = [\"A\", \"B\"] }`",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "service",
+        "arguments"
       ]
     }
   },

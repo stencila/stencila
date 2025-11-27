@@ -8,6 +8,9 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila new`↴](#stencila-new)
 * [`stencila init`↴](#stencila-init)
 * [`stencila config`↴](#stencila-config)
+* [`stencila config get`↴](#stencila-config-get)
+* [`stencila config set`↴](#stencila-config-set)
+* [`stencila config unset`↴](#stencila-config-unset)
 * [`stencila status`↴](#stencila-status)
 * [`stencila move`↴](#stencila-move)
 * [`stencila track`↴](#stencila-track)
@@ -82,6 +85,24 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila cloud signin`↴](#stencila-cloud-signin)
 * [`stencila cloud signout`↴](#stencila-cloud-signout)
 * [`stencila cloud logs`↴](#stencila-cloud-logs)
+* [`stencila site`↴](#stencila-site)
+* [`stencila site show`↴](#stencila-site-show)
+* [`stencila site create`↴](#stencila-site-create)
+* [`stencila site delete`↴](#stencila-site-delete)
+* [`stencila site access`↴](#stencila-site-access)
+* [`stencila site access public`↴](#stencila-site-access-public)
+* [`stencila site access password`↴](#stencila-site-access-password)
+* [`stencila site access team`↴](#stencila-site-access-team)
+* [`stencila site password`↴](#stencila-site-password)
+* [`stencila site password set`↴](#stencila-site-password-set)
+* [`stencila site password clear`↴](#stencila-site-password-clear)
+* [`stencila site domain`↴](#stencila-site-domain)
+* [`stencila site domain set`↴](#stencila-site-domain-set)
+* [`stencila site domain status`↴](#stencila-site-domain-status)
+* [`stencila site domain clear`↴](#stencila-site-domain-clear)
+* [`stencila site branch`↴](#stencila-site-branch)
+* [`stencila site branch list`↴](#stencila-site-branch-list)
+* [`stencila site branch delete`↴](#stencila-site-branch-delete)
 * [`stencila signin`↴](#stencila-signin)
 * [`stencila signout`↴](#stencila-signout)
 * [`stencila logs`↴](#stencila-logs)
@@ -118,7 +139,7 @@ Examples
 
 * `new` — Create a new, tracked, document
 * `init` — Initialize a workspace
-* `config` — Display the configuration for a document
+* `config` — Manage Stencila configuration
 * `status` — Get the tracking status of documents
 * `move` — Move a tracked document
 * `track` — Start tracking a document
@@ -152,6 +173,7 @@ Examples
 * `snap` — Capture screenshots and measurements of documents served by Stencila
 * `lsp` — Run the Language Server Protocol server
 * `cloud` — Manage Stencila Cloud account
+* `site` — Manage the workspace site
 * `signin` — Sign in to Stencila Cloud
 * `signout` — Sign out from Stencila Cloud
 * `logs` — Display logs from Stencila Cloud workspace sessions
@@ -251,23 +273,155 @@ Note
 
 ## `stencila config`
 
-Display the configuration for a document
+Manage Stencila configuration
 
-**Usage:** `stencila config <FILE>`
+**Usage:** `stencila config [COMMAND]`
 
 Examples
-  # Show configuration for a document
-  stencila config document.md
 
-Note
-  Shows both the configuration sources (from workspace,
-  user, and document-specific configs) and the final
-  merged configuration that will be used for the document.
+  # Show the current configuration
+  stencila config
+
+  # Show configuration as JSON
+  stencila config get --as json
+
+  # Get a specific config value
+  stencila config get site.id
+
+  # Set a value in the nearest stencila.toml
+  stencila config set site.id mysite123
+
+  # Set a value in user config
+  stencila config set --user site.id mysite123
+
+  # Set a value in local override file
+  stencila config set --local site.id mysite123
+
+  # Remove a value
+  stencila config unset site.id
+
+
+###### **Subcommands:**
+
+* `get` — Get configuration value(s)
+* `set` — Set a configuration value
+* `unset` — Remove a configuration value
+
+
+
+## `stencila config get`
+
+Get configuration value(s)
+
+**Usage:** `stencila config get [OPTIONS] [KEY]`
+
+Examples
+
+  # Show entire configuration
+  stencila config get
+
+  # Show as JSON
+  stencila config get --as json
+
+  # Get a specific value
+  stencila config get site.id
+
+  # Get nested value
+  stencila config get site.settings.theme
+
+  # Get array element
+  stencila config get packages[0].name
 
 
 ###### **Arguments:**
 
-* `<FILE>` — The path to the document to resolve
+* `<KEY>` — Config key in dot notation (e.g., `site.id`)
+
+   If omitted, shows the entire configuration. Supports nested paths and array access (e.g., `packages[0].name`).
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output format (toml, json, or yaml, default: toml)
+
+  Possible values: `json`, `yaml`, `toml`
+
+
+
+
+## `stencila config set`
+
+Set a configuration value
+
+**Usage:** `stencila config set [OPTIONS] <KEY> <VALUE>`
+
+Examples
+
+  # Set in nearest stencila.toml (or create in CWD)
+  stencila config set site.id mysite123
+
+  # Set in user config
+  stencila config set --user site.id mysite123
+
+  # Set in local override
+  stencila config set --local site.id mysite123
+
+  # Set nested value
+  stencila config set site.settings.theme dark
+
+  # Set boolean
+  stencila config set site.settings.enabled true
+
+  # Set number
+  stencila config set site.settings.port 8080
+
+
+###### **Arguments:**
+
+* `<KEY>` — Config key in dot notation (e.g., `site.id`)
+* `<VALUE>` — Value to set
+
+   Values are automatically parsed as bool, number, or string.
+
+###### **Options:**
+
+* `--user` — Set in user config (~/.config/stencila/stencila.toml)
+
+   Creates the file if it doesn't exist.
+* `--local` — Set in local override (stencila.local.yaml)
+
+   Finds the nearest stencila.local.yaml or creates one in the current directory. Local overrides are typically not checked into version control.
+
+
+
+## `stencila config unset`
+
+Remove a configuration value
+
+**Usage:** `stencila config unset [OPTIONS] <KEY>`
+
+Examples
+
+  # Remove from nearest stencila.toml
+  stencila config unset site.id
+
+  # Remove from user config
+  stencila config unset --user site.id
+
+  # Remove from local override
+  stencila config unset --local site.id
+
+  # Remove nested value
+  stencila config unset site.settings.theme
+
+
+###### **Arguments:**
+
+* `<KEY>` — Config key in dot notation (e.g., `site.id`)
+
+###### **Options:**
+
+* `--user` — Remove from user config
+* `--local` — Remove from local override
 
 
 
@@ -289,7 +443,7 @@ Examples
 
   # Skip fetching remote status (faster)
   stencila status --no-remotes
-  
+
   # Skip fetching watch status (faster)
   stencila status --no-watches
 
@@ -302,7 +456,7 @@ Examples
 
 * `-a`, `--as <AS>` — Output the status as JSON or YAML
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 * `--no-remotes` — Skip fetching remote status
 * `--no-watches` — Skip fetching watch status
@@ -351,28 +505,23 @@ Note
 
 Start tracking a document
 
-**Usage:** `stencila track <FILE> [URL]`
+**Usage:** `stencila track <FILE>`
 
 Examples
   # Start tracking a local document
   stencila track document.md
 
-  # Track a document with remote URL
-  stencila track document.md https://example.com/api/docs/123
-
   # Track multiple documents
   stencila track *.md
 
 Note
-  Tracking enables version control, synchronization,
-  and change detection for documents. Remote URLs allow
-  syncing with external systems.
+  Tracking enables version control and change detection for documents.
+  Configure remotes in stencila.toml for synchronization with external systems.
 
 
 ###### **Arguments:**
 
 * `<FILE>` — The path to the local file to track
-* `<URL>` — The URL of the remote to track
 
 
 
@@ -380,14 +529,11 @@ Note
 
 Stop tracking a document
 
-**Usage:** `stencila untrack <FILE> [URL]`
+**Usage:** `stencila untrack <FILE>`
 
 Examples
   # Stop tracking a document
   stencila untrack document.md
-
-  # Stop tracking a remote URL for a document
-  stencila untrack document.md https://example.com/api/docs/123
 
   # Stop tracking all tracked files
   stencila untrack all
@@ -401,8 +547,7 @@ Note
 
 * `<FILE>` — The path of the file to stop tracking
 
-   Use "deleted" to untrack all files that have been deleted.
-* `<URL>` — The URL of the remote to stop tracking
+   Use "all" to untrack all tracked files.
 
 
 
@@ -499,6 +644,21 @@ Examples
 * `--no-artifacts` — Prevent creating artifacts during decoding
 
    By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
+* `--island-wrap <ISLAND_WRAP>` — Wrap specified environments in Island nodes during decoding
+
+   When converting from typesetting formats like LaTeX and Typst to other formats like DOCX, certain environments may not convert cleanly and would break round-trip conversion. This option wraps those environments in Island nodes, preserving the original markup for later reconstitution.
+
+   Defaults to common environments: figure, table, longtable, landscape. Use --no-island-wrap to disable, or specify custom environments as a comma-separated list to override the defaults.
+
+   Only applies when using coarse decoding (the default for LaTeX).
+
+  Default value: `figure,table,longtable,landscape`
+* `--no-island-wrap` — Disable automatic Island wrapping of environments
+
+   By default, common environments (figure, table, longtable, landscape) are wrapped in Island nodes during coarse decoding. Use this flag to disable this behavior entirely.
+* `--island-style <ISLAND_STYLE>` — Style to apply to auto-created Island nodes
+
+   When island wrapping is enabled, this optional style string is applied to the created Island nodes. The style format depends on the source format.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -808,6 +968,21 @@ Examples
 * `--no-artifacts` — Prevent creating artifacts during decoding
 
    By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
+* `--island-wrap <ISLAND_WRAP>` — Wrap specified environments in Island nodes during decoding
+
+   When converting from typesetting formats like LaTeX and Typst to other formats like DOCX, certain environments may not convert cleanly and would break round-trip conversion. This option wraps those environments in Island nodes, preserving the original markup for later reconstitution.
+
+   Defaults to common environments: figure, table, longtable, landscape. Use --no-island-wrap to disable, or specify custom environments as a comma-separated list to override the defaults.
+
+   Only applies when using coarse decoding (the default for LaTeX).
+
+  Default value: `figure,table,longtable,landscape`
+* `--no-island-wrap` — Disable automatic Island wrapping of environments
+
+   By default, common environments (figure, table, longtable, landscape) are wrapped in Island nodes during coarse decoding. Use this flag to disable this behavior entirely.
+* `--island-style <ISLAND_STYLE>` — Style to apply to auto-created Island nodes
+
+   When island wrapping is enabled, this optional style string is applied to the created Island nodes. The style format depends on the source format.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -1095,6 +1270,21 @@ Note
 * `--no-artifacts` — Prevent creating artifacts during decoding
 
    By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
+* `--island-wrap <ISLAND_WRAP>` — Wrap specified environments in Island nodes during decoding
+
+   When converting from typesetting formats like LaTeX and Typst to other formats like DOCX, certain environments may not convert cleanly and would break round-trip conversion. This option wraps those environments in Island nodes, preserving the original markup for later reconstitution.
+
+   Defaults to common environments: figure, table, longtable, landscape. Use --no-island-wrap to disable, or specify custom environments as a comma-separated list to override the defaults.
+
+   Only applies when using coarse decoding (the default for LaTeX).
+
+  Default value: `figure,table,longtable,landscape`
+* `--no-island-wrap` — Disable automatic Island wrapping of environments
+
+   By default, common environments (figure, table, longtable, landscape) are wrapped in Island nodes during coarse decoding. Use this flag to disable this behavior entirely.
+* `--island-style <ISLAND_STYLE>` — Style to apply to auto-created Island nodes
+
+   When island wrapping is enabled, this optional style string is applied to the created Island nodes. The style format depends on the source format.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -1342,29 +1532,53 @@ Note
 
 Push a document to a remote service
 
-**Usage:** `stencila push [OPTIONS] [PATH] [TARGET] [-- <ARGS>...]`
+**Usage:** `stencila push [OPTIONS] [PATH] [-- <ARGS>...]`
 
 Examples
   # Push all files with tracked remotes
   stencila push
 
   # Push a document to Google Docs
-  stencila push document.smd gdoc
+  stencila push document.smd --to gdoc
 
   # Push a document to Microsoft 365
-  stencila push document.smd m365
+  stencila push document.smd --to m365
+
+  # Push a document to a Stencila Site
+  stencila push document.smd --to site
 
   # Push to file to all tracked remotes
   stencila push document.smd
 
   # Push to specific remote
-  stencila push document.smd https://docs.google.com/document/d/abc123
+  stencila push document.smd --to https://docs.google.com/document/d/abc123
 
   # Push with execution first
-  stencila push report.smd gdoc -- arg1=value1
+  stencila push report.smd --to gdoc -- arg1=value1
 
   # Force create new document
-  stencila push document.smd gdoc --force-new
+  stencila push document.smd --to gdoc --new
+
+  # Force push even if up-to-date (useful for sites)
+  stencila push document.smd --to site --force
+
+  # Perform a dry-run to inspect generated files without uploading
+  stencila push document.smd --to site --dry-run=./temp
+
+  # Spread push to GDocs (creates multiple docs)
+  stencila push report.smd --to gdoc --spread -- region=north,south
+
+  # Spread push with custom title template
+  stencila push report.smd --to gdoc --spread --title="Report - {region}" -- region=north,south
+
+  # Spread push with zip mode (positional pairing)
+  stencila push report.smd --to gdoc --spread=zip -- region=north,south code=N,S
+
+  # Spread push dry run to preview operations
+  stencila push report.smd --to gdoc --spread --dry-run -- region=north,south
+
+  # Spread push to site with route template
+  stencila push report.smd --to site --spread --route="/{region}/{species}/" -- region=north,south species=ABC,DEF
 
 
 ###### **Arguments:**
@@ -1372,21 +1586,27 @@ Examples
 * `<PATH>` — The path of the document to push
 
    If omitted, pushes all tracked files that have remotes.
-* `<TARGET>` — The target to push to
-
-   Can be a full URL (e.g., https://docs.google.com/document/d/...) or a service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked remotes for the path.
 * `<ARGS>` — Arguments to pass to the document for execution
 
    If provided, the document will be executed with these arguments before being pushed. Use -- to separate these from other options.
 
 ###### **Options:**
 
-* `-n`, `--force-new` — Create a new document instead of updating an existing one
+* `-t`, `--to <TO>` — The target to push to
+
+   Can be a full URL (e.g., https://docs.google.com/document/d/...) or a service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked remotes for the path.
+* `-n`, `--new` — Create a new document instead of updating an existing one
 
    By default, if a remote is already tracked for the document, it will be updated. Use this flag to create a new document.
+* `-f`, `--force` — Force push even if file is up-to-date
+
+   By default, files pushed to Stencila Sites are only uploaded if they are out of date compared to the remote. Use this flag to push regardless of status. This flag only affects Stencila Sites pushes.
 * `--no-execute` — Do not execute the document before pushing it
 
    By default, the document will be executed to ensure that it is up-to-date before pushing it. Use this flag to skip execution.
+* `--no-config` — Do not save remote to stencila.toml
+
+   By default, new remotes are added to stencila.toml so team members can push/pull the same remote. Use this flag to track locally only (in .stencila/remotes.json).
 * `-w`, `--watch` — Enable watch after successful push
 
    Creates a watch in Stencila Cloud to automatically sync changes between the remote and repository via pull requests.
@@ -1411,6 +1631,36 @@ Examples
 * `--debounce-seconds <DEBOUNCE_SECONDS>` — Debounce time in seconds (10-86400, only used with --watch)
 
    Time to wait after detecting changes before syncing to avoid too frequent updates. Minimum 10 seconds, maximum 24 hours (86400 seconds).
+* `--dry-run <DIR>` — Perform a dry run (Stencila Sites only)
+
+   Instead of uploading to the remote site, write the generated files to a local directory for inspection. If no directory is specified, files are generated in memory without being written to disk.
+
+   The directory structure mirrors the R2 bucket layout: {output_dir}/{site_id}/{branch_slug}/{path}
+* `--spread <MODE>` — Enable spread push mode for multi-variant execution
+
+   Spread mode allows pushing multiple variants of a document to separate remote documents, each with different parameter values. Supports: - grid: Cartesian product of all parameter values (default) - zip: Positional pairing of values (all must have same length) - cases: Explicit parameter sets via --case
+
+  Possible values:
+  - `grid`:
+    Cartesian product of multi-valued parameters (default)
+  - `zip`:
+    Positional pairing of multi-valued parameters
+  - `cases`:
+    Explicitly enumerated parameter sets via `--case`
+
+* `--case <PARAMS>` — Explicit cases for spread=cases mode
+
+   Each --case defines one variant with specific parameter values. Example: --case="region=north species=ABC"
+* `--title <TITLE>` — Title template for GDocs/M365 spread push
+
+   Placeholders like {param} are replaced with parameter values. Example: --title="Report - {region}"
+* `--route <ROUTE>` — Route template for site spread push
+
+   Placeholders like {param} are replaced with parameter values. Routes always end with / and render as index.html. Example: --route="/{region}/{species}/"
+* `--fail-fast` — Stop on first error instead of continuing with remaining variants
+* `--spread-max <SPREAD_MAX>` — Maximum number of spread runs allowed (default: 100)
+
+  Default value: `100`
 
 
 
@@ -1418,20 +1668,20 @@ Examples
 
 Pull a document from a remote service
 
-**Usage:** `stencila pull [OPTIONS] <PATH> [TARGET]`
+**Usage:** `stencila pull [OPTIONS] <PATH>`
 
 Examples
   # Pull from the tracked remote (if only one exists)
   stencila pull document.smd
 
   # Pull from tracked Google Doc
-  stencila pull document.smd gdoc
+  stencila pull document.smd --from gdoc
 
   # Pull from tracked Microsoft 365 document
-  stencila pull document.smd m365
+  stencila pull document.smd --from m365
 
   # Pull from specific URL
-  stencila pull document.smd https://docs.google.com/document/d/abc123
+  stencila pull document.smd --from https://docs.google.com/document/d/abc123
 
   # Pull without merging (replace local file)
   stencila pull document.smd gdoc --no-merge
@@ -1440,12 +1690,12 @@ Examples
 ###### **Arguments:**
 
 * `<PATH>` — The path to the local document
-* `<TARGET>` — The target to pull from
-
-   Can be a full URL (e.g., https://docs.google.com/document/d/...) or a service shorthand (e.g "gdoc" or "m365"). Omit to use the tracked remote (errors if multiple remotes are tracked).
 
 ###### **Options:**
 
+* `-f`, `--from <FROM>` — The target to pull from
+
+   Can be a full URL (e.g., https://docs.google.com/document/d/...) or a service shorthand (e.g "gdoc" or "m365"). Omit to use the tracked remote (errors if multiple remotes are tracked).
 * `--no-merge` — Do not merge, just replace
 
    By default, the pulled document will be merged with the local version. Use this flag to skip merging and just replace the local file.
@@ -1468,14 +1718,17 @@ Examples
   stencila watch report.md gdoc
   stencila watch report.md https://docs.google.com/document/d/abc123
 
-  # Enable watch with one-way sync from remote
+  # Enable watch with one-way sync from remote to repo
   stencila watch report.md gdoc --direction from-remote
 
   # Enable watch with ready-for-review PRs
   stencila watch report.md gdoc --pr-mode ready
 
+  # Watch a site directory for one-way sync from repo to site
+  stencila watch site/
+
   # Note: The document must already be pushed to a remote
-  stencila push report.md gdoc
+  stencila push report.md --to gdoc
   stencila watch report.md
 
 
@@ -1594,6 +1847,21 @@ Note
 * `--no-artifacts` — Prevent creating artifacts during decoding
 
    By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
+* `--island-wrap <ISLAND_WRAP>` — Wrap specified environments in Island nodes during decoding
+
+   When converting from typesetting formats like LaTeX and Typst to other formats like DOCX, certain environments may not convert cleanly and would break round-trip conversion. This option wraps those environments in Island nodes, preserving the original markup for later reconstitution.
+
+   Defaults to common environments: figure, table, longtable, landscape. Use --no-island-wrap to disable, or specify custom environments as a comma-separated list to override the defaults.
+
+   Only applies when using coarse decoding (the default for LaTeX).
+
+  Default value: `figure,table,longtable,landscape`
+* `--no-island-wrap` — Disable automatic Island wrapping of environments
+
+   By default, common environments (figure, table, longtable, landscape) are wrapped in Island nodes during coarse decoding. Use this flag to disable this behavior entirely.
+* `--island-style <ISLAND_STYLE>` — Style to apply to auto-created Island nodes
+
+   When island wrapping is enabled, this optional style string is applied to the created Island nodes. The style format depends on the source format.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -1796,7 +2064,7 @@ Examples
    Only applies when using `--format` or `--fix`, both of which will write a modified version of the source document back to disk and by default, a new cache of the document to the store. This flag prevent the store being updated.
 * `-a`, `--as <AS>` — Output any linting diagnostics as JSON or YAML
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -1855,6 +2123,21 @@ Examples
 * `--no-artifacts` — Prevent creating artifacts during decoding
 
    By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
+* `--island-wrap <ISLAND_WRAP>` — Wrap specified environments in Island nodes during decoding
+
+   When converting from typesetting formats like LaTeX and Typst to other formats like DOCX, certain environments may not convert cleanly and would break round-trip conversion. This option wraps those environments in Island nodes, preserving the original markup for later reconstitution.
+
+   Defaults to common environments: figure, table, longtable, landscape. Use --no-island-wrap to disable, or specify custom environments as a comma-separated list to override the defaults.
+
+   Only applies when using coarse decoding (the default for LaTeX).
+
+  Default value: `figure,table,longtable,landscape`
+* `--no-island-wrap` — Disable automatic Island wrapping of environments
+
+   By default, common environments (figure, table, longtable, landscape) are wrapped in Island nodes during coarse decoding. Use this flag to disable this behavior entirely.
+* `--island-style <ISLAND_STYLE>` — Style to apply to auto-created Island nodes
+
+   When island wrapping is enabled, this optional style string is applied to the created Island nodes. The style format depends on the source format.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -2018,6 +2301,7 @@ Examples
   - `superscripted-numeric`:
     Superscripted numeric citations like ¹
 
+* `--ignore-errors` — Ignore any errors while executing document
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
@@ -2071,6 +2355,15 @@ Examples
   # Render without updating the document store
   stencila render temp.md output.html --no-store
 
+  # Spread render with multiple parameter combinations (grid)
+  stencila render report.md 'report-{region}-{species}.pdf' -- region=north,south species=ABC,DEF
+
+  # Spread render with positional pairing (zip) and output to nested folders
+  stencila render report.md '{region}/{species}/report.pdf' --spread=zip -- region=north,south species=ABC,DEF
+
+  # Spread render with explicit cases
+  stencila render report.md 'report-{i}.pdf' --spread=cases --case="region=north species=ABC" --case="region=south species=DEF"
+
 
 ###### **Arguments:**
 
@@ -2086,8 +2379,26 @@ Examples
 
 ###### **Options:**
 
-* `--ignore-errors` — Ignore any errors while executing document
+* `--spread <MODE>` — Enable multi-variant (spread) execution mode
+
+   When enabled, parameters with comma-separated values are expanded and the document is rendered multiple times.
+
+  Possible values:
+  - `grid`:
+    Cartesian product of multi-valued parameters (default)
+  - `zip`:
+    Positional pairing of multi-valued parameters
+  - `cases`:
+    Explicitly enumerated parameter sets via `--case`
+
+* `--spread-max <SPREAD_MAX>` — Maximum number of runs allowed in spread mode (default: 100)
+
+  Default value: `100`
+* `--case <PARAMS>` — Explicit parameter sets for cases mode
+
+   Each --case takes a quoted string with space-separated key=value pairs. Only used with --spread=cases.
 * `--no-store` — Do not store the document after executing it
+* `--ignore-errors` — Ignore any errors while executing document
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
@@ -2136,6 +2447,21 @@ Examples
 * `--no-artifacts` — Prevent creating artifacts during decoding
 
    By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
+* `--island-wrap <ISLAND_WRAP>` — Wrap specified environments in Island nodes during decoding
+
+   When converting from typesetting formats like LaTeX and Typst to other formats like DOCX, certain environments may not convert cleanly and would break round-trip conversion. This option wraps those environments in Island nodes, preserving the original markup for later reconstitution.
+
+   Defaults to common environments: figure, table, longtable, landscape. Use --no-island-wrap to disable, or specify custom environments as a comma-separated list to override the defaults.
+
+   Only applies when using coarse decoding (the default for LaTeX).
+
+  Default value: `figure,table,longtable,landscape`
+* `--no-island-wrap` — Disable automatic Island wrapping of environments
+
+   By default, common environments (figure, table, longtable, landscape) are wrapped in Island nodes during coarse decoding. Use this flag to disable this behavior entirely.
+* `--island-style <ISLAND_STYLE>` — Style to apply to auto-created Island nodes
+
+   When island wrapping is enabled, this optional style string is applied to the created Island nodes. The style format depends on the source format.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -2835,9 +3161,9 @@ Examples
 * `--slides <SLIDES>` — Specify which slides to demo
 
    Slides are delimited by thematic breaks (---). Examples: - "2" - only slide 2 - "2-4" - slides 2 through 4 - "2-" - slide 2 to the end - "-3" - slides 1 through 3 - "1,3-5,7-" - slides 1, 3 through 5, and 7 to the end
-* `--ignore-errors` — Ignore any errors while executing document
 * `--no-execute` — Do not execute the document before running the demo
 * `--no-store` — Do not store the document after executing it
+* `--ignore-errors` — Ignore any errors while executing document
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
@@ -2993,6 +3319,21 @@ Note
 * `--no-artifacts` — Prevent creating artifacts during decoding
 
    By default, Stencila saves intermediate artifacts like downloads, OCR outputs, and extracted media to a `.stencila/artifacts` folder for reuse in future runs. Use this flag to disable artifacts entirely. Existing cached artifacts may still be used unless `--ignore-artifacts` is also specified.
+* `--island-wrap <ISLAND_WRAP>` — Wrap specified environments in Island nodes during decoding
+
+   When converting from typesetting formats like LaTeX and Typst to other formats like DOCX, certain environments may not convert cleanly and would break round-trip conversion. This option wraps those environments in Island nodes, preserving the original markup for later reconstitution.
+
+   Defaults to common environments: figure, table, longtable, landscape. Use --no-island-wrap to disable, or specify custom environments as a comma-separated list to override the defaults.
+
+   Only applies when using coarse decoding (the default for LaTeX).
+
+  Default value: `figure,table,longtable,landscape`
+* `--no-island-wrap` — Disable automatic Island wrapping of environments
+
+   By default, common environments (figure, table, longtable, landscape) are wrapped in Island nodes during coarse decoding. Use this flag to disable this behavior entirely.
+* `--island-style <ISLAND_STYLE>` — Style to apply to auto-created Island nodes
+
+   When island wrapping is enabled, this optional style string is applied to the created Island nodes. The style format depends on the source format.
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -3283,7 +3624,7 @@ Examples
 
 * `-a`, `--as <AS>` — Output format
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -3341,7 +3682,7 @@ Examples
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -3507,7 +3848,7 @@ Examples
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -3618,7 +3959,7 @@ Examples
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -3791,7 +4132,7 @@ Examples
 * `-n`, `--node-type <NODE_TYPE>` — Only list linter that support a specific node type
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -3881,7 +4222,7 @@ Columns
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -4243,7 +4584,7 @@ Examples
 
    Export tools as Model Context Protocol (MCP) tool specifications. This is useful for integrating with AI assistants and other MCP-compatible systems. See https://modelcontextprotocol.io/docs/concepts/tools for more details.
 
-  Possible values: `json`, `yaml`
+  Possible values: `json`, `yaml`, `toml`
 
 
 
@@ -4604,7 +4945,17 @@ Manage Stencila Cloud account
 **Usage:** `stencila cloud [COMMAND]`
 
 Examples
-  // TODO: complete as for other module's CLI_AFTER_LONG_HELP
+  # Check your cloud authentication status
+  stencila cloud status
+
+  # Sign in to Stencila Cloud
+  stencila cloud signin
+
+  # Sign out from Stencila Cloud
+  stencila cloud signout
+
+  # View logs from a cloud workspace session
+  stencila cloud logs --session SESSION_ID
 
 
 ###### **Subcommands:**
@@ -4701,6 +5052,564 @@ Examples
 
    If provided without a value, defaults to 5 seconds. Minimum value is 1 second.
 * `--level <LEVEL>` — Filter logs by level (error, warn, info, debug, trace)
+
+
+
+## `stencila site`
+
+Manage the workspace site
+
+**Usage:** `stencila site [COMMAND]`
+
+Examples
+  # View details of the workspace site
+  stencila site
+  stencila site show
+
+  # Create a site for the workspace
+  stencila site create
+
+  # Set site access to public
+  stencila site access public
+
+  # Set site access to password-protected
+  stencila site access password
+
+  # Set site access to team members only
+  stencila site access team
+
+  # Update the password (keeps current access mode)
+  stencila site password set
+
+  # Clear the password hash
+  stencila site password clear
+
+  # Delete the workspace site
+  stencila site delete
+
+
+###### **Subcommands:**
+
+* `show` — Show details of the workspace site
+* `create` — Create a site for the workspace
+* `delete` — Delete the site for the workspace
+* `access` — Manage access restrictions for the workspace site
+* `password` — Manage password protection for the workspace site
+* `domain` — Manage custom domain for the workspace site
+* `branch` — Manage branches for the workspace site
+
+
+
+## `stencila site show`
+
+Show details of the workspace site
+
+**Usage:** `stencila site show [OPTIONS]`
+
+Examples
+  # View details of the current workspace's site
+  stencila site
+  stencila site show
+
+  # View details of another workspace's site
+  stencila site show --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site create`
+
+Create a site for the workspace
+
+**Usage:** `stencila site create [OPTIONS] [ROOT]`
+
+Examples
+  # Create site for the current workspace
+  stencila site create
+
+  # Create site with docs/ as the root
+  stencila site create docs
+
+  # Create site with public access
+  stencila site create --access public
+
+  # Create site with password protection
+  stencila site create --access password
+
+  # Create site with team-only access
+  stencila site create --access team
+
+  # Create site with automatic deployment on git push
+  stencila site create --watch
+
+  # Create site with a custom domain
+  stencila site create --domain example.com
+
+  # Combine options
+  stencila site create docs --access public --watch --domain docs.example.com
+
+
+###### **Arguments:**
+
+* `<ROOT>` — Root directory for site content
+
+   If specified, sets the site.root config value. Files will be published from this directory, and routes calculated relative to it. Example: `stencila site create docs` publishes from ./docs/
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory where stencila.toml will be created
+
+   If not specified, uses the current directory
+* `-a`, `--access <ACCESS>` — Set access restrictions for the site
+
+  Possible values:
+  - `public`:
+    Anyone can view the site
+  - `password`:
+    Requires a password to view
+  - `team`:
+    Only authenticated team members can view
+
+* `-w`, `--watch` — Create a watch for automatic deployment
+
+   When changes are pushed to the repository, the site is automatically updated. Requires a git repository with an origin remote.
+* `-d`, `--domain <DOMAIN>` — Set a custom domain for the site
+
+   Example: --domain example.com
+
+
+
+## `stencila site delete`
+
+Delete the site for the workspace
+
+**Usage:** `stencila site delete [OPTIONS]`
+
+Examples
+  # Delete site for current workspace
+  stencila site delete
+
+  # Delete site for another workspace
+  stencila site delete --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site access`
+
+Manage access restrictions for the workspace site
+
+**Usage:** `stencila site access [COMMAND]`
+
+Examples
+  # Show current access mode
+  stencila site access
+
+  # Switch to public access
+  stencila site access public
+
+  # Switch to password-protected access
+  stencila site access password
+
+  # Switch to team-only access
+  stencila site access team
+
+
+###### **Subcommands:**
+
+* `public` — Switch to public access
+* `password` — Switch to password-protected access
+* `team` — Switch to team-only access
+
+
+
+## `stencila site access public`
+
+Switch to public access
+
+**Usage:** `stencila site access public [OPTIONS]`
+
+Examples
+  # Switch to public access
+  stencila site access public
+
+  # Switch for another workspace
+  stencila site access public --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site access password`
+
+Switch to password-protected access
+
+**Usage:** `stencila site access password [OPTIONS]`
+
+Examples
+  # Switch to password-protected access
+  stencila site access password
+
+  # Exclude main/master branches from password protection
+  stencila site access password --not-main
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+* `--not-main` — Do not apply password protection to main or master branches
+
+   By default, the password applies to all branches including main and master. Use this flag to exclude main and master branches from password protection.
+
+
+
+## `stencila site access team`
+
+Switch to team-only access
+
+**Usage:** `stencila site access team [OPTIONS]`
+
+Examples
+  # Switch to team-only access
+  stencila site access team
+
+  # Exclude main/master branches from team restriction
+  stencila site access team --not-main
+
+  # Switch for another workspace
+  stencila site access team --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+* `--not-main` — Do not apply team restriction to main or master branches
+
+   By default, team restriction applies to all branches including main and master. Use this flag to exclude main and master branches from team restriction.
+* `--main` — Apply team restriction to main or master branches
+
+   Updates the accessRestrictMain flag. Use this to re-enable restriction for main and master branches.
+
+
+
+## `stencila site password`
+
+Manage password protection for the workspace site
+
+**Usage:** `stencila site password <COMMAND>`
+
+Examples
+  # Set or update the password (keeps current access mode)
+  stencila site password set
+
+  # Set password and update main branch restriction
+  stencila site password set --not-main
+
+  # Clear the password hash
+  stencila site password clear
+
+
+###### **Subcommands:**
+
+* `set` — Set or update the password (without changing access mode)
+* `clear` — Clear the password (keeps access mode unchanged)
+
+
+
+## `stencila site password set`
+
+Set or update the password (without changing access mode)
+
+**Usage:** `stencila site password set [OPTIONS]`
+
+Examples
+  # Update the password (keeps current access mode)
+  stencila site password set
+
+  # Set password for another workspace
+  stencila site password set --path /path/to/workspace
+
+  # Update password and exclude main/master branches
+  stencila site password set --not-main
+
+  # Update password and include main/master branches
+  stencila site password set --main
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+* `--not-main` — Do not apply password protection to main or master branches
+
+   Updates the accessRestrictMain flag. By default, password protection applies to all branches including main and master. Use this flag to exclude them.
+* `--main` — Apply password protection to main or master branches
+
+   Updates the accessRestrictMain flag. Use this to re-enable protection for main and master branches.
+
+
+
+## `stencila site password clear`
+
+Clear the password (keeps access mode unchanged)
+
+**Usage:** `stencila site password clear [OPTIONS]`
+
+Examples
+  # Clear password for the current workspace's site
+  stencila site password clear
+
+  # Clear password for another workspace's site
+  stencila site password clear --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site domain`
+
+Manage custom domain for the workspace site
+
+**Usage:** `stencila site domain <COMMAND>`
+
+Examples
+  # Set a custom domain for the site
+  stencila site domain set example.com
+
+  # Check domain status
+  stencila site domain status
+
+  # Remove the custom domain
+  stencila site domain clear
+
+
+###### **Subcommands:**
+
+* `set` — Set a custom domain for the site
+* `status` — Check the status of the custom domain
+* `clear` — Remove the custom domain from the site
+
+
+
+## `stencila site domain set`
+
+Set a custom domain for the site
+
+**Usage:** `stencila site domain set [OPTIONS] <DOMAIN>`
+
+Examples
+  # Set custom domain for the current workspace's site
+  stencila site domain set example.com
+
+  # Set custom domain for another workspace's site
+  stencila site domain set example.com --path /path/to/workspace
+
+Setup Process
+
+  After running this command, you'll need to complete the following steps:
+
+  1. Add the CNAME record to your DNS
+     The command will provide the exact record details (name and target)
+
+  2. Wait for DNS propagation (usually 5-30 minutes)
+     DNS changes can take time to propagate globally
+
+  3. Check status: stencila site domain status
+     Monitor the verification and SSL provisioning progress
+
+  Once the CNAME is detected, SSL will be provisioned automatically and
+  your site will go live.
+
+Troubleshooting
+
+  Domain status stuck on "Waiting for CNAME record to be configured":
+
+  1. Verify CNAME is configured correctly:
+     dig example.com CNAME
+     nslookup -type=CNAME example.com
+     Should show your domain pointing to the CNAME target provided
+
+  2. Cloudflare DNS users:
+     - Ensure CNAME is set to "DNS only" (gray cloud), NOT "Proxied" (orange cloud)
+     - Proxied mode prevents domain verification and SSL provisioning
+     - This setting must remain "DNS only" permanently, not just during setup
+
+  3. Check for conflicting DNS records:
+     - Remove any A or AAAA records for the same hostname
+     - Ensure no NS records delegating to a different DNS provider
+
+  4. Wait for DNS propagation:
+     - DNS changes typically take 5-30 minutes (sometimes up to 48 hours)
+     - Check propagation: https://dnschecker.org
+
+  5. Apex domain issues:
+     - Some DNS providers don't support CNAME on apex/root domains
+     - Consider using a subdomain (e.g., www.example.com) instead
+
+
+###### **Arguments:**
+
+* `<DOMAIN>` — The custom domain to use for the site
+
+   Must be a valid domain name (IP addresses and ports are not allowed)
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site domain status`
+
+Check the status of the custom domain
+
+**Usage:** `stencila site domain status [OPTIONS]`
+
+Examples
+  # Check domain status
+  stencila site domain status
+
+  # Check status for another workspace
+  stencila site domain status --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site domain clear`
+
+Remove the custom domain from the site
+
+**Usage:** `stencila site domain clear [OPTIONS]`
+
+Examples
+  # Remove custom domain from the current workspace's site
+  stencila site domain clear
+
+  # Remove custom domain from another workspace's site
+  stencila site domain clear --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site branch`
+
+Manage branches for the workspace site
+
+**Usage:** `stencila site branch <COMMAND>`
+
+Examples
+  # List all deployed branches
+  stencila site branch list
+
+  # Delete a feature branch
+  stencila site branch delete feature-xyz
+
+  # Delete a branch without confirmation
+  stencila site branch delete feature-xyz --force
+
+
+###### **Subcommands:**
+
+* `list` — List all deployed branches
+* `delete` — Delete a branch from the site
+
+
+
+## `stencila site branch list`
+
+List all deployed branches
+
+**Usage:** `stencila site branch list [OPTIONS]`
+
+Examples
+  # List branches for the current workspace's site
+  stencila site branch list
+
+  # List branches for another workspace's site
+  stencila site branch list --path /path/to/workspace
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site branch delete`
+
+Delete a branch from the site
+
+**Usage:** `stencila site branch delete [OPTIONS] <BRANCH_NAME>`
+
+Examples
+  # Delete a feature branch (with confirmation)
+  stencila site branch delete feature-xyz
+
+  # Delete a branch without confirmation
+  stencila site branch delete feature-xyz --force
+
+  # Delete a branch from another workspace
+  stencila site branch delete feature-xyz --path /path/to/workspace
+
+Notes
+  - Protected branches (main, master) cannot be deleted
+  - Deletion is asynchronous and happens in the background
+  - Cache will be purged automatically for the deleted branch
+
+
+###### **Arguments:**
+
+* `<BRANCH_NAME>` — The branch name to delete
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory containing .stencila/site.yaml
+
+   If not specified, uses the current directory
+* `-f`, `--force` — Skip confirmation prompt
 
 
 
