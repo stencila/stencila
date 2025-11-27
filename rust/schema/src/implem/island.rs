@@ -7,15 +7,7 @@ impl LatexCodec for Island {
         context.enter_node(self.node_type(), self.node_id());
 
         if context.has_format_via_pandoc() {
-            let (mut latex, ..) = to_latex(
-                &self.content,
-                Format::Svg,
-                false,
-                true,
-                false,
-                false,
-                context.prelude.clone(),
-            );
+            let (mut latex, ..) = to_latex(&self.content, Format::Svg, false, true, false, false);
 
             // Set figure or table counter within the island's LaTeX
             if let (Some(label_type), Some(label)) = (self.label_type, &self.label)

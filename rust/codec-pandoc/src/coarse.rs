@@ -36,7 +36,6 @@ pub async fn coarse_to_path(
             render,
             highlight,
             reproducible,
-            None,
         ),
         _ => bail!("Unsupported from format: {from}"),
     };

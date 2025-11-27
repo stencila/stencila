@@ -18,6 +18,5 @@ pub(crate) fn encode(node: &Node, options: EncodeOptions) -> Result<(String, Enc
         render,
         highlight,
         reproducible,
-        None,
     ))
 }

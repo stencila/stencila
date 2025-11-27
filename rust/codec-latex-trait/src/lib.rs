@@ -35,13 +35,11 @@ pub fn to_latex<T>(
     render: bool,
     highlight: bool,
     reproducible: bool,
-    prelude: Option<String>,
 ) -> (String, EncodeInfo)
 where
     T: LatexCodec,
 {
-    let mut context =
-        LatexEncodeContext::new(format, standalone, render, highlight, reproducible, prelude);
+    let mut context = LatexEncodeContext::new(format, standalone, render, highlight, reproducible);
     node.to_latex(&mut context);
 
     let mut latex = context.content;
@@ -448,9 +446,6 @@ pub struct LatexEncodeContext {
     /// Used to determine whether newlines are needed between blocks.
     pub coarse: bool,
 
-    /// A prelude to add to islands and other LaTeX snippets generated during encoding
-    pub prelude: Option<String>,
-
     /// The temporary directory where images are encoded to if necessary
     pub temp_dir: PathBuf,
 
@@ -480,11 +475,10 @@ impl LatexEncodeContext {
         render: bool,
         highlight: bool,
         reproducible: bool,
-        prelude: Option<String>,
     ) -> Self {
         let temp_dir = temp_dir();
 
-        let content = prelude.clone().unwrap_or_default();
+        let content = String::new();
 
         Self {
             format,
@@ -492,7 +486,6 @@ impl LatexEncodeContext {
             render,
             highlight,
             reproducible,
-            prelude,
             temp_dir,
             coarse: false,
             content,

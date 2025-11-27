@@ -66,7 +66,7 @@ impl Codec for PngCodec {
         let tool = options.tool.clone().unwrap_or_default();
 
         let info = if tool == "latex" || tool.is_empty() {
-            let (latex, info) = to_latex(node, Format::Png, false, true, false, false, None);
+            let (latex, info) = to_latex(node, Format::Png, false, true, false, false);
             latex_to_image(&latex, path, None)?;
             info
         } else {

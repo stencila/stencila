@@ -172,7 +172,6 @@ impl LatexCodec for CodeChunk {
                                 true,
                                 context.highlight,
                                 context.reproducible,
-                                context.prelude.clone(),
                             );
 
                             if latex.trim().is_empty() {

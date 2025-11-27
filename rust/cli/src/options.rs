@@ -103,6 +103,46 @@ pub struct DecodeOptions {
     #[arg(long, help_heading = "Decoding Options")]
     no_artifacts: bool,
 
+    /// Wrap specified environments in Island nodes during decoding
+    ///
+    /// When converting from typesetting formats like LaTeX and Typst to other
+    /// formats like DOCX, certain environments may not convert cleanly and would
+    /// break round-trip conversion. This option wraps those environments in
+    /// Island nodes, preserving the original markup for later reconstitution.
+    ///
+    /// Defaults to common environments: figure, table, longtable, landscape.
+    /// Use --no-island-wrap to disable, or specify custom environments as a
+    /// comma-separated list to override the defaults.
+    ///
+    /// Only applies when using coarse decoding (the default for LaTeX).
+    #[arg(
+        long,
+        value_delimiter = ',',
+        default_value = "figure,table,longtable,landscape",
+        conflicts_with = "no_island_wrap",
+        help_heading = "Decoding Options"
+    )]
+    island_wrap: Vec<String>,
+
+    /// Disable automatic Island wrapping of environments
+    ///
+    /// By default, common environments (figure, table, longtable, landscape)
+    /// are wrapped in Island nodes during coarse decoding. Use this flag to
+    /// disable this behavior entirely.
+    #[arg(
+        long,
+        conflicts_with = "island_wrap",
+        help_heading = "Decoding Options"
+    )]
+    no_island_wrap: bool,
+
+    /// Style to apply to auto-created Island nodes
+    ///
+    /// When island wrapping is enabled, this optional style string is applied
+    /// to the created Island nodes. The style format depends on the source format.
+    #[arg(long, help_heading = "Decoding Options")]
+    island_style: Option<String>,
+
     /// Action when there are losses decoding from input files
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
@@ -130,6 +170,12 @@ impl DecodeOptions {
 
         let coarse = self.coarse.then_some(true).or(self.fine.then_some(false));
 
+        let island_wrap = if self.no_island_wrap {
+            Vec::new()
+        } else {
+            self.island_wrap.clone()
+        };
+
         stencila_codecs::DecodeOptions {
             codec,
             format,
@@ -139,6 +185,8 @@ impl DecodeOptions {
             exclude_pages: self.exclude_pages.clone(),
             ignore_artifacts: self.ignore_artifacts.then_some(true),
             no_artifacts: self.no_artifacts.then_some(true),
+            island_wrap,
+            island_style: self.island_style.clone(),
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
