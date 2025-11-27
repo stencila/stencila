@@ -8,8 +8,9 @@ use crate::prelude::*;
 impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
-        // Return early if no source, or already has content
-        if self.source.trim().is_empty() || self.content.is_some() {
+        // Return early if no source
+        // TODO: should also return early if source has not changed since last compile
+        if self.source.trim().is_empty() {
             // Continue walk to compile any existing `content`
             return WalkControl::Continue;
         }
