@@ -1593,7 +1593,7 @@
     "@vscode/vsce": "3.6.2",
     "esbuild": "0.25.10",
     "eslint": "9.37.0",
-    "js-yaml": "4.1.0",
+    "js-yaml": "4.1.1",
     "ovsx": "0.10.6",
     "typescript-eslint": "8.46.0"
   }
