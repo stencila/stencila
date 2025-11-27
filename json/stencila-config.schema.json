@@ -55,7 +55,7 @@
             "string",
             "null"
           ],
-          "pattern": "^\\d+$"
+          "pattern": "^w[a-zA-Z0-9]{9}$"
         },
         "domain": {
           "description": "Custom domain for the site\n\nThis is a cached value that is kept in sync with Stencila Cloud\nwhen site details are fetched or the domain is modified.\nThe canonical source is the Stencila Cloud API.",

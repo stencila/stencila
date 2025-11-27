@@ -2,7 +2,7 @@
 
 [site]
 id = "s123456789"
-watch = "987654321"
+watch = "wXyZ987654"
 domain = "docs.example.org"
 root = "site"
 exclude = ["**/*.draft.md", "_drafts/**", "node_modules/**"]

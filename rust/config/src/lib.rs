@@ -253,7 +253,7 @@ pub struct SiteConfig {
     /// If watching is enabled for this site, this field contains the watch ID.
     /// The watch enables unidirectional sync from repository to site - when
     /// changes are pushed to the repository, the site is automatically updated.
-    #[schemars(regex(pattern = r"^\d+$"))]
+    #[schemars(regex(pattern = r"^w[a-zA-Z0-9]{9}$"))]
     pub watch: Option<String>,
 
     /// Custom domain for the site
