@@ -12,4 +12,6 @@ pub enum CitationMode {
     Narrative,
 
     NarrativeAuthor,
+
+    NarrativeYear,
 }

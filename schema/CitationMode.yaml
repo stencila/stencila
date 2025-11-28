@@ -27,3 +27,5 @@ anyOf:
     '@id': stencila:Narrative
   - const: NarrativeAuthor
     '@id': stencila:NarrativeAuthor
+  - const: NarrativeYear
+    '@id': stencila:NarrativeYear

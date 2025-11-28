@@ -141,6 +141,10 @@
     {
       "@id": "stencila:NarrativeAuthor",
       "const": "NarrativeAuthor"
+    },
+    {
+      "@id": "stencila:NarrativeYear",
+      "const": "NarrativeYear"
     }
   ]
 }

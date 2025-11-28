@@ -191,6 +191,7 @@ class CitationMode(StrEnum):
     Parenthetical = "Parenthetical"
     Narrative = "Narrative"
     NarrativeAuthor = "NarrativeAuthor"
+    NarrativeYear = "NarrativeYear"
 
 
 class ClaimType(StrEnum):
