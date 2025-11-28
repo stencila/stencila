@@ -15,6 +15,7 @@ serde_with = { workspace = true }
 stencila-cloud = { path = "../cloud" }
 stencila-codec = { path = "../codec" }
 stencila-codec-gdoc = { path = "../codec-gdoc" }
+stencila-codec-ghi = { path = "../codec-ghi" }
 stencila-codec-m365 = { path = "../codec-m365" }
 stencila-codec-site = { path = "../codec-site" }
 stencila-config = { path = "../config" }

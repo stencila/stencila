@@ -8848,6 +8848,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-ghi"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "directories",
+ "eyre",
+ "regex",
+ "reqwest",
+ "serde_json",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-cloud",
+ "stencila-codec",
+ "stencila-codec-docx",
+ "stencila-secrets",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+ "webbrowser",
+]
+
+[[package]]
 name = "stencila-codec-github"
 version = "0.0.0"
 dependencies = [
@@ -10698,6 +10721,7 @@ dependencies = [
  "stencila-cloud",
  "stencila-codec",
  "stencila-codec-gdoc",
+ "stencila-codec-ghi",
  "stencila-codec-m365",
  "stencila-codec-site",
  "stencila-config",

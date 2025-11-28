@@ -368,6 +368,18 @@ impl Codec for DocxCodec {
     }
 }
 
+/// Extract custom properties from a DOCX file
+///
+/// This is useful for reading embedded metadata like `path`, `repository`,
+/// and `commit` properties that are embedded in DOCX files created by Stencila.
+///
+/// Returns a tuple of (custom_data, custom_properties).
+pub fn extract_properties(
+    path: &Path,
+) -> Result<(indexmap::IndexMap<String, String>, indexmap::IndexMap<String, Primitive>)> {
+    decode::data_and_properties(path)
+}
+
 #[derive(RustEmbed)]
 #[folder = "$CARGO_MANIFEST_DIR/templates"]
 struct Templates;

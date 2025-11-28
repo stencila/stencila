@@ -230,6 +230,7 @@ pub async fn calculate_remote_statuses(
             match service {
                 Some(RemoteService::GoogleDocs) => stencila_codec_gdoc::modified_at(url).await,
                 Some(RemoteService::Microsoft365) => stencila_codec_m365::modified_at(url).await,
+                Some(RemoteService::GitHubIssues) => stencila_codec_ghi::modified_at(url).await,
                 Some(RemoteService::StencilaSites) => stencila_codec_site::modified_at(url).await,
                 None => eyre::bail!("Unsupported remote service: {url}"),
             }

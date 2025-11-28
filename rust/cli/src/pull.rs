@@ -40,11 +40,14 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Pull from tracked Google Doc</dim>
   <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdoc</>
 
+  <dim># Pull from untracked Google Doc</dim>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>https://docs.google.com/document/d/abc123</>
+
   <dim># Pull from tracked Microsoft 365 document</dim>
   <b>stencila pull</> <g>document.smd</> <c>--from</> <g>m365</>
 
-  <dim># Pull from specific URL</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>https://docs.google.com/document/d/abc123</>
+  <dim># Pull from GitHub Issue</dim>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>https://github.com/org/repo/issues/123</>
 
   <dim># Pull without merging (replace local file)</dim>
   <b>stencila pull</> <g>document.smd</> <g>gdoc</> <c>--no-merge</>
@@ -89,6 +92,16 @@ impl Cli {
                         .clone();
                     (RemoteService::Microsoft365, url)
                 }
+                "ghi" => {
+                    // Find configured GitHub Issue remote
+                    let url = remote_infos
+                        .iter()
+                        .find(|info| RemoteService::GitHubIssues.matches_url(&info.url))
+                        .ok_or_else(|| eyre!("No GitHub Issue configured for `{path_display}`"))?
+                        .url
+                        .clone();
+                    (RemoteService::GitHubIssues, url)
+                }
                 "site" | "sites" => {
                     // Find configured Stencila Site remote
                     let url = remote_infos
@@ -127,7 +140,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "Multiple remotes configured for `{path_display}`:\n{remotes_list}\n\nSpecify which one to pull using a service (gdoc/m365/site) or full URL."
+                    "Multiple remotes configured for `{path_display}`:\n{remotes_list}\n\nSpecify which one to pull using a service (gdoc/m365/ghi/site) or full URL."
                 );
             }
 

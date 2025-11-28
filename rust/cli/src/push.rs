@@ -1442,6 +1442,8 @@ impl Cli {
         let threshold = match service {
             RemoteService::GoogleDocs | RemoteService::Microsoft365 => 5,
             RemoteService::StencilaSites => 20,
+            // GitHubIssues is read-only, this branch should never be reached
+            RemoteService::GitHubIssues => 5,
         };
         if creates.len() > threshold {
             let answer = ask_with(

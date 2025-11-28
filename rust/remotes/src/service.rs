@@ -16,6 +16,9 @@ pub enum RemoteService {
     /// Microsoft 365 / OneDrive
     Microsoft365,
 
+    /// GitHub Issues
+    GitHubIssues,
+
     /// Stencila Sites
     StencilaSites,
 }
@@ -27,10 +30,11 @@ impl FromStr for RemoteService {
         match s {
             "gdoc" | "gdocs" => Ok(RemoteService::GoogleDocs),
             "m365" => Ok(RemoteService::Microsoft365),
+            "ghi" => Ok(RemoteService::GitHubIssues),
             "site" | "sites" => Ok(RemoteService::StencilaSites),
             _ => {
                 let url = Url::parse(s).map_err(|_| {
-                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'site', or a full URL.")
+                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'site', 'ghi', or a full URL.")
                     })?;
                 RemoteService::from_url(&url)
                     .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))
@@ -45,6 +49,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => "gdoc",
             Self::Microsoft365 => "m365",
+            Self::GitHubIssues => "ghi",
             Self::StencilaSites => "site",
         }
     }
@@ -54,6 +59,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => "Google Doc",
             Self::Microsoft365 => "Microsoft 365 doc",
+            Self::GitHubIssues => "GitHub Issue",
             Self::StencilaSites => "Stencila Site route",
         }
     }
@@ -63,6 +69,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => "Google Docs",
             Self::Microsoft365 => "Microsoft 365",
+            Self::GitHubIssues => "GitHub Issues",
             Self::StencilaSites => "Stencila Sites",
         }
     }
@@ -81,6 +88,9 @@ impl RemoteService {
                     false
                 }
             }
+            Self::GitHubIssues => {
+                url.host_str() == Some("github.com") && url.path().contains("/issues/")
+            }
             Self::StencilaSites => {
                 if let Some(host) = url.host_str() {
                     host.ends_with(".stencila.site")
@@ -93,10 +103,15 @@ impl RemoteService {
 
     /// Get the remote service from a URL
     pub fn from_url(url: &Url) -> Option<Self> {
-        [Self::GoogleDocs, Self::Microsoft365, Self::StencilaSites]
-            .iter()
-            .find(|service| service.matches_url(url))
-            .copied()
+        [
+            Self::GoogleDocs,
+            Self::Microsoft365,
+            Self::GitHubIssues,
+            Self::StencilaSites,
+        ]
+        .iter()
+        .find(|service| service.matches_url(url))
+        .copied()
     }
 
     /// Get the format used by this remote service for pull/push operations
@@ -104,8 +119,16 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => Format::Docx,
             Self::Microsoft365 => Format::Docx,
+            Self::GitHubIssues => Format::Docx,
             Self::StencilaSites => Format::JsonLd,
         }
+    }
+
+    /// Check if this remote service is read-only (pull only, no push support)
+    ///
+    /// Read-only remotes like GitHub Issues can only be pulled from.
+    pub fn is_read_only(&self) -> bool {
+        matches!(self, Self::GitHubIssues)
     }
 
     /// Check if this remote service is write-only (push only, no pull support)
@@ -130,16 +153,24 @@ impl RemoteService {
             Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url, dry_run).await,
             Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url, dry_run).await,
             Self::StencilaSites => stencila_codec_site::push(node, path, title, url, dry_run).await,
+            Self::GitHubIssues => {
+                eyre::bail!("GitHub Issues remote is read-only and does not support push")
+            }
         }
     }
 
     /// Pull a document from this remote service
     ///
     /// Downloads the document and saves it to the specified path.
-    pub async fn pull(&self, url: &Url, dest: &Path) -> Result<()> {
+    ///
+    /// The `target_path` is the path to the local document being updated.
+    /// Most services ignore this, but GitHub Issues uses it to select
+    /// the correct DOCX when multiple are attached.
+    pub async fn pull(&self, url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<()> {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest).await,
             Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
+            Self::GitHubIssues => stencila_codec_ghi::pull(url, dest, target_path).await,
             Self::StencilaSites => stencila_codec_site::pull(url, dest).await,
         }
     }
@@ -149,6 +180,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::modified_at(url).await,
             Self::Microsoft365 => stencila_codec_m365::modified_at(url).await,
+            Self::GitHubIssues => stencila_codec_ghi::modified_at(url).await,
             Self::StencilaSites => stencila_codec_site::modified_at(url).await,
         }
     }

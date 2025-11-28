@@ -1089,7 +1089,8 @@ pub async fn pull(
         .with_extension(format.extension());
 
     // Download from remote service
-    service.pull(url, &pulled_path).await?;
+    // Pass dest as target_path so GitHub Issues can select the correct DOCX
+    service.pull(url, &pulled_path, Some(dest)).await?;
 
     if merge {
         // Merge the pulled version with the local file
