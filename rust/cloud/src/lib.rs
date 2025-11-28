@@ -11,11 +11,13 @@ use strum::Display;
 
 use stencila_version::STENCILA_USER_AGENT;
 
+mod github;
 mod google;
 mod microsoft;
 pub mod sites;
 mod watch;
 
+pub use github::get_repo_token;
 pub use sites::AccessMode;
 pub use watch::*;
 
@@ -234,10 +236,12 @@ pub async fn client() -> Result<Client> {
 /// authentication failures by prompting the user to connect their account.
 ///
 /// Currently supported services:
+/// - "github": GitHub
 /// - "google": Google Drive / Google Docs
 /// - "microsoft": Microsoft 365 / OneDrive
 pub async fn get_token(service: &str) -> Result<String> {
     match service {
+        "github" => github::get_token_with_retry().await,
         "google" => google::get_token_with_retry().await,
         "microsoft" => microsoft::get_token_with_retry().await,
         _ => bail!("Unsupported service: {service}"),
