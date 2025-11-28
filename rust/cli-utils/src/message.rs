@@ -169,6 +169,8 @@ fn is_emoji_char(c: char) -> bool {
         '\u{2100}'..='\u{214F}' |
         // Arrows and other symbols often used as emoji
         '\u{2190}'..='\u{21FF}' |
+        // Miscellaneous Symbols and Arrows (includes ⬇️, ⬆️, ⬅️, ➡️, etc.)
+        '\u{2B00}'..='\u{2BFF}' |
         // Enclosed alphanumerics
         '\u{2460}'..='\u{24FF}' |
         // Box drawing (used for some symbols)
