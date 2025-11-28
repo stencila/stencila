@@ -8,9 +8,9 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{
-        AppendixBreak, Article, Block, CodeChunk, CodeExpression, ForBlock, Heading, IfBlock,
-        IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
-        Text,
+        AppendixBreak, Article, Block, Citation, CitationGroup, CitationMode, CitationOptions,
+        CodeChunk, CodeExpression, ForBlock, Heading, IfBlock, IfBlockClause, IncludeBlock, Inline,
+        InlinesBlock, Island, LabelType, Link, Node, RawBlock, Text,
     },
 };
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
@@ -40,6 +40,11 @@ static RE: LazyLock<Regex> = LazyLock::new(|| {
         \\expr\{(?P<expr>[^}]*)\}
 
       | \\(auto)?ref\{(?P<ref>[^}]*)\}
+
+      | \\(?P<cite_cmd>citep?|citet|citeauthor|citeyear|citealt|citealp)
+          (?:\[(?P<cite_arg1>[^\]]*)\])?
+          (?:\[(?P<cite_arg2>[^\]]*)\])?
+          \{(?P<cite_keys>[^}]+)\}
 
       | \\input\{(?P<input>[^}]*)\}\s*\n?
 
@@ -241,6 +246,52 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
                     ..Default::default()
                 },
             )])));
+        } else if let Some(keys_match) = captures.name("cite_keys") {
+            // Determine citation mode from command
+            let citation_mode = match captures.name("cite_cmd").map(|m| m.as_str()) {
+                Some("citet") => Some(CitationMode::Narrative),
+                Some("citeauthor") => Some(CitationMode::NarrativeAuthor),
+                Some("citeyear") => Some(CitationMode::NarrativeYear),
+                _ => Some(CitationMode::Parenthetical),
+            };
+
+            // Parse prefix/suffix - natbib uses [prefix][suffix] or just [suffix]
+            let (prefix, suffix) = match (captures.name("cite_arg1"), captures.name("cite_arg2")) {
+                (Some(p), Some(s)) => (
+                    Some(p.as_str().to_string()).filter(|s| !s.is_empty()),
+                    Some(s.as_str().to_string()).filter(|s| !s.is_empty()),
+                ),
+                (Some(s), None) => (None, Some(s.as_str().to_string()).filter(|s| !s.is_empty())),
+                _ => (None, None),
+            };
+
+            // Parse comma-separated keys
+            let citations: Vec<Citation> = keys_match
+                .as_str()
+                .split(',')
+                .map(|key| key.trim())
+                .filter(|key| !key.is_empty())
+                .map(|key| Citation {
+                    target: key.to_string(),
+                    citation_mode,
+                    options: Box::new(CitationOptions {
+                        citation_prefix: prefix.clone(),
+                        citation_suffix: suffix.clone(),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })
+                .collect();
+
+            if !citations.is_empty() {
+                let inline = if citations.len() == 1 {
+                    Inline::Citation(citations.into_iter().next().expect("checked not empty"))
+                } else {
+                    Inline::CitationGroup(CitationGroup::new(citations))
+                };
+
+                blocks.push(Block::InlinesBlock(InlinesBlock::new(vec![inline])));
+            }
         } else if let Some(mat) = captures.name("input") {
             let mut source = mat.as_str().to_string();
 
