@@ -38,8 +38,14 @@ impl Ask for CliProvider {
                     }
 
                     if found_closing && !code_content.is_empty() {
-                        // Add orange coloring around the content
-                        result.push_str(&format!("\x1b[38;5;208m{}\x1b[0m", code_content));
+                        // Color URLs blue, other content orange
+                        if code_content.starts_with("http://")
+                            || code_content.starts_with("https://")
+                        {
+                            result.push_str(&format!("\x1b[94m{}\x1b[0m", code_content));
+                        } else {
+                            result.push_str(&format!("\x1b[38;5;208m{}\x1b[0m", code_content));
+                        }
                     } else {
                         // No closing backtick found or empty content, keep original
                         result.push('`');
@@ -100,9 +106,6 @@ impl Ask for CliProvider {
         )
         .join("\n");
 
-        // Blank line to separate from logs or other questions
-        eprintln!();
-
         eprint!("{prompt}");
         stderr().flush()?;
 
@@ -117,9 +120,6 @@ impl Ask for CliProvider {
         let mut answer = String::new();
         stdin().read_line(&mut answer)?;
         let answer = answer.trim().to_lowercase();
-
-        // Blank line to separate from logs or other questions
-        eprintln!();
 
         if answer.is_empty()
             && let Some(default) = options.default
