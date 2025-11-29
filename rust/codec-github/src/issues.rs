@@ -23,7 +23,7 @@ use stencila_codec::{
     stencila_schema::Primitive,
 };
 
-use crate::client::CLIENT;
+use crate::client::{CLIENT, apply_rate_limiting, get_token};
 
 /// Regex for matching DOCX markdown links in GitHub issue bodies
 ///
@@ -49,9 +49,7 @@ pub async fn pull(url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<
     let issue_ref = parse_github_issue_url(url)?;
 
     // Get token (optional for public repos)
-    let token = get_github_token(&issue_ref.owner, &issue_ref.repo)
-        .await
-        .ok();
+    let token = get_token(Some(&issue_ref.owner), Some(&issue_ref.repo)).await;
 
     // Fetch issue body and all comments
     let all_content = fetch_all_issue_content(&issue_ref, token.as_deref()).await?;
@@ -238,28 +236,6 @@ pub fn parse_github_issue_url(url: &Url) -> Result<GitHubIssueRef> {
     })
 }
 
-/// Get GitHub API token for accessing a specific repository
-///
-/// Tries in order:
-/// 1. GITHUB_TOKEN environment variable or keyring secret
-/// 2. Stencila Cloud GitHub App installation token for the repository
-/// 3. Stencila Cloud GitHub OAuth token (user's connected GitHub account)
-async fn get_github_token(owner: &str, repo: &str) -> Result<String> {
-    // First try local secret/env var
-    if let Ok(token) = stencila_secrets::env_or_get(stencila_secrets::GITHUB_TOKEN) {
-        return Ok(token);
-    }
-
-    // Try to get a repository-specific installation token from Stencila Cloud
-    // This uses the Stencila GitHub App installation on the repository
-    if let Ok(token) = stencila_cloud::get_repo_token(owner, repo).await {
-        return Ok(token);
-    }
-
-    // Fall back to user's connected GitHub OAuth token
-    stencila_cloud::get_token("github").await
-}
-
 /// Build a GitHub API request with common headers
 fn build_github_api_request(url: &str, token: Option<&str>) -> reqwest::RequestBuilder {
     let mut request = CLIENT.get(url).header(
@@ -324,6 +300,8 @@ async fn fetch_issue_body(issue_ref: &GitHubIssueRef, token: Option<&str>) -> Re
         issue_ref.owner, issue_ref.repo, issue_ref.issue_number
     );
 
+    apply_rate_limiting(&url, token.is_some()).await?;
+
     let response = build_github_api_request(&url, token).send().await?;
 
     if !response.status().is_success() {
@@ -361,6 +339,8 @@ async fn fetch_issue_comments(
             "https://api.github.com/repos/{}/{}/issues/{}/comments?per_page=100&page={}",
             issue_ref.owner, issue_ref.repo, issue_ref.issue_number, page
         );
+
+        apply_rate_limiting(&url, token.is_some()).await?;
 
         let response = build_github_api_request(&url, token).send().await?;
 
@@ -491,9 +471,7 @@ pub async fn modified_at(url: &Url) -> Result<u64> {
     let issue_ref = parse_github_issue_url(url)?;
 
     // Get token (optional for public repos)
-    let token = get_github_token(&issue_ref.owner, &issue_ref.repo)
-        .await
-        .ok();
+    let token = get_token(Some(&issue_ref.owner), Some(&issue_ref.repo)).await;
 
     // Fetch issue body and all comments
     let all_content = fetch_all_issue_content(&issue_ref, token.as_deref()).await?;

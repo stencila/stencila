@@ -14,6 +14,7 @@ use serde::de::DeserializeOwned;
 use tokio::time::Instant;
 
 use stencila_codec::eyre::{Result, bail};
+use stencila_secrets::GITHUB_TOKEN;
 use stencila_version::STENCILA_USER_AGENT;
 
 const API_BASE_URL: &str = "https://api.github.com";
@@ -59,7 +60,7 @@ static SEARCH_AUTH_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryStat
     });
 
 /// Apply rate limiting based on URL and authentication status
-async fn apply_rate_limiting(url: &str, authenticated: bool) -> Result<()> {
+pub(crate) async fn apply_rate_limiting(url: &str, authenticated: bool) -> Result<()> {
     let start = Instant::now();
 
     if url.contains("/search/code") {
@@ -85,6 +86,37 @@ async fn apply_rate_limiting(url: &str, authenticated: bool) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Get GitHub API token with optional repo-specific resolution
+///
+/// When `owner` and `repo` are provided, tries:
+/// 1. GITHUB_TOKEN env var / keyring
+/// 2. Stencila Cloud repo-specific installation token
+/// 3. Stencila Cloud user's GitHub OAuth token
+///
+/// When not provided (for search/general APIs), just tries:
+/// 1. GITHUB_TOKEN env var / keyring
+pub(crate) async fn get_token(owner: Option<&str>, repo: Option<&str>) -> Option<String> {
+    // First try local secret/env var
+    if let Ok(token) = stencila_secrets::env_or_get(GITHUB_TOKEN) {
+        return Some(token);
+    }
+
+    // If repo context provided, try Cloud tokens
+    if let (Some(owner), Some(repo)) = (owner, repo) {
+        // Try repo-specific installation token
+        if let Ok(token) = stencila_cloud::get_repo_token(owner, repo).await {
+            return Some(token);
+        }
+    }
+
+    // Fall back to user's connected GitHub OAuth token
+    if let Ok(token) = stencila_cloud::get_token("github").await {
+        return Some(token);
+    }
+
+    None
 }
 
 pub(crate) static CLIENT: LazyLock<Client> = LazyLock::new(|| {
@@ -113,7 +145,7 @@ where
 {
     tracing::debug!("Making GitHub API request");
 
-    let token = stencila_secrets::env_or_get("GITHUB_TOKEN").ok();
+    let token = get_token(None, None).await;
 
     apply_rate_limiting(url, token.is_some()).await?;
 
