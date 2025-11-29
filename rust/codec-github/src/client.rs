@@ -87,7 +87,7 @@ async fn apply_rate_limiting(url: &str, authenticated: bool) -> Result<()> {
     Ok(())
 }
 
-static CLIENT: LazyLock<Client> = LazyLock::new(|| {
+pub(crate) static CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
         .user_agent(STENCILA_USER_AGENT)
         .default_headers(HeaderMap::from_iter([

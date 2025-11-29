@@ -8848,42 +8848,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-codec-ghi"
+name = "stencila-codec-github"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
  "chrono",
  "directories",
- "eyre",
+ "glob",
+ "governor",
+ "indexmap 2.12.0",
+ "insta",
+ "itertools 0.14.0",
  "regex",
  "reqwest",
+ "serde",
  "serde_json",
  "stencila-ask",
  "stencila-cli-utils",
  "stencila-cloud",
  "stencila-codec",
- "stencila-codec-docx",
- "stencila-secrets",
- "tempfile",
- "tokio",
- "tracing",
- "url",
- "webbrowser",
-]
-
-[[package]]
-name = "stencila-codec-github"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "glob",
- "governor",
- "insta",
- "itertools 0.14.0",
- "reqwest",
- "serde",
- "serde_json",
- "stencila-codec",
  "stencila-codec-csv",
+ "stencila-codec-docx",
  "stencila-codec-ipynb",
  "stencila-codec-latex",
  "stencila-codec-markdown",
@@ -8894,6 +8879,7 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
+ "webbrowser",
 ]
 
 [[package]]
@@ -10721,7 +10707,7 @@ dependencies = [
  "stencila-cloud",
  "stencila-codec",
  "stencila-codec-gdoc",
- "stencila-codec-ghi",
+ "stencila-codec-github",
  "stencila-codec-m365",
  "stencila-codec-site",
  "stencila-config",

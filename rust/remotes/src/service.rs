@@ -170,7 +170,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest).await,
             Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
-            Self::GitHubIssues => stencila_codec_ghi::pull(url, dest, target_path).await,
+            Self::GitHubIssues => stencila_codec_github::issues::pull(url, dest, target_path).await,
             Self::StencilaSites => stencila_codec_site::pull(url, dest).await,
         }
     }
@@ -180,7 +180,7 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::modified_at(url).await,
             Self::Microsoft365 => stencila_codec_m365::modified_at(url).await,
-            Self::GitHubIssues => stencila_codec_ghi::modified_at(url).await,
+            Self::GitHubIssues => stencila_codec_github::issues::modified_at(url).await,
             Self::StencilaSites => stencila_codec_site::modified_at(url).await,
         }
     }

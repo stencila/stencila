@@ -19,12 +19,14 @@ use stencila_codec_xlsx::XlsxCodec;
 
 pub mod client;
 pub mod decode;
+pub mod issues;
 pub mod responses;
 pub mod search_code;
 pub mod search_repos;
 pub mod search_users;
 
 pub use client::{request, search_url};
+pub use issues::{GitHubIssueRef, parse_github_issue_url};
 pub use responses::{SearchCodeResponse, SearchRepositoriesResponse, SearchUsersResponse};
 pub use search_code::CodeSearchItem;
 pub use search_repos::RepositorySearchItem;
