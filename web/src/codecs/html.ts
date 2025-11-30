@@ -757,6 +757,14 @@ const MANUAL_ENCODERS: Partial<
   InstructionMessage: (node: InstructionMessage, context: EncodeContext) => {
     context.enterNode('InstructionMessage', { role: node.role })
 
+    const ancestors = [...context.ancestors, 'InstructionMessage' as NodeType]
+
+    // Encode content field (Vec<Inline>) as a div slot
+    if (node.content && node.content.length > 0) {
+      context.pushSlot('div', 'content', encodeInlines(node.content, ancestors))
+    }
+
+    // Encode parts field if present
     if (node.parts && node.parts.length > 0) {
       let parts = ''
       for (const part of node.parts) {
