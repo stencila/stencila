@@ -1,8 +1,8 @@
 [site]
 id = "s49e0kpi63"
+watch = "w0klOk3I4p"
 root = "site"
 exclude = ["tests/excluded.smd"]
 
 [routes]
-"tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
-
+"/tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
