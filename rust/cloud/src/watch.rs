@@ -121,6 +121,18 @@ pub struct WatchDetailsResponse {
     pub last_repo_error: Option<String>,
 }
 
+/// Get a single watch by ID
+///
+/// This fetches detailed status information for a specific watch from Stencila Cloud.
+pub async fn get_watch(watch_id: &str) -> Result<WatchDetailsResponse> {
+    let client = client().await?;
+    let url = format!("{}/watches/{}", base_url(), watch_id);
+
+    let response = client.get(&url).send().await?;
+
+    process_response(response).await
+}
+
 /// Get all watches for the authenticated user
 ///
 /// This fetches detailed status information for all watches from Stencila Cloud.

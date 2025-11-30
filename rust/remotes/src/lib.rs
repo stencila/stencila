@@ -234,6 +234,7 @@ pub async fn calculate_remote_statuses(
                     stencila_codec_github::issues::modified_at(url).await
                 }
                 Some(RemoteService::StencilaSites) => stencila_codec_site::modified_at(url).await,
+                Some(RemoteService::StencilaEmail) => stencila_cloud::email::modified_at(url).await,
                 None => eyre::bail!("Unsupported remote service: {url}"),
             }
         }

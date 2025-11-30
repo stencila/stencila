@@ -5,7 +5,7 @@
 
 use std::{
     io::{IsTerminal, Write, stderr, stdin},
-    path::Path,
+    path::{Path, PathBuf},
     sync::LazyLock,
 };
 
@@ -55,12 +55,12 @@ pub async fn pull(url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<
     let all_content = fetch_all_issue_content(&issue_ref, token.as_deref()).await?;
 
     // Find all DOCX attachments from issue body and all comments
-    let mut all_docx_urls = Vec::new();
+    let mut all_attachments = Vec::new();
     for content in &all_content {
-        all_docx_urls.extend(find_docx_attachments(&content.body));
+        all_attachments.extend(find_docx_attachments(&content.body));
     }
 
-    if all_docx_urls.is_empty() {
+    if all_attachments.is_empty() {
         bail!("No DOCX attachments found in the GitHub issue body or comments");
     }
 
@@ -68,9 +68,16 @@ pub async fn pull(url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<
     // Using IndexMap to preserve insertion order while de-duplicating (last one wins)
     let mut path_to_docx: IndexMap<String, tempfile::NamedTempFile> = IndexMap::new();
 
-    for docx_url in &all_docx_urls {
-        // Download to temp file
-        let temp_file = tempfile::NamedTempFile::new()?;
+    for (filename, docx_url) in &all_attachments {
+        // Get extension from filename for codec detection
+        let extension = Path::new(filename)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .map(|ext| format!(".{ext}"))
+            .unwrap_or_else(|| ".docx".to_string());
+
+        // Download to temp file with correct extension so codecs can detect format
+        let temp_file = tempfile::Builder::new().suffix(&extension).tempfile()?;
 
         // Note: DOCX downloads use different headers than API requests:
         // - Accept: octet-stream for binary content
@@ -179,6 +186,115 @@ pub async fn pull(url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<
     copy(matching.path(), dest).await?;
 
     Ok(())
+}
+
+/// Pull all DOCX attachments and return them with their target paths
+///
+/// Fetches the issue body and all comments, extracts DOCX attachments,
+/// and returns a list of (target_path, temp_file) pairs. The caller is
+/// responsible for converting/merging these files to their destinations.
+#[tracing::instrument]
+pub async fn pull_all(url: &Url) -> Result<Vec<(PathBuf, tempfile::NamedTempFile)>> {
+    let issue_ref = parse_github_issue_url(url)?;
+
+    // Get token (optional for public repos)
+    let token = get_token(Some(&issue_ref.owner), Some(&issue_ref.repo)).await;
+
+    // Fetch issue body and all comments
+    let all_content = fetch_all_issue_content(&issue_ref, token.as_deref()).await?;
+
+    // Find all DOCX attachments from issue body and all comments
+    let mut all_attachments = Vec::new();
+    for content in &all_content {
+        all_attachments.extend(find_docx_attachments(&content.body));
+    }
+
+    if all_attachments.is_empty() {
+        bail!("No DOCX attachments found in the GitHub issue body or comments");
+    }
+
+    // Collect files in IndexMap - last one wins for duplicate paths
+    let mut path_to_file: IndexMap<String, tempfile::NamedTempFile> = IndexMap::new();
+
+    for (filename, docx_url) in &all_attachments {
+        // Get extension from filename for codec detection
+        let extension = Path::new(filename)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .map(|ext| format!(".{ext}"))
+            .unwrap_or_else(|| ".docx".to_string());
+
+        // Download to temp file with correct extension so codecs can detect format
+        let temp_file = tempfile::Builder::new().suffix(&extension).tempfile()?;
+
+        // Note: DOCX downloads use different headers than API requests:
+        // - Accept: octet-stream for binary content
+        // - Authorization: "token" format (not "Bearer") for user-attachments
+        let mut request = CLIENT
+            .get(docx_url)
+            .header("Accept", "application/octet-stream");
+
+        if let Some(ref token) = token {
+            request = request.header("Authorization", format!("token {token}"));
+        }
+
+        let response = request.send().await?;
+
+        let bytes = if response.status() == StatusCode::NOT_FOUND {
+            // Likely a private repo attachment - try browser-assisted download
+            match browser_assisted_download(docx_url).await {
+                Ok(Some(bytes)) => bytes,
+                Ok(None) => continue, // User skipped
+                Err(e) => {
+                    tracing::warn!("Browser-assisted download failed: {e}");
+                    continue;
+                }
+            }
+        } else if !response.status().is_success() {
+            tracing::warn!(
+                "Failed to download DOCX from {docx_url}: {}",
+                response.status()
+            );
+            continue;
+        } else {
+            response.bytes().await?.to_vec()
+        };
+
+        write(temp_file.path(), &bytes).await?;
+
+        // Extract path property from DOCX
+        let properties = match stencila_codec_docx::extract_properties(temp_file.path()) {
+            Ok((_, props)) => props,
+            Err(e) => {
+                tracing::warn!("Failed to extract properties from DOCX at {docx_url}: {e}");
+                continue;
+            }
+        };
+
+        // Get path property
+        let Some(path_str) = properties.get("path").and_then(|p| match p {
+            Primitive::String(s) => Some(s.clone()),
+            _ => None,
+        }) else {
+            tracing::warn!("DOCX at {docx_url} does not have a `path` property");
+            continue;
+        };
+
+        // Insert or overwrite - last one wins for duplicate paths
+        path_to_file.insert(path_str, temp_file);
+    }
+
+    if path_to_file.is_empty() {
+        bail!("No DOCX attachments with valid path metadata found");
+    }
+
+    // Return (target_path, temp_file) pairs for caller to convert/merge
+    let results: Vec<_> = path_to_file
+        .into_iter()
+        .map(|(path_str, temp_file)| (PathBuf::from(path_str), temp_file))
+        .collect();
+
+    Ok(results)
 }
 
 /// Content extracted from an issue body or comment
@@ -382,15 +498,21 @@ async fn fetch_issue_comments(
     Ok(all_comments)
 }
 
-/// Find all DOCX attachment URLs in a markdown body
+/// Find all DOCX attachments in a markdown body
+///
+/// Returns (filename, url) pairs for each attachment.
 ///
 /// GitHub file attachments appear as:
 /// - `[filename.docx](https://github.com/user-attachments/assets/...)`
 /// - `[filename.docx](https://github.com/owner/repo/files/...)`
-pub fn find_docx_attachments(body: &str) -> Vec<String> {
+pub fn find_docx_attachments(body: &str) -> Vec<(String, String)> {
     DOCX_LINK_RE
         .captures_iter(body)
-        .filter_map(|cap| cap.get(2).map(|m| m.as_str().to_string()))
+        .filter_map(|cap| {
+            let filename = cap.get(1)?.as_str().to_string();
+            let url = cap.get(2)?.as_str().to_string();
+            Some((filename, url))
+        })
         .collect()
 }
 
@@ -551,15 +673,26 @@ Not a GitHub URL: [other.docx](https://example.com/other.docx)
         assert_eq!(attachments.len(), 3);
         assert_eq!(
             attachments[0],
-            "https://github.com/user-attachments/assets/a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+            (
+                "report.docx".to_string(),
+                "https://github.com/user-attachments/assets/a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    .to_string()
+            )
         );
         assert_eq!(
             attachments[1],
-            "https://github.com/user-attachments/files/a1b2c3d4-e5f6-7890-abcd-ef1234567890/data.DOCX"
+            (
+                "data.DOCX".to_string(),
+                "https://github.com/user-attachments/files/a1b2c3d4-e5f6-7890-abcd-ef1234567890/data.DOCX"
+                    .to_string()
+            )
         );
         assert_eq!(
             attachments[2],
-            "https://github.com/stencila/stencila/files/456789/old.docx"
+            (
+                "old.docx".to_string(),
+                "https://github.com/stencila/stencila/files/456789/old.docx".to_string()
+            )
         );
     }
 

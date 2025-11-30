@@ -11,6 +11,7 @@ use strum::Display;
 
 use stencila_version::STENCILA_USER_AGENT;
 
+pub mod email;
 mod github;
 mod google;
 mod microsoft;

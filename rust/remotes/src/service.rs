@@ -21,6 +21,9 @@ pub enum RemoteService {
 
     /// Stencila Sites
     StencilaSites,
+
+    /// Stencila Email
+    StencilaEmail,
 }
 
 impl FromStr for RemoteService {
@@ -32,9 +35,10 @@ impl FromStr for RemoteService {
             "m365" => Ok(RemoteService::Microsoft365),
             "ghi" => Ok(RemoteService::GitHubIssues),
             "site" | "sites" => Ok(RemoteService::StencilaSites),
+            "email" => Ok(RemoteService::StencilaEmail),
             _ => {
                 let url = Url::parse(s).map_err(|_| {
-                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'site', 'ghi', or a full URL.")
+                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'site', 'ghi', 'email', or a full URL.")
                     })?;
                 RemoteService::from_url(&url)
                     .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))
@@ -51,6 +55,7 @@ impl RemoteService {
             Self::Microsoft365 => "m365",
             Self::GitHubIssues => "ghi",
             Self::StencilaSites => "site",
+            Self::StencilaEmail => "email",
         }
     }
 
@@ -61,6 +66,7 @@ impl RemoteService {
             Self::Microsoft365 => "Microsoft 365 doc",
             Self::GitHubIssues => "GitHub Issue",
             Self::StencilaSites => "Stencila Site route",
+            Self::StencilaEmail => "Stencila Email attachment",
         }
     }
 
@@ -71,6 +77,7 @@ impl RemoteService {
             Self::Microsoft365 => "Microsoft 365",
             Self::GitHubIssues => "GitHub Issues",
             Self::StencilaSites => "Stencila Sites",
+            Self::StencilaEmail => "Stencila Email",
         }
     }
 
@@ -98,6 +105,7 @@ impl RemoteService {
                     false
                 }
             }
+            Self::StencilaEmail => stencila_cloud::email::matches_url(url),
         }
     }
 
@@ -108,6 +116,7 @@ impl RemoteService {
             Self::Microsoft365,
             Self::GitHubIssues,
             Self::StencilaSites,
+            Self::StencilaEmail,
         ]
         .iter()
         .find(|service| service.matches_url(url))
@@ -121,14 +130,15 @@ impl RemoteService {
             Self::Microsoft365 => Format::Docx,
             Self::GitHubIssues => Format::Docx,
             Self::StencilaSites => Format::JsonLd,
+            Self::StencilaEmail => Format::Docx,
         }
     }
 
     /// Check if this remote service is read-only (pull only, no push support)
     ///
-    /// Read-only remotes like GitHub Issues can only be pulled from.
+    /// Read-only remotes like GitHub Issues and Cloud Email can only be pulled from.
     pub fn is_read_only(&self) -> bool {
-        matches!(self, Self::GitHubIssues)
+        matches!(self, Self::GitHubIssues | Self::StencilaEmail)
     }
 
     /// Check if this remote service is write-only (push only, no pull support)
@@ -156,6 +166,9 @@ impl RemoteService {
             Self::GitHubIssues => {
                 eyre::bail!("GitHub Issues remote is read-only and does not support push")
             }
+            Self::StencilaEmail => {
+                eyre::bail!("Email Attachments remote is read-only and does not support push")
+            }
         }
     }
 
@@ -164,7 +177,7 @@ impl RemoteService {
     /// Downloads the document and saves it to the specified path.
     ///
     /// The `target_path` is the path to the local document being updated.
-    /// Most services ignore this, but GitHub Issues uses it to select
+    /// Most services ignore this, but GitHub Issues and Cloud Email use it to select
     /// the correct DOCX when multiple are attached.
     pub async fn pull(&self, url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<()> {
         match self {
@@ -172,6 +185,7 @@ impl RemoteService {
             Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
             Self::GitHubIssues => stencila_codec_github::issues::pull(url, dest, target_path).await,
             Self::StencilaSites => stencila_codec_site::pull(url, dest).await,
+            Self::StencilaEmail => stencila_cloud::email::pull(url, dest, target_path, None).await,
         }
     }
 
@@ -182,6 +196,22 @@ impl RemoteService {
             Self::Microsoft365 => stencila_codec_m365::modified_at(url).await,
             Self::GitHubIssues => stencila_codec_github::issues::modified_at(url).await,
             Self::StencilaSites => stencila_codec_site::modified_at(url).await,
+            Self::StencilaEmail => stencila_cloud::email::modified_at(url).await,
+        }
+    }
+
+    /// Pull all documents from a multi-file remote using embedded path metadata
+    ///
+    /// Returns (target_path, temp_file) pairs for the caller to convert/merge,
+    /// or None if the remote doesn't support batch pull.
+    pub async fn pull_all(
+        &self,
+        url: &Url,
+    ) -> Result<Option<Vec<(std::path::PathBuf, tempfile::NamedTempFile)>>> {
+        match self {
+            Self::StencilaEmail => stencila_cloud::email::pull_all(url, None).await.map(Some),
+            Self::GitHubIssues => stencila_codec_github::issues::pull_all(url).await.map(Some),
+            _ => Ok(None),
         }
     }
 }

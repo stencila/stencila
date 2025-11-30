@@ -376,7 +376,10 @@ impl Codec for DocxCodec {
 /// Returns a tuple of (custom_data, custom_properties).
 pub fn extract_properties(
     path: &Path,
-) -> Result<(indexmap::IndexMap<String, String>, indexmap::IndexMap<String, Primitive>)> {
+) -> Result<(
+    indexmap::IndexMap<String, String>,
+    indexmap::IndexMap<String, Primitive>,
+)> {
     decode::data_and_properties(path)
 }
 

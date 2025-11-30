@@ -14,6 +14,9 @@ use stencila_remotes::{RemoteService, get_remotes_for_path, update_remote_timest
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path to the local document
+    ///
+    /// Use `-` to pull all documents from a multi-file remote (like email
+    /// attachments or GitHub Issues) using their embedded path metadata.
     path: PathBuf,
 
     /// The target to pull from
@@ -50,12 +53,20 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila pull</> <g>document.smd</> <c>--from</> <g>https://github.com/org/repo/issues/123</>
 
   <dim># Pull without merging (replace local file)</dim>
-  <b>stencila pull</> <g>document.smd</> <g>gdoc</> <c>--no-merge</>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdoc</> <c>--no-merge</>
+
+  <dim># Pull all documents from email attachments using embedded path metadata</dim>
+  <b>stencila pull</> <g>-</> <c>--from</> <g>https://api.stencila.cloud/v1/watches/wAbC12345/email/attachments</>
 "
 );
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
+        // Check for batch pull mode (path is "-")
+        if self.path == PathBuf::from("-") {
+            return self.run_batch_pull().await;
+        }
+
         let path_display = self.path.display();
 
         // Validate input file exists
@@ -196,6 +207,90 @@ impl Cli {
             None,
         )
         .await?;
+
+        Ok(())
+    }
+
+    /// Run batch pull mode, pulling all documents from a multi-file remote
+    async fn run_batch_pull(&self) -> Result<()> {
+        // Require --from argument
+        let Some(target_str) = &self.from else {
+            bail!("The --from argument is required when using `-` to pull from path metadata");
+        };
+
+        // Parse URL and get service
+        let url = Url::parse(target_str)
+            .map_err(|_| eyre!("Invalid URL for batch pull: {target_str}"))?;
+        let service = RemoteService::from_url(&url)
+            .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
+
+        message!("⬇️ Pulling from {} at {url}", service.display_name_plural());
+
+        // Pull all files in one operation (fetches attachments once)
+        // Returns (target_path, temp_file) pairs for us to convert/merge
+        let Some(pulled_files) = service.pull_all(&url).await? else {
+            bail!(
+                "{} does not support batch pull with `-`",
+                service.display_name()
+            );
+        };
+
+        if pulled_files.is_empty() {
+            bail!("No documents with path metadata found");
+        }
+
+        // Convert/merge each file and collect the paths that were updated
+        let mut pulled_paths = Vec::new();
+        for (target_path, temp_file) in pulled_files {
+            // Create parent directories if needed
+            if let Some(parent) = target_path.parent()
+                && !parent.as_os_str().is_empty()
+            {
+                tokio::fs::create_dir_all(parent).await?;
+            }
+
+            if !self.no_merge && target_path.exists() {
+                // Merge the pulled version with the local file
+                stencila_codecs::merge(
+                    temp_file.path(),
+                    Some(&target_path),
+                    None,
+                    None,
+                    false,
+                    DecodeOptions::default(),
+                    EncodeOptions::default(),
+                    None,
+                )
+                .await?;
+            } else {
+                // Convert to target format (or replace if --no-merge)
+                stencila_codecs::convert(
+                    Some(temp_file.path()),
+                    Some(&target_path),
+                    Some(DecodeOptions::default()),
+                    Some(EncodeOptions::default()),
+                )
+                .await?;
+            }
+
+            pulled_paths.push(target_path);
+        }
+
+        // Track each pulled file
+        for path in &pulled_paths {
+            update_remote_timestamp(
+                path,
+                url.as_ref(),
+                Some(Utc::now().timestamp() as u64),
+                None,
+            )
+            .await?;
+        }
+
+        message!("✅ Successfully pulled {} document(s):", pulled_paths.len());
+        for path in &pulled_paths {
+            message!("  - {}", path.display());
+        }
 
         Ok(())
     }
