@@ -6,7 +6,7 @@
 set -e
 
 VERSION=$1
-SEMVER="^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$"
+SEMVER="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$"
 
 # Validate inputs
 if [[ -n $(git status -s) ]]; then
