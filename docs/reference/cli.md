@@ -1677,19 +1677,27 @@ Examples
   # Pull from tracked Google Doc
   stencila pull document.smd --from gdoc
 
+  # Pull from untracked Google Doc
+  stencila pull document.smd --from https://docs.google.com/document/d/abc123
+
   # Pull from tracked Microsoft 365 document
   stencila pull document.smd --from m365
 
-  # Pull from specific URL
-  stencila pull document.smd --from https://docs.google.com/document/d/abc123
+  # Pull from GitHub Issue
+  stencila pull document.smd --from https://github.com/org/repo/issues/123
 
   # Pull without merging (replace local file)
-  stencila pull document.smd gdoc --no-merge
+  stencila pull document.smd --from gdoc --no-merge
+
+  # Pull all documents from email attachments using embedded path metadata
+  stencila pull - --from https://api.stencila.cloud/v1/watches/wAbC12345/email/attachments
 
 
 ###### **Arguments:**
 
 * `<PATH>` — The path to the local document
+
+   Use `-` to pull all documents from a multi-file remote (like email attachments or GitHub Issues) using their embedded path metadata.
 
 ###### **Options:**
 

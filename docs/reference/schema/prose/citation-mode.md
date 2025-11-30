@@ -38,6 +38,7 @@ The `CitationMode` type has these members:
 - `Parenthetical`
 - `Narrative`
 - `NarrativeAuthor`
+- `NarrativeYear`
 
 # Bindings
 
