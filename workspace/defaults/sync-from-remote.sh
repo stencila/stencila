@@ -39,7 +39,7 @@ echo "☁️  Remote URL: ${STENCILA_SYNC_REMOTE_URL}"
 # Use --no-merge to simply convert the downloaded document and
 # avoid creating a new branch (because already on branch when syncing from remote)
 echo "⬇️  Pulling from remote..."
-stencila pull --no-merge "${STENCILA_SYNC_FILE_PATH}" "${STENCILA_SYNC_REMOTE_URL}"
+stencila pull --no-merge "${STENCILA_SYNC_FILE_PATH}" --from "${STENCILA_SYNC_REMOTE_URL}"
 
 # Check if there are changes to commit and push
 if [[ -n "$(git status --porcelain)" ]]; then

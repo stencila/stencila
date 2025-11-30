@@ -37,7 +37,7 @@ echo "☁️  Remote URL: ${STENCILA_SYNC_REMOTE_URL}"
 
 # Push to remote using Stencila CLI
 echo "⬆️  Pushing to remote..."
-stencila push "${STENCILA_SYNC_FILE_PATH}" "${STENCILA_SYNC_REMOTE_URL}"
+stencila push "${STENCILA_SYNC_FILE_PATH}" --to "${STENCILA_SYNC_REMOTE_URL}"
 
 echo "✨ Sync to remote completed successfully!"
 exit 0
