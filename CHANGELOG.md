@@ -1,3 +1,31 @@
+# [2.10.0](https://github.com/stencila/stencila/compare/v2.9.0...v2.10.0) (2025-11-30)
+
+### Features
+
+* **GitHub issues codec:** Add support for pulling DOCX attachments from GitHub issues and issue comments. This new `ghi` codec allows you to use GitHub issues as a collaborative document workflow - attach Word documents to issues and pull them directly into your Stencila documents using `--from ghi`.
+
+* **Email attachments remote:** Add support for pulling DOCX attachments from Stencila Cloud email-to-PR feature. This enables workflows where collaborators email document updates which can then be pulled into your local files.
+
+* **LaTeX codec:** Decode citations and citation groups in coarse mode, improving handling of `\citep{}`, `\citet{}`, `\citeauthor{}`, and `\citeyear{}` commands.
+
+* **Schema:** Add `NarrativeYear` citation mode for citations that only show the year in narrative form (e.g., "As noted by Smith in 1992"), complementing existing `Narrative` and `NarrativeAuthor` modes.
+
+* **Cloud:** Add support for obtaining GitHub tokens through Stencila Cloud, simplifying authentication for GitHub-based workflows.
+
+### Bug Fixes
+
+* **CLI:** Improve colorizing of URLs in `ask` command output and remove extra blank lines ([717fb77](https://github.com/stencila/stencila/commit/717fb7779)).
+
+* **CLI:** Add emoji range detection for better terminal output handling ([8722149](https://github.com/stencila/stencila/commit/8722149cd)).
+
+* **Config:** Use correct regex pattern for site watch ID validation ([32d9c6a](https://github.com/stencila/stencila/commit/32d9c6ae5)).
+
+* **Workspace:** Use `--to` and `--from` arguments for push and pull commands for clearer intent ([322dd03](https://github.com/stencila/stencila/commit/322dd0359)).
+
+* **Web:** Update codec handling for instruction blocks ([a36bc8c](https://github.com/stencila/stencila/commit/a36bc8c6e)).
+
+
+
 # [2.9.0](https://github.com/stencila/stencila/compare/v2.8.0...v2.9.0) (2025-11-27)
 
 

@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.10.0 2025-11-30
+
+- Based on Stencila CLI [v2.10.0](https://github.com/stencila/stencila/releases/tag/v2.10.0) which adds new remote sources for pulling documents from GitHub issues (`ghi` codec) and email attachments, improved LaTeX citation handling, and a new `NarrativeYear` citation mode.
+
+
 ## 2.9.0 2025-11-27
 
 - Based on Stencila CLI [v2.9.0](https://github.com/stencila/stencila/releases/tag/v2.9.0) which includes new `site` commands for managing Stencila Cloud sites (branches, domains, access, passwords), spread rendering and push modes, configuration improvements with `stencila.toml`, and various codec fixes for LaTeX, Markdown, and text formats.
