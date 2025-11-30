@@ -15,6 +15,7 @@ stencila-cli-utils = { path = "../cli-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-format = { path = "../format" }
 strum = { workspace = true }
+syn = { version = "2", features = ["full", "parsing", "extra-traits"] }
 toml = { workspace = true }
 toml_edit = "0.22"
 tracing = { workspace = true }

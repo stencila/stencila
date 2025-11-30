@@ -5,7 +5,7 @@
   "type": "object",
   "properties": {
     "site": {
-      "description": "Site configuration",
+      "description": "Site configuration\nhttps://stencila.io/docs/config/site",
       "anyOf": [
         {
           "$ref": "#/definitions/SiteConfig"
@@ -16,7 +16,7 @@
       ]
     },
     "routes": {
-      "description": "Custom routes for serving content\n\nRoutes map URL paths to files, redirects, or spread configurations.\nThe key is the URL path (or path template for spreads), and the value can be:\n- A simple string for the file path: `\"/about/\" = \"README.md\"`\n- An object for redirects: `\"/old/\" = { redirect = \"/new/\", status = 301 }`\n- An object for spreads: `\"/{region}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"] } }`\n\nRoutes can be used by both remote sites (e.g., stencila.site) and\nlocal development servers.\n\nExample:\n```toml\n[routes]\n\"/\" = \"index.md\"\n\"/about/\" = \"README.md\"\n\"/old-page/\" = { redirect = \"/new-page/\", status = 301 }\n\"/external/\" = { redirect = \"https://example.com\" }\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"ABC\", \"DEF\"] } }\n```",
+      "description": "Custom routes for serving content\nhttps://stencila.io/docs/config/routes",
       "type": [
         "object",
         "null"
@@ -26,7 +26,7 @@
       }
     },
     "remotes": {
-      "description": "Remote synchronization configuration\n\nMaps local paths to remote service URLs. The key is the local path\n(file, directory, or pattern), and the value can be:\n- A simple URL string: `\"site\" = \"https://example.stencila.site/\"`\n- An object with watch: `\"file.md\" = { url = \"...\", watch = \"w123\" }`\n- Multiple remotes: `\"file.md\" = [{ url = \"...\", watch = \"...\" }, \"https://...\"]`\n\nDirectory paths are implicitly recursive, matching all files within.\n\nExample:\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"docs/report.md\" = { url = \"https://docs.google.com/...\", watch = \"w123\" }\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
+      "description": "Remote synchronization configuration\nhttps://stencila.io/docs/config/remotes",
       "type": [
         "object",
         "null"
@@ -38,7 +38,7 @@
   },
   "definitions": {
     "SiteConfig": {
-      "description": "Configuration for a site",
+      "description": "Configuration for a site\nhttps://stencila.io/docs/config/site",
       "type": "object",
       "properties": {
         "id": {
@@ -93,7 +93,7 @@
       "type": "string"
     },
     "RouteTarget": {
-      "description": "Target for a route - either a file path, a redirect, or a spread\n\nRoutes can either serve a file, redirect to another URL, or generate\nmultiple variants using spread parameters.\nThis enum allows for a clean representation where simple file\npaths are strings, and redirects/spreads are objects.",
+      "description": "Target for a route - either a file path, a redirect, or a spread\nhttps://stencila.io/docs/config/routes",
       "anyOf": [
         {
           "description": "Serve a file at this path\n\nPath relative to the workspace directory (or `site.root` if configured).\n\nExample in TOML:\n```toml\n[routes]\n\"/about/\" = \"README.md\"\n```",
@@ -122,7 +122,7 @@
       ]
     },
     "RouteRedirect": {
-      "description": "A redirect configuration",
+      "description": "A redirect configuration\nhttps://stencila.io/docs/config/routes#redirect",
       "type": "object",
       "properties": {
         "redirect": {
@@ -157,7 +157,7 @@
       ]
     },
     "RouteSpread": {
-      "description": "A spread configuration for multi-variant routes\n\nUsed to generate multiple route variants from a single source file\nwith different parameter values.",
+      "description": "A spread configuration for multi-variant routes\nhttps://stencila.io/docs/config/routes#spread",
       "type": "object",
       "properties": {
         "file": {
@@ -207,7 +207,7 @@
       ]
     },
     "RemoteValue": {
-      "description": "Value for a remote configuration entry - can be single or multiple targets\n\nSupports both simple cases (one URL) and complex cases (multiple URLs per path).\nEach target can be a simple URL string or an object with a watch ID.",
+      "description": "Value for a remote configuration entry - can be single or multiple targets\nhttps://stencila.io/docs/config/remotes",
       "anyOf": [
         {
           "description": "Multiple remote targets for the same path\n\nExample in TOML:\n```toml\n[remotes]\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
@@ -227,7 +227,7 @@
       ]
     },
     "RemoteTarget": {
-      "description": "A remote synchronization target\n\nCan be:\n- A simple URL string (for remotes without watch IDs)\n- An object with URL and watch ID\n- A spread configuration for multi-variant pushes",
+      "description": "A remote synchronization target\nhttps://stencila.io/docs/config/remotes",
       "anyOf": [
         {
           "description": "Simple URL string (no watch)\n\nExample: `\"https://example.stencila.site/\"`",
@@ -253,7 +253,7 @@
       ]
     },
     "RemoteWatch": {
-      "description": "Remote synchronization information with watch ID",
+      "description": "Remote synchronization information with watch ID\nhttps://stencila.io/docs/config/remotes#watch",
       "type": "object",
       "properties": {
         "url": {
@@ -275,7 +275,7 @@
       ]
     },
     "RemoteSpread": {
-      "description": "Spread configuration for multi-variant pushes\n\nUsed in `[remotes]` to configure spread pushing of a document to multiple\nremote variants with different parameter values.\n\nExample:\n```toml\n[remotes]\n\"report.smd\" = { service = \"gdoc\", title = \"Report {region}\", arguments = { region = [\"north\", \"south\"] } }\n```",
+      "description": "Spread configuration for multi-variant pushes\nhttps://stencila.io/docs/config/remotes#spread",
       "type": "object",
       "properties": {
         "service": {

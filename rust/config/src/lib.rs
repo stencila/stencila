@@ -239,6 +239,16 @@ impl Config {
 }
 
 /// Configuration for a site
+///
+/// Example:
+/// ```toml
+/// [site]
+/// id = "s123456789"
+/// watch = "wAbCdEfGh1"
+/// domain = "docs.example.org"
+/// root = "docs"
+/// exclude = ["**/*.draft.md", "_drafts/**"]
+/// ```
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct SiteConfig {
