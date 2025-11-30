@@ -481,7 +481,7 @@ impl Cli {
                 if to_remote_enabled {
                     let (status_color, status_text) = match details.to_remote_status {
                         Some(status) => (direction_status_color(status), status.to_string()),
-                        None => (Color::DarkGrey, "waiting".to_string()),
+                        None => (Color::DarkGrey, "Waiting".to_string()),
                     };
 
                     // Show "Never" if status is None (waiting), otherwise show timestamps
