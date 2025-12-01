@@ -6,10 +6,13 @@ set -euo pipefail
 cleanup() {
     local exit_code=$?
 
-    # Determine status based on exit code
+    # Determine status based on exit code and status file
     local status="succeeded"
     if [[ $exit_code -ne 0 ]]; then
         status="failed"
+    elif [[ -f /tmp/stencila-status ]]; then
+        status=$(cat /tmp/stencila-status)
+        rm -f /tmp/stencila-status
     fi
 
     # Only call the API if STENCILA_SESSION_ID and STENCILA_API_TOKEN are set

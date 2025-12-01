@@ -64,6 +64,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
     git push -u origin HEAD
     echo "✅ Changes pushed to remote repository"
 else
+    echo "no_changes" > /tmp/stencila-status
     echo "ℹ️  No changes to commit"
 fi
 
