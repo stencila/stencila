@@ -48,7 +48,7 @@ jobs:
           cd schemastore
           git remote add upstream https://github.com/SchemaStore/schemastore.git
           git fetch upstream
-          git checkout -b stencila-config-${{ inputs.tag }} upstream/main
+          git checkout -b stencila-config-${{ inputs.tag }} upstream/master
 
       - name: Update SchemaStore catalog
         run: |
