@@ -8,9 +8,10 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{
-        AppendixBreak, Article, Block, Citation, CitationGroup, CitationMode, CitationOptions,
-        CodeChunk, CodeExpression, ForBlock, Heading, IfBlock, IfBlockClause, IncludeBlock, Inline,
-        InlinesBlock, Island, LabelType, Link, Node, RawBlock, Text,
+        AppendixBreak, Article, Bibliography, Block, Citation, CitationGroup, CitationMode,
+        CitationOptions, CodeChunk, CodeExpression, CompilationMessage, ForBlock, Heading, IfBlock,
+        IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, MessageLevel,
+        Node, RawBlock, Text,
     },
 };
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
@@ -73,6 +74,55 @@ static RE: LazyLock<Regex> = LazyLock::new(|| {
     )
     .expect("invalid regex")
 });
+
+/// Regex for bibliography commands
+static BIBLIOGRAPHY_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\\(?:bibliography|addbibresource)\{([^}]+)\}").expect("invalid regex")
+});
+
+/// Extract bibliography source from LaTeX
+///
+/// Returns the bibliography source path and any compilation messages
+fn extract_bibliography(latex: &str) -> (Option<Bibliography>, Vec<CompilationMessage>) {
+    let mut messages = Vec::new();
+    let matches: Vec<_> = BIBLIOGRAPHY_RE.captures_iter(latex).collect();
+
+    if matches.is_empty() {
+        return (None, messages);
+    }
+
+    // Warn if multiple bibliography commands found
+    if matches.len() > 1 {
+        messages.push(CompilationMessage::new(
+            MessageLevel::Warning,
+            format!(
+                "Multiple bibliography commands found ({}), using first",
+                matches.len()
+            ),
+        ));
+    }
+
+    // Get the first match
+    let source = matches[0]
+        .get(1)
+        .map(|m| m.as_str().to_string())
+        .unwrap_or_default();
+
+    // Ensure .bib extension
+    let source = if source.ends_with(".bib") {
+        source
+    } else {
+        format!("{}.bib", source)
+    };
+
+    (
+        Some(Bibliography {
+            source,
+            ..Default::default()
+        }),
+        messages,
+    )
+}
 
 /// Decode LaTeX with the `--fine` option
 ///
@@ -166,7 +216,7 @@ pub(super) async fn fine(
     root_from_pandoc(pandoc, Format::Latex, &options)
 }
 
-/// Decode LaTeX with the `--course` option
+/// Decode LaTeX with the `--coarse` option
 ///
 /// Decodes into an [`Article`] with only [`RawBlock`]s and executable block types
 pub(super) fn coarse(latex: &str, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
@@ -178,10 +228,23 @@ pub(super) fn coarse(latex: &str, options: Option<DecodeOptions>) -> Result<(Nod
         latex.into()
     };
 
-    Ok((
-        Node::Article(Article::new(latex_to_blocks(&latex, &options.island_style))),
-        DecodeInfo::none(),
-    ))
+    // Extract bibliography from the LaTeX source
+    let (bibliography, bib_messages) = extract_bibliography(&latex);
+
+    // Create article with content
+    let mut article = Article::new(latex_to_blocks(&latex, &options.island_style));
+
+    // Set bibliography if found
+    if bibliography.is_some() {
+        article.options.bibliography = bibliography;
+    }
+
+    // Set compilation messages if any
+    if !bib_messages.is_empty() {
+        article.options.compilation_messages = Some(bib_messages);
+    }
+
+    Ok((Node::Article(article), DecodeInfo::none()))
 }
 
 /// Wrap specified environments in
