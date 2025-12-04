@@ -24,6 +24,9 @@
       "rdfs:comment": "The source of the code, a file path, label or URL.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Bibliography"
+        },
+        {
           "@id": "stencila:CodeLocation"
         },
         {

@@ -558,13 +558,30 @@
       ]
     },
     {
+      "@id": "stencila:bibliography",
+      "@type": "rdfs:Property",
+      "rdfs:label": "bibliography",
+      "rdfs:comment": "A bibliography of references that may be cited in the work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Bibliography"
+      }
+    },
+    {
       "@id": "schema:citation",
       "@type": "rdfs:Property",
       "rdfs:label": "references",
       "rdfs:comment": "References to other creative works, such as another publication, web page, scholarly article, etc.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Bibliography"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:Reference"
       }

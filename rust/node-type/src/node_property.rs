@@ -25,6 +25,7 @@ pub enum NodeProperty {
     Author,
     Authors,
     AvailableLanguages,
+    Bibliography,
     Bitrate,
     Brands,
     Caption,

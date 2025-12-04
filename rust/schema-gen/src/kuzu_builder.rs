@@ -157,6 +157,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
             skip_types: vec![
                 // Object types for which tables are not created
                 "AppendixBreak",
+                "Bibliography",
                 "Brand",
                 "Button",
                 "CallArgument",

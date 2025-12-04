@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::bibliography::Bibliography;
 use super::block::Block;
 use super::boolean::Boolean;
 use super::comment::Comment;
@@ -241,6 +242,10 @@ pub struct DatatableOptions {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     pub publisher: Option<PersonOrOrganization>,
+
+    /// A bibliography of references that may be cited in the work.
+    #[strip(output)]
+    pub bibliography: Option<Bibliography>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]

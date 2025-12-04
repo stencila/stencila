@@ -13,6 +13,7 @@ export * from "./Author.js";
 export * from "./AuthorRole.js";
 export * from "./AuthorRoleAuthor.js";
 export * from "./AuthorRoleName.js";
+export * from "./Bibliography.js";
 export * from "./Block.js";
 export * from "./BooleanValidator.js";
 export * from "./Brand.js";

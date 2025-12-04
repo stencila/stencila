@@ -244,6 +244,9 @@
       "rdfs:comment": "The external source of the content, a file path or URL.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Bibliography"
+        },
+        {
           "@id": "stencila:CodeLocation"
         },
         {
@@ -271,6 +274,9 @@
       "schema:domainIncludes": [
         {
           "@id": "schema:MediaObject"
+        },
+        {
+          "@id": "stencila:Bibliography"
         },
         {
           "@id": "stencila:File"

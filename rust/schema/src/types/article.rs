@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::bibliography::Bibliography;
 use super::block::Block;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
@@ -309,6 +310,11 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub publisher: Option<PersonOrOrganization>,
+
+    /// A bibliography of references that may be cited in the work.
+    #[strip(output)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub bibliography: Option<Bibliography>,
 
     /// The textual content of this creative work.
     #[strip(content)]

@@ -708,6 +708,9 @@ class CreativeWork(Thing):
     publisher: Person | Organization | None = None
     """A publisher of the CreativeWork."""
 
+    bibliography: Bibliography | None = None
+    """A bibliography of references that may be cited in the work."""
+
     references: list[Reference] | None = None
     """References to other creative works, such as another publication, web page, scholarly article, etc."""
 
@@ -1280,6 +1283,24 @@ class AuthorRole(Role):
 
     last_modified: Timestamp | None = None
     """Timestamp of most recent modification, by the author, in the role."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Bibliography(Executable):
+    """
+    A bibliography loaded from an external source file.
+    """
+
+    type: Literal["Bibliography"] = "Bibliography"
+
+    source: str
+    """The external source of the bibliography, a file path or URL."""
+
+    media_type: str | None = None
+    """Media type of the source content."""
+
+    references: list[Reference] | None = None
+    """The references loaded from the source."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3559,6 +3580,7 @@ Node = Union[
     Article,
     AudioObject,
     AuthorRole,
+    Bibliography,
     BooleanValidator,
     Brand,
     Button,
@@ -3777,6 +3799,7 @@ TYPES = [
     Article,
     AudioObject,
     AuthorRole,
+    Bibliography,
     BooleanValidator,
     Brand,
     Button,

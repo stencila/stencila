@@ -48,6 +48,9 @@
       "$ref": "AuthorRole.schema.json"
     },
     {
+      "$ref": "Bibliography.schema.json"
+    },
+    {
       "$ref": "BooleanValidator.schema.json"
     },
     {

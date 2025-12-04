@@ -152,6 +152,9 @@
       "rdfs:comment": "The source of the quote.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Bibliography"
+        },
+        {
           "@id": "stencila:CodeLocation"
         },
         {

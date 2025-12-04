@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::bibliography::Bibliography;
 use super::block::Block;
 use super::claim_type::ClaimType;
 use super::comment::Comment;
@@ -293,6 +294,11 @@ pub struct ClaimOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "section")]
     pub publisher: Option<PersonOrOrganization>,
+
+    /// A bibliography of references that may be cited in the work.
+    #[strip(output)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub bibliography: Option<Bibliography>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]

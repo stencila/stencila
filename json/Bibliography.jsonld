@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/CallBlock",
-  "name": "CallBlock",
+  "@id": "https://stencila.org/Bibliography",
+  "name": "Bibliography",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,12 +9,12 @@
   },
   "@graph": [
     {
-      "@id": "stencila:CallBlock",
+      "@id": "stencila:Bibliography",
       "@type": "rdfs:Class",
-      "rdfs:label": "CallBlock",
-      "rdfs:comment": "Call another document, optionally with arguments, and include its executed content.",
+      "rdfs:label": "Bibliography",
+      "rdfs:comment": "A bibliography loaded from an external source file.",
       "rdfs:subClassOf": {
-        "@id": "stencila:IncludeBlock"
+        "@id": "stencila:Executable"
       }
     },
     {
@@ -241,7 +241,7 @@
       "@id": "stencila:source",
       "@type": "rdfs:Property",
       "rdfs:label": "source",
-      "rdfs:comment": "The external source of the content, a file path or URL.",
+      "rdfs:comment": "The external source of the bibliography, a file path or URL.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Bibliography"
@@ -290,155 +290,20 @@
       }
     },
     {
-      "@id": "stencila:select",
+      "@id": "stencila:references",
       "@type": "rdfs:Property",
-      "rdfs:label": "select",
-      "rdfs:comment": "A query to select a subset of content from the source",
-      "schema:domainIncludes": {
-        "@id": "stencila:IncludeBlock"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:content",
-      "@type": "rdfs:Property",
-      "rdfs:label": "content",
-      "rdfs:comment": "The structured content decoded from the source.",
+      "rdfs:label": "references",
+      "rdfs:comment": "The references loaded from the source.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Article"
+          "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Claim"
-        },
-        {
-          "@id": "schema:Comment"
-        },
-        {
-          "@id": "schema:ListItem"
-        },
-        {
-          "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:Chat"
-        },
-        {
-          "@id": "stencila:ChatMessage"
-        },
-        {
-          "@id": "stencila:Citation"
-        },
-        {
-          "@id": "stencila:CitationGroup"
-        },
-        {
-          "@id": "stencila:Excerpt"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:File"
-        },
-        {
-          "@id": "stencila:ForBlock"
-        },
-        {
-          "@id": "stencila:Form"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:IfBlockClause"
-        },
-        {
-          "@id": "stencila:IncludeBlock"
-        },
-        {
-          "@id": "stencila:InlinesBlock"
-        },
-        {
-          "@id": "stencila:InstructionBlock"
-        },
-        {
-          "@id": "stencila:InstructionInline"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
-        },
-        {
-          "@id": "stencila:Island"
-        },
-        {
-          "@id": "stencila:Link"
-        },
-        {
-          "@id": "stencila:Mark"
-        },
-        {
-          "@id": "stencila:Note"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:Prompt"
-        },
-        {
-          "@id": "stencila:PromptBlock"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:RawBlock"
-        },
-        {
-          "@id": "stencila:Reference"
-        },
-        {
-          "@id": "stencila:Section"
-        },
-        {
-          "@id": "stencila:Sentence"
-        },
-        {
-          "@id": "stencila:StyledBlock"
-        },
-        {
-          "@id": "stencila:StyledInline"
-        },
-        {
-          "@id": "stencila:SuggestionBlock"
-        },
-        {
-          "@id": "stencila:SuggestionInline"
-        },
-        {
-          "@id": "stencila:TableCell"
-        },
-        {
-          "@id": "stencila:WalkthroughStep"
+          "@id": "stencila:Bibliography"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:Block"
-      }
-    },
-    {
-      "@id": "stencila:arguments",
-      "@type": "rdfs:Property",
-      "rdfs:label": "arguments",
-      "rdfs:comment": "The value of the source document's parameters to call it with",
-      "schema:domainIncludes": {
-        "@id": "stencila:CallBlock"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:CallArgument"
+        "@id": "stencila:Reference"
       }
     }
   ]

@@ -16,6 +16,7 @@ export type NodeType =
   | "Article"
   | "AudioObject"
   | "AuthorRole"
+  | "Bibliography"
   | "BooleanValidator"
   | "Brand"
   | "Button"
@@ -157,6 +158,7 @@ export const NodeTypeList = [
   "Article",
   "AudioObject",
   "AuthorRole",
+  "Bibliography",
   "BooleanValidator",
   "Brand",
   "Button",

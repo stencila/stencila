@@ -564,6 +564,15 @@
         }
       ]
     },
+    "bibliography": {
+      "@id": "stencila:bibliography",
+      "description": "A bibliography of references that may be cited in the work.",
+      "$comment": "Unlike `references` which contains only the references that are actually\ncited in the work, `bibliography` is a database of all available references\nloaded from an external source file at compile time. It is ephemeral and\nnot persisted when the document is saved.\n",
+      "strip": [
+        "output"
+      ],
+      "$ref": "Bibliography.schema.json"
+    },
     "references": {
       "@id": "schema:citation",
       "description": "References to other creative works, such as another publication, web page, scholarly article, etc.",

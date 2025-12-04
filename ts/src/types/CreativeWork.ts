@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
+import { Bibliography } from "./Bibliography.js";
 import { Block } from "./Block.js";
 import { Comment } from "./Comment.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
@@ -139,6 +140,11 @@ export class CreativeWork extends Thing {
    * A publisher of the CreativeWork.
    */
   publisher?: PersonOrOrganization;
+
+  /**
+   * A bibliography of references that may be cited in the work.
+   */
+  bibliography?: Bibliography;
 
   /**
    * References to other creative works, such as another publication, web page, scholarly article, etc.

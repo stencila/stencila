@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::bibliography::Bibliography;
 use super::block::Block;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
@@ -284,6 +285,11 @@ pub struct VideoObjectOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub publisher: Option<PersonOrOrganization>,
+
+    /// A bibliography of references that may be cited in the work.
+    #[strip(output)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub bibliography: Option<Bibliography>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]

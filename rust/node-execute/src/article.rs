@@ -24,10 +24,25 @@ impl Executable for Article {
         // they can be repopulated
         executor.headings.clear();
 
-        // Clear the executor's bibliography and add the article's references
-        // before walking over content so that citations can link to them
+        // Compile the bibliography if present (loads references from source file)
+        if let Some(bibliography) = &mut self.options.bibliography {
+            bibliography.compile(executor).await;
+        }
+
+        // Clear the executor's bibliography and populate it from either:
+        // 1. The article's bibliography property (if present and has
+        //    references)
+        // 2. The article's references property (for articles, such as those
+        //    from JATS, that have references but no bibliography)
         executor.bibliography.clear();
-        for reference in self.references.iter().flatten() {
+        let references_source = self
+            .options
+            .bibliography
+            .as_ref()
+            .and_then(|bib| bib.references.as_ref())
+            .or(self.references.as_ref());
+
+        for reference in references_source.into_iter().flatten() {
             // Note that we allow for each reference to be targeted using either
             // custom id or DOI but if a reference has neither then they are not
             // able to be added

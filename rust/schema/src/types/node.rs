@@ -11,6 +11,7 @@ use super::array_validator::ArrayValidator;
 use super::article::Article;
 use super::audio_object::AudioObject;
 use super::author_role::AuthorRole;
+use super::bibliography::Bibliography;
 use super::boolean::Boolean;
 use super::boolean_validator::BooleanValidator;
 use super::brand::Brand;
@@ -176,6 +177,8 @@ pub enum Node {
     AudioObject(AudioObject),
 
     AuthorRole(AuthorRole),
+
+    Bibliography(Bibliography),
 
     BooleanValidator(BooleanValidator),
 

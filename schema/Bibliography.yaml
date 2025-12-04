@@ -1,0 +1,49 @@
+title: Bibliography
+'@id': stencila:Bibliography
+extends: Executable
+category: works
+description: A bibliography loaded from an external source file.
+$comment: |
+  A `Bibliography` represents a database of references that may be cited in a
+  `CreativeWork`. Unlike the `references` property on `CreativeWork` (which contains
+  only the references that are actually cited), a `Bibliography` contains all available
+  references loaded from an external source file (e.g. BibTeX, YAML) at compile time.
+
+  The loaded references are ephemeral and are stripped when the document is saved,
+  to be reloaded on the next compilation.
+status: beta
+required:
+  - source
+core:
+  - mediaType
+  - references
+properties:
+  source:
+    '@id': stencila:source
+    description: The external source of the bibliography, a file path or URL.
+    type: string
+    strip: [code]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex]
+  mediaType:
+    '@id': schema:encodingFormat
+    aliases:
+      - encodingFormat
+    description: Media type of the source content.
+    $comment: |
+      Typically expressed using a file name extension (e.g. `bib`) or a
+      MIME type (e.g. `application/x-bibtex`).
+    type: string
+    strip: [code]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  references:
+    '@id': stencila:references
+    description: The references loaded from the source.
+    type: array
+    items:
+      $ref: Reference
+    strip: [output]
+    patch:
+      # Do not merge references since they are derived from `source`
+      formats: []

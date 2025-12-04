@@ -27,6 +27,7 @@ mod prelude;
 
 mod appendix_break;
 mod article;
+mod bibliography;
 mod call_block;
 mod chat;
 mod citation;

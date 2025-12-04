@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::bibliography::Bibliography;
 use super::block::Block;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
@@ -239,6 +240,10 @@ pub struct CommentOptions {
     #[strip(metadata)]
     #[dom(elem = "section")]
     pub publisher: Option<PersonOrOrganization>,
+
+    /// A bibliography of references that may be cited in the work.
+    #[strip(output)]
+    pub bibliography: Option<Bibliography>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]

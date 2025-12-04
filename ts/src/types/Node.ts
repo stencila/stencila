@@ -11,6 +11,7 @@ import { type ArrayValidator } from "./ArrayValidator.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRole } from "./AuthorRole.js";
+import { type Bibliography } from "./Bibliography.js";
 import { type BooleanValidator } from "./BooleanValidator.js";
 import { type Brand } from "./Brand.js";
 import { type Button } from "./Button.js";
@@ -157,6 +158,7 @@ export type Node =
   Article |
   AudioObject |
   AuthorRole |
+  Bibliography |
   BooleanValidator |
   Brand |
   Button |
@@ -298,6 +300,7 @@ export function node(other: Node): Node {
     case "Article":
     case "AudioObject":
     case "AuthorRole":
+    case "Bibliography":
     case "BooleanValidator":
     case "Brand":
     case "Button":
