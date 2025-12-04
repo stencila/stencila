@@ -31,6 +31,9 @@ pub use stencila_schema;
 mod push;
 pub use push::*;
 
+mod references;
+pub use references::*;
+
 /// The direction of conversion
 pub enum CodecDirection {
     Decode,
