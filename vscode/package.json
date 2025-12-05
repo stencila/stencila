@@ -1586,8 +1586,8 @@
     "@eslint/js": "9.39.1",
     "@types/mocha": "10.0.10",
     "@types/node": "24.10.1",
-    "@types/vscode": "1.90.0",
-    "@typescript-eslint/parser": "8.48.0",
+    "@types/vscode": "1.106.1",
+    "@typescript-eslint/parser": "8.48.1",
     "@vscode/test-cli": "0.0.12",
     "@vscode/test-electron": "2.5.2",
     "@vscode/vsce": "3.7.1",
@@ -1595,6 +1595,6 @@
     "eslint": "9.39.1",
     "js-yaml": "4.1.1",
     "ovsx": "0.10.7",
-    "typescript-eslint": "8.48.0"
+    "typescript-eslint": "8.48.1"
   }
 }
