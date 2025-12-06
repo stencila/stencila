@@ -120,9 +120,8 @@ fn inline_from_pandoc(inline: pandoc::Inline, context: &mut PandocDecodeContext)
         // Strings
         pandoc::Inline::Str(value) => Inline::Text(Text::new(value.into())),
         pandoc::Inline::Space => Inline::Text(Text::new(" ".into())),
-        // TODO: encode as \n or UTF8?
-        pandoc::Inline::LineBreak => Inline::Text(Text::new(" ".into())),
-        pandoc::Inline::SoftBreak => Inline::Text(Text::new(" ".into())),
+        pandoc::Inline::LineBreak => Inline::Text(Text::new("\n".into())),
+        pandoc::Inline::SoftBreak => Inline::Text(Text::new("\n".into())),
 
         // Marks
         pandoc::Inline::Emph(inlines) => Inline::Emphasis(Emphasis::new(inlines_from_pandoc(inlines, context))),
