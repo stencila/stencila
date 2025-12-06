@@ -29,6 +29,8 @@ mod encode_page_layout;
 mod encode_theme;
 mod encode_utils;
 
+pub mod preprocess;
+
 #[cfg(test)]
 mod tests;
 

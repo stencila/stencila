@@ -1,19 +1,24 @@
+use std::io::{Read, Write};
+
 use indexmap::IndexMap;
+use regex::Regex;
 use serde_json::json;
 use tempfile::tempdir;
+use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 use pretty_assertions::assert_eq;
 use stencila_codec::{
     Codec, EncodeOptions,
     eyre::Result,
     stencila_schema::{
-        Article, ArticleOptions, Node, Object, Primitive,
+        Article, ArticleOptions, Inline, Node, Object, Paragraph, Primitive,
         shortcuts::{cc, ce, p, t},
     },
 };
 use stencila_version::STENCILA_VERSION;
 
 use crate::DocxCodec;
+use crate::preprocess::restore_verbatim_char_style;
 
 #[tokio::test]
 async fn roundtrip_basic() -> Result<()> {
@@ -75,6 +80,147 @@ async fn roundtrip_basic() -> Result<()> {
     };
 
     assert_eq!(round_tripped, article);
+
+    Ok(())
+}
+
+/// Test that preprocessing restores inline code from monospace fonts
+///
+/// This simulates what happens when a DOCX is edited in Google Docs:
+/// 1. Create a DOCX with inline code (which gets VerbatimChar style)
+/// 2. Strip the VerbatimChar style (simulating Google Docs)
+/// 3. Run preprocessing to restore the style
+/// 4. Decode and verify inline code is preserved
+#[tokio::test]
+async fn preprocessing() -> Result<()> {
+    use stencila_codec::stencila_schema::{Block, CodeInline, Text};
+
+    // Create an article with inline code
+    let article = Node::Article(Article {
+        content: vec![Block::Paragraph(Paragraph {
+            content: vec![
+                Inline::Text(Text {
+                    value: "Some code ".into(),
+                    ..Default::default()
+                }),
+                Inline::CodeInline(CodeInline {
+                    code: "1 + 2".into(),
+                    ..Default::default()
+                }),
+                Inline::Text(Text {
+                    value: ".".into(),
+                    ..Default::default()
+                }),
+            ],
+            ..Default::default()
+        })],
+        ..Default::default()
+    });
+
+    let temp_dir = tempdir()?;
+    let original_path = temp_dir.path().join("original.docx");
+    let modified_path = temp_dir.path().join("modified.docx");
+
+    // Encode to DOCX
+    DocxCodec.to_path(&article, &original_path, None).await?;
+
+    // Read the DOCX, strip VerbatimChar references from document.xml (simulating Google Docs),
+    // and write to a new file
+    {
+        let mut docx = std::fs::File::open(&original_path)?;
+        let mut zip = ZipArchive::new(&mut docx)?;
+
+        let mut parts: std::collections::BTreeMap<String, Vec<u8>> =
+            std::collections::BTreeMap::new();
+        for index in 0..zip.len() {
+            let mut file = zip.by_index(index)?;
+            let mut buffer = Vec::with_capacity(file.size() as usize);
+            file.read_to_end(&mut buffer)?;
+            parts.insert(file.name().to_owned(), buffer);
+        }
+
+        // Strip VerbatimChar style references from document.xml and replace with
+        // monospace font (simulating what Google Docs does - it loses the style but
+        // preserves the visual appearance as a monospace font)
+        if let Some(document_bytes) = parts.get("word/document.xml") {
+            let document_str = String::from_utf8(document_bytes.clone())?;
+            // Replace the rStyle reference with a monospace font (Roboto Mono - what Google Docs uses)
+            let rstyle_regex = Regex::new(r#"<w:rStyle\s+w:val="VerbatimChar"\s*/>"#)?;
+            let modified = rstyle_regex
+                .replace_all(
+                    &document_str,
+                    r#"<w:rFonts w:ascii="Roboto Mono" w:hAnsi="Roboto Mono"/>"#,
+                )
+                .to_string();
+            parts.insert("word/document.xml".to_string(), modified.into_bytes());
+        }
+
+        // Also remove the VerbatimChar style definition from styles.xml
+        // (simulating that Google Docs doesn't preserve custom styles)
+        if let Some(styles_bytes) = parts.get("word/styles.xml") {
+            let styles_str = String::from_utf8(styles_bytes.clone())?;
+            // Remove the entire VerbatimChar style element using a simple replacement
+            // (this is a simplified approach - real Google Docs export would just not have the style)
+            let style_regex =
+                Regex::new(r#"<w:style[^>]*w:styleId="VerbatimChar"[^>]*>.*?</w:style>"#)?;
+            let modified = style_regex.replace(&styles_str, "").to_string();
+            parts.insert("word/styles.xml".to_string(), modified.into_bytes());
+        }
+
+        // Write modified DOCX
+        let mut modified_file = std::fs::File::create(&modified_path)?;
+        let mut writer = ZipWriter::new(&mut modified_file);
+        let opts = SimpleFileOptions::default();
+
+        for (name, data) in parts {
+            writer.start_file(name, opts)?;
+            writer.write_all(&data)?;
+        }
+        writer.finish()?;
+    }
+
+    // Without preprocessing, the inline code would be lost
+    let (decoded_without_preprocess, ..) = DocxCodec.from_path(&modified_path, None).await?;
+    if let Node::Article(Article { content, .. }) = &decoded_without_preprocess {
+        if let Some(block) = content.first() {
+            if let stencila_codec::stencila_schema::Block::Paragraph(para) = block {
+                // Without preprocessing, there should be no CodeInline
+                let has_code_inline = para
+                    .content
+                    .iter()
+                    .any(|inline| matches!(inline, Inline::CodeInline(_)));
+                assert!(
+                    !has_code_inline,
+                    "Without preprocessing, inline code should be lost"
+                );
+            }
+        }
+    }
+
+    // Now apply preprocessing
+    restore_verbatim_char_style(&modified_path)?;
+
+    // After preprocessing, the inline code should be restored
+    let (decoded_with_preprocess, ..) = DocxCodec.from_path(&modified_path, None).await?;
+    if let Node::Article(Article { content, .. }) = &decoded_with_preprocess {
+        if let Some(block) = content.first() {
+            if let stencila_codec::stencila_schema::Block::Paragraph(para) = block {
+                // With preprocessing, there should be a CodeInline
+                let code_inline = para.content.iter().find_map(|inline| {
+                    if let Inline::CodeInline(ci) = inline {
+                        Some(ci)
+                    } else {
+                        None
+                    }
+                });
+                assert!(
+                    code_inline.is_some(),
+                    "With preprocessing, inline code should be restored"
+                );
+                assert_eq!(code_inline.unwrap().code.to_string(), "1 + 2");
+            }
+        }
+    }
 
     Ok(())
 }

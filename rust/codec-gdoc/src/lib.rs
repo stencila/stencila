@@ -300,7 +300,11 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
 
     // Write the downloaded bytes directly to the destination
     let bytes = response.bytes().await?;
-    tokio::fs::write(dest, bytes).await?;
+    tokio::fs::write(dest, &bytes).await?;
+
+    // Pre-process the DOCX to restore inline code styling that may have been
+    // lost in Google Docs (which doesn't support character styles like "Verbatim Char")
+    stencila_codec_docx::preprocess::restore_verbatim_char_style(dest)?;
 
     Ok(())
 }
