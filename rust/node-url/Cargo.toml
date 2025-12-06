@@ -7,6 +7,7 @@ edition = "2024"
 base64 = { workspace = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
+percent-encoding = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-node-id = { path = "../node-id" }

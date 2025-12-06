@@ -5,7 +5,9 @@ use pandoc_types::definition::{self as pandoc, Target};
 use stencila_codec::{
     Losses, NodeProperty, NodeType,
     stencila_format::Format,
-    stencila_schema::{NodePath, NodePosition, NodeSlot, StripNode, node_url_jzb64, node_url_path},
+    stencila_schema::{
+        NodePath, NodePosition, NodeSlot, StripNode, node_url_file, node_url_jzb64, node_url_path,
+    },
 };
 
 /// The context for encoding to Pandoc AST
@@ -31,6 +33,12 @@ pub(super) struct PandocEncodeContext {
 
     /// The path to the current node
     pub node_path: NodePath,
+
+    /// The repository URL from the root Article (for file link URLs)
+    pub repository: Option<String>,
+
+    /// The commit hash from the root Article (for file link URLs)
+    pub commit: Option<String>,
 }
 
 impl PandocEncodeContext {
@@ -43,6 +51,8 @@ impl PandocEncodeContext {
             paragraph_to_plain: false,
             losses: Losses::default(),
             node_path: NodePath::new(),
+            repository: None,
+            commit: None,
         }
     }
 
@@ -92,7 +102,7 @@ impl PandocEncodeContext {
             vec![content],
         );
 
-        let url = if matches!(self.format, Format::GDocx) {
+        let url = if matches!(self.format, Format::GDocx | Format::M365Docx) {
             match node_url_jzb64(node_type, node, position) {
                 Ok(url) => url,
                 Err(error) => {
@@ -108,6 +118,15 @@ impl PandocEncodeContext {
         let title = node_type.to_string().to_sentence_case();
 
         pandoc::Inline::Link(attrs_empty(), vec![span], Target { url, title })
+    }
+
+    /// Convert a local file path to a stencila.link URL
+    ///
+    /// Returns the target unchanged if it already has a URL scheme or is an anchor.
+    /// For local file paths, creates a stencila.link URL with the context's
+    /// repository and commit for enabling GitHub permalinks.
+    pub fn file_url(&self, target: &str) -> String {
+        node_url_file(target, self.repository.clone(), self.commit.clone()).to_string()
     }
 
     /// Create a [`pandoc::Inline::Span`] for an output

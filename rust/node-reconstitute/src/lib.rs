@@ -259,14 +259,20 @@ impl VisitorMut for Reconstituter {
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         // Only reconstitute links...
-        let Inline::Link(Link { target, .. }) = inline else {
+        let Inline::Link(link) = inline else {
             return WalkControl::Continue;
         };
 
         // ...that has a Stencila node URL
-        let Some(node_url) = NodeUrl::from_str(target).ok() else {
+        let Some(node_url) = NodeUrl::from_str(&link.target).ok() else {
             return WalkControl::Continue;
         };
+
+        // ...with a file path as the target (keep as link), or
+        if let Some(file) = node_url.file {
+            link.target = file;
+            return WalkControl::Continue;
+        }
 
         // ...with a path as a target (and cache is available)
         let node = if let (Some(node_path), Some(cache)) = (node_url.path, &self.cache) {

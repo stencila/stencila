@@ -7,6 +7,7 @@ use std::{
 use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
 use eyre::{Report, Result};
 use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
+use percent_encoding::{AsciiSet, CONTROLS, percent_encode};
 use serde::{Serialize, de::DeserializeOwned};
 use strum::{Display, EnumString};
 use url::Url;
@@ -16,6 +17,16 @@ use stencila_node_path::NodePath;
 use stencila_node_type::NodeType;
 
 const BASE_URL: &str = "https://stencila.link";
+
+/// Characters to percent-encode in URL query parameters
+const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'"')
+    .add(b'#')
+    .add(b'<')
+    .add(b'>')
+    .add(b'&')
+    .add(b'=');
 
 /// A URL describing a Stencila Schema node
 ///
@@ -39,6 +50,21 @@ pub struct NodeUrl {
     /// This is useful for formats, such as Google Docs, where it is not possible to embed
     /// a cache of the root node in the document.
     pub jzb64: Option<String>,
+
+    /// A file path for file link URLs
+    ///
+    /// Used to encode local file paths as stencila.link URLs for cloud document formats.
+    pub file: Option<String>,
+
+    /// The repository URL for file links
+    ///
+    /// Used with `file` and `commit` to enable redirects to GitHub.
+    pub repo: Option<String>,
+
+    /// The commit hash for file links
+    ///
+    /// Used with `file` and `repo` to enable permalinks to GitHub.
+    pub commit: Option<String>,
 }
 
 /// The position in the node that the URL relates to
@@ -103,6 +129,9 @@ impl FromStr for NodeUrl {
                 "path" => node_url.path = value.parse().ok(),
                 "position" => node_url.position = value.parse().ok(),
                 "jzb64" => node_url.jzb64 = Some(value.to_string()),
+                "file" => node_url.file = Some(value.to_string()),
+                "repo" => node_url.repo = Some(value.to_string()),
+                "commit" => node_url.commit = Some(value.to_string()),
                 _ => {}
             };
         }
@@ -129,6 +158,19 @@ impl Display for NodeUrl {
         }
         if let Some(jzb64) = &self.jzb64 {
             pairs.push(format!("jzb64={jzb64}"));
+        }
+        if let Some(file) = &self.file {
+            let encoded = percent_encode(file.as_bytes(), QUERY_ENCODE_SET);
+            pairs.push(format!("file={encoded}"));
+        }
+        if let Some(repo) = &self.repo {
+            let encoded = percent_encode(repo.as_bytes(), QUERY_ENCODE_SET);
+            pairs.push(format!("repo={encoded}"));
+        }
+        if let Some(commit) = &self.commit
+            && !matches!(commit.as_str(), "untracked" | "dirty")
+        {
+            pairs.push(format!("commit={commit}"));
         }
         if !pairs.is_empty() {
             write!(f, "?")?;
@@ -201,6 +243,46 @@ mod tests {
         assert_eq!(url.id, Some(NodeId::from_str("cdc_abc123")?));
         assert_eq!(url.path, Some(NodePath::from_str("content/1/item/4")?));
         assert_eq!(url.position, Some(NodePosition::Begin));
+
+        Ok(())
+    }
+
+    #[test]
+    fn roundtrip_file_link() -> Result<()> {
+        let url = NodeUrl {
+            file: Some("docs/README.md".to_string()),
+            repo: Some("https://github.com/stencila/stencila".to_string()),
+            commit: Some("abc123".to_string()),
+            ..Default::default()
+        };
+
+        let s = url.to_string();
+        assert!(s.starts_with(BASE_URL));
+        assert!(s.contains("file=docs/README.md"));
+        assert!(s.contains("repo=https://github.com/stencila/stencila"));
+        assert!(s.contains("commit=abc123"));
+
+        let parsed = NodeUrl::from_str(&s)?;
+        assert_eq!(parsed.file, url.file);
+        assert_eq!(parsed.repo, url.repo);
+        assert_eq!(parsed.commit, url.commit);
+
+        Ok(())
+    }
+
+    #[test]
+    fn file_link_with_special_chars() -> Result<()> {
+        let url = NodeUrl {
+            file: Some("path with spaces/file#1.md".to_string()),
+            ..Default::default()
+        };
+
+        let s = url.to_string();
+        // Spaces and # should be encoded
+        assert!(s.contains("file=path%20with%20spaces/file%231.md"));
+
+        let parsed = NodeUrl::from_str(&s)?;
+        assert_eq!(parsed.file, url.file);
 
         Ok(())
     }

@@ -46,6 +46,7 @@ pub enum Format {
     // Word processor formats
     Docx,
     GDocx,
+    M365Docx,
     Odt,
     // Math languages
     AsciiMath,
@@ -160,6 +161,7 @@ impl Format {
             Echarts => "ECharts",
             Flac => "FLAC",
             GDocx => "Google Docs (DOCX)",
+            M365Docx => "Microsoft 365 (DOCX)",
             Gif => "GIF",
             Html => "HTML",
             Ipynb => "IPYNB",
@@ -269,7 +271,9 @@ impl Format {
                 | Cbor
                 | CborZstd
                 | Docx
+                | GDocx
                 | JsonZip
+                | M365Docx
                 | Meca
                 | Ods
                 | Odt
@@ -365,6 +369,7 @@ impl Format {
             "echarts" => Echarts,
             "flac" => Flac,
             "gdocx" => GDocx,
+            "m365docx" => M365Docx,
             "gif" => Gif,
             "html" => Html,
             "ipynb" => Ipynb,
@@ -599,6 +604,7 @@ impl Display for Format {
             Echarts => "echarts",
             Flac => "flac",
             GDocx => "gdocx",
+            M365Docx => "m365docx",
             Gif => "gif",
             Html => "html",
             Ipynb => "ipynb",

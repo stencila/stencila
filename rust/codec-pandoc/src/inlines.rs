@@ -232,11 +232,21 @@ fn media_from_pandoc(
 }
 
 fn link_to_pandoc(link: &Link, context: &mut PandocEncodeContext) -> pandoc::Inline {
+    // For cloud doc formats (GDocx, M365Docx), convert local file paths to stencila.link URLs
+    // to preserve them through round-tripping and enable GitHub permalinks
+    let url = if matches!(context.format, Format::GDocx | Format::M365Docx)
+        && is_file_target(&link.target)
+    {
+        context.file_url(&link.target)
+    } else {
+        link.target.clone()
+    };
+
     pandoc::Inline::Link(
         attrs_empty(),
         inlines_to_pandoc(NodeProperty::Content, &link.content, context),
         Target {
-            url: link.target.clone(),
+            url,
             title: link.title.clone().unwrap_or_default(),
         },
     )

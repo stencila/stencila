@@ -10542,6 +10542,7 @@ dependencies = [
  "base64 0.22.1",
  "eyre",
  "flate2",
+ "percent-encoding",
  "serde",
  "serde_json",
  "stencila-node-id",

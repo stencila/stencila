@@ -40,7 +40,9 @@ const ONEDRIVE_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b']');
 
 use stencila_codec::{
-    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_schema::Node,
+    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult,
+    stencila_format::Format,
+    stencila_schema::Node,
 };
 use stencila_codec_docx::DocxCodec;
 
@@ -121,6 +123,7 @@ async fn upload(
             node,
             temp_path,
             Some(EncodeOptions {
+                format: Some(Format::M365Docx),
                 from_path: path.map(PathBuf::from),
                 reproducible: Some(true),
                 ..Default::default()

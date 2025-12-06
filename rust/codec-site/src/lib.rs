@@ -169,6 +169,7 @@ pub fn categorize_file(path: &Path) -> FileCategory {
             // Word processor formats
             | Format::Docx
             | Format::GDocx
+            | Format::M365Docx
             | Format::Odt
             // Data serialization formats (lossless)
             | Format::Json

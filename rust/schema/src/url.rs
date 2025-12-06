@@ -7,6 +7,30 @@ use stencila_node_type::NodeType;
 
 pub use stencila_node_url::{NodePosition, NodeUrl};
 
+/// Whether a link target looks like a file path
+pub fn is_file_target(target: &str) -> bool {
+    /// Schemes that indicate a target is already a URL (not a local file path)
+    const URL_SCHEMES: &[&str] = &[
+        "http://", "https://", "mailto:", "tel:", "data:", "file://", "ftp://",
+    ];
+
+    target.starts_with('#') || URL_SCHEMES.iter().any(|scheme| target.starts_with(scheme))
+}
+
+/// Create a [`NodeUrl`] for a file link
+///
+/// Returns `None` if the target already has a URL scheme or is an anchor link.
+/// Otherwise returns a `NodeUrl` with the `file` field set, and optionally
+/// `repo` and `commit` for enabling GitHub permalinks.
+pub fn node_url_file(target: &str, repo: Option<String>, commit: Option<String>) -> NodeUrl {
+    NodeUrl {
+        file: Some(target.to_string()),
+        repo,
+        commit,
+        ..Default::default()
+    }
+}
+
 /// Create a [`NodeUrl`] with the path to the node (in a cache) to allow reconstitution
 pub fn node_url_path(
     node_type: NodeType,

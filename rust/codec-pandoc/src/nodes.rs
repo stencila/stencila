@@ -77,6 +77,10 @@ fn article_to_pandoc(
     article: &Article,
     context: &mut PandocEncodeContext,
 ) -> Result<pandoc::Pandoc> {
+    // Set repository and commit in context for file link URL encoding
+    context.repository = article.options.repository.clone();
+    context.commit = article.options.commit.clone();
+
     let mut meta = HashMap::new();
 
     if let Some(title) = &article.title {
