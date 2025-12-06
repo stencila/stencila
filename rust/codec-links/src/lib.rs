@@ -243,25 +243,74 @@ fn strip_letter_suffix(label: &str) -> String {
     label.to_string()
 }
 
-/// Parse a URL link (HTTP/HTTPS)
+/// Parse a URL link (HTTP/HTTPS) following GFM autolink rules
+///
+/// Based on [GFM spec section 6.9](https://github.github.com/gfm/):
+/// - URLs end at whitespace
+/// - Trailing punctuation (`.`, `,`, `;`, `:`, `!`, `?`, `*`, `_`, `~`) is stripped
+/// - Trailing `)` is stripped only if unbalanced (more `)` than `(` in URL)
+/// - Quotes and brackets used in markdown syntax are excluded
 fn url_link(input: &mut &str) -> ParserResult<Link> {
-    let start_pos = *input;
-    let (protocol, rest): (&str, &str) = (
-        alt((Caseless("https://"), Caseless("http://"))),
-        take_while(1.., |c: char| {
-            !c.is_whitespace() && c != ')' && c != ']' && c != '}'
-        }),
-    )
-        .parse_next(input)?;
+    let start = *input;
 
-    // Remove trailing punctuation that's likely sentence punctuation
-    let trimmed_rest = rest.trim_end_matches(['.', ',', ';', ':', '!', '?']);
-    let trimmed_len = protocol.len() + trimmed_rest.len();
+    // Match protocol
+    let protocol: &str = alt((Caseless("https://"), Caseless("http://"))).parse_next(input)?;
 
-    // Adjust input position to not consume the trailing punctuation
-    let consumed = start_pos.len() - input.len();
-    if consumed > trimmed_len {
-        *input = &start_pos[trimmed_len..];
+    // Take URL characters - allow most chars except whitespace, brackets, and quotes
+    // Note: we allow () here and will handle unbalanced trailing ) below
+    let rest: &str = take_while(1.., |c: char| {
+        !c.is_whitespace()
+            && !matches!(
+                c,
+                ']' | '}'
+                    | '<'
+                    | '>'
+                    | '"'
+                    | '\''
+                    | '\u{201C}'
+                    | '\u{201D}'
+                    | '\u{2018}'
+                    | '\u{2019}'
+            )
+    })
+    .parse_next(input)?;
+
+    // Calculate how much to trim from end
+    let mut trim_count = 0;
+
+    for c in rest.chars().rev() {
+        match c {
+            // Always strip these trailing punctuation chars
+            '.' | ',' | ';' | ':' | '!' | '?' | '*' | '_' | '~' => {
+                trim_count += c.len_utf8();
+            }
+            // Strip ) only if unbalanced
+            ')' => {
+                let url_so_far = &rest[..rest.len() - trim_count];
+                let open = url_so_far.chars().filter(|&ch| ch == '(').count();
+                let close = url_so_far.chars().filter(|&ch| ch == ')').count();
+                if close > open {
+                    trim_count += 1;
+                } else {
+                    break;
+                }
+            }
+            _ => break,
+        }
+    }
+
+    // Put back the trimmed characters into input
+    if trim_count > 0 {
+        let consumed = start.len() - input.len();
+        *input = &start[consumed - trim_count..];
+    }
+
+    let trimmed_rest = &rest[..rest.len() - trim_count];
+
+    // Reject if nothing remains after trimming (e.g., "https://)" or "https://.")
+    if trimmed_rest.is_empty() {
+        *input = start;
+        return Err(winnow::error::ContextError::new());
     }
 
     let target = [protocol, trimmed_rest].concat();
@@ -458,6 +507,71 @@ mod tests {
             result.content,
             vec![t("https://api.example.com/v1/data.json")]
         );
+
+        // Test URL with trailing double quote
+        let mut input = r#"https://example.com""#;
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, r#"""#);
+
+        // Test URL with trailing single quote
+        let mut input = "https://example.com'";
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, "'");
+
+        // Test URL with trailing curly double quote
+        let mut input = "https://example.com\u{201D}";
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, "\u{201D}");
+
+        // Test Wikipedia-style URL with balanced parens - should keep them
+        let result = url_link(&mut "https://en.wikipedia.org/wiki/Rust_(programming_language)")?;
+        assert_eq!(
+            result.target,
+            "https://en.wikipedia.org/wiki/Rust_(programming_language)"
+        );
+
+        // Test URL in markdown parentheses - should strip unbalanced trailing )
+        let mut input = "https://example.com)";
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, ")");
+
+        // Test URL with nested balanced parens
+        let result = url_link(&mut "https://example.com/path(a(b)c)")?;
+        assert_eq!(result.target, "https://example.com/path(a(b)c)");
+
+        // Test URL with multiple trailing unbalanced parens
+        let mut input = "https://example.com))";
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, "))");
+
+        // Test URL with trailing asterisk (GFM spec)
+        let mut input = "https://example.com*";
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, "*");
+
+        // Test URL with trailing underscore (GFM spec)
+        let mut input = "https://example.com_";
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, "_");
+
+        // Test URL with trailing tilde (GFM spec)
+        let mut input = "https://example.com~";
+        let result = url_link(&mut input)?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(input, "~");
+
+        // Test that URLs with only punctuation after protocol are rejected
+        assert!(url_link(&mut "https://)").is_err());
+        assert!(url_link(&mut "https://.").is_err());
+        assert!(url_link(&mut "https://...").is_err());
+        assert!(url_link(&mut "http://,;:").is_err());
 
         Ok(())
     }
