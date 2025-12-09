@@ -764,33 +764,6 @@ const MANUAL_ENCODERS: Partial<
       context.pushSlot('div', 'content', encodeInlines(node.content, ancestors))
     }
 
-    // Encode parts field if present
-    if (node.parts && node.parts.length > 0) {
-      let parts = ''
-      for (const part of node.parts) {
-        let type
-        let value
-        if (part.type == 'Text') {
-          type = 'text'
-          value = cordToString(part.value)
-        } else if (part.type == 'AudioObject') {
-          type = 'audio'
-          value = part.contentUrl
-        } else if (part.type == 'ImageObject') {
-          type = 'image'
-          value = part.contentUrl
-        } else if (part.type == 'VideoObject') {
-          type = 'video'
-          value = part.contentUrl
-        }
-
-        if (type && value) {
-          parts += `<stencila-message-part type=${type} value="${context.escapeHtml(value)}"></stencila-message-part>`
-        }
-      }
-      context.pushSlot('div', 'parts', parts)
-    }
-
     context.exitNode()
   },
 
