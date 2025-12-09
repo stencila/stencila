@@ -157,11 +157,11 @@ fn inlines() -> Result<()> {
     // Other HTML tags are ignored, but not the content between them
     assert_yaml_snapshot!(
         decode(r#"<span class="red">Hello</span> <foo>world</bar>"#)?,
-        @r#"
+        @r"
     - type: Text
       value:
         string: Hello world
-    "#);
+    ");
 
     Ok(())
 }

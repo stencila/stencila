@@ -1,5 +1,5 @@
 ---
-source: rust/codec-pmcoa/tests/examples.rs
+source: rust/codec-pmc/tests/examples.rs
 expression: info.losses
 ---
 //article/front/article-meta/abstract/sec/@id: 4

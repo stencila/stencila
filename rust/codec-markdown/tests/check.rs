@@ -30,7 +30,7 @@ Balanced colon fences
 "#
         )
         .await?,
-        @r###""###
+        @""
     );
 
     assert_snapshot!(
@@ -52,7 +52,7 @@ If blocks
 "#
         )
         .await?,
-        @r###""###
+        @""
     );
 
     assert_snapshot!(
@@ -72,7 +72,7 @@ For blocks
 "#
         )
         .await?,
-        @r###""###
+        @""
     );
 
     assert_snapshot!(
@@ -93,7 +93,7 @@ Code
 "#
         )
         .await?,
-        @r###""###
+        @""
     );
 
     assert_snapshot!(
@@ -111,7 +111,7 @@ Code
 "#
         )
         .await?,
-        @r###""###
+        @""
     );
 
     Ok(())
@@ -129,28 +129,24 @@ async fn unbalanced_colons() -> Result<()> {
 ::::
 
 ::: edit
-"#).await?, @r###"
+"#).await?, @r"
     1 Unpaired closing colon fence
     3 Unpaired closing colon fence
     7 Number of closing colons differs from opening colons on line 6 (4 != 3)
     9 Unpaired opening colon fence
-    "###);
+    ");
 
     assert_snapshot!(messages(r#"
 ::: if true
 
 ::: elif false
-"#).await?, @r###"
-    3 Unpaired separating colon fence
-    "###);
+"#).await?, @"3 Unpaired separating colon fence");
 
     assert_snapshot!(messages(r#"
 ::: for item in items
 
 ::: else
-"#).await?, @r###"
-    3 Unpaired separating colon fence
-    "###);
+"#).await?, @"3 Unpaired separating colon fence");
 
     Ok(())
 }
@@ -162,10 +158,10 @@ async fn unbalanced_backticks() -> Result<()> {
 
 ```python
 
-"#).await?, @r###"
+"#).await?, @r"
     1 Unpaired opening backtick fence
     3 Unpaired opening backtick fence
-    "###);
+    ");
 
     Ok(())
 }
@@ -178,10 +174,10 @@ $$
 $$$
 
 $$
-"#).await?, @r###"
+"#).await?, @r"
     3 Number of closing dollars differs from opening dollars on line 2 (3 != 2)
     5 Unpaired opening dollar fence
-    "###);
+    ");
 
     Ok(())
 }

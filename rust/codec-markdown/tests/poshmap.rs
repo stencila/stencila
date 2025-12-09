@@ -15,7 +15,7 @@ async fn same() -> Result<()> {
 
     assert_eq!(generated, source);
 
-    assert_snapshot!(mapping, @r###"
+    assert_snapshot!(mapping, @r"
     start     end        offsets   node_type+property                   authorship
          0      5         (0, 5)   Text.value
          0      5         (0, 0)   Text
@@ -27,7 +27,7 @@ async fn same() -> Result<()> {
          7     13         (0, 1)   Paragraph
          0     14        (-7, 1)   Article.content
          0     14         (0, 0)   Article
-    "###);
+    ");
 
     let p1 = mapping.entry_at(5).unwrap().clone();
     assert_eq!(p1.node_type, NodeType::Paragraph);
@@ -70,7 +70,7 @@ async fn spacing() -> Result<()> {
 
     assert_eq!(generated, "para1\n\npara2\n");
 
-    assert_snapshot!(mapping, @r###"
+    assert_snapshot!(mapping, @r"
     start     end        offsets   node_type+property                   authorship
          0      5         (0, 5)   Text.value
          0      5         (0, 0)   Text
@@ -82,7 +82,7 @@ async fn spacing() -> Result<()> {
          7     13         (0, 1)   Paragraph
          0     14        (-7, 1)   Article.content
          0     14         (0, 0)   Article
-    "###);
+    ");
 
     let p1 = mapping.entry_at(5).unwrap().clone();
     assert_eq!(p1.node_type, NodeType::Paragraph);
@@ -143,7 +143,7 @@ async fn emoji() -> Result<()> {
 
     assert_eq!(generated, source);
 
-    assert_snapshot!(mapping, @r###"
+    assert_snapshot!(mapping, @r"
     start     end        offsets   node_type+property                   authorship
          0      6         (0, 6)   Text.value
          0      6         (0, 0)   Text
@@ -155,7 +155,7 @@ async fn emoji() -> Result<()> {
          8     15         (0, 1)   Paragraph
          0     16        (-8, 1)   Article.content
          0     16         (0, 0)   Article
-    "###);
+    ");
 
     let p1 = mapping.entry_at(6).unwrap().clone();
     assert_eq!(p1.node_type, NodeType::Paragraph);

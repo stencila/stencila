@@ -9,15 +9,23 @@ fn colon_divs() {
     // Does not add unnecessary empty lines for lines that are not colon divs
     assert_snapshot!(
         preprocess(""),
-        @r#""#
+        @""
     );
     assert_snapshot!(
         preprocess("Paragraph 1\n\nParagraph 2"),
-        @"Paragraph 1\n\nParagraph 2"
+        @r"
+    Paragraph 1
+
+    Paragraph 2
+    "
     );
     assert_snapshot!(
         preprocess("# Heading\n\nParagraph 1"),
-        @"# Heading\n\nParagraph 1"
+        @r"
+    # Heading
+
+    Paragraph 1
+    "
     );
 
     // Does not add unnecessary empty lines for lines that are not colon divs
@@ -27,11 +35,13 @@ fn colon_divs() {
 Abc
 
 :::"),
-        @"::: theorem
+        @r"
+    ::: theorem
 
-Abc
+    Abc
 
-:::"
+    :::
+    "
     );
 
     // Adds empty lines where needed
@@ -39,17 +49,21 @@ Abc
         preprocess("::: theorem
 Abc
 :::"),
-        @"::: theorem
+        @r"
+    ::: theorem
 
-Abc
+    Abc
 
-:::"
+    :::
+    "
     );
     assert_snapshot!(
         preprocess("::: edit >>
 Abc"),
-        @"::: edit >>
+        @r"
+    ::: edit >>
 
-Abc"
+    Abc
+    "
     );
 }

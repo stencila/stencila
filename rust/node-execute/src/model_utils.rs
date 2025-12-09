@@ -270,7 +270,7 @@ Another mmm...
 </think>
 
 Answer
-"#), @r#"
+"#), @r"
         > [!info]+ Thinking
         >
         > Mmmm,...
@@ -279,7 +279,7 @@ Answer
 
 
         Answer
-        "#);
+        ");
     }
 
     #[test]
@@ -293,7 +293,7 @@ Another mmm...
 Answer
 
 Still going answer
-"#), @r#"
+"#), @r"
         > [!info]+ Thinking
         >
         > Mmmm,...
@@ -304,7 +304,7 @@ Still going answer
         Answer
 
         Still going answer
-        "#);
+        ");
     }
 
     #[test]
@@ -315,7 +315,7 @@ Another mmm...
 </think>
 
 Answer
-"#), @r#"
+"#), @r"
         > [!info]+ Thinking
         >
         > Mmmm,...
@@ -324,7 +324,7 @@ Answer
 
 
         Answer
-        "#);
+        ");
     }
 
     #[test]
@@ -337,7 +337,7 @@ Another mmm...
 Answer
 
 Still going answer
-"#), @r#"
+"#), @r"
         > [!info]+ Thinking
         >
         > Mmmm,...
@@ -348,7 +348,7 @@ Still going answer
         Answer
 
         Still going answer
-        "#);
+        ");
     }
 
     #[test]
@@ -368,7 +368,7 @@ Para three
 </think>
 
 Answer
-"#), @r#"
+"#), @r"
         > [!info]+ Thinking
         >
         > Para one
@@ -385,6 +385,6 @@ Answer
 
 
         Answer
-        "#);
+        ");
     }
 }

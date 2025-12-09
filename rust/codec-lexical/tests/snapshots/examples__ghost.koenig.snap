@@ -1,7 +1,6 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: redact(&lexical)
-snapshot_kind: text
 ---
 {
   "root": {

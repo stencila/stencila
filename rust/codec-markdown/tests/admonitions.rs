@@ -17,7 +17,7 @@ async fn non_text_first_inline() -> Result<()> {
             None,
         )
         .await?;
-    assert_yaml_snapshot!(node, @r#"
+    assert_yaml_snapshot!(node, @r"
     type: Article
     content:
       - type: Admonition
@@ -28,7 +28,7 @@ async fn non_text_first_inline() -> Result<()> {
               - type: Text
                 value:
                   string: A note
-    "#);
+    ");
 
     let (node, ..) = codec
         .from_str(
@@ -39,7 +39,7 @@ async fn non_text_first_inline() -> Result<()> {
             None,
         )
         .await?;
-    assert_yaml_snapshot!(node, @r#"
+    assert_yaml_snapshot!(node, @r"
     type: Article
     content:
       - type: Admonition
@@ -50,7 +50,7 @@ async fn non_text_first_inline() -> Result<()> {
               - type: CodeInline
                 code:
                   string: A note
-    "#);
+    ");
 
     Ok(())
 }
@@ -81,7 +81,7 @@ async fn contains_lists() -> Result<()> {
             None,
         )
         .await?;
-    assert_yaml_snapshot!(node, @r#"
+    assert_yaml_snapshot!(node, @r"
     type: Article
     content:
       - type: Admonition
@@ -141,7 +141,7 @@ async fn contains_lists() -> Result<()> {
               - type: Text
                 value:
                   string: Para three
-    "#);
+    ");
 
     Ok(())
 }

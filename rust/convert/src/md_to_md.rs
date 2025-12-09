@@ -728,7 +728,14 @@ mod tests {
         // Basic case: consecutive line numbers with monotonic sequence
         let input =
             "1 First line\n2 Second line\n3 Third line\n4 Fourth line\n5 Fifth line\n6 Sixth line";
-        assert_snapshot!(remove_line_numbers(input), @" First line\n Second line\n Third line\n Fourth line\n Fifth line\n Sixth line");
+        assert_snapshot!(remove_line_numbers(input), @r"
+        First line
+        Second line
+        Third line
+        Fourth line
+        Fifth line
+        Sixth line
+        ");
 
         // Line numbers with headers
         let input = "# 1 Header One\n## 2 Header Two\n3 Regular text\n4 More text\n5 Final text";
@@ -827,7 +834,7 @@ mod tests {
 
         // Just numbers separated by blank lines: should all be removed
         let input = "133\n\n134\n\n135\n\n136\n\n137\n\n138\n\n139\n\n140\n\n141\n\n142";
-        assert_snapshot!(remove_line_numbers(input).trim(), @r"");
+        assert_snapshot!(remove_line_numbers(input).trim(), @"");
 
         // Empty string
         let input = "";
@@ -840,7 +847,7 @@ mod tests {
         let input = "Line 1\n\n\n\nLine 2";
         assert_snapshot!(remove_extra_blank_lines(input), @r"
         Line 1
-        
+
         Line 2
         ");
 
@@ -848,7 +855,7 @@ mod tests {
         let input = "First\n\n\n\nSecond";
         assert_snapshot!(remove_extra_blank_lines(input), @r"
         First
-        
+
         Second
         ");
 
@@ -856,7 +863,7 @@ mod tests {
         let input = "Start\n\n\n\n\n\n\nEnd";
         assert_snapshot!(remove_extra_blank_lines(input), @r"
         Start
-        
+
         End
         ");
 
@@ -864,7 +871,7 @@ mod tests {
         let input = "Text\n\nMore text";
         assert_snapshot!(remove_extra_blank_lines(input), @r"
         Text
-        
+
         More text
         ");
 
@@ -877,25 +884,19 @@ mod tests {
 
         // Blank lines at start
         let input = "\n\n\nContent";
-        assert_snapshot!(remove_extra_blank_lines(input), @r"
-        
-        Content
-        ");
+        assert_snapshot!(remove_extra_blank_lines(input), @"Content");
 
         // Blank lines at end
         let input = "Content\n\n\n";
-        assert_snapshot!(remove_extra_blank_lines(input), @r"
-        Content
-        
-        ");
+        assert_snapshot!(remove_extra_blank_lines(input), @"Content");
 
         // Mixed: multiple blank line groups
         let input = "Para 1\n\n\nPara 2\n\n\n\nPara 3";
         assert_snapshot!(remove_extra_blank_lines(input), @r"
         Para 1
-        
+
         Para 2
-        
+
         Para 3
         ");
 
@@ -909,26 +910,24 @@ mod tests {
 
         // Empty string
         let input = "";
-        assert_snapshot!(remove_extra_blank_lines(input), @r"");
+        assert_snapshot!(remove_extra_blank_lines(input), @"");
 
         // Only blank lines
         let input = "\n\n\n";
-        assert_snapshot!(remove_extra_blank_lines(input), @r"
-        
-        ");
+        assert_snapshot!(remove_extra_blank_lines(input), @"");
 
         // Complex document structure
         let input =
             "# Header\n\n\n\nParagraph 1\n\n\nParagraph 2\n\n\n\n## Subheader\n\n\n\nContent";
         assert_snapshot!(remove_extra_blank_lines(input), @r"
         # Header
-        
+
         Paragraph 1
-        
+
         Paragraph 2
-        
+
         ## Subheader
-        
+
         Content
         ");
     }
@@ -949,7 +948,7 @@ repeat processing.  |";
 
         // Complete row (separator) should not be affected
         let input = r"| --- | --- |";
-        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"| --- | --- |");
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @"| --- | --- |");
 
         // Complete rows should not be affected
         let input = r"| Cell | Value |
@@ -992,7 +991,7 @@ wraps |";
         let input = r"| Name | A very long
 description that spans
 multiple lines here |";
-        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"| Name | A very long description that spans multiple lines here |");
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @"| Name | A very long description that spans multiple lines here |");
 
         // False positive prevention: incomplete row with no valid continuation
         let input = r"| Incomplete row without pipe
@@ -1079,7 +1078,7 @@ wraps |";
 
         // Empty string
         let input = r"";
-        assert_snapshot!(fix_hard_wrapped_table_rows(input), @r"");
+        assert_snapshot!(fix_hard_wrapped_table_rows(input), @"");
 
         // Full example with all cell types from user's input
         let input = r"|  Cell line source(s) | HeLa cells were obtained from the UC Berkeley Cell Culture Facility, and were used only for purification of endogenous
@@ -1105,9 +1104,9 @@ repeat processing.  |
         let input = "Before\n![image.png]()\nAfter";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Before
-        
+
         ![image.png]()
-        
+
         After
         ");
 
@@ -1115,7 +1114,7 @@ repeat processing.  |
         let input = "![start.png]()\nAfter text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         ![start.png]()
-        
+
         After text
         ");
 
@@ -1123,20 +1122,19 @@ repeat processing.  |
         let input = "Before text\n![end.png]()";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Before text
-        
+
         ![end.png]()
-        
         ");
 
         // Multiple images
         let input = "Text\n![first.png]()\n![second.png]()\nMore text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
-        
+
         ![first.png]()
-        
+
         ![second.png]()
-        
+
         More text
         ");
 
@@ -1144,9 +1142,9 @@ repeat processing.  |
         let input = "Text\n\n![isolated.png]()\n\nMore text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
-        
+
         ![isolated.png]()
-        
+
         More text
         ");
 
@@ -1154,35 +1152,27 @@ repeat processing.  |
         let input = "Text\n![Alt text](image.png 'Title')\nMore";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
-        
+
         ![Alt text](image.png 'Title')
-        
+
         More
         ");
 
         // Not a block image (inline)
         let input = "This is inline ![small](icon.png) image text";
-        assert_snapshot!(ensure_isolated_blocks(input), @r"
-        This is inline ![small](icon.png) image text
-        ");
+        assert_snapshot!(ensure_isolated_blocks(input), @"This is inline ![small](icon.png) image text");
 
         // Empty lines around image
         let input = "\n\n![image.png]()\n\n";
-        assert_snapshot!(ensure_isolated_blocks(input), @r"
-        
-        
-        ![image.png]()
-        
-        
-        ");
+        assert_snapshot!(ensure_isolated_blocks(input), @"![image.png]()");
 
         // Heading between text
         let input = "Before text\n# Main Heading\nAfter text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Before text
-        
+
         # Main Heading
-        
+
         After text
         ");
 
@@ -1190,11 +1180,11 @@ repeat processing.  |
         let input = "Text\n# Heading One\n## Heading Two\nMore text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
-        
+
         # Heading One
-        
+
         ## Heading Two
-        
+
         More text
         ");
 
@@ -1202,7 +1192,7 @@ repeat processing.  |
         let input = "# Start Heading\nContent follows";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         # Start Heading
-        
+
         Content follows
         ");
 
@@ -1210,18 +1200,17 @@ repeat processing.  |
         let input = "Content before\n## End Heading";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Content before
-        
+
         ## End Heading
-        
         ");
 
         // Heading already isolated
         let input = "Text\n\n### Already Isolated\n\nMore text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
-        
+
         ### Already Isolated
-        
+
         More text
         ");
 
@@ -1229,13 +1218,13 @@ repeat processing.  |
         let input = "Text\n# Heading\n![image.png]()\n#### Sub Heading\nFinal text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
-        
+
         # Heading
-        
+
         ![image.png]()
-        
+
         #### Sub Heading
-        
+
         Final text
         ");
 
@@ -1243,19 +1232,19 @@ repeat processing.  |
         let input = "Text\n# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6\nMore text";
         assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
-        
+
         # H1
-        
+
         ## H2
-        
+
         ### H3
-        
+
         #### H4
-        
+
         ##### H5
-        
+
         ###### H6
-        
+
         More text
         ");
 
@@ -1302,27 +1291,19 @@ repeat processing.  |
     fn test_remove_header_formatting() {
         // Header with bold formatting using **
         let input = "# **Bold Header**";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        # Bold Header
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"# Bold Header");
 
         // Header with bold formatting using __
         let input = "## __Bold Header Two__";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        ## Bold Header Two
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"## Bold Header Two");
 
         // Header with emphasis formatting using *
         let input = "### *Italic Header*";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        ### Italic Header
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"### Italic Header");
 
         // Header with emphasis formatting using _
         let input = "#### _Italic Header Four_";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        #### Italic Header Four
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"#### Italic Header Four");
 
         // Multiple levels of headers with formatting
         let input = "# **Main Title**\n## __Subtitle__\n### *Section*\n#### _Subsection_";
@@ -1335,15 +1316,11 @@ repeat processing.  |
 
         // Header with partial formatting (should remain unchanged)
         let input = "# This has **partial** formatting";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        # This has **partial** formatting
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"# This has **partial** formatting");
 
         // Header with mixed formatting (should remain unchanged)
         let input = "## **Bold** and *italic* text";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        ## **Bold** and *italic* text
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"## **Bold** and *italic* text");
 
         // Non-header text with formatting (should remain unchanged)
         let input = "This is **bold** text\nAnd this is *italic*";
@@ -1354,15 +1331,11 @@ repeat processing.  |
 
         // Header with no formatting (should remain unchanged)
         let input = "# Plain Header";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        # Plain Header
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"# Plain Header");
 
         // Headers with extra whitespace
         let input = "#  **Header with spaces**  ";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        # Header with spaces
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"# Header with spaces");
 
         // All header levels with bold formatting
         let input = "# **H1**\n## **H2**\n### **H3**\n#### **H4**\n##### **H5**\n###### **H6**";
@@ -1377,9 +1350,7 @@ repeat processing.  |
 
         // Empty header with formatting
         let input = "# **  **";
-        assert_snapshot!(remove_heading_formatting(input), @r"
-        #   
-        ");
+        assert_snapshot!(remove_heading_formatting(input), @"#");
 
         // Mixed content with headers and regular text
         let input =
@@ -1399,31 +1370,31 @@ repeat processing.  |
 
         // Debug: test basic replacement first
         let input = r"Simple: $\alpha$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Simple: α");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Simple: α");
 
         // Escaped dollar sign - problematic case that should be simplified
         let input = r"The cost is $\$ 40$ for this item";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The cost is $ 40 for this item");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"The cost is $ 40 for this item");
 
         // Tilde with mathrm unit
         let input = r"The volume is $(\sim 100 \mathrm{nL})$ approximately";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The volume is (~ 100 nL) approximately");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"The volume is (~ 100 nL) approximately");
 
         // Plus-minus with mathrm unit
         let input = r"Mass: $0.022 \pm 0.0005 \mathrm{g}$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Mass: 0.022 ± 0.0005 g");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Mass: 0.022 ± 0.0005 g");
 
         // Test common symbols that can be simplified
         let input = r"Temperature $\approx 25°C$ and pressure $\leq 1 \mathrm{atm}$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Temperature ≈ 25°C and pressure ≤ 1 atm");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Temperature ≈ 25°C and pressure ≤ 1 atm");
 
         // Test Greek letters
         let input = r"The angle $\theta$ and constant $\pi$ are important";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The angle θ and constant π are important");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"The angle θ and constant π are important");
 
         // Test multiplication and other symbols
         let input = r"Result: $5 \times 10$ and $x \neq 0$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Result: 5 × 10 and x ≠ 0");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Result: 5 × 10 and x ≠ 0");
 
         // Test complex TeX that should NOT be simplified (contains complex commands)
         let input = r"Complex formula: $\frac{1}{2}\sqrt{x^2 + y^2}$";
@@ -1435,15 +1406,15 @@ repeat processing.  |
 
         // Test multiple mathrm expressions
         let input = r"Units: $\mathrm{kg}$, $\mathrm{m}$, $\mathrm{s}$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Units: kg, m, s");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Units: kg, m, s");
 
         // Test mathit and mathbf
         let input = r"Variables: $\mathit{velocity}$ and $\mathbf{force}$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Variables: velocity and force");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Variables: velocity and force");
 
         // Test expressions with superscripts/subscripts should not be simplified
         let input = r"Formula: $E = mc^2$ and $H_2O$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Formula: $E = mc^2$ and $H_2O$");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Formula: $E = mc^2$ and $H_2O$");
 
         // Test expressions with braces that aren't math commands should not be simplified
         let input = r"Set notation: $\{1, 2, 3\}$";
@@ -1451,23 +1422,23 @@ repeat processing.  |
 
         // Test empty math expression
         let input = r"Empty math: $$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Empty math: $$");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Empty math: $$");
 
         // Test no math expressions
         let input = r"Regular text with no math expressions";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Regular text with no math expressions");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Regular text with no math expressions");
 
         // Test multiple math expressions in one line
         let input = r"Multiple: $\alpha$ and $\beta$ and $\gamma$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Multiple: α and β and γ");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Multiple: α and β and γ");
 
         // Test edge case with dollar signs in regular text (should not be affected)
         let input = r"The price is 5 dollars, not $x + y = z$.";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The price is 5 dollars, not $x + y = z$.");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"The price is 5 dollars, not $x + y = z$.");
 
         // Test math with spaces
         let input = r"Spaced math: $\alpha   \beta$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Spaced math: α β");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Spaced math: α β");
 
         // Test infinity symbol
         let input = r"Limit: $x \to \infty$";
@@ -1475,11 +1446,11 @@ repeat processing.  |
 
         // Test just infinity
         let input = r"Infinity: $\infty$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Infinity: ∞");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Infinity: ∞");
 
         // Test tilde (non-breaking space) replacement
         let input = r"Units: $8.31 \pm 0.039 \mathrm{~mm}$";
-        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Units: 8.31 ± 0.039 mm");
+        assert_snapshot!(remove_unnecessary_inline_math(input), @"Units: 8.31 ± 0.039 mm");
     }
 
     #[test]
@@ -1589,7 +1560,7 @@ Another line with [2] brackets
         Another line with [2] brackets
 
         ## References
-        
+
         1. First actual reference
         2. Second actual reference
         ");
@@ -1602,7 +1573,7 @@ Another line with [2] brackets
 Regular content";
         assert_snapshot!(ensure_isolated_references(input), @r"
         # Introduction
-        
+
         Some text with 1 number
         Another line with [2] brackets
         Regular content
@@ -1641,9 +1612,7 @@ Regular content";
         // Empty references section
         let input = r"# References
 ";
-        assert_snapshot!(ensure_isolated_references(input), @r"
-        # References
-        ");
+        assert_snapshot!(ensure_isolated_references(input), @"# References");
 
         // References with extra whitespace
         let input = r"#   References
@@ -1684,87 +1653,87 @@ Regular content";
     fn test_fix_superscript_subscript() {
         // Basic superscript replacement
         let input = r"x^{2}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^2^");
 
         // Basic subscript replacement
         let input = r"H_{2}O";
-        assert_snapshot!(fix_superscript_subscript(input), @r"H~2~O");
+        assert_snapshot!(fix_superscript_subscript(input), @"H~2~O");
 
         // Multiple superscripts in one line
         let input = r"x^{2} + y^{3}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^ + y^3^");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^2^ + y^3^");
 
         // Multiple subscripts in one line
         let input = r"a_{i} and b_{j}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"a~i~ and b~j~");
+        assert_snapshot!(fix_superscript_subscript(input), @"a~i~ and b~j~");
 
         // Mixed superscripts and subscripts
         let input = r"x^{2} and H_{2}O";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^ and H~2~O");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^2^ and H~2~O");
 
         // Superscript at start of line
         let input = r"^{sup}text";
-        assert_snapshot!(fix_superscript_subscript(input), @r"^sup^text");
+        assert_snapshot!(fix_superscript_subscript(input), @"^sup^text");
 
         // Subscript at end of line
         let input = r"text_{sub}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"text~sub~");
+        assert_snapshot!(fix_superscript_subscript(input), @"text~sub~");
 
         // Multi-character content
         let input = r"text^{superscript} and text_{subscript}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"text^superscript^ and text~subscript~");
+        assert_snapshot!(fix_superscript_subscript(input), @"text^superscript^ and text~subscript~");
 
         // Math mode protection - inline math with superscript should stay
         let input = r"$x^{2}$";
-        assert_snapshot!(fix_superscript_subscript(input), @r"$x^{2}$");
+        assert_snapshot!(fix_superscript_subscript(input), @"$x^{2}$");
 
         // Math mode protection - inline math with subscript should stay
         let input = r"$H_{2}O$";
-        assert_snapshot!(fix_superscript_subscript(input), @r"$H_{2}O$");
+        assert_snapshot!(fix_superscript_subscript(input), @"$H_{2}O$");
 
         // Math mode protection - display math
         let input = r"$$x^{2} + y^{2}$$";
-        assert_snapshot!(fix_superscript_subscript(input), @r"$$x^{2} + y^{2}$$");
+        assert_snapshot!(fix_superscript_subscript(input), @"$$x^{2} + y^{2}$$");
 
         // Mixed: text with replacements and math mode
         let input = r"x^{2} in text but $x^{2}$ in math";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^2^ in text but $x^{2}$ in math");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^2^ in text but $x^{2}$ in math");
 
         // Mixed: subscripts in text and math
         let input = r"H_{2}O in text but $H_{2}O$ in chemistry formula";
-        assert_snapshot!(fix_superscript_subscript(input), @r"H~2~O in text but $H_{2}O$ in chemistry formula");
+        assert_snapshot!(fix_superscript_subscript(input), @"H~2~O in text but $H_{2}O$ in chemistry formula");
 
         // Multiple math sections
         let input = r"$a^{2}$ and x^{3} and $b^{4}$";
-        assert_snapshot!(fix_superscript_subscript(input), @r"$a^{2}$ and x^3^ and $b^{4}$");
+        assert_snapshot!(fix_superscript_subscript(input), @"$a^{2}$ and x^3^ and $b^{4}$");
 
         // Empty braces
         let input = r"x^{} and y_{}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^^ and y~~");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^^ and y~~");
 
         // Nested braces in content
         let input = r"x^{a{b}c}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^a{b}c^");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^a{b}c^");
 
         // No braces after ^ or _
         let input = r"x^2 and y_i";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^2 and y_i");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^2 and y_i");
 
         // Just ^ or _ alone
         let input = r"^ and _";
-        assert_snapshot!(fix_superscript_subscript(input), @r"^ and _");
+        assert_snapshot!(fix_superscript_subscript(input), @"^ and _");
 
         // Complex real-world example
         let input = r"The formula E^{tot}_{sys} = mc^{2} works, but $E = mc^{2}$ is in math mode";
-        assert_snapshot!(fix_superscript_subscript(input), @r"The formula E^tot^~sys~ = mc^2^ works, but $E = mc^{2}$ is in math mode");
+        assert_snapshot!(fix_superscript_subscript(input), @"The formula E^tot^~sys~ = mc^2^ works, but $E = mc^{2}$ is in math mode");
 
         // No replacements needed
         let input = r"Regular text with no special syntax";
-        assert_snapshot!(fix_superscript_subscript(input), @r"Regular text with no special syntax");
+        assert_snapshot!(fix_superscript_subscript(input), @"Regular text with no special syntax");
 
         // Empty string
         let input = r"";
-        assert_snapshot!(fix_superscript_subscript(input), @r"");
+        assert_snapshot!(fix_superscript_subscript(input), @"");
 
         // Multi-line input
         let input = "Line 1: x^{2}\nLine 2: $x^{2}$\nLine 3: y_{i}";
@@ -1776,11 +1745,11 @@ Regular content";
 
         // Unclosed brace (edge case - collects to end)
         let input = r"x^{unclosed";
-        assert_snapshot!(fix_superscript_subscript(input), @r"x^unclosed^");
+        assert_snapshot!(fix_superscript_subscript(input), @"x^unclosed^");
 
         // Multiple dollars on same line
         let input = r"$a^{1}$ and $b^{2}$ and c^{3}";
-        assert_snapshot!(fix_superscript_subscript(input), @r"$a^{1}$ and $b^{2}$ and c^3^");
+        assert_snapshot!(fix_superscript_subscript(input), @"$a^{1}$ and $b^{2}$ and c^3^");
 
         // Escaped dollar should not trigger math mode
         let input = r"I have \$10 and x^{2} here";
@@ -1807,35 +1776,35 @@ Regular content";
     fn test_remove_uninformative_image_alt_text() {
         // Basic case: alt text matches filename exactly
         let input = r"![img-1.jpeg](img-1.jpeg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](img-1.jpeg)");
 
         // Alt text matches filename without extension
         let input = r"![img-1](img-1.jpeg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](img-1.jpeg)");
 
         // Alt text already empty
         let input = r"![](img-1.jpeg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](img-1.jpeg)");
 
         // Alt text is just whitespace
         let input = r"![   ](img-1.jpeg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](img-1.jpeg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](img-1.jpeg)");
 
         // Informative alt text should be kept
         let input = r"![Diagram of cells](img-1.jpeg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![Diagram of cells](img-1.jpeg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![Diagram of cells](img-1.jpeg)");
 
         // Informative alt text with descriptive content
         let input = r"![Figure showing the experimental setup](figure-1.png)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![Figure showing the experimental setup](figure-1.png)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![Figure showing the experimental setup](figure-1.png)");
 
         // URL with path - alt text matches filename
         let input = r"![img-1.jpeg](images/img-1.jpeg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](images/img-1.jpeg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](images/img-1.jpeg)");
 
         // URL with path - alt text matches filename without extension
         let input = r"![img-1](assets/images/img-1.jpeg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](assets/images/img-1.jpeg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](assets/images/img-1.jpeg)");
 
         // Multiple images, some informative, some not
         let input = r"![img-1.jpeg](img-1.jpeg)
@@ -1849,21 +1818,21 @@ Regular content";
 
         // Different file extensions
         let input = r"![photo.png](photo.png)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](photo.png)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](photo.png)");
 
         let input = r"![diagram.svg](diagram.svg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](diagram.svg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](diagram.svg)");
 
         let input = r"![chart.webp](chart.webp)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](chart.webp)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](chart.webp)");
 
         // Filename without extension
         let input = r"![image](image)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](image)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](image)");
 
         // Complex path
         let input = r"![figure-1.png](../assets/images/figures/figure-1.png)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](../assets/images/figures/figure-1.png)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](../assets/images/figures/figure-1.png)");
 
         // Non-image lines should be unchanged
         let input = r"This is regular text
@@ -1877,24 +1846,24 @@ More text here";
 
         // Inline images (not on standalone line) should be unchanged
         let input = r"Text before ![img.jpg](img.jpg) text after";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"Text before ![img.jpg](img.jpg) text after");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"Text before ![img.jpg](img.jpg) text after");
 
         // Image with title attribute - alt text won't be removed because URL contains title
         // This is safe behavior as the regex captures the title as part of the URL
         let input = r"![img.jpg](img.jpg 'title')";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![img.jpg](img.jpg 'title')");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![img.jpg](img.jpg 'title')");
 
         // Numbers in filenames
         let input = r"![image-123](image-123.png)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](image-123.png)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](image-123.png)");
 
         // Hyphens and underscores
         let input = r"![my_image_file](my_image_file.jpg)";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"![](my_image_file.jpg)");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"![](my_image_file.jpg)");
 
         // Empty string
         let input = r"";
-        assert_snapshot!(remove_uninformative_image_alt_text(input), @r"");
+        assert_snapshot!(remove_uninformative_image_alt_text(input), @"");
 
         // No images
         let input = r"Just some text

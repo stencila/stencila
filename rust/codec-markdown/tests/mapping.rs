@@ -64,11 +64,9 @@ async fn paragraph() -> Result<()> {
 
     let (md, EncodeInfo { mapping, .. }) = codec.to_string(&node, None).await?;
 
-    assert_snapshot!(md, @r###"
-    Hello, world!
-    "###);
+    assert_snapshot!(md, @"Hello, world!");
 
-    assert_snapshot!(mapping, @r###"
+    assert_snapshot!(mapping, @r"
     start     end        offsets   node_type+property                   authorship
          0      1         (0, 1)   Text                                 (1, 0, 0)
          1     12        (1, 11)   Text                                 (2, 1, 2)
@@ -79,7 +77,7 @@ async fn paragraph() -> Result<()> {
          0     14         (0, 1)   Paragraph
          0     15         (0, 1)   Article.content
          0     15         (0, 0)   Article
-    "###);
+    ");
 
     Ok(())
 }
@@ -135,13 +133,13 @@ print('Hello, world!')
 
     let (md, EncodeInfo { mapping, .. }) = codec.to_string(&node, None).await?;
 
-    assert_snapshot!(md, @r###"
+    assert_snapshot!(md, @r"
     ```python exec
     print('Hello, world!')
     ```
-    "###);
+    ");
 
-    assert_snapshot!(mapping, @r###"
+    assert_snapshot!(mapping, @r"
     start     end        offsets   node_type+property                   authorship
          3      9         (3, 9)   CodeChunk.programmingLanguage
         15     23       (12, 14)   CodeChunk                            (1, 0, 0)
@@ -151,7 +149,7 @@ print('Hello, world!')
          0     42       (-15, 5)   CodeChunk
          0     43         (0, 1)   Article.content
          0     43         (0, 0)   Article
-    "###);
+    ");
 
     Ok(())
 }

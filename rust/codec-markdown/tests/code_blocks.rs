@@ -21,11 +21,11 @@ async fn backticks() -> Result<()> {
             None,
         )
         .await?;
-    assert_snapshot!(md, @r#"
+    assert_snapshot!(md, @r"
     ```
     no backticks
     ```
-    "#);
+    ");
 
     // Single nested backticks in code
     let (md, ..) = codec
@@ -34,13 +34,13 @@ async fn backticks() -> Result<()> {
             None,
         )
         .await?;
-    assert_snapshot!(md, @r#"
+    assert_snapshot!(md, @r"
     ````
     ```
     code
     ```
     ````
-    "#);
+    ");
 
     // Double nested backticks in code
     let (md, ..) = codec
@@ -49,7 +49,7 @@ async fn backticks() -> Result<()> {
             None,
         )
         .await?;
-    assert_snapshot!(md, @r#"
+    assert_snapshot!(md, @r"
     `````
     ````
     ```
@@ -57,27 +57,27 @@ async fn backticks() -> Result<()> {
     ```
     ````
     `````
-    "#);
+    ");
 
     // Just one backtick in code
     let (md, ..) = codec
         .to_string(&Node::CodeBlock(CodeBlock::new("`".into())), None)
         .await?;
-    assert_snapshot!(md, @r#"
+    assert_snapshot!(md, @r"
     ```
     `
     ```
-    "#);
+    ");
 
     // Three backticks with preceding whitespace in code
     let (md, ..) = codec
         .to_string(&Node::CodeBlock(CodeBlock::new("  ```".into())), None)
         .await?;
-    assert_snapshot!(md, @r#"
+    assert_snapshot!(md, @r"
     ````
       ```
     ````
-    "#);
+    ");
 
     Ok(())
 }

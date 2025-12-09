@@ -1,7 +1,6 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: article
-snapshot_kind: text
 ---
 {
   "type": "Article",
