@@ -7,7 +7,7 @@ edition = "2024"
 Inflector = { workspace = true }
 cached = { workspace = true }
 # Ensure that rustls is used to avoid adding a dependence on OpenSSL
-ollama-rs = { version = "0.3.2", default-features = false, features = [
+ollama-rs = { version = "0.3.3", default-features = false, features = [
     "rustls",
     "stream",
 ] }

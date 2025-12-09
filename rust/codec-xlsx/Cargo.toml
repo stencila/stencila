@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-calamine = "0.31.0"
+calamine = "0.32.0"
 stencila-codec = { path = "../codec" }
 
 [dev-dependencies]

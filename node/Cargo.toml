@@ -8,13 +8,13 @@ crate-type = ["cdylib"]
 
 [dependencies]
 eyre = { workspace = true }
-napi = { version = "3.5.1", default-features = false, features = [
+napi = { version = "3.6.1", default-features = false, features = [
     "async",
     "napi8",
 ] }
-napi-derive = "3.3.1"
+napi-derive = "3.4.0"
 serde_json = { workspace = true }
 stencila-codecs = { path = "../rust/codecs" }
 
 [build-dependencies]
-napi-build = "2.3.0"
+napi-build = "2.3.1"

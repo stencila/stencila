@@ -5,7 +5,7 @@ authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2024"
 
 [dependencies]
-axum = { version = "0.8.6", features = ["ws"] }
+axum = { version = "0.8.7", features = ["ws"] }
 clap = { workspace = true }
 eyre = { workspace = true }
 futures = { workspace = true }

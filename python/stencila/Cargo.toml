@@ -19,7 +19,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 eyre = { workspace = true }
-pyo3 = { version = "0.27.1", features = ["extension-module"] }
+pyo3 = { version = "0.27.2", features = ["extension-module"] }
 pyo3-async-runtimes = { version = "0.27.0", features = [
     "attributes",
     "tokio-runtime",
