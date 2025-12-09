@@ -8,7 +8,7 @@ use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType, StructuringOperation, StructuringOptions, async_trait,
     eyre::{OptionExt, Result},
-    inject_references_section,
+    references::{append_references_section, has_references_section, populate_references_section},
     stencila_format::Format,
     stencila_schema::{Article, Node, Object, Primitive, strip_non_content},
 };
@@ -237,8 +237,22 @@ impl Codec for DocxCodec {
             true
         };
 
-        // Inject a references section if the article has references but no references section
-        let node = &inject_references_section(node);
+        // Append or populate a references section if the article has references
+        let node = if let Node::Article(article) = node
+            && let Some(references) = &article.references
+            && !references.is_empty()
+        {
+            let mut article = article.clone();
+            if has_references_section(&article.content) {
+                populate_references_section(&mut article, references);
+            } else {
+                append_references_section(&mut article, references);
+            }
+            Node::Article(article)
+        } else {
+            node.clone()
+        };
+        let node = &node;
 
         let info = 'to_path: {
             let format = options.format.clone().unwrap_or(Format::Docx);

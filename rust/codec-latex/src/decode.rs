@@ -11,7 +11,7 @@ use stencila_codec::{
         AppendixBreak, Article, Bibliography, Block, Citation, CitationGroup, CitationMode,
         CitationOptions, CodeChunk, CodeExpression, CompilationMessage, ForBlock, Heading, IfBlock,
         IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, MessageLevel,
-        Node, RawBlock, Text,
+        Node, RawBlock, Section, SectionType, Text,
     },
 };
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
@@ -67,9 +67,11 @@ static RE: LazyLock<Regex> = LazyLock::new(|| {
         \\end\{if\}\n?
 
       | \\begin\{island\} \s*
-          (?:\[(?P<island_opts>[^\]]*?)\])? \s* 
+          (?:\[(?P<island_opts>[^\]]*?)\])? \s*
           (?P<island>.*?)
         \\end\{island\}\n?
+
+      | (?P<printbib>\\printbibliography)(?:\[[^\]]*\])?\s*\n?
     ",
     )
     .expect("invalid regex")
@@ -539,6 +541,12 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
                 label_automatically,
                 style,
                 content: latex_to_blocks(content, island_style),
+                ..Default::default()
+            }));
+        } else if captures.name("printbib").is_some() {
+            // Create an empty References section to be populated later
+            blocks.push(Block::Section(Section {
+                section_type: Some(SectionType::References),
                 ..Default::default()
             }));
         }
