@@ -21,9 +21,9 @@ pub struct Demo {
     #[arg(long)]
     no_execute: bool,
 
-    /// Do not store the document after executing it
+    /// Cache the document after executing it
     #[arg(long, conflicts_with = "no_execute")]
-    no_store: bool,
+    cache: bool,
 
     #[clap(flatten)]
     execute_options: ExecuteOptions,
@@ -54,7 +54,7 @@ impl Demo {
                 }
             }
 
-            if !self.no_store {
+            if self.cache {
                 doc.store().await?;
             }
         }

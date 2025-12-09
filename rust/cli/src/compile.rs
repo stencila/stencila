@@ -19,9 +19,9 @@ pub struct Cli {
     #[arg(long)]
     no_save: bool,
 
-    /// Do not store the document after compiling it
+    /// Cache the document after compiling it
     #[arg(long)]
-    no_store: bool,
+    cache: bool,
 
     #[command(flatten)]
     decode_options: DecodeOptions,
@@ -32,8 +32,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Compile a document to check for errors</dim>
   <b>stencila compile</> <g>document.md</>
 
-  <dim># Compile without updating in document store</dim>
-  <b>stencila compile</> <g>temp.md</> <c>--no-store</>
+  <dim># Compile and cache document</dim>
+  <b>stencila compile</> <g>temp.md</> <c>--cache</>
 
 <bold><b>Note</b></bold>
   Compiling a document checks for source path errors in
@@ -56,7 +56,7 @@ impl Cli {
             doc.save().await?;
         }
 
-        if !self.no_store {
+        if self.cache {
             doc.store().await?;
         }
 

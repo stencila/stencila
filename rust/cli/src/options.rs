@@ -55,17 +55,6 @@ pub struct DecodeOptions {
     #[arg(long, conflicts_with = "fine", help_heading = "Decoding Options")]
     coarse: bool,
 
-    /// Reconstitute nodes from a cache
-    ///
-    /// Only useful when reconstituting a document from a file previously
-    /// encoded with the `--reproducible` option and where a JSON cache of the document
-    /// was encoded at the same times.
-    ///
-    /// Only supported for some formats (.e.g DOCX, ODT).
-    /// At present, the cache must be the path to a JSON file.
-    #[arg(long, help_heading = "Decoding Options")]
-    cache: Option<PathBuf>,
-
     /// Pages to include when decoding multi-page documents
     ///
     /// Supports 1-based page selectors: single pages (N), ranges (N-M),
@@ -180,7 +169,6 @@ impl DecodeOptions {
             codec,
             format,
             coarse,
-            cache: self.cache.clone(),
             include_pages: self.pages.clone(),
             exclude_pages: self.exclude_pages.clone(),
             ignore_artifacts: self.ignore_artifacts.then_some(true),

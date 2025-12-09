@@ -21,13 +21,13 @@ pub struct Cli {
     #[arg(long)]
     fix: bool,
 
-    /// Do not store the document after formatting and/or fixing it
+    /// Cache the document after formatting and/or fixing it
     ///
     /// Only applies when using `--format` or `--fix`, both of which will write a
-    /// modified version of the source document back to disk and by default, a new
-    /// cache of the document to the store. This flag prevent the store being updated.
+    /// modified version of the source document back to disk. Use this flag to also
+    /// cache the document.
     #[arg(long)]
-    no_store: bool,
+    cache: bool,
 
     /// Output any linting diagnostics as JSON or YAML
     #[arg(long, short)]
@@ -64,7 +64,7 @@ impl Cli {
             if self.format || self.fix {
                 doc.save().await?;
 
-                if !self.no_store {
+                if self.cache {
                     doc.store().await?;
                 }
             }

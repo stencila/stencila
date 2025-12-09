@@ -20,9 +20,9 @@ pub struct Cli {
     #[arg(long)]
     no_save: bool,
 
-    /// Do not store the document after executing it
+    /// Cache the document after executing it
     #[arg(long)]
-    no_store: bool,
+    cache: bool,
 
     #[command(flatten)]
     decode_options: DecodeOptions,
@@ -36,8 +36,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Execute a Stencila Markdown document</dim>
   <b>stencila execute</b> <g>report.smd</g>
 
-  <dim># Execute without updating the document store</dim>
-  <b>stencila execute</b> <g>temp.md</g> <c>--no-store</c>
+  <dim># Execute and cache a document</dim>
+  <b>stencila execute</b> <g>temp.md</g> <c>--cache</c>
 
   <dim># Force re-execution of all code</dim>
   <b>stencila execute</b> <g>cached.ipynb</g> <c>--force-all</c>
@@ -62,7 +62,7 @@ impl Cli {
             doc.save().await?;
         }
 
-        if !self.no_store {
+        if self.cache {
             doc.store().await?;
         }
 

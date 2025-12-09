@@ -57,9 +57,9 @@ pub struct Cli {
     #[arg(long, value_name = "PARAMS", action = clap::ArgAction::Append)]
     case: Vec<String>,
 
-    /// Do not store the document after executing it
+    /// Cache the document after rendering it
     #[arg(long)]
-    no_store: bool,
+    cache: bool,
 
     #[clap(flatten)]
     execute_options: ExecuteOptions,
@@ -104,8 +104,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Render ignoring execution errors</dim>
   <b>stencila render</b> <g>notebook.md</g> <g>report.pdf</g> <c>--ignore-errors</c>
 
-  <dim># Render without updating the document store</dim>
-  <b>stencila render</b> <g>temp.md</g> <g>output.html</g> <c>--no-store</c>
+  <dim># Render and cache a document</dim>
+  <b>stencila render</b> <g>temp.md</g> <g>output.html</g> <c>--cache</c>
 
   <dim># Spread render with multiple parameter combinations (grid)</dim>
   <b>stencila render</b> <g>report.md</g> <g>'report-{region}-{species}.pdf'</g> -- <c>region</c>=<g>north,south</g> <c>species</c>=<g>ABC,DEF</g>
@@ -411,7 +411,7 @@ impl Cli {
             let (errors, ..) = doc.diagnostics_print().await?;
 
             // Cache the document
-            if !self.no_store && !input_is_stdin {
+            if self.cache && !input_is_stdin {
                 doc.store().await?;
             }
 
