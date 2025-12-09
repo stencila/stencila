@@ -115,17 +115,17 @@
   },
   "devDependencies": {
     "@argos-ci/playwright": "6.3.4",
-    "@parcel/compressor-brotli": "2.16.1",
-    "@parcel/transformer-inline-string": "2.16.1",
-    "@parcel/transformer-typescript-tsc": "2.16.1",
+    "@parcel/compressor-brotli": "2.16.3",
+    "@parcel/transformer-inline-string": "2.16.3",
+    "@parcel/transformer-typescript-tsc": "2.16.3",
     "@playwright/test": "1.57.0",
     "@tailwindcss/postcss": "4.1.17",
     "@types/katex": "0.16.7",
     "@types/plotly.js-dist-min": "2.3.4",
     "@types/prismjs": "1.26.5",
     "glob": "13.0.0",
-    "parcel": "2.16.1",
+    "parcel": "2.16.3",
     "postcss-import": "16.1.1",
-    "tsx": "4.20.6"
+    "tsx": "4.21.0"
   }
 }
