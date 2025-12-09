@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.11.0 2025-12-09
+
+- Based on Stencila CLI [v2.11.0](https://github.com/stencila/stencila/releases/tag/v2.11.0) which adds bibliography support for documents, improved Pandoc round-trip conversion for file links and line breaks, and performance optimizations for static document views
+
+
+
 ## 2.10.0 2025-11-30
 
 - Based on Stencila CLI [v2.10.0](https://github.com/stencila/stencila/releases/tag/v2.10.0) which adds new remote sources for pulling documents from GitHub issues (`ghi` codec) and email attachments, improved LaTeX citation handling, and a new `NarrativeYear` citation mode.

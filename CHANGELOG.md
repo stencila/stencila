@@ -1,3 +1,40 @@
+# [2.11.0](https://github.com/stencila/stencila/compare/v2.10.0...v2.11.0) (2025-12-09)
+
+
+### Features
+
+* **Schema:** Add `CreativeWork.bibliography` property to support explicit bibliography sections in documents ([808354a](https://github.com/stencila/stencila/commit/808354a3c)).
+
+* **LaTeX codec:** Handle `\bibliography{}` and `\printbibliography` commands for proper bibliography decoding ([1c37a1a](https://github.com/stencila/stencila/commit/1c37a1a7d), [3ee948f](https://github.com/stencila/stencila/commit/3ee948f5a)).
+
+* **DOCX codec:** Encode references section when present in documents ([e148fd8](https://github.com/stencila/stencila/commit/e148fd8cf)).
+
+
+### Bug Fixes
+
+* **CLI:** Default to not caching documents when opening, improving behavior for frequently edited files ([8b6ea6d](https://github.com/stencila/stencila/commit/8b6ea6d64)).
+
+* **CLI:** Use message macro for variable interpolation and consistent capitalization of watch status messages ([05882363](https://github.com/stencila/stencila/commit/05882363d), [ca6c80c](https://github.com/stencila/stencila/commit/ca6c80ca9)).
+
+* **Pandoc codec:** Support round-trip conversion of links to file paths and properly decode hard/soft line breaks to new lines ([f15ba62](https://github.com/stencila/stencila/commit/f15ba62b0), [38ba6e7](https://github.com/stencila/stencila/commit/38ba6e707)).
+
+* **DOCX codec:** Encode code blocks as images when using the repro flag for better reproducibility ([d90d7b8](https://github.com/stencila/stencila/commit/d90d7b85c)).
+
+* **Google Docs codec:** Restore verbatim character style from monospace runs ([7249b87](https://github.com/stencila/stencila/commit/7249b87b0)).
+
+* **Links codec:** Improve detection of URL links, more consistent with GFM behavior ([6503b4a](https://github.com/stencila/stencila/commit/6503b4af2)).
+
+* **Workspace:** Return a `no_changes` status when appropriate ([8fb34a3](https://github.com/stencila/stencila/commit/8fb34a35d)).
+
+
+### Performance Improvements
+
+* **Web:** Use Prism.js for syntax highlighting in static mode and add optimized `<stencila-image-object>` component for static views ([03a48a4](https://github.com/stencila/stencila/commit/03a48a490), [4b70398](https://github.com/stencila/stencila/commit/4b7039883)).
+
+* **Base theme:** Adjust code line height to 150% for improved readability ([9d7088c](https://github.com/stencila/stencila/commit/9d7088c12))
+
+
+
 # [2.10.0](https://github.com/stencila/stencila/compare/v2.9.0...v2.10.0) (2025-11-30)
 
 ### Features
