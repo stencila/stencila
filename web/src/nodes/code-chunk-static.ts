@@ -11,7 +11,7 @@ import '../ui/nodes/properties/code/code-static'
  *
  * This is a lightweight alternative for static views that that does not render
  * node and uses Prism.js instead of CodeMirror for syntax highlighting.
- * 
+ *
  * It only renders:
  *
  * - Code (if isEchoed is true)
