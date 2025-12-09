@@ -561,7 +561,7 @@
       "@id": "stencila:bibliography",
       "@type": "rdfs:Property",
       "rdfs:label": "bibliography",
-      "rdfs:comment": "A bibliography of references that may be cited in the work.",
+      "rdfs:comment": "A bibliography of references which may be cited in the work.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },

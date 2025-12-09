@@ -709,7 +709,7 @@ class CreativeWork(Thing):
     """A publisher of the CreativeWork."""
 
     bibliography: Bibliography | None = None
-    """A bibliography of references that may be cited in the work."""
+    """A bibliography of references which may be cited in the work."""
 
     references: list[Reference] | None = None
     """References to other creative works, such as another publication, web page, scholarly article, etc."""

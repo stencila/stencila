@@ -295,7 +295,7 @@ pub struct ClaimOptions {
     #[dom(elem = "section")]
     pub publisher: Option<PersonOrOrganization>,
 
-    /// A bibliography of references that may be cited in the work.
+    /// A bibliography of references which may be cited in the work.
     #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub bibliography: Option<Bibliography>,

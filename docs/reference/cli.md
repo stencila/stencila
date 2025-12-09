@@ -627,11 +627,6 @@ Examples
 * `--coarse` — Use coarse decoding if available for input format
 
    Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
 * `--pages <PAGES>` — Pages to include when decoding multi-page documents
 
    Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
@@ -951,11 +946,6 @@ Examples
 * `--coarse` — Use coarse decoding if available for input format
 
    Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
 * `--pages <PAGES>` — Pages to include when decoding multi-page documents
 
    Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
@@ -1253,11 +1243,6 @@ Note
 * `--coarse` — Use coarse decoding if available for input format
 
    Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
 * `--pages <PAGES>` — Pages to include when decoding multi-page documents
 
    Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
@@ -1812,8 +1797,8 @@ Examples
   # Compile a document to check for errors
   stencila compile document.md
 
-  # Compile without updating in document store
-  stencila compile temp.md --no-store
+  # Compile and cache document
+  stencila compile temp.md --cache
 
 Note
   Compiling a document checks for source path errors in
@@ -1828,7 +1813,7 @@ Note
 ###### **Options:**
 
 * `--no-save` — Do not save the document after compiling it
-* `--no-store` — Do not store the document after compiling it
+* `--cache` — Cache the document after compiling it
 * `-f`, `--from <FROM>` — The format of the input/s
 
    If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
@@ -1838,11 +1823,6 @@ Note
 * `--coarse` — Use coarse decoding if available for input format
 
    Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
 * `--pages <PAGES>` — Pages to include when decoding multi-page documents
 
    Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
@@ -2067,9 +2047,9 @@ Examples
 
 * `--format` — Format the file if necessary
 * `--fix` — Fix any linting issues
-* `--no-store` — Do not store the document after formatting and/or fixing it
+* `--cache` — Cache the document after formatting and/or fixing it
 
-   Only applies when using `--format` or `--fix`, both of which will write a modified version of the source document back to disk and by default, a new cache of the document to the store. This flag prevent the store being updated.
+   Only applies when using `--format` or `--fix`, both of which will write a modified version of the source document back to disk. Use this flag to also cache the document.
 * `-a`, `--as <AS>` — Output any linting diagnostics as JSON or YAML
 
   Possible values: `json`, `yaml`, `toml`
@@ -2087,8 +2067,8 @@ Examples
   # Execute a Stencila Markdown document
   stencila execute report.smd
 
-  # Execute without updating the document store
-  stencila execute temp.md --no-store
+  # Execute and cache a document
+  stencila execute temp.md --cache
 
   # Force re-execution of all code
   stencila execute cached.ipynb --force-all
@@ -2104,7 +2084,7 @@ Examples
 ###### **Options:**
 
 * `--no-save` — Do not save the document after executing it
-* `--no-store` — Do not store the document after executing it
+* `--cache` — Cache the document after executing it
 * `-f`, `--from <FROM>` — The format of the input/s
 
    If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
@@ -2114,11 +2094,6 @@ Examples
 * `--coarse` — Use coarse decoding if available for input format
 
    Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
 * `--pages <PAGES>` — Pages to include when decoding multi-page documents
 
    Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
@@ -2360,8 +2335,8 @@ Examples
   # Render ignoring execution errors
   stencila render notebook.md report.pdf --ignore-errors
 
-  # Render without updating the document store
-  stencila render temp.md output.html --no-store
+  # Render and cache a document
+  stencila render temp.md output.html --cache
 
   # Spread render with multiple parameter combinations (grid)
   stencila render report.md 'report-{region}-{species}.pdf' -- region=north,south species=ABC,DEF
@@ -2405,7 +2380,7 @@ Examples
 * `--case <PARAMS>` — Explicit parameter sets for cases mode
 
    Each --case takes a quoted string with space-separated key=value pairs. Only used with --spread=cases.
-* `--no-store` — Do not store the document after executing it
+* `--cache` — Cache the document after rendering it
 * `--ignore-errors` — Ignore any errors while executing document
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
@@ -2438,11 +2413,6 @@ Examples
 * `--coarse` — Use coarse decoding if available for input format
 
    Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
 * `--pages <PAGES>` — Pages to include when decoding multi-page documents
 
    Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
@@ -3170,7 +3140,7 @@ Examples
 
    Slides are delimited by thematic breaks (---). Examples: - "2" - only slide 2 - "2-4" - slides 2 through 4 - "2-" - slide 2 to the end - "-3" - slides 1 through 3 - "1,3-5,7-" - slides 1, 3 through 5, and 7 to the end
 * `--no-execute` — Do not execute the document before running the demo
-* `--no-store` — Do not store the document after executing it
+* `--cache` — Cache the document after executing it
 * `--ignore-errors` — Ignore any errors while executing document
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
@@ -3310,11 +3280,6 @@ Note
 * `--coarse` — Use coarse decoding if available for input format
 
    Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
 * `--pages <PAGES>` — Pages to include when decoding multi-page documents
 
    Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-

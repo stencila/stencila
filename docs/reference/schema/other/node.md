@@ -32,6 +32,7 @@ The `Node` type has these members:
 - [`Article`](https://stencila.ghost.io/docs/reference/schema/article)
 - [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
 - [`AuthorRole`](https://stencila.ghost.io/docs/reference/schema/author-role)
+- [`Bibliography`](https://stencila.ghost.io/docs/reference/schema/bibliography)
 - [`BooleanValidator`](https://stencila.ghost.io/docs/reference/schema/boolean-validator)
 - [`Brand`](https://stencila.ghost.io/docs/reference/schema/brand)
 - [`Button`](https://stencila.ghost.io/docs/reference/schema/button)

@@ -235,7 +235,7 @@ pub struct CollectionOptions {
     #[dom(elem = "section")]
     pub publisher: Option<PersonOrOrganization>,
 
-    /// A bibliography of references that may be cited in the work.
+    /// A bibliography of references which may be cited in the work.
     #[strip(output)]
     pub bibliography: Option<Bibliography>,
 

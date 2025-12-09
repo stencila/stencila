@@ -582,7 +582,7 @@
     },
     "bibliography": {
       "@id": "stencila:bibliography",
-      "description": "A bibliography of references that may be cited in the work.",
+      "description": "A bibliography of references which may be cited in the work.",
       "$comment": "Unlike `references` which contains only the references that are actually\ncited in the work, `bibliography` is a database of all available references\nloaded from an external source file at compile time. It is ephemeral and\nnot persisted when the document is saved.\n",
       "strip": [
         "output"

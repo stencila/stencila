@@ -42,6 +42,7 @@ Support and degree of loss by node type:
 | [Article](https://stencila.ghost.io/docs/reference/schema/article)                           | ⚠️ High loss |          |       |
 | [AudioObject](https://stencila.ghost.io/docs/reference/schema/audio_object)                  | ⚠️ High loss |          |       |
 | [AuthorRole](https://stencila.ghost.io/docs/reference/schema/author_role)                    | ⚠️ High loss |          |       |
+| [Bibliography](https://stencila.ghost.io/docs/reference/schema/bibliography)                 | ⚠️ High loss |          |       |
 | [Chat](https://stencila.ghost.io/docs/reference/schema/chat)                                 | ⚠️ High loss |          |       |
 | [ChatMessage](https://stencila.ghost.io/docs/reference/schema/chat_message)                  | ⚠️ High loss |          |       |
 | [ChatMessageGroup](https://stencila.ghost.io/docs/reference/schema/chat_message_group)       | ⚠️ High loss |          |       |
