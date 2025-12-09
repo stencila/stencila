@@ -1,9 +1,10 @@
 import { LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../nodes/code-block'
-import '../nodes/code-chunk' // For code chunks that are `echo` (ie. display code)
-import '../nodes/image-object'
+import '../nodes/code-block-static' // For display of code blocks (Prism.js)
+import '../nodes/code-chunk-static' // For code chunks that are `echo` (Prism.js)
+import '../nodes/image-object' // For display of JS-based visualizations (e.g. Mermaid)
+
 import { initUno } from '../unocss'
 
 initUno()
