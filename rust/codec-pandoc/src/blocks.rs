@@ -639,19 +639,32 @@ fn media_block_to_pandoc(media_inline: Inline, context: &mut PandocEncodeContext
 
 fn code_block_to_pandoc(
     code_block: &CodeBlock,
-    _context: &mut PandocEncodeContext,
+    context: &mut PandocEncodeContext,
 ) -> pandoc::Block {
-    let classes = code_block
-        .programming_language
-        .as_ref()
-        .map_or(Vec::new(), |lang| vec![lang.to_string()]);
+    if context.is_docx_flavor() && context.reproducible {
+        // For round-tripping of code blocks (esp. the language of the code) it is necessary to snapshot the code.
+        // It is not possible to use begin and end position markers and have Pandoc encode the code
+        // (with nice syntax highlighting) because when decoding indentation is ignored which breaks
+        // languages such as Python (i.e. there is no reliable way to provide editing of code in DOCX
+        // so we represent it as a non-editable static image)
+        let image = node_to_pandoc_image(&Node::CodeBlock(code_block.clone()), context);
 
-    let attrs = pandoc::Attr {
-        classes,
-        ..Default::default()
-    };
+        let link = context.reproducible_link(NodeType::CodeBlock, code_block, None, image);
 
-    pandoc::Block::CodeBlock(attrs, code_block.code.to_string())
+        pandoc::Block::Para(vec![link])
+    } else {
+        let classes = code_block
+            .programming_language
+            .as_ref()
+            .map_or(Vec::new(), |lang| vec![lang.to_string()]);
+
+        let attrs = pandoc::Attr {
+            classes,
+            ..Default::default()
+        };
+
+        pandoc::Block::CodeBlock(attrs, code_block.code.to_string())
+    }
 }
 
 fn code_block_from_pandoc(
@@ -785,11 +798,11 @@ fn code_chunk_to_pandoc(
                     if has_image_media_type || has_image_content_url {
                         image_to_pandoc(image, context)
                     } else {
-                        render_output_to_pandoc(output, context)
+                        node_to_pandoc_image(output, context)
                     }
                 }
                 // Some other
-                _ => render_output_to_pandoc(output, context),
+                _ => node_to_pandoc_image(output, context),
             }
         } else {
             pandoc::Inline::Str("".into())
@@ -839,8 +852,9 @@ fn code_chunk_to_pandoc(
     vec![pandoc::Block::CodeBlock(attrs, chunk.code.to_string())]
 }
 
-fn render_output_to_pandoc(output: &Node, context: &mut PandocEncodeContext) -> pandoc::Inline {
-    match to_png_data_uri(output) {
+/// Convert a Stencila node to a [`pandoc::Inline::Image`]
+fn node_to_pandoc_image(node: &Node, context: &mut PandocEncodeContext) -> pandoc::Inline {
+    match to_png_data_uri(node) {
         Ok(data_uri) => {
             let image = ImageObject {
                 content_url: data_uri,
@@ -850,8 +864,8 @@ fn render_output_to_pandoc(output: &Node, context: &mut PandocEncodeContext) -> 
             image_to_pandoc(&image, context)
         }
         Err(error) => {
-            tracing::error!("While encoding output to data URI: {error}");
-            pandoc::Inline::Str(to_text(output))
+            tracing::error!("While encoding node to data URI: {error}");
+            pandoc::Inline::Str(to_text(node))
         }
     }
 }

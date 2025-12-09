@@ -56,6 +56,11 @@ impl PandocEncodeContext {
         }
     }
 
+    /// Whether the target format is a flavor of DOCX
+    pub fn is_docx_flavor(&self) -> bool {
+        matches!(self.format, Format::Docx | Format::GDocx | Format::M365Docx)
+    }
+
     /// Run an encoding function within the scope of a node property
     ///
     /// Modifies the context's node path before and after executing the function
