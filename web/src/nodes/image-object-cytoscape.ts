@@ -1,4 +1,3 @@
-import { css } from '@twind/core'
 import { html } from 'lit'
 
 import { colorToHex } from '../utilities/colorUtils'
@@ -207,18 +206,9 @@ export async function compileCytoscape(
 
 /**
  * Render Cytoscape container
+ *
+ * Uses `.cytoscape-container` class from shared styles (image-object-styles.ts)
  */
 export function renderCytoscapeContainer() {
-  const containerStyles = css`
-    & {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1;
-    }
-  `
-  return html`
-    <div slot="content" class="overflow-x-auto">
-      <div class=${containerStyles} id="stencila-cytoscape-container"></div>
-    </div>
-  `
+  return html`<div class="cytoscape-container" id="stencila-cytoscape-container"></div>`
 }

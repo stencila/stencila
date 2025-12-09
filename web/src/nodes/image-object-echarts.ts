@@ -1,4 +1,3 @@
-import { css } from '@twind/core'
 import { html } from 'lit'
 
 import { deepMerge } from '../utilities/deepMerge'
@@ -338,19 +337,9 @@ export async function compileECharts(
 
 /**
  * Render ECharts container
+ *
+ * Uses `.viz-container` class from shared styles (image-object-styles.ts)
  */
 export function renderEChartsContainer() {
-  const containerStyles = css`
-    & {
-      width: 100%;
-      aspect-ratio: var(--plot-aspect-ratio);
-      min-height: var(--plot-height-min);
-      max-height: var(--plot-height-max);
-    }
-  `
-  return html`
-    <div slot="content" class="overflow-x-auto">
-      <div class=${containerStyles} id="stencila-echarts-container"></div>
-    </div>
-  `
+  return html`<div class="viz-container" id="stencila-echarts-container"></div>`
 }

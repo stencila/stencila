@@ -1,4 +1,3 @@
-import { css } from '@twind/core'
 import { html } from 'lit'
 
 import { deepMerge } from '../utilities/deepMerge'
@@ -279,31 +278,18 @@ export async function compilePlotly(
 
 /**
  * Render Plotly container
+ *
+ * Uses `.plotly-padder` and `.viz-container` classes from shared styles (image-object-styles.ts)
+ *
+ * The padder applies theme padding around the entire plot (including axis labels/titles).
+ * This matches the behavior of ECharts (containLabel: true), Vega-Lite (contains: 'padding'),
+ * matplotlib (constrained_layout), ggplot2 (plot.margin), and R base (mar).
  */
 export function renderPlotlyContainer() {
-  const padderStyles = css`
-    & {
-      /* Apply theme padding around the entire plot (including axis labels/titles).
-       * This matches the behavior of ECharts (containLabel: true), Vega-Lite (contains: 'padding'),
-       * matplotlib (constrained_layout), ggplot2 (plot.margin), and R base (mar).
-       * The background color must match --plot-background so the padding area has the correct color. */
-      padding: var(--plot-padding-top) var(--plot-padding-right) var(--plot-padding-bottom) var(--plot-padding-left);
-      background-color: var(--plot-background);
-      box-sizing: border-box;
-    }
-  `
-  const containerStyles = css`
-    & {
-      width: 100%;
-      aspect-ratio: var(--plot-aspect-ratio);
-      min-height: var(--plot-height-min);
-      max-height: var(--plot-height-max);
-    }
-  `
   return html`
     <style id="plotly-css"></style>
-    <div class=${padderStyles} slot="content">
-      <div class=${containerStyles} id="stencila-plotly-container"></div>
+    <div class="plotly-padder">
+      <div class="viz-container" id="stencila-plotly-container"></div>
     </div>
   `
 }

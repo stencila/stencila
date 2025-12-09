@@ -1,4 +1,3 @@
-import { css } from '@twind/core'
 import { html } from 'lit'
 
 import { deepMerge } from '../utilities/deepMerge'
@@ -211,19 +210,9 @@ export async function compileVegaLite(
 
 /**
  * Render Vega-Lite container
+ *
+ * Uses `.viz-container` class from shared styles (image-object-styles.ts)
  */
 export function renderVegaLiteContainer() {
-  const containerStyles = css`
-    & {
-      width: 100%;
-      aspect-ratio: var(--plot-aspect-ratio);
-      min-height: var(--plot-height-min);
-      max-height: var(--plot-height-max);
-    }
-  `
-  return html`
-    <div slot="content">
-      <div class=${containerStyles} id="stencila-vega-container"></div>
-    </div>
-  `
+  return html`<div class="viz-container" id="stencila-vega-container"></div>`
 }

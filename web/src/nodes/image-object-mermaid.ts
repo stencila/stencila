@@ -1,8 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { css } from '@twind/core'
 import { html } from 'lit'
-import { unsafeSVG } from 'lit/directives/unsafe-svg'
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
 import { colorToHex } from '../utilities/colorUtils'
 import { getCSSVariables } from '../utilities/cssVariables'
@@ -274,61 +273,12 @@ export async function compileMermaid(
 
 /**
  * Render Mermaid SVG
+ *
+ * Uses `.mermaid-container` class from shared styles (image-object-styles.ts)
+ *
+ * The styles reset inherited properties that commonly cause issues with SVGs
+ * and fix Mermaid edge label backgrounds.
  */
 export function renderMermaid(svg: string) {
-  /**
-   * Reset specific inherited styles on SVG
-   *
-   * Only reset properties that commonly cause issues with SVGs when inherited
-   * from the document, while preserving essential SVG styling.
-   *
-   * Previously we used `all: initial;` to do this but that was too aggressive
-   * and was breaking mermaid rending on Chrome
-   */
-  const svgStyles = css`
-    & {
-      /* Horizontally centre the SVG */
-      display: flex;
-      justify-content: center;
-    }
-
-    svg {
-      /* Reset text-related inherited properties */
-      line-height: 1;
-      font-size: inherit;
-      font-family: inherit;
-      text-align: initial;
-      letter-spacing: normal;
-      word-spacing: normal;
-
-      /* Reset box model properties that might interfere */
-      margin: 0;
-      padding: 0;
-      border: none;
-
-      /* Ensure SVG displays properly */
-      display: block;
-      max-width: 100%;
-      height: auto;
-
-      /* Fix Mermaid edge label backgrounds */
-      /* Based on solution from: https://stephenkernan.com/blog/how-to-style-mermaid-edge-labels */
-      foreignObject {
-        &:has(.edgeLabel) {
-          background-color: transparent;
-          .edgeLabel,
-          .labelBkg {
-            background-color: transparent !important;
-            /* Prevent clipping of some words. Seems to be no solved by Stephen Kernan's approach
-              but because calculated width of the foreignObject is too small 🤷‍♂️ */
-            font-size: 97.5%;
-          }
-        }
-      }
-    }
-  `
-
-  return html`
-    <div slot="content" class=${svgStyles}>${unsafeSVG(svg)}</div>
-  `
+  return html`<div class="mermaid-container">${unsafeSVG(svg)}</div>`
 }

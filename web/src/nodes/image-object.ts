@@ -9,22 +9,11 @@ import {
   compileCytoscape,
   renderCytoscapeContainer,
 } from './image-object-cytoscape'
-import {
-  compileECharts,
-  renderEChartsContainer,
-} from './image-object-echarts'
-import {
-  compileLeaflet,
-  renderLeafletIframe,
-} from './image-object-leaflet'
-import {
-  compileMermaid,
-  renderMermaid,
-} from './image-object-mermaid'
-import {
-  compilePlotly,
-  renderPlotlyContainer,
-} from './image-object-plotly'
+import { compileECharts, renderEChartsContainer } from './image-object-echarts'
+import { compileLeaflet, renderLeafletIframe } from './image-object-leaflet'
+import { compileMermaid, renderMermaid } from './image-object-mermaid'
+import { compilePlotly, renderPlotlyContainer } from './image-object-plotly'
+import { imageObjectStyles, MEDIA_TYPES } from './image-object-shared'
 import {
   compileVegaLite,
   renderVegaLiteContainer,
@@ -40,16 +29,14 @@ import { MediaObject } from './media-object'
 @withTwind()
 export class ImageObject extends MediaObject {
   /**
+   * Shared styles for visualization containers
+   */
+  static override styles = imageObjectStyles
+
+  /**
    * Image media types that are rendered in the browser
    */
-  static MEDIA_TYPES = {
-    cytoscape: 'application/vnd.cytoscape.v3+json',
-    echarts: 'application/vnd.apache.echarts+json',
-    leaflet: 'text/html',
-    mermaid: 'text/vnd.mermaid',
-    plotly: 'application/vnd.plotly.v1+json',
-    vegaLite: 'application/vnd.vegalite.v5+json',
-  } as const
+  static MEDIA_TYPES = MEDIA_TYPES
 
   /**
    * The Cytoscape.js instance
@@ -415,23 +402,23 @@ export class ImageObject extends MediaObject {
 
   override renderCardContent() {
     if (this.mediaType === ImageObject.MEDIA_TYPES.mermaid) {
-      return renderMermaid(this.mermaid)
+      return html`<div slot="content">${renderMermaid(this.mermaid)}</div>`
     }
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.cytoscape) {
-      return renderCytoscapeContainer()
+      return html`<div slot="content">${renderCytoscapeContainer()}</div>`
     }
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.plotly) {
-      return renderPlotlyContainer()
+      return html`<div slot="content">${renderPlotlyContainer()}</div>`
     }
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.vegaLite) {
-      return renderVegaLiteContainer()
+      return html`<div slot="content">${renderVegaLiteContainer()}</div>`
     }
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.echarts) {
-      return renderEChartsContainer()
+      return html`<div slot="content">${renderEChartsContainer()}</div>`
     }
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.leaflet) {
