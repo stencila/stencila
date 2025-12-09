@@ -61,7 +61,7 @@ fn create_section_content(references: &[Reference]) -> Vec<Block> {
 }
 
 /// Convert references to blocks (paragraphs with pre-rendered content)
-/// 
+///
 /// The content of references is rendered in the `node-execute` crate
 /// when an article is compiled.
 fn references_to_blocks(references: &[Reference]) -> Vec<Block> {

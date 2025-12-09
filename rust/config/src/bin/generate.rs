@@ -77,12 +77,15 @@ fn generate_schema() -> Result<Value> {
 
 /// Update description to SchemaStore format: "<first line>\n<url>"
 fn add_doc_url(map: &mut serde_json::Map<String, Value>, key: &str, doc_path: &str) {
-    if let Some(item) = map.get_mut(key).and_then(|v| v.as_object_mut()) {
-        if let Some(desc) = item.get("description").and_then(|v| v.as_str()) {
-            let first_line = desc.lines().next().unwrap_or(desc);
-            let url = format!("{DOCS_BASE_URL}/{doc_path}");
-            item.insert("description".to_string(), json!(format!("{first_line}\n{url}")));
-        }
+    if let Some(item) = map.get_mut(key).and_then(|v| v.as_object_mut())
+        && let Some(desc) = item.get("description").and_then(|v| v.as_str())
+    {
+        let first_line = desc.lines().next().unwrap_or(desc);
+        let url = format!("{DOCS_BASE_URL}/{doc_path}");
+        item.insert(
+            "description".to_string(),
+            json!(format!("{first_line}\n{url}")),
+        );
     }
 }
 
@@ -443,20 +446,20 @@ Stencila uses `stencila.toml` files for project configuration. This reference do
     // Add examples from routes and remotes field doc comments
     content.push_str("\n## Examples\n\n");
 
-    if let Some(routes_field) = docs.config.fields.iter().find(|f| f.name == "routes") {
-        if let Some(example) = &routes_field.example {
-            content.push_str("### Routes\n\n");
-            content.push_str(&format_doc(example));
-            content.push_str("\n\n");
-        }
+    if let Some(routes_field) = docs.config.fields.iter().find(|f| f.name == "routes")
+        && let Some(example) = &routes_field.example
+    {
+        content.push_str("### Routes\n\n");
+        content.push_str(&format_doc(example));
+        content.push_str("\n\n");
     }
 
-    if let Some(remotes_field) = docs.config.fields.iter().find(|f| f.name == "remotes") {
-        if let Some(example) = &remotes_field.example {
-            content.push_str("### Remotes\n\n");
-            content.push_str(&format_doc(example));
-            content.push('\n');
-        }
+    if let Some(remotes_field) = docs.config.fields.iter().find(|f| f.name == "remotes")
+        && let Some(example) = &remotes_field.example
+    {
+        content.push_str("### Remotes\n\n");
+        content.push_str(&format_doc(example));
+        content.push('\n');
     }
 
     let path = output_dir.join("index.md");
@@ -579,12 +582,12 @@ description: {description}
     }
 
     // Add example from routes field doc comment
-    if let Some(routes_field) = docs.config.fields.iter().find(|f| f.name == "routes") {
-        if let Some(example) = &routes_field.example {
-            content.push_str("## ");
-            content.push_str(&format_doc(example));
-            content.push('\n');
-        }
+    if let Some(routes_field) = docs.config.fields.iter().find(|f| f.name == "routes")
+        && let Some(example) = &routes_field.example
+    {
+        content.push_str("## ");
+        content.push_str(&format_doc(example));
+        content.push('\n');
     }
 
     let path = output_dir.join("routes.md");
@@ -658,12 +661,12 @@ description: {description}
     }
 
     // Add example from remotes field doc comment
-    if let Some(remotes_field) = docs.config.fields.iter().find(|f| f.name == "remotes") {
-        if let Some(example) = &remotes_field.example {
-            content.push_str("## ");
-            content.push_str(&format_doc(example));
-            content.push('\n');
-        }
+    if let Some(remotes_field) = docs.config.fields.iter().find(|f| f.name == "remotes")
+        && let Some(example) = &remotes_field.example
+    {
+        content.push_str("## ");
+        content.push_str(&format_doc(example));
+        content.push('\n');
     }
 
     let path = output_dir.join("remotes.md");

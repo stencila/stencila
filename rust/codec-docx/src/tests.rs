@@ -1,15 +1,15 @@
 use std::io::{Read, Write};
 
 use indexmap::IndexMap;
+use pretty_assertions::assert_eq;
 use regex::Regex;
 use serde_json::json;
 use tempfile::tempdir;
 use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
-use pretty_assertions::assert_eq;
 use stencila_codec::{
     Codec, EncodeOptions,
-    eyre::Result,
+    eyre::{Result, bail},
     stencila_schema::{
         Article, ArticleOptions, Inline, Node, Object, Paragraph, Primitive,
         shortcuts::{cc, ce, p, t},
@@ -181,20 +181,19 @@ async fn preprocessing() -> Result<()> {
 
     // Without preprocessing, the inline code would be lost
     let (decoded_without_preprocess, ..) = DocxCodec.from_path(&modified_path, None).await?;
-    if let Node::Article(Article { content, .. }) = &decoded_without_preprocess {
-        if let Some(block) = content.first() {
-            if let stencila_codec::stencila_schema::Block::Paragraph(para) = block {
-                // Without preprocessing, there should be no CodeInline
-                let has_code_inline = para
-                    .content
-                    .iter()
-                    .any(|inline| matches!(inline, Inline::CodeInline(_)));
-                assert!(
-                    !has_code_inline,
-                    "Without preprocessing, inline code should be lost"
-                );
-            }
-        }
+    if let Node::Article(Article { content, .. }) = &decoded_without_preprocess
+        && let Some(block) = content.first()
+        && let stencila_codec::stencila_schema::Block::Paragraph(para) = block
+    {
+        // Without preprocessing, there should be no CodeInline
+        let has_code_inline = para
+            .content
+            .iter()
+            .any(|inline| matches!(inline, Inline::CodeInline(_)));
+        assert!(
+            !has_code_inline,
+            "Without preprocessing, inline code should be lost"
+        );
     }
 
     // Now apply preprocessing
@@ -202,24 +201,22 @@ async fn preprocessing() -> Result<()> {
 
     // After preprocessing, the inline code should be restored
     let (decoded_with_preprocess, ..) = DocxCodec.from_path(&modified_path, None).await?;
-    if let Node::Article(Article { content, .. }) = &decoded_with_preprocess {
-        if let Some(block) = content.first() {
-            if let stencila_codec::stencila_schema::Block::Paragraph(para) = block {
-                // With preprocessing, there should be a CodeInline
-                let code_inline = para.content.iter().find_map(|inline| {
-                    if let Inline::CodeInline(ci) = inline {
-                        Some(ci)
-                    } else {
-                        None
-                    }
-                });
-                assert!(
-                    code_inline.is_some(),
-                    "With preprocessing, inline code should be restored"
-                );
-                assert_eq!(code_inline.unwrap().code.to_string(), "1 + 2");
+    if let Node::Article(Article { content, .. }) = &decoded_with_preprocess
+        && let Some(block) = content.first()
+        && let stencila_codec::stencila_schema::Block::Paragraph(para) = block
+    {
+        // With preprocessing, there should be a CodeInline
+        let Some(code_inline) = para.content.iter().find_map(|inline| {
+            if let Inline::CodeInline(ci) = inline {
+                Some(ci)
+            } else {
+                None
             }
-        }
+        }) else {
+            bail!("With preprocessing, inline code should be restored");
+        };
+
+        assert_eq!(code_inline.code.to_string(), "1 + 2");
     }
 
     Ok(())

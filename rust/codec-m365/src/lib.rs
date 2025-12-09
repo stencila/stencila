@@ -40,8 +40,7 @@ const ONEDRIVE_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b']');
 
 use stencila_codec::{
-    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult,
-    stencila_format::Format,
+    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_format::Format,
     stencila_schema::Node,
 };
 use stencila_codec_docx::DocxCodec;
