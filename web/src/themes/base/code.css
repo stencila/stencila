@@ -42,7 +42,7 @@
     --code-font-family: var(--font-family-mono);
     --code-font-size-inline: var(--font-size-sm);
     --code-font-size-block: var(--font-size-sm);
-    --code-line-height: 1;
+    --code-line-height: 150%;
 
     /* Visual Style
      *
