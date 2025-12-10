@@ -1698,6 +1698,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
     let meta = meta.unwrap_or_default();
     let is_exec = meta.starts_with("exec")
         || lang.as_deref() == Some("exec")
+        || lang.as_deref() == Some("mermaid")
         || lang
             .as_ref()
             .map(|lang| lang.starts_with("{") && lang.ends_with("}"))
@@ -2394,5 +2395,24 @@ mod tests {
         assert!(divider(&mut "::: with :::").is_err());
         assert!(divider(&mut "::").is_err());
         assert!(divider(&mut ":").is_err());
+    }
+
+    // Mermaid code block should be treated as executable CodeChunk by default
+    #[test]
+    fn test_mermaid_code_block() {
+        let code = mdast::Code {
+            lang: Some("mermaid".to_string()),
+            meta: None,
+            value: "graph TD\n    A --> B".to_string(),
+            position: None,
+        };
+        let block = code_to_block(code, &mut Context::new(Format::Markdown));
+
+        assert!(matches!(block, Block::CodeChunk(CodeChunk { .. })));
+
+        if let Block::CodeChunk(chunk) = block {
+            assert_eq!(chunk.programming_language, Some("mermaid".to_string()));
+            assert_eq!(chunk.code.to_string(), "graph TD\n    A --> B");
+        }
     }
 }
