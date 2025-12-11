@@ -167,6 +167,15 @@ impl MarkdownCodec for AudioObject {
 }
 
 impl ImageObject {
+    /// Is the image a JSON or Javascript-based visualization
+    pub fn is_viz(&self) -> bool {
+        self.media_type
+            .as_ref()
+            .and_then(|media_type| Format::from_media_type(media_type).ok())
+            .map(|format| format.is_viz())
+            .unwrap_or(false)
+    }
+
     pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
         use stencila_codec_html_trait::encode::elem;
 

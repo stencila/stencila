@@ -188,7 +188,9 @@ impl Collector {
 
     /// Collect an image
     fn collect_image(&mut self, image: &mut ImageObject) {
-        if let Some(relative_url) = self.collect_media(&image.content_url, "image") {
+        if !image.is_viz()
+            && let Some(relative_url) = self.collect_media(&image.content_url, "image")
+        {
             image.content_url = relative_url;
         }
     }

@@ -310,6 +310,14 @@ impl Format {
         matches!(self, Avi | Mkv | Mov | Mp4 | Ogv | WebM | Wmv)
     }
 
+    /// Is this format a visualization format?
+    pub fn is_viz(&self) -> bool {
+        matches!(
+            self,
+            Format::Cytoscape | Format::Echarts | Format::Plotly | Format::VegaLite
+        )
+    }
+
     /// Is this format a flavor of JSON?
     pub fn is_json_flavor(&self) -> bool {
         use Format::*;
