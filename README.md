@@ -70,7 +70,7 @@
 
 Stencila is a platform for creating and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating truly programmable documents, and to make it easier to publish them as beautiful, interactive, and semantically rich, articles and applications. Our roots are in scientific communication, but our tools are useful beyond.
 
-This is `v2` of Stencila, a rewrite in Rust focussed on the synergies between three recent and impactful innovations and trends:
+This is `v2` of Stencila, a rewrite in Rust focused on the synergies between three recent and impactful innovations and trends:
 
 - [Conflict-free replicated data types (CRDTs)](https://crdt.tech/) for de-centralized collaboration and version control.
 
