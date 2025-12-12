@@ -103,7 +103,8 @@ ENV LANG=C.UTF-8 \
     EDITOR=code \
     VISUAL=code \
     GIT_EDITOR="code --wait" \
-    OPENVSCODE_SERVER_ROOT=${OVS_HOME}
+    OPENVSCODE_SERVER_ROOT=${OVS_HOME} \
+    FORCE_COLOR=1
 
 WORKDIR /home/workspace
 
