@@ -27,7 +27,8 @@ RUN apt-get update && \
         sudo \
         gnupg \
         dirmngr \
-        libatomic1 && \
+        libatomic1 \
+        unzip && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home
@@ -129,11 +130,35 @@ RUN apt-get update && \
         build-essential \
         gh \
         pandoc \
-        r-base && \
+        r-base \
+        # Chromium dependencies (needed for headless Chrome)
+        libasound2t64 \
+        libatk-bridge2.0-0 \
+        libatk1.0-0 \
+        libcups2 \
+        libdrm2 \
+        libgbm1 \
+        libgtk-3-0 \
+        libnspr4 \
+        libnss3 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxfixes3 \
+        libxkbcommon0 \
+        libxrandr2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /usr/local/lib/R/site-library && \
     chmod -R 0777 /usr/local/lib/R/site-library
+
+# Install Chromium for Testing (proper binary, not Snap wrapper)
+# This provides a real Chromium binary that works in containers
+RUN CHROME_VERSION=$(curl -s https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE) && \
+    curl -fsSL "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" -o /tmp/chrome.zip && \
+    unzip -q /tmp/chrome.zip -d /opt && \
+    ln -s /opt/chrome-linux64/chrome /usr/local/bin/chromium && \
+    ln -s /opt/chrome-linux64/chrome /usr/local/bin/chromium-browser && \
+    rm /tmp/chrome.zip
 
 # Switch to non-root user for remaining installations
 # This improves security and ensures user-level tools are installed in the correct location
@@ -179,9 +204,15 @@ COPY --chown=${USERNAME}:${USERNAME} defaults/pyproject.toml defaults/DESCRIPTIO
 
 # Install default packages for Python and R so that they are cached in the image
 # Use increased HTTP timeout (300s) to handle slow connections during Docker builds
-RUN cd /home/workspace/stencila/defaults && \
-    UV_HTTP_TIMEOUT=300 uv sync && \
-    Rscript -e "renv::install()"
+# Set INSTALL_PACKAGES=false for faster testing builds (e.g. `make build-fast`)
+ARG INSTALL_PACKAGES=true
+RUN if [ "$INSTALL_PACKAGES" = "true" ]; then \
+        cd /home/workspace/stencila/defaults && \
+        UV_HTTP_TIMEOUT=300 uv sync && \
+        Rscript -e "renv::install()"; \
+    else \
+        echo "Skipping Python/R package installation (INSTALL_PACKAGES=$INSTALL_PACKAGES)"; \
+    fi
 
 # Copy remaining workspace default files (e.g. scripts) after package installation
 # This prevents changes to these files from invalidating the package installation layer
