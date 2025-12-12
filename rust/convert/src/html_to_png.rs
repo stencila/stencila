@@ -43,6 +43,7 @@ use headless_chrome::{
 };
 use itertools::Itertools;
 
+use stencila_codec_utils::is_in_container;
 use stencila_themes::LengthConversion;
 use stencila_tools::{install_sync, is_installable, is_installed};
 use stencila_version::STENCILA_VERSION;
@@ -289,6 +290,13 @@ fn create_browser() -> Result<Browser> {
     .map(OsStr::new)
     .collect_vec();
 
+    // Disable sandbox in containers - it often fails and provides minimal
+    // security benefit for our use case (rendering our own HTML)
+    let use_sandbox = !is_in_container();
+    if !use_sandbox {
+        tracing::debug!("Disabling Chrome sandbox in container environment");
+    }
+
     let options = LaunchOptionsBuilder::default()
         // Set headless based on BROWSER_OPEN_SECS constant
         // If BROWSER_OPEN_SECS > 0, run in non-headless mode for debugging
@@ -297,6 +305,7 @@ fn create_browser() -> Result<Browser> {
         } else {
             true
         })
+        .sandbox(use_sandbox)
         .args(args)
         .build()
         .map_err(|error| eyre!("Failed to build browser launch options: {error}"))?;
