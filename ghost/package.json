@@ -46,17 +46,17 @@
         "@rollup/plugin-node-resolve": "16.0.3",
         "@rollup/plugin-terser": "0.4.4",
         "@tailwindcss/typography": "0.5.19",
-        "autoprefixer": "10.4.20",
+        "autoprefixer": "10.4.22",
         "bestzip": "2.2.1",
-        "concurrently": "9.1.2",
-        "postcss": "8.5.1",
+        "concurrently": "9.2.1",
+        "postcss": "8.5.6",
         "postcss-import": "16.1.1",
         "postcss-nested": "7.0.2",
-        "postcss-preset-env": "10.4.0",
-        "rollup": "4.52.5",
+        "postcss-preset-env": "10.5.0",
+        "rollup": "4.53.3",
         "rollup-plugin-livereload": "2.0.5",
         "rollup-plugin-postcss": "4.0.2",
-        "tailwindcss": "4.1.16"
+        "tailwindcss": "4.1.18"
     },
     "browserslist": [
         "defaults"
