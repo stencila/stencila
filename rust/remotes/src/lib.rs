@@ -380,12 +380,12 @@ pub async fn write_remote_entries(stencila_dir: &Path, entries: &RemoteEntries) 
 /// # Arguments
 ///
 /// * `stencila_dir` - The `.stencila` directory path
-/// * `site_id` - The site ID to remove entries for
+/// * `workspace_id` - The site ID to remove entries for
 ///
 /// # Returns
 ///
 /// The number of entries removed
-pub async fn remove_site_remotes(stencila_dir: &Path, site_id: &str) -> Result<usize> {
+pub async fn remove_site_remotes(stencila_dir: &Path, workspace_id: &str) -> Result<usize> {
     let mut entries = read_remote_entries(stencila_dir).await?;
     let mut removed_count = 0;
 
@@ -393,7 +393,7 @@ pub async fn remove_site_remotes(stencila_dir: &Path, site_id: &str) -> Result<u
     entries.retain(|_file_path, url_map| {
         url_map.retain(|url, _info| {
             let url_str = url.as_str();
-            let is_this_site = url_str.contains(site_id) && url_str.contains(".stencila.site");
+            let is_this_site = url_str.contains(workspace_id) && url_str.contains(".stencila.site");
 
             if is_this_site {
                 removed_count += 1;
@@ -406,7 +406,7 @@ pub async fn remove_site_remotes(stencila_dir: &Path, site_id: &str) -> Result<u
 
     if removed_count > 0 {
         write_remote_entries(stencila_dir, &entries).await?;
-        tracing::debug!("Removed {removed_count} implicit remote entries for site {site_id}");
+        tracing::debug!("Removed {removed_count} implicit remote entries for site {workspace_id}");
     }
 
     Ok(removed_count)
@@ -899,9 +899,9 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
     }
 
     // Process implicit site remotes
-    // If site.id is configured, check for tracked files under site.root
-    if let Some(site_config) = &config.site
-        && site_config.id.is_some()
+    // If workspace.id is configured (which doubles as site ID), check for tracked files under site.root
+    if config.workspace.as_ref().and_then(|w| w.id.as_ref()).is_some()
+        && let Some(site_config) = &config.site
     {
         // Check tracking data for files under site root
         for (tracked_path, url_map) in &remotes_tracking {

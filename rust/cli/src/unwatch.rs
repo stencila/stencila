@@ -4,7 +4,7 @@ use clap::Parser;
 use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_cloud::delete_watch;
+use stencila_cloud::{delete_watch, ensure_workspace};
 use stencila_config::config_update_remote_watch;
 use stencila_remotes::{RemoteService, get_remotes_for_path};
 use url::Url;
@@ -137,12 +137,15 @@ impl Cli {
             bail!("Remote {} is not being watched.", remote_info.url);
         }
 
+        // Get workspace ID (required for delete_watch)
+        let (workspace_id, _) = ensure_workspace(&self.path).await?;
+
         // Call Cloud API to delete watch
         let watch_id = remote_info
             .watch_id
             .as_ref()
             .ok_or_else(|| eyre!("No watch ID found"))?;
-        delete_watch(watch_id).await?;
+        delete_watch(&workspace_id, watch_id).await?;
 
         // Remove watch ID from stencila.toml
         config_update_remote_watch(&self.path, remote_info.url.as_ref(), None)?;

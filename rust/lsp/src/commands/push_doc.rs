@@ -406,14 +406,18 @@ pub(crate) async fn push_doc(
                 }
             };
 
-            let Some(repo_url) = git_info.origin else {
-                client
-                    .show_message(ShowMessageParams {
-                        typ: MessageType::ERROR,
-                        message: "Cannot enable watch: No git remote origin found".to_string(),
-                    })
-                    .ok();
-                return Ok(Some(json!({ "url": url.to_string() })));
+            // Ensure workspace exists to get workspace_id
+            let workspace_id = match stencila_cloud::ensure_workspace(&path).await {
+                Ok((id, _)) => id,
+                Err(error) => {
+                    client
+                        .show_message(ShowMessageParams {
+                            typ: MessageType::ERROR,
+                            message: format!("Cannot enable watch: {error}"),
+                        })
+                        .ok();
+                    return Ok(Some(json!({ "url": url.to_string() })));
+                }
             };
 
             let file_path = git_info.path.unwrap_or_else(|| {
@@ -429,14 +433,13 @@ pub(crate) async fn push_doc(
 
             let request = WatchRequest {
                 remote_url: url.to_string(),
-                repo_url,
                 file_path,
                 direction: direction.map(String::from),
                 pr_mode: pr_mode.map(String::from),
                 debounce_seconds,
             };
 
-            match create_watch(request).await {
+            match create_watch(&workspace_id, request).await {
                 Ok(response) => {
                     // Store watch ID in stencila.toml config
                     if let Err(error) =

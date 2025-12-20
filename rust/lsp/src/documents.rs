@@ -9,7 +9,6 @@ use async_lsp::lsp_types::request::Request;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-use stencila_codec_utils::git_info;
 use stencila_dirs::closest_workspace_dir;
 use stencila_document::{Document, DocumentTrackingEntries, RemoteStatus};
 use stencila_remotes::{RemoteService, WatchDirection, calculate_remote_statuses};
@@ -78,19 +77,25 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
 
     // Get workspace directory and repo URL for watch details
     let workspace_dir = closest_workspace_dir(&path, false).await.ok();
-    let repo_url = workspace_dir
+
+    // Get workspace_id from config for fetching watches
+    let workspace_id: Option<String> = workspace_dir
         .as_ref()
-        .and_then(|dir| git_info(dir).ok())
-        .and_then(|info| info.origin);
+        .and_then(|dir| stencila_config::config(dir).ok())
+        .and_then(|cfg| cfg.workspace.and_then(|w| w.id));
 
     // Fetch watch details from API
     let watch_details_map: HashMap<String, stencila_cloud::WatchDetailsResponse> =
-        match stencila_cloud::get_watches(repo_url.as_deref()).await {
-            Ok(watches) => watches.into_iter().map(|w| (w.id.clone(), w)).collect(),
-            Err(error) => {
-                tracing::debug!("Failed to fetch watch details from API: {error}");
-                HashMap::new()
+        if let Some(ws_id) = &workspace_id {
+            match stencila_cloud::get_watches(ws_id).await {
+                Ok(watches) => watches.into_iter().map(|w| (w.id.clone(), w)).collect(),
+                Err(error) => {
+                    tracing::debug!("Failed to fetch watch details from API: {error}");
+                    HashMap::new()
+                }
             }
+        } else {
+            HashMap::new()
         };
 
     // Enrich with service information and calculate remote statuses

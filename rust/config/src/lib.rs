@@ -107,9 +107,9 @@ pub(crate) struct ManagedConfigKey {
 /// Registry of configuration keys that should be managed through specific commands
 static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
     ManagedConfigKey {
-        key: "site.id",
+        key: "workspace.id",
         command: "stencila site create",
-        reason: "Site IDs are automatically assigned when creating a site and must be registered with Stencila Cloud.",
+        reason: "Workspace IDs are automatically assigned when creating a workspace and must be registered with Stencila Cloud.",
     },
     ManagedConfigKey {
         key: "site.domain",
@@ -118,10 +118,38 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
     },
 ];
 
+/// Configuration for a Stencila Cloud workspace
+///
+/// Workspaces are the primary entity in Stencila Cloud, representing a
+/// GitHub repository. Sites and watches are scoped under workspaces.
+///
+/// Example:
+/// ```toml
+/// [workspace]
+/// id = "ws3x9k2m7fab"
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct WorkspaceConfig {
+    /// The workspace public ID from Stencila Cloud
+    ///
+    /// This is automatically assigned when a workspace is created via
+    /// `stencila site create` or when pushing to a site for the first time.
+    /// The workspace ID is derived from the GitHub repository URL.
+    #[schemars(regex(pattern = r"^ws[a-z0-9]{10}$"))]
+    pub id: Option<String>,
+}
+
 /// Stencila configuration
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct Config {
+    /// Workspace configuration
+    ///
+    /// Workspaces are the primary entity in Stencila Cloud, representing a
+    /// GitHub repository. Sites and watches are scoped under workspaces.
+    pub workspace: Option<WorkspaceConfig>,
+
     /// Site configuration
     pub site: Option<SiteConfig>,
 
@@ -240,10 +268,12 @@ impl Config {
 
 /// Configuration for a site
 ///
+/// Site settings are associated with a workspace (see `WorkspaceConfig`).
+/// The workspace ID is used to identify the site in Stencila Cloud.
+///
 /// Example:
 /// ```toml
 /// [site]
-/// id = "s123456789"
 /// watch = "wAbCdEfGh1"
 /// domain = "docs.example.org"
 /// root = "docs"
@@ -252,18 +282,12 @@ impl Config {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct SiteConfig {
-    /// The id of the Stencila Site
-    ///
-    /// Returned by Stencila Cloud when a site is created.
-    #[schemars(regex(pattern = r"^s[a-z0-9]{9}$"))]
-    pub id: Option<String>,
-
     /// Watch ID from Stencila Cloud
     ///
     /// If watching is enabled for this site, this field contains the watch ID.
     /// The watch enables unidirectional sync from repository to site - when
     /// changes are pushed to the repository, the site is automatically updated.
-    #[schemars(regex(pattern = r"^w[a-zA-Z0-9]{9}$"))]
+    #[schemars(regex(pattern = r"^wa[a-z0-9]{10}$"))]
     pub watch: Option<String>,
 
     /// Custom domain for the site
@@ -686,7 +710,7 @@ pub struct RemoteWatch {
     /// If this remote is being watched for automatic synchronization, this
     /// field contains the watch ID. Watch configuration (direction, PR mode,
     /// debounce) is stored in Stencila Cloud and queried via the API.
-    #[schemars(regex(pattern = r"^w[a-zA-Z0-9]{9}$"))]
+    #[schemars(regex(pattern = r"^wa[a-z0-9]{10}$"))]
     pub watch: Option<String>,
 }
 

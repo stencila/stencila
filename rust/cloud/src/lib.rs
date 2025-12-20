@@ -17,10 +17,12 @@ mod google;
 mod microsoft;
 pub mod sites;
 mod watch;
+pub mod workspace;
 
 pub use github::get_repo_token;
 pub use sites::AccessMode;
 pub use watch::*;
+pub use workspace::{WorkspaceResponse, create_or_get_workspace, ensure_workspace, get_workspace};
 
 /// The base URL for the Stencila Cloud API
 ///

@@ -38,13 +38,15 @@ pub struct EmailAttachment {
 /// Reference to email attachments for a watch
 #[derive(Debug, Clone)]
 pub struct EmailAttachmentsRef {
+    /// The workspace ID
+    pub workspace_id: String,
     /// The watch ID
     pub watch_id: String,
 }
 
-/// Parse an email attachments URL to extract the watch ID
+/// Parse an email attachments URL to extract the workspace and watch IDs
 ///
-/// Supports format: `https://api.stencila.cloud/v1/watches/{watch_id}/email/attachments`
+/// Supports format: `https://api.stencila.cloud/v1/workspaces/{workspace_id}/watches/{watch_id}/email/attachments`
 pub fn parse_email_attachments_url(url: &Url) -> Result<EmailAttachmentsRef> {
     // Check host - support both production and custom API URLs
     let expected_host = Url::parse(&base_url())
@@ -60,27 +62,32 @@ pub fn parse_email_attachments_url(url: &Url) -> Result<EmailAttachmentsRef> {
         );
     }
 
-    // Parse path segments: ["v1", "watches", "{watch_id}", "email", "attachments"]
+    // Parse path segments: ["v1", "workspaces", "{workspace_id}", "watches", "{watch_id}", "email", "attachments"]
     let segments: Vec<&str> = url
         .path_segments()
         .ok_or_else(|| eyre!("Invalid URL: no path"))?
         .collect();
 
-    if segments.len() < 5
+    if segments.len() < 7
         || segments[0] != "v1"
-        || segments[1] != "watches"
-        || segments[3] != "email"
-        || segments[4] != "attachments"
+        || segments[1] != "workspaces"
+        || segments[3] != "watches"
+        || segments[5] != "email"
+        || segments[6] != "attachments"
     {
         bail!(
-            "Invalid email attachments URL format: {url}. Expected: {}/watches/{{watch_id}}/email/attachments",
+            "Invalid email attachments URL format: {url}. Expected: {}/workspaces/{{workspace_id}}/watches/{{watch_id}}/email/attachments",
             base_url()
         );
     }
 
-    let watch_id = segments[2].to_string();
+    let workspace_id = segments[2].to_string();
+    let watch_id = segments[4].to_string();
 
-    Ok(EmailAttachmentsRef { watch_id })
+    Ok(EmailAttachmentsRef {
+        workspace_id,
+        watch_id,
+    })
 }
 
 /// Check if a URL matches the email attachments pattern
@@ -108,8 +115,9 @@ pub async fn pull(
 
     // Fetch attachments list
     let attachments_url = format!(
-        "{}/watches/{}/email/attachments",
+        "{}/workspaces/{}/watches/{}/email/attachments",
         base_url(),
+        attachments_ref.workspace_id,
         attachments_ref.watch_id
     );
 
@@ -298,8 +306,9 @@ pub async fn pull_all(
 
     // Fetch attachments list (once)
     let attachments_url = format!(
-        "{}/watches/{}/email/attachments",
+        "{}/workspaces/{}/watches/{}/email/attachments",
         base_url(),
+        attachments_ref.workspace_id,
         attachments_ref.watch_id
     );
 
@@ -433,7 +442,7 @@ pub async fn modified_at(url: &Url) -> Result<u64> {
     let attachments_ref = parse_email_attachments_url(url)?;
 
     // Fetch the watch details to get last_remote_received_at
-    let watch = crate::watch::get_watch(&attachments_ref.watch_id).await?;
+    let watch = crate::watch::get_watch(&attachments_ref.workspace_id, &attachments_ref.watch_id).await?;
 
     // Parse last_remote_received_at as a timestamp
     // If not set, return 0
@@ -455,16 +464,17 @@ mod tests {
 
     #[test]
     fn test_parse_email_attachments_url_valid() -> Result<()> {
-        let url = Url::parse("https://api.stencila.cloud/v1/watches/wAbC12345/email/attachments")?;
+        let url = Url::parse("https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments")?;
         let result = parse_email_attachments_url(&url)?;
 
-        assert_eq!(result.watch_id, "wAbC12345");
+        assert_eq!(result.workspace_id, "ws1234567890");
+        assert_eq!(result.watch_id, "wa1234567890");
         Ok(())
     }
 
     #[test]
     fn test_parse_email_attachments_url_invalid_host() -> Result<()> {
-        let url = Url::parse("https://example.com/v1/watches/wAbC12345/email/attachments")?;
+        let url = Url::parse("https://example.com/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments")?;
         let result = parse_email_attachments_url(&url);
         assert!(result.is_err());
         Ok(())
@@ -472,7 +482,7 @@ mod tests {
 
     #[test]
     fn test_parse_email_attachments_url_invalid_path() -> Result<()> {
-        let url = Url::parse("https://api.stencila.cloud/v1/watches/wAbC12345/other")?;
+        let url = Url::parse("https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/other")?;
         let result = parse_email_attachments_url(&url);
         assert!(result.is_err());
         Ok(())
@@ -480,7 +490,7 @@ mod tests {
 
     #[test]
     fn test_matches_url_valid() -> Result<()> {
-        let url = Url::parse("https://api.stencila.cloud/v1/watches/wAbC12345/email/attachments")?;
+        let url = Url::parse("https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments")?;
         assert!(matches_url(&url));
         Ok(())
     }

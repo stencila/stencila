@@ -8,7 +8,7 @@ use std::{
 
 use chrono::Utc;
 use clap::Parser;
-use eyre::{OptionExt, Result, bail, eyre};
+use eyre::{Result, bail, eyre};
 use pathdiff::diff_paths;
 use tokio::fs::remove_dir_all;
 use url::Url;
@@ -103,7 +103,7 @@ pub struct Cli {
     /// files are generated in memory without being written to disk.
     ///
     /// The directory structure mirrors the R2 bucket layout:
-    /// {output_dir}/{site_id}/{branch_slug}/{path}
+    /// {output_dir}/{workspace_id}/{branch_slug}/{path}
     #[arg(long, value_name = "DIR", num_args = 0..=1, default_missing_value = "", conflicts_with = "watch")]
     dry_run: Option<String>,
 
@@ -730,9 +730,9 @@ impl Cli {
 
             // Get git repository information
             let git_info = git_info(path)?;
-            let repo_url = git_info
-                .origin
-                .ok_or_eyre("Repository has no origin remote")?;
+
+            // Ensure workspace exists to get workspace_id
+            let (workspace_id, _) = stencila_cloud::ensure_workspace(path).await?;
 
             // Verify tracking information exists
             let Some(..) = doc.tracking().await? else {
@@ -750,13 +750,12 @@ impl Cli {
             // Call Cloud API to create watch
             let request = WatchRequest {
                 remote_url: url.to_string(),
-                repo_url,
                 file_path,
                 direction: self.direction.map(|dir| dir.to_string()),
                 pr_mode: self.pr_mode.map(|mode| mode.to_string()),
                 debounce_seconds: self.debounce_seconds,
             };
-            let response = create_watch(request).await?;
+            let response = create_watch(&workspace_id, request).await?;
 
             // Update stencila.toml with watch ID
             stencila_config::config_update_remote_watch(
@@ -1002,7 +1001,7 @@ impl Cli {
         path: &Path,
         dry_run_opts: Option<stencila_codecs::PushDryRunOptions>,
     ) -> Result<()> {
-        use stencila_cloud::sites::ensure_site;
+        use stencila_cloud::ensure_workspace;
         use stencila_codec_site::PushProgress;
 
         let path_display = path.display();
@@ -1012,8 +1011,8 @@ impl Cli {
             bail!("Watch is not supported for directory push. Sites are write-only remotes.");
         }
 
-        // Ensure site configuration exists
-        let (site_id, _) = ensure_site(path).await?;
+        // Ensure workspace configuration exists
+        let (workspace_id, _) = ensure_workspace(path).await?;
 
         // Set up dry-run path
         let dry_run_path = dry_run_opts
@@ -1072,7 +1071,7 @@ impl Cli {
             }
         });
 
-        message!("☁️ Pushing directory `{path_display}` to site `{site_id}`");
+        message!("☁️ Pushing directory `{path_display}` to workspace site");
 
         // Determine dry-run state
         let is_dry_run = dry_run_opts.is_some();
@@ -1080,7 +1079,7 @@ impl Cli {
         // Call push_directory with a decoder function
         let result = stencila_codec_site::push_directory(
             path,
-            &site_id,
+            &workspace_id,
             None, // Use current branch
             self.force,
             is_dry_run,
@@ -1134,7 +1133,7 @@ impl Cli {
         }
 
         if !is_dry_run {
-            let url = format!("https://{site_id}.stencila.site");
+            let url = format!("https://{workspace_id}.stencila.site");
 
             update_remote_timestamp(
                 path,

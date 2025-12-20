@@ -1,52 +1,63 @@
-use eyre::{Result, bail};
+//! Stencila Watches API client
+//!
+//! Functions for interacting with Stencila Cloud watches.
+//! Watches sync files between repositories and external providers.
+//! Watches are scoped under workspaces.
+
+use eyre::Result;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::Display;
 
-use crate::{ErrorResponse, base_url, client, process_response};
+use crate::{base_url, check_response, client, process_response};
 
 /// Request to create a watch for a document
+///
+/// Note: The repository is determined by the workspace context,
+/// so repo_url is no longer needed in the request.
 #[skip_serializing_none]
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WatchRequest {
-    /// The GitHub repository URL
-    pub repo_url: String,
-
     /// The file path within the repository
     pub file_path: String,
 
-    /// The remote URL (Google Docs or M365)
+    /// The remote URL (Google Docs, M365, or Stencila Site)
     pub remote_url: String,
 
-    /// The sync direction
+    /// The sync direction: "bi", "from-remote", or "to-remote"
     pub direction: Option<String>,
 
-    /// The PR mode (draft or ready)
+    /// The PR mode: "draft" or "ready"
     pub pr_mode: Option<String>,
 
-    /// The debounce time in seconds
+    /// The debounce time in seconds (10-86400)
     pub debounce_seconds: Option<u64>,
 }
 
 /// Response from creating a watch
-///
-/// Note: other fields are available in response but are not currently necessary
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WatchResponse {
-    /// The watch id
+    /// The watch id (public ID like "wa7x2k9m3fab")
     pub id: String,
 }
 
 /// Create a watch for a document
 ///
 /// This registers a watch with Stencila Cloud that will automatically sync
-/// changes between a remote (Google Docs or M365) and a GitHub repository.
-pub async fn create_watch(request: WatchRequest) -> Result<WatchResponse> {
+/// changes between a remote (Google Docs, M365, or Stencila Site) and a GitHub repository.
+///
+/// # Arguments
+///
+/// * `workspace_id` - The workspace public ID (e.g., "ws3x9k2m7fab")
+/// * `request` - The watch configuration
+#[tracing::instrument]
+pub async fn create_watch(workspace_id: &str, request: WatchRequest) -> Result<WatchResponse> {
     let client = client().await?;
-    let url = format!("{}/watches", base_url());
+    let url = format!("{}/workspaces/{}/watches", base_url(), workspace_id);
 
+    tracing::debug!("Creating watch for file {} in workspace {}", request.file_path, workspace_id);
     let response = client.post(&url).json(&request).send().await?;
 
     process_response(response).await
@@ -55,18 +66,20 @@ pub async fn create_watch(request: WatchRequest) -> Result<WatchResponse> {
 /// Delete a watch
 ///
 /// This removes a watch from Stencila Cloud, stopping automatic sync.
-pub async fn delete_watch(watch_id: &str) -> Result<()> {
+///
+/// # Arguments
+///
+/// * `workspace_id` - The workspace public ID
+/// * `watch_id` - The watch public ID
+#[tracing::instrument]
+pub async fn delete_watch(workspace_id: &str, watch_id: &str) -> Result<()> {
     let client = client().await?;
-    let url = format!("{}/watches/{}", base_url(), watch_id);
+    let url = format!("{}/workspaces/{}/watches/{}", base_url(), workspace_id, watch_id);
 
+    tracing::debug!("Deleting watch {watch_id} from workspace {workspace_id}");
     let response = client.delete(&url).send().await?;
 
-    if !response.status().is_success() {
-        let error_resp = response.json::<ErrorResponse>().await?;
-        bail!("Failed to delete watch: {}", error_resp.error);
-    }
-
-    Ok(())
+    check_response(response).await
 }
 
 /// Direction status for a watch
@@ -98,8 +111,7 @@ pub struct WatchDetailsResponse {
     pub created_by: String,
     pub created_at: String,
     pub updated_at: String,
-    pub user_id: Option<String>,
-    pub org_id: Option<String>,
+    pub workspace_id: Option<u64>,
     pub repo_url: String,
     pub file_path: String,
     pub remote_url: String,
@@ -124,29 +136,35 @@ pub struct WatchDetailsResponse {
 /// Get a single watch by ID
 ///
 /// This fetches detailed status information for a specific watch from Stencila Cloud.
-pub async fn get_watch(watch_id: &str) -> Result<WatchDetailsResponse> {
+///
+/// # Arguments
+///
+/// * `workspace_id` - The workspace public ID
+/// * `watch_id` - The watch public ID
+#[tracing::instrument]
+pub async fn get_watch(workspace_id: &str, watch_id: &str) -> Result<WatchDetailsResponse> {
     let client = client().await?;
-    let url = format!("{}/watches/{}", base_url(), watch_id);
+    let url = format!("{}/workspaces/{}/watches/{}", base_url(), workspace_id, watch_id);
 
+    tracing::debug!("Getting watch {watch_id} from workspace {workspace_id}");
     let response = client.get(&url).send().await?;
 
     process_response(response).await
 }
 
-/// Get all watches for the authenticated user
+/// Get all watches for a workspace
 ///
-/// This fetches detailed status information for all watches from Stencila Cloud.
-/// Optionally filter by repository URL to reduce the response size.
-pub async fn get_watches(repo_url: Option<&str>) -> Result<Vec<WatchDetailsResponse>> {
+/// This fetches detailed status information for all watches in a workspace.
+///
+/// # Arguments
+///
+/// * `workspace_id` - The workspace public ID
+#[tracing::instrument]
+pub async fn get_watches(workspace_id: &str) -> Result<Vec<WatchDetailsResponse>> {
     let client = client().await?;
-    let base = format!("{}/watches", base_url());
+    let url = format!("{}/workspaces/{}/watches", base_url(), workspace_id);
 
-    let url = if let Some(repo) = repo_url {
-        format!("{}?repoUrl={}", base, urlencoding::encode(repo))
-    } else {
-        base
-    };
-
+    tracing::debug!("Listing watches for workspace {workspace_id}");
     let response = client.get(&url).send().await?;
 
     process_response(response).await

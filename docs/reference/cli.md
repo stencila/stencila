@@ -1620,7 +1620,7 @@ Examples
 
    Instead of uploading to the remote site, write the generated files to a local directory for inspection. If no directory is specified, files are generated in memory without being written to disk.
 
-   The directory structure mirrors the R2 bucket layout: {output_dir}/{site_id}/{branch_slug}/{path}
+   The directory structure mirrors the R2 bucket layout: {output_dir}/{workspace_id}/{branch_slug}/{path}
 * `--spread <MODE>` — Enable spread push mode for multi-variant execution
 
    Spread mode allows pushing multiple variants of a document to separate remote documents, each with different parameter values. Supports: - grid: Cartesian product of all parameter values (default) - zip: Positional pairing of values (all must have same length) - cases: Explicit parameter sets via --case

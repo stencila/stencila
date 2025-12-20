@@ -1,11 +1,11 @@
 use std::{path::PathBuf, str::FromStr};
 
 use clap::Parser;
-use eyre::{OptionExt, Result, bail, eyre};
+use eyre::{Result, bail, eyre};
 
 use pathdiff::diff_paths;
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_cloud::{WatchRequest, create_watch};
+use stencila_cloud::{WatchRequest, create_watch, ensure_workspace};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
 use stencila_config::{config_update_remote_watch, config_update_site_watch};
 use stencila_dirs::closest_workspace_dir;
@@ -113,11 +113,11 @@ impl Cli {
         // Validate file exists on the default branch (also validates it's in a git repo)
         validate_file_on_default_branch(&self.path)?;
 
+        // Ensure workspace exists (required for creating watches)
+        let (workspace_id, _) = ensure_workspace(&self.path).await?;
+
         // Get git repository information
         let git_info = git_info(&self.path)?;
-        let repo_url = git_info
-            .origin
-            .ok_or_eyre("Repository has no origin remote")?;
 
         let no_remotes = || {
             message!(
@@ -219,7 +219,6 @@ impl Cli {
         // Create watch request
         let request = WatchRequest {
             remote_url: remote_info.url.to_string(),
-            repo_url,
             file_path,
             direction: self.direction.map(|dir| dir.to_string()),
             pr_mode: self.pr_mode.map(|mode| mode.to_string()),
@@ -227,7 +226,7 @@ impl Cli {
         };
 
         // Call Cloud API to create watch
-        let response = create_watch(request).await?;
+        let response = create_watch(&workspace_id, request).await?;
 
         // Update stencila.toml with watch ID
         config_update_remote_watch(
@@ -260,12 +259,10 @@ impl Cli {
     /// Note: This function assumes the caller has already verified that the path
     /// is within a configured site root.
     async fn watch_site(&self, config: &stencila_config::Config) -> Result<()> {
-        use stencila_cloud::sites::ensure_site;
-
         let path_display = self.path.display();
 
-        // Ensure site exists (creates if necessary)
-        let (site_id, _) = ensure_site(&self.path).await?;
+        // Ensure workspace exists (creates if necessary, workspace ID is also site ID)
+        let (workspace_id, _) = ensure_workspace(&self.path).await?;
 
         // Check if site is already being watched
         if let Some(site_config) = &config.site
@@ -277,9 +274,6 @@ impl Cli {
 
         // Get git repository information
         let git_info = git_info(&self.path)?;
-        let repo_url = git_info
-            .origin
-            .ok_or_eyre("Repository has no origin remote (required to setup a watch)")?;
 
         // Get directory path relative to repo root (must end with / for API)
         let dir_path = git_info.path.unwrap_or_else(|| {
@@ -296,7 +290,7 @@ impl Cli {
         };
 
         // Build the site URL
-        let site_url = format!("https://{site_id}.stencila.site");
+        let site_url = format!("https://{workspace_id}.stencila.site");
 
         // Site watches are always to-remote (unidirectional)
         let direction = self.direction.unwrap_or(WatchDirection::ToRemote);
@@ -309,7 +303,6 @@ impl Cli {
         // Create watch request
         let request = WatchRequest {
             remote_url: site_url.clone(),
-            repo_url,
             file_path: dir_path,
             direction: Some(WatchDirection::ToRemote.to_string()),
             pr_mode: self.pr_mode.map(|mode| mode.to_string()),
@@ -317,7 +310,7 @@ impl Cli {
         };
 
         // Call Cloud API to create watch
-        let response = create_watch(request).await?;
+        let response = create_watch(&workspace_id, request).await?;
 
         // Update stencila.toml with watch ID under [site]
         config_update_site_watch(&self.path, Some(response.id.to_string()))?;

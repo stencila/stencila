@@ -159,6 +159,22 @@ pub(crate) async fn unwatch_doc(
         })));
     }
 
+    // Get workspace ID for delete_watch
+    progress.send((40, Some("resolving workspace".to_string()))).ok();
+    let (workspace_id, _) = match stencila_cloud::ensure_workspace(&path).await {
+        Ok(result) => result,
+        Err(error) => {
+            progress.send((100, None)).ok();
+            client
+                .show_message(ShowMessageParams {
+                    typ: MessageType::ERROR,
+                    message: format!("Failed to get workspace: {error}"),
+                })
+                .ok();
+            return Ok(None);
+        }
+    };
+
     // Call Cloud API to delete watch
     progress.send((50, Some("deleting watch".to_string()))).ok();
     let watch_id = remote_info
@@ -166,7 +182,7 @@ pub(crate) async fn unwatch_doc(
         .as_ref()
         .ok_or_else(|| internal_error("No watch ID found"))?;
 
-    if let Err(error) = delete_watch(watch_id).await {
+    if let Err(error) = delete_watch(&workspace_id, watch_id).await {
         progress.send((100, None)).ok();
         client
             .show_message(ShowMessageParams {

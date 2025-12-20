@@ -17,7 +17,7 @@ use serde_with::skip_serializing_none;
 use tokio::fs::read;
 use url::Url;
 
-use stencila_config::{ConfigTarget, config, config_set, config_unset};
+use stencila_config::{ConfigTarget, config, config_unset};
 
 use crate::{api_token, base_url, check_response, process_response};
 
@@ -57,21 +57,15 @@ impl std::fmt::Display for AccessMode {
 ///
 /// Returns the custom domain URL if a domain is provided, otherwise returns
 /// the default stencila.site subdomain URL.
-pub fn default_site_url(site_id: &str, domain: Option<&str>) -> String {
+pub fn default_site_url(workspace_id: &str, domain: Option<&str>) -> String {
     if let Some(domain) = domain {
         format!("https://{domain}")
     } else {
-        format!("https://{}.stencila.site", site_id)
+        format!("https://{}.stencila.site", workspace_id)
     }
 }
 
-/// Response from POST /sites
-#[derive(Debug, Deserialize)]
-struct CreateResponse {
-    id: String,
-}
-
-/// Response from GET /sites/{id}
+/// Response from GET /workspaces/{id}/site
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SiteDetails {
@@ -86,7 +80,7 @@ pub struct SiteDetails {
     pub access_updated_at: Option<String>,
 }
 
-/// Response from POST /sites/{id}/domain
+/// Response from POST /workspaces/{id}/site/domain
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DomainSetResponse {
@@ -99,7 +93,7 @@ pub struct DomainSetResponse {
     pub instructions: String,
 }
 
-/// Response from GET /sites/{id}/domain/status
+/// Response from GET /workspaces/{id}/site/domain/status
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DomainStatusResponse {
@@ -114,62 +108,19 @@ pub struct DomainStatusResponse {
     pub message: String,
 }
 
-/// Create a new site
-#[tracing::instrument]
-pub async fn create_site() -> Result<String> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
-
-    tracing::debug!("Creating Stencila Site");
-    let client = Client::new();
-    let response = client
-        .post(format!("{}/sites", base_url()))
-        .bearer_auth(token)
-        .send()
-        .await?;
-
-    let init_response: CreateResponse = process_response(response).await?;
-
-    Ok(init_response.id)
-}
-
-/// Ensure a site configuration exists, creating it if necessary
-///
-/// Returns a tuple of (site_id, already_existed) where `already_existed` is true
-/// if the site configuration was already present.
-pub async fn ensure_site(path: &Path) -> Result<(String, bool)> {
-    // Check if site config already exists
-    let cfg = config(path)?;
-
-    if let Some(site) = cfg.site
-        && let Some(id) = site.id
-    {
-        return Ok((id, true));
-    }
-
-    // Need to create new configuration
-    tracing::info!("No site id found, creating new Stencila Site");
-    let id = create_site().await?;
-
-    // Write to config
-    config_set("site.id", &id, ConfigTarget::Nearest)?;
-
-    Ok((id, false))
-}
-
 /// Get details for a site from Stencila Cloud
 ///
 /// Fetches the site details including domain, ownership, access restrictions,
 /// and timestamps.
 #[tracing::instrument]
-pub async fn get_site(site_id: &str) -> Result<SiteDetails> {
+pub async fn get_site(workspace_id: &str) -> Result<SiteDetails> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Fetching site details for {site_id}");
+    tracing::debug!("Fetching site details for {workspace_id}");
     let client = Client::new();
     let response = client
-        .get(format!("{}/sites/{site_id}", base_url()))
+        .get(format!("{}/workspaces/{workspace_id}/site", base_url()))
         .bearer_auth(token)
         .send()
         .await?;
@@ -179,7 +130,7 @@ pub async fn get_site(site_id: &str) -> Result<SiteDetails> {
 
 /// Upload a single file to the site
 #[tracing::instrument]
-pub async fn upload_file(site_id: &str, branch_slug: &str, path: &str, file: &Path) -> Result<()> {
+pub async fn upload_file(workspace_id: &str, branch_slug: &str, path: &str, file: &Path) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
@@ -199,7 +150,7 @@ pub async fn upload_file(site_id: &str, branch_slug: &str, path: &str, file: &Pa
     let client = Client::new();
     let response = client
         .put(format!(
-            "{}/sites/{site_id}/{branch_slug}/{path}",
+            "{}/workspaces/{workspace_id}/site/branches/{branch_slug}/{path}",
             base_url()
         ))
         .bearer_auth(token)
@@ -254,7 +205,7 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 /// * `branch_slug` - The branch slug (e.g., "main", "feature-foo")
 /// * `paths` - List of storage paths to get ETags for
 ///
@@ -264,7 +215,7 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
 /// Paths that don't exist on the server are omitted from the response.
 #[tracing::instrument]
 pub async fn get_etags(
-    site_id: &str,
+    workspace_id: &str,
     branch_slug: &str,
     paths: Vec<String>,
 ) -> Result<HashMap<String, String>> {
@@ -276,7 +227,7 @@ pub async fn get_etags(
     let client = Client::new();
     let response = client
         .post(format!(
-            "{}/sites/{site_id}/{branch_slug}/etags",
+            "{}/workspaces/{workspace_id}/site/branches/{branch_slug}/etags",
             base_url()
         ))
         .bearer_auth(token)
@@ -313,7 +264,7 @@ pub struct ReconcileRequest {
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 /// * `repo_url` - The GitHub repository URL (empty string if not available)
 /// * `branch_name` - The branch name (e.g., "main", "feature/foo")
 /// * `branch_slug` - The branch slug (e.g., "main", "feature-foo")
@@ -321,7 +272,7 @@ pub struct ReconcileRequest {
 /// * `current_files` - List of filenames (without prefix) currently at this location
 #[tracing::instrument]
 pub async fn reconcile_prefix(
-    site_id: &str,
+    workspace_id: &str,
     repo_url: &str,
     branch_name: &str,
     branch_slug: &str,
@@ -353,7 +304,7 @@ pub async fn reconcile_prefix(
     let client = Client::new();
     let response = client
         .post(format!(
-            "{}/sites/{site_id}/{branch_slug}/reconcile/{prefix}",
+            "{}/workspaces/{workspace_id}/site/branches/{branch_slug}/reconcile/{prefix}",
             base_url()
         ))
         .bearer_auth(token)
@@ -364,38 +315,38 @@ pub async fn reconcile_prefix(
     check_response(response).await
 }
 
-/// Delete a site from Stencila Cloud and remove local configuration
+/// Delete a workspace from Stencila Cloud and remove local configuration
 ///
 /// This function will:
-/// 1. Read the site configuration to get the site ID
-/// 2. Call DELETE /sites/{id} to remove the site from Stencila Cloud
-/// 3. Remove the site.id from the local config
+/// 1. Read the workspace configuration to get the workspace ID
+/// 2. Call DELETE /workspaces/{id} to remove the workspace from Stencila Cloud
+/// 3. Remove the workspace.id from the local config
 ///
-/// Returns the site ID that was deleted so that callers can perform additional
+/// Returns the workspace ID that was deleted so that callers can perform additional
 /// cleanup (e.g., removing remote tracking entries).
 ///
 /// Note: This function does not prompt for user confirmation. Callers should
 /// handle confirmation before calling this function.
 #[tracing::instrument]
-pub async fn delete_site(path: &Path) -> Result<String> {
-    // Read existing site config to get the site ID
+pub async fn delete_workspace(path: &Path) -> Result<String> {
+    // Read existing workspace config to get the workspace ID
     let cfg = config(path)?;
-    let site = cfg
-        .site
-        .ok_or_else(|| eyre!("No site configured for this workspace"))?;
-    let site_id = site
+    let workspace = cfg
+        .workspace
+        .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
+    let workspace_id = workspace
         .id
-        .ok_or_else(|| eyre!("Site ID not set in configuration"))?;
+        .ok_or_else(|| eyre!("Workspace ID not set in configuration"))?;
 
     // Get API token
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    // Call DELETE /sites/{id}
-    tracing::debug!("Deleting Stencila Site");
+    // Call DELETE /workspaces/{id}
+    tracing::debug!("Deleting Stencila Workspace");
     let client = Client::new();
     let response = client
-        .delete(format!("{}/sites/{}", base_url(), site_id))
+        .delete(format!("{}/workspaces/{}", base_url(), workspace_id))
         .bearer_auth(token)
         .send()
         .await?;
@@ -403,27 +354,27 @@ pub async fn delete_site(path: &Path) -> Result<String> {
     check_response(response).await?;
 
     // Remove from config
-    config_unset("site.id", ConfigTarget::Nearest)?;
+    config_unset("workspace.id", ConfigTarget::Nearest)?;
 
-    tracing::debug!("Site deleted successfully");
+    tracing::debug!("Workspace deleted successfully");
 
-    Ok(site_id)
+    Ok(workspace_id)
 }
 
 /// Update site access settings
 ///
-/// This function sends a PATCH request to `/sites/{site_id}/access` with
+/// This function sends a PATCH request to `/workspaces/{workspace_id}/site/access` with
 /// optional fields to update access restrictions, password, and main branch settings.
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 /// * `access_mode` - Optional access mode to set
 /// * `password` - Optional password to set (use Some(None) to clear password)
 /// * `access_restrict_main` - Optional flag for whether main/master branches are restricted
 #[tracing::instrument(skip(password))]
 pub async fn update_site_access(
-    site_id: &str,
+    workspace_id: &str,
     access_mode: Option<AccessMode>,
     password: Option<Option<&str>>,
     access_restrict_main: Option<bool>,
@@ -431,7 +382,7 @@ pub async fn update_site_access(
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Updating access settings for site {site_id}");
+    tracing::debug!("Updating access settings for site {workspace_id}");
 
     let mut json = serde_json::Map::new();
 
@@ -461,7 +412,7 @@ pub async fn update_site_access(
 
     let client = Client::new();
     let response = client
-        .patch(format!("{}/sites/{site_id}/access", base_url()))
+        .patch(format!("{}/workspaces/{workspace_id}/site/access", base_url()))
         .bearer_auth(token)
         .json(&json)
         .send()
@@ -472,28 +423,28 @@ pub async fn update_site_access(
 
 /// Set password protection for a site
 ///
-/// This function sends a PUT request to `/sites/{site_id}/password` with
+/// This function sends a PUT request to `/workspaces/{workspace_id}/site/password` with
 /// the password and whether it should apply to the main branch.
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 /// * `password` - The password to set
 /// * `password_for_main` - Whether the password applies to the main branch (true by default)
 #[tracing::instrument(skip(password))]
 pub async fn set_site_password(
-    site_id: &str,
+    workspace_id: &str,
     password: &str,
     password_for_main: bool,
 ) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Setting password for site {site_id}");
+    tracing::debug!("Setting password for site {workspace_id}");
 
     let client = Client::new();
     let response = client
-        .put(format!("{}/sites/{site_id}/password", base_url()))
+        .put(format!("{}/workspaces/{workspace_id}/site/password", base_url()))
         .bearer_auth(token)
         .json(&serde_json::json!({
             "password": password,
@@ -507,21 +458,21 @@ pub async fn set_site_password(
 
 /// Remove password protection from a site
 ///
-/// This function sends a DELETE request to `/sites/{site_id}/password`.
+/// This function sends a DELETE request to `/workspaces/{workspace_id}/site/password`.
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 #[tracing::instrument]
-pub async fn remove_site_password(site_id: &str) -> Result<()> {
+pub async fn remove_site_password(workspace_id: &str) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Removing password from site {site_id}");
+    tracing::debug!("Removing password from site {workspace_id}");
 
     let client = Client::new();
     let response = client
-        .delete(format!("{}/sites/{site_id}/password", base_url()))
+        .delete(format!("{}/workspaces/{workspace_id}/site/password", base_url()))
         .bearer_auth(token)
         .send()
         .await?;
@@ -531,19 +482,19 @@ pub async fn remove_site_password(site_id: &str) -> Result<()> {
 
 /// Set a custom domain for a site
 ///
-/// This function sends a POST request to `/sites/{site_id}/domain` to configure
+/// This function sends a POST request to `/workspaces/{workspace_id}/site/domain` to configure
 /// a custom domain. The API will return CNAME configuration instructions.
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 /// * `domain` - The custom domain to set (e.g., "example.com")
 #[tracing::instrument]
-pub async fn set_site_domain(site_id: &str, domain: &str) -> Result<DomainSetResponse> {
+pub async fn set_site_domain(workspace_id: &str, domain: &str) -> Result<DomainSetResponse> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Setting domain for site {site_id}");
+    tracing::debug!("Setting domain for site {workspace_id}");
 
     let json = serde_json::json!({
         "domain": domain
@@ -551,7 +502,7 @@ pub async fn set_site_domain(site_id: &str, domain: &str) -> Result<DomainSetRes
 
     let client = Client::new();
     let response = client
-        .post(format!("{}/sites/{site_id}/domain", base_url()))
+        .post(format!("{}/workspaces/{workspace_id}/site/domain", base_url()))
         .bearer_auth(token)
         .json(&json)
         .send()
@@ -562,22 +513,22 @@ pub async fn set_site_domain(site_id: &str, domain: &str) -> Result<DomainSetRes
 
 /// Get the status of a custom domain
 ///
-/// This function sends a GET request to `/sites/{site_id}/domain/status` to check
+/// This function sends a GET request to `/workspaces/{workspace_id}/site/domain/status` to check
 /// the current status of domain configuration, CNAME setup, and SSL provisioning.
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 #[tracing::instrument]
-pub async fn get_site_domain_status(site_id: &str) -> Result<DomainStatusResponse> {
+pub async fn get_site_domain_status(workspace_id: &str) -> Result<DomainStatusResponse> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Getting domain status for site {site_id}");
+    tracing::debug!("Getting domain status for site {workspace_id}");
 
     let client = Client::new();
     let response = client
-        .get(format!("{}/sites/{site_id}/domain/status", base_url()))
+        .get(format!("{}/workspaces/{workspace_id}/site/domain/status", base_url()))
         .bearer_auth(token)
         .send()
         .await?;
@@ -587,22 +538,22 @@ pub async fn get_site_domain_status(site_id: &str) -> Result<DomainStatusRespons
 
 /// Remove the custom domain from a site
 ///
-/// This function sends a DELETE request to `/sites/{site_id}/domain` to remove
+/// This function sends a DELETE request to `/workspaces/{workspace_id}/site/domain` to remove
 /// the custom domain configuration.
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 #[tracing::instrument]
-pub async fn delete_site_domain(site_id: &str) -> Result<()> {
+pub async fn delete_site_domain(workspace_id: &str) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Deleting domain for site {site_id}");
+    tracing::debug!("Deleting domain for site {workspace_id}");
 
     let client = Client::new();
     let response = client
-        .delete(format!("{}/sites/{site_id}/domain", base_url()))
+        .delete(format!("{}/workspaces/{workspace_id}/site/domain", base_url()))
         .bearer_auth(token)
         .send()
         .await?;
@@ -629,22 +580,22 @@ pub struct BranchInfo {
 
 /// List all deployed branches for a site
 ///
-/// This function sends a GET request to `/sites/{site_id}/branches` to retrieve
+/// This function sends a GET request to `/workspaces/{workspace_id}/site/branches` to retrieve
 /// information about all branches that have been deployed to the site.
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 #[tracing::instrument]
-pub async fn list_site_branches(site_id: &str) -> Result<Vec<BranchInfo>> {
+pub async fn list_site_branches(workspace_id: &str) -> Result<Vec<BranchInfo>> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Listing branches for site {site_id}");
+    tracing::debug!("Listing branches for site {workspace_id}");
 
     let client = Client::new();
     let response = client
-        .get(format!("{}/sites/{site_id}/branches", base_url()))
+        .get(format!("{}/workspaces/{workspace_id}/site/branches", base_url()))
         .bearer_auth(token)
         .send()
         .await?;
@@ -654,7 +605,7 @@ pub async fn list_site_branches(site_id: &str) -> Result<Vec<BranchInfo>> {
 
 /// Delete a branch from a site
 ///
-/// This function sends a DELETE request to `/sites/{site_id}/branches/{branch_slug}`
+/// This function sends a DELETE request to `/workspaces/{workspace_id}/site/branches/{branch_slug}`
 /// to remove all files for a specific branch. The operation is asynchronous - a
 /// workflow is triggered and files are deleted in the background.
 ///
@@ -662,19 +613,19 @@ pub async fn list_site_branches(site_id: &str) -> Result<Vec<BranchInfo>> {
 ///
 /// # Arguments
 ///
-/// * `site_id` - The site identifier
+/// * `workspace_id` - The site identifier
 /// * `branch_slug` - The branch name to delete
 #[tracing::instrument]
-pub async fn delete_site_branch(site_id: &str, branch_slug: &str) -> Result<()> {
+pub async fn delete_site_branch(workspace_id: &str, branch_slug: &str) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Deleting branch {branch_slug} for site {site_id}");
+    tracing::debug!("Deleting branch {branch_slug} for site {workspace_id}");
 
     let client = Client::new();
     let response = client
         .delete(format!(
-            "{}/sites/{site_id}/branches/{branch_slug}",
+            "{}/workspaces/{workspace_id}/site/branches/{branch_slug}",
             base_url()
         ))
         .bearer_auth(token)

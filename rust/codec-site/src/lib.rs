@@ -15,7 +15,8 @@ use tempfile::TempDir;
 use tokio::fs::{copy, create_dir_all, metadata, read, read_dir, write};
 use url::Url;
 
-use stencila_cloud::sites::{ensure_site, get_etags, last_modified, reconcile_prefix, upload_file};
+use stencila_cloud::sites::{get_etags, last_modified, reconcile_prefix, upload_file};
+use stencila_cloud::ensure_workspace;
 use stencila_codec::{
     Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_schema::Node,
 };
@@ -379,7 +380,7 @@ pub fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) 
 /// // https://siteid.stencila.site/test/ -> https://feature-foo--siteid.stencila.site/test/
 /// ```
 pub fn browseable_url(canonical: &Url, path: Option<&Path>) -> Result<Url> {
-    // Extract site_id from canonical URL host
+    // Extract workspace_id from canonical URL host
     let host = canonical
         .host_str()
         .ok_or_else(|| eyre!("Invalid URL: no host"))?;
@@ -580,7 +581,7 @@ fn find_route_config(
 ///
 /// Returns information about the generated file if in dry-run mode.
 async fn handle_redirect_route(
-    site_id: &str,
+    workspace_id: &str,
     branch_slug: &str,
     route: &str,
     redirect: &RouteRedirect,
@@ -612,7 +613,7 @@ async fn handle_redirect_route(
     let temp_redirect = temp_dir.path().join(REDIRECT_FILENAME);
     write(&temp_redirect, &redirect_content).await?;
 
-    let full_storage_path = format!("{site_id}/{branch_slug}/{storage_path}");
+    let full_storage_path = format!("{workspace_id}/{branch_slug}/{storage_path}");
     let file_size = redirect_content.len() as u64;
 
     if is_dry_run {
@@ -644,7 +645,7 @@ async fn handle_redirect_route(
         }))
     } else {
         // Normal mode: upload to R2
-        upload_file(site_id, branch_slug, &storage_path, &temp_redirect).await?;
+        upload_file(workspace_id, branch_slug, &storage_path, &temp_redirect).await?;
 
         tracing::info!(
             "Uploaded redirect from {} to {} (status {})",
@@ -820,8 +821,8 @@ pub async fn push(
     let stencila_dir = closest_stencila_dir(&start_path, true).await?;
     let workspace_dir = workspace_dir(&stencila_dir)?;
 
-    // Ensure site configuration exists
-    let (site_id, _) = ensure_site(&start_path).await?;
+    // Ensure workspace configuration exists (workspace ID is also the site ID)
+    let (workspace_id, _) = ensure_workspace(&start_path).await?;
 
     // Initialize dry-run tracking
     let mut dry_run_files = Vec::new();
@@ -838,7 +839,7 @@ pub async fn push(
         format!("{}://{}", url.scheme(), url.host_str().unwrap_or("unknown"))
     } else {
         // Default to the stencila.site subdomain
-        format!("https://{site_id}.stencila.site")
+        format!("https://{workspace_id}.stencila.site")
     };
 
     // Create temporary directory for HTML and extracted and collected media
@@ -890,7 +891,7 @@ pub async fn push(
         {
             // Handle redirect route - upload .redirect file and return early
             let dry_run_file = handle_redirect_route(
-                &site_id,
+                &workspace_id,
                 &branch_slug,
                 &route_path,
                 redirect,
@@ -946,7 +947,7 @@ pub async fn push(
             if is_dry_run {
                 // Dry-run mode: write media files to local directory if specified
                 for (storage_path, file_path) in &media_files {
-                    let full_storage_path = format!("{site_id}/{branch_slug}/{storage_path}");
+                    let full_storage_path = format!("{workspace_id}/{branch_slug}/{storage_path}");
                     let metadata = metadata(file_path).await?;
 
                     let local_path = if let Some(output_dir) = &dry_run_output_dir {
@@ -971,7 +972,7 @@ pub async fn push(
             } else {
                 // Normal mode: upload to R2
                 let upload_futures = media_files.iter().map(|(storage_path, file_path)| {
-                    upload_file(&site_id, &branch_slug, storage_path, file_path)
+                    upload_file(&workspace_id, &branch_slug, storage_path, file_path)
                 });
                 try_join_all(upload_futures).await?;
             }
@@ -992,7 +993,7 @@ pub async fn push(
 
     // Upload HTML (with compression)
     let html_metadata = metadata(&temp_html).await?;
-    let full_html_path = format!("{site_id}/{branch_slug}/{storage_path}.gz");
+    let full_html_path = format!("{workspace_id}/{branch_slug}/{storage_path}.gz");
 
     if is_dry_run {
         // Dry-run mode: write HTML file to local directory if specified
@@ -1030,7 +1031,7 @@ pub async fn push(
         // Skip reconciliation in dry-run mode
     } else {
         // Normal mode: upload to R2
-        upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
+        upload_file(&workspace_id, &branch_slug, &storage_path, &temp_html).await?;
 
         // Get repo URL for PR comments
         let repo_url = git_info(&start_path)
@@ -1040,7 +1041,7 @@ pub async fn push(
 
         // Reconcile media files at this route to clean up orphaned files
         reconcile_prefix(
-            &site_id,
+            &workspace_id,
             &repo_url,
             &branch_name,
             &branch_slug,
@@ -1077,7 +1078,7 @@ pub async fn push(
             for (route_path, target) in routes {
                 if let Some(redirect) = target.redirect() {
                     let dry_run_file = handle_redirect_route(
-                        &site_id,
+                        &workspace_id,
                         &branch_slug,
                         route_path,
                         redirect,
@@ -1136,8 +1137,8 @@ pub async fn push_with_route(
     let stencila_dir = closest_stencila_dir(&start_path, true).await?;
     let _workspace_dir = workspace_dir(&stencila_dir)?;
 
-    // Ensure site configuration exists
-    let (site_id, _) = ensure_site(&start_path).await?;
+    // Ensure workspace configuration exists (workspace ID is also the site ID)
+    let (workspace_id, _) = ensure_workspace(&start_path).await?;
 
     // Initialize dry-run tracking
     let mut dry_run_files = Vec::new();
@@ -1149,7 +1150,7 @@ pub async fn push_with_route(
     let branch_slug = slugify_branch_name(&branch_name);
 
     // Build base URL for the site
-    let base_url = format!("https://{site_id}.stencila.site");
+    let base_url = format!("https://{workspace_id}.stencila.site");
 
     // Create temporary directory for HTML and extracted and collected media
     let temp_dir = TempDir::new()?;
@@ -1191,7 +1192,7 @@ pub async fn push_with_route(
 
     // Upload HTML (with compression)
     let html_metadata = metadata(&temp_html).await?;
-    let full_html_path = format!("{site_id}/{branch_slug}/{storage_path}.gz");
+    let full_html_path = format!("{workspace_id}/{branch_slug}/{storage_path}.gz");
 
     if is_dry_run {
         // Dry-run mode: write HTML file to local directory if specified
@@ -1241,7 +1242,7 @@ pub async fn push_with_route(
                     } else {
                         format!("{trimmed}/media/{filename}")
                     };
-                    upload_file(&site_id, &branch_slug, &media_storage_path, &media_path).await?;
+                    upload_file(&workspace_id, &branch_slug, &media_storage_path, &media_path).await?;
                     current_media_files.push(media_storage_path);
                 }
             }
@@ -1255,7 +1256,7 @@ pub async fn push_with_route(
 
         // Reconcile media files at this route to clean up orphaned files
         reconcile_prefix(
-            &site_id,
+            &workspace_id,
             &repo_url,
             &branch_name,
             &branch_slug,
@@ -1265,7 +1266,7 @@ pub async fn push_with_route(
         .await?;
 
         // Upload HTML LAST (after media) so visitors always see complete content
-        upload_file(&site_id, &branch_slug, &storage_path, &temp_html).await?;
+        upload_file(&workspace_id, &branch_slug, &storage_path, &temp_html).await?;
     }
 
     // Build URL for result
@@ -1394,7 +1395,7 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
 ///
 /// # Arguments
 /// * `path` - The directory path to push (must be the site root)
-/// * `site_id` - The site ID to push to
+/// * `workspace_id` - The site ID to push to
 /// * `branch` - Optional branch name (defaults to current git branch or "main")
 /// * `force` - Force upload all files even if unchanged (skip ETag comparison)
 /// * `is_dry_run` - Whether this is a dry run (skip uploads even if no output path)
@@ -1409,7 +1410,7 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
 #[allow(clippy::too_many_arguments)]
 pub async fn push_directory<F, Fut>(
     path: &Path,
-    site_id: &str,
+    workspace_id: &str,
     branch: Option<&str>,
     force: bool,
     is_dry_run: bool,
@@ -1468,7 +1469,7 @@ where
     {
         format!("https://{domain}")
     } else {
-        format!("https://{site_id}.stencila.site")
+        format!("https://{workspace_id}.stencila.site")
     };
 
     // Create temp directory that mirrors the final site structure.
@@ -1589,7 +1590,7 @@ where
             for doc in &encoded_docs {
                 let html_path = dry_run_path.join(format!(
                     "{}/{}/{}.gz",
-                    site_id, branch_slug, doc.html_storage_path
+                    workspace_id, branch_slug, doc.html_storage_path
                 ));
                 if let Some(parent) = html_path.parent() {
                     std::fs::create_dir_all(parent)?;
@@ -1612,7 +1613,7 @@ where
             for (route, target, status) in &redirects {
                 let storage_path = route_to_redirect_storage_path(route);
                 let redirect_path =
-                    dry_run_path.join(format!("{}/{}/{}", site_id, branch_slug, storage_path));
+                    dry_run_path.join(format!("{}/{}/{}", workspace_id, branch_slug, storage_path));
                 if let Some(parent) = redirect_path.parent() {
                     std::fs::create_dir_all(parent)?;
                 }
@@ -1632,7 +1633,7 @@ where
             }
 
             // Copy media files
-            let media_dest = dry_run_path.join(format!("{}/{}/media", site_id, branch_slug));
+            let media_dest = dry_run_path.join(format!("{}/{}/media", workspace_id, branch_slug));
             std::fs::create_dir_all(&media_dest)?;
             for (filename, src_path) in &media_to_upload {
                 std::fs::copy(src_path, media_dest.join(filename))?;
@@ -1650,7 +1651,7 @@ where
                 let relative = static_path.strip_prefix(&site_root)?;
                 let dest_path = dry_run_path.join(format!(
                     "{}/{}/{}",
-                    site_id,
+                    workspace_id,
                     branch_slug,
                     relative.display()
                 ));
@@ -1743,7 +1744,7 @@ where
                 .iter()
                 .map(|f| f.storage_path.clone())
                 .collect();
-            get_etags(site_id, &branch_slug, paths)
+            get_etags(workspace_id, &branch_slug, paths)
                 .await
                 .unwrap_or_default()
         };
@@ -1788,16 +1789,16 @@ where
                     std::io::Read::read_to_end(&mut decoder, &mut html_content)?;
                     tokio::fs::write(&temp_html, &html_content).await?;
 
-                    upload_file(site_id, &branch_slug, html_path, &temp_html).await?;
+                    upload_file(workspace_id, &branch_slug, html_path, &temp_html).await?;
                 } else if let Some(source) = &file.source_path {
                     // Upload directly from source file
-                    upload_file(site_id, &branch_slug, &file.storage_path, source).await?;
+                    upload_file(workspace_id, &branch_slug, &file.storage_path, source).await?;
                 } else {
                     // Write content to temp file and upload
                     let temp_dir = TempDir::new()?;
                     let temp_path = temp_dir.path().join("content");
                     tokio::fs::write(&temp_path, &file.content).await?;
-                    upload_file(site_id, &branch_slug, &file.storage_path, &temp_path).await?;
+                    upload_file(workspace_id, &branch_slug, &file.storage_path, &temp_path).await?;
                 }
                 actually_uploaded_count += 1;
             }
@@ -1822,7 +1823,7 @@ where
         // all_uploaded_files.
         send_progress!(PushProgress::Reconciling);
         reconcile_prefix(
-            site_id,
+            workspace_id,
             &repo_url,
             &branch_name,
             &branch_slug,

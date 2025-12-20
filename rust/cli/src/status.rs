@@ -20,7 +20,7 @@ use stencila_cli_utils::{
     message,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
-use stencila_codec_utils::{git_info, modification_time};
+use stencila_codec_utils::modification_time;
 use stencila_dirs::closest_workspace_dir;
 use stencila_remotes::{
     RemoteService, RemoteStatus, calculate_remote_statuses, get_all_remote_entries,
@@ -113,15 +113,17 @@ impl Cli {
             return Ok(());
         }
 
-        // Get repo URL for filtering watches (if in a git repository)
-        let repo_url = git_info(&workspace_dir).ok().and_then(|info| info.origin);
+        // Get workspace_id from config for filtering watches
+        let workspace_id: Option<String> = stencila_config::config(&workspace_dir)
+            .ok()
+            .and_then(|cfg| cfg.workspace.and_then(|w| w.id));
 
         // Fetch watch details from API if not skipping remotes or watches
         let (watch_details_map, removed_watches): (
             HashMap<String, stencila_cloud::WatchDetailsResponse>,
             Vec<_>,
-        ) = if !self.no_watches {
-            match stencila_cloud::get_watches(repo_url.as_deref()).await {
+        ) = if let (false, Some(ws_id)) = (self.no_watches, &workspace_id) {
+            match stencila_cloud::get_watches(ws_id).await {
                 Ok(watches) => {
                     let watch_map: HashMap<String, stencila_cloud::WatchDetailsResponse> =
                         watches.into_iter().map(|w| (w.id.clone(), w)).collect();

@@ -63,8 +63,8 @@ fn test_config_simple() -> Result<()> {
 
     // Create a simple config file
     let config_content = r#"
-[site]
-id = "test1234"
+[workspace]
+id = "ws1234567890"
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
@@ -72,8 +72,8 @@ id = "test1234"
     let cfg = config_isolated(temp_dir.path())?;
 
     assert_eq!(
-        cfg.site.and_then(|site| site.id),
-        Some("test1234".to_string())
+        cfg.workspace.and_then(|ws| ws.id),
+        Some("ws1234567890".to_string())
     );
 
     Ok(())
@@ -87,15 +87,15 @@ fn test_config_hierarchical_merge() -> Result<()> {
 
     // Parent config
     let parent_config = r#"
-[site]
-id = "parent99"
+[workspace]
+id = "wsparent9999"
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), parent_config)?;
 
     // Child config (should override parent)
     let child_config = r#"
-[site]
-id = "child123"
+[workspace]
+id = "wschild12345"
 "#;
     fs::write(child_dir.join(CONFIG_FILENAME), child_config)?;
 
@@ -103,8 +103,8 @@ id = "child123"
     let cfg = config_isolated(&child_dir)?;
 
     assert_eq!(
-        cfg.site.and_then(|site| site.id),
-        Some("child123".to_string()),
+        cfg.workspace.and_then(|ws| ws.id),
+        Some("wschild12345".to_string()),
         "Child config should override parent"
     );
 
@@ -117,15 +117,15 @@ fn test_config_local_override() -> Result<()> {
 
     // Regular config
     let regular_config = r#"
-[site]
-id = "regular1"
+[workspace]
+id = "wsregular123"
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), regular_config)?;
 
     // Local override
     let local_config = r#"
-[site]
-id = "local999"
+[workspace]
+id = "wslocal99999"
 "#;
     fs::write(temp_dir.path().join(CONFIG_LOCAL_FILENAME), local_config)?;
 
@@ -133,8 +133,8 @@ id = "local999"
     let cfg = config_isolated(temp_dir.path())?;
 
     assert_eq!(
-        cfg.site.and_then(|site| site.id),
-        Some("local999".to_string()),
+        cfg.workspace.and_then(|ws| ws.id),
+        Some("wslocal99999".to_string()),
         "Local config should override regular"
     );
 
@@ -166,16 +166,16 @@ fn test_config_malformed_file_skipped() -> Result<()> {
 
     // Parent config - MALFORMED (invalid TOML syntax)
     let malformed_config = r#"
-[site]
-id = "parent99"
+[workspace]
+id = "wsparent9999"
 this is not valid toml: [ { missing closing brackets
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), malformed_config)?;
 
     // Child config - VALID (should still load despite parent being malformed)
     let valid_config = r#"
-[site]
-id = "child123"
+[workspace]
+id = "wschild12345"
 "#;
     fs::write(child_dir.join(CONFIG_FILENAME), valid_config)?;
 
@@ -183,8 +183,8 @@ id = "child123"
     let cfg = config_isolated(&child_dir)?;
 
     assert_eq!(
-        cfg.site.and_then(|site| site.id),
-        Some("child123".to_string()),
+        cfg.workspace.and_then(|ws| ws.id),
+        Some("wschild12345".to_string()),
         "Valid child config should load despite malformed parent config"
     );
 
@@ -222,19 +222,19 @@ fn test_config_value_get_simple() -> Result<()> {
     let temp_dir = TempDir::new()?;
 
     let config_content = r#"
-[site]
-id = "test1234"
+[workspace]
+id = "ws1234567890"
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
     // Test getting a nested value
-    let value = config_value(temp_dir.path(), "site.id")?;
+    let value = config_value(temp_dir.path(), "workspace.id")?;
     assert!(value.is_some());
 
     // Deserialize the value to a string
     if let Some(val) = value {
         let as_string: String = val.deserialize()?;
-        assert_eq!(as_string, "test1234");
+        assert_eq!(as_string, "ws1234567890");
     }
 
     Ok(())
@@ -245,8 +245,8 @@ fn test_config_value_missing_key() -> Result<()> {
     let temp_dir = TempDir::new()?;
 
     let config_content = r#"
-[site]
-id = "test1234"
+[workspace]
+id = "ws1234567890"
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
@@ -266,7 +266,7 @@ fn test_find_config_file_finds_nearest() -> Result<()> {
     // Create config in parent
     fs::write(
         temp_dir.path().join(CONFIG_FILENAME),
-        "[site]\nid = \"parent\"",
+        "[workspace]\nid = \"wsparent1234\"",
     )?;
 
     // Search from child should find parent's config
@@ -298,13 +298,13 @@ fn test_config_set_and_get() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Set a simple value
-    let config_path = config_set("site.id", "newsite123", ConfigTarget::Nearest)?;
+    let config_path = config_set("workspace.id", "wsnewsite123", ConfigTarget::Nearest)?;
     assert_eq!(config_path, temp_path.join(CONFIG_FILENAME));
 
     // Verify the file was created and contains the value
     let contents = fs::read_to_string(&config_path)?;
-    assert!(contents.contains("[site]"));
-    assert!(contents.contains("id = \"newsite123\""));
+    assert!(contents.contains("[workspace]"));
+    assert!(contents.contains("id = \"wsnewsite123\""));
 
     // Restore original directory BEFORE temp_dir is dropped
     std::env::set_current_dir(original_dir)?;
@@ -387,7 +387,7 @@ fn test_config_set_local_target() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Set value in local config
-    let config_path = config_set("site.id", "local123", ConfigTarget::Local)?;
+    let config_path = config_set("workspace.id", "wslocal12345", ConfigTarget::Local)?;
     assert_eq!(config_path, temp_path.join(CONFIG_LOCAL_FILENAME));
 
     // Verify the file was created
@@ -409,18 +409,18 @@ fn test_config_unset_removes_value() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // First set a value
-    config_set("site.id", "test123", ConfigTarget::Nearest)?;
+    config_set("workspace.id", "wstest123456", ConfigTarget::Nearest)?;
 
     // Verify it exists
     let contents_before = fs::read_to_string(temp_path.join(CONFIG_FILENAME))?;
-    assert!(contents_before.contains("id = \"test123\""));
+    assert!(contents_before.contains("id = \"wstest123456\""));
 
     // Now unset it
-    config_unset("site.id", ConfigTarget::Nearest)?;
+    config_unset("workspace.id", ConfigTarget::Nearest)?;
 
     // Verify it was removed
     let contents_after = fs::read_to_string(temp_path.join(CONFIG_FILENAME))?;
-    assert!(!contents_after.contains("id = \"test123\""));
+    assert!(!contents_after.contains("id = \"wstest123456\""));
 
     // Restore directory BEFORE temp_dir is dropped
     std::env::set_current_dir(original_dir)?;
@@ -438,7 +438,7 @@ fn test_config_unset_nonexistent_key_fails() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Create a config file
-    config_set("site.id", "test123", ConfigTarget::Nearest)?;
+    config_set("workspace.id", "wstest123456", ConfigTarget::Nearest)?;
 
     // Try to unset a non-existent key
     let result = config_unset("nonexistent.key", ConfigTarget::Nearest);
@@ -459,7 +459,7 @@ fn test_config_unset_no_config_file_fails() -> Result<()> {
     std::env::set_current_dir(temp_dir.path())?;
 
     // Try to unset when no config file exists
-    let result = config_unset("site.id", ConfigTarget::Nearest);
+    let result = config_unset("workspace.id", ConfigTarget::Nearest);
     assert!(result.is_err());
 
     // Restore directory BEFORE temp_dir is dropped
