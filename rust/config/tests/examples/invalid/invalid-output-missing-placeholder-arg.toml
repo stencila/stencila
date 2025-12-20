@@ -1,0 +1,8 @@
+# Invalid: Output placeholder without matching argument
+#
+# This is validated by Stencila at runtime, NOT by JSON Schema.
+# This file passes schema validation but fails when loaded by Stencila.
+
+[outputs]
+# The {region} placeholder has no matching argument
+"{region}/report.pdf" = { source = "report.md", command = "render" }

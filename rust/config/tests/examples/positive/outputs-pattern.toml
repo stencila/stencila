@@ -1,0 +1,14 @@
+# Output configurations with glob patterns
+
+[outputs]
+# Static copy pattern
+"exports/*.csv" = { pattern = "exports/*.csv" }
+
+# Batch render pattern
+"reports/*.pdf" = { pattern = "docs/**/*.md", command = "render" }
+
+# Batch convert pattern
+"html/*.html" = { pattern = "docs/**/*.md", command = "convert" }
+
+# Pattern with exclude
+"data/*.csv" = { pattern = "data/*.csv", exclude = ["data/temp-*.csv"] }

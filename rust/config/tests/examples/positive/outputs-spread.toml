@@ -1,0 +1,11 @@
+# Output configurations with spread (parameter variants)
+
+[outputs]
+# Grid spread (cartesian product) - generates 4 outputs
+"{region}/{species}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"], species = ["ABC", "DEF"] } }
+
+# Explicit grid mode
+"{year}/annual.pdf" = { source = "annual-report.md", spread = "grid", arguments = { year = ["2023", "2024"] } }
+
+# Zip spread (positional pairing) - generates 2 outputs
+"{quarter}-report.pdf" = { source = "quarterly.md", spread = "zip", arguments = { quarter = ["q1", "q2"] } }

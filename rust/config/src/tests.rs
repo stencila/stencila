@@ -967,3 +967,67 @@ fn test_config_remotes_duplicate_keys_fails() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn test_extract_placeholders() {
+    use crate::extract_placeholders;
+
+    // Single placeholder
+    assert_eq!(extract_placeholders("{region}/report.pdf"), vec!["region"]);
+
+    // Multiple placeholders
+    assert_eq!(
+        extract_placeholders("{region}/{species}/report.pdf"),
+        vec!["region", "species"]
+    );
+
+    // No placeholders
+    assert!(extract_placeholders("report.pdf").is_empty());
+
+    // Reserved placeholders
+    assert_eq!(extract_placeholders("{tag}/report.pdf"), vec!["tag"]);
+    assert_eq!(extract_placeholders("{branch}/report.pdf"), vec!["branch"]);
+
+    // Mixed reserved and regular
+    assert_eq!(
+        extract_placeholders("{tag}/{region}/report.pdf"),
+        vec!["tag", "region"]
+    );
+
+    // Empty braces (should be ignored)
+    assert!(extract_placeholders("{}/report.pdf").is_empty());
+}
+
+#[test]
+fn test_validate_placeholders() -> Result<()> {
+    use crate::validate_placeholders;
+    use std::collections::HashMap;
+
+    // Valid: all placeholders have arguments
+    let mut args = HashMap::new();
+    args.insert("region".to_string(), vec!["north".to_string()]);
+    validate_placeholders("{region}/report.pdf", Some(&args), "Output")?;
+
+    // Valid: reserved placeholder without argument
+    validate_placeholders("{tag}/report.pdf", None, "Output")?;
+    validate_placeholders("{branch}/report.pdf", None, "Output")?;
+
+    // Valid: mix of reserved and regular placeholders
+    let mut args = HashMap::new();
+    args.insert("region".to_string(), vec!["north".to_string()]);
+    validate_placeholders("{tag}/{region}/report.pdf", Some(&args), "Output")?;
+
+    // Invalid: placeholder without matching argument
+    let result = validate_placeholders("{region}/report.pdf", None, "Output");
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("{region}"));
+
+    // Invalid: one placeholder missing from arguments
+    let mut args = HashMap::new();
+    args.insert("region".to_string(), vec!["north".to_string()]);
+    let result = validate_placeholders("{region}/{species}/report.pdf", Some(&args), "Output");
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("{species}"));
+
+    Ok(())
+}

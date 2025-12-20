@@ -1,0 +1,18 @@
+# Simple output configurations
+
+[outputs]
+# Simple rendered output (extensions differ -> default command = render)
+"report.pdf" = "report.md"
+
+# Rendered output with explicit command
+"report.docx" = { source = "report.md", command = "render" }
+
+# Static file - omit source means "use key as source path"
+# Same extension -> default command = none
+"data/results.csv" = {}
+
+# Force convert (format transform without execution)
+"report-quick.pdf" = { source = "report.md", command = "convert" }
+
+# Force render even when extensions match
+"report-executed.md" = { source = "report.md", command = "render" }

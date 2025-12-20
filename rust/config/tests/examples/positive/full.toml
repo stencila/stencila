@@ -36,3 +36,22 @@ exclude = ["**/*.draft.md", "_drafts/**", "node_modules/**"]
 
 # Spread remote
 "report.smd" = { service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south", "east", "west"] } }
+
+[outputs]
+# Simple rendered output
+"report.pdf" = "report.md"
+
+# Static file output
+"data/results.csv" = {}
+
+# Output with explicit command
+"report.docx" = { source = "report.md", command = "render" }
+
+# Pattern output
+"exports/*.csv" = { pattern = "exports/*.csv" }
+
+# Spread output
+"{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }
+
+# Output with ref filtering
+"release/report.pdf" = { source = "report.md", refs = ["main", "release/*"] }

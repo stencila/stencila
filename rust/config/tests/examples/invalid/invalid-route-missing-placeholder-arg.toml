@@ -1,0 +1,8 @@
+# Invalid: Route spread placeholder without matching argument
+#
+# This is validated by Stencila at runtime, NOT by JSON Schema.
+# This file passes schema validation but fails when loaded by Stencila.
+
+[routes]
+# The {region} placeholder has no matching argument (only {year} is provided)
+"/{region}/{year}/report/" = { file = "report.smd", arguments = { year = ["2024", "2025"] } }

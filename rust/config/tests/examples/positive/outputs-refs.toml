@@ -1,0 +1,14 @@
+# Output configurations with git ref filtering
+
+[outputs]
+# Only upload on main branch
+"release/report.pdf" = { source = "report.md", refs = ["main"] }
+
+# Upload on release branches
+"builds/report.pdf" = { source = "report.md", refs = ["release/*", "main"] }
+
+# Upload on version tags
+"archive/report.pdf" = { source = "report.md", refs = ["v*"] }
+
+# Multiple ref patterns
+"dist/report.pdf" = { source = "report.md", refs = ["main", "release/*", "v*"] }

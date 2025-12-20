@@ -1,0 +1,13 @@
+# Output configurations with reserved placeholders
+# Reserved placeholders ({tag}, {branch}) are auto-bound from git refs
+# and don't require matching arguments
+
+[outputs]
+# {branch} is reserved - auto-bound from current branch
+"builds/{branch}/report.pdf" = { source = "report.md", command = "render" }
+
+# {tag} is reserved - auto-bound from tag when on a tag
+"releases/{tag}/report.pdf" = { source = "report.md", command = "render", refs = ["v*"] }
+
+# Mix of reserved and regular placeholders
+"releases/{tag}/{region}/report.pdf" = { source = "report.md", command = "render", refs = ["v*"], arguments = { region = ["us", "eu"] } }

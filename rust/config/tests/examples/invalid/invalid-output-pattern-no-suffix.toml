@@ -1,0 +1,7 @@
+# Invalid: Pattern output key must include *.ext suffix
+#
+# This is validated by Stencila at runtime, NOT by JSON Schema.
+# This file passes schema validation but fails when loaded by Stencila.
+
+[outputs]
+"reports/" = { pattern = "docs/*.md" }

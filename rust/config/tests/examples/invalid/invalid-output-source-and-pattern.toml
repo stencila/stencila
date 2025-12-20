@@ -1,0 +1,7 @@
+# Invalid: Output cannot have both source and pattern
+#
+# This is validated by Stencila at runtime, NOT by JSON Schema.
+# This file passes schema validation but fails when loaded by Stencila.
+
+[outputs]
+"reports/*.pdf" = { source = "report.md", pattern = "docs/*.md" }

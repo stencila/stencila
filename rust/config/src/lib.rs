@@ -10,12 +10,6 @@ use serde_with::skip_serializing_none;
 use strum::Display;
 use url::Url;
 
-/// Main configuration file name
-pub const CONFIG_FILENAME: &str = "stencila.toml";
-
-/// Local configuration file name (for local overrides, typically gitignored)
-pub const CONFIG_LOCAL_FILENAME: &str = "stencila.local.toml";
-
 mod utils;
 use utils::build_figment;
 pub use utils::{
@@ -28,6 +22,15 @@ pub mod cli;
 
 #[cfg(test)]
 mod tests;
+
+/// Main configuration file name
+pub const CONFIG_FILENAME: &str = "stencila.toml";
+
+/// Local configuration file name (for local overrides, typically gitignored)
+pub const CONFIG_LOCAL_FILENAME: &str = "stencila.local.toml";
+
+/// Reserved placeholders that are auto-bound from git refs
+const RESERVED_PLACEHOLDERS: &[&str] = &["tag", "branch"];
 
 /// A path that is resolved relative to the configuration file it was defined in
 ///
@@ -82,6 +85,13 @@ pub fn config(path: &Path) -> Result<Config> {
     if let Some(remotes) = &config.remotes {
         for (path_key, value) in remotes {
             value.validate(path_key)?;
+        }
+    }
+
+    // Validate all output configurations
+    if let Some(outputs) = &config.outputs {
+        for (path_key, target) in outputs {
+            target.validate(path_key)?;
         }
     }
 
@@ -198,6 +208,26 @@ pub struct Config {
     /// ```
     #[schemars(with = "Option<HashMap<String, RemoteValue>>")]
     pub remotes: Option<HashMap<String, RemoteValue>>,
+
+    /// Outputs configuration
+    ///
+    /// Defines files to be rendered/converted and uploaded to Stencila Cloud
+    /// workspace outputs. The key is the output path template, and the value can be:
+    /// - A simple source path: `"report.pdf" = "report.md"`
+    /// - A configuration object: `"report.pdf" = { source = "report.md", command = "render" }`
+    /// - A static file: `"data.csv" = {}` (copies file as-is)
+    /// - A pattern: `"exports/*.csv" = { pattern = "exports/*.csv" }`
+    /// - A spread: `"{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }`
+    ///
+    /// Example:
+    /// ```toml
+    /// [outputs]
+    /// "report.pdf" = "report.md"
+    /// "data/results.csv" = {}
+    /// "{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }
+    /// ```
+    #[schemars(with = "Option<HashMap<String, OutputTarget>>")]
+    pub outputs: Option<HashMap<String, OutputTarget>>,
 }
 
 impl Config {
@@ -387,6 +417,9 @@ impl RouteTarget {
                 if spread.arguments.is_empty() {
                     return Err(eyre!("Spread route '{}' has no arguments", path));
                 }
+                // Validate that all placeholders have corresponding arguments
+                // (except reserved placeholders like {tag} and {branch})
+                validate_placeholders(path, Some(&spread.arguments), "Route")?;
                 Ok(())
             }
         }
@@ -760,4 +793,316 @@ pub enum SpreadMode {
     Grid,
     /// Positional pairing of values (all params must have same length)
     Zip,
+}
+
+/// Processing command for outputs
+///
+/// Determines how source files are processed before upload:
+/// - `render`: Execute code, apply parameters, then convert to output format
+/// - `convert`: Pure format transformation (no code execution)
+/// - `none`: Copy file as-is (static upload)
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum OutputCommand {
+    /// Execute code, apply parameters, then convert to output format
+    ///
+    /// This is the default when source and output extensions differ.
+    /// Allows `arguments` and `spread` options.
+    #[default]
+    Render,
+
+    /// Pure format transformation (no code execution)
+    ///
+    /// Use this for faster processing when no code execution is needed.
+    /// Does not allow `arguments` or `spread` options.
+    Convert,
+
+    /// Copy file as-is (static upload)
+    ///
+    /// This is the default when source and output extensions are the same.
+    /// Does not allow `arguments` or `spread` options.
+    None,
+}
+
+/// Target for an output - either a simple source path or a full configuration
+///
+/// Outputs define files to be rendered/converted and uploaded to Stencila Cloud
+/// workspace outputs. The key is the output path template.
+///
+/// Example in TOML:
+/// ```toml
+/// [outputs]
+/// # Simple: source path (rendered if extension differs)
+/// "report.pdf" = "report.md"
+///
+/// # Full config with options
+/// "report.docx" = { source = "report.md", command = "render" }
+///
+/// # Static file (omit source = use key as source)
+/// "data/results.csv" = {}
+///
+/// # Pattern for multiple files
+/// "exports/*.csv" = { pattern = "exports/*.csv" }
+///
+/// # Spread with parameters
+/// "{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }
+/// ```
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum OutputTarget {
+    /// Simple source path (rendered if extension differs from key)
+    ///
+    /// Example: `"report.pdf" = "report.md"`
+    Source(ConfigRelativePath),
+
+    /// Full configuration object
+    ///
+    /// Example: `"report.pdf" = { source = "report.md", command = "render" }`
+    /// Example: `"data.csv" = {}` (static, source = output path)
+    Config(OutputConfig),
+}
+
+impl OutputTarget {
+    /// Validate the output target configuration
+    ///
+    /// Ensures that:
+    /// - `arguments` and `spread` are only allowed with `command = render`
+    /// - If `arguments` is present, it must be non-empty
+    /// - `source` and `pattern` cannot both be set
+    /// - If `refs` is present, it must be non-empty
+    /// - Pattern keys must include `*.ext` suffix
+    pub fn validate(&self, key: &str) -> Result<()> {
+        match self {
+            OutputTarget::Source(_) => Ok(()),
+            OutputTarget::Config(config) => config.validate(key),
+        }
+    }
+
+    /// Get the source path if this is a simple source target
+    pub fn source(&self) -> Option<&ConfigRelativePath> {
+        match self {
+            OutputTarget::Source(path) => Some(path),
+            OutputTarget::Config(_) => None,
+        }
+    }
+
+    /// Get the configuration if this is a config target
+    pub fn config(&self) -> Option<&OutputConfig> {
+        match self {
+            OutputTarget::Config(config) => Some(config),
+            OutputTarget::Source(_) => None,
+        }
+    }
+
+    /// Check if this is a spread output (has arguments)
+    pub fn is_spread(&self) -> bool {
+        match self {
+            OutputTarget::Source(_) => false,
+            OutputTarget::Config(config) => config.arguments.is_some(),
+        }
+    }
+
+    /// Check if this is a pattern output
+    pub fn is_pattern(&self) -> bool {
+        match self {
+            OutputTarget::Source(_) => false,
+            OutputTarget::Config(config) => config.pattern.is_some(),
+        }
+    }
+}
+
+/// Full output configuration
+///
+/// Provides detailed control over how an output is processed and uploaded.
+///
+/// Example:
+/// ```toml
+/// [outputs]
+/// "report.pdf" = { source = "report.md", command = "render" }
+/// "{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }
+/// "exports/*.csv" = { pattern = "exports/*.csv", exclude = ["temp-*.csv"] }
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct OutputConfig {
+    /// Source file path (for single-file outputs)
+    ///
+    /// Path relative to the config file. If not specified and `pattern` is not set,
+    /// the output key is used as the source path.
+    pub source: Option<String>,
+
+    /// Glob pattern for matching multiple source files
+    ///
+    /// Mutually exclusive with `source`. The output key must include `*.ext`
+    /// to specify the output format (e.g., `"reports/*.pdf"`).
+    pub pattern: Option<String>,
+
+    /// Processing command
+    ///
+    /// - `render`: Execute code, apply parameters, convert to output format (default if extensions differ)
+    /// - `convert`: Format transformation only, no code execution
+    /// - `none`: Copy file as-is (default if extensions are the same)
+    pub command: Option<OutputCommand>,
+
+    /// Spread mode for parameter variants
+    ///
+    /// Only valid with `command = render`.
+    /// - `grid`: Cartesian product of all arguments (default)
+    /// - `zip`: Positional pairing of values
+    pub spread: Option<SpreadMode>,
+
+    /// Parameter values for spread variants
+    ///
+    /// Only valid with `command = render`. Keys are parameter names,
+    /// values are arrays of possible values.
+    ///
+    /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
+    pub arguments: Option<HashMap<String, Vec<String>>>,
+
+    /// Git ref patterns to filter when this output is processed and uploaded
+    ///
+    /// If set, the output is only processed when the current git ref matches
+    /// one of these patterns. Supports glob matching.
+    ///
+    /// Examples: `["main"]`, `["release/*"]`, `["v*"]`
+    pub refs: Option<Vec<String>>,
+
+    /// Glob patterns to exclude from pattern matches
+    ///
+    /// Paths are relative to the repository root.
+    /// Only applies when `pattern` is set.
+    ///
+    /// Example: `["temp-*.csv", "draft-*"]`
+    pub exclude: Option<Vec<String>>,
+}
+
+impl OutputConfig {
+    /// Validate the output configuration
+    pub fn validate(&self, key: &str) -> Result<()> {
+        // Source and pattern are mutually exclusive
+        if self.source.is_some() && self.pattern.is_some() {
+            return Err(eyre!(
+                "Output '{}' cannot have both `source` and `pattern`",
+                key
+            ));
+        }
+
+        // If pattern is set, key must include *.ext suffix
+        if self.pattern.is_some() && !key.contains("*.") {
+            return Err(eyre!(
+                "Output '{}' with `pattern` must include `*.ext` suffix to specify output format (e.g., 'reports/*.pdf')",
+                key
+            ));
+        }
+
+        // Arguments and spread are only allowed with command = render
+        let command = self.command.unwrap_or_default();
+        if command != OutputCommand::Render {
+            if self.arguments.is_some() {
+                return Err(eyre!(
+                    "Output '{}' has `arguments` but `command` is not `render`",
+                    key
+                ));
+            }
+            if self.spread.is_some() {
+                return Err(eyre!(
+                    "Output '{}' has `spread` but `command` is not `render`",
+                    key
+                ));
+            }
+        }
+
+        // If arguments is present, it must be non-empty
+        if let Some(args) = &self.arguments
+            && args.is_empty()
+        {
+            return Err(eyre!("Output '{}' has empty `arguments`", key));
+        }
+
+        // If refs is present, it must be non-empty
+        if let Some(refs) = &self.refs
+            && refs.is_empty()
+        {
+            return Err(eyre!("Output '{}' has empty `refs`", key));
+        }
+
+        // Exclude only applies with pattern
+        if self.exclude.is_some() && self.pattern.is_none() {
+            return Err(eyre!("Output '{}' has `exclude` but no `pattern`", key));
+        }
+
+        // Validate that all placeholders have corresponding arguments
+        // (except reserved placeholders like {tag} and {branch})
+        validate_placeholders(key, self.arguments.as_ref(), "Output")?;
+
+        Ok(())
+    }
+}
+
+/// Extract placeholder names from a template string
+///
+/// Finds all `{name}` patterns and returns the names.
+/// Example: `"{region}/{species}/report.pdf"` returns `["region", "species"]`
+fn extract_placeholders(template: &str) -> Vec<&str> {
+    let mut placeholders = Vec::new();
+    let mut chars = template.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '{' {
+            let mut name = String::new();
+            for c in chars.by_ref() {
+                if c == '}' {
+                    break;
+                }
+                name.push(c);
+            }
+            if !name.is_empty() {
+                // Find the slice in the original string
+                if let Some(start) = template.find(&format!("{{{name}}}")) {
+                    let name_start = start + 1;
+                    let name_end = name_start + name.len();
+                    placeholders.push(&template[name_start..name_end]);
+                }
+            }
+        }
+    }
+
+    placeholders
+}
+
+/// Validate that all placeholders in a template have corresponding arguments
+///
+/// Reserved placeholders (`{tag}`, `{branch}`) are auto-bound from git refs
+/// and don't require arguments.
+///
+/// Returns an error if any non-reserved placeholder is missing from arguments.
+pub fn validate_placeholders(
+    template: &str,
+    arguments: Option<&HashMap<String, Vec<String>>>,
+    context: &str,
+) -> Result<()> {
+    let placeholders = extract_placeholders(template);
+
+    for placeholder in placeholders {
+        // Skip reserved placeholders
+        if RESERVED_PLACEHOLDERS.contains(&placeholder) {
+            continue;
+        }
+
+        // Check if placeholder has a corresponding argument
+        let has_argument = arguments
+            .map(|args| args.contains_key(placeholder))
+            .unwrap_or(false);
+
+        if !has_argument {
+            return Err(eyre!(
+                "{} '{}' has placeholder '{{{}}}' but no matching argument",
+                context,
+                template,
+                placeholder
+            ));
+        }
+    }
+
+    Ok(())
 }

@@ -1,0 +1,7 @@
+# Invalid: Arguments are only allowed with command = render
+#
+# This is validated by Stencila at runtime, NOT by JSON Schema.
+# This file passes schema validation but fails when loaded by Stencila.
+
+[outputs]
+"{region}/report.pdf" = { source = "report.md", command = "convert", arguments = { region = ["north", "south"] } }

@@ -1,0 +1,7 @@
+# Invalid: Output refs must be non-empty if specified
+#
+# This is validated by Stencila at runtime, NOT by JSON Schema.
+# This file passes schema validation but fails when loaded by Stencila.
+
+[outputs]
+"report.pdf" = { source = "report.md", refs = [] }
