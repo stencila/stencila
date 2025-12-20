@@ -31,25 +31,25 @@ pub struct WorkspaceResponse {
     pub public_id: String,
 
     /// User ID of the creator
-    pub created_by: String,
+    pub created_by: Option<String>,
 
     /// Username of the creator
-    pub created_by_name: String,
+    pub created_by_name: Option<String>,
 
     /// ISO 8601 creation timestamp
-    pub created_at: String,
+    pub created_at: Option<String>,
 
     /// User ID of the owner
-    pub user_id: String,
+    pub user_id: Option<String>,
 
     /// Organization ID if this is an org workspace
     pub org_id: Option<String>,
 
     /// Provider (e.g., "github")
-    pub provider: String,
+    pub provider: Option<String>,
 
     /// Repository identifier (e.g., "owner/repo")
-    pub identifier: String,
+    pub identifier: Option<String>,
 
     /// Number of sessions created for this workspace
     pub sessions_count: Option<u64>,

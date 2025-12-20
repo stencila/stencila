@@ -24,7 +24,10 @@ use stencila_cli_utils::{
 use stencila_cloud::{ensure_workspace, outputs::UploadResult};
 use stencila_codec_utils::{GitRef, get_current_ref};
 use stencila_codecs::{DecodeOptions, EncodeOptions};
-use stencila_config::{OutputCommand, OutputConfig, OutputTarget, SpreadMode, config};
+use stencila_config::{
+    OutputCommand, OutputConfig, OutputTarget, SpreadMode, config, config_add_output,
+    config_remove_output,
+};
 use stencila_document::Document;
 use stencila_format::Format;
 use stencila_spread::{Run, SpreadConfig, apply_template};
@@ -44,6 +47,13 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila outputs list</>
   <b>stencila outputs list --as json</>
 
+  <dim># Add an output</dim>
+  <b>stencila outputs add report.pdf report.md</>
+  <b>stencila outputs add report.pdf report.md --command render --refs main</>
+
+  <dim># Remove an output</dim>
+  <b>stencila outputs remove report.pdf</>
+
   <dim># Push all outputs to cloud</dim>
   <b>stencila outputs push</>
 
@@ -61,6 +71,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 #[derive(Debug, Subcommand)]
 enum Command {
     List(List),
+    Add(Add),
+    Remove(Remove),
     Push(Push),
 }
 
@@ -70,6 +82,8 @@ impl Cli {
 
         match command {
             Command::List(list) => list.run().await,
+            Command::Add(add) => add.run().await,
+            Command::Remove(remove) => remove.run().await,
             Command::Push(push) => push.run().await,
         }
     }
@@ -180,6 +194,120 @@ impl List {
         }
 
         table.to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Add an output configuration
+#[derive(Debug, Args)]
+#[command(after_long_help = ADD_AFTER_LONG_HELP)]
+pub struct Add {
+    /// Output key (destination path in cloud outputs)
+    ///
+    /// This is the path where the output will be stored, e.g., "report.pdf"
+    /// or "{region}/report.pdf" for spread outputs.
+    key: String,
+
+    /// Source file path
+    ///
+    /// The source file to render or convert. If not provided, the key
+    /// is used as the source path (for static file copies).
+    source: Option<String>,
+
+    /// Processing command
+    ///
+    /// - render: Execute code and convert to output format (default for different extensions)
+    /// - convert: Format transformation only, no code execution
+    /// - none: Copy file as-is (default for same extensions)
+    #[arg(long, short)]
+    command: Option<String>,
+
+    /// Git ref patterns for when to process this output
+    ///
+    /// Supports glob patterns. Examples: "main", "v*", "release/*"
+    #[arg(long, short, value_delimiter = ',')]
+    refs: Option<Vec<String>>,
+
+    /// Glob pattern for matching multiple source files
+    ///
+    /// Use this instead of source for multi-file outputs.
+    /// The key must include "*.ext" to specify output format.
+    #[arg(long, short)]
+    pattern: Option<String>,
+
+    /// Glob patterns to exclude from pattern matches
+    #[arg(long, short, value_delimiter = ',')]
+    exclude: Option<Vec<String>>,
+}
+
+pub static ADD_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Add a simple output (render report.md to report.pdf)</dim>
+  <b>stencila outputs add report.pdf report.md</>
+
+  <dim># Add with explicit render command</dim>
+  <b>stencila outputs add report.pdf report.md --command render</>
+
+  <dim># Add output that only runs on main branch</dim>
+  <b>stencila outputs add report.pdf report.md --refs main</>
+
+  <dim># Add static file (copy as-is)</dim>
+  <b>stencila outputs add data.csv</>
+
+  <dim># Add pattern-based outputs</dim>
+  <b>stencila outputs add \"exports/*.pdf\" --pattern \"exports/*.md\"</>
+"
+);
+
+impl Add {
+    pub async fn run(self) -> Result<()> {
+        let config_path = config_add_output(
+            &self.key,
+            self.source.as_deref(),
+            self.command.as_deref(),
+            self.refs.as_deref(),
+            self.pattern.as_deref(),
+            self.exclude.as_deref(),
+        )?;
+
+        message!(
+            "✅ Added output `{}` to {}",
+            self.key,
+            config_path.display()
+        );
+
+        Ok(())
+    }
+}
+
+/// Remove an output configuration
+#[derive(Debug, Args)]
+#[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
+pub struct Remove {
+    /// Output key to remove
+    key: String,
+}
+
+pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Remove an output</dim>
+  <b>stencila outputs remove report.pdf</>
+
+  <dim># Remove a spread output</dim>
+  <b>stencila outputs remove \"{region}/report.pdf\"</>
+"
+);
+
+impl Remove {
+    pub async fn run(self) -> Result<()> {
+        let config_path = config_remove_output(&self.key)?;
+
+        message!(
+            "✅ Removed output `{}` from {}",
+            self.key,
+            config_path.display()
+        );
 
         Ok(())
     }

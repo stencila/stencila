@@ -166,6 +166,8 @@ mod tests {
             // Outputs module help strings
             ("outputs::cli", crate::outputs::CLI_AFTER_LONG_HELP),
             ("outputs::list", crate::outputs::LIST_AFTER_LONG_HELP),
+            ("outputs::add", crate::outputs::ADD_AFTER_LONG_HELP),
+            ("outputs::remove", crate::outputs::REMOVE_AFTER_LONG_HELP),
             ("outputs::push", crate::outputs::PUSH_AFTER_LONG_HELP),
         ]
     }

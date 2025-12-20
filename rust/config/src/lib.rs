@@ -10,6 +10,9 @@ use serde_with::skip_serializing_none;
 use strum::Display;
 use url::Url;
 
+mod outputs;
+pub use outputs::*;
+
 mod utils;
 use utils::build_figment;
 pub use utils::{

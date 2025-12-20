@@ -211,10 +211,18 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
         bail!("{message}");
     }
 
-    response
-        .json::<T>()
-        .await
-        .map_err(|error| eyre!("Failed to parse response: {error}"))
+    // Get response text first for better error messages
+    let text = response.text().await?;
+
+    serde_json::from_str(&text).map_err(|error| {
+        // Include a snippet of the response for debugging
+        let snippet = if text.len() > 200 {
+            format!("{}...", &text[..200])
+        } else {
+            text.clone()
+        };
+        eyre!("Failed to parse response: {error}\nResponse: {snippet}")
+    })
 }
 
 /// Get an authenticated client for the Stencila Cloud API

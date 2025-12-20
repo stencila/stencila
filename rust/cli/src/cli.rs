@@ -257,7 +257,7 @@ pub enum Command {
     Demo(demo::Demo),
 
     Outputs(outputs::Cli),
-    
+
     Db(db::Cli),
 
     Prompts(stencila_prompts::cli::Cli),
