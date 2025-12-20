@@ -361,6 +361,151 @@ fn normalize_git_url(url: &str) -> Option<String> {
     }
 }
 
+/// Get the current git tag if HEAD points to one
+///
+/// Returns the tag name if HEAD exactly matches a tag.
+///
+/// # Arguments
+///
+/// * `path` - Optional path within a Git repository. If `None`, uses current directory.
+///
+/// # Returns
+///
+/// * `Some(tag_name)` if HEAD points to a tag
+/// * `None` if not in a Git repository, git is not available, or HEAD is not a tag
+pub fn get_current_tag(path: Option<&Path>) -> Option<String> {
+    // Determine the working directory
+    let repo_root = if let Some(p) = path {
+        closest_git_repo(p).ok()?
+    } else {
+        let current_dir = env::current_dir().ok()?;
+        closest_git_repo(&current_dir).ok()?
+    };
+
+    // Check if git is available
+    if which::which("git").is_err() {
+        return None;
+    }
+
+    // Get tag pointing to HEAD (if any)
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(&repo_root)
+        .args(["describe", "--tags", "--exact-match", "HEAD"])
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+
+    if output.status.success() {
+        Some(String::from_utf8(output.stdout).ok()?.trim().to_string())
+    } else {
+        None
+    }
+}
+
+/// Get the current commit SHA
+///
+/// # Arguments
+///
+/// * `path` - Optional path within a Git repository. If `None`, uses current directory.
+///
+/// # Returns
+///
+/// * `Some(commit_sha)` if in a Git repository
+/// * `None` if not in a Git repository or git is not available
+pub fn get_current_commit(path: Option<&Path>) -> Option<String> {
+    // Determine the working directory
+    let repo_root = if let Some(p) = path {
+        closest_git_repo(p).ok()?
+    } else {
+        let current_dir = env::current_dir().ok()?;
+        closest_git_repo(&current_dir).ok()?
+    };
+
+    // Check if git is available
+    if which::which("git").is_err() {
+        return None;
+    }
+
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(&repo_root)
+        .args(["rev-parse", "HEAD"])
+        .output()
+        .ok()?;
+
+    if output.status.success() {
+        Some(String::from_utf8(output.stdout).ok()?.trim().to_string())
+    } else {
+        None
+    }
+}
+
+/// Result of detecting current git ref
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum GitRef {
+    /// A named branch
+    Branch(String),
+    /// A tag
+    Tag(String),
+    /// A commit SHA (detached HEAD)
+    Commit(String),
+}
+
+impl GitRef {
+    /// Get the type of this ref as a string
+    ///
+    /// Returns "branch", "tag", or "commit"
+    #[must_use]
+    pub fn ref_type(&self) -> &'static str {
+        match self {
+            GitRef::Branch(_) => "branch",
+            GitRef::Tag(_) => "tag",
+            GitRef::Commit(_) => "commit",
+        }
+    }
+
+    /// Get the name/value of this ref
+    ///
+    /// Returns the branch name, tag name, or commit SHA
+    #[must_use]
+    pub fn ref_name(&self) -> &str {
+        match self {
+            GitRef::Branch(s) | GitRef::Tag(s) | GitRef::Commit(s) => s,
+        }
+    }
+}
+
+/// Get current git ref (tag > branch > commit)
+///
+/// Detects the current state of HEAD and returns the most specific ref:
+/// 1. Tag - if HEAD points exactly to a tag
+/// 2. Branch - if on a named branch
+/// 3. Commit - fallback to the commit SHA (detached HEAD, CI builds)
+///
+/// # Arguments
+///
+/// * `path` - Optional path within a Git repository. If `None`, uses current directory.
+///
+/// # Returns
+///
+/// * `Some(GitRef)` if in a Git repository
+/// * `None` if not in a Git repository or git is not available
+pub fn get_current_ref(path: Option<&Path>) -> Option<GitRef> {
+    // Check for tag first (most specific)
+    if let Some(tag) = get_current_tag(path) {
+        return Some(GitRef::Tag(tag));
+    }
+
+    // Then branch
+    if let Some(branch) = get_current_branch(path) {
+        return Some(GitRef::Branch(branch));
+    }
+
+    // Fallback to commit SHA (detached HEAD, CI builds)
+    get_current_commit(path).map(GitRef::Commit)
+}
+
 /// Create a DNS-safe slug from a branch name for use as a subdomain
 ///
 /// This function creates a deterministic, DNS-compatible slug from a Git branch name
@@ -669,6 +814,47 @@ mod tests {
         {
             assert!(!branch.is_empty());
             assert_ne!(branch, "HEAD");
+        }
+    }
+
+    #[test]
+    fn test_get_current_tag() {
+        // This test only verifies the function runs without error
+        // The return value depends on whether HEAD points to a tag
+        let _tag = get_current_tag(None);
+    }
+
+    #[test]
+    fn test_get_current_commit() {
+        // Should return a commit SHA if in a git repo
+        if let Some(commit) = get_current_commit(None) {
+            // Should be a 40-character hex string
+            assert_eq!(commit.len(), 40);
+            assert!(commit.chars().all(|c| c.is_ascii_hexdigit()));
+        }
+    }
+
+    #[test]
+    fn test_get_current_ref() {
+        // Should return some kind of ref if in a git repo
+        if let Some(git_ref) = get_current_ref(None) {
+            match &git_ref {
+                GitRef::Branch(name) => {
+                    assert!(!name.is_empty());
+                    assert_ne!(name, "HEAD");
+                }
+                GitRef::Tag(name) => {
+                    assert!(!name.is_empty());
+                }
+                GitRef::Commit(sha) => {
+                    assert_eq!(sha.len(), 40);
+                    assert!(sha.chars().all(|c| c.is_ascii_hexdigit()));
+                }
+            }
+            // Test ref_type() and ref_name() methods
+            let ref_type = git_ref.ref_type();
+            assert!(ref_type == "branch" || ref_type == "tag" || ref_type == "commit");
+            assert!(!git_ref.ref_name().is_empty());
         }
     }
 }

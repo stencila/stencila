@@ -16,6 +16,7 @@ mod merge;
 mod new;
 mod open;
 mod options;
+mod outputs;
 mod pull;
 mod push;
 mod render;
@@ -162,6 +163,10 @@ mod tests {
             ("site::password", crate::site::PASSWORD_AFTER_LONG_HELP),
             ("site::password::set", crate::site::PASSWORD_SET_AFTER_LONG_HELP),
             ("site::password::clear", crate::site::PASSWORD_CLEAR_AFTER_LONG_HELP),
+            // Outputs module help strings
+            ("outputs::cli", crate::outputs::CLI_AFTER_LONG_HELP),
+            ("outputs::list", crate::outputs::LIST_AFTER_LONG_HELP),
+            ("outputs::push", crate::outputs::PUSH_AFTER_LONG_HELP),
         ]
     }
 

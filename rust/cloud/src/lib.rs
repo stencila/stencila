@@ -15,6 +15,7 @@ pub mod email;
 mod github;
 mod google;
 mod microsoft;
+pub mod outputs;
 pub mod sites;
 mod watch;
 pub mod workspace;

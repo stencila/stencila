@@ -20,6 +20,7 @@ color-eyre = { version = "0.6.5", features = ["issue-url"] }
 console-subscriber = { version = "0.5.0", optional = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
+glob = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 pathdiff = { workspace = true }
