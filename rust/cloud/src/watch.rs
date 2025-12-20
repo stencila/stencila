@@ -57,7 +57,11 @@ pub async fn create_watch(workspace_id: &str, request: WatchRequest) -> Result<W
     let client = client().await?;
     let url = format!("{}/workspaces/{}/watches", base_url(), workspace_id);
 
-    tracing::debug!("Creating watch for file {} in workspace {}", request.file_path, workspace_id);
+    tracing::debug!(
+        "Creating watch for file {} in workspace {}",
+        request.file_path,
+        workspace_id
+    );
     let response = client.post(&url).json(&request).send().await?;
 
     process_response(response).await
@@ -74,7 +78,12 @@ pub async fn create_watch(workspace_id: &str, request: WatchRequest) -> Result<W
 #[tracing::instrument]
 pub async fn delete_watch(workspace_id: &str, watch_id: &str) -> Result<()> {
     let client = client().await?;
-    let url = format!("{}/workspaces/{}/watches/{}", base_url(), workspace_id, watch_id);
+    let url = format!(
+        "{}/workspaces/{}/watches/{}",
+        base_url(),
+        workspace_id,
+        watch_id
+    );
 
     tracing::debug!("Deleting watch {watch_id} from workspace {workspace_id}");
     let response = client.delete(&url).send().await?;
@@ -144,7 +153,12 @@ pub struct WatchDetailsResponse {
 #[tracing::instrument]
 pub async fn get_watch(workspace_id: &str, watch_id: &str) -> Result<WatchDetailsResponse> {
     let client = client().await?;
-    let url = format!("{}/workspaces/{}/watches/{}", base_url(), workspace_id, watch_id);
+    let url = format!(
+        "{}/workspaces/{}/watches/{}",
+        base_url(),
+        workspace_id,
+        watch_id
+    );
 
     tracing::debug!("Getting watch {watch_id} from workspace {workspace_id}");
     let response = client.get(&url).send().await?;

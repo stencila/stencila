@@ -130,7 +130,12 @@ pub async fn get_site(workspace_id: &str) -> Result<SiteDetails> {
 
 /// Upload a single file to the site
 #[tracing::instrument]
-pub async fn upload_file(workspace_id: &str, branch_slug: &str, path: &str, file: &Path) -> Result<()> {
+pub async fn upload_file(
+    workspace_id: &str,
+    branch_slug: &str,
+    path: &str,
+    file: &Path,
+) -> Result<()> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
@@ -412,7 +417,10 @@ pub async fn update_site_access(
 
     let client = Client::new();
     let response = client
-        .patch(format!("{}/workspaces/{workspace_id}/site/access", base_url()))
+        .patch(format!(
+            "{}/workspaces/{workspace_id}/site/access",
+            base_url()
+        ))
         .bearer_auth(token)
         .json(&json)
         .send()
@@ -444,7 +452,10 @@ pub async fn set_site_password(
 
     let client = Client::new();
     let response = client
-        .put(format!("{}/workspaces/{workspace_id}/site/password", base_url()))
+        .put(format!(
+            "{}/workspaces/{workspace_id}/site/password",
+            base_url()
+        ))
         .bearer_auth(token)
         .json(&serde_json::json!({
             "password": password,
@@ -472,7 +483,10 @@ pub async fn remove_site_password(workspace_id: &str) -> Result<()> {
 
     let client = Client::new();
     let response = client
-        .delete(format!("{}/workspaces/{workspace_id}/site/password", base_url()))
+        .delete(format!(
+            "{}/workspaces/{workspace_id}/site/password",
+            base_url()
+        ))
         .bearer_auth(token)
         .send()
         .await?;
@@ -502,7 +516,10 @@ pub async fn set_site_domain(workspace_id: &str, domain: &str) -> Result<DomainS
 
     let client = Client::new();
     let response = client
-        .post(format!("{}/workspaces/{workspace_id}/site/domain", base_url()))
+        .post(format!(
+            "{}/workspaces/{workspace_id}/site/domain",
+            base_url()
+        ))
         .bearer_auth(token)
         .json(&json)
         .send()
@@ -528,7 +545,10 @@ pub async fn get_site_domain_status(workspace_id: &str) -> Result<DomainStatusRe
 
     let client = Client::new();
     let response = client
-        .get(format!("{}/workspaces/{workspace_id}/site/domain/status", base_url()))
+        .get(format!(
+            "{}/workspaces/{workspace_id}/site/domain/status",
+            base_url()
+        ))
         .bearer_auth(token)
         .send()
         .await?;
@@ -553,7 +573,10 @@ pub async fn delete_site_domain(workspace_id: &str) -> Result<()> {
 
     let client = Client::new();
     let response = client
-        .delete(format!("{}/workspaces/{workspace_id}/site/domain", base_url()))
+        .delete(format!(
+            "{}/workspaces/{workspace_id}/site/domain",
+            base_url()
+        ))
         .bearer_auth(token)
         .send()
         .await?;
@@ -595,7 +618,10 @@ pub async fn list_site_branches(workspace_id: &str) -> Result<Vec<BranchInfo>> {
 
     let client = Client::new();
     let response = client
-        .get(format!("{}/workspaces/{workspace_id}/site/branches", base_url()))
+        .get(format!(
+            "{}/workspaces/{workspace_id}/site/branches",
+            base_url()
+        ))
         .bearer_auth(token)
         .send()
         .await?;

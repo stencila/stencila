@@ -442,7 +442,8 @@ pub async fn modified_at(url: &Url) -> Result<u64> {
     let attachments_ref = parse_email_attachments_url(url)?;
 
     // Fetch the watch details to get last_remote_received_at
-    let watch = crate::watch::get_watch(&attachments_ref.workspace_id, &attachments_ref.watch_id).await?;
+    let watch =
+        crate::watch::get_watch(&attachments_ref.workspace_id, &attachments_ref.watch_id).await?;
 
     // Parse last_remote_received_at as a timestamp
     // If not set, return 0
@@ -464,7 +465,9 @@ mod tests {
 
     #[test]
     fn test_parse_email_attachments_url_valid() -> Result<()> {
-        let url = Url::parse("https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments")?;
+        let url = Url::parse(
+            "https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments",
+        )?;
         let result = parse_email_attachments_url(&url)?;
 
         assert_eq!(result.workspace_id, "ws1234567890");
@@ -474,7 +477,9 @@ mod tests {
 
     #[test]
     fn test_parse_email_attachments_url_invalid_host() -> Result<()> {
-        let url = Url::parse("https://example.com/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments")?;
+        let url = Url::parse(
+            "https://example.com/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments",
+        )?;
         let result = parse_email_attachments_url(&url);
         assert!(result.is_err());
         Ok(())
@@ -482,7 +487,9 @@ mod tests {
 
     #[test]
     fn test_parse_email_attachments_url_invalid_path() -> Result<()> {
-        let url = Url::parse("https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/other")?;
+        let url = Url::parse(
+            "https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/other",
+        )?;
         let result = parse_email_attachments_url(&url);
         assert!(result.is_err());
         Ok(())
@@ -490,7 +497,9 @@ mod tests {
 
     #[test]
     fn test_matches_url_valid() -> Result<()> {
-        let url = Url::parse("https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments")?;
+        let url = Url::parse(
+            "https://api.stencila.cloud/v1/workspaces/ws1234567890/watches/wa1234567890/email/attachments",
+        )?;
         assert!(matches_url(&url));
         Ok(())
     }

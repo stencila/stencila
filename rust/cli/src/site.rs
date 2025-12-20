@@ -267,8 +267,13 @@ impl Create {
                 }
                 AccessMode::Password => {
                     let password = ask_for_password("Enter password for site access").await?;
-                    update_site_access(&workspace_id, Some(access), Some(Some(password.as_str())), None)
-                        .await?;
+                    update_site_access(
+                        &workspace_id,
+                        Some(access),
+                        Some(Some(password.as_str())),
+                        None,
+                    )
+                    .await?;
                 }
             }
         }
@@ -695,7 +700,7 @@ impl AccessTeam {
             .workspace
             .and_then(|w| w.id)
             .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-        
+
         let domain = cfg.site.and_then(|s| s.domain);
 
         // Determine accessRestrictMain value if flags are provided
@@ -707,7 +712,13 @@ impl AccessTeam {
             None
         };
 
-        update_site_access(&workspace_id, Some(AccessMode::Team), None, access_restrict_main).await?;
+        update_site_access(
+            &workspace_id,
+            Some(AccessMode::Team),
+            None,
+            access_restrict_main,
+        )
+        .await?;
 
         message!(
             "✅ Site {} switched to team-only access{}",
@@ -814,7 +825,7 @@ impl PasswordSet {
             .workspace
             .and_then(|w| w.id)
             .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-        
+
         let domain = cfg.site.and_then(|s| s.domain);
 
         // Prompt for password securely
