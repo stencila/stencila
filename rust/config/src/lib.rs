@@ -616,7 +616,7 @@ pub enum RemoteTarget {
 
     /// Spread configuration for multi-variant pushes
     ///
-    /// Example: `{ service = "gdoc", title = "Report {region}", params = { region = ["north", "south"] } }`
+    /// Example: `{ service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south"] } }`
     Spread(RemoteSpread),
 }
 
@@ -734,17 +734,17 @@ pub struct RemoteSpread {
 
     /// Title template with placeholders
     ///
-    /// Placeholders like `{param}` are replaced with parameter values.
+    /// Placeholders like `{param}` are replaced with arguments.
     /// Example: "Report - {region}"
     pub title: Option<String>,
 
     /// Spread mode
     ///
-    /// - `grid`: Cartesian product of all parameter values (default)
+    /// - `grid`: Cartesian product of all arguments (default)
     /// - `zip`: Positional pairing of values (all params must have same length)
     pub spread: Option<SpreadMode>,
 
-    /// Parameter values for spread variants
+    /// Arguments for spread variants
     ///
     /// Keys are parameter names, values are arrays of possible values.
     /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
@@ -755,7 +755,7 @@ pub struct RemoteSpread {
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum SpreadMode {
-    /// Cartesian product of all parameter values (default)
+    /// Cartesian product of all arguments (default)
     #[default]
     Grid,
     /// Positional pairing of values (all params must have same length)
