@@ -16,7 +16,7 @@ use indexmap::IndexMap;
 use tempfile::TempDir;
 
 use stencila_cli_utils::{
-    AsFormat, ToStdout,
+    AsFormat, Code, ToStdout,
     color_print::cstr,
     message,
     tabulated::{Cell, CellAlignment, Color, Tabulated},
@@ -45,7 +45,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># List configured outputs</dim>
   <b>stencila outputs</>
   <b>stencila outputs list</>
-  <b>stencila outputs list --as json</>
+  <b>stencila outputs list --as toml</>
 
   <dim># Add an output</dim>
   <b>stencila outputs add report.pdf report.md</>
@@ -103,8 +103,10 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
   <dim># List configured outputs in table format</dim>
   <b>stencila outputs list</>
 
-  <dim># List in JSON format</dim>
+  <dim># List in JSON, YAML, or TOML format</dim>
   <b>stencila outputs list --as json</>
+  <b>stencila outputs list --as yaml</>
+  <b>stencila outputs list --as toml</>
 "
 );
 
@@ -119,9 +121,15 @@ impl List {
             return Ok(());
         }
 
+        // Output as formatted code if --as specified
+        if let Some(format) = self.r#as {
+            Code::new_from(format.into(), &outputs)?.to_stdout();
+            return Ok(());
+        }
+
         // Build table
         let mut table = Tabulated::new();
-        table.set_header(["Key", "Source", "Command", "Refs"]);
+        table.set_header(["Output", "Source", "Command", "Refs"]);
 
         for (key, target) in &outputs {
             let (source, command, refs) = match target {
@@ -203,36 +211,39 @@ impl List {
 #[derive(Debug, Args)]
 #[command(after_long_help = ADD_AFTER_LONG_HELP)]
 pub struct Add {
-    /// Output key (destination path in cloud outputs)
+    /// Output path (destination in cloud outputs)
     ///
     /// This is the path where the output will be stored, e.g., "report.pdf"
     /// or "{region}/report.pdf" for spread outputs.
-    key: String,
+    output: String,
 
     /// Source file path
     ///
-    /// The source file to render or convert. If not provided, the key
+    /// The source file to render or convert. If not provided, the output
     /// is used as the source path (for static file copies).
     source: Option<String>,
 
     /// Processing command
-    ///
-    /// - render: Execute code and convert to output format (default for different extensions)
-    /// - convert: Format transformation only, no code execution
-    /// - none: Copy file as-is (default for same extensions)
-    #[arg(long, short)]
-    command: Option<String>,
+    #[arg(long, short, value_enum)]
+    command: Option<OutputCommand>,
 
     /// Git ref patterns for when to process this output
     ///
-    /// Supports glob patterns. Examples: "main", "v*", "release/*"
+    /// Supports glob patterns and optional type prefixes:
+    /// "main", "v*", "release/*" (matches any ref type),
+    /// "branch:main" (matches only branches),
+    /// "tag:v*" (matches only tags),
+    /// "commit:*" (matches any commit SHA for CI builds on detached HEAD)
     #[arg(long, short, value_delimiter = ',')]
     refs: Option<Vec<String>>,
 
     /// Glob pattern for matching multiple source files
     ///
     /// Use this instead of source for multi-file outputs.
-    /// The key must include "*.ext" to specify output format.
+    /// When using --pattern, the output path must contain exactly one `*`
+    /// which will be replaced with the matched file's stem (path without extension).
+    /// The output must also include an extension to determine output format (e.g., "reports/*.pdf").
+    /// Example: output "reports/*.pdf" with pattern "src/*.md" maps "src/intro.md" to "reports/intro.pdf"
     #[arg(long, short)]
     pattern: Option<String>,
 
@@ -263,9 +274,9 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
 impl Add {
     pub async fn run(self) -> Result<()> {
         let config_path = config_add_output(
-            &self.key,
+            &self.output,
             self.source.as_deref(),
-            self.command.as_deref(),
+            self.command,
             self.refs.as_deref(),
             self.pattern.as_deref(),
             self.exclude.as_deref(),
@@ -273,7 +284,7 @@ impl Add {
 
         message!(
             "✅ Added output `{}` to {}",
-            self.key,
+            self.output,
             config_path.display()
         );
 
@@ -285,8 +296,8 @@ impl Add {
 #[derive(Debug, Args)]
 #[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
 pub struct Remove {
-    /// Output key to remove
-    key: String,
+    /// Output to remove
+    output: String,
 }
 
 pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
@@ -301,11 +312,11 @@ pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
 
 impl Remove {
     pub async fn run(self) -> Result<()> {
-        let config_path = config_remove_output(&self.key)?;
+        let config_path = config_remove_output(&self.output)?;
 
         message!(
             "✅ Removed output `{}` from {}",
-            self.key,
+            self.output,
             config_path.display()
         );
 
@@ -317,10 +328,10 @@ impl Remove {
 #[derive(Debug, Args)]
 #[command(after_long_help = PUSH_AFTER_LONG_HELP)]
 pub struct Push {
-    /// Specific output keys to push (all if empty)
+    /// Specific outputs to push (all if empty)
     ///
     /// Supports glob patterns for matching multiple outputs.
-    keys: Vec<String>,
+    outputs: Vec<String>,
 
     /// Force push without refs filtering
     #[arg(long, short)]
@@ -362,9 +373,6 @@ impl Push {
     pub async fn run(self) -> Result<()> {
         let workspace_dir = current_dir()?;
 
-        // Get workspace ID (ensures authenticated)
-        let (workspace_id, _) = ensure_workspace(&workspace_dir).await?;
-
         // Get current git ref (supports branch, tag, or commit SHA)
         let git_ref = get_current_ref(Some(&workspace_dir))
             .ok_or_else(|| eyre!("Unable to determine git ref: not in a git repository"))?;
@@ -378,24 +386,43 @@ impl Push {
             return Ok(());
         }
 
-        // Filter to requested keys (or all if none specified)
-        let outputs: HashMap<_, _> = if self.keys.is_empty() {
+        // Parse and validate output patterns first
+        let output_patterns: Vec<Pattern> = self
+            .outputs
+            .iter()
+            .map(|output| {
+                Pattern::new(output).map_err(|e| eyre!("Invalid glob pattern `{output}`: {e}"))
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        // Filter to requested outputs (or all if none specified)
+        let outputs: HashMap<_, _> = if output_patterns.is_empty() {
             outputs
         } else {
             outputs
                 .into_iter()
-                .filter(|(k, _)| {
-                    self.keys
-                        .iter()
-                        .any(|key| Pattern::new(key).is_ok_and(|p| p.matches(k)))
-                })
+                .filter(|(k, _)| output_patterns.iter().any(|p| p.matches(k)))
                 .collect()
         };
 
         if outputs.is_empty() {
-            message("ℹ️ No outputs match the specified keys");
+            let patterns = self
+                .outputs
+                .iter()
+                .map(|o| format!("`{o}`"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            message!("ℹ️ No outputs match the specified patterns: {patterns}");
             return Ok(());
         }
+
+        // Get workspace ID (ensures authenticated) - only needed for actual uploads
+        let workspace_id = if self.dry_run {
+            String::new() // Not used in dry-run mode
+        } else {
+            let (id, _) = ensure_workspace(&workspace_dir).await?;
+            id
+        };
 
         // Create temp directory for processed files
         let temp_dir = TempDir::new()?;
@@ -454,7 +481,7 @@ impl Push {
                     processed += 1;
 
                     if self.dry_run {
-                        message!("📝 Would upload: {}", final_output_key);
+                        message!("📝 Would upload `{final_output_key}`");
                     } else {
                         // Upload to cloud
                         let result = stencila_cloud::outputs::upload_output(
@@ -468,11 +495,11 @@ impl Push {
 
                         match result {
                             UploadResult::Uploaded => {
-                                message!("✅ Uploaded: {}", final_output_key);
+                                message!("✅ Uploaded `{final_output_key}`");
                                 uploaded += 1;
                             }
                             UploadResult::Skipped => {
-                                message!("⏭️  Unchanged: {}", final_output_key);
+                                message!("⏭️  Unchanged `{final_output_key}`");
                                 skipped += 1;
                             }
                         }
@@ -482,12 +509,9 @@ impl Push {
         }
 
         if self.dry_run {
-            message!(
-                "\n📋 Dry run complete. {} outputs would be processed.",
-                processed
-            );
+            message!("📋 Dry run complete. {processed} outputs would be processed.",);
         } else {
-            message!("\n✅ Done. {} uploaded, {} unchanged.", uploaded, skipped);
+            message!("✅ Done. {uploaded} uploaded, {skipped} unchanged.");
         }
 
         Ok(())

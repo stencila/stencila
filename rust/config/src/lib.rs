@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use clap::ValueEnum;
 use eyre::{Result, eyre};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -804,26 +805,20 @@ pub enum SpreadMode {
 /// - `render`: Execute code, apply parameters, then convert to output format
 /// - `convert`: Pure format transformation (no code execution)
 /// - `none`: Copy file as-is (static upload)
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[derive(
+    Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema, Display, ValueEnum,
+)]
 #[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
 pub enum OutputCommand {
-    /// Execute code, apply parameters, then convert to output format
-    ///
-    /// This is the default when source and output extensions differ.
-    /// Allows `arguments` and `spread` options.
+    /// Execute code and convert to output format (default for different extensions)
     #[default]
     Render,
 
-    /// Pure format transformation (no code execution)
-    ///
-    /// Use this for faster processing when no code execution is needed.
-    /// Does not allow `arguments` or `spread` options.
+    /// Format transformation only, no code execution
     Convert,
 
-    /// Copy file as-is (static upload)
-    ///
-    /// This is the default when source and output extensions are the same.
-    /// Does not allow `arguments` or `spread` options.
+    /// Copy file as-is (default for same extensions)
     None,
 }
 
