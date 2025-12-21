@@ -19,7 +19,7 @@ use stencila_cloud::sites::{
 use stencila_cloud::{AccessMode, ensure_workspace};
 use stencila_config::{
     ConfigTarget, RouteSpread, SpreadMode, config, config_add_redirect_route, config_add_route,
-    config_remove_route, config_set, config_set_route_spread, config_unset,
+    config_remove_route, config_set, config_set_route_spread, config_unset, validate_placeholders,
 };
 
 /// Manage the workspace site
@@ -372,6 +372,9 @@ impl Add {
                         self.route
                     );
                 }
+
+                // Validate that each placeholder has a corresponding argument
+                validate_placeholders(&self.route, Some(&arguments), "Route")?;
 
                 // Create spread config
                 let spread = RouteSpread {
