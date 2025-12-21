@@ -678,7 +678,7 @@ fn test_config_routes_file() -> Result<()> {
 
     // Create config with simple file routes
     let config_content = r#"
-[routes]
+[site.routes]
 "/about/" = "README.md"
 "/" = "index.md"
 "#;
@@ -686,7 +686,11 @@ fn test_config_routes_file() -> Result<()> {
 
     let cfg = config_isolated(temp_dir.path())?;
 
-    let routes = cfg.routes.as_ref().expect("Expected routes to be present");
+    let routes = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.routes.as_ref())
+        .expect("Expected routes to be present");
     assert_eq!(routes.len(), 2);
 
     // Check that we can access the routes
@@ -707,7 +711,7 @@ fn test_config_routes_redirect() -> Result<()> {
 
     // Create config with redirect routes
     let config_content = r#"
-[routes]
+[site.routes]
 "/old/" = { redirect = "/new/", status = 301 }
 "/external/" = { redirect = "https://example.com" }
 "#;
@@ -715,7 +719,11 @@ fn test_config_routes_redirect() -> Result<()> {
 
     let cfg = config_isolated(temp_dir.path())?;
 
-    let routes = cfg.routes.as_ref().expect("Expected routes to be present");
+    let routes = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.routes.as_ref())
+        .expect("Expected routes to be present");
     assert_eq!(routes.len(), 2);
 
     // Check the redirect with status
@@ -739,7 +747,7 @@ fn test_config_routes_mixed() -> Result<()> {
 
     // Create config with both file and redirect routes
     let config_content = r#"
-[routes]
+[site.routes]
 "/" = "index.md"
 "/about/" = "README.md"
 "/old-page/" = { redirect = "/new-page/", status = 301 }
@@ -748,7 +756,11 @@ fn test_config_routes_mixed() -> Result<()> {
 
     let cfg = config_isolated(temp_dir.path())?;
 
-    let routes = cfg.routes.as_ref().expect("Expected routes to be present");
+    let routes = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.routes.as_ref())
+        .expect("Expected routes to be present");
     assert_eq!(routes.len(), 3);
 
     // Verify file routes
@@ -772,7 +784,7 @@ fn test_config_routes_duplicate_keys_fails() -> Result<()> {
     // TOML parsers typically reject duplicate keys at parse time
     // The exact error depends on the TOML parser implementation
     let config_content = r#"
-[routes]
+[site.routes]
 "/test/" = "file1.md"
 "/test/" = "file2.md"
 "#;
@@ -784,7 +796,8 @@ fn test_config_routes_duplicate_keys_fails() -> Result<()> {
 
     // Either it errors, or the last value wins (both are acceptable TOML behavior)
     if let Ok(cfg) = result
-        && let Some(routes) = &cfg.routes
+        && let Some(site) = &cfg.site
+        && let Some(routes) = &site.routes
     {
         // If parsing succeeded, verify only one entry exists (last one wins)
         assert_eq!(routes.len(), 1);
@@ -1019,15 +1032,23 @@ fn test_validate_placeholders() -> Result<()> {
 
     // Invalid: placeholder without matching argument
     let result = validate_placeholders("{region}/report.pdf", None, "Output");
-    assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("{region}"));
+    assert!(
+        result
+            .expect_err("expected error for missing placeholder arg")
+            .to_string()
+            .contains("{region}")
+    );
 
     // Invalid: one placeholder missing from arguments
     let mut args = HashMap::new();
     args.insert("region".to_string(), vec!["north".to_string()]);
     let result = validate_placeholders("{region}/{species}/report.pdf", Some(&args), "Output");
-    assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("{species}"));
+    assert!(
+        result
+            .expect_err("expected error for missing placeholder arg")
+            .to_string()
+            .contains("{species}")
+    );
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 # Route configuration with file mappings
 
-[routes]
+[site.routes]
 "/" = "index.md"
 "/about/" = "README.md"
 "/docs/guide/" = "docs/user-guide.md"

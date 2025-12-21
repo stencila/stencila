@@ -1,9 +1,9 @@
 use std::{fs, path::PathBuf};
 
 use eyre::{Result, bail, eyre};
-use toml_edit::{value, DocumentMut, InlineTable, Item, Table};
+use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
-use crate::{find_config_file, OutputCommand};
+use crate::{OutputCommand, find_config_file};
 
 /// Validate output configuration options before writing to config
 ///

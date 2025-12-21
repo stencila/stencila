@@ -15,8 +15,8 @@ use tempfile::TempDir;
 use tokio::fs::{copy, create_dir_all, metadata, read, read_dir, write};
 use url::Url;
 
-use stencila_cloud::sites::{get_etags, last_modified, reconcile_prefix, upload_file};
 use stencila_cloud::ensure_workspace;
+use stencila_cloud::sites::{get_etags, last_modified, reconcile_prefix, upload_file};
 use stencila_codec::{
     Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_schema::Node,
 };
@@ -309,7 +309,9 @@ pub fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) 
     }
 
     // Check route overrides first
-    if let Some(routes) = &config.routes {
+    if let Some(site) = &config.site
+        && let Some(routes) = &site.routes
+    {
         for (route_path, target) in routes {
             if let Some(file) = target.file()
                 && rel_path_str == file.as_str()
@@ -417,10 +419,13 @@ pub struct SpreadRouteVariant {
 
 /// Generate all spread route variants from config
 ///
-/// Reads `[routes]` from config and expands all `RouteTarget::Spread` variants.
+/// Reads `[site.routes]` from config and expands all `RouteTarget::Spread` variants.
 /// Returns a list of (route_template, file, variants) tuples.
 pub fn generate_spread_routes(config: &Config) -> Result<Vec<SpreadRouteVariant>> {
-    let Some(routes) = &config.routes else {
+    let Some(site) = &config.site else {
+        return Ok(Vec::new());
+    };
+    let Some(routes) = &site.routes else {
         return Ok(Vec::new());
     };
 
@@ -560,7 +565,9 @@ fn find_route_config(
 
     let rel_path_str = rel_path.to_string_lossy().replace('\\', "/");
 
-    if let Some(routes) = &config.routes {
+    if let Some(site) = &config.site
+        && let Some(routes) = &site.routes
+    {
         for (route_path, target) in routes {
             if let Some(file) = target.file()
                 && rel_path_str == file.as_str()
@@ -1074,7 +1081,8 @@ pub async fn push(
             false
         };
 
-        if is_site_root_dir && let Some(routes) = &cfg.routes {
+        if is_site_root_dir && let Some(routes) = cfg.site.as_ref().and_then(|s| s.routes.as_ref())
+        {
             for (route_path, target) in routes {
                 if let Some(redirect) = target.redirect() {
                     let dry_run_file = handle_redirect_route(
@@ -1242,7 +1250,13 @@ pub async fn push_with_route(
                     } else {
                         format!("{trimmed}/media/{filename}")
                     };
-                    upload_file(&workspace_id, &branch_slug, &media_storage_path, &media_path).await?;
+                    upload_file(
+                        &workspace_id,
+                        &branch_slug,
+                        &media_storage_path,
+                        &media_path,
+                    )
+                    .await?;
                     current_media_files.push(media_storage_path);
                 }
             }
@@ -1538,7 +1552,9 @@ where
 
     // Add site-level redirects from config (redirect routes not tied to files)
     // This mirrors the logic in single-file push (handle_redirect_route loop)
-    if let Some(routes) = &config.routes {
+    if let Some(site) = &config.site
+        && let Some(routes) = &site.routes
+    {
         for (route_path, target) in routes {
             if let Some(redirect_config) = target.redirect() {
                 // Only add if not already covered by a document redirect

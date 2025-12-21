@@ -1,8 +1,6 @@
 # Full site configuration example
 
 [site]
-id = "sabcdefgh1"
-watch = "wAbCdEfGh1"
 domain = "docs.example.com"
 root = "docs"
 exclude = ["**/*.draft.md", "temp/**", "_private/**"]

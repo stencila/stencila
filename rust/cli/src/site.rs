@@ -1,7 +1,9 @@
 use std::env::current_dir;
+use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail, eyre};
+use url::Url;
 
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
 use stencila_cli_utils::{
@@ -14,9 +16,11 @@ use stencila_cloud::sites::{
     default_site_url, delete_site_branch, delete_site_domain, delete_workspace, get_site,
     get_site_domain_status, list_site_branches, set_site_domain, update_site_access,
 };
-use stencila_cloud::{AccessMode, WatchRequest, create_watch, ensure_workspace};
-use stencila_codec_utils::git_info;
-use stencila_config::{ConfigTarget, config, config_set, config_unset, config_update_site_watch};
+use stencila_cloud::{AccessMode, ensure_workspace};
+use stencila_config::{
+    ConfigTarget, config, config_add_redirect_route, config_add_route, config_remove_route,
+    config_set, config_unset,
+};
 
 /// Manage the workspace site
 #[derive(Debug, Parser)]
@@ -31,6 +35,20 @@ pub static AFTER_LONG_HELP: &str = cstr!(
   <dim># View details of the workspace site</dim>
   <b>stencila site</>
   <b>stencila site show</>
+
+  <dim># List configured routes</dim>
+  <b>stencila site list</>
+
+  <dim># Add a route</dim>
+  <b>stencila site add / index.md</>
+  <b>stencila site add /about/ README.md</>
+  <b>stencila site add /old/ --redirect /new/ --status 301</>
+
+  <dim># Remove a route</dim>
+  <b>stencila site remove /about/</>
+
+  <dim># Push site content to cloud</dim>
+  <b>stencila site push</>
 
   <dim># Create a site for the workspace</dim>
   <b>stencila site create</>
@@ -58,6 +76,10 @@ pub static AFTER_LONG_HELP: &str = cstr!(
 #[derive(Debug, Subcommand)]
 enum SiteCommand {
     Show(Show),
+    List(List),
+    Add(Add),
+    Remove(Remove),
+    Push(Push),
     Create(Create),
     Delete(Delete),
     Access(Access),
@@ -68,12 +90,14 @@ enum SiteCommand {
 
 impl Site {
     pub async fn run(self) -> Result<()> {
-        let command = self
-            .command
-            .unwrap_or(SiteCommand::Show(Show { path: None }));
+        let command = self.command.unwrap_or(SiteCommand::List(List::default()));
 
         match command {
             SiteCommand::Show(show) => show.run().await,
+            SiteCommand::List(list) => list.run(),
+            SiteCommand::Add(add) => add.run(),
+            SiteCommand::Remove(remove) => remove.run(),
+            SiteCommand::Push(push) => push.run().await,
             SiteCommand::Create(create) => create.run().await,
             SiteCommand::Delete(delete) => delete.run().await,
             SiteCommand::Access(access) => access.run().await,
@@ -183,6 +207,345 @@ impl Show {
     }
 }
 
+/// List configured routes
+#[derive(Debug, Default, Args)]
+#[command(after_long_help = LIST_AFTER_LONG_HELP)]
+pub struct List {
+    /// Path to the workspace directory
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+}
+
+pub static LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># List configured routes</dim>
+  <b>stencila site</>
+  <b>stencila site list</>
+"
+);
+
+impl List {
+    pub fn run(self) -> Result<()> {
+        let path = self.path.map_or_else(current_dir, Ok)?;
+        let cfg = config(&path)?;
+
+        let routes = cfg.site.as_ref().and_then(|s| s.routes.as_ref());
+
+        match routes {
+            Some(routes) if !routes.is_empty() => {
+                let mut table = Tabulated::new();
+                table.set_header(["Route", "Target"]);
+
+                for (route, target) in routes {
+                    let target_str = if let Some(file) = target.file() {
+                        file.as_str().to_string()
+                    } else if let Some(redirect) = target.redirect() {
+                        let status = redirect
+                            .status
+                            .map(|s| format!(" ({})", s as u16))
+                            .unwrap_or_default();
+                        format!("→ {}{}", redirect.redirect, status)
+                    } else if let Some(spread) = target.spread() {
+                        format!("{} (spread)", spread.file)
+                    } else {
+                        "?".to_string()
+                    };
+
+                    table.add_row([Cell::new(route).fg(Color::Cyan), Cell::new(&target_str)]);
+                }
+
+                table.to_stdout();
+            }
+            _ => {
+                message(cstr!(
+                    "💡 No routes configured. To add a route, run <b>stencila site add ROUTE FILE</>"
+                ));
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// Add a route
+#[derive(Debug, Args)]
+#[command(after_long_help = ADD_AFTER_LONG_HELP)]
+pub struct Add {
+    /// Route path (e.g., "/", "/about/")
+    route: String,
+
+    /// File to serve at this route
+    file: Option<String>,
+
+    /// Redirect URL (instead of a file)
+    #[arg(long, short)]
+    redirect: Option<String>,
+
+    /// HTTP status code for redirect (301, 302, 303, 307, 308)
+    #[arg(long, short)]
+    status: Option<u16>,
+}
+
+pub static ADD_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Add a file route</dim>
+  <b>stencila site add / index.md</>
+  <b>stencila site add /about/ README.md</>
+
+  <dim># Add a redirect</dim>
+  <b>stencila site add /old/ --redirect /new/</>
+  <b>stencila site add /old/ --redirect /new/ --status 301</>
+
+  <dim># Add external redirect</dim>
+  <b>stencila site add /github/ --redirect https://github.com/stencila/stencila</>
+"
+);
+
+impl Add {
+    pub fn run(self) -> Result<()> {
+        // Validate route starts with /
+        if !self.route.starts_with('/') {
+            bail!("Route must start with '/'");
+        }
+
+        // Must have either file or redirect
+        if self.file.is_none() && self.redirect.is_none() {
+            bail!("Must specify either a file or --redirect");
+        }
+
+        if self.file.is_some() && self.redirect.is_some() {
+            bail!("Cannot specify both a file and --redirect");
+        }
+
+        if self.status.is_some() && self.redirect.is_none() {
+            bail!("--status can only be used with --redirect");
+        }
+
+        if let Some(file) = &self.file {
+            // Add file route
+            let file_path = std::path::Path::new(file);
+            if !file_path.exists() {
+                message!("⚠️  Warning: File '{}' does not exist", file);
+            }
+            let file_path = file_path
+                .canonicalize()
+                .unwrap_or_else(|_| file_path.to_path_buf());
+            config_add_route(&file_path, &self.route)?;
+            message!("✅ Added route {} → {}", self.route, file);
+        } else if let Some(redirect) = &self.redirect {
+            // Add redirect route
+            config_add_redirect_route(&self.route, redirect, self.status)?;
+            let status_str = self.status.map(|s| format!(" ({})", s)).unwrap_or_default();
+            message!(
+                "✅ Added redirect {} → {}{}",
+                self.route,
+                redirect,
+                status_str
+            );
+        }
+
+        Ok(())
+    }
+}
+
+/// Remove a route
+#[derive(Debug, Args)]
+#[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
+pub struct Remove {
+    /// Route path to remove (e.g., "/about/")
+    route: String,
+}
+
+pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Remove a route</dim>
+  <b>stencila site remove /about/</>
+  <b>stencila site remove /old/</>
+"
+);
+
+impl Remove {
+    pub fn run(self) -> Result<()> {
+        config_remove_route(&self.route)?;
+        message!("✅ Removed route {}", self.route);
+        Ok(())
+    }
+}
+
+/// Push site content to Stencila Cloud
+#[derive(Debug, Args)]
+#[command(after_long_help = PUSH_AFTER_LONG_HELP)]
+pub struct Push {
+    /// Path to the workspace directory
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<PathBuf>,
+
+    /// Force push without checking etags
+    #[arg(long, short)]
+    force: bool,
+
+    /// Dry run - process but don't upload
+    ///
+    /// Optionally specify an output directory to write generated files
+    #[arg(long)]
+    dry_run: Option<Option<PathBuf>>,
+}
+
+pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Push site content to cloud</dim>
+  <b>stencila site push</>
+
+  <dim># Force push (ignore unchanged files)</dim>
+  <b>stencila site push --force</>
+
+  <dim># Dry run (process but don't upload)</dim>
+  <b>stencila site push --dry-run</>
+
+  <dim># Dry run with output directory</dim>
+  <b>stencila site push --dry-run=./temp</>
+"
+);
+
+impl Push {
+    pub async fn run(self) -> Result<()> {
+        use stencila_codec_site::PushProgress;
+
+        let path = self.path.map_or_else(current_dir, Ok)?;
+        let path_display = path.display();
+
+        // Ensure workspace exists
+        let cfg = config(&path)?;
+        let workspace_id = cfg
+            .workspace
+            .and_then(|w| w.id)
+            .ok_or_else(|| eyre!("No workspace configured. Run `stencila site create` first."))?;
+
+        // Set up dry-run path
+        let is_dry_run = self.dry_run.is_some();
+        let dry_run_path = self.dry_run.as_ref().and_then(|opt| opt.as_ref());
+
+        // Set up progress channel
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<PushProgress>(100);
+
+        // Spawn a task to handle progress updates
+        let progress_handle = tokio::spawn(async move {
+            while let Some(progress) = rx.recv().await {
+                match progress {
+                    PushProgress::WalkingDirectory => {
+                        message("📁 Walking directory");
+                    }
+                    PushProgress::FilesFound {
+                        documents,
+                        static_files,
+                    } => {
+                        message!("📊 Found {documents} documents, {static_files} static files");
+                    }
+                    PushProgress::EncodingDocument { path, index, total } => {
+                        message!(
+                            "📃 Processing document {}/{}: {}",
+                            index + 1,
+                            total,
+                            path.display()
+                        );
+                    }
+                    PushProgress::DocumentEncoded { .. } => {}
+                    PushProgress::DocumentFailed { path, error } => {
+                        message!("❌ Failed to encode {}: {}", path.display(), error);
+                    }
+                    PushProgress::Processing {
+                        processed,
+                        uploaded,
+                        total,
+                    } => {
+                        if processed == total {
+                            let unchanged = total - uploaded;
+                            message!(
+                                "⚙️ Processed {total}/{total} files ({uploaded} new, {unchanged} unchanged)"
+                            );
+                        }
+                    }
+                    PushProgress::Reconciling => {
+                        message("🔄 Reconciling files");
+                    }
+                    PushProgress::Complete(_) => {}
+                }
+            }
+        });
+
+        message!("☁️ Pushing directory `{path_display}` to workspace site");
+
+        // Call push_directory with a decoder function
+        let result = stencila_codec_site::push_directory(
+            &path,
+            &workspace_id,
+            None, // Use current branch
+            self.force,
+            is_dry_run,
+            dry_run_path.map(|p| p.as_path()),
+            Some(tx),
+            |doc_path| async move { stencila_codecs::from_path(&doc_path, None).await },
+        )
+        .await;
+
+        // Wait for progress handler to finish
+        let _ = progress_handle.await;
+
+        // Handle result
+        let result = result?;
+
+        // Print summary
+        let action = if is_dry_run {
+            "Dry-run complete"
+        } else {
+            "Push complete"
+        };
+
+        message!(
+            "✅ {}: {} documents, {} redirects, {} static files, {} media files",
+            action,
+            result.documents_ok.len(),
+            result.redirects.len(),
+            result.static_files_ok.len(),
+            result.media_files_count
+        );
+
+        if result.media_duplicates_eliminated > 0 {
+            message!(
+                "♻️ {} media duplicates eliminated",
+                result.media_duplicates_eliminated
+            );
+        }
+
+        if result.files_skipped > 0 {
+            message!(
+                "⏭️ {} unchanged files skipped (use --force to upload all)",
+                result.files_skipped
+            );
+        }
+
+        if !result.documents_failed.is_empty() {
+            message!("⚠️ {} documents failed:", result.documents_failed.len());
+            for (doc_path, error) in &result.documents_failed {
+                message!("     - {}: {}", doc_path.display(), error);
+            }
+        }
+
+        if !is_dry_run {
+            let url = format!("https://{workspace_id}.stencila.site");
+            let url = Url::parse(&url)?;
+            let url = stencila_codec_site::browseable_url(&url, Some(&path))?;
+            message!("🔗 Site available at: {url}");
+        }
+
+        Ok(())
+    }
+}
+
 /// Create a site for the workspace
 #[derive(Debug, Args)]
 #[command(after_long_help = CREATE_AFTER_LONG_HELP)]
@@ -203,13 +566,6 @@ pub struct Create {
     /// Set access restrictions for the site
     #[arg(long, short, value_enum)]
     access: Option<AccessMode>,
-
-    /// Create a watch for automatic deployment
-    ///
-    /// When changes are pushed to the repository, the site is automatically
-    /// updated. Requires a git repository with an origin remote.
-    #[arg(long, short)]
-    watch: bool,
 
     /// Set a custom domain for the site
     ///
@@ -235,14 +591,11 @@ pub static CREATE_AFTER_LONG_HELP: &str = cstr!(
   <dim># Create site with team-only access</dim>
   <b>stencila site create --access team</>
 
-  <dim># Create site with automatic deployment on git push</dim>
-  <b>stencila site create --watch</>
-
   <dim># Create site with a custom domain</dim>
   <b>stencila site create --domain example.com</>
 
   <dim># Combine options</dim>
-  <b>stencila site create docs --access public --watch --domain docs.example.com</>
+  <b>stencila site create docs --access public --domain docs.example.com</>
 "
 );
 
@@ -293,49 +646,7 @@ impl Create {
             }
         }
 
-        // 5. Create watch if requested
-        if self.watch {
-            // Check git remote exists
-            let site_path = self
-                .root
-                .as_ref()
-                .map(|r| workspace_path.join(r))
-                .unwrap_or_else(|| workspace_path.clone());
-
-            let git_info = git_info(&site_path)?;
-            // Validate we have a git remote (workspace already verified this, but check for watch context)
-            if git_info.origin.is_none() {
-                bail!("--watch requires a git repository with an origin remote");
-            }
-
-            // Check not already watched
-            let cfg = config(&workspace_path)?;
-            if cfg.site.as_ref().and_then(|s| s.watch.as_ref()).is_none() {
-                // Get directory path relative to repo root (must end with / for API)
-                let dir_path = git_info.path.unwrap_or_else(|| ".".to_string());
-                let dir_path = if dir_path.ends_with('/') {
-                    dir_path
-                } else {
-                    format!("{dir_path}/")
-                };
-
-                // Build the site URL
-                let site_url = format!("https://{workspace_id}.stencila.site");
-
-                let request = WatchRequest {
-                    remote_url: site_url,
-                    file_path: dir_path,
-                    direction: Some("to-remote".to_string()),
-                    pr_mode: None,
-                    debounce_seconds: None,
-                };
-
-                let response = create_watch(&workspace_id, request).await?;
-                config_update_site_watch(&workspace_path, Some(response.id))?;
-            }
-        }
-
-        // 6. Display success message
+        // 5. Display success message
         let cfg = config(&workspace_path)?;
         let domain = cfg.site.and_then(|s| s.domain);
         let url = default_site_url(&workspace_id, domain.as_deref());
@@ -349,9 +660,6 @@ impl Create {
         // Show additional status for new options
         if let Some(access) = &self.access {
             message!("   Access: {access}");
-        }
-        if self.watch {
-            message!("   Watch: enabled");
         }
         if let Some(domain) = &self.domain {
             message!("   Domain: {domain}");

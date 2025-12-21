@@ -57,14 +57,13 @@ fn generate_schema() -> Result<Value> {
         // See: https://github.com/SchemaStore/schemastore/blob/master/CONTRIBUTING.md
         if let Some(properties) = obj.get_mut("properties").and_then(|p| p.as_object_mut()) {
             add_doc_url(properties, "site", "site");
-            add_doc_url(properties, "routes", "routes");
             add_doc_url(properties, "remotes", "remotes");
         }
         if let Some(definitions) = obj.get_mut("definitions").and_then(|d| d.as_object_mut()) {
             add_doc_url(definitions, "SiteConfig", "site");
-            add_doc_url(definitions, "RouteTarget", "routes");
-            add_doc_url(definitions, "RouteRedirect", "routes#redirect");
-            add_doc_url(definitions, "RouteSpread", "routes#spread");
+            add_doc_url(definitions, "RouteTarget", "site#routes");
+            add_doc_url(definitions, "RouteRedirect", "site#routes-redirect");
+            add_doc_url(definitions, "RouteSpread", "site#routes-spread");
             add_doc_url(definitions, "RemoteValue", "remotes");
             add_doc_url(definitions, "RemoteTarget", "remotes");
             add_doc_url(definitions, "RemoteWatch", "remotes#watch");
@@ -423,7 +422,7 @@ Stencila uses `stencila.toml` files for project configuration. This reference do
         .next()
         .unwrap_or("Site configuration");
     let routes_desc = first_sentence(
-        docs.config
+        docs.site_config
             .fields
             .iter()
             .find(|f| f.name == "routes")
@@ -440,13 +439,15 @@ Stencila uses `stencila.toml` files for project configuration. This reference do
     );
 
     content.push_str(&format!("| [`[site]`](site) | {site_desc} |\n"));
-    content.push_str(&format!("| [`[routes]`](routes) | {routes_desc} |\n"));
+    content.push_str(&format!(
+        "| [`[site.routes]`](site#routes) | {routes_desc} |\n"
+    ));
     content.push_str(&format!("| [`[remotes]`](remotes) | {remotes_desc} |\n"));
 
     // Add examples from routes and remotes field doc comments
     content.push_str("\n## Examples\n\n");
 
-    if let Some(routes_field) = docs.config.fields.iter().find(|f| f.name == "routes")
+    if let Some(routes_field) = docs.site_config.fields.iter().find(|f| f.name == "routes")
         && let Some(example) = &routes_field.example
     {
         content.push_str("### Routes\n\n");
@@ -523,9 +524,11 @@ description: {description}
 }
 
 /// Write the routes.md file
+///
+/// Note: Routes are now part of site configuration, so this reads from site_config
 #[allow(clippy::print_stdout)]
 fn write_routes_md(output_dir: &Path, docs: &ExtractedDocs) -> Result<()> {
-    let routes_field = docs.config.fields.iter().find(|f| f.name == "routes");
+    let routes_field = docs.site_config.fields.iter().find(|f| f.name == "routes");
     let description = routes_field
         .map(|f| first_line(&f.doc))
         .unwrap_or_else(|| "Custom routes for serving content".to_string());
@@ -538,10 +541,12 @@ description: {description}
 
 # Routes Configuration
 
+Routes are configured under the `[site.routes]` section.
+
 "#
     );
 
-    // Add description from Config.routes field
+    // Add description from SiteConfig.routes field
     if let Some(routes_field) = routes_field {
         content.push_str(&format_doc(&routes_field.doc));
         content.push_str("\n\n");
@@ -582,7 +587,7 @@ description: {description}
     }
 
     // Add example from routes field doc comment
-    if let Some(routes_field) = docs.config.fields.iter().find(|f| f.name == "routes")
+    if let Some(routes_field) = docs.site_config.fields.iter().find(|f| f.name == "routes")
         && let Some(example) = &routes_field.example
     {
         content.push_str("## ");

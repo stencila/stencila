@@ -120,7 +120,11 @@ impl Get {
             let cfg = config(&cwd)?;
 
             // Check if config is empty (all fields are None)
-            if cfg.site.is_none() && cfg.routes.is_none() {
+            if cfg.site.is_none()
+                && cfg.workspace.is_none()
+                && cfg.remotes.is_none()
+                && cfg.outputs.is_none()
+            {
                 message(cstr!(
                     "💡 No configuration values are currently set.\n\n\
                     Use <b>stencila config set</> <g>key</> <g>value</> to set a value, \

@@ -11,6 +11,8 @@ use figment::{
 };
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
+use crate::CONFIG_FILENAME;
+
 /// Format a TOML array to be multi-line for better readability
 fn format_array_multiline(arr: &mut toml_edit::Array) {
     // Set trailing newline on the array itself
@@ -887,7 +889,7 @@ pub fn config_set_remote_spread(file_path: &Path, spread: &crate::RemoteSpread) 
     Ok(config_path)
 }
 
-/// Add a route to the [routes] section of stencila.toml
+/// Add a route to the [site.routes] section of stencila.toml
 ///
 /// This function:
 /// 1. Finds the nearest stencila.toml (or creates one if none exists)
@@ -936,15 +938,25 @@ pub fn config_add_route(file_path: &Path, route: &str) -> Result<PathBuf> {
         .parse::<DocumentMut>()
         .unwrap_or_else(|_| DocumentMut::new());
 
-    // Ensure [routes] table exists
-    if doc.get("routes").is_none() {
-        doc["routes"] = Item::Table(Table::new());
+    // Ensure [site] table exists
+    if doc.get("site").is_none() {
+        doc["site"] = Item::Table(Table::new());
     }
 
-    let routes_table = doc
+    let site_table = doc
+        .get_mut("site")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("site field is not a table")?;
+
+    // Ensure [site.routes] table exists
+    if site_table.get("routes").is_none() {
+        site_table["routes"] = Item::Table(Table::new());
+    }
+
+    let routes_table = site_table
         .get_mut("routes")
         .and_then(|v| v.as_table_mut())
-        .ok_or_eyre("routes field is not a table")?;
+        .ok_or_eyre("site.routes field is not a table")?;
 
     // Get workspace directory (parent of config file)
     let workspace_dir = config_path
@@ -977,48 +989,42 @@ pub fn config_add_route(file_path: &Path, route: &str) -> Result<PathBuf> {
     Ok(config_path)
 }
 
-/// Update the watch ID for a site in the [site] section of stencila.toml
+/// Remove a route from the [site.routes] section of stencila.toml
 ///
 /// This function:
-/// 1. Finds the nearest stencila.toml (starting from the given path)
-/// 2. Updates the site.watch field with the watch ID
-/// 3. If watch_id is None, removes the watch field
+/// 1. Finds the nearest stencila.toml
+/// 2. Removes the route entry for the given key
 ///
 /// Returns the path to the modified config file.
-pub fn config_update_site_watch(path: &Path, watch_id: Option<String>) -> Result<PathBuf> {
+pub fn config_remove_route(route: &str) -> Result<PathBuf> {
     use crate::CONFIG_FILENAME;
 
-    // Find the nearest stencila.toml starting from the path
-    let search_dir = if path.is_file() {
-        path.parent().ok_or_eyre("File has no parent directory")?
-    } else {
-        path
-    };
-
-    let config_path = find_config_file(search_dir, CONFIG_FILENAME)
+    let cwd = std::env::current_dir()?;
+    let config_path = find_config_file(&cwd, CONFIG_FILENAME)
         .ok_or_else(|| eyre!("No `{CONFIG_FILENAME}` found"))?;
 
     // Load existing config
     let contents = fs::read_to_string(&config_path)?;
     let mut doc = contents.parse::<DocumentMut>()?;
 
-    // Ensure [site] table exists
-    if doc.get("site").is_none() {
-        return Err(eyre!(
-            "No [site] section in `{CONFIG_FILENAME}`. Create a site first with `stencila site create`."
-        ));
-    }
-
+    // Get the site table
     let site_table = doc
         .get_mut("site")
-        .and_then(|v| v.as_table_mut())
-        .ok_or_eyre("site field is not a table")?;
+        .ok_or_else(|| eyre!("No [site] section in `{CONFIG_FILENAME}`"))?
+        .as_table_mut()
+        .ok_or_else(|| eyre!("site field is not a table"))?;
 
-    if let Some(id) = watch_id {
-        site_table["watch"] = value(&id);
-    } else {
-        site_table.remove("watch");
-    }
+    // Get the routes table
+    let routes_table = site_table
+        .get_mut("routes")
+        .ok_or_else(|| eyre!("No [site.routes] section in `{CONFIG_FILENAME}`"))?
+        .as_table_mut()
+        .ok_or_else(|| eyre!("site.routes field is not a table"))?;
+
+    // Remove the key
+    routes_table
+        .remove(route)
+        .ok_or_else(|| eyre!("Route `{route}` not found"))?;
 
     // Write back to file
     fs::write(&config_path, doc.to_string())?;
@@ -1026,7 +1032,7 @@ pub fn config_update_site_watch(path: &Path, watch_id: Option<String>) -> Result
     Ok(config_path)
 }
 
-/// Set a spread route configuration in the [routes] section of stencila.toml
+/// Set a spread route configuration in the [site.routes] section of stencila.toml
 ///
 /// This function:
 /// 1. Finds the nearest stencila.toml (or creates one if none exists)
@@ -1078,15 +1084,25 @@ pub fn config_set_route_spread(
         .parse::<DocumentMut>()
         .unwrap_or_else(|_| DocumentMut::new());
 
-    // Ensure [routes] table exists
-    if doc.get("routes").is_none() {
-        doc["routes"] = Item::Table(Table::new());
+    // Ensure [site] table exists
+    if doc.get("site").is_none() {
+        doc["site"] = Item::Table(Table::new());
     }
 
-    let routes_table = doc
+    let site_table = doc
+        .get_mut("site")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("site field is not a table")?;
+
+    // Ensure [site.routes] table exists
+    if site_table.get("routes").is_none() {
+        site_table["routes"] = Item::Table(Table::new());
+    }
+
+    let routes_table = site_table
         .get_mut("routes")
         .and_then(|v| v.as_table_mut())
-        .ok_or_eyre("routes field is not a table")?;
+        .ok_or_eyre("site.routes field is not a table")?;
 
     // Build the spread config as an inline table
     let mut spread_table = InlineTable::new();
@@ -1115,6 +1131,62 @@ pub fn config_set_route_spread(
 
     // Set the route to the spread config
     routes_table[route_template] = value(spread_table);
+
+    // Write back to file
+    fs::write(&config_path, doc.to_string())?;
+
+    Ok(config_path)
+}
+
+/// Add a redirect route to [site.routes] in the nearest stencila.toml
+pub fn config_add_redirect_route(
+    route: &str,
+    redirect: &str,
+    status: Option<u16>,
+) -> Result<PathBuf> {
+    let cwd = std::env::current_dir()?;
+    let config_path =
+        find_config_file(&cwd, CONFIG_FILENAME).unwrap_or_else(|| cwd.join(CONFIG_FILENAME));
+
+    // Load existing config or create empty
+    let contents = if config_path.exists() {
+        fs::read_to_string(&config_path)?
+    } else {
+        String::new()
+    };
+
+    let mut doc = contents
+        .parse::<DocumentMut>()
+        .unwrap_or_else(|_| DocumentMut::new());
+
+    // Ensure [site] table exists
+    if doc.get("site").is_none() {
+        doc["site"] = Item::Table(Table::new());
+    }
+
+    let site_table = doc
+        .get_mut("site")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("site field is not a table")?;
+
+    // Ensure [site.routes] table exists
+    if site_table.get("routes").is_none() {
+        site_table["routes"] = Item::Table(Table::new());
+    }
+
+    let routes_table = site_table
+        .get_mut("routes")
+        .and_then(|v| v.as_table_mut())
+        .ok_or_eyre("site.routes field is not a table")?;
+
+    // Build redirect config as an inline table
+    let mut redirect_table = InlineTable::new();
+    redirect_table.insert("redirect", redirect.into());
+    if let Some(status) = status {
+        redirect_table.insert("status", (status as i64).into());
+    }
+
+    routes_table[route] = value(redirect_table);
 
     // Write back to file
     fs::write(&config_path, doc.to_string())?;

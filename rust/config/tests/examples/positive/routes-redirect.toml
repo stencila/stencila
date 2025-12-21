@@ -1,6 +1,6 @@
 # Route configuration with redirects
 
-[routes]
+[site.routes]
 # Permanent redirect (301)
 "/old-page/" = { redirect = "/new-page/", status = 301 }
 

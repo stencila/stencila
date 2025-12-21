@@ -4,5 +4,5 @@
 # This file passes schema validation but fails when loaded by Stencila.
 # It is NOT submitted to SchemaStore.
 
-[routes]
+[site.routes]
 "/{region}/" = { file = "report.smd", arguments = {} }

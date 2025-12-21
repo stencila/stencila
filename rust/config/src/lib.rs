@@ -17,9 +17,9 @@ pub use outputs::*;
 mod utils;
 use utils::build_figment;
 pub use utils::{
-    ConfigTarget, config_add_remote, config_add_route, config_set, config_set_remote_spread,
-    config_set_route_spread, config_unset, config_update_remote_watch, config_update_site_watch,
-    config_value, find_config_file,
+    ConfigTarget, config_add_redirect_route, config_add_remote, config_add_route,
+    config_remove_route, config_set, config_set_remote_spread, config_set_route_spread,
+    config_unset, config_update_remote_watch, config_value, find_config_file,
 };
 
 pub mod cli;
@@ -79,7 +79,9 @@ pub fn config(path: &Path) -> Result<Config> {
     let config: Config = figment.extract().map_err(|error| eyre!("{error}"))?;
 
     // Validate all route configurations
-    if let Some(routes) = &config.routes {
+    if let Some(site) = &config.site
+        && let Some(routes) = &site.routes
+    {
         for (path_key, target) in routes {
             target.validate(path_key)?;
         }
@@ -166,29 +168,6 @@ pub struct Config {
 
     /// Site configuration
     pub site: Option<SiteConfig>,
-
-    /// Custom routes for serving content
-    ///
-    /// Routes map URL paths to files, redirects, or spread configurations.
-    /// The key is the URL path (or path template for spreads), and the value can be:
-    /// - A simple string for the file path: `"/about/" = "README.md"`
-    /// - An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
-    /// - An object for spreads: `"/{region}/" = { file = "report.smd", arguments = { region = ["north", "south"] } }`
-    ///
-    /// Routes can be used by both remote sites (e.g., stencila.site) and
-    /// local development servers.
-    ///
-    /// Example:
-    /// ```toml
-    /// [routes]
-    /// "/" = "index.md"
-    /// "/about/" = "README.md"
-    /// "/old-page/" = { redirect = "/new-page/", status = 301 }
-    /// "/external/" = { redirect = "https://example.com" }
-    /// "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["ABC", "DEF"] } }
-    /// ```
-    #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
-    pub routes: Option<HashMap<String, RouteTarget>>,
 
     /// Remote synchronization configuration
     ///
@@ -308,22 +287,17 @@ impl Config {
 /// Example:
 /// ```toml
 /// [site]
-/// watch = "wAbCdEfGh1"
 /// domain = "docs.example.org"
 /// root = "docs"
 /// exclude = ["**/*.draft.md", "_drafts/**"]
+///
+/// [site.routes]
+/// "/" = "index.md"
+/// "/about/" = "README.md"
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct SiteConfig {
-    /// Watch ID from Stencila Cloud
-    ///
-    /// If watching is enabled for this site, this field contains the watch ID.
-    /// The watch enables unidirectional sync from repository to site - when
-    /// changes are pushed to the repository, the site is automatically updated.
-    #[schemars(regex(pattern = r"^wa[a-z0-9]{10}$"))]
-    pub watch: Option<String>,
-
     /// Custom domain for the site
     ///
     /// This is a cached value that is kept in sync with Stencila Cloud
@@ -352,6 +326,25 @@ pub struct SiteConfig {
     ///
     /// Example: `["**/*.draft.md", "temp/**"]`
     pub exclude: Option<Vec<String>>,
+
+    /// Custom routes for serving content
+    ///
+    /// Routes map URL paths to files, redirects, or spread configurations.
+    /// The key is the URL path (or path template for spreads), and the value can be:
+    /// - A simple string for the file path: `"/about/" = "README.md"`
+    /// - An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
+    /// - An object for spreads: `"/{region}/" = { file = "report.smd", arguments = { region = ["north", "south"] } }`
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.routes]
+    /// "/" = "index.md"
+    /// "/about/" = "README.md"
+    /// "/old-page/" = { redirect = "/new-page/", status = 301 }
+    /// "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["ABC", "DEF"] } }
+    /// ```
+    #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
+    pub routes: Option<HashMap<String, RouteTarget>>,
 }
 
 /// Target for a route - either a file path, a redirect, or a spread
@@ -369,7 +362,7 @@ pub enum RouteTarget {
     ///
     /// Example in TOML:
     /// ```toml
-    /// [routes]
+    /// [site.routes]
     /// "/about/" = "README.md"
     /// ```
     File(ConfigRelativePath),
@@ -378,7 +371,7 @@ pub enum RouteTarget {
     ///
     /// Example in TOML:
     /// ```toml
-    /// [routes]
+    /// [site.routes]
     /// "/old/" = { redirect = "/new/", status = 301 }
     /// ```
     Redirect(RouteRedirect),
@@ -387,7 +380,7 @@ pub enum RouteTarget {
     ///
     /// Example in TOML:
     /// ```toml
-    /// [routes]
+    /// [site.routes]
     /// "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["A", "B"] } }
     /// ```
     Spread(RouteSpread),
@@ -806,7 +799,17 @@ pub enum SpreadMode {
 /// - `convert`: Pure format transformation (no code execution)
 /// - `none`: Copy file as-is (static upload)
 #[derive(
-    Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema, Display, ValueEnum,
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    PartialEq,
+    Eq,
+    Deserialize,
+    Serialize,
+    JsonSchema,
+    Display,
+    ValueEnum,
 )]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]

@@ -900,8 +900,12 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
 
     // Process implicit site remotes
     // If workspace.id is configured (which doubles as site ID), check for tracked files under site.root
-    if config.workspace.as_ref().and_then(|w| w.id.as_ref()).is_some()
-        && let Some(site_config) = &config.site
+    if config
+        .workspace
+        .as_ref()
+        .and_then(|w| w.id.as_ref())
+        .is_some()
+        && config.site.is_some()
     {
         // Check tracking data for files under site root
         for (tracked_path, url_map) in &remotes_tracking {
@@ -937,8 +941,8 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
                     path: ConfigRelativePath(tracked_path.to_string_lossy().to_string()),
                     pulled_at: tracking_info.pulled_at,
                     pushed_at: tracking_info.pushed_at,
-                    watch_id: site_config.watch.clone(),
-                    watch_direction: site_config.watch.as_ref().map(|_| WatchDirection::ToRemote),
+                    watch_id: None,
+                    watch_direction: None,
                     arguments: tracking_info.arguments.clone(),
                 };
 

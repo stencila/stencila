@@ -1,6 +1,6 @@
 # Route configuration with spread (multi-variant routes)
 
-[routes]
+[site.routes]
 # Grid spread (cartesian product) - generates 4 routes: /north/A/, /north/B/, /south/A/, /south/B/
 "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["A", "B"] } }
 

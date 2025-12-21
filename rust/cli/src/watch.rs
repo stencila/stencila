@@ -3,12 +3,10 @@ use std::{path::PathBuf, str::FromStr};
 use clap::Parser;
 use eyre::{Result, bail, eyre};
 
-use pathdiff::diff_paths;
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch, ensure_workspace};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
-use stencila_config::{config_update_remote_watch, config_update_site_watch};
-use stencila_dirs::closest_workspace_dir;
+use stencila_config::config_update_remote_watch;
 use stencila_remotes::{RemoteService, WatchDirection, WatchPrMode, get_remotes_for_path};
 use url::Url;
 
@@ -82,32 +80,9 @@ impl Cli {
 
         // Check if this is a directory
         if self.path.is_dir() {
-            // Get workspace directory and config
-            let workspace_dir = closest_workspace_dir(&self.path, false).await?;
-            let config = stencila_config::config(&workspace_dir)?;
-
-            // Check if this path is exactly the site root (not a subdirectory)
-            if config.path_is_site_root(&self.path, &workspace_dir) {
-                return self.watch_site(&config).await;
-            }
-
-            // Provide helpful error message based on whether site.root is configured
-            if let Some(site_config) = &config.site
-                && site_config.root.is_some()
-            {
-                // Site root is configured but this path doesn't match it exactly
-                // (could be a subdirectory or a completely different directory)
-                bail!(
-                    "Only the site root directory can be watched. `{path_display}` is not the configured site root."
-                );
-            } else {
-                let workspace_relative_path =
-                    diff_paths(&self.path, &workspace_dir).unwrap_or_else(|| self.path.clone());
-                let workspace_relative_path = workspace_relative_path.display();
-                bail!(
-                    "Directory `{path_display}` is not the workspace's site root. Add `root = \"{workspace_relative_path}\"` to the `[site]` section in `stencila.toml`."
-                );
-            }
+            bail!(
+                "Watches are not supported for directories. Use `stencila site push` to publish a directory to a Stencila Site."
+            );
         }
 
         // Validate file exists on the default branch (also validates it's in a git repo)
@@ -246,77 +221,6 @@ impl Cli {
 
         message!(
             "👁️ Watching `{path_display}` ({direction_desc}). PRs will be opened/updated on changes from {remote_url_str}."
-        );
-
-        Ok(())
-    }
-
-    /// Watch a site directory
-    ///
-    /// This enables unidirectional sync from the repository to a Stencila Site.
-    /// When changes are pushed to the repository, the site is automatically updated.
-    ///
-    /// Note: This function assumes the caller has already verified that the path
-    /// is within a configured site root.
-    async fn watch_site(&self, config: &stencila_config::Config) -> Result<()> {
-        let path_display = self.path.display();
-
-        // Ensure workspace exists (creates if necessary, workspace ID is also site ID)
-        let (workspace_id, _) = ensure_workspace(&self.path).await?;
-
-        // Check if site is already being watched
-        if let Some(site_config) = &config.site
-            && site_config.watch.is_some()
-        {
-            message!("👁️ Site `{path_display}` is already being watched for changes.");
-            return Ok(());
-        }
-
-        // Get git repository information
-        let git_info = git_info(&self.path)?;
-
-        // Get directory path relative to repo root (must end with / for API)
-        let dir_path = git_info.path.unwrap_or_else(|| {
-            self.path
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or(".")
-                .to_string()
-        });
-        let dir_path = if dir_path.ends_with('/') {
-            dir_path
-        } else {
-            format!("{dir_path}/")
-        };
-
-        // Build the site URL
-        let site_url = format!("https://{workspace_id}.stencila.site");
-
-        // Site watches are always to-remote (unidirectional)
-        let direction = self.direction.unwrap_or(WatchDirection::ToRemote);
-        if direction != WatchDirection::ToRemote {
-            message!(
-                "⚠️ Site watches only support `to-remote` direction (sites are write-only). Using `to-remote`."
-            );
-        }
-
-        // Create watch request
-        let request = WatchRequest {
-            remote_url: site_url.clone(),
-            file_path: dir_path,
-            direction: Some(WatchDirection::ToRemote.to_string()),
-            pr_mode: self.pr_mode.map(|mode| mode.to_string()),
-            debounce_seconds: self.debounce_seconds,
-        };
-
-        // Call Cloud API to create watch
-        let response = create_watch(&workspace_id, request).await?;
-
-        // Update stencila.toml with watch ID under [site]
-        config_update_site_watch(&self.path, Some(response.id.to_string()))?;
-
-        message!(
-            "👁️ Watching site directory. Site will be updated on pushes to the repository within `{path_display}`."
         );
 
         Ok(())
