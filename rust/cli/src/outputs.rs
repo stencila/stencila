@@ -250,6 +250,20 @@ pub struct Add {
     /// Glob patterns to exclude from pattern matches
     #[arg(long, short, value_delimiter = ',')]
     exclude: Option<Vec<String>>,
+
+    /// Spread mode for multi-variant outputs (grid or zip)
+    ///
+    /// Use with outputs containing placeholders like "{region}/report.pdf".
+    /// - grid: Cartesian product of all argument values (default)
+    /// - zip: Positional pairing (all arguments must have same length)
+    #[arg(long, value_enum)]
+    spread: Option<SpreadMode>,
+
+    /// Arguments for spread outputs (comma-delimited key=val1,val2 pairs)
+    ///
+    /// Example: --arguments "region=north,south" --arguments "year=2024,2025"
+    #[arg(long, short)]
+    arguments: Option<Vec<String>>,
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
@@ -268,11 +282,27 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Add pattern-based outputs</dim>
   <b>stencila outputs add \"exports/*.pdf\" --pattern \"exports/*.md\"</>
+
+  <dim># Add spread output (generates multiple variants)</dim>
+  <b>stencila outputs add \"{region}/report.pdf\" report.md --command render --arguments \"region=north,south\"</>
+
+  <dim># Add spread with multiple arguments (grid mode)</dim>
+  <b>stencila outputs add \"{region}/{year}/data.pdf\" report.md --command render --arguments \"region=north,south\" --arguments \"year=2024,2025\"</>
+
+  <dim># Add spread with zip mode</dim>
+  <b>stencila outputs add \"{q}-report.pdf\" report.md --command render --spread zip --arguments \"q=q1,q2,q3,q4\"</>
 "
 );
 
 impl Add {
     pub async fn run(self) -> Result<()> {
+        // Parse arguments from CLI format into HashMap
+        let arguments = self
+            .arguments
+            .as_ref()
+            .map(|args| Self::parse_arguments(args))
+            .transpose()?;
+
         let config_path = config_add_output(
             &self.output,
             self.source.as_deref(),
@@ -280,15 +310,56 @@ impl Add {
             self.refs.as_deref(),
             self.pattern.as_deref(),
             self.exclude.as_deref(),
+            self.spread,
+            arguments.as_ref(),
         )?;
 
-        message!(
-            "✅ Added output `{}` to {}",
-            self.output,
-            config_path.display()
-        );
+        if self.arguments.is_some() {
+            let mode = self.spread.unwrap_or_default();
+            message!(
+                "✅ Added spread output `{}` (mode: {:?}) to {}",
+                self.output,
+                mode,
+                config_path.display()
+            );
+        } else {
+            message!(
+                "✅ Added output `{}` to {}",
+                self.output,
+                config_path.display()
+            );
+        }
 
         Ok(())
+    }
+
+    /// Parse arguments from CLI format "key=val1,val2" into HashMap
+    fn parse_arguments(args: &[String]) -> Result<HashMap<String, Vec<String>>> {
+        let mut result = HashMap::new();
+
+        for arg in args {
+            let parts: Vec<&str> = arg.splitn(2, '=').collect();
+            if parts.len() != 2 {
+                bail!(
+                    "Invalid argument format '{}'. Expected 'key=val1,val2'",
+                    arg
+                );
+            }
+
+            let key = parts[0].trim().to_string();
+            let values: Vec<String> = parts[1].split(',').map(|s| s.trim().to_string()).collect();
+
+            if key.is_empty() {
+                bail!("Argument key cannot be empty in '{}'", arg);
+            }
+            if values.is_empty() || values.iter().all(|v| v.is_empty()) {
+                bail!("Argument '{}' must have at least one value", key);
+            }
+
+            result.insert(key, values);
+        }
+
+        Ok(result)
     }
 }
 

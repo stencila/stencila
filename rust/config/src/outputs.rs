@@ -1,9 +1,12 @@
-use std::{fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use eyre::{Result, bail, eyre};
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
-use crate::{OutputCommand, find_config_file};
+use crate::{OutputCommand, SpreadMode, find_config_file};
+
+/// Reserved placeholders that don't require arguments
+const RESERVED_PLACEHOLDERS: &[&str] = &["branch", "tag", "i"];
 
 /// Validate output configuration options before writing to config
 ///
@@ -12,9 +15,12 @@ use crate::{OutputCommand, find_config_file};
 fn validate_output_options(
     key: &str,
     source: Option<&str>,
+    command: Option<OutputCommand>,
     refs: Option<&[String]>,
     pattern: Option<&str>,
     exclude: Option<&[String]>,
+    spread: Option<SpreadMode>,
+    arguments: Option<&HashMap<String, Vec<String>>>,
 ) -> Result<()> {
     // Source and pattern are mutually exclusive
     if source.is_some() && pattern.is_some() {
@@ -38,6 +44,54 @@ fn validate_output_options(
         bail!("Output `{key}` has empty --refs");
     }
 
+    // Extract placeholders from key (e.g., "{region}" -> "region")
+    let placeholders: Vec<&str> = key
+        .split('{')
+        .skip(1)
+        .filter_map(|s| s.split('}').next())
+        .filter(|p| !RESERVED_PLACEHOLDERS.contains(p))
+        .collect();
+
+    // If arguments provided, key must have non-reserved placeholders
+    if let Some(args) = arguments {
+        if !args.is_empty() && placeholders.is_empty() {
+            bail!(
+                "Output `{key}` has --arguments but no placeholders. \
+                 Use placeholders like {{region}} for spread outputs."
+            );
+        }
+
+        // Check each placeholder has a corresponding argument
+        for placeholder in &placeholders {
+            if !args.contains_key(*placeholder) {
+                bail!("Output `{key}` has placeholder {{{placeholder}}} but no matching argument");
+            }
+        }
+    } else if !placeholders.is_empty() {
+        // Has non-reserved placeholders but no arguments
+        bail!(
+            "Output `{key}` has placeholder(s) but no --arguments provided. \
+             Either remove placeholders or add --arguments."
+        );
+    }
+
+    // Spread mode only makes sense with arguments
+    if spread.is_some() && arguments.is_none() {
+        bail!("Output `{key}` has --spread but no --arguments");
+    }
+
+    // Arguments and spread are only allowed with command = render (or default)
+    if let Some(cmd) = command
+        && cmd != OutputCommand::Render
+    {
+        if arguments.is_some() {
+            bail!("Output `{key}` has --arguments but --command is not `render`");
+        }
+        if spread.is_some() {
+            bail!("Output `{key}` has --spread but --command is not `render`");
+        }
+    }
+
     Ok(())
 }
 
@@ -57,11 +111,15 @@ pub fn config_add_output(
     refs: Option<&[String]>,
     pattern: Option<&str>,
     exclude: Option<&[String]>,
+    spread: Option<SpreadMode>,
+    arguments: Option<&HashMap<String, Vec<String>>>,
 ) -> Result<PathBuf> {
     use crate::CONFIG_FILENAME;
 
     // Validate options before writing config
-    validate_output_options(key, source, refs, pattern, exclude)?;
+    validate_output_options(
+        key, source, command, refs, pattern, exclude, spread, arguments,
+    )?;
 
     let cwd = std::env::current_dir()?;
     let config_path =
@@ -104,6 +162,8 @@ pub fn config_add_output(
         || refs.is_some()
         || pattern.is_some()
         || exclude.is_some()
+        || spread.is_some()
+        || arguments.is_some()
         || source.is_none();
 
     if needs_config {
@@ -120,6 +180,26 @@ pub fn config_add_output(
 
         if let Some(cmd) = command {
             config_table.insert("command", cmd.to_string().into());
+        }
+
+        if let Some(spread_mode) = spread {
+            let spread_str = match spread_mode {
+                SpreadMode::Grid => "grid",
+                SpreadMode::Zip => "zip",
+            };
+            config_table.insert("spread", spread_str.into());
+        }
+
+        if let Some(args) = arguments {
+            let mut args_table = InlineTable::new();
+            for (key, values) in args {
+                let mut arr = toml_edit::Array::new();
+                for v in values {
+                    arr.push(v.as_str());
+                }
+                args_table.insert(key.as_str(), toml_edit::Value::Array(arr));
+            }
+            config_table.insert("arguments", toml_edit::Value::InlineTable(args_table));
         }
 
         if let Some(refs_list) = refs {
