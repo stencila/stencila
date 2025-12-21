@@ -1040,14 +1040,13 @@ pub fn config_remove_route(route: &str) -> Result<PathBuf> {
 ///
 /// Returns the path to the modified config file.
 pub fn config_set_route_spread(
-    file_path: &Path,
     route_template: &str,
     spread: &crate::RouteSpread,
 ) -> Result<PathBuf> {
     use crate::CONFIG_FILENAME;
 
-    // Canonicalize file_path first to get absolute path
-    let file_path = file_path.canonicalize()?;
+    // Parse spread.file as a path and canonicalize to get absolute path
+    let file_path = Path::new(&spread.file).canonicalize()?;
 
     // Find the nearest stencila.toml starting from the file's directory
     let search_dir = if file_path.is_file() {

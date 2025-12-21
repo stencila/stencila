@@ -376,17 +376,15 @@ impl Add {
                 // Validate that each placeholder has a corresponding argument
                 validate_placeholders(&self.route, Some(&arguments), "Route")?;
 
-                // Create spread config
+                // Create spread config with the file path (will be normalized to
+                // workspace-relative by config_set_route_spread)
                 let spread = RouteSpread {
                     file: file.clone(),
                     spread: self.spread,
                     arguments,
                 };
 
-                let file_path = file_path
-                    .canonicalize()
-                    .unwrap_or_else(|_| file_path.to_path_buf());
-                config_set_route_spread(&file_path, &self.route, &spread)?;
+                config_set_route_spread(&self.route, &spread)?;
 
                 let mode = self.spread.unwrap_or_default();
                 message!(

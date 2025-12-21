@@ -1619,11 +1619,7 @@ impl Cli {
                 // For sites, save to [routes] section with RouteSpread
                 if let Some(ref route_template) = effective_route_template {
                     let route_spread = stencila_config::RouteSpread {
-                        file: path
-                            .file_name()
-                            .and_then(|n| n.to_str())
-                            .unwrap_or("unknown")
-                            .to_string(),
+                        file: path.to_string_lossy().to_string(),
                         spread: Some(match mode {
                             SpreadMode::Grid => stencila_config::SpreadMode::Grid,
                             SpreadMode::Zip => stencila_config::SpreadMode::Zip,
@@ -1636,11 +1632,7 @@ impl Cli {
                             .collect(),
                     };
 
-                    match stencila_config::config_set_route_spread(
-                        path,
-                        route_template,
-                        &route_spread,
-                    ) {
+                    match stencila_config::config_set_route_spread(route_template, &route_spread) {
                         Ok(config_path) => {
                             let config_path = current_dir()
                                 .ok()
