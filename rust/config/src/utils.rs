@@ -1104,9 +1104,18 @@ pub fn config_set_route_spread(
         .and_then(|v| v.as_table_mut())
         .ok_or_eyre("site.routes field is not a table")?;
 
+    // Get workspace directory (parent of config file)
+    let workspace_dir = config_path
+        .parent()
+        .ok_or_eyre("Config file has no parent directory")?;
+
+    // Make file_path workspace-relative (file_path is already canonicalized)
+    let file_relative = file_path.strip_prefix(workspace_dir).unwrap_or(&file_path);
+    let file_relative_str = file_relative.to_string_lossy().to_string();
+
     // Build the spread config as an inline table
     let mut spread_table = InlineTable::new();
-    spread_table.insert("file", spread.file.as_str().into());
+    spread_table.insert("file", file_relative_str.as_str().into());
 
     if let Some(ref spread_mode) = spread.spread {
         let spread_mode_str = match spread_mode {

@@ -782,7 +782,9 @@ pub struct RemoteSpread {
 }
 
 /// Spread mode for multi-variant execution
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[derive(
+    Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema, ValueEnum,
+)]
 #[serde(rename_all = "lowercase")]
 pub enum SpreadMode {
     /// Cartesian product of all arguments (default)

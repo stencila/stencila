@@ -18,8 +18,8 @@ use stencila_cloud::sites::{
 };
 use stencila_cloud::{AccessMode, ensure_workspace};
 use stencila_config::{
-    ConfigTarget, config, config_add_redirect_route, config_add_route, config_remove_route,
-    config_set, config_unset,
+    ConfigTarget, RouteSpread, SpreadMode, config, config_add_redirect_route, config_add_route,
+    config_remove_route, config_set, config_set_route_spread, config_unset,
 };
 
 /// Manage the workspace site
@@ -273,7 +273,7 @@ impl List {
 #[derive(Debug, Args)]
 #[command(after_long_help = ADD_AFTER_LONG_HELP)]
 pub struct Add {
-    /// Route path (e.g., "/", "/about/")
+    /// Route path (e.g., "/", "/about/", "/{region}/report/")
     route: String,
 
     /// File to serve at this route
@@ -286,6 +286,20 @@ pub struct Add {
     /// HTTP status code for redirect (301, 302, 303, 307, 308)
     #[arg(long, short)]
     status: Option<u16>,
+
+    /// Spread mode for multi-variant routes (grid or zip)
+    ///
+    /// Use with routes containing placeholders like "/{region}/report/".
+    /// - grid: Cartesian product of all argument values (default)
+    /// - zip: Positional pairing (all arguments must have same length)
+    #[arg(long, value_enum)]
+    spread: Option<SpreadMode>,
+
+    /// Arguments for spread routes (comma-delimited key=val1,val2 pairs)
+    ///
+    /// Example: --arguments "region=north,south" --arguments "year=2024,2025"
+    #[arg(long, short)]
+    arguments: Option<Vec<String>>,
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
@@ -300,6 +314,11 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Add external redirect</dim>
   <b>stencila site add /github/ --redirect https://github.com/stencila/stencila</>
+
+  <dim># Add a spread route (generates multiple variants)</dim>
+  <b>stencila site add \"/{region}/\" report.smd --arguments \"region=north,south\"</>
+  <b>stencila site add \"/{region}/{year}/\" report.smd --arguments \"region=north,south\" --arguments \"year=2024,2025\"</>
+  <b>stencila site add \"/{q}-report/\" quarterly.smd --spread zip --arguments \"q=q1,q2,q3,q4\"</>
 "
 );
 
@@ -323,17 +342,72 @@ impl Add {
             bail!("--status can only be used with --redirect");
         }
 
+        // Check for spread-related options with redirect
+        if self.redirect.is_some() && (self.spread.is_some() || self.arguments.is_some()) {
+            bail!("--spread and --arguments cannot be used with --redirect");
+        }
+
+        // Check if this is a spread route (has placeholders like {region})
+        let has_placeholders = self.route.contains('{') && self.route.contains('}');
+
         if let Some(file) = &self.file {
-            // Add file route
             let file_path = std::path::Path::new(file);
             if !file_path.exists() {
                 message!("⚠️  Warning: File '{}' does not exist", file);
             }
-            let file_path = file_path
-                .canonicalize()
-                .unwrap_or_else(|_| file_path.to_path_buf());
-            config_add_route(&file_path, &self.route)?;
-            message!("✅ Added route {} → {}", self.route, file);
+
+            // Check if we have spread arguments
+            if let Some(ref args) = self.arguments {
+                // Parse arguments into HashMap
+                let arguments = Self::parse_arguments(args)?;
+
+                if arguments.is_empty() {
+                    bail!("--arguments provided but no valid key=value pairs found");
+                }
+
+                if !has_placeholders {
+                    bail!(
+                        "Route '{}' has no placeholders but --arguments was provided. \
+                         Use placeholders like /{{region}}/ for spread routes.",
+                        self.route
+                    );
+                }
+
+                // Create spread config
+                let spread = RouteSpread {
+                    file: file.clone(),
+                    spread: self.spread,
+                    arguments,
+                };
+
+                let file_path = file_path
+                    .canonicalize()
+                    .unwrap_or_else(|_| file_path.to_path_buf());
+                config_set_route_spread(&file_path, &self.route, &spread)?;
+
+                let mode = self.spread.unwrap_or_default();
+                message!(
+                    "✅ Added spread route {} → {} (mode: {:?})",
+                    self.route,
+                    file,
+                    mode
+                );
+            } else {
+                // Simple file route
+                if has_placeholders {
+                    bail!(
+                        "Route '{}' contains placeholders but no --arguments provided. \
+                         Either remove placeholders or add --arguments.",
+                        self.route
+                    );
+                }
+
+                let file_path = file_path
+                    .canonicalize()
+                    .unwrap_or_else(|_| file_path.to_path_buf());
+                config_add_route(&file_path, &self.route)?;
+                message!("✅ Added route {} → {}", self.route, file);
+            }
         } else if let Some(redirect) = &self.redirect {
             // Add redirect route
             config_add_redirect_route(&self.route, redirect, self.status)?;
@@ -347,6 +421,35 @@ impl Add {
         }
 
         Ok(())
+    }
+
+    /// Parse arguments from CLI format "key=val1,val2" into HashMap
+    fn parse_arguments(args: &[String]) -> Result<std::collections::HashMap<String, Vec<String>>> {
+        let mut result = std::collections::HashMap::new();
+
+        for arg in args {
+            let parts: Vec<&str> = arg.splitn(2, '=').collect();
+            if parts.len() != 2 {
+                bail!(
+                    "Invalid argument format '{}'. Expected 'key=val1,val2'",
+                    arg
+                );
+            }
+
+            let key = parts[0].trim().to_string();
+            let values: Vec<String> = parts[1].split(',').map(|s| s.trim().to_string()).collect();
+
+            if key.is_empty() {
+                bail!("Argument key cannot be empty in '{}'", arg);
+            }
+            if values.is_empty() || values.iter().all(|v| v.is_empty()) {
+                bail!("Argument '{}' must have at least one value", key);
+            }
+
+            result.insert(key, values);
+        }
+
+        Ok(result)
     }
 }
 
