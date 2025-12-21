@@ -167,6 +167,14 @@ pub async fn ensure_workspace(path: &Path) -> Result<(String, bool)> {
         return Ok((id, true));
     }
 
+    // Check for STENCILA_WORKSPACE_ID environment variable (set in sync sessions)
+    if let Ok(id) = std::env::var("STENCILA_WORKSPACE_ID")
+        && !id.is_empty()
+    {
+        tracing::debug!("Workspace ID from STENCILA_WORKSPACE_ID env var: {id}");
+        return Ok((id, true));
+    }
+
     // Need to create - derive GitHub URL from git remote
     let git = stencila_codec_utils::git_info(path)?;
     let github_url = git.origin.ok_or_else(|| {
