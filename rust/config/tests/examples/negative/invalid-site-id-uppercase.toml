@@ -1,4 +1,0 @@
-# Invalid: Site ID must match pattern ^s[a-z0-9]{9}$ (lowercase only)
-
-[site]
-id = "sAbCdEfGh1"

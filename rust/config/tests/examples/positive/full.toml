@@ -1,13 +1,14 @@
 # Comprehensive Stencila configuration using all features
 
+[workspace]
+id = "ws1234567890"
+
 [site]
-id = "s123456789"
-watch = "wXyZ987654"
 domain = "docs.example.org"
 root = "site"
 exclude = ["**/*.draft.md", "_drafts/**", "node_modules/**"]
 
-[routes]
+[site.routes]
 # File routes
 "/" = "index.md"
 "/about/" = "about/README.md"
@@ -26,11 +27,11 @@ exclude = ["**/*.draft.md", "_drafts/**", "node_modules/**"]
 "site" = "https://example.stencila.site/"
 
 # Remote with watch
-"docs/main.md" = { url = "https://docs.google.com/document/d/main123/edit", watch = "wMaIn12345" }
+"docs/main.md" = { url = "https://docs.google.com/document/d/main123/edit", watch = "wa1234567890" }
 
 # Multiple remotes for one path
 "shared.md" = [
-  { url = "https://docs.google.com/document/d/shared1/edit", watch = "wShArEd123" },
+  { url = "https://docs.google.com/document/d/shared1/edit", watch = "waabcdef1234" },
   "https://backup.sharepoint.com/shared"
 ]
 

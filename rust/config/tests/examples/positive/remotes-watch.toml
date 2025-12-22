@@ -2,7 +2,7 @@
 
 [remotes]
 # Remote with watch enabled
-"docs/report.md" = { url = "https://docs.google.com/document/d/abc123/edit", watch = "wAbCdEfGh1" }
+"docs/report.md" = { url = "https://docs.google.com/document/d/abc123/edit", watch = "waabcdefgh12" }
 
 # Remote with URL only (no watch)
 "docs/static.md" = { url = "https://example.sharepoint.com/document/xyz" }

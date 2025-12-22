@@ -1,0 +1,4 @@
+# Invalid: Workspace ID must match pattern ^ws[a-z0-9]{10}$ (lowercase only)
+
+[workspace]
+id = "wsAbCdEfGh12"

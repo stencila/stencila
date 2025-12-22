@@ -1,4 +1,4 @@
-# Invalid: Watch ID must match pattern ^w[a-zA-Z0-9]{9}$
+# Invalid: Watch ID must match pattern ^wa[a-z0-9]{10}$
 
 [remotes]
 "doc.md" = { url = "https://docs.google.com/document/d/123/edit", watch = "invalid" }
