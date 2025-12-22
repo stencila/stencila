@@ -160,7 +160,9 @@ pub(crate) async fn unwatch_doc(
     }
 
     // Get workspace ID for delete_watch
-    progress.send((40, Some("resolving workspace".to_string()))).ok();
+    progress
+        .send((40, Some("resolving workspace".to_string())))
+        .ok();
     let (workspace_id, _) = match stencila_cloud::ensure_workspace(&path).await {
         Ok(result) => result,
         Err(error) => {
