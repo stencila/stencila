@@ -147,7 +147,7 @@ Examples
 ###### **Subcommands:**
 
 * `new` — Create a new, tracked, document
-* `init` — Initialize a workspace
+* `init` — Initialize a workspace with stencila.toml configuration
 * `config` — Manage Stencila configuration
 * `status` — Get the tracking status of documents
 * `move` — Move a tracked document
@@ -247,24 +247,30 @@ Examples
 
 ## `stencila init`
 
-Initialize a workspace
+Initialize a workspace with stencila.toml configuration
 
 **Usage:** `stencila init [OPTIONS] [DIR]`
 
+Examples
 
-  # Initialize current directory as a Stencila workspace
+  # Initialize current directory with interactive prompts
   stencila init
+
+  # Initialize with all defaults (non-interactive)
+  stencila init --yes
 
   # Initialize a specific directory
   stencila init ./my-project
 
-  # Initialize without creating .gitignore
-  stencila init --no-gitignore
+  # Initialize with specific options
+  stencila init --root docs --home index.md
+
+  # Initialize with outputs for executable documents
+  stencila init --outputs docx,pdf
 
 Note
-  This creates a .stencila directory for workspace configuration
-  and document tracking. A .gitignore file is created by default
-  to exclude tracking and cache files.
+  This creates a stencila.toml configuration file with site settings,
+  routes, and output configurations based on repository analysis.
 
 
 ###### **Arguments:**
@@ -277,7 +283,14 @@ Note
 
 ###### **Options:**
 
-* `--no-gitignore` — Do not create a `.gitignore` file
+* `-y`, `--yes` — Accept all defaults without prompting
+
+   Useful for non-interactive/automated environments.
+* `--root <ROOT>` — Site root directory (skip interactive prompt)
+* `--home <HOME>` — Home page file (skip interactive prompt)
+* `--outputs <OUTPUTS>` — Output formats for executable documents (comma-separated)
+
+   Applies to .smd, .qmd, .myst, .tex files. Example: --outputs html,pdf
 
 
 
