@@ -5,6 +5,8 @@ description: Custom routes for serving content
 
 # Routes Configuration
 
+Routes are configured under the `[site.routes]` section.
+
 Custom routes for serving content
 
 Routes map URL paths to files, redirects, or spread configurations.
@@ -13,16 +15,12 @@ The key is the URL path (or path template for spreads), and the value can be:
 - An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
 - An object for spreads: `"/{region}/" = { file = "report.smd", arguments = { region = ["north", "south"] } }`
 
-Routes can be used by both remote sites (e.g., stencila.site) and
-local development servers.
-
 Example:
 ```toml
-[routes]
+[site.routes]
 "/" = "index.md"
 "/about/" = "README.md"
 "/old-page/" = { redirect = "/new-page/", status = 301 }
-"/external/" = { redirect = "https://example.com" }
 "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["ABC", "DEF"] } }
 ```
 
@@ -36,7 +34,7 @@ Path relative to the workspace directory (or `site.root` if configured).
 
 Example in TOML:
 ```toml
-[routes]
+[site.routes]
 "/about/" = "README.md"
 ```
 
@@ -46,7 +44,7 @@ Redirect to another URL
 
 Example in TOML:
 ```toml
-[routes]
+[site.routes]
 "/old/" = { redirect = "/new/", status = 301 }
 ```
 
@@ -56,7 +54,7 @@ Spread configuration for multi-variant routes
 
 Example in TOML:
 ```toml
-[routes]
+[site.routes]
 "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["A", "B"] } }
 ```
 

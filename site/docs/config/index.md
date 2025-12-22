@@ -17,7 +17,7 @@ Stencila uses `stencila.toml` files for project configuration. This reference do
 | Section | Description |
 |---------|-------------|
 | [`[site]`](site) | Configuration for a site |
-| [`[routes]`](routes) | Custom routes for serving content Routes map URL paths to files, redirects, or spread configurations |
+| [`[site.routes]`](site#routes) | Custom routes for serving content Routes map URL paths to files, redirects, or spread configurations |
 | [`[remotes]`](remotes) | Remote synchronization configuration Maps local paths to remote service URLs |
 
 ## Examples

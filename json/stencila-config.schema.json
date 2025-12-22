@@ -4,6 +4,17 @@
   "description": "Configuration for Stencila workspaces",
   "type": "object",
   "properties": {
+    "workspace": {
+      "description": "Workspace configuration\n\nWorkspaces are the primary entity in Stencila Cloud, representing a\nGitHub repository. Sites and watches are scoped under workspaces.",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/WorkspaceConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "site": {
       "description": "Site configuration\nhttps://stencila.io/docs/config/site",
       "anyOf": [
@@ -15,16 +26,6 @@
         }
       ]
     },
-    "routes": {
-      "description": "Custom routes for serving content\nhttps://stencila.io/docs/config/routes",
-      "type": [
-        "object",
-        "null"
-      ],
-      "additionalProperties": {
-        "$ref": "#/definitions/RouteTarget"
-      }
-    },
     "remotes": {
       "description": "Remote synchronization configuration\nhttps://stencila.io/docs/config/remotes",
       "type": [
@@ -34,29 +35,37 @@
       "additionalProperties": {
         "$ref": "#/definitions/RemoteValue"
       }
+    },
+    "outputs": {
+      "description": "Outputs configuration\n\nDefines files to be rendered/converted and uploaded to Stencila Cloud\nworkspace outputs. The key is the output path template, and the value can be:\n- A simple source path: `\"report.pdf\" = \"report.md\"`\n- A configuration object: `\"report.pdf\" = { source = \"report.md\", command = \"render\" }`\n- A static file: `\"data.csv\" = {}` (copies file as-is)\n- A pattern: `\"exports/*.csv\" = { pattern = \"exports/*.csv\" }`\n- A spread: `\"{region}/report.pdf\" = { source = \"report.md\", arguments = { region = [\"north\", \"south\"] } }`\n\nExample:\n```toml\n[outputs]\n\"report.pdf\" = \"report.md\"\n\"data/results.csv\" = {}\n\"{region}/report.pdf\" = { source = \"report.md\", arguments = { region = [\"north\", \"south\"] } }\n```",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "$ref": "#/definitions/OutputTarget"
+      }
     }
   },
   "definitions": {
+    "WorkspaceConfig": {
+      "description": "Configuration for a Stencila Cloud workspace\n\nWorkspaces are the primary entity in Stencila Cloud, representing a\nGitHub repository. Sites and watches are scoped under workspaces.\n\nExample:\n```toml\n[workspace]\nid = \"ws3x9k2m7fab\"\n```",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The workspace public ID from Stencila Cloud\n\nThis is automatically assigned when a workspace is created via\n`stencila site create` or when pushing to a site for the first time.\nThe workspace ID is derived from the GitHub repository URL.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^ws[a-z0-9]{10}$"
+        }
+      }
+    },
     "SiteConfig": {
       "description": "Configuration for a site\nhttps://stencila.io/docs/config/site",
       "type": "object",
       "properties": {
-        "id": {
-          "description": "The id of the Stencila Site\n\nReturned by Stencila Cloud when a site is created.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^s[a-z0-9]{9}$"
-        },
-        "watch": {
-          "description": "Watch ID from Stencila Cloud\n\nIf watching is enabled for this site, this field contains the watch ID.\nThe watch enables unidirectional sync from repository to site - when\nchanges are pushed to the repository, the site is automatically updated.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^w[a-zA-Z0-9]{9}$"
-        },
         "domain": {
           "description": "Custom domain for the site\n\nThis is a cached value that is kept in sync with Stencila Cloud\nwhen site details are fetched or the domain is modified.\nThe canonical source is the Stencila Cloud API.",
           "type": [
@@ -85,6 +94,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "routes": {
+          "description": "Custom routes for serving content\n\nRoutes map URL paths to files, redirects, or spread configurations.\nThe key is the URL path (or path template for spreads), and the value can be:\n- A simple string for the file path: `\"/about/\" = \"README.md\"`\n- An object for redirects: `\"/old/\" = { redirect = \"/new/\", status = 301 }`\n- An object for spreads: `\"/{region}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"] } }`\n\nExample:\n```toml\n[site.routes]\n\"/\" = \"index.md\"\n\"/about/\" = \"README.md\"\n\"/old-page/\" = { redirect = \"/new-page/\", status = 301 }\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"ABC\", \"DEF\"] } }\n```",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/RouteTarget"
+          }
         }
       }
     },
@@ -93,10 +112,10 @@
       "type": "string"
     },
     "RouteTarget": {
-      "description": "Target for a route - either a file path, a redirect, or a spread\nhttps://stencila.io/docs/config/routes",
+      "description": "Target for a route - either a file path, a redirect, or a spread\nhttps://stencila.io/docs/config/site#routes",
       "anyOf": [
         {
-          "description": "Serve a file at this path\n\nPath relative to the workspace directory (or `site.root` if configured).\n\nExample in TOML:\n```toml\n[routes]\n\"/about/\" = \"README.md\"\n```",
+          "description": "Serve a file at this path\n\nPath relative to the workspace directory (or `site.root` if configured).\n\nExample in TOML:\n```toml\n[site.routes]\n\"/about/\" = \"README.md\"\n```",
           "allOf": [
             {
               "$ref": "#/definitions/ConfigRelativePath"
@@ -104,7 +123,7 @@
           ]
         },
         {
-          "description": "Redirect to another URL\n\nExample in TOML:\n```toml\n[routes]\n\"/old/\" = { redirect = \"/new/\", status = 301 }\n```",
+          "description": "Redirect to another URL\n\nExample in TOML:\n```toml\n[site.routes]\n\"/old/\" = { redirect = \"/new/\", status = 301 }\n```",
           "allOf": [
             {
               "$ref": "#/definitions/RouteRedirect"
@@ -112,7 +131,7 @@
           ]
         },
         {
-          "description": "Spread configuration for multi-variant routes\n\nExample in TOML:\n```toml\n[routes]\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"A\", \"B\"] } }\n```",
+          "description": "Spread configuration for multi-variant routes\n\nExample in TOML:\n```toml\n[site.routes]\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"A\", \"B\"] } }\n```",
           "allOf": [
             {
               "$ref": "#/definitions/RouteSpread"
@@ -122,7 +141,7 @@
       ]
     },
     "RouteRedirect": {
-      "description": "A redirect configuration\nhttps://stencila.io/docs/config/routes#redirect",
+      "description": "A redirect configuration\nhttps://stencila.io/docs/config/site#routes-redirect",
       "type": "object",
       "properties": {
         "redirect": {
@@ -157,7 +176,7 @@
       ]
     },
     "RouteSpread": {
-      "description": "A spread configuration for multi-variant routes\nhttps://stencila.io/docs/config/routes#spread",
+      "description": "A spread configuration for multi-variant routes\nhttps://stencila.io/docs/config/site#routes-spread",
       "type": "object",
       "properties": {
         "file": {
@@ -195,7 +214,7 @@
       "description": "Spread mode for multi-variant execution",
       "oneOf": [
         {
-          "description": "Cartesian product of all parameter values (default)",
+          "description": "Cartesian product of all arguments (default)",
           "type": "string",
           "const": "grid"
         },
@@ -243,7 +262,7 @@
           ]
         },
         {
-          "description": "Spread configuration for multi-variant pushes\n\nExample: `{ service = \"gdoc\", title = \"Report {region}\", params = { region = [\"north\", \"south\"] } }`",
+          "description": "Spread configuration for multi-variant pushes\n\nExample: `{ service = \"gdoc\", title = \"Report {region}\", arguments = { region = [\"north\", \"south\"] } }`",
           "allOf": [
             {
               "$ref": "#/definitions/RemoteSpread"
@@ -267,7 +286,7 @@
             "string",
             "null"
           ],
-          "pattern": "^w[a-zA-Z0-9]{9}$"
+          "pattern": "^wa[a-z0-9]{10}$"
         }
       },
       "required": [
@@ -283,14 +302,14 @@
           "type": "string"
         },
         "title": {
-          "description": "Title template with placeholders\n\nPlaceholders like `{param}` are replaced with parameter values.\nExample: \"Report - {region}\"",
+          "description": "Title template with placeholders\n\nPlaceholders like `{param}` are replaced with arguments.\nExample: \"Report - {region}\"",
           "type": [
             "string",
             "null"
           ]
         },
         "spread": {
-          "description": "Spread mode\n\n- `grid`: Cartesian product of all parameter values (default)\n- `zip`: Positional pairing of values (all params must have same length)",
+          "description": "Spread mode\n\n- `grid`: Cartesian product of all arguments (default)\n- `zip`: Positional pairing of values (all params must have same length)",
           "anyOf": [
             {
               "$ref": "#/definitions/SpreadMode"
@@ -301,7 +320,7 @@
           ]
         },
         "arguments": {
-          "description": "Parameter values for spread variants\n\nKeys are parameter names, values are arrays of possible values.\nExample: `{ region = [\"north\", \"south\"], species = [\"A\", \"B\"] }`",
+          "description": "Arguments for spread variants\n\nKeys are parameter names, values are arrays of possible values.\nExample: `{ region = [\"north\", \"south\"], species = [\"A\", \"B\"] }`",
           "type": "object",
           "additionalProperties": {
             "type": "array",
@@ -314,6 +333,122 @@
       "required": [
         "service",
         "arguments"
+      ]
+    },
+    "OutputTarget": {
+      "description": "Target for an output - either a simple source path or a full configuration\n\nOutputs define files to be rendered/converted and uploaded to Stencila Cloud\nworkspace outputs. The key is the output path template.\n\nExample in TOML:\n```toml\n[outputs]\n# Simple: source path (rendered if extension differs)\n\"report.pdf\" = \"report.md\"\n\n# Full config with options\n\"report.docx\" = { source = \"report.md\", command = \"render\" }\n\n# Static file (omit source = use key as source)\n\"data/results.csv\" = {}\n\n# Pattern for multiple files\n\"exports/*.csv\" = { pattern = \"exports/*.csv\" }\n\n# Spread with parameters\n\"{region}/report.pdf\" = { source = \"report.md\", arguments = { region = [\"north\", \"south\"] } }\n```",
+      "anyOf": [
+        {
+          "description": "Simple source path (rendered if extension differs from key)\n\nExample: `\"report.pdf\" = \"report.md\"`",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ConfigRelativePath"
+            }
+          ]
+        },
+        {
+          "description": "Full configuration object\n\nExample: `\"report.pdf\" = { source = \"report.md\", command = \"render\" }`\nExample: `\"data.csv\" = {}` (static, source = output path)",
+          "allOf": [
+            {
+              "$ref": "#/definitions/OutputConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "OutputConfig": {
+      "description": "Full output configuration\n\nProvides detailed control over how an output is processed and uploaded.\n\nExample:\n```toml\n[outputs]\n\"report.pdf\" = { source = \"report.md\", command = \"render\" }\n\"{region}/report.pdf\" = { source = \"report.md\", arguments = { region = [\"north\", \"south\"] } }\n\"exports/*.csv\" = { pattern = \"exports/*.csv\", exclude = [\"temp-*.csv\"] }\n```",
+      "type": "object",
+      "properties": {
+        "source": {
+          "description": "Source file path (for single-file outputs)\n\nPath relative to the config file. If not specified and `pattern` is not set,\nthe output key is used as the source path.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pattern": {
+          "description": "Glob pattern for matching multiple source files\n\nMutually exclusive with `source`. The output key must include `*.ext`\nto specify the output format (e.g., `\"reports/*.pdf\"`).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "command": {
+          "description": "Processing command\n\n- `render`: Execute code, apply parameters, convert to output format (default if extensions differ)\n- `convert`: Format transformation only, no code execution\n- `none`: Copy file as-is (default if extensions are the same)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/OutputCommand"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "spread": {
+          "description": "Spread mode for parameter variants\n\nOnly valid with `command = render`.\n- `grid`: Cartesian product of all arguments (default)\n- `zip`: Positional pairing of values",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SpreadMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "description": "Parameter values for spread variants\n\nOnly valid with `command = render`. Keys are parameter names,\nvalues are arrays of possible values.\n\nExample: `{ region = [\"north\", \"south\"], species = [\"A\", \"B\"] }`",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "refs": {
+          "description": "Git ref patterns to filter when this output is processed and uploaded\n\nIf set, the output is only processed when the current git ref matches\none of these patterns. Supports glob matching.\n\nExamples: `[\"main\"]`, `[\"release/*\"]`, `[\"v*\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude": {
+          "description": "Glob patterns to exclude from pattern matches\n\nPaths are relative to the repository root.\nOnly applies when `pattern` is set.\n\nExample: `[\"temp-*.csv\", \"draft-*\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "OutputCommand": {
+      "description": "Processing command for outputs\n\nDetermines how source files are processed before upload:\n- `render`: Execute code, apply parameters, then convert to output format\n- `convert`: Pure format transformation (no code execution)\n- `none`: Copy file as-is (static upload)",
+      "oneOf": [
+        {
+          "description": "Execute code and convert to output format (default for different extensions)",
+          "type": "string",
+          "const": "render"
+        },
+        {
+          "description": "Format transformation only, no code execution",
+          "type": "string",
+          "const": "convert"
+        },
+        {
+          "description": "Copy file as-is (default for same extensions)",
+          "type": "string",
+          "const": "none"
+        }
       ]
     }
   },

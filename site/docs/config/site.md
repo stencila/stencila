@@ -7,37 +7,22 @@ description: Configuration for a site
 
 Configuration for a site
 
+Site settings are associated with a workspace (see `WorkspaceConfig`).
+The workspace ID is used to identify the site in Stencila Cloud.
+
 Example:
 ```toml
 [site]
-id = "s123456789"
-watch = "wAbCdEfGh1"
 domain = "docs.example.org"
 root = "docs"
 exclude = ["**/*.draft.md", "_drafts/**"]
+
+[site.routes]
+"/" = "index.md"
+"/about/" = "README.md"
 ```
 
 ## Properties
-
-### `id`
-
-**Type:** `string` (optional)
-**Pattern:** `^s[a-z0-9]{9}$`
-
-The id of the Stencila Site
-
-Returned by Stencila Cloud when a site is created.
-
-### `watch`
-
-**Type:** `string` (optional)
-**Pattern:** `^w[a-zA-Z0-9]{9}$`
-
-Watch ID from Stencila Cloud
-
-If watching is enabled for this site, this field contains the watch ID.
-The watch enables unidirectional sync from repository to site - when
-changes are pushed to the repository, the site is automatically updated.
 
 ### `domain`
 
@@ -76,4 +61,25 @@ Patterns are relative to `root` (if set) or the workspace root.
 Default exclusions (`.git/`, `node_modules/`, etc.) are applied automatically.
 
 Example: `["**/*.draft.md", "temp/**"]`
+
+### `routes`
+
+**Type:** `HashMap` (optional)
+
+Custom routes for serving content
+
+Routes map URL paths to files, redirects, or spread configurations.
+The key is the URL path (or path template for spreads), and the value can be:
+- A simple string for the file path: `"/about/" = "README.md"`
+- An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
+- An object for spreads: `"/{region}/" = { file = "report.smd", arguments = { region = ["north", "south"] } }`
+
+Example:
+```toml
+[site.routes]
+"/" = "index.md"
+"/about/" = "README.md"
+"/old-page/" = { redirect = "/new-page/", status = 301 }
+"/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["ABC", "DEF"] } }
+```
 

@@ -44,7 +44,7 @@ Example: `{ url = "https://...", watch = "w123" }`
 
 Spread configuration for multi-variant pushes
 
-Example: `{ service = "gdoc", title = "Report {region}", params = { region = ["north", "south"] } }`
+Example: `{ service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south"] } }`
 
 ## Watch Properties
 
@@ -63,7 +63,7 @@ The service type is inferred from the URL host:
 
 **Type:** `string` (optional)
 
-**Pattern:** `^w[a-zA-Z0-9]{9}$`
+**Pattern:** `^wa[a-z0-9]{10}$`
 
 Watch ID from Stencila Cloud
 
@@ -87,7 +87,7 @@ One of: "gdoc", "m365"
 
 Title template with placeholders
 
-Placeholders like `{param}` are replaced with parameter values.
+Placeholders like `{param}` are replaced with arguments.
 Example: "Report - {region}"
 
 ### `spread`
@@ -96,14 +96,14 @@ Example: "Report - {region}"
 
 Spread mode
 
-- `grid`: Cartesian product of all parameter values (default)
+- `grid`: Cartesian product of all arguments (default)
 - `zip`: Positional pairing of values (all params must have same length)
 
 ### `arguments`
 
 **Type:** `HashMap`
 
-Parameter values for spread variants
+Arguments for spread variants
 
 Keys are parameter names, values are arrays of possible values.
 Example: `{ region = ["north", "south"], species = ["A", "B"] }`

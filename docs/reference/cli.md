@@ -34,6 +34,11 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila publish ghost`↴](#stencila-publish-ghost)
 * [`stencila publish stencila`↴](#stencila-publish-stencila)
 * [`stencila demo`↴](#stencila-demo)
+* [`stencila outputs`↴](#stencila-outputs)
+* [`stencila outputs list`↴](#stencila-outputs-list)
+* [`stencila outputs add`↴](#stencila-outputs-add)
+* [`stencila outputs remove`↴](#stencila-outputs-remove)
+* [`stencila outputs push`↴](#stencila-outputs-push)
 * [`stencila db`↴](#stencila-db)
 * [`stencila db new`↴](#stencila-db-new)
 * [`stencila db add`↴](#stencila-db-add)
@@ -87,6 +92,10 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila cloud logs`↴](#stencila-cloud-logs)
 * [`stencila site`↴](#stencila-site)
 * [`stencila site show`↴](#stencila-site-show)
+* [`stencila site list`↴](#stencila-site-list)
+* [`stencila site add`↴](#stencila-site-add)
+* [`stencila site remove`↴](#stencila-site-remove)
+* [`stencila site push`↴](#stencila-site-push)
 * [`stencila site create`↴](#stencila-site-create)
 * [`stencila site delete`↴](#stencila-site-delete)
 * [`stencila site access`↴](#stencila-site-access)
@@ -160,6 +169,7 @@ Examples
 * `open` — Open a document in the browser
 * `publish` — Publish one or more documents
 * `demo` — Run a terminal demonstration from a document
+* `outputs` — Manage workspace outputs
 * `db` — Manage the workspace and other document databases
 * `prompts` — Manage prompts
 * `models` — Manage and interact with generative AI models
@@ -3167,6 +3177,204 @@ Examples
 
 
 
+## `stencila outputs`
+
+Manage workspace outputs
+
+**Usage:** `stencila outputs [COMMAND]`
+
+Examples
+  # List configured outputs
+  stencila outputs
+  stencila outputs list
+  stencila outputs list --as toml
+
+  # Add an output
+  stencila outputs add report.pdf report.md
+  stencila outputs add report.pdf report.md --command render --refs main
+
+  # Remove an output
+  stencila outputs remove report.pdf
+
+  # Push all outputs to cloud
+  stencila outputs push
+
+  # Push specific outputs
+  stencila outputs push "report.pdf" "data/*.csv"
+
+  # Dry run (process but don't upload)
+  stencila outputs push --dry-run
+
+  # Force push (ignore refs filter)
+  stencila outputs push --force
+
+
+###### **Subcommands:**
+
+* `list` — List configured outputs
+* `add` — Add an output configuration
+* `remove` — Remove an output configuration
+* `push` — Push outputs to Stencila Cloud
+
+
+
+## `stencila outputs list`
+
+List configured outputs
+
+**Usage:** `stencila outputs list [OPTIONS]`
+
+Examples
+  # List configured outputs in table format
+  stencila outputs list
+
+  # List in JSON, YAML, or TOML format
+  stencila outputs list --as json
+  stencila outputs list --as yaml
+  stencila outputs list --as toml
+
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output format
+
+  Possible values: `json`, `yaml`, `toml`
+
+
+
+
+## `stencila outputs add`
+
+Add an output configuration
+
+**Usage:** `stencila outputs add [OPTIONS] <OUTPUT> [SOURCE]`
+
+Examples
+  # Add a simple output (render report.md to report.pdf)
+  stencila outputs add report.pdf report.md
+
+  # Add with explicit render command
+  stencila outputs add report.pdf report.md --command render
+
+  # Add output that only runs on main branch
+  stencila outputs add report.pdf report.md --refs main
+
+  # Add static file (copy as-is)
+  stencila outputs add data.csv
+
+  # Add pattern-based outputs
+  stencila outputs add "exports/*.pdf" --pattern "exports/*.md"
+
+  # Add spread output (generates multiple variants)
+  stencila outputs add "{region}/report.pdf" report.md --command render --arguments "region=north,south"
+
+  # Add spread with multiple arguments (grid mode)
+  stencila outputs add "{region}/{year}/data.pdf" report.md --command render --arguments "region=north,south" --arguments "year=2024,2025"
+
+  # Add spread with zip mode
+  stencila outputs add "{q}-report.pdf" report.md --command render --spread zip --arguments "q=q1,q2,q3,q4"
+
+
+###### **Arguments:**
+
+* `<OUTPUT>` — Output path (destination in cloud outputs)
+
+   This is the path where the output will be stored, e.g., "report.pdf" or "{region}/report.pdf" for spread outputs.
+* `<SOURCE>` — Source file path
+
+   The source file to render or convert. If not provided, the output is used as the source path (for static file copies).
+
+###### **Options:**
+
+* `-c`, `--command <COMMAND>` — Processing command
+
+  Possible values:
+  - `render`:
+    Execute code and convert to output format (default for different extensions)
+  - `convert`:
+    Format transformation only, no code execution
+  - `none`:
+    Copy file as-is (default for same extensions)
+
+* `-r`, `--refs <REFS>` — Git ref patterns for when to process this output
+
+   Supports glob patterns and optional type prefixes: "main", "v*", "release/*" (matches any ref type), "branch:main" (matches only branches), "tag:v*" (matches only tags), "commit:*" (matches any commit SHA for CI builds on detached HEAD)
+* `-p`, `--pattern <PATTERN>` — Glob pattern for matching multiple source files
+
+   Use this instead of source for multi-file outputs. When using --pattern, the output path must contain exactly one `*` which will be replaced with the matched file's stem (path without extension). The output must also include an extension to determine output format (e.g., "reports/*.pdf"). Example: output "reports/*.pdf" with pattern "src/*.md" maps "src/intro.md" to "reports/intro.pdf"
+* `-e`, `--exclude <EXCLUDE>` — Glob patterns to exclude from pattern matches
+* `--spread <SPREAD>` — Spread mode for multi-variant outputs (grid or zip)
+
+   Use with outputs containing placeholders like "{region}/report.pdf". - grid: Cartesian product of all argument values (default) - zip: Positional pairing (all arguments must have same length)
+
+  Possible values:
+  - `grid`:
+    Cartesian product of all arguments (default)
+  - `zip`:
+    Positional pairing of values (all params must have same length)
+
+* `-a`, `--arguments <ARGUMENTS>` — Arguments for spread outputs (comma-delimited key=val1,val2 pairs)
+
+   Example: --arguments "region=north,south" --arguments "year=2024,2025"
+
+
+
+## `stencila outputs remove`
+
+Remove an output configuration
+
+**Usage:** `stencila outputs remove <OUTPUT>`
+
+Examples
+  # Remove an output
+  stencila outputs remove report.pdf
+
+  # Remove a spread output
+  stencila outputs remove "{region}/report.pdf"
+
+
+###### **Arguments:**
+
+* `<OUTPUT>` — Output to remove
+
+
+
+## `stencila outputs push`
+
+Push outputs to Stencila Cloud
+
+**Usage:** `stencila outputs push [OPTIONS] [OUTPUTS]...`
+
+Examples
+  # Push all outputs
+  stencila outputs push
+
+  # Push specific outputs
+  stencila outputs push "report.pdf"
+
+  # Push outputs matching a pattern
+  stencila outputs push "*.pdf"
+
+  # Dry run to preview what would be uploaded
+  stencila outputs push --dry-run
+
+  # Force push, ignoring refs filter
+  stencila outputs push --force
+
+
+###### **Arguments:**
+
+* `<OUTPUTS>` — Specific outputs to push (all if empty)
+
+   Supports glob patterns for matching multiple outputs.
+
+###### **Options:**
+
+* `-f`, `--force` — Force push without refs filtering
+* `--dry-run` — Dry run - process but don't upload
+
+
+
 ## `stencila db`
 
 Manage the workspace and other document databases
@@ -5039,6 +5247,20 @@ Examples
   stencila site
   stencila site show
 
+  # List configured routes
+  stencila site list
+
+  # Add a route
+  stencila site add / index.md
+  stencila site add /about/ README.md
+  stencila site add /old/ --redirect /new/ --status 301
+
+  # Remove a route
+  stencila site remove /about/
+
+  # Push site content to cloud
+  stencila site push
+
   # Create a site for the workspace
   stencila site create
 
@@ -5064,6 +5286,10 @@ Examples
 ###### **Subcommands:**
 
 * `show` — Show details of the workspace site
+* `list` — List configured routes
+* `add` — Add a route
+* `remove` — Remove a route
+* `push` — Push site content to Stencila Cloud
 * `create` — Create a site for the workspace
 * `delete` — Delete the site for the workspace
 * `access` — Manage access restrictions for the workspace site
@@ -5096,6 +5322,125 @@ Examples
 
 
 
+## `stencila site list`
+
+List configured routes
+
+**Usage:** `stencila site list [OPTIONS]`
+
+Examples
+  # List configured routes
+  stencila site
+  stencila site list
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory
+
+   If not specified, uses the current directory
+
+
+
+## `stencila site add`
+
+Add a route
+
+**Usage:** `stencila site add [OPTIONS] <ROUTE> [FILE]`
+
+Examples
+  # Add a file route
+  stencila site add / index.md
+  stencila site add /about/ README.md
+
+  # Add a redirect
+  stencila site add /old/ --redirect /new/
+  stencila site add /old/ --redirect /new/ --status 301
+
+  # Add external redirect
+  stencila site add /github/ --redirect https://github.com/stencila/stencila
+
+  # Add a spread route (generates multiple variants)
+  stencila site add "/{region}/" report.smd --arguments "region=north,south"
+  stencila site add "/{region}/{year}/" report.smd --arguments "region=north,south" --arguments "year=2024,2025"
+  stencila site add "/{q}-report/" quarterly.smd --spread zip --arguments "q=q1,q2,q3,q4"
+
+
+###### **Arguments:**
+
+* `<ROUTE>` — Route path (e.g., "/", "/about/", "/{region}/report/")
+* `<FILE>` — File to serve at this route
+
+###### **Options:**
+
+* `-r`, `--redirect <REDIRECT>` — Redirect URL (instead of a file)
+* `-s`, `--status <STATUS>` — HTTP status code for redirect (301, 302, 303, 307, 308)
+* `--spread <SPREAD>` — Spread mode for multi-variant routes (grid or zip)
+
+   Use with routes containing placeholders like "/{region}/report/". - grid: Cartesian product of all argument values (default) - zip: Positional pairing (all arguments must have same length)
+
+  Possible values:
+  - `grid`:
+    Cartesian product of all arguments (default)
+  - `zip`:
+    Positional pairing of values (all params must have same length)
+
+* `-a`, `--arguments <ARGUMENTS>` — Arguments for spread routes (comma-delimited key=val1,val2 pairs)
+
+   Example: --arguments "region=north,south" --arguments "year=2024,2025"
+
+
+
+## `stencila site remove`
+
+Remove a route
+
+**Usage:** `stencila site remove <ROUTE>`
+
+Examples
+  # Remove a route
+  stencila site remove /about/
+  stencila site remove /old/
+
+
+###### **Arguments:**
+
+* `<ROUTE>` — Route path to remove (e.g., "/about/")
+
+
+
+## `stencila site push`
+
+Push site content to Stencila Cloud
+
+**Usage:** `stencila site push [OPTIONS]`
+
+Examples
+  # Push site content to cloud
+  stencila site push
+
+  # Force push (ignore unchanged files)
+  stencila site push --force
+
+  # Dry run (process but don't upload)
+  stencila site push --dry-run
+
+  # Dry run with output directory
+  stencila site push --dry-run=./temp
+
+
+###### **Options:**
+
+* `-p`, `--path <PATH>` — Path to the workspace directory
+
+   If not specified, uses the current directory
+* `-f`, `--force` — Force push without checking etags
+* `--dry-run <DRY_RUN>` — Dry run - process but don't upload
+
+   Optionally specify an output directory to write generated files
+
+
+
 ## `stencila site create`
 
 Create a site for the workspace
@@ -5118,14 +5463,11 @@ Examples
   # Create site with team-only access
   stencila site create --access team
 
-  # Create site with automatic deployment on git push
-  stencila site create --watch
-
   # Create site with a custom domain
   stencila site create --domain example.com
 
   # Combine options
-  stencila site create docs --access public --watch --domain docs.example.com
+  stencila site create docs --access public --domain docs.example.com
 
 
 ###### **Arguments:**
@@ -5149,9 +5491,6 @@ Examples
   - `team`:
     Only authenticated team members can view
 
-* `-w`, `--watch` — Create a watch for automatic deployment
-
-   When changes are pushed to the repository, the site is automatically updated. Requires a git repository with an origin remote.
 * `-d`, `--domain <DOMAIN>` — Set a custom domain for the site
 
    Example: --domain example.com
