@@ -7,15 +7,18 @@ version.workspace = true
 clap = { workspace = true }
 eyre = { workspace = true }
 figment = { version = "0.10.19", features = ["toml"] }
+glob = { workspace = true }
 schemars = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
+stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-format = { path = "../format" }
 strum = { workspace = true }
 syn = { version = "2", features = ["full", "parsing", "extra-traits"] }
+tokio = { workspace = true }
 toml = { workspace = true }
 toml_edit = "0.23.9"
 tracing = { workspace = true }

@@ -1,13 +1,394 @@
+use std::path::PathBuf;
+
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
-
+use stencila_ask::{Answer, ask_with_default, input, select, setup_defaults};
 use stencila_cli_utils::{AsFormat, Code, ToStdout, color_print::cstr, message};
 use stencila_format::Format;
+use tokio::fs::create_dir_all;
 
 use crate::{
     MANAGED_CONFIG_KEYS, config,
+    init::{RepoAnalysis, RepoAnalyzer},
     utils::{ConfigTarget, config_set, config_unset, config_value},
 };
+
+/// Initialize a workspace with stencila.toml configuration
+#[derive(Debug, Parser)]
+#[command(after_long_help = INIT_AFTER_LONG_HELP)]
+pub struct Init {
+    /// The workspace directory to initialize
+    ///
+    /// Defaults to the current directory.
+    #[arg(default_value = ".")]
+    dir: PathBuf,
+
+    /// Accept all defaults without prompting
+    ///
+    /// Useful for non-interactive/automated environments.
+    #[arg(long, short)]
+    yes: bool,
+
+    /// Site root directory (skip interactive prompt)
+    #[arg(long)]
+    root: Option<String>,
+
+    /// Home page file (skip interactive prompt)
+    #[arg(long)]
+    home: Option<String>,
+
+    /// Output formats for executable documents (comma-separated)
+    ///
+    /// Applies to .smd, .qmd, .myst, .tex files.
+    /// Example: --outputs html,pdf
+    #[arg(long, value_delimiter = ',')]
+    outputs: Option<Vec<String>>,
+}
+
+pub static INIT_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+
+  <dim># Initialize current directory with interactive prompts</dim>
+  <b>stencila init</>
+
+  <dim># Initialize with all defaults (non-interactive)</dim>
+  <b>stencila init --yes</>
+
+  <dim># Initialize a specific directory</dim>
+  <b>stencila init</> <g>./my-project</>
+
+  <dim># Initialize with specific options</dim>
+  <b>stencila init --root docs --home index.md</>
+
+  <dim># Initialize with outputs for executable documents</dim>
+  <b>stencila init --outputs docx,pdf</>
+
+<bold><b>Note</b></bold>
+  This creates a stencila.toml configuration file with site settings,
+  routes, and output configurations based on repository analysis.
+"
+);
+
+/// Configuration collected during init
+#[derive(Debug, Default)]
+struct InitConfig {
+    workspace_id: Option<String>,
+    site_root: Option<String>,
+    home_page: Option<String>,
+    exclude_patterns: Vec<String>,
+    output_formats: Vec<String>,
+    executable_docs: Vec<std::path::PathBuf>,
+}
+
+impl Init {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        // Setup defaults provider for non-interactive mode
+        if self.yes {
+            setup_defaults().await?;
+        }
+
+        // Create directory if it doesn't exist
+        if !self.dir.exists() {
+            create_dir_all(&self.dir).await?;
+        }
+
+        let dir = self.dir.canonicalize()?;
+        let config_path = dir.join("stencila.toml");
+
+        // Check if config already exists
+        if config_path.exists() {
+            let answer =
+                ask_with_default("stencila.toml already exists. Overwrite?", Answer::No).await?;
+            if !answer.is_yes() {
+                message!("🚫 Initialization cancelled");
+                return Ok(());
+            }
+        }
+
+        // Analyze repository
+        message!("🔍 Analyzing repository...");
+        let analyzer = RepoAnalyzer::new(&dir);
+        let analysis = analyzer.analyze()?;
+
+        // Report detected project types
+        if !analysis.project_types.is_empty() {
+            let types: Vec<String> = analysis
+                .project_types
+                .iter()
+                .map(|t| format!("{t:?}"))
+                .collect();
+            message!("📦 Detected: {}", types.join(", "));
+        }
+
+        // Collect configuration interactively or from CLI args
+        let config = self.collect_configuration(&dir, &analysis).await?;
+
+        // Write configuration
+        self.write_config(&dir, &config).await?;
+
+        // Print summary
+        self.print_summary(&config);
+
+        Ok(())
+    }
+
+    #[allow(clippy::field_reassign_with_default)]
+    async fn collect_configuration(
+        &self,
+        dir: &std::path::Path,
+        analysis: &RepoAnalysis,
+    ) -> Result<InitConfig> {
+        let mut config = InitConfig::default();
+
+        // Check for workspace ID from environment variable
+        config.workspace_id = std::env::var("STENCILA_WORKSPACE_ID").ok();
+
+        // Site root selection - allow (none) to skip site configuration
+        let mut skip_site = false;
+        config.site_root = if let Some(ref root) = self.root {
+            if root == "none" {
+                skip_site = true;
+                None
+            } else {
+                Some(root.clone())
+            }
+        } else if !analysis.suggested_roots.is_empty() {
+            let mut options = vec![];
+            options.extend(analysis.suggested_roots.clone());
+            options.push("none (skip site setup)".to_string());
+            options.push("enter custom path".to_string());
+
+            let idx = select("Select site root directory", &options).await?;
+
+            if idx == options.len() - 2 {
+                // User chose none
+                skip_site = true;
+                None
+            } else if idx == options.len() - 1 {
+                // User chose custom
+                Some(input("Enter custom root path").await?)
+            } else {
+                let selected = &options[idx];
+                if selected == "." {
+                    None // Root directory, no need to set explicitly
+                } else {
+                    Some(selected.clone())
+                }
+            }
+        } else {
+            None
+        };
+
+        // Determine the actual site root path for exclusion filtering
+        let site_root_path = config
+            .site_root
+            .as_ref()
+            .map(|r| dir.join(r))
+            .unwrap_or_else(|| dir.to_path_buf());
+
+        // Home page selection - only if site setup wasn't skipped
+        if !skip_site && (!analysis.home_page_candidates.is_empty() || self.home.is_some()) {
+            config.home_page = if let Some(ref home) = self.home {
+                if home == "none" {
+                    None
+                } else {
+                    Some(home.clone())
+                }
+            } else {
+                let mut options = vec!["(none)".to_string()];
+                options.extend(
+                    analysis
+                        .home_page_candidates
+                        .iter()
+                        .map(|p| p.to_string_lossy().to_string()),
+                );
+                options.push("(enter custom path)".to_string());
+
+                let idx = select("Select home page", &options).await?;
+
+                if idx == 0 {
+                    // User chose none
+                    None
+                } else if idx == options.len() - 1 {
+                    // User chose custom
+                    Some(input("Enter custom home page path").await?)
+                } else {
+                    Some(options[idx].clone())
+                }
+            };
+        }
+
+        // Filter exclusion patterns to only include those relevant to files in site root
+        // Skip if site setup was skipped
+        if !skip_site {
+            let analyzer = RepoAnalyzer::new(dir);
+            config.exclude_patterns =
+                analyzer.suggest_excludes_for_root(&analysis.project_types, &site_root_path)?;
+        }
+
+        // Outputs for executable documents
+        if !analysis.executable_docs.is_empty() {
+            config.output_formats = if let Some(ref outputs) = self.outputs {
+                // Handle --outputs none
+                if outputs.len() == 1 && outputs[0] == "none" {
+                    vec![]
+                } else {
+                    outputs.clone()
+                }
+            } else {
+                // Offer output format options including none
+                let format_options = vec![
+                    "pdf".to_string(),
+                    "docx".to_string(),
+                    "pdf and docx".to_string(),
+                    "none (skip outputs)".to_string(),
+                ];
+
+                let idx = select(
+                    "Select output format(s) for executable documents",
+                    &format_options,
+                )
+                .await?;
+
+                match idx {
+                    0 => vec!["pdf".to_string()],                     // pdf only
+                    1 => vec!["docx".to_string()],                    // docx only
+                    2 => vec!["pdf".to_string(), "docx".to_string()], // both
+                    3 => vec![],                                      // none
+                    _ => vec![],
+                }
+            };
+
+            if !config.output_formats.is_empty() {
+                config.executable_docs = analysis.executable_docs.clone();
+            }
+        }
+
+        Ok(config)
+    }
+
+    async fn write_config(&self, dir: &std::path::Path, config: &InitConfig) -> Result<()> {
+        use std::collections::HashSet;
+        use std::fmt::Write;
+
+        let config_path = dir.join("stencila.toml");
+        let mut content = String::new();
+
+        // [workspace] section - always first
+        if let Some(ref id) = config.workspace_id {
+            writeln!(content, "[workspace]")?;
+            writeln!(content, "id = \"{}\"", id)?;
+            writeln!(content)?;
+        }
+
+        // [site] section
+        let has_site_config = config.site_root.is_some()
+            || !config.exclude_patterns.is_empty()
+            || config.home_page.is_some();
+
+        if has_site_config {
+            writeln!(content, "[site]")?;
+
+            if let Some(ref root) = config.site_root {
+                writeln!(content, "root = \"{}\"", root)?;
+            }
+
+            if !config.exclude_patterns.is_empty() {
+                writeln!(content, "exclude = [")?;
+                for pattern in &config.exclude_patterns {
+                    writeln!(content, "  \"{}\",", pattern)?;
+                }
+                writeln!(content, "]")?;
+            }
+
+            writeln!(content)?;
+        }
+
+        // [site.routes] section
+        if let Some(ref home) = config.home_page {
+            writeln!(content, "[site.routes]")?;
+            writeln!(content, "\"/\" = \"{}\"", home)?;
+            writeln!(content)?;
+        }
+
+        // [outputs] section - limit to 10 outputs
+        const MAX_OUTPUTS: usize = 10;
+        if !config.output_formats.is_empty() && !config.executable_docs.is_empty() {
+            writeln!(content, "[outputs]")?;
+
+            // Track output keys to prevent duplicates
+            let mut seen_keys = HashSet::new();
+            let mut output_count = 0;
+
+            'outer: for doc in &config.executable_docs {
+                // Use full path without extension as the output key
+                // e.g., "docs/report.smd" -> "docs/report.pdf"
+                let path_without_ext = doc.with_extension("");
+                let output_base = path_without_ext.to_string_lossy();
+                let source = doc.to_string_lossy();
+
+                for format in &config.output_formats {
+                    if output_count >= MAX_OUTPUTS {
+                        break 'outer;
+                    }
+                    let key = format!("{}.{}", output_base, format);
+                    // Only write if we haven't seen this key before
+                    if seen_keys.insert(key.clone()) {
+                        writeln!(content, "\"{}\" = \"{}\"", key, source)?;
+                        output_count += 1;
+                    }
+                }
+            }
+        }
+
+        tokio::fs::write(&config_path, content).await?;
+
+        Ok(())
+    }
+
+    fn print_summary(&self, config: &InitConfig) {
+        message!("✅ Created stencila.toml");
+
+        if let Some(ref id) = config.workspace_id {
+            message!("   🔗 Workspace: {id}");
+        }
+
+        if let Some(ref root) = config.site_root {
+            message!("   📁 Site root: {root}");
+        }
+
+        if let Some(ref home) = config.home_page {
+            message!("   🏠 Home page: {home} -> /");
+        }
+
+        if !config.exclude_patterns.is_empty() {
+            message!(
+                "   🚫 Exclusions: {} patterns",
+                config.exclude_patterns.len()
+            );
+        }
+
+        if !config.output_formats.is_empty() && !config.executable_docs.is_empty() {
+            let total_possible = config.executable_docs.len() * config.output_formats.len();
+            let actual = total_possible.min(10);
+            if total_possible > 10 {
+                message!(
+                    "   📄 Outputs: {} (limited from {} docs × {:?})",
+                    actual,
+                    config.executable_docs.len(),
+                    config.output_formats
+                );
+            } else {
+                message!(
+                    "   📄 Outputs: {} docs -> {:?}",
+                    config.executable_docs.len(),
+                    config.output_formats
+                );
+            }
+        }
+    }
+}
 
 /// Manage Stencila configuration
 #[derive(Debug, Parser)]

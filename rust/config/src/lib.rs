@@ -11,6 +11,8 @@ use serde_with::skip_serializing_none;
 use strum::Display;
 use url::Url;
 
+mod init;
+
 mod outputs;
 pub use outputs::*;
 

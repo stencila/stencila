@@ -3,75 +3,15 @@ use std::{env::current_dir, path::PathBuf};
 use clap::Parser;
 use eyre::{Result, bail};
 use itertools::Itertools;
-use tokio::fs::create_dir_all;
 
 use stencila_ask::{Answer, ask_with_default};
 use stencila_cli_utils::{Code, ToStdout, color_print::cstr};
 use stencila_codecs::{EncodeOptions, LossesResponse};
-use stencila_dirs::{CreateStencilaDirOptions, STENCILA_DIR, stencila_dir_create};
 use stencila_format::Format;
 use stencila_node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 use stencila_schema::{Article, Block, Collection, CreativeWorkVariant, Node, NodeId, NodeType};
 
 use super::Document;
-
-/// Initialize a workspace
-#[derive(Debug, Parser)]
-#[command(after_long_help = INIT_AFTER_LONG_HELP)]
-pub struct Init {
-    /// The workspace directory to initialize
-    ///
-    /// Defaults to the current directory.
-    #[arg(default_value = ".")]
-    dir: PathBuf,
-
-    /// Do not create a `.gitignore` file
-    #[arg(long)]
-    no_gitignore: bool,
-}
-
-pub static INIT_AFTER_LONG_HELP: &str = cstr!(
-    "<bold></bold>
-  <dim># Initialize current directory as a Stencila workspace</dim>
-  <b>stencila init</>
-
-  <dim># Initialize a specific directory</dim>
-  <b>stencila init</> <g>./my-project</>
-
-  <dim># Initialize without creating .gitignore</dim>
-  <b>stencila init</> <c>--no-gitignore</>
-
-<bold><b>Note</b></bold>
-  This creates a .stencila directory for workspace configuration
-  and document tracking. A .gitignore file is created by default
-  to exclude tracking and cache files.
-"
-);
-
-impl Init {
-    #[tracing::instrument]
-    pub async fn run(self) -> Result<()> {
-        if !self.dir.exists() {
-            create_dir_all(&self.dir).await?;
-        }
-
-        stencila_dir_create(
-            &self.dir.join(STENCILA_DIR),
-            CreateStencilaDirOptions {
-                gitignore_file: !self.no_gitignore,
-                ..Default::default()
-            },
-        )
-        .await?;
-
-        eprintln!(
-            "🟢 Initialized document config and tracking for directory `{}`",
-            self.dir.display()
-        );
-
-        Ok(())
-    }
-}
 
 /// Query a workspace database
 #[derive(Debug, Parser)]
