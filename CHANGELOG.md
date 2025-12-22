@@ -1,3 +1,35 @@
+# [2.12.0](https://github.com/stencila/stencila/compare/v2.11.0...v2.12.0) (2025-12-23)
+
+
+### Features
+
+* **CLI:** Add `outputs` command with `add` and `remove` subcommands for managing output configurations, including spread and argument options similar to the `site` command ([00fbfb6](https://github.com/stencila/stencila/commit/00fbfb677f), [cb286ed](https://github.com/stencila/stencila/commit/cb286ed1d8), [321d6c3](https://github.com/stencila/stencila/commit/321d6c314a)).
+
+* **CLI:** Add interactive `select` and `multiselect` prompts to the `ask` command for improved user input handling ([9f90e90](https://github.com/stencila/stencila/commit/9f90e90b88)).
+
+* **Workspace:** Add `init.sh` script support for workspace initialization ([8ec20c4](https://github.com/stencila/stencila/commit/8ec20c4e2d)).
+
+
+### Bug Fixes
+
+* **Markdown codec:** Treat Mermaid code blocks as executable by default, enabling diagram rendering without explicit configuration ([3584a6c](https://github.com/stencila/stencila/commit/3584a6cb70)).
+
+* **CLI:** Validate site route placeholders and harmonize site and outputs configuration and commands ([bf35705](https://github.com/stencila/stencila/commit/bf35705a1f), [b13e901](https://github.com/stencila/stencila/commit/b13e9015f0)).
+
+* **CLI:** Refactor `init` command to initialize configuration files ([c01d195](https://github.com/stencila/stencila/commit/c01d195bc5)).
+
+* **Cloud:** Use `STENCILA_WORKSPACE_ID` environment variable when available for workspace identification ([933b085](https://github.com/stencila/stencila/commit/933b085098)).
+
+* **Workspace:** Check user name independently of email, install Chrome browser, and force color for tracing logs ([cb6ad6c](https://github.com/stencila/stencila/commit/cb6ad6c464), [cdad93e](https://github.com/stencila/stencila/commit/cdad93eb7f), [cb94c46](https://github.com/stencila/stencila/commit/cb94c46a4d)).
+
+* **Convert:** Disable Chrome sandbox when running in containers for improved compatibility ([78c16c1](https://github.com/stencila/stencila/commit/78c16c1da4)).
+
+* **Node media:** Skip media file collection for visualization images to avoid unnecessary processing ([cb94c46](https://github.com/stencila/stencila/commit/fcd68c19f2)).
+
+* **Rust/Web:** Upgrade dependencies for security and compatibility improvements ([440d34d](https://github.com/stencila/stencila/commit/440d34d69e), [0315ba2](https://github.com/stencila/stencila/commit/0315ba2283))
+
+
+
 # [2.11.0](https://github.com/stencila/stencila/compare/v2.10.0...v2.11.0) (2025-12-09)
 
 

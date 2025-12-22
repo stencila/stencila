@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.12.0 2025-12-23
+
+- Based on Stencila CLI [v2.12.0](https://github.com/stencila/stencila/releases/tag/v2.12.0) which adds a new `outputs` command for managing output configurations, interactive select/multiselect prompts for the `ask` command, and treats Mermaid code blocks as executable by default
+
+
+
 ## 2.11.0 2025-12-09
 
 - Based on Stencila CLI [v2.11.0](https://github.com/stencila/stencila/releases/tag/v2.11.0) which adds bibliography support for documents, improved Pandoc round-trip conversion for file links and line breaks, and performance optimizations for static document views

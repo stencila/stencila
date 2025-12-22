@@ -9317,7 +9317,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-config"
-version = "2.11.0"
+version = "2.12.0"
 dependencies = [
  "clap",
  "eyre",
@@ -10022,7 +10022,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "2.11.0"
+version = "2.12.0"
 dependencies = [
  "eyre",
  "napi",
@@ -10488,7 +10488,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "2.11.0"
+version = "2.12.0"
 dependencies = [
  "eyre",
  "pyo3",
@@ -10687,7 +10687,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-spread"
-version = "2.11.0"
+version = "2.12.0"
 dependencies = [
  "clap",
  "indexmap 2.12.1",
@@ -10747,7 +10747,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-version"
-version = "2.11.0"
+version = "2.12.0"
 dependencies = [
  "semver",
 ]
