@@ -45,9 +45,11 @@ stencila pull --no-merge "${STENCILA_SYNC_FILE_PATH}" --from "${STENCILA_SYNC_RE
 if [[ -n "$(git status --porcelain)" ]]; then
     echo "📝 Committing and pushing changes from sync..."
 
-    # Configure git if not already configured
-    if [[ -z "$(git config --get user.email || true)" ]]; then
+    # Configure git identity if not already configured
+    if [[ -z "$(git config --get user.name || true)" ]]; then
         git config user.name "${GIT_AUTHOR_NAME:-Stencila User}"
+    fi
+    if [[ -z "$(git config --get user.email || true)" ]]; then
         git config user.email "${GIT_AUTHOR_EMAIL:-noreply@stencila.io}"
     fi
 
