@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use eyre::{Result, bail};
 
-use crate::{Answer, Ask, AskLevel, AskOptions};
+use crate::{Answer, Ask, AskLevel, AskOptions, InputOptions, MultiSelectOptions, SelectOptions};
 
 /// Default provider
 ///
@@ -28,5 +28,55 @@ impl Ask for DefaultProvider {
 
     async fn password(&self, _prompt: &str) -> Result<String> {
         bail!("Password input is not available in non-interactive contexts")
+    }
+
+    async fn input(&self, prompt: &str, options: InputOptions) -> Result<String> {
+        let value = options.default.unwrap_or_default();
+        tracing::info!("{prompt} -> Auto-selected: `{value}`");
+        Ok(value)
+    }
+
+    async fn select(
+        &self,
+        prompt: &str,
+        items: &[String],
+        options: SelectOptions,
+    ) -> Result<usize> {
+        // Guard against out-of-range default index
+        let idx = options
+            .default
+            .unwrap_or(0)
+            .min(items.len().saturating_sub(1));
+        let selected = items.get(idx).map(String::as_str).unwrap_or("");
+        tracing::info!("{prompt} -> Auto-selected: `{selected}`");
+        Ok(idx)
+    }
+
+    async fn multi_select(
+        &self,
+        prompt: &str,
+        items: &[String],
+        options: MultiSelectOptions,
+    ) -> Result<Vec<usize>> {
+        // If defaults provided, use those; otherwise select the first item
+        // Guard against out-of-range indices by clamping to items.len()
+        let selections: Vec<usize> = options
+            .defaults
+            .map(|d| {
+                d.iter()
+                    .enumerate()
+                    .take(items.len()) // Ignore defaults beyond items length
+                    .filter_map(|(i, &v)| if v { Some(i) } else { None })
+                    .collect()
+            })
+            .unwrap_or_else(|| if items.is_empty() { vec![] } else { vec![0] });
+
+        let selected: Vec<&str> = selections
+            .iter()
+            .filter_map(|&i| items.get(i).map(String::as_str))
+            .collect();
+        tracing::info!("{prompt} -> Auto-selected: {:?}", selected);
+
+        Ok(selections)
     }
 }

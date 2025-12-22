@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use eyre::{Result, bail};
 use lsp_types::{MessageActionItem, MessageType, ShowMessageRequestParams};
 
-use crate::{Answer, Ask, AskLevel, AskOptions};
+use crate::{Answer, Ask, AskLevel, AskOptions, InputOptions, MultiSelectOptions, SelectOptions};
 
 /// Trait for LSP client implementations
 #[async_trait]
@@ -114,5 +114,27 @@ impl<C: LspClient> Ask for LspProvider<C> {
                 Err(error)
             }
         }
+    }
+
+    async fn input(&self, _prompt: &str, _options: InputOptions) -> Result<String> {
+        bail!("Text input is not supported in LSP context. Please use the CLI instead.")
+    }
+
+    async fn select(
+        &self,
+        _prompt: &str,
+        _items: &[String],
+        _options: SelectOptions,
+    ) -> Result<usize> {
+        bail!("Selection is not supported in LSP context. Please use the CLI instead.")
+    }
+
+    async fn multi_select(
+        &self,
+        _prompt: &str,
+        _items: &[String],
+        _options: MultiSelectOptions,
+    ) -> Result<Vec<usize>> {
+        bail!("Multi-selection is not supported in LSP context. Please use the CLI instead.")
     }
 }

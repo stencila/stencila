@@ -4,12 +4,13 @@ use std::{
 };
 
 use async_trait::async_trait;
+use dialoguer::{Input, MultiSelect, Select, theme::ColorfulTheme};
 use eyre::{Result, bail};
 use owo_colors::OwoColorize;
 use rpassword::read_password;
 use textwrap::{termwidth, wrap};
 
-use crate::{Answer, Ask, AskLevel, AskOptions};
+use crate::{Answer, Ask, AskLevel, AskOptions, InputOptions, MultiSelectOptions, SelectOptions};
 
 /// CLI provider
 pub struct CliProvider;
@@ -165,5 +166,76 @@ impl Ask for CliProvider {
         eprintln!();
 
         Ok(password)
+    }
+
+    async fn input(&self, prompt: &str, options: InputOptions) -> Result<String> {
+        // If stdin is not a TTY then bail because otherwise we'll wait forever
+        if !stdin().is_terminal() {
+            bail!(
+                "Non-interactive environment detected. Use `--yes` option or environment variable equivalent."
+            );
+        }
+
+        let theme = ColorfulTheme::default();
+        let mut input: Input<String> = Input::with_theme(&theme);
+        input = input.with_prompt(prompt);
+
+        if let Some(default) = options.default {
+            input = input.default(default);
+        }
+
+        if options.allow_empty {
+            input = input.allow_empty(true);
+        }
+
+        Ok(input.interact_text()?)
+    }
+
+    async fn select(
+        &self,
+        prompt: &str,
+        items: &[String],
+        options: SelectOptions,
+    ) -> Result<usize> {
+        // If stdin is not a TTY then bail because otherwise we'll wait forever
+        if !stdin().is_terminal() {
+            bail!(
+                "Non-interactive environment detected. Use `--yes` option or environment variable equivalent."
+            );
+        }
+
+        let theme = ColorfulTheme::default();
+        let mut select = Select::with_theme(&theme);
+        select = select.with_prompt(prompt).items(items);
+
+        if let Some(default) = options.default {
+            select = select.default(default);
+        }
+
+        Ok(select.interact()?)
+    }
+
+    async fn multi_select(
+        &self,
+        prompt: &str,
+        items: &[String],
+        options: MultiSelectOptions,
+    ) -> Result<Vec<usize>> {
+        // If stdin is not a TTY then bail because otherwise we'll wait forever
+        if !stdin().is_terminal() {
+            bail!(
+                "Non-interactive environment detected. Use `--yes` option or environment variable equivalent."
+            );
+        }
+
+        let theme = ColorfulTheme::default();
+        let mut multi_select = MultiSelect::with_theme(&theme);
+        multi_select = multi_select.with_prompt(prompt).items(items);
+
+        if let Some(defaults) = options.defaults {
+            multi_select = multi_select.defaults(&defaults);
+        }
+
+        Ok(multi_select.interact()?)
     }
 }

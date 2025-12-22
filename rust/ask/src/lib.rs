@@ -27,6 +27,11 @@ pub async fn setup_cli(assume: Option<Answer>) -> Result<()> {
     global_context(AskContext::with_cli_provider(assume)).await
 }
 
+/// Setup with defaults provider (non-interactive, uses defaults for all prompts)
+pub async fn setup_defaults() -> Result<()> {
+    global_context(AskContext::default()).await
+}
+
 /// Setup with LSP provider
 pub async fn setup_lsp<C: LspClient + 'static>(client: C) -> Result<()> {
     global_context(AskContext::with_lsp_provider(client)).await
@@ -93,6 +98,104 @@ pub async fn ask_for_password(prompt: &str) -> Result<String> {
     }
 }
 
+/// Prompt for text input
+pub async fn input(prompt: &str) -> Result<String> {
+    input_with(prompt, InputOptions::default()).await
+}
+
+/// Prompt for text input with a default value
+pub async fn input_with_default(prompt: &str, default: &str) -> Result<String> {
+    input_with(
+        prompt,
+        InputOptions {
+            default: Some(default.to_string()),
+            ..Default::default()
+        },
+    )
+    .await
+}
+
+/// Prompt for text input with options
+pub async fn input_with(prompt: &str, options: InputOptions) -> Result<String> {
+    let guard = GLOBAL_CONTEXT.lock().await;
+    match guard.as_ref() {
+        Some(ctx) => ctx.input(prompt, options).await,
+        None => {
+            drop(guard);
+            let ctx = AskContext::default();
+            ctx.input(prompt, options).await
+        }
+    }
+}
+
+/// Prompt user to select one item from a list
+pub async fn select(prompt: &str, items: &[String]) -> Result<usize> {
+    select_with(prompt, items, SelectOptions::default()).await
+}
+
+/// Prompt user to select one item from a list with a default selection
+pub async fn select_with_default(prompt: &str, items: &[String], default: usize) -> Result<usize> {
+    select_with(
+        prompt,
+        items,
+        SelectOptions {
+            default: Some(default),
+        },
+    )
+    .await
+}
+
+/// Prompt user to select one item from a list with options
+pub async fn select_with(prompt: &str, items: &[String], options: SelectOptions) -> Result<usize> {
+    let guard = GLOBAL_CONTEXT.lock().await;
+    match guard.as_ref() {
+        Some(ctx) => ctx.select(prompt, items, options).await,
+        None => {
+            drop(guard);
+            let ctx = AskContext::default();
+            ctx.select(prompt, items, options).await
+        }
+    }
+}
+
+/// Prompt user to select multiple items from a list
+pub async fn multi_select(prompt: &str, items: &[String]) -> Result<Vec<usize>> {
+    multi_select_with(prompt, items, MultiSelectOptions::default()).await
+}
+
+/// Prompt user to select multiple items from a list with default selections
+pub async fn multi_select_with_defaults(
+    prompt: &str,
+    items: &[String],
+    defaults: &[bool],
+) -> Result<Vec<usize>> {
+    multi_select_with(
+        prompt,
+        items,
+        MultiSelectOptions {
+            defaults: Some(defaults.to_vec()),
+        },
+    )
+    .await
+}
+
+/// Prompt user to select multiple items from a list with options
+pub async fn multi_select_with(
+    prompt: &str,
+    items: &[String],
+    options: MultiSelectOptions,
+) -> Result<Vec<usize>> {
+    let guard = GLOBAL_CONTEXT.lock().await;
+    match guard.as_ref() {
+        Some(ctx) => ctx.multi_select(prompt, items, options).await,
+        None => {
+            drop(guard);
+            let ctx = AskContext::default();
+            ctx.multi_select(prompt, items, options).await
+        }
+    }
+}
+
 /// Core trait that all confirmation providers must implement.
 /// This abstraction allows different UI backends to provide user confirmation dialogs.
 #[async_trait]
@@ -104,6 +207,23 @@ trait Ask: Send + Sync {
     /// Prompt for a password.
     /// The password should be masked/hidden from display.
     async fn password(&self, prompt: &str) -> Result<String>;
+
+    /// Prompt for text input.
+    async fn input(&self, prompt: &str, options: InputOptions) -> Result<String>;
+
+    /// Prompt user to select one item from a list.
+    /// Returns the index of the selected item.
+    async fn select(&self, prompt: &str, items: &[String], options: SelectOptions)
+    -> Result<usize>;
+
+    /// Prompt user to select multiple items from a list.
+    /// Returns the indices of the selected items.
+    async fn multi_select(
+        &self,
+        prompt: &str,
+        items: &[String],
+        options: MultiSelectOptions,
+    ) -> Result<Vec<usize>>;
 }
 
 /// Configuration options for customizing confirmation dialogs.
@@ -136,6 +256,30 @@ impl AskOptions {
     pub fn cancel_enabled(&self) -> bool {
         self.cancel_allowed || matches!(self.default, Some(Answer::Cancel))
     }
+}
+
+/// Configuration options for text input prompts.
+#[derive(Default)]
+pub struct InputOptions {
+    /// Default value to display and use if user presses Enter
+    pub default: Option<String>,
+
+    /// Whether to allow empty input
+    pub allow_empty: bool,
+}
+
+/// Configuration options for single-selection prompts.
+#[derive(Default)]
+pub struct SelectOptions {
+    /// Index of the default selection (0-based)
+    pub default: Option<usize>,
+}
+
+/// Configuration options for multi-selection prompts.
+#[derive(Default)]
+pub struct MultiSelectOptions {
+    /// Default selection state for each item (true = selected)
+    pub defaults: Option<Vec<bool>>,
 }
 
 /// The type of question being asked
@@ -218,6 +362,28 @@ impl AskContext {
 
     pub async fn password(&self, prompt: &str) -> Result<String> {
         self.provider.password(prompt).await
+    }
+
+    pub async fn input(&self, prompt: &str, options: InputOptions) -> Result<String> {
+        self.provider.input(prompt, options).await
+    }
+
+    pub async fn select(
+        &self,
+        prompt: &str,
+        items: &[String],
+        options: SelectOptions,
+    ) -> Result<usize> {
+        self.provider.select(prompt, items, options).await
+    }
+
+    pub async fn multi_select(
+        &self,
+        prompt: &str,
+        items: &[String],
+        options: MultiSelectOptions,
+    ) -> Result<Vec<usize>> {
+        self.provider.multi_select(prompt, items, options).await
     }
 }
 

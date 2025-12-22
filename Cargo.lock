@@ -1544,6 +1544,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "console"
+version = "0.16.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03e45a4a8926227e4197636ba97a9fc9b00477e9f4bd711395687c5f0734bec4"
+dependencies = [
+ "encode_unicode",
+ "libc",
+ "once_cell",
+ "unicode-width 0.2.2",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "console-api"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2651,6 +2664,16 @@ name = "deunicode"
 version = "1.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abd57806937c9cc163efc8ea3910e00a62e2aeb0b8119f1793a978088f8f6b04"
+
+[[package]]
+name = "dialoguer"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25f104b501bf2364e78d0d3974cbc774f738f5865306ed128e1e0d7499c0ad96"
+dependencies = [
+ "console 0.16.2",
+ "shell-words",
+]
 
 [[package]]
 name = "diff"
@@ -4444,7 +4467,7 @@ version = "0.17.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "183b3088984b400f4cfac3620d5e076c84da5364016b4f49473de574b2586235"
 dependencies = [
- "console",
+ "console 0.15.11",
  "number_prefix",
  "portable-atomic",
  "unicode-width 0.2.2",
@@ -4493,7 +4516,7 @@ version = "1.44.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5c943d4415edd8153251b6f197de5eb1640e56d84e8d9159bea190421c73698"
 dependencies = [
- "console",
+ "console 0.15.11",
  "once_cell",
  "pest",
  "pest_derive",
@@ -8010,6 +8033,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "shell-words"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc6fe69c597f9c37bfeeeeeb33da3530379845f10be461a66d16d03eca2ded77"
+
+[[package]]
 name = "shellexpand"
 version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8225,6 +8254,7 @@ name = "stencila-ask"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "dialoguer",
  "eyre",
  "lsp-types",
  "owo-colors",
@@ -9297,18 +9327,21 @@ dependencies = [
  "clap",
  "eyre",
  "figment",
+ "glob",
  "jsonschema",
  "schemars 1.1.0",
  "serde",
  "serde_json",
  "serde_with",
  "serial_test",
+ "stencila-ask",
  "stencila-cli-utils",
  "stencila-dirs",
  "stencila-format",
  "strum",
  "syn 2.0.111",
  "tempfile",
+ "tokio",
  "toml 0.9.8",
  "toml_edit 0.23.9",
  "tracing",
@@ -9400,6 +9433,7 @@ dependencies = [
  "stencila-schema",
  "stencila-tools",
  "strum",
+ "tempfile",
  "tokio",
  "tracing",
  "url",
