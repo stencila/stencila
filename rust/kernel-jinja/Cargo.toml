@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-minijinja = { version = "2.13.0", features = ["loader", "json", "debug"] }
+minijinja = { version = "2.14.0", features = ["loader", "json", "debug"] }
 serde_json = { workspace = true }
 stencila-kernel = { path = "../kernel" }
 tokio = { workspace = true }
