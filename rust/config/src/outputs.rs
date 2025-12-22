@@ -12,6 +12,7 @@ const RESERVED_PLACEHOLDERS: &[&str] = &["branch", "tag", "i"];
 ///
 /// Checks the same constraints as OutputConfig::validate to prevent
 /// writing invalid configurations that would fail at load time.
+#[allow(clippy::too_many_arguments)]
 fn validate_output_options(
     key: &str,
     source: Option<&str>,
@@ -104,6 +105,7 @@ fn validate_output_options(
 /// 4. Supports both simple source paths and full config objects
 ///
 /// Returns the path to the modified config file.
+#[allow(clippy::too_many_arguments)]
 pub fn config_add_output(
     key: &str,
     source: Option<&str>,
