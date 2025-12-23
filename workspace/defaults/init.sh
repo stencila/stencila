@@ -36,7 +36,7 @@ BRANCH_NAME="stencila/init"
 echo "🌿 Creating branch: ${BRANCH_NAME}"
 git checkout -B "${BRANCH_NAME}"
 
-# Initialize the Stencila project
+# Initialize the Stencila workspace
 echo "⚙️  Running stencila init..."
 stencila init --yes
 
@@ -48,7 +48,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
     git add -A
 
     # Create commit
-    COMMIT_MSG="Initialize Stencila project"
+    COMMIT_MSG="Initialize Stencila workspace"
     git commit -m "${COMMIT_MSG}"
     echo "✅ Changes committed: ${COMMIT_MSG}"
 
@@ -60,5 +60,5 @@ else
     echo "ℹ️  No changes to commit"
 fi
 
-echo "✨ Stencila project initialization completed successfully!"
+echo "✨ Stencila workspace initialization completed successfully!"
 exit 0

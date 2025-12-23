@@ -18,7 +18,7 @@ cleanup() {
     # Only call the API if STENCILA_SESSION_ID and STENCILA_API_TOKEN are set
     if [[ -n "${STENCILA_SESSION_ID:-}" && -n "${STENCILA_API_TOKEN:-}" ]]; then
         local api_url="${STENCILA_API_URL:-https://api.stencila.cloud}"
-        echo "Notifying Stencila Cloud that session $STENCILA_SESSION_ID $status"
+        echo "Notifying Stencila Cloud that session $status"
         curl -f -s -o /dev/null -X POST \
             "${api_url}/v1/sessions/${STENCILA_SESSION_ID}/finished?status=${status}" \
             -H "Authorization: Bearer ${STENCILA_API_TOKEN}" \
