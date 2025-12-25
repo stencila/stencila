@@ -23,7 +23,7 @@ cleanup() {
         local attempt=1
         local success=false
 
-        echo "Notifying Stencila Cloud that session $status"
+        echo "📡 Notifying Stencila Cloud that session $status"
 
         while [[ $attempt -le $max_attempts ]]; do
             if curl -f -s -o /dev/null -X POST "$url" \
@@ -36,14 +36,14 @@ cleanup() {
 
             if [[ $attempt -lt $max_attempts ]]; then
                 local delay=$((attempt * 2))
-                echo "Retry $attempt/$max_attempts failed, waiting ${delay}s..."
+                echo "🔄 Retry $attempt/$max_attempts failed, waiting ${delay}s..."
                 sleep $delay
             fi
             ((attempt++))
         done
 
         if [[ "$success" != "true" ]]; then
-            echo "Warning: Failed to notify of session completion after $max_attempts attempts"
+            echo "⚠️ Warning: Failed to notify of session completion after $max_attempts attempts"
         fi
     fi
 }
@@ -54,7 +54,7 @@ trap cleanup EXIT
 # Check if running in CI mode (script execution) or CDE mode (VSCode server)
 if [[ -n "${STENCILA_SCRIPT:-}" ]]; then
     # CI mode: run the specified script
-    echo "Running in CI mode with script: ${STENCILA_SCRIPT}"
+    echo "🚀 Running in CI mode with script: ${STENCILA_SCRIPT}"
 
     # Create the repository directory structure if GITHUB_REPO is set
     if [[ -n "${GITHUB_REPO:-}" ]]; then
@@ -65,30 +65,30 @@ if [[ -n "${STENCILA_SCRIPT:-}" ]]; then
     # Run setup.sh to initialize the repository
     SETUP_SCRIPT="/home/workspace/stencila/defaults/setup.sh"
     if [[ -f "${SETUP_SCRIPT}" ]]; then
-        echo "Initializing workspace..."
+        echo "🔧 Initializing workspace..."
         bash "${SETUP_SCRIPT}"
     else
-        echo "Warning: setup.sh not found at ${SETUP_SCRIPT}"
+        echo "⚠️ Warning: setup.sh not found at ${SETUP_SCRIPT}"
     fi
 
     # Run the specified script (unless it's "none")
     if [[ "${STENCILA_SCRIPT}" != "none" ]]; then
         SCRIPT_PATH="/home/workspace/stencila/defaults/${STENCILA_SCRIPT}"
         if [[ -f "${SCRIPT_PATH}" ]]; then
-            echo "Executing ${STENCILA_SCRIPT}..."
+            echo "▶️ Executing ${STENCILA_SCRIPT}..."
             bash "${SCRIPT_PATH}"
             exit $?
         else
-            echo "Error: Script not found at ${SCRIPT_PATH}"
+            echo "❌ Error: Script not found at ${SCRIPT_PATH}"
             exit 1
         fi
     else
-        echo "Setup complete. No script to execute (STENCILA_SCRIPT=none)."
+        echo "✅ Setup complete. No script to execute (STENCILA_SCRIPT=none)."
         exit 0
     fi
 else
     # CDE mode: start VSCode server
-    echo "Running in CDE mode (VSCode server)"
+    echo "💻 Running in CDE mode (VSCode server)"
 
     if [[ -n "${GITHUB_REPO:-}" ]]; then
         # Create the folder that the openvscode will be opened in
