@@ -18,12 +18,33 @@ cleanup() {
     # Only call the API if STENCILA_SESSION_ID and STENCILA_API_TOKEN are set
     if [[ -n "${STENCILA_SESSION_ID:-}" && -n "${STENCILA_API_TOKEN:-}" ]]; then
         local api_url="${STENCILA_API_URL:-https://api.stencila.cloud}"
+        local url="${api_url}/v1/sessions/${STENCILA_SESSION_ID}/finished?status=${status}"
+        local max_attempts=3
+        local attempt=1
+        local success=false
+
         echo "Notifying Stencila Cloud that session $status"
-        curl -f -s -o /dev/null -X POST \
-            "${api_url}/v1/sessions/${STENCILA_SESSION_ID}/finished?status=${status}" \
-            -H "Authorization: Bearer ${STENCILA_API_TOKEN}" \
-            --max-time 30 \
-            || echo "Warning: Failed to notify session completion API"
+
+        while [[ $attempt -le $max_attempts ]]; do
+            if curl -f -s -o /dev/null -X POST "$url" \
+                -H "Authorization: Bearer ${STENCILA_API_TOKEN}" \
+                --connect-timeout 10 \
+                --max-time 30; then
+                success=true
+                break
+            fi
+
+            if [[ $attempt -lt $max_attempts ]]; then
+                local delay=$((attempt * 2))
+                echo "Retry $attempt/$max_attempts failed, waiting ${delay}s..."
+                sleep $delay
+            fi
+            ((attempt++))
+        done
+
+        if [[ "$success" != "true" ]]; then
+            echo "Warning: Failed to notify of session completion after $max_attempts attempts"
+        fi
     fi
 }
 
