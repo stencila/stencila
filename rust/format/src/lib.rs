@@ -126,6 +126,9 @@ pub enum Format {
     PmcOa,
     // Development focussed formats
     Debug,
+    // Email formats
+    Email,
+    Mjml,
     // Other arbitrary format, not listed above
     Other(String),
     // Unknown format
@@ -159,6 +162,7 @@ impl Format {
             Dom => "DOM HTML",
             Dot => "Graphviz DOT",
             Echarts => "ECharts",
+            Email => "Email HTML",
             Flac => "FLAC",
             GDocx => "Google Docs (DOCX)",
             M365Docx => "Microsoft 365 (DOCX)",
@@ -180,6 +184,7 @@ impl Format {
             Markdown => "Markdown",
             Meca => "Meca",
             Mermaid => "Mermaid",
+            Mjml => "MJML",
             Mkv => "Matroska",
             Mov => "QuickTime",
             Mp3 => "MPEG-3",
@@ -314,7 +319,11 @@ impl Format {
     pub fn is_viz(&self) -> bool {
         matches!(
             self,
-            Format::Cytoscape | Format::Echarts | Format::Plotly | Format::VegaLite
+            Format::Cytoscape
+                | Format::Echarts
+                | Format::Mermaid
+                | Format::Plotly
+                | Format::VegaLite
         )
     }
 
@@ -375,6 +384,7 @@ impl Format {
             "dom" | "dom.html" => Dom,
             "dot" => Dot,
             "echarts" => Echarts,
+            "email" | "email.html" => Email,
             "flac" => Flac,
             "gdocx" => GDocx,
             "m365docx" => M365Docx,
@@ -396,6 +406,7 @@ impl Format {
             "markdown" | "md" => Markdown,
             "meca" => Meca,
             "mermaid" => Mermaid,
+            "mjml" => Mjml,
             "mkv" => Mkv,
             "mov" => Mov,
             "mp3" => Mp3,
@@ -452,6 +463,7 @@ impl Format {
         for (end, format) in [
             (".cbor.zstd", CborZstd),
             (".dom.html", Dom),
+            (".email.html", Email),
             (".jats.xml", Jats),
             (".json.zip", JsonZip),
         ] {
@@ -491,11 +503,7 @@ impl Format {
             "application/cbor+zstd" => Ok(CborZstd),
             "application/json+zip" => Ok(JsonZip),
             "application/ld+json" => Ok(JsonLd),
-            "application/vnd.apache.echarts+json" => Ok(Echarts),
             "application/vnd.citationstyles.csl+json" => Ok(Csl),
-            "application/vnd.cytoscape.v3+json" => Ok(Cytoscape),
-            "application/vnd.plotly.v1+json" => Ok(Plotly),
-            "application/vnd.vegalite.v5+json" => Ok(VegaLite),
             "application/vnd.ms-excel" => Ok(Xls),
             "application/vnd.oasis.opendocument.spreadsheet" => Ok(Ods),
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => Ok(Xlsx),
@@ -506,6 +514,16 @@ impl Format {
             "text/plain" => Ok(Text),
             "video/quicktime" => Ok(Mov),
             "video/x-msvideo" => Ok(Avi),
+            // Visualization formats use prefix matching to be robust to version changes
+            _ if media_type.starts_with("application/vnd.cytoscape") => Ok(Cytoscape),
+            _ if media_type.starts_with("application/vnd.apache.echarts") => Ok(Echarts),
+            _ if media_type.starts_with("application/vnd.plotly") => Ok(Plotly),
+            _ if media_type.starts_with("application/vnd.vegalite")
+                || media_type.starts_with("application/vnd.vega-lite") =>
+            {
+                Ok(VegaLite)
+            }
+            _ if media_type.starts_with("text/vnd.mermaid") => Ok(Mermaid),
             _ => {
                 let name = if let Some((.., name)) = media_type.split_once('/') {
                     name
@@ -544,11 +562,14 @@ impl Format {
             Xlsx => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".to_string(),
             Xls => "application/vnd.ms-excel".to_string(),
             Ods => "application/vnd.oasis.opendocument.spreadsheet".to_string(),
+            Email => "text/html".to_string(),
             Jats => "text/jats+xml".to_string(),
             Markdown => "text/markdown".to_string(),
+            Mjml => "text/mjml".to_string(),
             Text => "text/plain".to_string(),
             Cytoscape => "application/vnd.cytoscape.v3+json".to_string(),
             Echarts => "application/vnd.apache.echarts+json".to_string(),
+            Mermaid => "text/vnd.mermaid".to_string(),
             Plotly => "application/vnd.plotly.v1+json".to_string(),
             VegaLite => "application/vnd.vegalite.v5+json".to_string(),
             _ => {
@@ -610,6 +631,7 @@ impl Display for Format {
             Dom => "dom.html",
             Dot => "dot",
             Echarts => "echarts",
+            Email => "email.html",
             Flac => "flac",
             GDocx => "gdocx",
             M365Docx => "m365docx",
@@ -631,6 +653,7 @@ impl Display for Format {
             Markdown => "md",
             Meca => "meca",
             Mermaid => "mermaid",
+            Mjml => "mjml",
             Mkv => "mkv",
             Mov => "mov",
             Mp3 => "mp3",
