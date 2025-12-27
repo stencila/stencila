@@ -20,7 +20,7 @@ use stencila_spread::{ParameterValues, Parameters, Run, SpreadMode, apply_templa
 
 /// Category of a file for site listing and push
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum FileCategory {
+enum FileCategory {
     /// A document that should be decoded and encoded to HTML
     Document,
     /// A media file (image/audio/video)
@@ -339,6 +339,8 @@ pub enum RouteType {
     Spread,
     /// Computed from file path
     Implied,
+    /// Static file (CSS, JS, images, etc.)
+    Static,
 }
 
 /// A route entry for display and processing
@@ -352,9 +354,6 @@ pub struct RouteEntry {
 
     /// The target (file path, redirect URL, or spread template file)
     pub target: String,
-
-    /// Whether this is a static file (vs document)
-    pub is_static: bool,
 
     /// The source file path (absolute)
     pub source_path: Option<PathBuf>,
@@ -371,14 +370,16 @@ pub struct RouteEntry {
 /// # Arguments
 /// * `path` - The path to search (typically the workspace or site root)
 /// * `expanded` - Whether to expand spread routes into individual variants
+/// * `statics` - Whether to include static files (CSS, JS, images, etc.)
 /// * `route_filter` - Optional filter by route prefix (e.g., "/docs/")
 /// * `path_filter` - Optional filter by source file path prefix (e.g., "docs/")
 ///
 /// # Returns
 /// A list of route entries sorted by route path
-pub async fn list_routes(
+pub async fn list(
     path: &Path,
     expanded: bool,
+    statics: bool,
     route_filter: Option<&str>,
     path_filter: Option<&str>,
 ) -> Result<Vec<RouteEntry>> {
@@ -416,7 +417,6 @@ pub async fn list_routes(
                     spread_count: None,
                     spread_arguments: None,
                     source_path: Some(source_path),
-                    is_static: false,
                 });
                 seen_routes.insert(route_path.clone());
             } else if let Some(redirect) = target.redirect() {
@@ -431,7 +431,6 @@ pub async fn list_routes(
                     spread_count: None,
                     spread_arguments: None,
                     source_path: None,
-                    is_static: false,
                 });
                 seen_routes.insert(route_path.clone());
             } else if let Some(spread) = target.spread() {
@@ -452,7 +451,6 @@ pub async fn list_routes(
                             spread_count: None,
                             spread_arguments: Some(run),
                             source_path: Some(source_path.clone()),
-                            is_static: false,
                         });
                         seen_routes.insert(route);
                     }
@@ -465,7 +463,6 @@ pub async fn list_routes(
                         spread_count: Some(variant_count),
                         spread_arguments: None,
                         source_path: Some(source_path),
-                        is_static: false,
                     });
                     // Also add expanded routes to seen set so they don't show as implied
                     for run in runs {
@@ -480,10 +477,11 @@ pub async fn list_routes(
         }
     }
 
-    // Walk directory to find document files and compute implied routes
+    // Walk directory to find document and static files
     if site_root.exists() {
-        let (documents, _static_files) = walk_directory(&site_root).await?;
+        let (documents, static_files) = walk_directory(&site_root).await?;
 
+        // Process document files and compute implied routes
         for doc_path in documents {
             // Get relative path for display
             let rel_path = doc_path
@@ -515,9 +513,35 @@ pub async fn list_routes(
                 spread_count: None,
                 spread_arguments: None,
                 source_path: Some(doc_path),
-                is_static: false,
             });
             seen_routes.insert(route);
+        }
+
+        // Process static files if requested
+        if statics {
+            for static_path in static_files {
+                // Get relative path for display
+                let rel_path = static_path
+                    .strip_prefix(&site_root)
+                    .unwrap_or(&static_path)
+                    .to_string_lossy()
+                    .replace('\\', "/");
+
+                // Compute the route for this static file
+                let route = match determine_route(&static_path, &workspace_dir, &config) {
+                    Ok(r) => r,
+                    Err(_) => continue, // Skip files that can't be routed
+                };
+
+                routes.push(RouteEntry {
+                    route,
+                    route_type: RouteType::Static,
+                    target: rel_path,
+                    spread_count: None,
+                    spread_arguments: None,
+                    source_path: Some(static_path),
+                });
+            }
         }
     }
 
@@ -556,4 +580,66 @@ pub async fn list_routes(
     routes.sort_by(|a, b| a.route.cmp(&b.route));
 
     Ok(routes)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_categorize_file_documents() {
+        // Common document formats
+        assert_eq!(
+            categorize_file(Path::new("report.md")),
+            FileCategory::Document
+        );
+        assert_eq!(
+            categorize_file(Path::new("index.html")),
+            FileCategory::Document
+        );
+        assert_eq!(
+            categorize_file(Path::new("notebook.ipynb")),
+            FileCategory::Document
+        );
+        assert_eq!(
+            categorize_file(Path::new("paper.docx")),
+            FileCategory::Document
+        );
+        assert_eq!(
+            categorize_file(Path::new("data.json")),
+            FileCategory::Document
+        );
+        assert_eq!(
+            categorize_file(Path::new("config.yaml")),
+            FileCategory::Document
+        );
+        assert_eq!(
+            categorize_file(Path::new("article.smd")),
+            FileCategory::Document
+        );
+    }
+
+    #[test]
+    fn test_categorize_file_static() {
+        // Static assets
+        assert_eq!(
+            categorize_file(Path::new("style.css")),
+            FileCategory::Static
+        );
+        assert_eq!(categorize_file(Path::new("app.js")), FileCategory::Static);
+        assert_eq!(
+            categorize_file(Path::new("font.woff2")),
+            FileCategory::Static
+        );
+        assert_eq!(categorize_file(Path::new("data.txt")), FileCategory::Static);
+    }
+
+    #[test]
+    fn test_categorize_file_media() {
+        // Media files (images, audio, video)
+        assert_eq!(categorize_file(Path::new("photo.png")), FileCategory::Media);
+        assert_eq!(categorize_file(Path::new("image.jpg")), FileCategory::Media);
+        assert_eq!(categorize_file(Path::new("clip.mp4")), FileCategory::Media);
+        assert_eq!(categorize_file(Path::new("sound.mp3")), FileCategory::Media);
+    }
 }
