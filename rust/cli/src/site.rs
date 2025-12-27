@@ -12,11 +12,11 @@ use stencila_cli_utils::{
     message, parse_domain,
     tabulated::{Cell, CellAlignment, Color, Tabulated},
 };
+use stencila_cloud::ensure_workspace;
 use stencila_cloud::sites::{
-    default_site_url, delete_site_branch, delete_site_domain, delete_workspace, get_site,
-    get_site_domain_status, list_site_branches, set_site_domain, update_site_access,
+    default_site_url, delete_site_branch, delete_site_domain, get_site, get_site_domain_status,
+    list_site_branches, set_site_domain, update_site_access,
 };
-use stencila_cloud::{AccessMode, ensure_workspace};
 use stencila_config::{
     ConfigTarget, RouteSpread, SpreadMode, config, config_add_redirect_route, config_add_route,
     config_remove_route, config_set, config_set_route_spread, config_unset, validate_placeholders,
@@ -50,26 +50,20 @@ pub static AFTER_LONG_HELP: &str = cstr!(
   <dim># Push site content to cloud</dim>
   <b>stencila site push</>
 
-  <dim># Create a site for the workspace</dim>
-  <b>stencila site create</>
+  <dim># Show current access restrictions</dim>
+  <b>stencila site access</>
 
-  <dim># Set site access to public</dim>
-  <b>stencila site access public</>
+  <dim># Make site public (remove all restrictions)</dim>
+  <b>stencila site access --public</>
 
-  <dim># Set site access to password-protected</dim>
-  <b>stencila site access password</>
-
-  <dim># Set site access to team members only</dim>
+  <dim># Enable team access restriction</dim>
   <b>stencila site access team</>
 
-  <dim># Update the password (keeps current access mode)</dim>
-  <b>stencila site password set</>
+  <dim># Set a password for the site</dim>
+  <b>stencila site access password</>
 
-  <dim># Clear the password hash</dim>
-  <b>stencila site password clear</>
-
-  <dim># Delete the workspace site</dim>
-  <b>stencila site delete</>
+  <dim># Clear the password</dim>
+  <b>stencila site access password --clear</>
 "
 );
 
@@ -80,10 +74,7 @@ enum SiteCommand {
     Add(Add),
     Remove(Remove),
     Push(Push),
-    Create(Create),
-    Delete(Delete),
     Access(Access),
-    Password(Password),
     Domain(Domain),
     Branch(Branch),
 }
@@ -98,10 +89,7 @@ impl Site {
             SiteCommand::Add(add) => add.run(),
             SiteCommand::Remove(remove) => remove.run(),
             SiteCommand::Push(push) => push.run().await,
-            SiteCommand::Create(create) => create.run().await,
-            SiteCommand::Delete(delete) => delete.run().await,
             SiteCommand::Access(access) => access.run().await,
-            SiteCommand::Password(password) => password.run().await,
             SiteCommand::Domain(domain) => domain.run().await,
             SiteCommand::Branch(branch) => branch.run().await,
         }
@@ -140,7 +128,7 @@ impl Show {
             Some(id) => id,
             None => {
                 message(cstr!(
-                    "💡 No site is enabled for this workspace. To create one, run <b>stencila site create</>"
+                    "💡 No site is enabled for this workspace. Run <b>stencila site push</> to create one."
                 ));
                 return Ok(());
             }
@@ -159,26 +147,12 @@ impl Show {
             config_unset("site.domain", ConfigTarget::Nearest)?;
         }
 
-        // Format ownership info
-        let ownership = if details.org_id.is_some() {
-            "Organization"
-        } else {
-            "User"
-        };
-
-        // Format access restriction
-        let access = match details.access_restriction.as_str() {
-            "public" => "Public".to_string(),
-            "password" => {
-                if details.access_restrict_main {
-                    "Password protected".to_string()
-                } else {
-                    "Password protected (excluding main/master branches)".to_string()
-                }
-            }
-            "auth" => "Team only".to_string(),
-            other => format!("Unknown ({})", other),
-        };
+        // Format access based on boolean flags (matching dashboard logic)
+        let access = format_access_label(
+            details.team_access,
+            details.password_set,
+            details.access_restrict_main,
+        );
 
         let url = default_site_url(&workspace_id, details.domain.as_deref());
 
@@ -186,24 +160,42 @@ impl Show {
         let info = format!(
             "{}\n\
              \n\
-             ID:             {}\n\
-             Custom domain:  {}\n\
-             Owned by:       {}\n\
-             Created:        {}\n\
-             Access:         {}\n\
-             Access updated: {}",
+             ID:            {}\n\
+             Custom domain: {}\n\
+             Access:        {}",
             url,
             workspace_id,
             details.domain.as_deref().unwrap_or("None"),
-            ownership,
-            details.created_at,
-            access,
-            details.access_updated_at.as_deref().unwrap_or("Never")
+            access
         );
 
         message!("🌐 {info}");
 
         Ok(())
+    }
+}
+
+/// Format access label based on team_access and password_set flags
+fn format_access_label(
+    team_access: bool,
+    password_set: bool,
+    access_restrict_main: bool,
+) -> String {
+    let base = if !team_access && !password_set {
+        "Public"
+    } else if team_access && password_set {
+        "Collaborators or password"
+    } else if team_access {
+        "Collaborators only"
+    } else {
+        "Password protected"
+    };
+
+    // Add main branch exclusion note if applicable
+    if (team_access || password_set) && !access_restrict_main {
+        format!("{base} (excluding main/master branches)")
+    } else {
+        base.to_string()
     }
 }
 
@@ -522,12 +514,11 @@ impl Push {
         let path = self.path.map_or_else(current_dir, Ok)?;
         let path_display = path.display();
 
-        // Ensure workspace exists
-        let cfg = config(&path)?;
-        let workspace_id = cfg
-            .workspace
-            .and_then(|w| w.id)
-            .ok_or_else(|| eyre!("No workspace configured. Run `stencila site create` first."))?;
+        // Ensure workspace exists, creating it if needed
+        let (workspace_id, created) = ensure_workspace(&path).await?;
+        if created {
+            message!("✨ Created workspace site: https://{workspace_id}.stencila.site");
+        }
 
         // Set up dry-run path
         let is_dry_run = self.dry_run.is_some();
@@ -650,470 +641,160 @@ impl Push {
     }
 }
 
-/// Create a site for the workspace
-#[derive(Debug, Args)]
-#[command(after_long_help = CREATE_AFTER_LONG_HELP)]
-pub struct Create {
-    /// Root directory for site content
-    ///
-    /// If specified, sets the site.root config value. Files will be published
-    /// from this directory, and routes calculated relative to it.
-    /// Example: `stencila site create docs` publishes from ./docs/
-    root: Option<std::path::PathBuf>,
-
-    /// Path to the workspace directory where stencila.toml will be created
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-
-    /// Set access restrictions for the site
-    #[arg(long, short, value_enum)]
-    access: Option<AccessMode>,
-
-    /// Set a custom domain for the site
-    ///
-    /// Example: --domain example.com
-    #[arg(long, short, value_parser = parse_domain)]
-    domain: Option<String>,
-}
-
-pub static CREATE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Create site for the current workspace</dim>
-  <b>stencila site create</>
-
-  <dim># Create site with docs/ as the root</dim>
-  <b>stencila site create docs</>
-
-  <dim># Create site with public access</dim>
-  <b>stencila site create --access public</>
-
-  <dim># Create site with password protection</dim>
-  <b>stencila site create --access password</>
-
-  <dim># Create site with team-only access</dim>
-  <b>stencila site create --access team</>
-
-  <dim># Create site with a custom domain</dim>
-  <b>stencila site create --domain example.com</>
-
-  <dim># Combine options</dim>
-  <b>stencila site create docs --access public --domain docs.example.com</>
-"
-);
-
-impl Create {
-    pub async fn run(self) -> Result<()> {
-        let workspace_path = self.path.map_or_else(current_dir, Ok)?;
-
-        // 1. Create or get the workspace (workspace ID is also the site ID)
-        let (workspace_id, already_existed) = ensure_workspace(&workspace_path).await?;
-
-        // 2. Set site.root if provided
-        if let Some(root) = &self.root {
-            let root_str = root.to_string_lossy();
-            config_set("site.root", root_str.as_ref(), ConfigTarget::Nearest)?;
-        }
-
-        // 3. Set access mode if provided
-        if let Some(access) = self.access {
-            match access {
-                AccessMode::Public | AccessMode::Team => {
-                    update_site_access(&workspace_id, Some(access), None, None).await?;
-                }
-                AccessMode::Password => {
-                    let password = ask_for_password("Enter password for site access").await?;
-                    update_site_access(
-                        &workspace_id,
-                        Some(access),
-                        Some(Some(password.as_str())),
-                        None,
-                    )
-                    .await?;
-                }
-            }
-        }
-
-        // 4. Set domain if provided
-        let mut domain_instructions: Option<String> = None;
-        if let Some(domain) = &self.domain {
-            let response = set_site_domain(&workspace_id, domain).await?;
-            config_set("site.domain", domain, ConfigTarget::Nearest)?;
-
-            // Prepare CNAME instructions if DNS not yet configured
-            if response.status == "pending_dns" {
-                domain_instructions = Some(format_cname_instructions(
-                    &response.cname_record,
-                    &response.cname_target,
-                ));
-            }
-        }
-
-        // 5. Display success message
-        let cfg = config(&workspace_path)?;
-        let domain = cfg.site.and_then(|s| s.domain);
-        let url = default_site_url(&workspace_id, domain.as_deref());
-
-        if already_existed {
-            message!("ℹ️ Site already exists: {url}");
-        } else {
-            message!("✅ Site created: {url}");
-        }
-
-        // Show additional status for new options
-        if let Some(access) = &self.access {
-            message!("   Access: {access}");
-        }
-        if let Some(domain) = &self.domain {
-            message!("   Domain: {domain}");
-        }
-
-        // Show CNAME instructions if domain was set and needs DNS configuration
-        if let Some(instructions) = domain_instructions {
-            message!("\n{instructions}");
-        }
-
-        Ok(())
-    }
-}
-
-/// Delete the site for the workspace
-#[derive(Debug, Args)]
-#[command(after_long_help = DELETE_AFTER_LONG_HELP)]
-pub struct Delete {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-}
-
-pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Delete site for current workspace</dim>
-  <b>stencila site delete</>
-
-  <dim># Delete site for another workspace</dim>
-  <b>stencila site delete --path /path/to/workspace</>
-"
-);
-
-impl Delete {
-    pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        // Ask for confirmation with warning level
-        let answer = ask_with(
-            "This will permanently delete the site on Stencila Cloud including all content. This cannot be undone.",
-            AskOptions {
-                level: AskLevel::Warning,
-                default: Some(Answer::No),
-                title: Some("Delete Stencila Site".into()),
-                yes_text: Some("Yes, delete".into()),
-                no_text: Some("Cancel".into()),
-                ..Default::default()
-            },
-        )
-        .await?;
-
-        if !answer.is_yes() {
-            message("ℹ️ Site deletion cancelled");
-            return Ok(());
-        }
-
-        let workspace_id = delete_workspace(&path).await?;
-
-        // Clean up implicit remotes from remotes.json
-        let stencila_dir = stencila_dirs::closest_stencila_dir(&path, false).await?;
-        if let Ok(removed_count) =
-            stencila_remotes::remove_site_remotes(&stencila_dir, &workspace_id).await
-            && removed_count > 0
-        {
-            tracing::debug!("Removed {removed_count} remote tracking entries");
-        }
-
-        message("✅ Site deleted successfully");
-
-        Ok(())
-    }
-}
-
 /// Manage access restrictions for the workspace site
 #[derive(Debug, Parser)]
 #[command(after_long_help = ACCESS_AFTER_LONG_HELP)]
 pub struct Access {
+    /// Make the site public (remove all access restrictions)
+    #[arg(long)]
+    public: bool,
+
+    /// Path to the workspace directory
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+
     #[command(subcommand)]
     command: Option<AccessCommand>,
 }
 
 pub static ACCESS_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Show current access mode</dim>
+  <dim># Show current access restrictions</dim>
   <b>stencila site access</>
 
-  <dim># Switch to public access</dim>
-  <b>stencila site access public</>
+  <dim># Make site public (remove all restrictions)</dim>
+  <b>stencila site access --public</>
 
-  <dim># Switch to password-protected access</dim>
+  <dim># Enable team access restriction</dim>
+  <b>stencila site access team</>
+
+  <dim># Disable team access restriction</dim>
+  <b>stencila site access team --off</>
+
+  <dim># Set a password for the site</dim>
   <b>stencila site access password</>
 
-  <dim># Switch to team-only access</dim>
-  <b>stencila site access team</>
+  <dim># Clear the password</dim>
+  <b>stencila site access password --clear</>
 "
 );
 
 #[derive(Debug, Subcommand)]
 enum AccessCommand {
-    Public(AccessPublic),
-    Password(AccessPassword),
+    /// Manage team access restriction
     Team(AccessTeam),
+    /// Manage password protection
+    Password(AccessPassword),
 }
 
 impl Access {
     pub async fn run(self) -> Result<()> {
-        let path = current_dir()?;
+        let path = self.path.map_or_else(current_dir, Ok)?;
 
-        // If no subcommand, show current access mode
+        let cfg = config(&path)?;
+        let workspace_id = match cfg.workspace.and_then(|w| w.id) {
+            Some(id) => id,
+            None => {
+                message(cstr!(
+                    "💡 No site is enabled for this workspace. Run <b>stencila site push</> to create one."
+                ));
+                return Ok(());
+            }
+        };
+        let domain = cfg.site.and_then(|s| s.domain);
+
+        // Handle --public flag
+        if self.public {
+            // Clear both teamAccess and password
+            update_site_access(&workspace_id, Some(false), Some(None), None).await?;
+            message!(
+                "✅ Site {} is now public",
+                default_site_url(&workspace_id, domain.as_deref())
+            );
+            return Ok(());
+        }
+
+        // If no subcommand, show current access state
         let Some(command) = self.command else {
-            let cfg = config(&path)?;
-            let workspace_id = match cfg.workspace.and_then(|w| w.id) {
-                Some(id) => id,
-                None => {
-                    message(cstr!(
-                        "💡 No site is enabled for this workspace. To create one, run <b>stencila site create</>"
-                    ));
-                    return Ok(());
-                }
-            };
             let details = get_site(&workspace_id).await?;
 
-            let access = match details.access_restriction.as_str() {
-                "public" => "Public",
-                "password" => {
-                    if details.access_restrict_main {
-                        "Password protected"
-                    } else {
-                        "Password protected (excluding main/master branches)"
-                    }
-                }
-                "auth" => "Team only",
-                other => other,
-            };
+            let access = format_access_label(
+                details.team_access,
+                details.password_set,
+                details.access_restrict_main,
+            );
 
-            message!("ℹ️ Access mode: {}", access);
+            message!(
+                "Access: {}\n  Team access:   {}\n  Password:      {}\n  Restrict main: {}",
+                access,
+                if details.team_access {
+                    "enabled"
+                } else {
+                    "disabled"
+                },
+                if details.password_set {
+                    "set"
+                } else {
+                    "not set"
+                },
+                if details.access_restrict_main {
+                    "yes"
+                } else {
+                    "no"
+                }
+            );
             return Ok(());
         };
 
         match command {
-            AccessCommand::Public(public) => public.run().await,
-            AccessCommand::Password(password) => password.run().await,
-            AccessCommand::Team(team) => team.run().await,
-        }
-    }
-}
-
-/// Switch to public access
-#[derive(Debug, Args)]
-#[command(after_long_help = ACCESS_PUBLIC_AFTER_LONG_HELP)]
-pub struct AccessPublic {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-}
-
-pub static ACCESS_PUBLIC_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Switch to public access</dim>
-  <b>stencila site access public</>
-
-  <dim># Switch for another workspace</dim>
-  <b>stencila site access public --path /path/to/workspace</>
-"
-);
-
-impl AccessPublic {
-    pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
-        let workspace_id = cfg
-            .workspace
-            .and_then(|w| w.id)
-            .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-        let domain = cfg.site.and_then(|s| s.domain);
-
-        update_site_access(&workspace_id, Some(AccessMode::Public), None, None).await?;
-
-        message!(
-            "✅ Site {} switched to public access",
-            default_site_url(&workspace_id, domain.as_deref())
-        );
-
-        Ok(())
-    }
-}
-
-/// Switch to password-protected access
-#[derive(Debug, Args)]
-#[command(after_long_help = ACCESS_PASSWORD_AFTER_LONG_HELP)]
-pub struct AccessPassword {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-
-    /// Do not apply password protection to main or master branches
-    ///
-    /// By default, the password applies to all branches including main and master.
-    /// Use this flag to exclude main and master branches from password protection.
-    #[arg(long)]
-    not_main: bool,
-}
-
-pub static ACCESS_PASSWORD_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Switch to password-protected access</dim>
-  <b>stencila site access password</>
-
-  <dim># Exclude main/master branches from password protection</dim>
-  <b>stencila site access password --not-main</>
-"
-);
-
-impl AccessPassword {
-    pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
-        let workspace_id = cfg
-            .workspace
-            .and_then(|w| w.id)
-            .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-        let domain = cfg.site.and_then(|s| s.domain);
-
-        // Set password_for_main based on the flag
-        let access_restrict_main = if self.not_main {
-            Some(false)
-        } else {
-            Some(true)
-        };
-
-        // First, try to switch to password mode without prompting for password
-        // This will succeed if a password hash already exists in the database
-        let result = update_site_access(
-            &workspace_id,
-            Some(AccessMode::Password),
-            None,
-            access_restrict_main,
-        )
-        .await;
-
-        match result {
-            Ok(()) => {
-                // Successfully switched to password mode using existing password hash
-                message!(
-                    "✅ Site {} switched to password-protected access{}",
-                    default_site_url(&workspace_id, domain.as_deref()),
-                    if self.not_main {
-                        " (excluding main/master branches)"
-                    } else {
-                        ""
-                    }
-                );
-                Ok(())
+            AccessCommand::Team(team) => {
+                team.run_with_context(&workspace_id, domain.as_deref())
+                    .await
             }
-            Err(err) => {
-                // Check if error is about missing password (400 error)
-                let err_msg = err.to_string();
-                if err_msg.contains("400") || err_msg.contains("password") {
-                    // Password is required - prompt user for it
-                    let password = ask_for_password(cstr!(
-                        "Enter password to protect your site (will not be displayed)"
-                    ))
-                    .await?;
-
-                    // Retry with password
-                    update_site_access(
-                        &workspace_id,
-                        Some(AccessMode::Password),
-                        Some(Some(&password)),
-                        access_restrict_main,
-                    )
-                    .await?;
-
-                    message!(
-                        "✅ Site {} switched to password-protected access{}",
-                        default_site_url(&workspace_id, domain.as_deref()),
-                        if self.not_main {
-                            " (excluding main/master branches)"
-                        } else {
-                            ""
-                        }
-                    );
-
-                    Ok(())
-                } else {
-                    // Some other error - return it
-                    Err(err)
-                }
+            AccessCommand::Password(password) => {
+                password
+                    .run_with_context(&workspace_id, domain.as_deref())
+                    .await
             }
         }
     }
 }
 
-/// Switch to team-only access
+/// Manage team access restriction
 #[derive(Debug, Args)]
 #[command(after_long_help = ACCESS_TEAM_AFTER_LONG_HELP)]
 pub struct AccessTeam {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
+    /// Disable team access restriction
+    #[arg(long)]
+    off: bool,
 
-    /// Do not apply team restriction to main or master branches
-    ///
-    /// By default, team restriction applies to all branches including main and master.
-    /// Use this flag to exclude main and master branches from team restriction.
+    /// Do not apply restriction to main or master branches
     #[arg(long)]
     not_main: bool,
 
-    /// Apply team restriction to main or master branches
-    ///
-    /// Updates the accessRestrictMain flag. Use this to re-enable restriction
-    /// for main and master branches.
+    /// Apply restriction to main or master branches
     #[arg(long, conflicts_with = "not_main")]
     main: bool,
 }
 
 pub static ACCESS_TEAM_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Switch to team-only access</dim>
+  <dim># Enable team access restriction</dim>
   <b>stencila site access team</>
 
-  <dim># Exclude main/master branches from team restriction</dim>
-  <b>stencila site access team --not-main</>
+  <dim># Disable team access restriction</dim>
+  <b>stencila site access team --off</>
 
-  <dim># Switch for another workspace</dim>
-  <b>stencila site access team --path /path/to/workspace</>
+  <dim># Enable but exclude main/master branches</dim>
+  <b>stencila site access team --not-main</>
 "
 );
 
 impl AccessTeam {
-    pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
-        let workspace_id = cfg
-            .workspace
-            .and_then(|w| w.id)
-            .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-
-        let domain = cfg.site.and_then(|s| s.domain);
+    pub async fn run_with_context(self, workspace_id: &str, domain: Option<&str>) -> Result<()> {
+        let team_access = !self.off;
 
         // Determine accessRestrictMain value if flags are provided
         let access_restrict_main = if self.main {
@@ -1124,129 +805,61 @@ impl AccessTeam {
             None
         };
 
-        update_site_access(
-            &workspace_id,
-            Some(AccessMode::Team),
-            None,
-            access_restrict_main,
-        )
-        .await?;
+        update_site_access(workspace_id, Some(team_access), None, access_restrict_main).await?;
+
+        let status = if self.off { "disabled" } else { "enabled" };
+        let main_note = if self.not_main {
+            " (excluding main/master branches)"
+        } else if self.main {
+            " (including main/master branches)"
+        } else {
+            ""
+        };
 
         message!(
-            "✅ Site {} switched to team-only access{}",
-            default_site_url(&workspace_id, domain.as_deref()),
-            if self.not_main {
-                " (excluding main/master branches)"
-            } else if self.main {
-                " (including main/master branches)"
-            } else {
-                ""
-            }
+            "✅ Team access {} for {}{}",
+            status,
+            default_site_url(workspace_id, domain),
+            main_note
         );
 
         Ok(())
     }
 }
 
-/// Manage password protection for the workspace site
-#[derive(Debug, Parser)]
-#[command(after_long_help = PASSWORD_AFTER_LONG_HELP)]
-pub struct Password {
-    #[command(subcommand)]
-    command: PasswordCommand,
-}
-
-pub static PASSWORD_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Set or update the password (keeps current access mode)</dim>
-  <b>stencila site password set</>
-
-  <dim># Set password and update main branch restriction</dim>
-  <b>stencila site password set --not-main</>
-
-  <dim># Clear the password hash</dim>
-  <b>stencila site password clear</>
-"
-);
-
-#[derive(Debug, Subcommand)]
-enum PasswordCommand {
-    #[command(alias = "add")]
-    Set(PasswordSet),
-
-    #[command(alias = "remove", alias = "rm")]
-    Clear(PasswordClear),
-}
-
-impl Password {
-    pub async fn run(self) -> Result<()> {
-        match self.command {
-            PasswordCommand::Set(set) => set.run().await,
-            PasswordCommand::Clear(clear) => clear.run().await,
-        }
-    }
-}
-
-/// Set or update the password (without changing access mode)
+/// Manage password protection
 #[derive(Debug, Args)]
-#[command(after_long_help = PASSWORD_SET_AFTER_LONG_HELP)]
-pub struct PasswordSet {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
+#[command(after_long_help = ACCESS_PASSWORD_AFTER_LONG_HELP)]
+pub struct AccessPassword {
+    /// Clear the password
+    #[arg(long)]
+    clear: bool,
 
     /// Do not apply password protection to main or master branches
-    ///
-    /// Updates the accessRestrictMain flag. By default, password protection applies
-    /// to all branches including main and master. Use this flag to exclude them.
     #[arg(long)]
     not_main: bool,
 
     /// Apply password protection to main or master branches
-    ///
-    /// Updates the accessRestrictMain flag. Use this to re-enable protection
-    /// for main and master branches.
     #[arg(long, conflicts_with = "not_main")]
     main: bool,
 }
 
-pub static PASSWORD_SET_AFTER_LONG_HELP: &str = cstr!(
+pub static ACCESS_PASSWORD_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Update the password (keeps current access mode)</dim>
-  <b>stencila site password set</>
+  <dim># Set a password for the site</dim>
+  <b>stencila site access password</>
 
-  <dim># Set password for another workspace</dim>
-  <b>stencila site password set --path /path/to/workspace</>
+  <dim># Clear the password</dim>
+  <b>stencila site access password --clear</>
 
-  <dim># Update password and exclude main/master branches</dim>
-  <b>stencila site password set --not-main</>
-
-  <dim># Update password and include main/master branches</dim>
-  <b>stencila site password set --main</>
+  <dim># Set password but exclude main/master branches</dim>
+  <b>stencila site access password --not-main</>
 "
 );
 
-impl PasswordSet {
-    pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
-        let workspace_id = cfg
-            .workspace
-            .and_then(|w| w.id)
-            .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-
-        let domain = cfg.site.and_then(|s| s.domain);
-
-        // Prompt for password securely
-        let password = ask_for_password(cstr!(
-            "Enter password for your site (will not be displayed)"
-        ))
-        .await?;
-
-        // Determine if we should update accessRestrictMain
+impl AccessPassword {
+    pub async fn run_with_context(self, workspace_id: &str, domain: Option<&str>) -> Result<()> {
+        // Determine accessRestrictMain value if flags are provided
         let access_restrict_main = if self.main {
             Some(true)
         } else if self.not_main {
@@ -1255,91 +868,60 @@ impl PasswordSet {
             None
         };
 
-        // Update password only (preserve current access mode)
-        update_site_access(
-            &workspace_id,
-            None,                  // Don't change access mode
-            Some(Some(&password)), // Update password
-            access_restrict_main,  // Update main flag if specified
-        )
-        .await?;
+        if self.clear {
+            // Ask for confirmation
+            let answer = ask_with(
+                "This will clear the password from your site.",
+                AskOptions {
+                    level: AskLevel::Warning,
+                    default: Some(Answer::No),
+                    title: Some("Clear Password".into()),
+                    yes_text: Some("Yes, clear password".into()),
+                    no_text: Some("Cancel".into()),
+                    ..Default::default()
+                },
+            )
+            .await?;
 
-        let mode_msg = if self.main {
-            " (now protecting main/master branches)"
-        } else if self.not_main {
-            " (now excluding main/master branches)"
+            if !answer.is_yes() {
+                message("ℹ️ Password clear cancelled");
+                return Ok(());
+            }
+
+            update_site_access(workspace_id, None, Some(None), access_restrict_main).await?;
+            message!(
+                "✅ Password cleared from {}",
+                default_site_url(workspace_id, domain)
+            );
         } else {
-            ""
-        };
+            // Prompt for password
+            let password = ask_for_password(cstr!(
+                "Enter password for your site (will not be displayed)"
+            ))
+            .await?;
 
-        message!(
-            "✅ Password updated for {}{}",
-            default_site_url(&workspace_id, domain.as_deref()),
-            mode_msg
-        );
+            update_site_access(
+                workspace_id,
+                None,
+                Some(Some(&password)),
+                access_restrict_main,
+            )
+            .await?;
 
-        Ok(())
-    }
-}
+            let main_note = if self.not_main {
+                " (excluding main/master branches)"
+            } else if self.main {
+                " (including main/master branches)"
+            } else {
+                ""
+            };
 
-/// Clear the password (keeps access mode unchanged)
-#[derive(Debug, Args)]
-#[command(after_long_help = PASSWORD_CLEAR_AFTER_LONG_HELP)]
-pub struct PasswordClear {
-    /// Path to the workspace directory containing .stencila/site.yaml
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-}
-
-pub static PASSWORD_CLEAR_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Clear password for the current workspace's site</dim>
-  <b>stencila site password clear</>
-
-  <dim># Clear password for another workspace's site</dim>
-  <b>stencila site password clear --path /path/to/workspace</>
-"
-);
-
-impl PasswordClear {
-    pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
-        let workspace_id = cfg
-            .workspace
-            .and_then(|w| w.id)
-            .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-        let domain = cfg.site.and_then(|s| s.domain);
-
-        // Ask for confirmation
-        let answer = ask_with(
-            "This will clear the password from your site. The access mode will remain unchanged.",
-            AskOptions {
-                level: AskLevel::Warning,
-                default: Some(Answer::No),
-                title: Some("Clear Password Hash".into()),
-                yes_text: Some("Yes, clear password".into()),
-                no_text: Some("Cancel".into()),
-                ..Default::default()
-            },
-        )
-        .await?;
-
-        if !answer.is_yes() {
-            message("ℹ️ Password clear cancelled");
-            return Ok(());
+            message!(
+                "✅ Password set for {}{}",
+                default_site_url(workspace_id, domain),
+                main_note
+            );
         }
-
-        // Call API to clear password (pass Some(None) to explicitly set password to null)
-        update_site_access(&workspace_id, None, Some(None), None).await?;
-
-        message!(
-            "✅ Password cleared from {}",
-            default_site_url(&workspace_id, domain.as_deref())
-        );
 
         Ok(())
     }
@@ -1593,15 +1175,6 @@ impl DomainStatus {
             }
 
             parts.push(status.message.clone());
-
-            // Add CNAME instructions for pending_dns status
-            if let Some("pending_dns") = status.status.as_deref()
-                && let Some(cname_record) = &status.cname_record
-                && let Some(cname_target) = &status.cname_target
-            {
-                parts.push(String::new()); // Empty line
-                parts.push(format_cname_instructions(cname_record, cname_target));
-            }
 
             message!("{emoji} {}", parts.join("\n "));
         }

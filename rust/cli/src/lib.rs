@@ -154,15 +154,9 @@ mod tests {
             // Site module help strings
             ("site::cli", crate::site::AFTER_LONG_HELP),
             ("site::show", crate::site::SHOW_AFTER_LONG_HELP),
-            ("site::create", crate::site::CREATE_AFTER_LONG_HELP),
-            ("site::delete", crate::site::DELETE_AFTER_LONG_HELP),
             ("site::access", crate::site::ACCESS_AFTER_LONG_HELP),
-            ("site::access::public", crate::site::ACCESS_PUBLIC_AFTER_LONG_HELP),
             ("site::access::password", crate::site::ACCESS_PASSWORD_AFTER_LONG_HELP),
             ("site::access::team", crate::site::ACCESS_TEAM_AFTER_LONG_HELP),
-            ("site::password", crate::site::PASSWORD_AFTER_LONG_HELP),
-            ("site::password::set", crate::site::PASSWORD_SET_AFTER_LONG_HELP),
-            ("site::password::clear", crate::site::PASSWORD_CLEAR_AFTER_LONG_HELP),
             // Outputs module help strings
             ("outputs::cli", crate::outputs::CLI_AFTER_LONG_HELP),
             ("outputs::list", crate::outputs::LIST_AFTER_LONG_HELP),

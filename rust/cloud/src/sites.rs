@@ -7,7 +7,6 @@ use std::io::Write;
 use std::path::Path;
 
 use chrono::DateTime;
-use clap::ValueEnum;
 use eyre::{Result, bail, eyre};
 use flate2::{Compression, write::GzEncoder};
 use reqwest::Client;
@@ -17,41 +16,7 @@ use serde_with::skip_serializing_none;
 use tokio::fs::read;
 use url::Url;
 
-use stencila_config::{ConfigTarget, config, config_unset};
-
 use crate::{api_token, base_url, check_response, process_response};
-
-/// Access restriction mode for a site
-#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
-pub enum AccessMode {
-    /// Anyone can view the site
-    Public,
-    /// Requires a password to view
-    Password,
-    /// Only authenticated team members can view
-    Team,
-}
-
-impl AccessMode {
-    /// Get the API value for this access mode
-    pub fn api_value(&self) -> &'static str {
-        match self {
-            AccessMode::Public => "public",
-            AccessMode::Password => "password",
-            AccessMode::Team => "auth",
-        }
-    }
-}
-
-impl std::fmt::Display for AccessMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AccessMode::Public => write!(f, "public"),
-            AccessMode::Password => write!(f, "password"),
-            AccessMode::Team => write!(f, "team"),
-        }
-    }
-}
 
 /// Helper to get the site URL
 ///
@@ -69,15 +34,23 @@ pub fn default_site_url(workspace_id: &str, domain: Option<&str>) -> String {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SiteDetails {
-    pub id: String,
-    pub domain: Option<String>,
-    pub org_id: Option<String>,
-    pub user_id: String,
-    pub created_by: String,
-    pub created_at: String,
-    pub access_restriction: String,
+    /// Whether team access restriction is enabled
+    pub team_access: bool,
+
+    /// Whether a password is configured
+    pub password_set: bool,
+
+    /// Whether access restrictions apply to main/master branches
     pub access_restrict_main: bool,
-    pub access_updated_at: Option<String>,
+
+    /// Custom domain if configured
+    pub domain: Option<String>,
+
+    /// Domain provisioning status
+    pub domain_status: Option<String>,
+
+    /// Error message if domain provisioning failed
+    pub domain_error: Option<String>,
 }
 
 /// Response from POST /workspaces/{id}/site/domain
@@ -87,7 +60,6 @@ pub struct DomainSetResponse {
     pub domain: String,
     pub status: String,
     pub cname_configured: Option<bool>,
-    pub ssl_status: Option<String>,
     pub cname_record: String,
     pub cname_target: String,
     pub instructions: String,
@@ -102,9 +74,6 @@ pub struct DomainStatusResponse {
     pub status: Option<String>,
     pub cname_configured: Option<bool>,
     pub ssl_status: Option<String>,
-    pub cname_record: Option<String>,
-    pub cname_target: Option<String>,
-    pub error: Option<String>,
     pub message: String,
 }
 
@@ -320,67 +289,21 @@ pub async fn reconcile_prefix(
     check_response(response).await
 }
 
-/// Delete a workspace from Stencila Cloud and remove local configuration
-///
-/// This function will:
-/// 1. Read the workspace configuration to get the workspace ID
-/// 2. Call DELETE /workspaces/{id} to remove the workspace from Stencila Cloud
-/// 3. Remove the workspace.id from the local config
-///
-/// Returns the workspace ID that was deleted so that callers can perform additional
-/// cleanup (e.g., removing remote tracking entries).
-///
-/// Note: This function does not prompt for user confirmation. Callers should
-/// handle confirmation before calling this function.
-#[tracing::instrument]
-pub async fn delete_workspace(path: &Path) -> Result<String> {
-    // Read existing workspace config to get the workspace ID
-    let cfg = config(path)?;
-    let workspace = cfg
-        .workspace
-        .ok_or_else(|| eyre!("No workspace configured for this directory"))?;
-    let workspace_id = workspace
-        .id
-        .ok_or_else(|| eyre!("Workspace ID not set in configuration"))?;
-
-    // Get API token
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
-
-    // Call DELETE /workspaces/{id}
-    tracing::debug!("Deleting Stencila Workspace");
-    let client = Client::new();
-    let response = client
-        .delete(format!("{}/workspaces/{}", base_url(), workspace_id))
-        .bearer_auth(token)
-        .send()
-        .await?;
-
-    check_response(response).await?;
-
-    // Remove from config
-    config_unset("workspace.id", ConfigTarget::Nearest)?;
-
-    tracing::debug!("Workspace deleted successfully");
-
-    Ok(workspace_id)
-}
-
 /// Update site access settings
 ///
 /// This function sends a PATCH request to `/workspaces/{workspace_id}/site/access` with
-/// optional fields to update access restrictions, password, and main branch settings.
+/// optional fields to update team access, password, and main branch settings.
 ///
 /// # Arguments
 ///
 /// * `workspace_id` - The site identifier
-/// * `access_mode` - Optional access mode to set
+/// * `team_access` - Optional flag for requiring GitHub team membership to access
 /// * `password` - Optional password to set (use Some(None) to clear password)
-/// * `access_restrict_main` - Optional flag for whether main/master branches are restricted
+/// * `access_restrict_main` - Optional flag for whether restrictions apply to main/master branches
 #[tracing::instrument(skip(password))]
 pub async fn update_site_access(
     workspace_id: &str,
-    access_mode: Option<AccessMode>,
+    team_access: Option<bool>,
     password: Option<Option<&str>>,
     access_restrict_main: Option<bool>,
 ) -> Result<()> {
@@ -391,11 +314,8 @@ pub async fn update_site_access(
 
     let mut json = serde_json::Map::new();
 
-    if let Some(mode) = access_mode {
-        json.insert(
-            "accessRestriction".to_string(),
-            serde_json::Value::String(mode.api_value().to_string()),
-        );
+    if let Some(team) = team_access {
+        json.insert("teamAccess".to_string(), serde_json::Value::Bool(team));
     }
 
     if let Some(pwd) = password {
@@ -423,71 +343,6 @@ pub async fn update_site_access(
         ))
         .bearer_auth(token)
         .json(&json)
-        .send()
-        .await?;
-
-    check_response(response).await
-}
-
-/// Set password protection for a site
-///
-/// This function sends a PUT request to `/workspaces/{workspace_id}/site/password` with
-/// the password and whether it should apply to the main branch.
-///
-/// # Arguments
-///
-/// * `workspace_id` - The site identifier
-/// * `password` - The password to set
-/// * `password_for_main` - Whether the password applies to the main branch (true by default)
-#[tracing::instrument(skip(password))]
-pub async fn set_site_password(
-    workspace_id: &str,
-    password: &str,
-    password_for_main: bool,
-) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
-
-    tracing::debug!("Setting password for site {workspace_id}");
-
-    let client = Client::new();
-    let response = client
-        .put(format!(
-            "{}/workspaces/{workspace_id}/site/password",
-            base_url()
-        ))
-        .bearer_auth(token)
-        .json(&serde_json::json!({
-            "password": password,
-            "accessRestrictMain": password_for_main
-        }))
-        .send()
-        .await?;
-
-    check_response(response).await
-}
-
-/// Remove password protection from a site
-///
-/// This function sends a DELETE request to `/workspaces/{workspace_id}/site/password`.
-///
-/// # Arguments
-///
-/// * `workspace_id` - The site identifier
-#[tracing::instrument]
-pub async fn remove_site_password(workspace_id: &str) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
-
-    tracing::debug!("Removing password from site {workspace_id}");
-
-    let client = Client::new();
-    let response = client
-        .delete(format!(
-            "{}/workspaces/{workspace_id}/site/password",
-            base_url()
-        ))
-        .bearer_auth(token)
         .send()
         .await?;
 
