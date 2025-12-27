@@ -441,6 +441,8 @@ pub struct RouteEntry {
     pub target: String,
     /// Number of spread variants (for spread routes only)
     pub spread_count: Option<usize>,
+    /// Spread arguments for this variant (when expanded)
+    pub spread_arguments: Option<HashMap<String, String>>,
 }
 
 /// Generate all spread route variants from config
@@ -586,6 +588,7 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
 
     let mut routes: Vec<RouteEntry> = Vec::new();
     let mut seen_routes: HashSet<String> = HashSet::new();
+    let mut spread_source_files: HashSet<String> = HashSet::new();
 
     // 1. Collect configured routes
     if let Some(site) = &config.site
@@ -598,6 +601,7 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
                     route_type: RouteType::File,
                     target: file.as_str().to_string(),
                     spread_count: None,
+                    spread_arguments: None,
                 });
                 seen_routes.insert(route_path.clone());
             } else if let Some(redirect) = target.redirect() {
@@ -610,6 +614,7 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
                     route_type: RouteType::Redirect,
                     target: format!("{}{}", redirect.redirect, status),
                     spread_count: None,
+                    spread_arguments: None,
                 });
                 seen_routes.insert(route_path.clone());
             } else if let Some(spread) = target.spread() {
@@ -619,14 +624,15 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
                 let variant_count = runs.len();
 
                 if expanded {
-                    // Add each variant as an implied route
+                    // Add each variant as a spread route with its arguments
                     for run in runs {
                         let route = apply_spread_template(route_path, &run)?;
                         routes.push(RouteEntry {
                             route: route.clone(),
-                            route_type: RouteType::Implied,
+                            route_type: RouteType::Spread,
                             target: spread.file.clone(),
                             spread_count: None,
+                            spread_arguments: Some(run),
                         });
                         seen_routes.insert(route);
                     }
@@ -637,6 +643,7 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
                         route_type: RouteType::Spread,
                         target: spread.file.clone(),
                         spread_count: Some(variant_count),
+                        spread_arguments: None,
                     });
                     // Also add expanded routes to seen set so they don't show as implied
                     for run in runs {
@@ -644,6 +651,9 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
                         seen_routes.insert(route);
                     }
                 }
+
+                // Track the spread source file so it doesn't appear as an implied route
+                spread_source_files.insert(spread.file.clone());
             }
         }
     }
@@ -653,6 +663,18 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
         let (documents, _static_files) = walk_directory_for_push(&site_root).await?;
 
         for doc_path in documents {
+            // Get relative path for display
+            let rel_path = doc_path
+                .strip_prefix(&site_root)
+                .unwrap_or(&doc_path)
+                .to_string_lossy()
+                .replace('\\', "/");
+
+            // Skip files that are spread sources (they're handled by spread routes)
+            if spread_source_files.contains(&rel_path) {
+                continue;
+            }
+
             // Compute the route for this document
             let route = match determine_route(&doc_path, &workspace_dir, &config) {
                 Ok(r) => r,
@@ -664,18 +686,12 @@ pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEnt
                 continue;
             }
 
-            // Get relative path for display
-            let rel_path = doc_path
-                .strip_prefix(&site_root)
-                .unwrap_or(&doc_path)
-                .to_string_lossy()
-                .replace('\\', "/");
-
             routes.push(RouteEntry {
                 route: route.clone(),
                 route_type: RouteType::Implied,
                 target: rel_path,
                 spread_count: None,
+                spread_arguments: None,
             });
             seen_routes.insert(route);
         }

@@ -251,8 +251,11 @@ impl List {
                 RouteType::File => "file".to_string(),
                 RouteType::Redirect => "redirect".to_string(),
                 RouteType::Spread => {
-                    let count = entry.spread_count.unwrap_or(0);
-                    format!("spread ({count})")
+                    if let Some(count) = entry.spread_count {
+                        format!("spread x{count}")
+                    } else {
+                        "spread".to_string()
+                    }
                 }
                 RouteType::Implied => "implied".to_string(),
             };
@@ -264,10 +267,18 @@ impl List {
                 RouteType::Implied => Cell::new(&type_str).fg(Color::Grey),
             };
 
+            // Format target with spread arguments if present
+            let target_str = if let Some(args) = &entry.spread_arguments {
+                let args_str: Vec<String> = args.iter().map(|(k, v)| format!("{k}={v}")).collect();
+                format!("{} ({})", entry.target, args_str.join(", "))
+            } else {
+                entry.target.clone()
+            };
+
             table.add_row([
                 Cell::new(&entry.route).fg(Color::Cyan),
                 type_cell,
-                Cell::new(&entry.target),
+                Cell::new(&target_str),
             ]);
         }
 
