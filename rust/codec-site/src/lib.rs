@@ -12,7 +12,10 @@ use futures::future::try_join_all;
 use ignore::WalkBuilder;
 use serde_json::json;
 use tempfile::TempDir;
-use tokio::fs::{copy, create_dir_all, metadata, read, read_dir, write};
+use tokio::{
+    fs::{copy, create_dir_all, metadata, read, read_dir, write},
+    sync::mpsc,
+};
 use url::Url;
 
 use stencila_cloud::ensure_workspace;
@@ -854,6 +857,8 @@ async fn handle_redirect_route(
 /// * `site_temp_root` - Temporary directory that mirrors the site structure. Media is placed
 ///   at `{site_temp_root}/media/` and HTML at `{site_temp_root}/{route}/index.html` so that
 ///   relative paths in the generated HTML correctly point to `/media/{hash}.ext`.
+/// * `route_override` - Optional explicit route to use instead of computing from path.
+///   Used for spread routes where each variant has a specific route.
 ///
 /// # Returns
 /// The encoded document with HTML content and list of media files collected,
@@ -865,9 +870,17 @@ pub async fn encode_document(
     config: &Config,
     base_url: &str,
     site_temp_root: &Path,
+    route_override: Option<&str>,
 ) -> Result<EncodeResult> {
-    // Determine route
-    let route = if let Some(p) = path {
+    // Determine route - use override if provided, otherwise compute from path
+    let route = if let Some(route) = route_override {
+        // Use provided route, ensuring it ends with /
+        if route.ends_with('/') {
+            route.to_string()
+        } else {
+            [route, "/"].concat()
+        }
+    } else if let Some(p) = path {
         determine_route(p, workspace_dir, config)?
     } else {
         "/document/".to_string()
@@ -1594,7 +1607,9 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
 /// * `is_dry_run` - Whether this is a dry run (skip uploads even if no output path)
 /// * `dry_run_output` - Optional path to write files for dry run inspection
 /// * `progress` - Optional channel to send progress events
-/// * `decode_fn` - Async function to decode a document from a path
+/// * `decode_document_fn` - Async function to decode a document from a path with optional spread arguments.
+///   For regular documents, arguments will be empty. For spread routes, arguments contain the
+///   parameter values for that variant.
 ///
 /// # Error Handling
 /// - **Encoding phase**: Continue on error - if one document fails, log it and continue
@@ -1608,11 +1623,11 @@ pub async fn push_directory<F, Fut>(
     force: bool,
     is_dry_run: bool,
     dry_run_output: Option<&Path>,
-    progress: Option<tokio::sync::mpsc::Sender<PushProgress>>,
-    decode_fn: F,
+    progress: Option<mpsc::Sender<PushProgress>>,
+    decode_document_fn: F,
 ) -> Result<DirectoryPushResult>
 where
-    F: Fn(PathBuf) -> Fut,
+    F: Fn(PathBuf, HashMap<String, String>) -> Fut,
     Fut: std::future::Future<Output = Result<Node>>,
 {
     // Helper macro to send progress events
@@ -1679,6 +1694,28 @@ where
     // Track total media files created by all documents (for duplicate counting)
     let mut total_media_created: usize = 0;
 
+    // Collect spread source files so we skip them in regular document processing.
+    // These files are rendered multiple times with different arguments via spread routes,
+    // so we don't want to also push them as regular documents.
+    let spread_source_files: HashSet<PathBuf> = generate_spread_routes(&config)?
+        .iter()
+        .map(|variant| site_root.join(&variant.file))
+        .collect();
+
+    // Filter out spread source files from regular documents
+    let documents: Vec<PathBuf> = documents
+        .into_iter()
+        .filter(|doc_path| {
+            if let Ok(canonical) = doc_path.canonicalize() {
+                !spread_source_files
+                    .iter()
+                    .any(|spread_path| spread_path.canonicalize().ok() == Some(canonical.clone()))
+            } else {
+                true // Keep files we can't canonicalize
+            }
+        })
+        .collect();
+
     for (index, doc_path) in documents.iter().enumerate() {
         send_progress!(PushProgress::EncodingDocument {
             path: doc_path.clone(),
@@ -1687,7 +1724,7 @@ where
         });
 
         let result = async {
-            let node = decode_fn(doc_path.clone()).await?;
+            let node = decode_document_fn(doc_path.clone(), HashMap::new()).await?;
             encode_document(
                 &node,
                 Some(doc_path),
@@ -1695,6 +1732,7 @@ where
                 &config,
                 &base_url,
                 site_temp_root.path(),
+                None, // Use route computed from path
             )
             .await
         }
@@ -1725,6 +1763,72 @@ where
                 });
                 documents_failed.push((doc_path.clone(), error_msg));
                 // Continue with next document
+            }
+        }
+    }
+
+    // Process spread routes from config. These render the same document
+    // multiple times with different arguments, each at a different route
+    let spread_variants = generate_spread_routes(&config)?;
+    let spread_variant_count = spread_variants.len();
+
+    for (index, variant) in spread_variants.iter().enumerate() {
+        // Resolve the source file path relative to site root
+        let source_path = site_root.join(&variant.file);
+
+        // Skip if source file doesn't exist
+        if !source_path.exists() {
+            let error_msg = format!("Spread source file not found: {}", variant.file);
+            tracing::warn!("{}", error_msg);
+            documents_failed.push((source_path.clone(), error_msg));
+            continue;
+        }
+
+        send_progress!(PushProgress::EncodingDocument {
+            path: source_path.clone(),
+            index: documents.len() + index,
+            total: documents.len() + spread_variant_count,
+        });
+
+        // Decode with spread arguments (triggers document execution with those args)
+        let result = async {
+            let node = decode_document_fn(source_path.clone(), variant.arguments.clone()).await?;
+            encode_document(
+                &node,
+                Some(&source_path),
+                &workspace_dir,
+                &config,
+                &base_url,
+                site_temp_root.path(),
+                Some(&variant.route), // Use the spread variant's specific route
+            )
+            .await
+        }
+        .await;
+
+        match result {
+            Ok(EncodeResult::Document(encoded)) => {
+                total_media_created += encoded.media_files.len();
+                send_progress!(PushProgress::DocumentEncoded {
+                    path: source_path.clone(),
+                    route: encoded.route.clone(),
+                });
+                encoded_docs.push(encoded);
+            }
+            Ok(EncodeResult::Redirect {
+                route,
+                target,
+                status,
+            }) => {
+                redirects.push((route, target, status));
+            }
+            Err(e) => {
+                let error_msg = format!("Spread variant {:?}: {}", variant.arguments, e);
+                send_progress!(PushProgress::DocumentFailed {
+                    path: source_path.clone(),
+                    error: error_msg.clone(),
+                });
+                documents_failed.push((source_path.clone(), error_msg));
             }
         }
     }

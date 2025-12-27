@@ -1,8 +1,10 @@
+use std::collections::HashMap;
 use std::env::current_dir;
 use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail, eyre};
+use stencila_document::{Document, ExecuteOptions};
 use url::Url;
 
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_for_password, ask_with};
@@ -629,7 +631,15 @@ impl Push {
             is_dry_run,
             dry_run_path.map(|p| p.as_path()),
             Some(tx),
-            |doc_path| async move { stencila_codecs::from_path(&doc_path, None).await },
+            |doc_path, arguments: HashMap<String, String>| async move {
+                let doc = Document::open(&doc_path, None).await?;
+                let arguments: Vec<(&str, &str)> = arguments
+                    .iter()
+                    .map(|(name, value)| (name.as_str(), value.as_str()))
+                    .collect();
+                doc.call(&arguments, ExecuteOptions::default()).await?;
+                Ok(doc.root().await)
+            },
         )
         .await;
 
