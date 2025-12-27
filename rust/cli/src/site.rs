@@ -315,9 +315,9 @@ pub struct Add {
 
     /// Arguments for spread routes (comma-delimited key=val1,val2 pairs)
     ///
-    /// Example: --arguments "region=north,south" --arguments "year=2024,2025"
-    #[arg(long, short)]
-    arguments: Option<Vec<String>>,
+    /// Example: stencila site add "/{region}/" report.smd -- region=north,south
+    #[arg(last = true, allow_hyphen_values = true)]
+    arguments: Vec<String>,
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
@@ -334,9 +334,9 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site add /github/ --redirect https://github.com/stencila/stencila</>
 
   <dim># Add a spread route (generates multiple variants)</dim>
-  <b>stencila site add \"/{region}/\" report.smd --arguments \"region=north,south\"</>
-  <b>stencila site add \"/{region}/{year}/\" report.smd --arguments \"region=north,south\" --arguments \"year=2024,2025\"</>
-  <b>stencila site add \"/{q}-report/\" quarterly.smd --spread zip --arguments \"q=q1,q2,q3,q4\"</>
+  <b>stencila site add \"/{region}/\" report.smd -- region=north,south</>
+  <b>stencila site add \"/{region}/{year}/\" report.smd -- region=north,south year=2024,2025</>
+  <b>stencila site add \"/{q}-report/\" quarterly.smd --spread zip -- q=q1,q2,q3,q4</>
 "
 );
 
@@ -363,8 +363,8 @@ impl Add {
         }
 
         // Check for spread-related options with redirect
-        if self.redirect.is_some() && (self.spread.is_some() || self.arguments.is_some()) {
-            bail!("--spread and --arguments cannot be used with --redirect");
+        if self.redirect.is_some() && (self.spread.is_some() || !self.arguments.is_empty()) {
+            bail!("--spread and arguments cannot be used with --redirect");
         }
 
         // Check if this is a spread route (has placeholders like {region})
@@ -377,17 +377,17 @@ impl Add {
             }
 
             // Check if we have spread arguments
-            if let Some(ref args) = self.arguments {
+            if !self.arguments.is_empty() {
                 // Parse arguments into HashMap
-                let arguments = Self::parse_arguments(args)?;
+                let arguments = Self::parse_arguments(&self.arguments)?;
 
                 if arguments.is_empty() {
-                    bail!("--arguments provided but no valid key=value pairs found");
+                    bail!("Arguments provided but no valid key=value pairs found");
                 }
 
                 if !has_placeholders {
                     bail!(
-                        "Route '{}' has no placeholders but --arguments was provided. \
+                        "Route '{}' has no placeholders but arguments were provided. \
                          Use placeholders like /{{region}}/ for spread routes.",
                         route
                     );
@@ -416,8 +416,8 @@ impl Add {
                 // Simple file route
                 if has_placeholders {
                     bail!(
-                        "Route '{}' contains placeholders but no --arguments provided. \
-                         Either remove placeholders or add --arguments.",
+                        "Route '{}' contains placeholders but no arguments provided. \
+                         Either remove placeholders or add arguments after --.",
                         route
                     );
                 }

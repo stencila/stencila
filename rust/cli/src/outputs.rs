@@ -261,9 +261,9 @@ pub struct Add {
 
     /// Arguments for spread outputs (comma-delimited key=val1,val2 pairs)
     ///
-    /// Example: --arguments "region=north,south" --arguments "year=2024,2025"
-    #[arg(long, short)]
-    arguments: Option<Vec<String>>,
+    /// Example: stencila outputs add "{region}/report.pdf" report.md -- region=north,south
+    #[arg(last = true, allow_hyphen_values = true)]
+    arguments: Vec<String>,
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
@@ -284,24 +284,24 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila outputs add \"exports/*.pdf\" --pattern \"exports/*.md\"</>
 
   <dim># Add spread output (generates multiple variants)</dim>
-  <b>stencila outputs add \"{region}/report.pdf\" report.md --command render --arguments \"region=north,south\"</>
+  <b>stencila outputs add \"{region}/report.pdf\" report.md --command render -- region=north,south</>
 
   <dim># Add spread with multiple arguments (grid mode)</dim>
-  <b>stencila outputs add \"{region}/{year}/data.pdf\" report.md --command render --arguments \"region=north,south\" --arguments \"year=2024,2025\"</>
+  <b>stencila outputs add \"{region}/{year}/data.pdf\" report.md --command render -- region=north,south year=2024,2025</>
 
   <dim># Add spread with zip mode</dim>
-  <b>stencila outputs add \"{q}-report.pdf\" report.md --command render --spread zip --arguments \"q=q1,q2,q3,q4\"</>
+  <b>stencila outputs add \"{q}-report.pdf\" report.md --command render --spread zip -- q=q1,q2,q3,q4</>
 "
 );
 
 impl Add {
     pub async fn run(self) -> Result<()> {
         // Parse arguments from CLI format into HashMap
-        let arguments = self
-            .arguments
-            .as_ref()
-            .map(|args| Self::parse_arguments(args))
-            .transpose()?;
+        let arguments = if self.arguments.is_empty() {
+            None
+        } else {
+            Some(Self::parse_arguments(&self.arguments)?)
+        };
 
         let config_path = config_add_output(
             &self.output,
@@ -314,7 +314,7 @@ impl Add {
             arguments.as_ref(),
         )?;
 
-        if self.arguments.is_some() {
+        if !self.arguments.is_empty() {
             let mode = self.spread.unwrap_or_default();
             message!(
                 "✅ Added spread output `{}` (mode: {:?}) to {}",
