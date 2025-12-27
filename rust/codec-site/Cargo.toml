@@ -9,6 +9,7 @@ eyre = { workspace = true }
 flate2 = { workspace = true }
 futures = { workspace = true }
 ignore = { workspace = true }
+indexmap = { workspace = true }
 md-5 = "0.10"
 reqwest = { workspace = true }
 serde = { workspace = true }
@@ -22,6 +23,7 @@ stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 stencila-format = { path = "../format" }
 stencila-node-media = { path = "../node-media" }
+stencila-spread = { path = "../spread" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

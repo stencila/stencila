@@ -4,12 +4,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use md5::{Digest, Md5};
-
 use eyre::{Result, bail, eyre};
 use flate2::{Compression, write::GzEncoder};
 use futures::future::try_join_all;
 use ignore::WalkBuilder;
+use md5::{Digest, Md5};
 use serde_json::json;
 use tempfile::TempDir;
 use tokio::{
@@ -28,6 +27,9 @@ use stencila_codec_utils::{get_current_branch, git_info, slugify_branch_name};
 use stencila_config::{Config, RedirectStatus, RouteRedirect, RouteTarget};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 use stencila_format::Format;
+
+mod list;
+pub use list::{RouteEntry, RouteType, list_routes};
 
 // ============================================================================
 // Types for directory push
@@ -420,34 +422,6 @@ pub struct SpreadRouteVariant {
     pub arguments: HashMap<String, String>,
 }
 
-/// The type/source of a route
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RouteType {
-    /// Explicit file route from config
-    File,
-    /// Redirect route from config
-    Redirect,
-    /// Spread route template from config
-    Spread,
-    /// Computed from file path
-    Implied,
-}
-
-/// A route entry for display
-#[derive(Debug, Clone)]
-pub struct RouteEntry {
-    /// The route path (e.g., "/docs/report/")
-    pub route: String,
-    /// The type/source of the route
-    pub route_type: RouteType,
-    /// The target (file path, redirect URL, or spread template file)
-    pub target: String,
-    /// Number of spread variants (for spread routes only)
-    pub spread_count: Option<usize>,
-    /// Spread arguments for this variant (when expanded)
-    pub spread_arguments: Option<HashMap<String, String>>,
-}
-
 /// Generate all spread route variants from config
 ///
 /// Reads `[site.routes]` from config and expands all `RouteTarget::Spread` variants.
@@ -562,148 +536,6 @@ fn apply_spread_template(template: &str, values: &HashMap<String, String>) -> Re
     }
 
     Ok(result)
-}
-
-/// List all routes for a site, including both configured and file-implied routes
-///
-/// # Arguments
-/// * `path` - The path to search (typically the workspace or site root)
-/// * `expanded` - Whether to expand spread routes into individual variants
-///
-/// # Returns
-/// A list of route entries sorted by route path
-pub async fn list_all_routes(path: &Path, expanded: bool) -> Result<Vec<RouteEntry>> {
-    // Find workspace root
-    let stencila_dir = closest_stencila_dir(path, true).await?;
-    let workspace_dir = workspace_dir(&stencila_dir)?;
-
-    // Load config from workspace
-    let config = stencila_config::config(&workspace_dir)?;
-
-    // Resolve site root
-    let site_root = if let Some(site) = &config.site
-        && let Some(root) = &site.root
-    {
-        root.resolve(&workspace_dir)
-    } else {
-        workspace_dir.clone()
-    };
-
-    let mut routes: Vec<RouteEntry> = Vec::new();
-    let mut seen_routes: HashSet<String> = HashSet::new();
-    let mut spread_source_files: HashSet<String> = HashSet::new();
-
-    // 1. Collect configured routes
-    if let Some(site) = &config.site
-        && let Some(configured_routes) = &site.routes
-    {
-        for (route_path, target) in configured_routes {
-            if let Some(file) = target.file() {
-                routes.push(RouteEntry {
-                    route: route_path.clone(),
-                    route_type: RouteType::File,
-                    target: file.as_str().to_string(),
-                    spread_count: None,
-                    spread_arguments: None,
-                });
-                seen_routes.insert(route_path.clone());
-            } else if let Some(redirect) = target.redirect() {
-                let status = redirect
-                    .status
-                    .map(|s| format!(" ({})", s as u16))
-                    .unwrap_or_default();
-                routes.push(RouteEntry {
-                    route: route_path.clone(),
-                    route_type: RouteType::Redirect,
-                    target: format!("{}{}", redirect.redirect, status),
-                    spread_count: None,
-                    spread_arguments: None,
-                });
-                seen_routes.insert(route_path.clone());
-            } else if let Some(spread) = target.spread() {
-                // Generate spread variants
-                let mode = spread.spread.unwrap_or_default();
-                let runs = generate_spread_runs(mode, &spread.arguments)?;
-                let variant_count = runs.len();
-
-                if expanded {
-                    // Add each variant as a spread route with its arguments
-                    for run in runs {
-                        let route = apply_spread_template(route_path, &run)?;
-                        routes.push(RouteEntry {
-                            route: route.clone(),
-                            route_type: RouteType::Spread,
-                            target: spread.file.clone(),
-                            spread_count: None,
-                            spread_arguments: Some(run),
-                        });
-                        seen_routes.insert(route);
-                    }
-                } else {
-                    // Add spread template with count
-                    routes.push(RouteEntry {
-                        route: route_path.clone(),
-                        route_type: RouteType::Spread,
-                        target: spread.file.clone(),
-                        spread_count: Some(variant_count),
-                        spread_arguments: None,
-                    });
-                    // Also add expanded routes to seen set so they don't show as implied
-                    for run in runs {
-                        let route = apply_spread_template(route_path, &run)?;
-                        seen_routes.insert(route);
-                    }
-                }
-
-                // Track the spread source file so it doesn't appear as an implied route
-                spread_source_files.insert(spread.file.clone());
-            }
-        }
-    }
-
-    // 2. Walk directory to find document files and compute implied routes
-    if site_root.exists() {
-        let (documents, _static_files) = walk_directory_for_push(&site_root).await?;
-
-        for doc_path in documents {
-            // Get relative path for display
-            let rel_path = doc_path
-                .strip_prefix(&site_root)
-                .unwrap_or(&doc_path)
-                .to_string_lossy()
-                .replace('\\', "/");
-
-            // Skip files that are spread sources (they're handled by spread routes)
-            if spread_source_files.contains(&rel_path) {
-                continue;
-            }
-
-            // Compute the route for this document
-            let route = match determine_route(&doc_path, &workspace_dir, &config) {
-                Ok(r) => r,
-                Err(_) => continue, // Skip files that can't be routed
-            };
-
-            // Skip if this route is already covered by a configured route
-            if seen_routes.contains(&route) {
-                continue;
-            }
-
-            routes.push(RouteEntry {
-                route: route.clone(),
-                route_type: RouteType::Implied,
-                target: rel_path,
-                spread_count: None,
-                spread_arguments: None,
-            });
-            seen_routes.insert(route);
-        }
-    }
-
-    // 3. Sort by route path
-    routes.sort_by(|a, b| a.route.cmp(&b.route));
-
-    Ok(routes)
 }
 
 /// Find the route configuration for a given file path

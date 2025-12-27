@@ -205,18 +205,24 @@ fn format_access_label(
 #[derive(Debug, Default, Args)]
 #[command(alias = "ls", after_long_help = LIST_AFTER_LONG_HELP)]
 pub struct List {
-    /// Path to the workspace directory
-    ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<std::path::PathBuf>,
-
     /// Show expanded spread route variants
     ///
     /// When set, spread routes are expanded into their individual variants
     /// instead of showing the template with a variant count.
-    #[arg(long)]
+    #[arg(long, alias = "expand")]
     expanded: bool,
+
+    /// Filter by route prefix
+    ///
+    /// Only show routes that start with this prefix (e.g., "/docs/")
+    #[arg(long = "route")]
+    route_filter: Option<String>,
+
+    /// Filter by source file path prefix
+    ///
+    /// Only show routes whose source file starts with this prefix (e.g., "docs/")
+    #[arg(long = "path")]
+    path_filter: Option<String>,
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
@@ -227,16 +233,26 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Show expanded spread route variants</dim>
   <b>stencila site list --expanded</>
+
+  <dim># Filter routes by route prefix</dim>
+  <b>stencila site list --route /docs</>
+
+  <dim># Filter routes by source file path prefix</dim>
+  <b>stencila site list --path docs/</>
 "
 );
 
 impl List {
     pub async fn run(self) -> Result<()> {
-        use stencila_codec_site::{RouteType, list_all_routes};
+        use stencila_codec_site::{RouteType, list_routes};
 
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let routes = list_all_routes(&path, self.expanded).await?;
+        let routes = list_routes(
+            &current_dir()?,
+            self.expanded,
+            self.route_filter.as_deref(),
+            self.path_filter.as_deref(),
+        )
+        .await?;
 
         if routes.is_empty() {
             message(cstr!(
