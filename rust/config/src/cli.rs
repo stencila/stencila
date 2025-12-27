@@ -421,6 +421,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Remove a value</dim>
   <b>stencila config unset</b> <g>site.id</g>
+
+  <dim># Check config validity</dim>
+  <b>stencila config check</b>
 "
 );
 
@@ -429,6 +432,7 @@ enum Command {
     Get(Get),
     Set(Set),
     Unset(Unset),
+    Check(Check),
 }
 
 impl Cli {
@@ -442,6 +446,7 @@ impl Cli {
             Command::Get(get) => get.run().await,
             Command::Set(set) => set.run().await,
             Command::Unset(unset) => unset.run().await,
+            Command::Check(check) => check.run().await,
         }
     }
 }
@@ -649,5 +654,75 @@ impl Unset {
         message!("🗑️ Removed `{}` from `{}`", self.key, config_file.display());
 
         Ok(())
+    }
+}
+
+/// Check configuration validity
+#[derive(Debug, Default, Args)]
+#[command(after_long_help = CHECK_AFTER_LONG_HELP)]
+struct Check {
+    /// Directory to check configuration for
+    ///
+    /// Defaults to the current directory.
+    #[arg(default_value = ".")]
+    dir: PathBuf,
+}
+
+pub static CHECK_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+
+  <dim># Check config in current directory</dim>
+  <b>stencila config check</b>
+
+  <dim># Check config in a specific directory</dim>
+  <b>stencila config check</b> <g>./my-project</g>
+"
+);
+
+impl Check {
+    async fn run(self) -> Result<()> {
+        let dir = self.dir.canonicalize()?;
+
+        match config(&dir) {
+            Ok(cfg) => {
+                message!("✅ Configuration is valid");
+
+                // Report what was found
+                if let Some(workspace) = &cfg.workspace
+                    && let Some(id) = &workspace.id
+                {
+                    message!("   🔗 Workspace: {id}");
+                }
+
+                if let Some(site) = &cfg.site {
+                    if let Some(root) = &site.root {
+                        message!("   📁 Site root: {}", root.as_str());
+                    }
+                    if let Some(domain) = &site.domain {
+                        message!("   🌐 Site domain: {domain}");
+                    }
+                    if let Some(routes) = &site.routes {
+                        message!("   🔀 Site routes: {} configured", routes.len());
+                    }
+                    if let Some(exclude) = &site.exclude {
+                        message!("   🚫 Site exclusions: {} patterns", exclude.len());
+                    }
+                }
+
+                if let Some(remotes) = &cfg.remotes {
+                    message!("   📡 Remotes: {} configured", remotes.len());
+                }
+
+                if let Some(outputs) = &cfg.outputs {
+                    message!("   📄 Outputs: {} configured", outputs.len());
+                }
+
+                Ok(())
+            }
+            Err(error) => {
+                message!("❌ Configuration is invalid");
+                Err(error)
+            }
+        }
     }
 }
