@@ -181,12 +181,6 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Force create new document</dim>
   <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</> <c>--new</>
 
-  <dim># Force push even if up-to-date (useful for sites)</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>site</> <c>--force</>
-
-  <dim># Perform a dry-run to inspect generated files without uploading</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>site</> <c>--dry-run=./temp</>
-
   <dim># Spread push to GDocs (creates multiple docs)</dim>
   <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread</> <c>--</> <c>region=north,south</>
 
@@ -271,11 +265,6 @@ impl Cli {
         // Validate input path exists
         if !path.exists() {
             bail!("Input path `{path_display}` does not exist");
-        }
-
-        // Check if path is a directory - if so, use directory push
-        if path.is_dir() {
-            return self.push_directory(path, dry_run_opts).await;
         }
 
         // Open the document
@@ -992,161 +981,6 @@ impl Cli {
             exit(1)
         }
 
-        Ok(())
-    }
-
-    /// Push a directory to a Stencila Site
-    async fn push_directory(
-        &self,
-        path: &Path,
-        dry_run_opts: Option<stencila_codecs::PushDryRunOptions>,
-    ) -> Result<()> {
-        use stencila_cloud::ensure_workspace;
-        use stencila_codec_site::PushProgress;
-
-        let path_display = path.display();
-
-        // Validate: --watch is not supported for directory push
-        if self.watch {
-            bail!("Watch is not supported for directory push. Sites are write-only remotes.");
-        }
-
-        // Ensure workspace configuration exists
-        let (workspace_id, _) = ensure_workspace(path).await?;
-
-        // Set up dry-run path
-        let dry_run_path = dry_run_opts
-            .as_ref()
-            .and_then(|opts| opts.output_dir.as_ref());
-
-        // Set up progress channel
-        let (tx, mut rx) = tokio::sync::mpsc::channel::<PushProgress>(100);
-
-        // Spawn a task to handle progress updates
-        let progress_handle = tokio::spawn(async move {
-            while let Some(progress) = rx.recv().await {
-                match progress {
-                    PushProgress::WalkingDirectory => {
-                        message("📁 Walking directory");
-                    }
-                    PushProgress::FilesFound {
-                        documents,
-                        static_files,
-                    } => {
-                        message!("📊 Found {documents} documents, {static_files} static files");
-                    }
-                    PushProgress::EncodingDocument { path, index, total } => {
-                        message!(
-                            "📃 Processing document {}/{}: {}",
-                            index + 1,
-                            total,
-                            path.display()
-                        );
-                    }
-                    PushProgress::DocumentEncoded { .. } => {
-                        //
-                    }
-                    PushProgress::DocumentFailed { path, error } => {
-                        message!("❌ Failed to encode {}: {}", path.display(), error);
-                    }
-                    PushProgress::Processing {
-                        processed,
-                        uploaded,
-                        total,
-                    } => {
-                        if processed == total {
-                            let unchanged = total - uploaded;
-                            message!(
-                                "⚙️ Processed {total}/{total} files ({uploaded} new, {unchanged} unchanged)"
-                            );
-                        }
-                    }
-                    PushProgress::Reconciling => {
-                        message("🔄 Reconciling files");
-                    }
-                    PushProgress::Complete(_) => {
-                        // Summary is printed separately
-                    }
-                }
-            }
-        });
-
-        message!("☁️ Pushing directory `{path_display}` to workspace site");
-
-        // Determine dry-run state
-        let is_dry_run = dry_run_opts.is_some();
-
-        // Call push_directory with a decoder function
-        let result = stencila_codec_site::push_directory(
-            path,
-            &workspace_id,
-            None, // Use current branch
-            self.force,
-            is_dry_run,
-            dry_run_path.map(|p| p.as_path()),
-            Some(tx),
-            |doc_path| async move { stencila_codecs::from_path(&doc_path, None).await },
-        )
-        .await;
-
-        // Wait for progress handler to finish (tx is dropped by the block ending)
-        let _ = progress_handle.await;
-
-        // Handle result
-        let result = result?;
-
-        // Print summary
-        let action = if is_dry_run {
-            "Dry-run complete"
-        } else {
-            "Push complete"
-        };
-
-        message!(
-            "✅ {}: {} documents, {} redirects, {} static files, {} media files",
-            action,
-            result.documents_ok.len(),
-            result.redirects.len(),
-            result.static_files_ok.len(),
-            result.media_files_count
-        );
-
-        if result.media_duplicates_eliminated > 0 {
-            message!(
-                "♻️ {} media duplicates eliminated",
-                result.media_duplicates_eliminated
-            );
-        }
-
-        if result.files_skipped > 0 {
-            message!(
-                "⏭️ {} unchanged files skipped (use --force to upload all)",
-                result.files_skipped
-            );
-        }
-
-        if !result.documents_failed.is_empty() {
-            message!("⚠️ {} documents failed:", result.documents_failed.len());
-            for (path, error) in &result.documents_failed {
-                message!("     - {}: {}", path.display(), error);
-            }
-        }
-
-        if !is_dry_run {
-            let url = format!("https://{workspace_id}.stencila.site");
-
-            update_remote_timestamp(
-                path,
-                &url,
-                None, // pulled_at unchanged
-                Some(Utc::now().timestamp() as u64),
-            )
-            .await?;
-
-            let url = Url::parse(&url)?;
-            let url = stencila_codec_site::browseable_url(&url, Some(path))?;
-            message!("🔗 Site available at: {url}");
-        }
         Ok(())
     }
 
