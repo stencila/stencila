@@ -1,6 +1,7 @@
+[workspace]
+id = "wsron0azl0i2"
+
 [site]
-id = "s49e0kpi63"
-watch = "w0klOk3I4p"
 root = "site"
 exclude = ["tests/excluded.smd"]
 
