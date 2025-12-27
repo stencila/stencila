@@ -1052,3 +1052,52 @@ fn test_validate_placeholders() -> Result<()> {
 
     Ok(())
 }
+
+/// Test that schemars regex patterns match the constant patterns
+///
+/// This ensures that if someone updates a pattern in one place,
+/// they must also update it in the other, or this test will fail.
+#[test]
+fn test_pattern_constants_match_schemars() {
+    // Generate the JSON schema
+    let schema = schemars::schema_for!(crate::Config);
+    let schema_json = serde_json::to_value(&schema).expect("Failed to serialize schema");
+
+    // Helper to extract pattern from schema
+    fn find_pattern(schema: &serde_json::Value, path: &[&str]) -> Option<String> {
+        let mut current = schema.get("$defs")?;
+        for &segment in path.iter().take(path.len() - 1) {
+            current = current.get(segment)?;
+        }
+        current
+            .get("properties")?
+            .get(path.last()?)?
+            .get("pattern")
+            .and_then(|v| v.as_str())
+            .map(String::from)
+    }
+
+    // Check workspace.id pattern
+    let ws_pattern = find_pattern(&schema_json, &["WorkspaceConfig", "id"]);
+    assert_eq!(
+        ws_pattern.as_deref(),
+        Some(crate::WORKSPACE_ID_PATTERN),
+        "WorkspaceConfig.id schemars pattern doesn't match WORKSPACE_ID_PATTERN constant"
+    );
+
+    // Check site.domain pattern
+    let domain_pattern = find_pattern(&schema_json, &["SiteConfig", "domain"]);
+    assert_eq!(
+        domain_pattern.as_deref(),
+        Some(crate::DOMAIN_PATTERN),
+        "SiteConfig.domain schemars pattern doesn't match DOMAIN_PATTERN constant"
+    );
+
+    // Check remotes watch pattern
+    let watch_pattern = find_pattern(&schema_json, &["RemoteWatch", "watch"]);
+    assert_eq!(
+        watch_pattern.as_deref(),
+        Some(crate::WATCH_ID_PATTERN),
+        "RemoteWatch.watch schemars pattern doesn't match WATCH_ID_PATTERN constant"
+    );
+}

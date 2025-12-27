@@ -1,15 +1,38 @@
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 
 use clap::ValueEnum;
-use eyre::{Result, eyre};
+use eyre::{Result, bail, eyre};
+use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::Display;
 use url::Url;
+
+/// Pattern for workspace IDs: ws followed by 10 lowercase alphanumeric chars
+pub const WORKSPACE_ID_PATTERN: &str = r"^ws[a-z0-9]{10}$";
+
+/// Pattern for watch IDs: wa followed by 10 lowercase alphanumeric chars
+pub const WATCH_ID_PATTERN: &str = r"^wa[a-z0-9]{10}$";
+
+/// Pattern for domain names
+pub const DOMAIN_PATTERN: &str = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$";
+
+/// Compiled regex for workspace IDs
+static WORKSPACE_ID_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(WORKSPACE_ID_PATTERN).expect("Invalid regex"));
+
+/// Compiled regex for watch IDs
+static WATCH_ID_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(WATCH_ID_PATTERN).expect("Invalid regex"));
+
+/// Compiled regex for domain names
+static DOMAIN_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(DOMAIN_PATTERN).expect("Invalid regex"));
 
 mod init;
 
@@ -79,6 +102,16 @@ impl ConfigRelativePath {
 pub fn config(path: &Path) -> Result<Config> {
     let figment = build_figment(path, true)?;
     let config: Config = figment.extract().map_err(|error| eyre!("{error}"))?;
+
+    // Validate workspace configuration
+    if let Some(workspace) = &config.workspace {
+        workspace.validate()?;
+    }
+
+    // Validate site configuration
+    if let Some(site) = &config.site {
+        site.validate()?;
+    }
 
     // Validate all route configurations
     if let Some(site) = &config.site
@@ -156,6 +189,20 @@ pub struct WorkspaceConfig {
     /// The workspace ID is derived from the GitHub repository URL.
     #[schemars(regex(pattern = r"^ws[a-z0-9]{10}$"))]
     pub id: Option<String>,
+}
+
+impl WorkspaceConfig {
+    /// Validate the workspace configuration
+    pub fn validate(&self) -> Result<()> {
+        if let Some(id) = &self.id
+            && !WORKSPACE_ID_REGEX.is_match(id)
+        {
+            bail!(
+                "Invalid workspace ID `{id}`: must match pattern 'ws' followed by 10 lowercase alphanumeric characters (e.g., 'ws3x9k2m7fab')"
+            );
+        }
+        Ok(())
+    }
 }
 
 /// Stencila configuration
@@ -349,6 +396,20 @@ pub struct SiteConfig {
     pub routes: Option<HashMap<String, RouteTarget>>,
 }
 
+impl SiteConfig {
+    /// Validate the site configuration
+    pub fn validate(&self) -> Result<()> {
+        if let Some(domain) = &self.domain
+            && !DOMAIN_REGEX.is_match(domain)
+        {
+            bail!(
+                "Invalid domain `{domain}`: must be a valid domain name (e.g., 'docs.example.org')"
+            );
+        }
+        Ok(())
+    }
+}
+
 /// Target for a route - either a file path, a redirect, or a spread
 ///
 /// Routes can either serve a file, redirect to another URL, or generate
@@ -398,23 +459,23 @@ impl RouteTarget {
     pub fn validate(&self, path: &str) -> Result<()> {
         // All routes must start with '/'
         if !path.starts_with('/') {
-            return Err(eyre!("Route '{}' must start with '/'", path));
+            bail!("Route '{path}' must start with '/'");
         }
 
         match self {
             RouteTarget::File(_) => Ok(()),
             RouteTarget::Redirect(redirect) => {
                 if redirect.redirect.is_empty() {
-                    return Err(eyre!("Route '{}' has an empty redirect URL", path));
+                    bail!("Route '{path}' has an empty redirect URL");
                 }
                 Ok(())
             }
             RouteTarget::Spread(spread) => {
                 if spread.file.is_empty() {
-                    return Err(eyre!("Spread route '{}' has an empty file", path));
+                    bail!("Spread route '{path}' has an empty file");
                 }
                 if spread.arguments.is_empty() {
-                    return Err(eyre!("Spread route '{}' has no arguments", path));
+                    bail!("Spread route '{path}' has no arguments");
                 }
                 // Validate that all placeholders have corresponding arguments
                 // (except reserved placeholders like {tag} and {branch})
@@ -613,10 +674,7 @@ impl RemoteValue {
             RemoteValue::Single(target) => target.validate(path)?,
             RemoteValue::Multiple(targets) => {
                 if targets.is_empty() {
-                    return Err(eyre!(
-                        "Remote for path '{}' has an empty array of targets",
-                        path
-                    ));
+                    bail!("Remote for path '{}' has an empty array of targets", path);
                 }
                 for target in targets {
                     target.validate(path)?;
@@ -700,23 +758,34 @@ impl RemoteTarget {
     ///
     /// Ensures that:
     /// - URL targets have non-empty URLs
+    /// - Watch IDs match the required pattern
     /// - Spread targets have a non-empty service
     /// - Multiple targets array is not empty
     pub fn validate(&self, path: &str) -> Result<()> {
         match self {
-            RemoteTarget::Url(url) | RemoteTarget::Watch(RemoteWatch { url, .. }) => {
+            RemoteTarget::Url(url) => {
                 if url.as_str().is_empty() {
-                    return Err(eyre!("Remote for path `{path}` has an empty URL"));
+                    bail!("Remote for path `{path}` has an empty URL");
+                }
+            }
+            RemoteTarget::Watch(watch) => {
+                if watch.url.as_str().is_empty() {
+                    bail!("Remote for path `{path}` has an empty URL");
+                }
+                if let Some(watch_id) = &watch.watch
+                    && !WATCH_ID_REGEX.is_match(watch_id)
+                {
+                    bail!(
+                        "Invalid watch ID `{watch_id}` for remote `{path}`: must match pattern 'wa' followed by 10 lowercase alphanumeric characters (e.g., 'wa3x9k2m7fab')"
+                    );
                 }
             }
             RemoteTarget::Spread(spread) => {
                 if spread.service.is_empty() {
-                    return Err(eyre!(
-                        "Spread remote for path `{path}` has an empty service"
-                    ));
+                    bail!("Spread remote for path `{path}` has an empty service");
                 }
                 if spread.arguments.is_empty() {
-                    return Err(eyre!("Spread remote for path `{path}` has no `params`"));
+                    bail!("Spread remote for path `{path}` has no `params`");
                 }
             }
         }
@@ -986,34 +1055,24 @@ impl OutputConfig {
     pub fn validate(&self, key: &str) -> Result<()> {
         // Source and pattern are mutually exclusive
         if self.source.is_some() && self.pattern.is_some() {
-            return Err(eyre!(
-                "Output '{}' cannot have both `source` and `pattern`",
-                key
-            ));
+            bail!("Output '{key}' cannot have both `source` and `pattern`");
         }
 
         // If pattern is set, key must include *.ext suffix
         if self.pattern.is_some() && !key.contains("*.") {
-            return Err(eyre!(
-                "Output '{}' with `pattern` must include `*.ext` suffix to specify output format (e.g., 'reports/*.pdf')",
-                key
-            ));
+            bail!(
+                "Output '{key}' with `pattern` must include `*.ext` suffix to specify output format (e.g., 'reports/*.pdf')"
+            );
         }
 
         // Arguments and spread are only allowed with command = render
         let command = self.command.unwrap_or_default();
         if command != OutputCommand::Render {
             if self.arguments.is_some() {
-                return Err(eyre!(
-                    "Output '{}' has `arguments` but `command` is not `render`",
-                    key
-                ));
+                bail!("Output '{key}' has `arguments` but `command` is not `render`");
             }
             if self.spread.is_some() {
-                return Err(eyre!(
-                    "Output '{}' has `spread` but `command` is not `render`",
-                    key
-                ));
+                bail!("Output '{key}' has `spread` but `command` is not `render`");
             }
         }
 
@@ -1021,19 +1080,19 @@ impl OutputConfig {
         if let Some(args) = &self.arguments
             && args.is_empty()
         {
-            return Err(eyre!("Output '{}' has empty `arguments`", key));
+            bail!("Output '{key}' has empty `arguments`");
         }
 
         // If refs is present, it must be non-empty
         if let Some(refs) = &self.refs
             && refs.is_empty()
         {
-            return Err(eyre!("Output '{}' has empty `refs`", key));
+            bail!("Output '{key}' has empty `refs`");
         }
 
         // Exclude only applies with pattern
         if self.exclude.is_some() && self.pattern.is_none() {
-            return Err(eyre!("Output '{}' has `exclude` but no `pattern`", key));
+            bail!("Output '{key}' has `exclude` but no `pattern`");
         }
 
         // Validate that all placeholders have corresponding arguments
