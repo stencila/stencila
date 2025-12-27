@@ -7,3 +7,5 @@ exclude = ["tests/excluded.smd"]
 
 [site.routes]
 "/tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
+"/tests/file/" = "tests/file.myst"
+"/tests/spread/{environ}/{region}/" = { file = "tests/spread.smd", arguments = { environ = ["earth", "sea", "sky"], region = ["north", "south"] } }
