@@ -2922,6 +2922,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "enum_dispatch"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa18ce2bc66555b3218614519ac839ddb759a7d6720732f979ef8d13be147ecd"
+dependencies = [
+ "once_cell",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.111",
+]
+
+[[package]]
 name = "enumset"
 version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4096,6 +4108,12 @@ dependencies = [
  "markup5ever",
  "match_token",
 ]
+
+[[package]]
+name = "htmlparser"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48ce8546b993eaf241d69ded33b1be6d205dd9857ec879d9d18bd05d3676e144"
 
 [[package]]
 name = "http"
@@ -5486,6 +5504,23 @@ checksum = "1cc7d85f3d741164e8972ad355e26ac6e51b20fcae5f911c7da8f2d8bbbb3f33"
 dependencies = [
  "num-traits",
  "pxfm",
+]
+
+[[package]]
+name = "mrml"
+version = "5.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f2d4de127b05e0abf5bfe406ca8c766bb16e9150b040ff1525bccc20ee7c132"
+dependencies = [
+ "enum-as-inner",
+ "enum_dispatch",
+ "htmlparser",
+ "indexmap 2.12.1",
+ "itertools 0.14.0",
+ "rustc-hash 2.1.1",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -8629,6 +8664,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-email"
+version = "0.0.0"
+dependencies = [
+ "mrml",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-dom-trait",
+ "stencila-codec-text-trait",
+ "stencila-convert",
+ "stencila-themes",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "stencila-codec-gdoc"
 version = "0.0.0"
 dependencies = [
@@ -9276,6 +9326,7 @@ dependencies = [
  "stencila-codec-docx",
  "stencila-codec-doi",
  "stencila-codec-dom",
+ "stencila-codec-email",
  "stencila-codec-gdoc",
  "stencila-codec-github",
  "stencila-codec-html",
