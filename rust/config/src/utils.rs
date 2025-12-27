@@ -943,6 +943,40 @@ pub fn config_add_route(file_path: &Path, route: &str) -> Result<PathBuf> {
         doc["site"] = Item::Table(Table::new());
     }
 
+    // Get workspace directory (parent of config file)
+    let workspace_dir = config_path
+        .parent()
+        .ok_or_eyre("Config file has no parent directory")?;
+
+    // Extract site.root value before getting mutable references (to avoid borrow issues)
+    let site_root_str = doc
+        .get("site")
+        .and_then(|s| s.as_table())
+        .and_then(|t| t.get("root"))
+        .and_then(|r| r.as_str())
+        .map(|s| s.to_string());
+
+    // Compute base directory for relative paths
+    let base_dir = if let Some(root_str) = &site_root_str {
+        let site_root = workspace_dir.join(root_str);
+        if let Ok(canonical_root) = site_root.canonicalize() {
+            // If file is within site.root, use site.root as base
+            if file_path.starts_with(&canonical_root) {
+                canonical_root
+            } else {
+                workspace_dir.to_path_buf()
+            }
+        } else {
+            workspace_dir.to_path_buf()
+        }
+    } else {
+        workspace_dir.to_path_buf()
+    };
+
+    // Make file_path relative to base directory (file_path is already canonicalized)
+    let file_relative = file_path.strip_prefix(&base_dir).unwrap_or(&file_path);
+    let file_relative_str = file_relative.to_string_lossy().replace('\\', "/");
+
     let site_table = doc
         .get_mut("site")
         .and_then(|v| v.as_table_mut())
@@ -957,15 +991,6 @@ pub fn config_add_route(file_path: &Path, route: &str) -> Result<PathBuf> {
         .get_mut("routes")
         .and_then(|v| v.as_table_mut())
         .ok_or_eyre("site.routes field is not a table")?;
-
-    // Get workspace directory (parent of config file)
-    let workspace_dir = config_path
-        .parent()
-        .ok_or_eyre("Config file has no parent directory")?;
-
-    // Make file_path workspace-relative (file_path is already canonicalized)
-    let file_relative = file_path.strip_prefix(workspace_dir).unwrap_or(&file_path);
-    let file_relative_str = file_relative.to_string_lossy().to_string();
 
     // Check if route already exists
     if let Some(existing) = routes_table.get(route) {
@@ -1088,6 +1113,40 @@ pub fn config_set_route_spread(
         doc["site"] = Item::Table(Table::new());
     }
 
+    // Get workspace directory (parent of config file)
+    let workspace_dir = config_path
+        .parent()
+        .ok_or_eyre("Config file has no parent directory")?;
+
+    // Extract site.root value before getting mutable references (to avoid borrow issues)
+    let site_root_str = doc
+        .get("site")
+        .and_then(|s| s.as_table())
+        .and_then(|t| t.get("root"))
+        .and_then(|r| r.as_str())
+        .map(|s| s.to_string());
+
+    // Compute base directory for relative paths
+    let base_dir = if let Some(root_str) = &site_root_str {
+        let site_root = workspace_dir.join(root_str);
+        if let Ok(canonical_root) = site_root.canonicalize() {
+            // If file is within site.root, use site.root as base
+            if file_path.starts_with(&canonical_root) {
+                canonical_root
+            } else {
+                workspace_dir.to_path_buf()
+            }
+        } else {
+            workspace_dir.to_path_buf()
+        }
+    } else {
+        workspace_dir.to_path_buf()
+    };
+
+    // Make file_path relative to base directory (file_path is already canonicalized)
+    let file_relative = file_path.strip_prefix(&base_dir).unwrap_or(&file_path);
+    let file_relative_str = file_relative.to_string_lossy().replace('\\', "/");
+
     let site_table = doc
         .get_mut("site")
         .and_then(|v| v.as_table_mut())
@@ -1102,15 +1161,6 @@ pub fn config_set_route_spread(
         .get_mut("routes")
         .and_then(|v| v.as_table_mut())
         .ok_or_eyre("site.routes field is not a table")?;
-
-    // Get workspace directory (parent of config file)
-    let workspace_dir = config_path
-        .parent()
-        .ok_or_eyre("Config file has no parent directory")?;
-
-    // Make file_path workspace-relative (file_path is already canonicalized)
-    let file_relative = file_path.strip_prefix(workspace_dir).unwrap_or(&file_path);
-    let file_relative_str = file_relative.to_string_lossy().to_string();
 
     // Build the spread config as an inline table
     let mut spread_table = InlineTable::new();
