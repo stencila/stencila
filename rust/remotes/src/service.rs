@@ -19,9 +19,6 @@ pub enum RemoteService {
     /// GitHub Issues
     GitHubIssues,
 
-    /// Stencila Sites
-    StencilaSites,
-
     /// Stencila Email
     StencilaEmail,
 }
@@ -34,11 +31,10 @@ impl FromStr for RemoteService {
             "gdoc" | "gdocs" => Ok(RemoteService::GoogleDocs),
             "m365" => Ok(RemoteService::Microsoft365),
             "ghi" => Ok(RemoteService::GitHubIssues),
-            "site" | "sites" => Ok(RemoteService::StencilaSites),
             "email" => Ok(RemoteService::StencilaEmail),
             _ => {
                 let url = Url::parse(s).map_err(|_| {
-                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'site', 'ghi', 'email', or a full URL.")
+                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'ghi', 'email', or a full URL.")
                     })?;
                 RemoteService::from_url(&url)
                     .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))
@@ -54,7 +50,6 @@ impl RemoteService {
             Self::GoogleDocs => "gdoc",
             Self::Microsoft365 => "m365",
             Self::GitHubIssues => "ghi",
-            Self::StencilaSites => "site",
             Self::StencilaEmail => "email",
         }
     }
@@ -65,7 +60,6 @@ impl RemoteService {
             Self::GoogleDocs => "Google Doc",
             Self::Microsoft365 => "Microsoft 365 doc",
             Self::GitHubIssues => "GitHub Issue",
-            Self::StencilaSites => "Stencila Site route",
             Self::StencilaEmail => "Stencila Email attachment",
         }
     }
@@ -76,7 +70,6 @@ impl RemoteService {
             Self::GoogleDocs => "Google Docs",
             Self::Microsoft365 => "Microsoft 365",
             Self::GitHubIssues => "GitHub Issues",
-            Self::StencilaSites => "Stencila Sites",
             Self::StencilaEmail => "Stencila Email",
         }
     }
@@ -98,13 +91,6 @@ impl RemoteService {
             Self::GitHubIssues => {
                 url.host_str() == Some("github.com") && url.path().contains("/issues/")
             }
-            Self::StencilaSites => {
-                if let Some(host) = url.host_str() {
-                    host.ends_with(".stencila.site")
-                } else {
-                    false
-                }
-            }
             Self::StencilaEmail => stencila_cloud::email::matches_url(url),
         }
     }
@@ -115,7 +101,6 @@ impl RemoteService {
             Self::GoogleDocs,
             Self::Microsoft365,
             Self::GitHubIssues,
-            Self::StencilaSites,
             Self::StencilaEmail,
         ]
         .iter()
@@ -129,7 +114,6 @@ impl RemoteService {
             Self::GoogleDocs => Format::Docx,
             Self::Microsoft365 => Format::Docx,
             Self::GitHubIssues => Format::Docx,
-            Self::StencilaSites => Format::JsonLd,
             Self::StencilaEmail => Format::Docx,
         }
     }
@@ -143,11 +127,15 @@ impl RemoteService {
 
     /// Check if this remote service is write-only (push only, no pull support)
     ///
-    /// Write-only remotes like Stencila Sites can only be pushed to.
+    /// Write-only remotes can only be pushed to.
     /// Status calculations should not show "Diverged" or "Ahead" for these
     /// since pulling is not supported.
+    ///
+    /// Note: Currently no remote services are write-only. Stencila Sites
+    /// are now managed via `stencila site push` instead of `stencila push`.
     pub fn is_write_only(&self) -> bool {
-        matches!(self, Self::StencilaSites)
+        // No remote services are currently write-only
+        false
     }
 
     /// Push a document to this remote service
@@ -162,7 +150,6 @@ impl RemoteService {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url, dry_run).await,
             Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url, dry_run).await,
-            Self::StencilaSites => stencila_codec_site::push(node, path, title, url, dry_run).await,
             Self::GitHubIssues => {
                 eyre::bail!("GitHub Issues remote is read-only and does not support push")
             }
@@ -184,7 +171,6 @@ impl RemoteService {
             Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest).await,
             Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
             Self::GitHubIssues => stencila_codec_github::issues::pull(url, dest, target_path).await,
-            Self::StencilaSites => stencila_codec_site::pull(url, dest).await,
             Self::StencilaEmail => stencila_cloud::email::pull(url, dest, target_path, None).await,
         }
     }
@@ -195,7 +181,6 @@ impl RemoteService {
             Self::GoogleDocs => stencila_codec_gdoc::modified_at(url).await,
             Self::Microsoft365 => stencila_codec_m365::modified_at(url).await,
             Self::GitHubIssues => stencila_codec_github::issues::modified_at(url).await,
-            Self::StencilaSites => stencila_codec_site::modified_at(url).await,
             Self::StencilaEmail => stencila_cloud::email::modified_at(url).await,
         }
     }

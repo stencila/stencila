@@ -233,7 +233,6 @@ pub async fn calculate_remote_statuses(
                 Some(RemoteService::GitHubIssues) => {
                     stencila_codec_github::issues::modified_at(url).await
                 }
-                Some(RemoteService::StencilaSites) => stencila_codec_site::modified_at(url).await,
                 Some(RemoteService::StencilaEmail) => stencila_cloud::email::modified_at(url).await,
                 None => eyre::bail!("Unsupported remote service: {url}"),
             }
@@ -894,63 +893,6 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
                         .or_default()
                         .insert(remote_url.clone(), file_remote_info);
                 }
-            }
-        }
-    }
-
-    // Process implicit site remotes
-    // If workspace.id is configured (which doubles as site ID), check for tracked files under site.root
-    if config
-        .workspace
-        .as_ref()
-        .and_then(|w| w.id.as_ref())
-        .is_some()
-        && config.site.is_some()
-    {
-        // Check tracking data for files under site root
-        for (tracked_path, url_map) in &remotes_tracking {
-            // Resolve the tracked path relative to workspace
-            let absolute_tracked_path = workspace_dir.join(tracked_path);
-
-            // Check if this file is under site root (or is the site root itself)
-            if !config.path_is_in_site_root(&absolute_tracked_path, workspace_dir) {
-                continue;
-            }
-
-            // Process each remote URL for this file
-            for (remote_url, tracking_info) in url_map {
-                // Check if this is a Stencila Sites URL
-                if !matches!(
-                    RemoteService::from_url(remote_url),
-                    Some(RemoteService::StencilaSites)
-                ) {
-                    continue;
-                }
-
-                // Skip if we already have this remote from explicit config
-                if result.contains_key(tracked_path)
-                    && result[tracked_path].contains_key(remote_url)
-                {
-                    continue;
-                }
-
-                // Create implicit remote info
-                // Site watches are stored in [site].watch, not [remotes]
-                let file_remote_info = RemoteInfo {
-                    url: remote_url.clone(),
-                    path: ConfigRelativePath(tracked_path.to_string_lossy().to_string()),
-                    pulled_at: tracking_info.pulled_at,
-                    pushed_at: tracking_info.pushed_at,
-                    watch_id: None,
-                    watch_direction: None,
-                    arguments: tracking_info.arguments.clone(),
-                };
-
-                // Add implicit remote
-                result
-                    .entry(tracked_path.clone())
-                    .or_default()
-                    .insert(remote_url.clone(), file_remote_info);
             }
         }
     }

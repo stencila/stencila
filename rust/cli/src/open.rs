@@ -5,7 +5,7 @@ use eyre::{OptionExt, Result, bail, eyre};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_document::{Document, SyncDirection};
+use stencila_document::Document;
 use stencila_remotes::{RemoteService, get_remotes_for_path};
 use stencila_server::{ServeOptions, get_server_token};
 
@@ -16,14 +16,9 @@ use stencila_server::{ServeOptions, get_server_token};
 ///
 /// By default, opens both a local preview server and any tracked remote URLs
 /// (e.g., Google Docs, Microsoft 365). Use the `target` argument to open only a
-/// specific remote (by service shorthand like "gdoc" or "m365", or by full URL),
-/// or use "local" to open only the local preview. Alternatively, use `--no-local`
-/// or `--no-remotes` to open only one or the other.
-///
-/// When `--sync=in` (the default) the local preview will update when
-/// the document is changed and saved to disk.
+/// specific remote (by service shorthand like "gdoc" or "m365", or by full URL).
 #[derive(Debug, Parser)]
-#[command(alias = "preview", after_long_help = CLI_AFTER_LONG_HELP)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path to the document or parent folder
     ///
@@ -37,20 +32,7 @@ pub struct Cli {
     /// a service shorthand (e.g., "gdoc" or "m365"), or "local" to open
     /// only the local preview server. If omitted, opens all tracked remotes
     /// and the local preview server.
-    #[arg(conflicts_with = "no_local", conflicts_with = "no_remotes")]
     target: Option<String>,
-
-    /// Which direction(s) to sync the document
-    #[arg(long, default_value = "in")]
-    sync: SyncDirection,
-
-    /// Do not open the local preview server
-    #[arg(long, conflicts_with = "no_remotes", conflicts_with = "target")]
-    no_local: bool,
-
-    /// Do not open tracked remote URLs
-    #[arg(long, conflicts_with = "no_local", conflicts_with = "target")]
-    no_remotes: bool,
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -67,29 +49,20 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Open only Microsoft 365 remote</dim>
   <b>stencila open</b> <g>document.md</g> <g>m365</g>
 
-  <dim># Open only local preview server</dim>
-  <b>stencila open</b> <g>document.md</g> <g>local</g>
-
   <dim># Open a specific remote URL</dim>
   <b>stencila open</b> <g>document.md</g> <g>https://docs.google.com/document/d/abc123</g>
-
-  <dim># Open only tracked remotes (skip local preview)</dim>
-  <b>stencila open</b> <g>document.md</g> <c>--no-local</c>
-
-  <dim># Open only local preview (skip remotes)</dim>
-  <b>stencila open</b> <g>document.md</g> <c>--no-remotes</c>
 "
 );
 
+/// Check if a URL is a Stencila Site URL
+fn is_stencila_site_url(url: &Url) -> bool {
+    url.host_str()
+        .is_some_and(|host| host.ends_with(".stencila.site"))
+}
+
 impl Cli {
     pub fn new(path: PathBuf) -> Self {
-        Self {
-            path,
-            target: None,
-            sync: SyncDirection::In,
-            no_local: false,
-            no_remotes: false,
-        }
+        Self { path, target: None }
     }
 
     pub async fn run(self) -> Result<()> {
@@ -136,7 +109,7 @@ impl Cli {
                     // Find Stencila Site
                     let remote = remote_infos
                         .iter()
-                        .find(|info| RemoteService::StencilaSites.matches_url(&info.url))
+                        .find(|info| is_stencila_site_url(&info.url))
                         .ok_or_else(|| eyre!("No Stencila Site configured for `{path_display}`"))?;
                     (false, Some(remote.url.clone()))
                 }
@@ -168,7 +141,7 @@ impl Cli {
         // Open remote URLs in browser if specified or not disabled
         if let Some(remote_url) = remote_to_open {
             // Convert to browseable URL for Stencila Sites
-            let url_to_open = if RemoteService::StencilaSites.matches_url(&remote_url) {
+            let url_to_open = if is_stencila_site_url(&remote_url) {
                 stencila_codec_site::browseable_url(&remote_url, Some(&file))
                     .unwrap_or_else(|_| remote_url.clone())
             } else {
@@ -178,7 +151,7 @@ impl Cli {
             // Open only the specified remote
             message!("🌐 Opening {url_to_open} in browser");
             webbrowser::open(url_to_open.as_str())?;
-        } else if self.target.is_none() && !self.no_remotes && !remote_infos.is_empty() {
+        } else if self.target.is_none() && !remote_infos.is_empty() {
             // No target specified and remotes not disabled - open all remotes
             message!(
                 "🌐 Opening {} configured remote(s) in browser",
@@ -187,7 +160,7 @@ impl Cli {
             for info in &remote_infos {
                 // Convert to browseable URL for Stencila Sites
                 let remote_url = &info.url;
-                let url_to_open = if RemoteService::StencilaSites.matches_url(remote_url) {
+                let url_to_open = if is_stencila_site_url(remote_url) {
                     stencila_codec_site::browseable_url(remote_url, Some(&file))
                         .unwrap_or_else(|_| remote_url.clone())
                 } else {
@@ -200,7 +173,7 @@ impl Cli {
         }
 
         // Open local preview server if specified or not disabled
-        if open_local && !self.no_local {
+        if open_local {
             // Serve the parent directory of the file
             let dir = file
                 .parent()
@@ -215,7 +188,6 @@ impl Cli {
             // Serve the directory
             let options = ServeOptions {
                 dir: dir.clone(),
-                sync: Some(self.sync),
                 server_token: Some(server_token.clone()),
                 ..Default::default()
             };

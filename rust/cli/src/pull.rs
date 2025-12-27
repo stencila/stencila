@@ -113,16 +113,6 @@ impl Cli {
                         .clone();
                     (RemoteService::GitHubIssues, url)
                 }
-                "site" | "sites" => {
-                    // Find configured Stencila Site remote
-                    let url = remote_infos
-                        .iter()
-                        .find(|info| RemoteService::StencilaSites.matches_url(&info.url))
-                        .ok_or_else(|| eyre!("No Stencila Site configured for `{path_display}`"))?
-                        .url
-                        .clone();
-                    (RemoteService::StencilaSites, url)
-                }
                 _ => {
                     // Assume it's a URL
                     let url = Url::parse(target_str)
