@@ -474,11 +474,11 @@ impl Remove {
 #[derive(Debug, Args)]
 #[command(after_long_help = PUSH_AFTER_LONG_HELP)]
 pub struct Push {
-    /// Path to the workspace directory
+    /// Path to push (file or directory)
     ///
-    /// If not specified, uses the current directory
-    #[arg(long, short)]
-    path: Option<PathBuf>,
+    /// If not specified, uses site.root if configured, otherwise current directory
+    #[arg(default_value = ".")]
+    path: PathBuf,
 
     /// Force push without checking etags
     #[arg(long, short)]
@@ -493,31 +493,54 @@ pub struct Push {
 
 pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Push site content to cloud</dim>
+  <dim># Push site content to cloud (uses site.root if configured)</dim>
   <b>stencila site push</>
+
+  <dim># Push a specific directory</dim>
+  <b>stencila site push ./site/docs</>
+
+  <dim># Push a specific file</dim>
+  <b>stencila site push ./site/report.md</>
 
   <dim># Force push (ignore unchanged files)</dim>
   <b>stencila site push --force</>
 
   <dim># Dry run (process but don't upload)</dim>
   <b>stencila site push --dry-run</>
-
-  <dim># Dry run with output directory</dim>
-  <b>stencila site push --dry-run=./temp</>
 "
 );
 
 impl Push {
     pub async fn run(self) -> Result<()> {
         use stencila_codec_site::PushProgress;
+        use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
-        let path = self.path.map_or_else(current_dir, Ok)?;
+        // Resolve the provided path
+        let is_default_path = self.path == PathBuf::from(".");
+        let mut path = if is_default_path {
+            current_dir()?
+        } else {
+            self.path.clone()
+        };
+
+        // If using default path ("."), check if site.root is configured
+        if is_default_path {
+            let cfg = stencila_config::config(&path)?;
+            if let Some(site) = &cfg.site
+                && let Some(root) = &site.root
+            {
+                let stencila_dir = closest_stencila_dir(&path, true).await?;
+                let ws_dir = workspace_dir(&stencila_dir)?;
+                path = root.resolve(&ws_dir);
+            }
+        }
+
         let path_display = path.display();
 
         // Ensure workspace exists, creating it if needed
-        let (workspace_id, created) = ensure_workspace(&path).await?;
-        if created {
-            message!("✨ Created workspace site: https://{workspace_id}.stencila.site");
+        let (workspace_id, already_existed) = ensure_workspace(&path).await?;
+        if !already_existed {
+            message!("✨ Workspace registered: https://{workspace_id}.stencila.site");
         }
 
         // Set up dry-run path

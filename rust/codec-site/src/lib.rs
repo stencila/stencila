@@ -1301,13 +1301,13 @@ pub async fn push_with_route(
 // Directory push
 // ============================================================================
 
-/// Walk a directory and categorize files for site push
+/// Walk a path and categorize files for site push
 ///
-/// Walks the directory respecting `.gitignore` and config exclude patterns,
+/// Walks the path respecting `.gitignore` and config exclude patterns,
 /// categorizing files as documents or static assets.
 ///
 /// # Arguments
-/// * `path` - The directory path to walk (must be the site root)
+/// * `path` - The path to walk (file or directory within site.root)
 ///
 /// # Returns
 /// A tuple of (document_paths, static_file_paths)
@@ -1328,21 +1328,30 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
         workspace_dir.clone()
     };
 
-    // Validate that the requested path is the site root
+    // Validate that the requested path is within the site root
     let canonical_path = path.canonicalize()?;
     let canonical_root = site_root.canonicalize()?;
-    if canonical_path != canonical_root {
+    if !canonical_path.starts_with(&canonical_root) {
         bail!(
-            "Directory push requires the site root. Got: {}\nSite root is: {}\n\
-             Hint: Use `stencila push {}` or adjust site.root in config",
+            "Push path must be within site root. Got: {}\nSite root is: {}\n\
+             Hint: Use `stencila site push {}` or a path within it",
             path.display(),
             site_root.display(),
             site_root.display()
         );
     }
 
-    // Build walker using ignore crate
-    let mut builder = WalkBuilder::new(&site_root);
+    // If path is a file, categorize and return it directly
+    if path.is_file() {
+        let file_path = path.to_path_buf();
+        return match categorize_file(&file_path) {
+            FileCategory::Document => Ok((vec![file_path], vec![])),
+            FileCategory::Static | FileCategory::Media => Ok((vec![], vec![file_path])),
+        };
+    }
+
+    // Build walker using ignore crate for directory walk
+    let mut builder = WalkBuilder::new(path);
     builder
         .hidden(false) // Don't skip hidden files by default (allows .htaccess, etc.)
         .git_ignore(true) // Respect .gitignore
@@ -1350,7 +1359,7 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
         .git_exclude(true); // Respect .git/info/exclude
 
     // Build overrides to exclude sensitive directories and user-configured patterns
-    let mut overrides = ignore::overrides::OverrideBuilder::new(&site_root);
+    let mut overrides = ignore::overrides::OverrideBuilder::new(path);
 
     // Always exclude sensitive hidden directories that should never be uploaded:
     // - .git: Repository metadata, history, and potentially sensitive config
@@ -1402,13 +1411,13 @@ pub async fn walk_directory_for_push(path: &Path) -> Result<(Vec<PathBuf>, Vec<P
     Ok((documents, static_files))
 }
 
-/// Push a directory to a Stencila Site
+/// Push a path to a Stencila Site
 ///
-/// Walks the directory, encodes documents provided via the `decode_fn` callback
+/// Walks the path (file or directory), encodes documents provided via the `decode_fn` callback
 /// to HTML with shared media deduplication, and uploads all files to the site.
 ///
 /// # Arguments
-/// * `path` - The directory path to push (must be the site root)
+/// * `path` - The path to push (file or directory within site.root)
 /// * `workspace_id` - The site ID to push to
 /// * `branch` - Optional branch name (defaults to current git branch or "main")
 /// * `force` - Force upload all files even if unchanged (skip ETag comparison)
