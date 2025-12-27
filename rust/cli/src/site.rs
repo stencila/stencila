@@ -212,6 +212,10 @@ pub struct List {
     #[arg(long, alias = "expand")]
     expanded: bool,
 
+    /// Show routes for static files (e.g. images, CSS)
+    #[arg(long)]
+    statics: bool,
+
     /// Filter by route prefix
     ///
     /// Only show routes that start with this prefix (e.g., "/docs/")
@@ -234,6 +238,9 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
   <dim># Show expanded spread route variants</dim>
   <b>stencila site list --expanded</>
 
+  <dim># Show routes for static files (e.g. images)</dim>
+  <b>stencila site list --statics</>
+
   <dim># Filter routes by route prefix</dim>
   <b>stencila site list --route /docs</>
 
@@ -244,11 +251,12 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
 impl List {
     pub async fn run(self) -> Result<()> {
-        use stencila_codec_site::{RouteType, list_routes};
+        use stencila_codec_site::{RouteType, list};
 
-        let routes = list_routes(
+        let routes = list(
             &current_dir()?,
             self.expanded,
+            self.statics,
             self.route_filter.as_deref(),
             self.path_filter.as_deref(),
         )
@@ -276,6 +284,7 @@ impl List {
                     }
                 }
                 RouteType::Implied => "implied".to_string(),
+                RouteType::Static => "static".to_string(),
             };
 
             let type_cell = match entry.route_type {
@@ -283,6 +292,7 @@ impl List {
                 RouteType::Redirect => Cell::new(&type_str).fg(Color::Yellow),
                 RouteType::Spread => Cell::new(&type_str).fg(Color::Magenta),
                 RouteType::Implied => Cell::new(&type_str).fg(Color::Grey),
+                RouteType::Static => Cell::new(&type_str).fg(Color::Blue),
             };
 
             // Format target with spread arguments if present
@@ -639,10 +649,12 @@ impl Push {
         message!("☁️ Pushing directory `{path_display}` to workspace site");
 
         // Call push_directory with a decoder function
-        let result = stencila_codec_site::push_directory(
+        let result = stencila_codec_site::push(
             &path,
             &workspace_id,
             None, // Use current branch
+            None,
+            None,
             self.force,
             is_dry_run,
             dry_run_path.map(|p| p.as_path()),
