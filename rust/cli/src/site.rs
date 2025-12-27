@@ -85,7 +85,7 @@ impl Site {
 
         match command {
             SiteCommand::Show(show) => show.run().await,
-            SiteCommand::List(list) => list.run(),
+            SiteCommand::List(list) => list.run().await,
             SiteCommand::Add(add) => add.run(),
             SiteCommand::Remove(remove) => remove.run(),
             SiteCommand::Push(push) => push.run().await,
@@ -199,64 +199,79 @@ fn format_access_label(
     }
 }
 
-/// List configured routes
+/// List all routes (configured and file-implied)
 #[derive(Debug, Default, Args)]
-#[command(after_long_help = LIST_AFTER_LONG_HELP)]
+#[command(alias = "ls", after_long_help = LIST_AFTER_LONG_HELP)]
 pub struct List {
     /// Path to the workspace directory
     ///
     /// If not specified, uses the current directory
     #[arg(long, short)]
     path: Option<std::path::PathBuf>,
+
+    /// Show expanded spread route variants
+    ///
+    /// When set, spread routes are expanded into their individual variants
+    /// instead of showing the template with a variant count.
+    #[arg(long)]
+    expanded: bool,
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># List configured routes</dim>
+  <dim># List all routes (configured and file-implied)</dim>
   <b>stencila site</>
   <b>stencila site list</>
+
+  <dim># Show expanded spread route variants</dim>
+  <b>stencila site list --expanded</>
 "
 );
 
 impl List {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
+        use stencila_codec_site::{RouteType, list_all_routes};
+
         let path = self.path.map_or_else(current_dir, Ok)?;
-        let cfg = config(&path)?;
 
-        let routes = cfg.site.as_ref().and_then(|s| s.routes.as_ref());
+        let routes = list_all_routes(&path, self.expanded).await?;
 
-        match routes {
-            Some(routes) if !routes.is_empty() => {
-                let mut table = Tabulated::new();
-                table.set_header(["Route", "Target"]);
-
-                for (route, target) in routes {
-                    let target_str = if let Some(file) = target.file() {
-                        file.as_str().to_string()
-                    } else if let Some(redirect) = target.redirect() {
-                        let status = redirect
-                            .status
-                            .map(|s| format!(" ({})", s as u16))
-                            .unwrap_or_default();
-                        format!("→ {}{}", redirect.redirect, status)
-                    } else if let Some(spread) = target.spread() {
-                        format!("{} (spread)", spread.file)
-                    } else {
-                        "?".to_string()
-                    };
-
-                    table.add_row([Cell::new(route).fg(Color::Cyan), Cell::new(&target_str)]);
-                }
-
-                table.to_stdout();
-            }
-            _ => {
-                message(cstr!(
-                    "💡 No routes configured. To add a route, run <b>stencila site add ROUTE FILE</>"
-                ));
-            }
+        if routes.is_empty() {
+            message(cstr!(
+                "💡 No routes found. To add a route, run <b>stencila site add ROUTE FILE</>"
+            ));
+            return Ok(());
         }
 
+        let mut table = Tabulated::new();
+        table.set_header(["Route", "Type", "Target"]);
+
+        for entry in routes {
+            let type_str = match entry.route_type {
+                RouteType::File => "file".to_string(),
+                RouteType::Redirect => "redirect".to_string(),
+                RouteType::Spread => {
+                    let count = entry.spread_count.unwrap_or(0);
+                    format!("spread ({count})")
+                }
+                RouteType::Implied => "implied".to_string(),
+            };
+
+            let type_cell = match entry.route_type {
+                RouteType::File => Cell::new(&type_str).fg(Color::Green),
+                RouteType::Redirect => Cell::new(&type_str).fg(Color::Yellow),
+                RouteType::Spread => Cell::new(&type_str).fg(Color::Magenta),
+                RouteType::Implied => Cell::new(&type_str).fg(Color::Grey),
+            };
+
+            table.add_row([
+                Cell::new(&entry.route).fg(Color::Cyan),
+                type_cell,
+                Cell::new(&entry.target),
+            ]);
+        }
+
+        table.to_stdout();
         Ok(())
     }
 }
@@ -316,18 +331,20 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
 
 impl Add {
     pub fn run(self) -> Result<()> {
-        // Validate route starts with /
-        if !self.route.starts_with('/') {
-            bail!("Route must start with '/'");
-        }
+        // Auto-add leading / if missing
+        let route = if self.route.starts_with('/') {
+            self.route
+        } else {
+            format!("/{}", self.route)
+        };
 
         // Must have either file or redirect
         if self.file.is_none() && self.redirect.is_none() {
-            bail!("Must specify either a file or --redirect");
+            bail!("Must specify either a file or use --redirect");
         }
 
         if self.file.is_some() && self.redirect.is_some() {
-            bail!("Cannot specify both a file and --redirect");
+            bail!("Cannot specify both a file and use --redirect");
         }
 
         if self.status.is_some() && self.redirect.is_none() {
@@ -340,7 +357,7 @@ impl Add {
         }
 
         // Check if this is a spread route (has placeholders like {region})
-        let has_placeholders = self.route.contains('{') && self.route.contains('}');
+        let has_placeholders = route.contains('{') && route.contains('}');
 
         if let Some(file) = &self.file {
             let file_path = std::path::Path::new(file);
@@ -361,27 +378,26 @@ impl Add {
                     bail!(
                         "Route '{}' has no placeholders but --arguments was provided. \
                          Use placeholders like /{{region}}/ for spread routes.",
-                        self.route
+                        route
                     );
                 }
 
                 // Validate that each placeholder has a corresponding argument
-                validate_placeholders(&self.route, Some(&arguments), "Route")?;
+                validate_placeholders(&route, Some(&arguments), "Route")?;
 
-                // Create spread config with the file path (will be normalized to
-                // workspace-relative by config_set_route_spread)
+                // Create spread config (config_set_route_spread handles path resolution)
                 let spread = RouteSpread {
                     file: file.clone(),
                     spread: self.spread,
                     arguments,
                 };
 
-                config_set_route_spread(&self.route, &spread)?;
+                config_set_route_spread(&route, &spread)?;
 
                 let mode = self.spread.unwrap_or_default();
                 message!(
                     "✅ Added spread route {} → {} (mode: {:?})",
-                    self.route,
+                    route,
                     file,
                     mode
                 );
@@ -391,26 +407,22 @@ impl Add {
                     bail!(
                         "Route '{}' contains placeholders but no --arguments provided. \
                          Either remove placeholders or add --arguments.",
-                        self.route
+                        route
                     );
                 }
 
+                // config_add_route handles path resolution (relative to site.root if configured)
                 let file_path = file_path
                     .canonicalize()
                     .unwrap_or_else(|_| file_path.to_path_buf());
-                config_add_route(&file_path, &self.route)?;
-                message!("✅ Added route {} → {}", self.route, file);
+                config_add_route(&file_path, &route)?;
+                message!("✅ Added route {} → {}", route, file);
             }
         } else if let Some(redirect) = &self.redirect {
             // Add redirect route
-            config_add_redirect_route(&self.route, redirect, self.status)?;
+            config_add_redirect_route(&route, redirect, self.status)?;
             let status_str = self.status.map(|s| format!(" ({})", s)).unwrap_or_default();
-            message!(
-                "✅ Added redirect {} → {}{}",
-                self.route,
-                redirect,
-                status_str
-            );
+            message!("✅ Added redirect {} → {}{}", route, redirect, status_str);
         }
 
         Ok(())
@@ -448,7 +460,7 @@ impl Add {
 
 /// Remove a route
 #[derive(Debug, Args)]
-#[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
+#[command(alias = "rm", after_long_help = REMOVE_AFTER_LONG_HELP)]
 pub struct Remove {
     /// Route path to remove (e.g., "/about/")
     route: String,
