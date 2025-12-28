@@ -8671,8 +8671,10 @@ dependencies = [
  "serde_json",
  "stencila-codec",
  "stencila-codec-dom-trait",
+ "stencila-codec-png",
  "stencila-codec-text-trait",
  "stencila-convert",
+ "stencila-images",
  "stencila-themes",
  "tokio",
  "tracing",
@@ -9148,6 +9150,7 @@ dependencies = [
  "stencila-codec-dom-trait",
  "stencila-codec-latex-trait",
  "stencila-convert",
+ "stencila-images",
 ]
 
 [[package]]
@@ -10231,6 +10234,7 @@ dependencies = [
  "regex",
  "seahash",
  "stencila-format",
+ "stencila-images",
  "stencila-schema",
  "stencila-tools",
  "tempfile",

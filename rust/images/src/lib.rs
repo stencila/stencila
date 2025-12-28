@@ -247,6 +247,42 @@ pub fn resize_data_uri(data_uri: &str, options: &ImageResizeOptions) -> Result<S
     Ok(format!("data:{output_mime};base64,{encoded}"))
 }
 
+/// Load an image from a file path, resize it, and encode as a data URI
+///
+/// Combines file loading with resizing options for use cases like email encoding
+/// where images need to be both embedded and optimized.
+///
+/// # Arguments
+/// * `path` - Path to the image file
+/// * `options` - Image processing options including max_width
+///
+/// # Returns
+/// * `Result<String>` - The resized image as a data URI
+pub fn resize_file_to_data_uri(path: &Path, options: &ImageResizeOptions) -> Result<String> {
+    let mime_type = from_path(path).first_or_octet_stream();
+
+    if mime_type.type_() != mime::IMAGE {
+        bail!("Path is not an image: {}", path.display())
+    }
+
+    // SVG images don't need raster resizing
+    if mime_type.subtype() == mime::SVG {
+        let svg_content = read_to_string(path)?;
+        let encoded = STANDARD.encode(&svg_content);
+        return Ok(format!("data:{mime_type};base64,{encoded}"));
+    }
+
+    // Load and resize the image
+    let img = ImageReader::open(path)?.decode()?;
+    let resized = resize_image(img, options);
+
+    // Encode using options (handles grayscale detection, compression, etc.)
+    let (bytes, output_mime) = options.encode_image(&resized)?;
+    let encoded = STANDARD.encode(&bytes);
+
+    Ok(format!("data:{output_mime};base64,{encoded}"))
+}
+
 /// Covert an image URL to a HTTP or data URI
 ///
 /// URL beginning with `http://`, `https://`, or `data:` will be returned unchanged.

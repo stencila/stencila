@@ -6,11 +6,14 @@ use stencila_codec::{
         ListOrder, MathBlock, Node, Primitive, QuoteBlock, Table, TableCell, TableRow,
     },
 };
-use stencila_codec_dom_trait::to_dom;
+use stencila_codec_png::to_png_data_uri_with;
 use stencila_codec_text_trait::TextCodec;
-use stencila_convert::html_to_png_data_uri;
+use stencila_images::ImageResizeOptions;
 
-use crate::{encode_inlines, html_escape};
+use crate::{
+    encode_inlines,
+    utils::{html_escape, process_image_url},
+};
 
 /// Encode a list of blocks to MJML
 pub(super) fn encode_blocks(blocks: &[Block], mjml: &mut String, losses: &mut Losses) {
@@ -287,7 +290,8 @@ fn encode_datatable(datatable: &Datatable, mjml: &mut String, _losses: &mut Loss
 /// Encode an image output from a code chunk
 ///
 /// For visualizations (Plotly, Vega, Mermaid, etc.), this function renders the
-/// visualization to a PNG using headless Chrome and embeds it as a data URI.
+/// visualization to a PNG using headless Chrome, resizes it for email, and embeds
+/// it as a data URI.
 fn encode_output_image(image: &ImageObject, mjml: &mut String, losses: &mut Losses) {
     // Check if this is a visualization that needs to be rendered to PNG
     let needs_screenshot = image
@@ -296,10 +300,11 @@ fn encode_output_image(image: &ImageObject, mjml: &mut String, losses: &mut Loss
         .and_then(|mt| Format::from_media_type(mt).ok())
         .is_some_and(|format| format.is_viz());
 
+    let options = ImageResizeOptions::for_email();
+
     if needs_screenshot {
-        // Render the visualization to HTML and then to PNG
-        let dom_html = to_dom(&Node::ImageObject(image.clone()));
-        match html_to_png_data_uri(&dom_html) {
+        // Render the visualization to HTML, then to PNG, and resize for email
+        match to_png_data_uri_with(&Node::ImageObject(image.clone()), &options) {
             Ok(data_uri) => {
                 mjml.push_str(&format!(
                     "        <mj-image src=\"{}\" alt=\"{}\"/>\n",
@@ -332,10 +337,12 @@ fn encode_output_image(image: &ImageObject, mjml: &mut String, losses: &mut Loss
             }
         }
     } else {
-        // Regular image - just use the URL directly
+        // Regular image - resize data URIs, pass through HTTP URLs
+        let src = process_image_url(&image.content_url);
+
         mjml.push_str(&format!(
             "        <mj-image src=\"{}\" alt=\"{}\"/>\n",
-            html_escape(&image.content_url),
+            html_escape(&src),
             image
                 .caption
                 .as_ref()
@@ -368,10 +375,12 @@ fn encode_quote_block(quote: &QuoteBlock, mjml: &mut String, losses: &mut Losses
 /// Encode a math block
 ///
 /// Renders the math to a PNG image since email clients don't support MathML.
+/// The image is resized for email (max 600px width).
 fn encode_math_block(math: &MathBlock, mjml: &mut String, losses: &mut Losses) {
-    // Render math to DOM HTML, then to PNG data URI
-    let dom_html = to_dom(&Node::MathBlock(math.clone()));
-    match html_to_png_data_uri(&dom_html) {
+    let options = ImageResizeOptions::for_email();
+
+    // Render math to PNG data URI with email-optimized sizing
+    match to_png_data_uri_with(&Node::MathBlock(math.clone()), &options) {
         Ok(data_uri) => {
             mjml.push_str("        <mj-text>\n");
 

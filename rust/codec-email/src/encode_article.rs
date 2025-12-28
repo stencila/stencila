@@ -10,7 +10,7 @@ use stencila_codec_text_trait::TextCodec;
 use crate::{
     encode_blocks, encode_inlines,
     encode_theme::{encode_theme_attributes, encode_theme_styles},
-    html_escape,
+    utils::html_escape,
 };
 
 /// Encode an Article to MJML

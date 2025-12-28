@@ -4,7 +4,7 @@ use serde_json::Value;
 use stencila_codec::{EncodeOptions, eyre::Result};
 use stencila_themes::LengthConversion;
 
-use crate::html_escape;
+use crate::utils::html_escape;
 
 /// Get theme variables for MJML encoding
 pub async fn get_theme_vars(options: &EncodeOptions) -> Result<Option<BTreeMap<String, Value>>> {

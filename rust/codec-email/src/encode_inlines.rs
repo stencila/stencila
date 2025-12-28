@@ -4,11 +4,11 @@ use stencila_codec::{
         Citation, CitationGroup, CodeExpression, ImageObject, Inline, Link, MathInline, Node,
     },
 };
-use stencila_codec_dom_trait::to_dom;
+use stencila_codec_png::to_png_data_uri_with;
 use stencila_codec_text_trait::TextCodec;
-use stencila_convert::html_to_png_data_uri;
+use stencila_images::ImageResizeOptions;
 
-use crate::html_escape;
+use crate::utils::{html_escape, process_image_url};
 
 /// Encode a list of inlines to HTML (inside mj-text)
 pub(super) fn encode_inlines(inlines: &[Inline], mjml: &mut String, losses: &mut Losses) {
@@ -85,8 +85,10 @@ fn encode_link(link: &Link, mjml: &mut String, losses: &mut Losses) {
 }
 
 /// Encode an inline image
+///
+/// Resizes data URI images for email (600px max width).
 fn encode_inline_image(image: &ImageObject, mjml: &mut String) {
-    let src = &image.content_url;
+    let src = process_image_url(&image.content_url);
     let alt = image
         .caption
         .as_ref()
@@ -94,7 +96,7 @@ fn encode_inline_image(image: &ImageObject, mjml: &mut String) {
         .unwrap_or_default();
     mjml.push_str(&format!(
         "<img src=\"{}\" alt=\"{}\" style=\"max-width: 100%; height: auto;\"/>",
-        html_escape(src),
+        html_escape(&src),
         html_escape(&alt)
     ));
 }
@@ -111,10 +113,12 @@ fn encode_code_expression(expr: &CodeExpression, mjml: &mut String) {
 /// Encode inline math
 ///
 /// Renders the math to a PNG image since email clients don't support MathML.
+/// The image is resized for email (max 600px width).
 fn encode_math_inline(math: &MathInline, mjml: &mut String, losses: &mut Losses) {
-    // Render math to DOM HTML, then to PNG data URI
-    let dom_html = to_dom(&Node::MathInline(math.clone()));
-    match html_to_png_data_uri(&dom_html) {
+    let options = ImageResizeOptions::for_email();
+
+    // Render math to PNG data URI with email-optimized sizing
+    match to_png_data_uri_with(&Node::MathInline(math.clone()), &options) {
         Ok(data_uri) => {
             mjml.push_str(&format!(
                 "<img src=\"{}\" alt=\"{}\" style=\"vertical-align: middle; height: 1em;\"/>",

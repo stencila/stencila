@@ -13,6 +13,7 @@ mod encode_article;
 mod encode_blocks;
 mod encode_inlines;
 mod encode_theme;
+mod utils;
 
 use encode_article::encode_article;
 use encode_blocks::encode_blocks;
@@ -89,15 +90,6 @@ impl Codec for EmailCodec {
     }
 }
 
-/// HTML escape special characters
-fn html_escape(s: &str) -> String {
-    s.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#39;")
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -172,12 +164,5 @@ mod tests {
         assert!(html.contains("Content"));
 
         Ok(())
-    }
-
-    #[test]
-    fn test_html_escape() {
-        assert_eq!(html_escape("<script>"), "&lt;script&gt;");
-        assert_eq!(html_escape("a & b"), "a &amp; b");
-        assert_eq!(html_escape("\"quoted\""), "&quot;quoted&quot;");
     }
 }
