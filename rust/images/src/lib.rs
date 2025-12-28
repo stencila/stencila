@@ -8,11 +8,244 @@ use std::{
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use eyre::{OptionExt, Result, bail};
-use image::{ImageFormat, ImageReader, open};
+use image::{
+    DynamicImage, ExtendedColorType, GenericImageView, ImageEncoder, ImageFormat, ImageReader,
+    codecs::png::{CompressionType, FilterType, PngEncoder},
+    imageops, open,
+};
 use itertools::Itertools;
 use mime_guess::from_path;
 use regex::{Captures, Regex};
 use seahash::SeaHasher;
+
+/// Options for image processing (resizing, compression, etc.)
+#[derive(Clone, Debug)]
+pub struct ImageResizeOptions {
+    /// Maximum width in pixels (images wider than this will be scaled down).
+    /// None means no limit.
+    pub max_width: Option<u32>,
+
+    /// Scale up images smaller than max_width to reach max_width.
+    pub upscale: bool,
+
+    /// Use best compression for smallest file size (slower encoding).
+    /// When false, uses default/fast compression.
+    pub best_compression: bool,
+
+    /// Use JPEG for opaque images (no alpha channel) for smaller file size.
+    /// Images with transparency will still use PNG.
+    pub jpeg_for_opaque: bool,
+
+    /// JPEG quality (1-100, default 85).
+    /// Only used when jpeg_for_opaque is true.
+    pub jpeg_quality: u8,
+}
+
+impl Default for ImageResizeOptions {
+    fn default() -> Self {
+        Self {
+            max_width: None,
+            upscale: false,
+            best_compression: false,
+            jpeg_for_opaque: false,
+            jpeg_quality: 85,
+        }
+    }
+}
+
+impl ImageResizeOptions {
+    /// Options optimized for email (600px max width, best PNG compression)
+    pub fn for_email() -> Self {
+        Self {
+            max_width: Some(600),
+            upscale: false,
+            best_compression: true,
+            jpeg_for_opaque: false,
+            jpeg_quality: 85,
+        }
+    }
+
+    /// Options for web viewing (1200px max width, PNG, fast compression)
+    pub fn for_web() -> Self {
+        Self {
+            max_width: Some(1200),
+            upscale: false,
+            best_compression: false,
+            jpeg_for_opaque: false,
+            jpeg_quality: 85,
+        }
+    }
+
+    /// Encode a DynamicImage to bytes using these options
+    ///
+    /// Returns (bytes, mime_type). Uses JPEG for opaque images (no alpha)
+    /// if `jpeg_for_opaque` is true, otherwise PNG.
+    pub fn encode_image(&self, img: &DynamicImage) -> Result<(Vec<u8>, &'static str)> {
+        let has_alpha = img.color().has_alpha();
+
+        if self.jpeg_for_opaque && !has_alpha {
+            // Use JPEG for non-transparent images
+            let rgb = img.to_rgb8();
+            let mut bytes: Vec<u8> = Vec::new();
+            let mut encoder =
+                image::codecs::jpeg::JpegEncoder::new_with_quality(&mut bytes, self.jpeg_quality);
+            encoder.encode_image(&rgb)?;
+            Ok((bytes, "image/jpeg"))
+        } else {
+            // Use PNG (required for transparency)
+            let bytes = self.encode_png(img)?;
+            Ok((bytes, "image/png"))
+        }
+    }
+
+    /// Encode a DynamicImage to PNG bytes using these options
+    ///
+    /// Detects grayscale images (including RGB images where R=G=B) and
+    /// encodes them efficiently as Luma8 for smaller file size.
+    fn encode_png(&self, img: &DynamicImage) -> Result<Vec<u8>> {
+        let mut bytes: Vec<u8> = Vec::new();
+        let (width, height) = img.dimensions();
+        let has_alpha = img.color().has_alpha();
+
+        // Check if image is grayscale (native or effective RGB where R=G=B)
+        let is_grayscale = matches!(
+            img,
+            DynamicImage::ImageLuma8(_) | DynamicImage::ImageLuma16(_)
+        ) || (!has_alpha && is_effectively_grayscale(img));
+
+        /// Check if an RGB image is effectively grayscale (R=G=B for all pixels)
+        fn is_effectively_grayscale(img: &DynamicImage) -> bool {
+            let rgb = img.to_rgb8();
+            rgb.pixels().all(|p| p.0[0] == p.0[1] && p.0[1] == p.0[2])
+        }
+
+        let (image_bytes, color_type): (Vec<u8>, ExtendedColorType) = if is_grayscale && has_alpha {
+            (img.to_luma_alpha8().into_raw(), ExtendedColorType::La8)
+        } else if is_grayscale {
+            (img.to_luma8().into_raw(), ExtendedColorType::L8)
+        } else if has_alpha {
+            (img.to_rgba8().into_raw(), ExtendedColorType::Rgba8)
+        } else {
+            (img.to_rgb8().into_raw(), ExtendedColorType::Rgb8)
+        };
+
+        if self.best_compression {
+            let encoder = PngEncoder::new_with_quality(
+                &mut bytes,
+                CompressionType::Best,
+                FilterType::Adaptive,
+            );
+            encoder.write_image(&image_bytes, width, height, color_type)?;
+        } else {
+            let encoder = PngEncoder::new(&mut bytes);
+            encoder.write_image(&image_bytes, width, height, color_type)?;
+        }
+
+        Ok(bytes)
+    }
+}
+
+/// Resize a DynamicImage according to the specified options
+///
+/// Returns the original image unchanged if no resizing is needed.
+/// Uses Lanczos3 filter for high-quality downscaling.
+/// Preserves the original color type (RGB vs RGBA) to avoid bloating file size.
+pub fn resize_image(img: DynamicImage, options: &ImageResizeOptions) -> DynamicImage {
+    let Some(max_width) = options.max_width else {
+        return img;
+    };
+
+    let (width, height) = img.dimensions();
+    let needs_resize = width > max_width;
+    let needs_upscale = options.upscale && width < max_width;
+
+    if !needs_resize && !needs_upscale {
+        return img;
+    }
+
+    // Check if the original image has an alpha channel
+    let has_alpha = matches!(
+        img,
+        DynamicImage::ImageRgba8(_)
+            | DynamicImage::ImageRgba16(_)
+            | DynamicImage::ImageRgba32F(_)
+            | DynamicImage::ImageLumaA8(_)
+            | DynamicImage::ImageLumaA16(_)
+    );
+
+    let aspect_ratio = height as f64 / width as f64;
+    let new_height = (max_width as f64 * aspect_ratio).round() as u32;
+
+    // resize() returns RGBA8, convert back to RGB8 if original had no alpha
+    let resized = imageops::resize(&img, max_width, new_height, imageops::FilterType::Lanczos3);
+
+    if has_alpha {
+        DynamicImage::ImageRgba8(resized)
+    } else {
+        DynamicImage::ImageRgb8(DynamicImage::ImageRgba8(resized).to_rgb8())
+    }
+}
+
+/// Resize a data URI image if it exceeds max_width
+///
+/// This function decodes a base64 data URI, checks the image dimensions,
+/// resizes if necessary, and re-encodes as a data URI.
+///
+/// # Arguments
+/// * `data_uri` - A base64 encoded data URI (e.g., "data:image/png;base64,...")
+/// * `options` - Image processing options including max_width
+///
+/// # Returns
+/// * `Result<String>` - The (potentially resized) image as a data URI
+pub fn resize_data_uri(data_uri: &str, options: &ImageResizeOptions) -> Result<String> {
+    // If no max_width specified, return unchanged
+    if options.max_width.is_none() {
+        return Ok(data_uri.to_string());
+    }
+
+    // Parse the data URI header
+    let Some((header, data)) = data_uri.split_once(',') else {
+        bail!("Invalid data URI format: missing comma separator");
+    };
+
+    // Extract MIME type
+    let mime_type = header
+        .split(';')
+        .next()
+        .and_then(|s| s.strip_prefix("data:"))
+        .ok_or_eyre("Invalid data URI header")?;
+
+    // SVG images don't need raster resizing
+    if mime_type == "image/svg+xml" {
+        return Ok(data_uri.to_string());
+    }
+
+    // Decode base64 to bytes
+    let image_bytes = STANDARD.decode(data)?;
+
+    // Load image from bytes
+    let img = ImageReader::new(Cursor::new(&image_bytes))
+        .with_guessed_format()?
+        .decode()?;
+
+    let original_dimensions = img.dimensions();
+
+    // Use shared resize function
+    let resized = resize_image(img, options);
+
+    // If dimensions unchanged, return original data URI (avoids re-encoding)
+    if resized.dimensions() == original_dimensions {
+        return Ok(data_uri.to_string());
+    }
+
+    // Encode to bytes - use encode_image which respects prefer_jpeg option
+    let (output_bytes, output_mime) = options.encode_image(&resized)?;
+
+    // Re-encode to base64
+    let encoded = STANDARD.encode(&output_bytes);
+
+    Ok(format!("data:{output_mime};base64,{encoded}"))
+}
 
 /// Covert an image URL to a HTTP or data URI
 ///

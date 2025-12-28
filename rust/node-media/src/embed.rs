@@ -6,10 +6,11 @@ use std::{
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use eyre::{Context, Result, bail, eyre};
-use image::{GenericImageView, ImageFormat, ImageReader, imageops};
-use stencila_format::Format;
+use image::{GenericImageView, ImageFormat, ImageReader};
 use tempfile::NamedTempFile;
 
+use stencila_format::Format;
+use stencila_images::ImageResizeOptions;
 use stencila_schema::{
     AudioObject, Block, CreativeWorkVariant, ImageObject, Inline, Node, VideoObject, VisitorMut,
     WalkControl, WalkNode,
@@ -30,17 +31,43 @@ use stencila_tools::{Convert, Ffmpeg, Tool};
 ///
 /// Extensions tried:
 /// - Images: .png, .jpg, .jpeg, .gif, .tif, .tiff
-/// - Videos: .mp4, .avi, .mov, .mkv, .webm, .wmv  
+/// - Videos: .mp4, .avi, .mov, .mkv, .webm, .wmv
 /// - Audio: .mp3, .wav, .flac, .ogg, .aac, .m4a
 ///
 /// This function does not return errors for individual media processing failures.
 /// Instead, failures are logged as warnings or errors, allowing the embedding
 /// process to continue for other media objects in the document.
+///
+/// Uses default web viewing options (1200px max width).
 pub fn embed_media<T>(node: &mut T, path: Option<&Path>) -> Result<()>
 where
     T: WalkNode,
 {
-    let mut embedder = Embedder::new(path, None)?;
+    embed_media_with(node, path, ImageResizeOptions::for_web())
+}
+
+/// Embed media files with custom image options
+///
+/// Like [`embed_media`] but allows specifying custom [`ImageResizeOptions`] for
+/// image resizing and optimization.
+///
+/// # Example
+/// ```ignore
+/// use stencila_images::ImageResizeOptions;
+/// use stencila_node_media::embed_media_with;
+///
+/// // Use email-optimized settings (600px max width)
+/// embed_media_with(&mut node, Some(path), ImageResizeOptions::for_email())?;
+/// ```
+pub fn embed_media_with<T>(
+    node: &mut T,
+    path: Option<&Path>,
+    image_options: ImageResizeOptions,
+) -> Result<()>
+where
+    T: WalkNode,
+{
+    let mut embedder = Embedder::new(path, None, image_options)?;
     embedder.walk(node);
 
     Ok(())
@@ -50,12 +77,27 @@ where
 ///
 /// Use this when you want to embed an individual image, rather than all media
 /// nested within some other node.
+///
+/// Uses default web viewing options (1200px max width).
 pub fn embed_image(
     image: &mut ImageObject,
     path: Option<&Path>,
     format: Option<Format>,
 ) -> Result<()> {
-    let embedder = Embedder::new(path, format)?;
+    embed_image_with(image, path, format, ImageResizeOptions::for_web())
+}
+
+/// Embed an individual image object with custom options
+///
+/// Like [`embed_image`] but allows specifying custom [`ImageResizeOptions`] for
+/// image resizing and optimization.
+pub fn embed_image_with(
+    image: &mut ImageObject,
+    path: Option<&Path>,
+    format: Option<Format>,
+    image_options: ImageResizeOptions,
+) -> Result<()> {
+    let embedder = Embedder::new(path, format, image_options)?;
     embedder.embed_image(image);
 
     Ok(())
@@ -66,7 +108,7 @@ pub fn embed_image(
 /// Use this when you want to embed an individual audio, rather than all media
 /// nested within some other node.
 pub fn embed_audio(audio: &mut AudioObject, path: Option<&Path>) -> Result<()> {
-    let embedder = Embedder::new(path, None)?;
+    let embedder = Embedder::new(path, None, ImageResizeOptions::default())?;
     embedder.embed_audio(audio);
 
     Ok(())
@@ -77,7 +119,7 @@ pub fn embed_audio(audio: &mut AudioObject, path: Option<&Path>) -> Result<()> {
 /// Use this when you want to embed an individual video, rather than all media
 /// nested within some other node.
 pub fn embed_video(video: &mut VideoObject, path: Option<&Path>) -> Result<()> {
-    let embedder = Embedder::new(path, None)?;
+    let embedder = Embedder::new(path, None, ImageResizeOptions::default())?;
     embedder.embed_video(video);
 
     Ok(())
@@ -91,10 +133,17 @@ struct Embedder {
     ///
     /// If the image is not already in this format it will be converted to it.
     image_format: Option<Format>,
+
+    /// Options for image processing (resizing, etc.)
+    image_options: ImageResizeOptions,
 }
 
 impl Embedder {
-    fn new(path: Option<&Path>, image_format: Option<Format>) -> Result<Self> {
+    fn new(
+        path: Option<&Path>,
+        image_format: Option<Format>,
+        image_options: ImageResizeOptions,
+    ) -> Result<Self> {
         let dir = if let Some(path) = path {
             let path = path
                 .canonicalize()
@@ -117,7 +166,11 @@ impl Embedder {
             current_dir()?
         };
 
-        Ok(Self { dir, image_format })
+        Ok(Self {
+            dir,
+            image_format,
+            image_options,
+        })
     }
 
     /// Resolve a media file path, handling both absolute and relative paths
@@ -166,8 +219,6 @@ impl Embedder {
             self.process_pdf_image(path, image);
             return;
         }
-
-        const MAX_WIDTH: u32 = 1200; // Default max width for web viewing
 
         // Determine input format
         let input_format = match ImageFormat::from_path(path) {
@@ -220,51 +271,54 @@ impl Embedder {
             }
         };
 
-        // Check if we need to resize or convert format
-        let needs_resize = original_width > MAX_WIDTH;
-        let needs_conversion = output_format != input_format;
+        // Use shared resize function from images crate
+        let resized = stencila_images::resize_image(img, &self.image_options);
+        let new_dimensions = resized.dimensions();
 
-        let data_uri = if !needs_resize && !needs_conversion {
-            // Small image in correct format: convert directly without processing
+        // Check if we need to convert format or if dimensions changed
+        let needs_conversion = output_format != input_format;
+        let was_resized = new_dimensions != (original_width, original_height);
+
+        let data_uri = if !was_resized && !needs_conversion {
+            // No changes needed: encode directly without processing
             let mut bytes: Vec<u8> = Vec::new();
-            if let Err(error) = img.write_to(&mut Cursor::new(&mut bytes), input_format) {
+            if let Err(error) = resized.write_to(&mut Cursor::new(&mut bytes), input_format) {
                 tracing::error!("Failed to encode image: {error}");
                 return;
             }
             let encoded = STANDARD.encode(&bytes);
             let mime_type = input_format.to_mime_type();
             format!("data:{mime_type};base64,{encoded}")
-        } else {
-            // Need to process the image (resize and/or convert format)
-
-            // Calculate new dimensions for resizing if needed
-            let (new_width, new_height) = if needs_resize {
-                // Calculate proportional height to maintain aspect ratio
-                let aspect_ratio = original_height as f64 / original_width as f64;
-                let new_height = (MAX_WIDTH as f64 * aspect_ratio).round() as u32;
-                (MAX_WIDTH, new_height)
-            } else {
-                (original_width, original_height)
-            };
-
-            // Resize the image if dimensions changed
-            let processed_img = if (new_width, new_height) != (original_width, original_height) {
-                imageops::resize(&img, new_width, new_height, imageops::FilterType::Lanczos3)
-            } else {
-                img.to_rgba8()
-            };
-
-            // Convert to DynamicImage
-            let dynamic_img = image::DynamicImage::ImageRgba8(processed_img);
-
-            let mime_type = output_format.to_mime_type();
-
-            // Convert to data URI
+        } else if needs_conversion {
+            // Explicit format conversion requested - honor the output_format
             let mut bytes: Vec<u8> = Vec::new();
-            if let Err(error) = dynamic_img.write_to(&mut Cursor::new(&mut bytes), output_format) {
-                tracing::error!("Failed to encode processed image: {error}");
+            if let Err(error) = resized.write_to(&mut Cursor::new(&mut bytes), output_format) {
+                tracing::error!("Failed to encode converted image: {error}");
                 return;
             }
+            let encoded = STANDARD.encode(&bytes);
+            let mime_type = output_format.to_mime_type();
+            format!("data:{mime_type};base64,{encoded}")
+        } else {
+            // Only resized, no format conversion - preserve original format
+            // Use encode_image for PNG (applies grayscale optimization), otherwise use standard encoding
+            let (bytes, mime_type) = if input_format == ImageFormat::Png {
+                match self.image_options.encode_image(&resized) {
+                    Ok(result) => result,
+                    Err(error) => {
+                        tracing::error!("Failed to encode image: {error}");
+                        return;
+                    }
+                }
+            } else {
+                // Preserve original format (JPEG, GIF, WebP, etc.)
+                let mut bytes: Vec<u8> = Vec::new();
+                if let Err(error) = resized.write_to(&mut Cursor::new(&mut bytes), input_format) {
+                    tracing::error!("Failed to encode resized image: {error}");
+                    return;
+                }
+                (bytes, input_format.to_mime_type())
+            };
             let encoded = STANDARD.encode(&bytes);
             format!("data:{mime_type};base64,{encoded}")
         };

@@ -12,6 +12,7 @@ pathdiff = { workspace = true }
 regex = { workspace = true }
 seahash = { workspace = true }
 stencila-format = { path = "../format" }
+stencila-images = { path = "../images" }
 stencila-schema = { path = "../schema" }
 stencila-tools = { path = "../tools" }
 tempfile = { workspace = true }
