@@ -91,7 +91,7 @@ impl Cli {
 
 /// List configured outputs
 #[derive(Debug, Default, Args)]
-#[command(after_long_help = LIST_AFTER_LONG_HELP)]
+#[command(alias = "ls", after_long_help = LIST_AFTER_LONG_HELP)]
 pub struct List {
     /// Output format
     #[arg(long, short)]
@@ -211,7 +211,7 @@ impl List {
 #[derive(Debug, Args)]
 #[command(after_long_help = ADD_AFTER_LONG_HELP)]
 pub struct Add {
-    /// Output path (destination in cloud outputs)
+    /// Output path
     ///
     /// This is the path where the output will be stored, e.g., "report.pdf"
     /// or "{region}/report.pdf" for spread outputs.
@@ -365,7 +365,7 @@ impl Add {
 
 /// Remove an output configuration
 #[derive(Debug, Args)]
-#[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
+#[command(alias="rm", after_long_help = REMOVE_AFTER_LONG_HELP)]
 pub struct Remove {
     /// Output to remove
     output: String,
@@ -404,7 +404,7 @@ pub struct Push {
     /// Supports glob patterns for matching multiple outputs.
     outputs: Vec<String>,
 
-    /// Force push without refs filtering
+    /// Force push (ignore refs filter and re-upload unchanged files)
     #[arg(long, short)]
     force: bool,
 
@@ -554,6 +554,10 @@ impl Push {
                     if self.dry_run {
                         message!("📝 Would upload `{final_output_key}`");
                     } else {
+                        // Determine content type from the output path
+                        let content_type =
+                            Format::from_path(Path::new(&final_output_key)).media_type();
+
                         // Upload to cloud
                         let result = stencila_cloud::outputs::upload_output(
                             &workspace_id,
@@ -561,6 +565,7 @@ impl Push {
                             git_ref.ref_name(),
                             &final_output_key,
                             &temp_file,
+                            &content_type,
                         )
                         .await?;
 
@@ -583,6 +588,7 @@ impl Push {
             message!("📋 Dry run complete. {processed} outputs would be processed.",);
         } else {
             message!("✅ Done. {uploaded} uploaded, {skipped} unchanged.");
+            message!("🔗 Outputs available at: https://{workspace_id}.stencila.build");
         }
 
         Ok(())

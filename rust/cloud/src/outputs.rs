@@ -102,6 +102,7 @@ fn normalize_file_path(path: &str) -> String {
 /// * `ref_name` - The ref name (e.g., "main", "v1.0.0", commit SHA)
 /// * `file_path` - The destination path within outputs (e.g., "report.pdf")
 /// * `file` - Path to the local file to upload
+/// * `content_type` - The MIME type for the file (e.g., "application/pdf")
 ///
 /// # Returns
 ///
@@ -114,6 +115,7 @@ pub async fn upload_output(
     ref_name: &str,
     file_path: &str,
     file: &Path,
+    content_type: &str
 ) -> Result<UploadResult> {
     let token = api_token()
         .ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
@@ -135,12 +137,12 @@ pub async fn upload_output(
 
     tracing::debug!("Uploading output file to {url}");
 
-    let response = Client::new()
+    let request = Client::new()
         .put(&url)
         .bearer_auth(token)
-        .body(content)
-        .send()
-        .await?;
+        .header("Content-Type", content_type);
+
+    let response = request.body(content).send().await?;
 
     // Check for errors before consuming the response
     if !response.status().is_success() {
