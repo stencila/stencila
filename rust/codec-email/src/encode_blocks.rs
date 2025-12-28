@@ -3,7 +3,8 @@ use stencila_codec::{
     stencila_format::Format,
     stencila_schema::{
         Block, CodeBlock, CodeChunk, Datatable, Heading, ImageObject, LabelType, List, ListItem,
-        ListOrder, MathBlock, Node, Primitive, QuoteBlock, Table, TableCell, TableRow,
+        ListOrder, MathBlock, Node, Paragraph, Primitive, QuoteBlock, Section, Table, TableCell,
+        TableRow, ThematicBreak,
     },
 };
 use stencila_codec_png::to_png_data_uri_with;
@@ -25,46 +26,29 @@ pub(super) fn encode_blocks(blocks: &[Block], mjml: &mut String, losses: &mut Lo
 /// Encode a single block to MJML
 fn encode_block(block: &Block, mjml: &mut String, losses: &mut Losses) {
     match block {
-        Block::Paragraph(para) => {
-            mjml.push_str("        <mj-text>\n");
-            mjml.push_str("          <p>");
-            encode_inlines(&para.content, mjml, losses);
-            mjml.push_str("</p>\n");
-            mjml.push_str("        </mj-text>\n");
-        }
-        Block::Heading(heading) => {
-            encode_heading(heading, mjml, losses);
-        }
-        Block::List(list) => {
-            encode_list(list, mjml, losses);
-        }
-        Block::Table(table) => {
-            encode_table(table, mjml, losses);
-        }
-        Block::CodeBlock(code_block) => {
-            encode_code_block(code_block, mjml);
-        }
-        Block::CodeChunk(code_chunk) => {
-            encode_code_chunk(code_chunk, mjml, losses);
-        }
-        Block::QuoteBlock(quote) => {
-            encode_quote_block(quote, mjml, losses);
-        }
-        Block::ThematicBreak(_) => {
-            mjml.push_str("        <mj-divider/>\n");
-        }
-        Block::MathBlock(math) => {
-            encode_math_block(math, mjml, losses);
-        }
-        Block::Section(section) => {
-            // Encode section content directly
-            encode_blocks(&section.content, mjml, losses);
-        }
-        _ => {
-            // Track unsupported block types
-            losses.add(format!("Block::{}", block.node_type()));
-        }
+        Block::Paragraph(para) => encode_paragraph(para, mjml, losses),
+        Block::Heading(heading) => encode_heading(heading, mjml, losses),
+        Block::List(list) => encode_list(list, mjml, losses),
+        Block::Table(table) => encode_table(table, mjml, losses),
+        Block::Datatable(table) => encode_datatable(table, mjml, losses),
+        Block::ImageObject(image) => encode_block_image(image, mjml, losses),
+        Block::CodeBlock(code_block) => encode_code_block(code_block, mjml),
+        Block::CodeChunk(code_chunk) => encode_code_chunk(code_chunk, mjml, losses),
+        Block::MathBlock(math) => encode_math_block(math, mjml, losses),
+        Block::QuoteBlock(quote) => encode_quote_block(quote, mjml, losses),
+        Block::Section(section) => encode_section(&section, mjml, losses),
+        Block::ThematicBreak(thematic_break) => encode_thematic_break(thematic_break, mjml),
+        _ => losses.add(format!("Block::{}", block.node_type())),
     }
+}
+
+/// Encode a paragraph
+fn encode_paragraph(para: &Paragraph, mjml: &mut String, losses: &mut Losses) {
+    mjml.push_str("        <mj-text>\n");
+    mjml.push_str("          <p>");
+    encode_inlines(&para.content, mjml, losses);
+    mjml.push_str("</p>\n");
+    mjml.push_str("        </mj-text>\n");
 }
 
 /// Encode a heading
@@ -148,6 +132,46 @@ fn encode_table_cell(cell: &TableCell, mjml: &mut String, losses: &mut Losses) {
     mjml.push_str(&format!("</{tag}>\n"));
 }
 
+/// Encode a datatable as an MJML table
+fn encode_datatable(datatable: &Datatable, mjml: &mut String, _losses: &mut Losses) {
+    mjml.push_str("        <mj-table css-class=\"content-table\">\n");
+
+    // Encode header row with column names
+    mjml.push_str("          <tr>\n");
+    for column in &datatable.columns {
+        mjml.push_str(&format!(
+            "            <th>{}</th>\n",
+            html_escape(&column.name)
+        ));
+    }
+    mjml.push_str("          </tr>\n");
+
+    // Encode data rows
+    let num_rows = datatable.rows();
+    for row_index in 0..num_rows {
+        mjml.push_str("          <tr>\n");
+        for column in &datatable.columns {
+            if let Some(value) = column.values.get(row_index) {
+                let text = match value {
+                    Primitive::Null(_) => String::new(),
+                    Primitive::Boolean(b) => b.to_string(),
+                    Primitive::Integer(i) => i.to_string(),
+                    Primitive::UnsignedInteger(u) => u.to_string(),
+                    Primitive::Number(n) => n.to_string(),
+                    Primitive::String(s) => s.clone(),
+                    _ => serde_json::to_string(value).unwrap_or_default(),
+                };
+                mjml.push_str(&format!("            <td>{}</td>\n", html_escape(&text)));
+            } else {
+                mjml.push_str("            <td></td>\n");
+            }
+        }
+        mjml.push_str("          </tr>\n");
+    }
+
+    mjml.push_str("        </mj-table>\n");
+}
+
 /// Encode a code block
 fn encode_code_block(code_block: &CodeBlock, mjml: &mut String) {
     mjml.push_str("        <mj-text>\n");
@@ -210,19 +234,9 @@ fn encode_code_chunk(code_chunk: &CodeChunk, mjml: &mut String, losses: &mut Los
 /// Encode a code chunk output
 fn encode_code_chunk_output(output: &Node, mjml: &mut String, losses: &mut Losses) {
     match output {
-        Node::Datatable(datatable) => {
-            encode_datatable(datatable, mjml, losses);
-        }
-        Node::ImageObject(image) => {
-            encode_output_image(image, mjml, losses);
-        }
-        Node::Paragraph(para) => {
-            mjml.push_str("        <mj-text>\n");
-            mjml.push_str("          <p>");
-            encode_inlines(&para.content, mjml, losses);
-            mjml.push_str("</p>\n");
-            mjml.push_str("        </mj-text>\n");
-        }
+        Node::Datatable(datatable) => encode_datatable(datatable, mjml, losses),
+        Node::ImageObject(image) => encode_block_image(image, mjml, losses),
+        Node::Paragraph(para) => encode_paragraph(para, mjml, losses),
         Node::String(s) => {
             // Render string output as preformatted text
             mjml.push_str("        <mj-text>\n");
@@ -247,52 +261,12 @@ fn encode_code_chunk_output(output: &Node, mjml: &mut String, losses: &mut Losse
     }
 }
 
-/// Encode a datatable as an MJML table
-fn encode_datatable(datatable: &Datatable, mjml: &mut String, _losses: &mut Losses) {
-    mjml.push_str("        <mj-table css-class=\"content-table\">\n");
-
-    // Encode header row with column names
-    mjml.push_str("          <tr>\n");
-    for column in &datatable.columns {
-        mjml.push_str(&format!(
-            "            <th>{}</th>\n",
-            html_escape(&column.name)
-        ));
-    }
-    mjml.push_str("          </tr>\n");
-
-    // Encode data rows
-    let num_rows = datatable.rows();
-    for row_index in 0..num_rows {
-        mjml.push_str("          <tr>\n");
-        for column in &datatable.columns {
-            if let Some(value) = column.values.get(row_index) {
-                let text = match value {
-                    Primitive::Null(_) => String::new(),
-                    Primitive::Boolean(b) => b.to_string(),
-                    Primitive::Integer(i) => i.to_string(),
-                    Primitive::UnsignedInteger(u) => u.to_string(),
-                    Primitive::Number(n) => n.to_string(),
-                    Primitive::String(s) => s.clone(),
-                    _ => serde_json::to_string(value).unwrap_or_default(),
-                };
-                mjml.push_str(&format!("            <td>{}</td>\n", html_escape(&text)));
-            } else {
-                mjml.push_str("            <td></td>\n");
-            }
-        }
-        mjml.push_str("          </tr>\n");
-    }
-
-    mjml.push_str("        </mj-table>\n");
-}
-
 /// Encode an image output from a code chunk
 ///
 /// For visualizations (Plotly, Vega, Mermaid, etc.), this function renders the
 /// visualization to a PNG using headless Chrome, resizes it for email, and embeds
 /// it as a data URI.
-fn encode_output_image(image: &ImageObject, mjml: &mut String, losses: &mut Losses) {
+fn encode_block_image(image: &ImageObject, mjml: &mut String, losses: &mut Losses) {
     // Check if this is a visualization that needs to be rendered to PNG
     let needs_screenshot = image
         .media_type
@@ -412,4 +386,14 @@ fn encode_math_block(math: &MathBlock, mjml: &mut String, losses: &mut Losses) {
             losses.add(format!("MathBlock render error: {e}"));
         }
     }
+}
+
+/// Encode a section
+fn encode_section(section: &Section, mjml: &mut String, losses: &mut Losses) {
+    encode_blocks(&section.content, mjml, losses)
+}
+
+/// Encode a thematic break
+fn encode_thematic_break(_thematic_break: &ThematicBreak, mjml: &mut String) {
+    mjml.push_str("        <mj-divider/>\n");
 }

@@ -1,7 +1,8 @@
 use stencila_codec::{
     Losses,
     stencila_schema::{
-        Citation, CitationGroup, CodeExpression, ImageObject, Inline, Link, MathInline, Node,
+        Citation, CitationGroup, CodeExpression, CodeInline, ImageObject, Inline, Link, MathInline,
+        Node,
     },
 };
 use stencila_codec_png::to_png_data_uri_with;
@@ -30,34 +31,17 @@ fn encode_inline(inline: &Inline, mjml: &mut String, losses: &mut Losses) {
         Inline::Superscript(node) => encode_mark("sup", &node.content, mjml, losses),
         Inline::Underline(node) => encode_mark("u", &node.content, mjml, losses),
         // Link
-        Inline::Link(link) => {
-            encode_link(link, mjml, losses);
-        }
+        Inline::Link(link) => encode_link(link, mjml, losses),
         // Code
-        Inline::CodeInline(code) => {
-            mjml.push_str("<code>");
-            mjml.push_str(&html_escape(&code.code));
-            mjml.push_str("</code>");
-        }
-        Inline::CodeExpression(expr) => {
-            encode_code_expression(expr, mjml);
-        }
+        Inline::CodeInline(code) => encode_code_inline(code, mjml),
+        Inline::CodeExpression(expr) => encode_code_expression(expr, mjml),
         // Math
-        Inline::MathInline(math) => {
-            encode_math_inline(math, mjml, losses);
-        }
+        Inline::MathInline(math) => encode_math_inline(math, mjml, losses),
         // Media
-        Inline::ImageObject(image) => {
-            encode_inline_image(image, mjml);
-        }
+        Inline::ImageObject(image) => encode_inline_image(image, mjml),
         // Citations
-        Inline::Citation(citation) => {
-            encode_citation(citation, mjml, losses);
-        }
-        Inline::CitationGroup(group) => {
-            encode_citation_group(group, mjml, losses);
-        }
-
+        Inline::Citation(citation) => encode_citation(citation, mjml, losses),
+        Inline::CitationGroup(group) => encode_citation_group(group, mjml, losses),
         _ => {
             // Encode other inline types as plain text and record loss
             mjml.push_str(&inline.to_text());
@@ -101,12 +85,21 @@ fn encode_inline_image(image: &ImageObject, mjml: &mut String) {
     ));
 }
 
+/// Encode inline code
+fn encode_code_inline(code: &CodeInline, mjml: &mut String) {
+    mjml.push_str("<code>");
+    mjml.push_str(&html_escape(&code.code));
+    mjml.push_str("</code>");
+}
+
 /// Encode a code expression
 fn encode_code_expression(expr: &CodeExpression, mjml: &mut String) {
     if let Some(output) = &expr.output {
-        mjml.push_str(&output.to_text());
+        mjml.push_str(&html_escape(&output.to_text()));
     } else {
-        mjml.push_str(&expr.code);
+        mjml.push_str("<code>");
+        mjml.push_str(&html_escape(&expr.code));
+        mjml.push_str("</code>");
     }
 }
 
