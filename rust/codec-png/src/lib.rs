@@ -9,10 +9,37 @@ use stencila_codec::{
 use stencila_codec_dom_trait::to_dom;
 use stencila_codec_latex_trait::{latex_to_image, to_latex};
 use stencila_convert::{html_to_png::html_to_png_file, html_to_png_data_uri};
+use stencila_images::{ImageResizeOptions, resize_data_uri};
+
+pub use stencila_images::ImageResizeOptions as PngImageResizeOptions;
 
 /// Encode a node as a PNG dataURI
 pub fn to_png_data_uri(node: &Node) -> Result<String> {
     html_to_png_data_uri(&to_dom(node))
+}
+
+/// Encode a node as a PNG data URI with options
+///
+/// Like [`to_png_data_uri`] but allows specifying custom [`ImageResizeOptions`] for
+/// image resizing and optimization.
+///
+/// # Example
+/// ```ignore
+/// use stencila_images::ImageResizeOptions;
+/// use stencila_codec_png::to_png_data_uri_with;
+///
+/// // Use email-optimized settings (600px max width)
+/// let data_uri = to_png_data_uri_with(&node, &ImageResizeOptions::for_email())?;
+/// ```
+pub fn to_png_data_uri_with(node: &Node, options: &ImageResizeOptions) -> Result<String> {
+    let data_uri = html_to_png_data_uri(&to_dom(node))?;
+
+    // Resize if options specify max_width
+    if options.max_width.is_some() {
+        resize_data_uri(&data_uri, options)
+    } else {
+        Ok(data_uri)
+    }
 }
 
 /// Encode a node as a PNG file

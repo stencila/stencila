@@ -8,6 +8,7 @@ stencila-codec = { path = "../codec" }
 stencila-codec-dom-trait = { path = "../codec-dom-trait" }
 stencila-codec-latex-trait = { path = "../codec-latex-trait" }
 stencila-convert = { path = "../convert" }
+stencila-images = { path = "../images" }
 
 [lints]
 workspace = true
