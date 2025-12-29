@@ -7,7 +7,7 @@ use stencila_server::ServeOptions;
 use stencila_version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, db, demo, execute, lint,
+    compile, convert, db, demo, execute, init, lint,
     logging::{LoggingFormat, LoggingLevel},
     merge, new, open, outputs, pull, push, render, site, status, sync, uninstall, unwatch, upgrade,
     watch,
@@ -230,7 +230,7 @@ impl Cli {
 pub enum Command {
     New(new::Cli),
 
-    Init(stencila_config::cli::Init),
+    Init(init::Cli),
     Config(stencila_config::cli::Cli),
 
     Status(status::Cli),

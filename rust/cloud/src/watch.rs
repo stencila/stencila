@@ -79,7 +79,7 @@ pub async fn create_watch(workspace_id: &str, request: WatchRequest) -> Result<W
 #[tracing::instrument]
 pub async fn create_workspace_watch(workspace_id: &str) -> Result<WatchResponse> {
     let client = client().await?;
-    let url = format!("{}/workspaces/{}/watch", base_url(), workspace_id);
+    let url = format!("{}/workspaces/{}/watches/push", base_url(), workspace_id);
 
     tracing::debug!("Creating workspace watch for workspace {workspace_id}");
     let response = client.post(&url).send().await?;

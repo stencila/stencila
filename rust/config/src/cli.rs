@@ -21,7 +21,7 @@ pub struct Init {
     ///
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
-    dir: PathBuf,
+    pub dir: PathBuf,
 
     /// Accept all defaults without prompting
     ///

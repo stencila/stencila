@@ -10,6 +10,7 @@ mod db;
 mod demo;
 pub mod errors;
 mod execute;
+mod init;
 mod lint;
 pub mod logging;
 mod merge;
@@ -94,7 +95,7 @@ mod tests {
             ("demo", crate::demo::DEMO_AFTER_LONG_HELP),
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
             ("uninstall", crate::uninstall::CLI_AFTER_LONG_HELP),
-            ("config::init", stencila_config::cli::INIT_AFTER_LONG_HELP),
+            ("init", stencila_config::cli::INIT_AFTER_LONG_HELP),
             ("config", stencila_config::cli::CLI_AFTER_LONG_HELP),
             // Document module help strings
             ("status", crate::status::CLI_AFTER_LONG_HELP),
