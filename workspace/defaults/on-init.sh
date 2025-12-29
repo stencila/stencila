@@ -22,19 +22,6 @@ fi
 cd "${REPO_DIR}"
 echo "📁 Working directory: $(pwd)"
 
-# Configure git identity if not already configured
-if [[ -z "$(git config --get user.name || true)" ]]; then
-    git config user.name "${GIT_AUTHOR_NAME:-Stencila User}"
-fi
-if [[ -z "$(git config --get user.email || true)" ]]; then
-    git config user.email "${GIT_AUTHOR_EMAIL:-noreply@stencila.io}"
-fi
-
-# Create or reset branch for initialization
-BRANCH_NAME="stencila/init"
-echo "🌿 Creating branch: ${BRANCH_NAME}"
-git checkout -B "${BRANCH_NAME}"
-
 # Initialize the Stencila workspace
 echo "⚙️  Running stencila init..."
 stencila init --yes
@@ -53,7 +40,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
 
     # Push to remote repository
     echo "🚀 Pushing changes to remote repository..."
-    git push -u origin HEAD
+    git push origin HEAD
 else
     echo "ℹ️  No changes to commit"
 fi
