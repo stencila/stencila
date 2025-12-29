@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-
-# sync-to-remote.sh
 # Syncs content from the local Git repository to remote cloud services using Stencila CLI
+
+set -euo pipefail
 
 echo "🔄 Starting sync to remote..."
 
@@ -40,4 +39,3 @@ echo "⬆️  Pushing to remote..."
 stencila push "${STENCILA_SYNC_FILE_PATH}" --to "${STENCILA_SYNC_REMOTE_URL}"
 
 echo "✨ Sync to remote completed successfully!"
-exit 0

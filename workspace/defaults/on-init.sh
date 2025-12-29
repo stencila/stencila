@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
+# Initializes a Stencila workspace in the local Git repository
+
 set -euo pipefail
 
-# init.sh
-# Initializes a Stencila project in the local Git repository
-
-echo "🔄 Initializing Stencila project..."
+echo "🔄 Initializing Stencila workspace..."
 
 # Validate required environment variables
 if [[ -z "${GITHUB_REPO:-}" ]]; then
@@ -55,10 +54,8 @@ if [[ -n "$(git status --porcelain)" ]]; then
     # Push to remote repository
     echo "🚀 Pushing changes to remote repository..."
     git push -u origin HEAD
-    echo "✅ Changes pushed to remote repository"
 else
     echo "ℹ️  No changes to commit"
 fi
 
 echo "✨ Stencila workspace initialization completed successfully!"
-exit 0
