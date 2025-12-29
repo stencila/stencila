@@ -71,6 +71,17 @@ if [[ -n "${STENCILA_SCRIPT:-}" ]]; then
         echo "⚠️ Warning: setup.sh not found at ${SETUP_SCRIPT}"
     fi
 
+    # Navigate to the repository directory for the script
+    if [[ -n "${GITHUB_REPO:-}" ]]; then
+        REPO_DIR="/home/workspace/${GITHUB_REPO}"
+        if [[ ! -d "${REPO_DIR}" ]]; then
+            echo "❌ Error: Repository directory not found: ${REPO_DIR}"
+            exit 1
+        fi
+        cd "${REPO_DIR}"
+        echo "📁 Working directory: $(pwd)"
+    fi
+
     # Run the specified script (unless it's "none")
     if [[ "${STENCILA_SCRIPT}" != "none" ]]; then
         SCRIPT_PATH="/home/workspace/stencila/defaults/${STENCILA_SCRIPT}"

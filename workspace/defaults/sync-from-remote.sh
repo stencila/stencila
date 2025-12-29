@@ -4,14 +4,7 @@
 
 set -euo pipefail
 
-echo "🔄 Starting sync from remote..."
-
 # Validate required environment variables
-if [[ -z "${GITHUB_REPO:-}" ]]; then
-    echo "❌ Error: GITHUB_REPO environment variable is required"
-    exit 1
-fi
-
 if [[ -z "${STENCILA_SYNC_FILE_PATH:-}" ]]; then
     echo "❌ Error: STENCILA_SYNC_FILE_PATH environment variable is required"
     exit 1
@@ -22,35 +15,21 @@ if [[ -z "${STENCILA_SYNC_REMOTE_URL:-}" ]]; then
     exit 1
 fi
 
-# Navigate to the repository directory
-REPO_DIR="/home/workspace/${GITHUB_REPO}"
-if [[ ! -d "${REPO_DIR}" ]]; then
-    echo "❌ Error: Repository directory not found: ${REPO_DIR}"
-    exit 1
-fi
+echo "⬇️  Pulling ${STENCILA_SYNC_FILE_PATH} from ${STENCILA_SYNC_REMOTE_URL} ..."
 
-cd "${REPO_DIR}"
-echo "📁 Working directory: $(pwd)"
-echo "📄 File path: ${STENCILA_SYNC_FILE_PATH}"
-echo "☁️  Remote URL: ${STENCILA_SYNC_REMOTE_URL}"
-
-# Pull from remote using Stencila CLI
+# Pull from remote
 # Use --no-merge to simply convert the downloaded document and
 # avoid creating a new branch (because already on branch when syncing from remote)
-echo "⬇️  Pulling from remote..."
 stencila pull --no-merge "${STENCILA_SYNC_FILE_PATH}" --from "${STENCILA_SYNC_REMOTE_URL}"
 
 # Check if there are changes to commit and push
 if [[ -n "$(git status --porcelain)" ]]; then
     echo "📝 Committing and pushing changes from sync..."
 
-    # Add all changes
+    # Add all changes and commit
     git add -A
-
-    # Create commit
-    COMMIT_MSG="Sync from remote [skip ci]"
-    git commit -m "${COMMIT_MSG}"
-    echo "✅ Changes committed: ${COMMIT_MSG}"
+    git commit -m "Sync from remote [skip ci]"
+    echo "✅ Changes committed"
 
     # Push to remote repository
     echo "🚀 Pushing changes to remote repository..."
