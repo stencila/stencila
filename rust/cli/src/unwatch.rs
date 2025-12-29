@@ -5,20 +5,26 @@ use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{delete_watch, ensure_workspace};
-use stencila_config::config_update_remote_watch;
+use stencila_config::{ConfigTarget, config_unset, config_update_remote_watch};
 use stencila_remotes::{RemoteService, get_remotes_for_path};
 use url::Url;
 
-/// Disable automatic sync for a document
+/// Disable automatic sync for the workspace or a document
 ///
-/// Removes the watch from Stencila Cloud, stopping automatic sync.
+/// When run without a path, disables workspace-level watching that runs
+/// `update.sh` on each git push.
+///
+/// When run with a path, removes the watch from Stencila Cloud for that
+/// document, stopping automatic sync with its remote.
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
-    /// The path to the document to unwatch
-    path: PathBuf,
+    /// The path to the document to unwatch (optional)
+    ///
+    /// If omitted, disables workspace-level watching.
+    path: Option<PathBuf>,
 
-    /// The target remote to unwatch
+    /// The target remote to unwatch (only used with a file path)
     ///
     /// If the document has multiple watched remotes, you must specify which one
     /// to unwatch. Can be the full URL or a service shorthand: "gdoc" or
@@ -28,6 +34,9 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
+  <dim># Disable workspace watch</dim>
+  <b>stencila unwatch</>
+
   <dim># Disable watch for a document</dim>
   <b>stencila unwatch</> <g>report.md</>
 
@@ -42,10 +51,15 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let path_display = self.path.display();
+        // If no path provided, disable workspace-level watch
+        let Some(ref path) = self.path else {
+            return self.run_workspace_unwatch().await;
+        };
+
+        let path_display = path.display();
 
         // Validate file exists
-        if !self.path.exists() {
+        if !path.exists() {
             bail!("File `{path_display}` does not exist");
         }
 
@@ -55,7 +69,7 @@ impl Cli {
         };
 
         // Get remotes from config
-        let remote_infos = get_remotes_for_path(&self.path, None).await?;
+        let remote_infos = get_remotes_for_path(path, None).await?;
         if remote_infos.is_empty() {
             return not_watched();
         }
@@ -138,7 +152,7 @@ impl Cli {
         }
 
         // Get workspace ID (required for delete_watch)
-        let (workspace_id, _) = ensure_workspace(&self.path).await?;
+        let (workspace_id, _) = ensure_workspace(path).await?;
 
         // Call Cloud API to delete watch
         let watch_id = remote_info
@@ -148,12 +162,39 @@ impl Cli {
         delete_watch(&workspace_id, watch_id).await?;
 
         // Remove watch ID from stencila.toml
-        config_update_remote_watch(&self.path, remote_info.url.as_ref(), None)?;
+        config_update_remote_watch(path, remote_info.url.as_ref(), None)?;
 
         // Success message
         message!(
             "👁️ Stopped watching `{path_display}` (link to remote remains, see *stencila status*)"
         );
+
+        Ok(())
+    }
+
+    /// Disable workspace-level watch
+    ///
+    /// This removes the workspace watch that runs `update.sh` on each git push.
+    async fn run_workspace_unwatch(&self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+
+        // Check if workspace is being watched
+        let cfg = stencila_config::config(&cwd)?;
+        let Some(watch_id) = cfg.workspace.as_ref().and_then(|w| w.watch.clone()) else {
+            message!("ℹ️ Workspace is not being watched");
+            return Ok(());
+        };
+
+        // Get workspace ID (required for delete_workspace_watch)
+        let (workspace_id, _) = ensure_workspace(&cwd).await?;
+
+        // Call Cloud API to delete workspace watch
+        delete_watch(&workspace_id, &watch_id).await?;
+
+        // Remove watch ID from stencila.toml
+        config_unset("workspace.watch", ConfigTarget::Nearest)?;
+
+        message!("👁️ Workspace watch disabled");
 
         Ok(())
     }

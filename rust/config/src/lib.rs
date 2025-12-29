@@ -189,6 +189,13 @@ pub struct WorkspaceConfig {
     /// The workspace ID is derived from the GitHub repository URL.
     #[schemars(regex(pattern = r"^ws[a-z0-9]{10}$"))]
     pub id: Option<String>,
+
+    /// The workspace watch ID from Stencila Cloud
+    ///
+    /// This is set when `stencila watch` is run without a file path to enable
+    /// workspace-level watching. When enabled, `update.sh` is run on each git push.
+    #[schemars(regex(pattern = r"^wa[a-z0-9]{10}$"))]
+    pub watch: Option<String>,
 }
 
 impl WorkspaceConfig {
@@ -199,6 +206,13 @@ impl WorkspaceConfig {
         {
             bail!(
                 "Invalid workspace ID `{id}`: must match pattern 'ws' followed by 10 lowercase alphanumeric characters (e.g., 'ws3x9k2m7fab')"
+            );
+        }
+        if let Some(watch) = &self.watch
+            && !WATCH_ID_REGEX.is_match(watch)
+        {
+            bail!(
+                "Invalid watch ID `{watch}`: must match pattern 'wa' followed by 10 lowercase alphanumeric characters (e.g., 'wa7x2k9m3fab')"
             );
         }
         Ok(())

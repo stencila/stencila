@@ -67,6 +67,26 @@ pub async fn create_watch(workspace_id: &str, request: WatchRequest) -> Result<W
     process_response(response).await
 }
 
+/// Create a workspace-level watch
+///
+/// This registers a workspace watch with Stencila Cloud that will automatically
+/// run `update.sh` on each git push to the repository. This enables automatic
+/// site and outputs publishing on push events.
+///
+/// # Arguments
+///
+/// * `workspace_id` - The workspace public ID (e.g., "ws3x9k2m7fab")
+#[tracing::instrument]
+pub async fn create_workspace_watch(workspace_id: &str) -> Result<WatchResponse> {
+    let client = client().await?;
+    let url = format!("{}/workspaces/{}/watch", base_url(), workspace_id);
+
+    tracing::debug!("Creating workspace watch for workspace {workspace_id}");
+    let response = client.post(&url).send().await?;
+
+    process_response(response).await
+}
+
 /// Delete a watch
 ///
 /// This removes a watch from Stencila Cloud, stopping automatic sync.

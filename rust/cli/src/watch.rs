@@ -4,40 +4,44 @@ use clap::Parser;
 use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_cloud::{WatchRequest, create_watch, ensure_workspace};
+use stencila_cloud::{WatchRequest, create_watch, create_workspace_watch, ensure_workspace};
 use stencila_codec_utils::{git_info, validate_file_on_default_branch};
-use stencila_config::config_update_remote_watch;
+use stencila_config::{ConfigTarget, config_set, config_update_remote_watch};
 use stencila_remotes::{RemoteService, WatchDirection, WatchPrMode, get_remotes_for_path};
 use url::Url;
 
-/// Enable automatic sync between a document and its remote
+/// Enable automatic sync for the workspace or a document
 ///
-/// Creates a watch in Stencila Cloud that automatically syncs changes
-/// between a remote (Google Docs or M365) and a GitHub repository.
-/// When changes are detected in the remote, a pull request will be
-/// created or updated in the repository.
+/// When run without a path, enables workspace-level watching that runs
+/// `update.sh` on each git push (for automatic site/outputs publishing).
+///
+/// When run with a path, creates a watch in Stencila Cloud that automatically
+/// syncs changes between a remote (Google Docs or M365) and a GitHub repository.
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
-    /// The path to the document to watch
-    path: PathBuf,
+    /// The path to the document to watch (optional)
+    ///
+    /// If omitted, enables workspace-level watching that runs `update.sh`
+    /// on each git push for automatic site and outputs publishing.
+    path: Option<PathBuf>,
 
-    /// The target remote to watch
+    /// The target remote to watch (only used with a file path)
     ///
     /// If the document has multiple remotes (e.g., both Google Docs and M365),
     /// you must specify which one to watch. Can be the full URL or a service
     /// shorthand: "gdoc" or "m365".
     target: Option<String>,
 
-    /// The sync direction
+    /// The sync direction (only used with a file path)
     #[arg(long, short)]
     direction: Option<WatchDirection>,
 
-    /// The GitHub PR mode
+    /// The GitHub PR mode (only used with a file path)
     #[arg(long, short)]
     pr_mode: Option<WatchPrMode>,
 
-    /// Debounce time in seconds (10-86400)
+    /// Debounce time in seconds (10-86400, only used with a file path)
     ///
     /// Time to wait after detecting changes before syncing to avoid
     /// too frequent updates. Minimum 10 seconds, maximum 24 hours (86400 seconds).
@@ -47,7 +51,10 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Enable watch on the tracked remote</dim>
+  <dim># Enable workspace watch (runs update.sh on each push)</dim>
+  <b>stencila watch</>
+
+  <dim># Enable watch on the tracked remote for a file</dim>
   <b>stencila watch</> <g>report.md</>
 
   <dim># Watch a specific remote (if document has multiple)</dim>
@@ -60,9 +67,6 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Enable watch with ready-for-review PRs</dim>
   <b>stencila watch</> <g>report.md</> <g>gdoc</> <c>--pr-mode ready</>
 
-  <dim># Watch a site directory for one-way sync from repo to site</dim>
-  <b>stencila watch</> <g>site/</>
-
   <dim># Note: The document must already be pushed to a remote</dim>
   <b>stencila push</> <g>report.md</> <c>--to</> <g>gdoc</>
   <b>stencila watch</> <g>report.md</>
@@ -71,28 +75,33 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let path_display = self.path.display();
+        // If no path provided, enable workspace-level watch
+        let Some(ref path) = self.path else {
+            return self.run_workspace_watch().await;
+        };
+
+        let path_display = path.display();
 
         // Validate path exists
-        if !self.path.exists() {
+        if !path.exists() {
             bail!("Path `{path_display}` does not exist");
         }
 
         // Check if this is a directory
-        if self.path.is_dir() {
+        if path.is_dir() {
             bail!(
                 "Watches are not supported for directories. Use `stencila site push` to publish a directory to a Stencila Site."
             );
         }
 
         // Validate file exists on the default branch (also validates it's in a git repo)
-        validate_file_on_default_branch(&self.path)?;
+        validate_file_on_default_branch(path)?;
 
         // Ensure workspace exists (required for creating watches)
-        let (workspace_id, _) = ensure_workspace(&self.path).await?;
+        let (workspace_id, _) = ensure_workspace(path).await?;
 
         // Get git repository information
-        let git_info = git_info(&self.path)?;
+        let git_info = git_info(path)?;
 
         let no_remotes = || {
             message!(
@@ -102,7 +111,7 @@ impl Cli {
         };
 
         // Get remotes from config
-        let remote_infos = get_remotes_for_path(&self.path, None).await?;
+        let remote_infos = get_remotes_for_path(path, None).await?;
         if remote_infos.is_empty() {
             return no_remotes();
         }
@@ -184,8 +193,7 @@ impl Cli {
 
         // Get file path relative to repo root
         let file_path = git_info.path.unwrap_or_else(|| {
-            self.path
-                .file_name()
+            path.file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or("unknown")
                 .to_string()
@@ -205,7 +213,7 @@ impl Cli {
 
         // Update stencila.toml with watch ID
         config_update_remote_watch(
-            &self.path,
+            path,
             remote_info.url.as_ref(),
             Some(response.id.to_string()),
         )?;
@@ -222,6 +230,35 @@ impl Cli {
         message!(
             "👁️ Watching `{path_display}` ({direction_desc}). PRs will be opened/updated on changes from {remote_url_str}."
         );
+
+        Ok(())
+    }
+
+    /// Enable workspace-level watch
+    ///
+    /// This creates a workspace watch that runs `update.sh` on each git push.
+    async fn run_workspace_watch(&self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+
+        // Ensure workspace exists (required for creating watches)
+        let (workspace_id, _) = ensure_workspace(&cwd).await?;
+
+        // Check if already watching
+        let cfg = stencila_config::config(&cwd)?;
+        if let Some(workspace) = &cfg.workspace
+            && workspace.watch.is_some()
+        {
+            message!("👁️ Workspace is already being watched. Use `stencila unwatch` to disable.");
+            return Ok(());
+        }
+
+        // Create workspace watch
+        let response = create_workspace_watch(&workspace_id).await?;
+
+        // Update stencila.toml with watch ID
+        config_set("workspace.watch", &response.id, ConfigTarget::Nearest)?;
+
+        message!("👁️ Workspace watch enabled.");
 
         Ok(())
     }
