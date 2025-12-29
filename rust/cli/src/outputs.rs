@@ -402,15 +402,15 @@ pub struct Push {
     /// Specific outputs to push (all if empty)
     ///
     /// Supports glob patterns for matching multiple outputs.
-    outputs: Vec<String>,
+    pub outputs: Vec<String>,
 
     /// Force push (ignore refs filter and re-upload unchanged files)
     #[arg(long, short)]
-    force: bool,
+    pub force: bool,
 
     /// Dry run - process but don't upload
     #[arg(long)]
-    dry_run: bool,
+    pub dry_run: bool,
 }
 
 pub static PUSH_AFTER_LONG_HELP: &str = cstr!(

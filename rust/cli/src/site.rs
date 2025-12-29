@@ -529,17 +529,17 @@ pub struct Push {
     ///
     /// If not specified, uses site.root if configured, otherwise current directory
     #[arg(default_value = ".")]
-    path: PathBuf,
+    pub path: PathBuf,
 
     /// Force push without checking etags
     #[arg(long, short)]
-    force: bool,
+    pub force: bool,
 
     /// Dry run - process but don't upload
     ///
     /// Optionally specify an output directory to write generated files
     #[arg(long)]
-    dry_run: Option<Option<PathBuf>>,
+    pub dry_run: Option<Option<PathBuf>>,
 }
 
 pub static PUSH_AFTER_LONG_HELP: &str = cstr!(

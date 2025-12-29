@@ -26,19 +26,39 @@ use stencila_remotes::{
 };
 use stencila_spread::{Run, SpreadConfig, SpreadMode, apply_template, infer_spread_mode};
 
-/// Push a document to a remote service
+use crate::{outputs, site};
+
+/// Push content to Stencila Cloud and remote services
 ///
-/// This command pushes documents to Google Docs or Microsoft 365. For pushing
-/// to Stencila Sites, use `stencila site push` instead.
+/// This unified command can push sites, outputs, and remote documents.
+/// Use flags to specify what to push, or use subcommands for more control:
+/// - `stencila site push` for site-specific options
+/// - `stencila outputs push` for output-specific options
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
-    /// The path of the document to push
+    /// Push site content to Stencila Cloud
+    #[arg(long, conflicts_with_all = ["path", "to", "new", "watch", "spread"])]
+    site: bool,
+
+    /// Push outputs to Stencila Cloud
+    #[arg(long, conflicts_with_all = ["path", "to", "new", "watch", "spread"])]
+    outputs: bool,
+
+    /// Push to remote document services (Google Docs, Microsoft 365)
+    #[arg(long)]
+    remotes: bool,
+
+    /// Push everything (site, outputs, and remotes)
+    #[arg(long, conflicts_with_all = ["site", "outputs", "remotes", "path", "to", "new", "watch", "spread"])]
+    all: bool,
+
+    /// The path of the document to push (for remote push)
     ///
-    /// If omitted, pushes all tracked files that have remotes.
+    /// If omitted with --remotes, pushes all tracked files that have remotes.
     path: Option<PathBuf>,
 
-    /// The target to push to
+    /// The target to push to (for remote push)
     ///
     /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
     /// service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked
@@ -132,17 +152,23 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Push all files with tracked remotes</dim>
-  <b>stencila push</>
+  <dim># Push everything (site, outputs, and remotes)</dim>
+  <b>stencila push</> <c>--all</>
+
+  <dim># Push only site content</dim>
+  <b>stencila push</> <c>--site</>
+
+  <dim># Push only outputs</dim>
+  <b>stencila push</> <c>--outputs</>
+
+  <dim># Push only remotes (Google Docs, M365)</dim>
+  <b>stencila push</> <c>--remotes</>
 
   <dim># Push a document to Google Docs</dim>
   <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</>
 
   <dim># Push a document to Microsoft 365</dim>
   <b>stencila push</> <g>document.smd</> <c>--to</> <g>m365</>
-
-  <dim># Push to file to all tracked remotes</dim>
-  <b>stencila push</> <g>document.smd</>
 
   <dim># Push to specific remote</dim>
   <b>stencila push</> <g>document.smd</> <c>--to</> <g>https://docs.google.com/document/d/abc123</>
@@ -155,22 +181,41 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Spread push to GDocs (creates multiple docs)</dim>
   <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread</> <c>--</> <c>region=north,south</>
-
-  <dim># Spread push with custom title template</dim>
-  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread</> <c>--title=\"Report - {region}\"</> <c>--</> <c>region=north,south</>
-
-  <dim># Spread push with zip mode (positional pairing)</dim>
-  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread=zip</> <c>--</> <c>region=north,south code=N,S</>
-
-  <dim># Note: For Stencila Sites, use 'stencila site push' instead</dim>
 "
 );
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        // Handle pushing all tracked files when no input is provided
-        let Some(ref path) = self.path else {
+        // Handle unified push flags
+        if self.all {
             return self.push_all().await;
+        }
+
+        if self.site {
+            return self.push_site().await;
+        }
+
+        if self.outputs {
+            return self.push_outputs().await;
+        }
+
+        // If --remotes flag without a path, push all tracked remotes
+        if self.remotes && self.path.is_none() {
+            return self.push_remotes().await;
+        }
+
+        // If a path is provided (with or without --remotes), push that path to remotes
+        let Some(ref path) = self.path else {
+            // No flags and no path - show error
+            bail!(
+                "No push target specified. Use one of:\n\
+                 \n\
+                 \x20 stencila push --all       Push site, outputs, and remotes\n\
+                 \x20 stencila push --site      Push site content\n\
+                 \x20 stencila push --outputs   Push outputs\n\
+                 \x20 stencila push --remotes   Push to remote services\n\
+                 \x20 stencila push <FILE>      Push a specific file to remotes"
+            );
         };
 
         let path_display = path.display();
@@ -583,9 +628,53 @@ impl Cli {
         Ok(())
     }
 
+    /// Push everything: site, outputs, and remotes
+    async fn push_all(&self) -> Result<()> {
+        message!("🚀 Pushing all (site, outputs, and remotes)...\n");
+
+        // Push site
+        if let Err(e) = self.push_site().await {
+            message!("⚠️ Site push: {e}");
+        }
+
+        // Push outputs
+        if let Err(e) = self.push_outputs().await {
+            message!("⚠️ Outputs push: {e}");
+        }
+
+        // Push remotes
+        message!("☁️ Pushing remotes...");
+        self.push_remotes().await?;
+
+        message!("\n✅ Push complete");
+        Ok(())
+    }
+
+    /// Push site content using site::Push
+    async fn push_site(&self) -> Result<()> {
+        message!("🌐 Pushing site...");
+        let push = site::Push {
+            path: PathBuf::from("."),
+            force: false,
+            dry_run: None,
+        };
+        push.run().await
+    }
+
+    /// Push outputs using outputs::Push
+    async fn push_outputs(&self) -> Result<()> {
+        message!("📦 Pushing outputs...");
+        let push = outputs::Push {
+            outputs: vec![],
+            force: false,
+            dry_run: false,
+        };
+        push.run().await
+    }
+
     /// Push all tracked files that have remotes
     #[allow(clippy::print_stderr)]
-    async fn push_all(&self) -> Result<()> {
+    async fn push_remotes(&self) -> Result<()> {
         // Validate watch flag is not allowed with multiple files
         if self.watch {
             bail!(
