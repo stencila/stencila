@@ -500,6 +500,7 @@ impl Push {
 
         // Process each output
         let mut uploaded = 0;
+        let mut pending = 0;
         let mut skipped = 0;
         let mut processed = 0;
 
@@ -574,6 +575,10 @@ impl Push {
                                 message!("✅ Uploaded `{final_output_key}`");
                                 uploaded += 1;
                             }
+                            UploadResult::ApprovalRequired => {
+                                message!("⏳ Pending approval `{final_output_key}`");
+                                pending += 1;
+                            }
                             UploadResult::Skipped => {
                                 message!("⏭️  Unchanged `{final_output_key}`");
                                 skipped += 1;
@@ -587,7 +592,9 @@ impl Push {
         if self.dry_run {
             message!("📋 Dry run complete. {processed} outputs would be processed.",);
         } else {
-            message!("✅ Done. {uploaded} uploaded, {skipped} unchanged.");
+            message!(
+                "✅ Done. {uploaded} uploaded, {pending} uploaded and pending approval, {skipped} unchanged."
+            );
             message!("🔗 Outputs available at: https://{workspace_id}.stencila.build");
         }
 

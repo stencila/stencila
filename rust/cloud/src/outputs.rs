@@ -15,6 +15,8 @@ use crate::{api_token, base_url, check_response, process_response};
 pub enum UploadResult {
     /// File was uploaded (X-Upload-Performed header)
     Uploaded,
+    /// File upload requires approval (X-Approval-Required header)
+    ApprovalRequired,
     /// File was unchanged and upload was skipped (X-Upload-Skipped header)
     Skipped,
 }
@@ -115,7 +117,7 @@ pub async fn upload_output(
     ref_name: &str,
     file_path: &str,
     file: &Path,
-    content_type: &str
+    content_type: &str,
 ) -> Result<UploadResult> {
     let token = api_token()
         .ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
@@ -152,7 +154,9 @@ pub async fn upload_output(
     }
 
     // Check upload status from headers
-    if response.headers().get("X-Upload-Skipped").is_some() {
+    if response.headers().get("X-Approval-Required").is_some() {
+        Ok(UploadResult::ApprovalRequired)
+    } else if response.headers().get("X-Upload-Skipped").is_some() {
         Ok(UploadResult::Skipped)
     } else {
         Ok(UploadResult::Uploaded)
