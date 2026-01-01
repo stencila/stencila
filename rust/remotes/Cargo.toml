@@ -17,7 +17,6 @@ stencila-codec = { path = "../codec" }
 stencila-codec-gdoc = { path = "../codec-gdoc" }
 stencila-codec-github = { path = "../codec-github" }
 stencila-codec-m365 = { path = "../codec-m365" }
-stencila-codec-site = { path = "../codec-site" }
 stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 strum = { workspace = true }

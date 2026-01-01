@@ -8,8 +8,17 @@ use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 mod list;
 pub use list::{RouteEntry, RouteType, list};
 
+mod render;
+pub use render::{RenderProgress, RenderResult, render};
+
+mod upload;
+pub use upload::{UploadProgress, UploadResult, upload};
+
 mod push;
-pub use push::{PushProgress, push};
+pub use push::{PushProgress, PushResult, push};
+
+mod watch;
+pub use watch::{SiteChangeEvent, watch};
 
 /// Convert a canonical Stencila Site URL to a browseable URL
 ///

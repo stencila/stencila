@@ -32,7 +32,6 @@ serde_json = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
-stencila-codec-site = { path = "../codec-site" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-codecs = { path = "../codecs" }
 stencila-config = { path = "../config" }
@@ -54,6 +53,7 @@ stencila-remotes = { path = "../remotes" }
 stencila-schema = { path = "../schema" }
 stencila-secrets = { path = "../secrets" }
 stencila-server = { path = "../server" }
+stencila-site = { path = "../site" }
 stencila-snap = { path = "../snap" }
 stencila-spread = { path = "../spread" }
 stencila-themes = { path = "../themes" }
