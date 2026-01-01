@@ -1,5 +1,6 @@
 [workspace]
 id = "wsron0azl0i2"
+watch = "wardj3nsovuj"
 
 [site]
 root = "site"
