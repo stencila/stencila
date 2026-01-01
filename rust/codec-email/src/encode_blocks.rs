@@ -36,7 +36,7 @@ fn encode_block(block: &Block, mjml: &mut String, losses: &mut Losses) {
         Block::CodeChunk(code_chunk) => encode_code_chunk(code_chunk, mjml, losses),
         Block::MathBlock(math) => encode_math_block(math, mjml, losses),
         Block::QuoteBlock(quote) => encode_quote_block(quote, mjml, losses),
-        Block::Section(section) => encode_section(&section, mjml, losses),
+        Block::Section(section) => encode_section(section, mjml, losses),
         Block::ThematicBreak(thematic_break) => encode_thematic_break(thematic_break, mjml),
         _ => losses.add(format!("Block::{}", block.node_type())),
     }
