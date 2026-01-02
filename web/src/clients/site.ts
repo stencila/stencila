@@ -15,7 +15,7 @@ export function initSiteClient(): SiteClient | null {
  * Message types from the site WebSocket server
  */
 interface SiteMessage {
-  type: 'ConfigChange' | 'SiteChange' | 'Error'
+  type: 'ConfigChange' | 'SiteChange' | 'ThemeChange' | 'Error'
   paths?: string[]
   message?: string
 }
@@ -89,6 +89,9 @@ class SiteClient {
           window.location.reload()
         } else if (message.type === 'SiteChange') {
           console.debug('🔄 SiteClient files changed:', message.paths)
+          window.location.reload()
+        } else if (message.type === 'ThemeChange') {
+          console.debug('🔄 SiteClient theme changed, reloading...')
           window.location.reload()
         } else if (message.type === 'Error') {
           console.error('❌ SiteClient error:', message.message)

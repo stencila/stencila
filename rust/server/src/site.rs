@@ -15,6 +15,8 @@ use crate::{errors::InternalError, server::ServerState};
 pub enum SiteMessage {
     /// Config file changed
     ConfigChange,
+    /// Theme file changed
+    ThemeChange,
     /// Site files changed
     SiteChange {
         /// Paths that changed (relative to site root)
@@ -92,11 +94,20 @@ async fn handle_site_socket(mut socket: WebSocket, state: ServerState) {
     // Watch config file for changes
     let mut config_receiver = stencila_config::watch(&state.dir).await.ok().flatten();
 
+    // Watch workspace theme (theme.css) for changes
+    let mut theme_receiver = match stencila_themes::watch(None, Some(&state.dir)).await {
+        Ok(rx) => rx,
+        Err(error) => {
+            tracing::warn!("Failed to watch theme: {error}");
+            None
+        }
+    };
+
     // Watch site root for file changes
     let mut site_receiver = match stencila_site::watch(&site_root, None).await {
         Ok(rx) => Some(rx),
-        Err(e) => {
-            tracing::warn!("Failed to watch site: {e}");
+        Err(error) => {
+            tracing::warn!("Failed to watch site: {error}");
             None
         }
     };
@@ -128,6 +139,30 @@ async fn handle_site_socket(mut socket: WebSocket, state: ServerState) {
                 }
             }
 
+            // Handle theme changes (if watching)
+            result = async {
+                match theme_receiver.as_mut() {
+                    Some(rx) => rx.recv().await,
+                    None => std::future::pending().await,
+                }
+            } => {
+                match result {
+                    Some(Ok(_theme)) => {
+                        let msg = SiteMessage::ThemeChange;
+                        if let Ok(json) = serde_json::to_string(&msg)
+                            && socket.send(Message::Text(json.into())).await.is_err() {
+                                break;
+                            }
+                    }
+                    Some(Err(e)) => {
+                        tracing::warn!("Theme watch error: {e}");
+                    }
+                    None => {
+                        theme_receiver = None; // Channel closed
+                    }
+                }
+            }
+
             // Handle site file changes (if watching)
             result = async {
                 match site_receiver.as_mut() {
@@ -154,8 +189,8 @@ async fn handle_site_socket(mut socket: WebSocket, state: ServerState) {
                 }
             }
 
-            // Exit if both watchers are gone
-            _ = std::future::pending::<()>(), if config_receiver.is_none() && site_receiver.is_none() => {
+            // Exit if all watchers are gone
+            _ = std::future::pending::<()>(), if config_receiver.is_none() && site_receiver.is_none() && theme_receiver.is_none() => {
                 break;
             }
         }
