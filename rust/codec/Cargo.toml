@@ -18,6 +18,7 @@ serde_with = { workspace = true }
 smart-default = { workspace = true }
 stencila-codec-info = { path = "../codec-info" }
 stencila-codec-utils = { path = "../codec-utils" }
+stencila-config = { path = "../config" }
 stencila-format = { path = "../format" }
 stencila-node-strip = { path = "../node-strip" }
 stencila-schema = { path = "../schema" }

@@ -142,7 +142,7 @@ impl Cli {
         if let Some(remote_url) = remote_to_open {
             // Convert to browseable URL for Stencila Sites
             let url_to_open = if is_stencila_site_url(&remote_url) {
-                stencila_codec_site::browseable_url(&remote_url, Some(&file))
+                stencila_site::browseable_url(&remote_url, Some(&file))
                     .unwrap_or_else(|_| remote_url.clone())
             } else {
                 remote_url.clone()
@@ -161,7 +161,7 @@ impl Cli {
                 // Convert to browseable URL for Stencila Sites
                 let remote_url = &info.url;
                 let url_to_open = if is_stencila_site_url(remote_url) {
-                    stencila_codec_site::browseable_url(remote_url, Some(&file))
+                    stencila_site::browseable_url(remote_url, Some(&file))
                         .unwrap_or_else(|_| remote_url.clone())
                 } else {
                     remote_url.clone()

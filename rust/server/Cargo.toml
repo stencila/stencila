@@ -21,15 +21,17 @@ stencila-cloud = { path = "../cloud" }
 stencila-codec-dom = { path = "../codec-dom" }
 stencila-codec-text = { path = "../codec-text" }
 stencila-codecs = { path = "../codecs" }
+stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }
+stencila-site = { path = "../site" }
 stencila-themes = { path = "../themes" }
 stencila-version = { path = "../version" }
 stencila-web-dist = { path = "../web-dist" }
 tokio = { workspace = true }
 tower-cookies = "0.11.0"
-tower-http = { version = "0.6.6", features = ["trace", "cors"] }
+tower-http = { version = "0.6.6", features = ["trace", "cors", "fs"] }
 tracing = { workspace = true }
 uuid = { workspace = true }
 

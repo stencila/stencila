@@ -269,6 +269,7 @@ pub async fn serve_path(
     };
 
     // Generate the HTML
+    // Note: Layout is None for individual document serving; layout is applied during site generation
     let html = standalone_html(
         doc_id,
         node_type,
@@ -279,6 +280,7 @@ pub async fn serve_path(
         web,
         theme.as_ref(),
         view,
+        None, // No layout for individual documents
     )
     .await;
 

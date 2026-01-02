@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::env::current_dir;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail, eyre};
@@ -20,9 +20,12 @@ use stencila_cloud::sites::{
     list_site_branches, set_site_domain, update_site_access,
 };
 use stencila_config::{
-    ConfigTarget, RouteSpread, SpreadMode, config, config_add_redirect_route, config_add_route,
-    config_remove_route, config_set, config_set_route_spread, config_unset, validate_placeholders,
+    ConfigTarget, RouteSpread, SiteLayout, SpreadMode, config, config_add_redirect_route,
+    config_add_route, config_remove_route, config_set, config_set_route_spread, config_unset,
+    validate_placeholders,
 };
+use stencila_server::{ServeOptions, SiteMessage, get_server_token};
+use tokio::sync::{broadcast, mpsc};
 
 /// Manage the workspace site
 #[derive(Debug, Parser)]
@@ -75,6 +78,8 @@ enum SiteCommand {
     List(List),
     Add(Add),
     Remove(Remove),
+    Render(Render),
+    Preview(Preview),
     Push(Push),
     Access(Access),
     Domain(Domain),
@@ -90,6 +95,8 @@ impl Site {
             SiteCommand::List(list) => list.run().await,
             SiteCommand::Add(add) => add.run(),
             SiteCommand::Remove(remove) => remove.run(),
+            SiteCommand::Render(render) => render.run().await,
+            SiteCommand::Preview(preview) => preview.run().await,
             SiteCommand::Push(push) => push.run().await,
             SiteCommand::Access(access) => access.run().await,
             SiteCommand::Domain(domain) => domain.run().await,
@@ -251,7 +258,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
 impl List {
     pub async fn run(self) -> Result<()> {
-        use stencila_codec_site::{RouteType, list};
+        use stencila_site::{RouteType, list};
 
         let routes = list(
             &current_dir()?,
@@ -521,6 +528,433 @@ impl Remove {
     }
 }
 
+/// Render site content to a directory
+#[derive(Debug, Args)]
+#[command(after_long_help = RENDER_AFTER_LONG_HELP)]
+pub struct Render {
+    /// Output directory for rendered files
+    #[arg()]
+    pub output: PathBuf,
+
+    /// Source directory (uses site.root if configured, otherwise current directory)
+    #[arg(long, short)]
+    pub source: Option<PathBuf>,
+
+    /// Filter by route prefix (only render matching routes)
+    #[arg(long = "route")]
+    pub route_filter: Option<String>,
+
+    /// Filter by source file path prefix
+    #[arg(long = "path")]
+    pub path_filter: Option<String>,
+}
+
+pub static RENDER_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Render site to a directory</dim>
+  <b>stencila site render ./dist</>
+
+  <dim># Render specific routes</dim>
+  <b>stencila site render ./dist --route /docs/</>
+
+  <dim># Render from a specific source</dim>
+  <b>stencila site render ./dist --source ./content</>
+"
+);
+
+impl Render {
+    pub async fn run(self) -> Result<()> {
+        use stencila_dirs::{closest_stencila_dir, workspace_dir};
+        use stencila_site::RenderProgress;
+
+        // Resolve source path
+        let source = self.source.map_or_else(current_dir, Ok)?;
+
+        // If using default path, check if site.root is configured
+        let source = {
+            let cfg = stencila_config::config(&source)?;
+            if let Some(site) = &cfg.site
+                && let Some(root) = &site.root
+            {
+                let stencila_dir = closest_stencila_dir(&source, true).await?;
+                let ws_dir = workspace_dir(&stencila_dir)?;
+                root.resolve(&ws_dir)
+            } else {
+                source
+            }
+        };
+
+        // Get base_url from config or use localhost
+        let cfg = stencila_config::config(&source)?;
+        let base_url = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.domain.as_ref())
+            .map(|domain| format!("https://{domain}"))
+            .unwrap_or_else(|| "https://localhost".to_string());
+
+        // Set up progress channel
+        let (tx, mut rx) = mpsc::channel::<RenderProgress>(100);
+
+        // Spawn progress handler
+        let progress_handle = tokio::spawn(async move {
+            while let Some(progress) = rx.recv().await {
+                match progress {
+                    RenderProgress::WalkingDirectory => {
+                        message("📁 Walking directory");
+                    }
+                    RenderProgress::FilesFound {
+                        documents,
+                        static_files,
+                    } => {
+                        message!("📊 Found {documents} documents, {static_files} static files");
+                    }
+                    RenderProgress::EncodingDocument {
+                        relative_path,
+                        index,
+                        total,
+                        ..
+                    } => {
+                        message!("📃 Rendering {}/{}: {}", index + 1, total, relative_path);
+                    }
+                    RenderProgress::DocumentFailed { path, error } => {
+                        message!("❌ Failed: {}: {}", path.display(), error);
+                    }
+                    RenderProgress::CopyingStatic { copied, total } => {
+                        if copied == total {
+                            message!("📦 Copied {total} static files");
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        });
+
+        message!("🔨 Rendering site to {}", self.output.display());
+
+        // Call render
+        let result = stencila_site::render(
+            &source,
+            &self.output,
+            &base_url,
+            self.route_filter.as_deref(),
+            self.path_filter.as_deref(),
+            Some(tx),
+            |doc_path, arguments: HashMap<String, String>| async move {
+                let doc = Document::open(&doc_path, None).await?;
+                let arguments: Vec<(&str, &str)> = arguments
+                    .iter()
+                    .map(|(name, value)| (name.as_str(), value.as_str()))
+                    .collect();
+                doc.call(&arguments, ExecuteOptions::default()).await?;
+                Ok(doc.root().await)
+            },
+        )
+        .await;
+
+        // Wait for progress handler
+        let _ = progress_handle.await;
+
+        let result = result?;
+
+        message!(
+            "✅ Rendered {} documents, {} static files, {} media files to {}",
+            result.documents_ok.len(),
+            result.static_files.len(),
+            result.media_files_count,
+            self.output.display()
+        );
+
+        if result.media_duplicates_eliminated > 0 {
+            message!(
+                "♻️ {} media duplicates eliminated",
+                result.media_duplicates_eliminated
+            );
+        }
+
+        if !result.documents_failed.is_empty() {
+            message!("⚠️ {} documents failed:", result.documents_failed.len());
+            for (doc_path, error) in &result.documents_failed {
+                message!("     - {}: {}", doc_path.display(), error);
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// Preview the workspace site locally with live reload
+#[derive(Debug, Args)]
+#[command(after_long_help = PREVIEW_AFTER_LONG_HELP)]
+pub struct Preview {
+    /// Route to open in browser (default: /)
+    #[arg(default_value = "/")]
+    route: String,
+
+    /// Port to serve on
+    #[arg(long, short, default_value_t = 9000)]
+    port: u16,
+
+    /// Do not open browser automatically
+    #[arg(long)]
+    no_open: bool,
+
+    /// Do not watch for file changes
+    #[arg(long)]
+    no_watch: bool,
+}
+
+pub static PREVIEW_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Preview site at root</dim>
+  <b>stencila site preview</>
+
+  <dim># Preview a specific route</dim>
+  <b>stencila site preview /docs/guide/</>
+
+  <dim># Preview without opening browser</dim>
+  <b>stencila site preview --no-open</>
+
+  <dim># Preview on different port</dim>
+  <b>stencila site preview --port 8080</>
+
+  <dim># Preview without file watching</dim>
+  <b>stencila site preview --no-watch</>
+"
+);
+
+impl Preview {
+    pub async fn run(self) -> Result<()> {
+        use stencila_dirs::{closest_stencila_dir, workspace_dir};
+
+        let cwd = current_dir()?;
+        let cfg = config(&cwd)?;
+
+        // Get layout from config
+        let layout = cfg.site.as_ref().and_then(|s| s.layout.clone());
+
+        // Resolve site root
+        let stencila_dir = closest_stencila_dir(&cwd, true).await?;
+        let ws_dir = workspace_dir(&stencila_dir)?;
+        let site_root = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.root.as_ref())
+            .map(|r| r.resolve(&ws_dir))
+            .unwrap_or_else(|| cwd.clone());
+
+        // Create temp directory (auto-cleans on drop)
+        let temp_dir = tempfile::tempdir()?;
+        let temp_path = temp_dir.path().to_path_buf();
+
+        // Initial render (render() outputs uncompressed HTML with flat structure)
+        message!("📁 Rendering site to temporary directory...");
+        Self::render_site(&site_root, &temp_path, layout.as_ref()).await?;
+
+        // Serve directly from temp_path (render uses flat structure, no decompression needed)
+        let serve_dir = temp_path.clone();
+
+        // Generate server token
+        let server_token = get_server_token();
+
+        // Create shutdown channel
+        let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
+
+        // Start server
+        let server_port = self.port;
+        let server_token_clone = server_token.clone();
+
+        // Create broadcast channel for site notifications
+        // The CLI sends messages after re-rendering, server broadcasts to WebSocket clients
+        let (site_notify_tx, _) = broadcast::channel::<SiteMessage>(16);
+        let site_notify_tx_clone = site_notify_tx.clone();
+
+        let server_handle = tokio::spawn(async move {
+            let options = ServeOptions {
+                dir: serve_dir.clone(),
+                port: server_port,
+                server_token: Some(server_token_clone),
+                no_startup_message: true,
+                shutdown_receiver: Some(shutdown_rx),
+                // Serve pre-rendered HTML files directly without document processing
+                static_dir: Some(serve_dir),
+                // Use broadcast channel for notifications (not file watching)
+                site_notify: Some(site_notify_tx_clone),
+                ..Default::default()
+            };
+            stencila_server::serve(options).await
+        });
+
+        message!("🌐 Preview at http://localhost:{}", self.port);
+
+        // Open browser
+        if !self.no_open {
+            let url = format!(
+                "http://localhost:{}/~login?sst={}&next={}",
+                self.port, server_token, self.route
+            );
+            if let Err(error) = webbrowser::open(&url) {
+                tracing::warn!("Failed to open browser: {error}");
+            }
+        }
+
+        // Watch loop or wait for Ctrl+C
+        if self.no_watch {
+            message!("Press Ctrl+C to stop");
+            tokio::signal::ctrl_c().await?;
+        } else {
+            message!("👁️ Watching for changes (Ctrl+C to stop)");
+            Self::watch_and_rerender(&cwd, &site_root, &temp_path, layout, site_notify_tx).await?;
+        }
+
+        // Graceful shutdown
+        message!("Shutting down...");
+        let _ = shutdown_tx.send(());
+        let _ = server_handle.await;
+
+        // temp_dir drops here, cleaning up rendered files
+        Ok(())
+    }
+
+    /// Render the site to the output directory
+    async fn render_site(source: &Path, output: &Path, _layout: Option<&SiteLayout>) -> Result<()> {
+        use stencila_site::RenderProgress;
+
+        // Use render() to render to the output directory
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<RenderProgress>(100);
+
+        // Base URL for local preview
+        let base_url = "http://localhost:9000".to_string();
+
+        // Spawn progress handler
+        let progress_handle = tokio::spawn(async move {
+            while let Some(progress) = rx.recv().await {
+                match progress {
+                    RenderProgress::EncodingDocument {
+                        relative_path,
+                        index,
+                        total,
+                        ..
+                    } => {
+                        message!("📃 Rendering {}/{}: {}", index + 1, total, relative_path);
+                    }
+                    RenderProgress::DocumentFailed { path, error } => {
+                        message!("❌ Failed: {}: {}", path.display(), error);
+                    }
+                    _ => {}
+                }
+            }
+        });
+
+        // Call render directly
+        let result = stencila_site::render(
+            source,
+            output,
+            &base_url,
+            None,
+            None,
+            Some(tx),
+            |doc_path, arguments: HashMap<String, String>| async move {
+                let doc = Document::open(&doc_path, None).await?;
+                let arguments: Vec<(&str, &str)> = arguments
+                    .iter()
+                    .map(|(name, value)| (name.as_str(), value.as_str()))
+                    .collect();
+                doc.call(&arguments, ExecuteOptions::default()).await?;
+                Ok(doc.root().await)
+            },
+        )
+        .await;
+
+        // Wait for progress handler
+        let _ = progress_handle.await;
+
+        result?;
+        message!("✅ Site rendered");
+        Ok(())
+    }
+
+    /// Watch for changes and re-render
+    async fn watch_and_rerender(
+        workspace_root: &Path,
+        site_root: &Path,
+        output: &Path,
+        mut layout: Option<SiteLayout>,
+        site_notify: broadcast::Sender<SiteMessage>,
+    ) -> Result<()> {
+        // Watch config file for layout changes
+        let mut config_receiver = stencila_config::watch(workspace_root).await?;
+
+        // Watch site root for file changes
+        let mut site_receiver = stencila_site::watch(site_root, Some(output)).await?;
+
+        loop {
+            tokio::select! {
+                // Ctrl+C to exit
+                _ = tokio::signal::ctrl_c() => {
+                    break;
+                }
+
+                // Config changed - update layout and re-render
+                Some(result) = async {
+                    match config_receiver.as_mut() {
+                        Some(rx) => rx.recv().await,
+                        None => std::future::pending().await,
+                    }
+                } => {
+                    match result {
+                        Ok(new_config) => {
+                            layout = new_config.site.and_then(|s| s.layout);
+                            message!("🔄 Config changed, re-rendering...");
+                            if let Err(e) = Self::render_site(site_root, output, layout.as_ref()).await {
+                                message!("❌ Render error: {e}");
+                                // Continue watching - don't exit on render errors
+                            } else {
+                                // Notify browser to reload after successful re-render
+                                let _ = site_notify.send(SiteMessage::ConfigChange);
+                            }
+                        }
+                        Err(e) => {
+                            message!("⚠️ Config error: {e}");
+                        }
+                    }
+                }
+
+                // Site files changed - re-render
+                Some(event) = site_receiver.recv() => {
+                    let changed: Vec<_> = event.paths.iter()
+                        .filter_map(|p| p.file_name())
+                        .filter_map(|n| n.to_str())
+                        .take(3) // Limit display to 3 files
+                        .collect();
+                    let suffix = if event.paths.len() > 3 {
+                        format!(" (+{} more)", event.paths.len() - 3)
+                    } else {
+                        String::new()
+                    };
+                    message!("🔄 Files changed: {}{}, re-rendering...", changed.join(", "), suffix);
+
+                    if let Err(e) = Self::render_site(site_root, output, layout.as_ref()).await {
+                        message!("❌ Render error: {e}");
+                        // Continue watching - don't exit on render errors
+                    } else {
+                        // Notify browser to reload after successful re-render
+                        let paths: Vec<String> = event.paths.iter()
+                            .filter_map(|p| p.to_str())
+                            .map(String::from)
+                            .collect();
+                        let _ = site_notify.send(SiteMessage::SiteChange { paths });
+                    }
+                }
+
+                else => break,
+            }
+        }
+
+        Ok(())
+    }
+}
+
 /// Push site content to Stencila Cloud
 #[derive(Debug, Args)]
 #[command(after_long_help = PUSH_AFTER_LONG_HELP)]
@@ -534,12 +968,6 @@ pub struct Push {
     /// Force push without checking etags
     #[arg(long, short)]
     pub force: bool,
-
-    /// Dry run - process but don't upload
-    ///
-    /// Optionally specify an output directory to write generated files
-    #[arg(long)]
-    pub dry_run: Option<Option<PathBuf>>,
 }
 
 pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
@@ -555,16 +983,13 @@ pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Force push (ignore unchanged files)</dim>
   <b>stencila site push --force</>
-
-  <dim># Dry run (process but don't upload)</dim>
-  <b>stencila site push --dry-run</>
 "
 );
 
 impl Push {
     pub async fn run(self) -> Result<()> {
-        use stencila_codec_site::PushProgress;
         use stencila_dirs::{closest_stencila_dir, workspace_dir};
+        use stencila_site::PushProgress;
 
         // Resolve the provided path
         let is_default_path = self.path == PathBuf::from(".");
@@ -594,10 +1019,6 @@ impl Push {
             message!("✨ Workspace registered: https://{workspace_id}.stencila.site");
         }
 
-        // Set up dry-run path
-        let is_dry_run = self.dry_run.is_some();
-        let dry_run_path = self.dry_run.as_ref().and_then(|opt| opt.as_ref());
-
         // Set up progress channel
         let (tx, mut rx) = tokio::sync::mpsc::channel::<PushProgress>(100);
 
@@ -614,17 +1035,20 @@ impl Push {
                     } => {
                         message!("📊 Found {documents} documents, {static_files} static files");
                     }
-                    PushProgress::EncodingDocument { path, index, total } => {
-                        message!(
-                            "📃 Processing document {}/{}: {}",
-                            index + 1,
-                            total,
-                            path.display()
-                        );
+                    PushProgress::EncodingDocument {
+                        relative_path,
+                        index,
+                        total,
+                        ..
+                    } => {
+                        message!("📃 Rendering {}/{}: {}", index + 1, total, relative_path);
                     }
                     PushProgress::DocumentEncoded { .. } => {}
                     PushProgress::DocumentFailed { path, error } => {
-                        message!("❌ Failed to encode {}: {}", path.display(), error);
+                        message!("❌ Failed: {}: {}", path.display(), error);
+                    }
+                    PushProgress::UploadStarting { total } => {
+                        message!("☁️ Uploading {total} files");
                     }
                     PushProgress::Processing {
                         processed,
@@ -634,7 +1058,7 @@ impl Push {
                         if processed == total {
                             let unchanged = total - uploaded;
                             message!(
-                                "⚙️ Processed {total}/{total} files ({uploaded} new, {unchanged} unchanged)"
+                                "⚙️ Uploaded {uploaded}/{total} files ({unchanged} unchanged)"
                             );
                         }
                     }
@@ -648,16 +1072,14 @@ impl Push {
 
         message!("☁️ Pushing directory `{path_display}` to workspace site");
 
-        // Call push_directory with a decoder function
-        let result = stencila_codec_site::push(
+        // Call push with a decoder function
+        let result = stencila_site::push(
             &path,
             &workspace_id,
             None, // Use current branch
             None,
             None,
             self.force,
-            is_dry_run,
-            dry_run_path.map(|p| p.as_path()),
             Some(tx),
             |doc_path, arguments: HashMap<String, String>| async move {
                 let doc = Document::open(&doc_path, None).await?;
@@ -677,49 +1099,42 @@ impl Push {
         // Handle result
         let result = result?;
 
-        // Print summary
-        let action = if is_dry_run {
-            "Dry-run complete"
-        } else {
-            "Push complete"
-        };
-
         message!(
-            "✅ {}: {} documents, {} redirects, {} static files, {} media files",
-            action,
-            result.documents_ok.len(),
-            result.redirects.len(),
-            result.static_files_ok.len(),
-            result.media_files_count
+            "✅ Push complete: {} documents, {} redirects, {} static files, {} media files",
+            result.render.documents_ok.len(),
+            result.render.redirects.len(),
+            result.render.static_files.len(),
+            result.render.media_files_count
         );
 
-        if result.media_duplicates_eliminated > 0 {
+        if result.render.media_duplicates_eliminated > 0 {
             message!(
                 "♻️ {} media duplicates eliminated",
-                result.media_duplicates_eliminated
+                result.render.media_duplicates_eliminated
             );
         }
 
-        if result.files_skipped > 0 {
+        if result.upload.files_skipped > 0 {
             message!(
                 "⏭️ {} unchanged files skipped (use --force to upload all)",
-                result.files_skipped
+                result.upload.files_skipped
             );
         }
 
-        if !result.documents_failed.is_empty() {
-            message!("⚠️ {} documents failed:", result.documents_failed.len());
-            for (doc_path, error) in &result.documents_failed {
+        if !result.render.documents_failed.is_empty() {
+            message!(
+                "⚠️ {} documents failed:",
+                result.render.documents_failed.len()
+            );
+            for (doc_path, error) in &result.render.documents_failed {
                 message!("     - {}: {}", doc_path.display(), error);
             }
         }
 
-        if !is_dry_run {
-            let url = format!("https://{workspace_id}.stencila.site");
-            let url = Url::parse(&url)?;
-            let url = stencila_codec_site::browseable_url(&url, Some(&path))?;
-            message!("🔗 Site available at: {url}");
-        }
+        let url = format!("https://{workspace_id}.stencila.site");
+        let url = Url::parse(&url)?;
+        let url = stencila_site::browseable_url(&url, Some(&path))?;
+        message!("🔗 Site available at: {url}");
 
         Ok(())
     }

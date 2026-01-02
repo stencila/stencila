@@ -580,6 +580,12 @@ pub struct EncodeOptions {
     /// ways of interacting with a document (e.g. "dynamic", "static", "none").
     pub view: Option<String>,
 
+    /// The site layout configuration for wrapping content
+    ///
+    /// When provided, the content will be wrapped in a `<stencila-layout>` element
+    /// with appropriate slots for header, sidebars, and footer.
+    pub layout: Option<stencila_config::SiteLayout>,
+
     /// Whether to embed media files as data URIs
     ///
     /// When enabled, external media files (images, audio, video) referenced in the document

@@ -37,6 +37,9 @@ static DOMAIN_REGEX: LazyLock<Regex> =
 mod init;
 
 mod outputs;
+
+mod watch;
+pub use watch::watch;
 pub use outputs::*;
 
 mod utils;
@@ -408,6 +411,20 @@ pub struct SiteConfig {
     /// ```
     #[schemars(with = "Option<HashMap<String, RouteTarget>>")]
     pub routes: Option<HashMap<String, RouteTarget>>,
+
+    /// Site layout configuration
+    ///
+    /// Controls the layout structure of site pages including header, sidebars,
+    /// footer, and navigation. When not specified, pages are rendered without
+    /// the layout wrapper.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout]
+    /// left-sidebar = true
+    /// right-sidebar = true
+    /// ```
+    pub layout: Option<SiteLayout>,
 }
 
 impl SiteConfig {
@@ -421,6 +438,51 @@ impl SiteConfig {
             );
         }
         Ok(())
+    }
+}
+
+/// Site layout configuration
+///
+/// Controls the layout structure of site pages including header, sidebars,
+/// footer, and navigation.
+///
+/// Example:
+/// ```toml
+/// [site.layout]
+/// left-sidebar = true
+/// right-sidebar = true
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct SiteLayout {
+    /// Enable the left sidebar
+    ///
+    /// When `true`, displays a left sidebar area that can contain navigation.
+    /// When `false` or not specified, the left sidebar is hidden.
+    pub left_sidebar: Option<bool>,
+
+    /// Enable the right sidebar
+    ///
+    /// When `true`, displays a right sidebar area that can contain a table of contents.
+    /// When `false` or not specified, the right sidebar is hidden.
+    pub right_sidebar: Option<bool>,
+}
+
+impl SiteLayout {
+    /// Check if layout has any active sections
+    pub fn has_any(&self) -> bool {
+        self.left_sidebar.unwrap_or(false) || self.right_sidebar.unwrap_or(false)
+    }
+
+    /// Check if the left sidebar is enabled
+    pub fn has_left_sidebar(&self) -> bool {
+        self.left_sidebar.unwrap_or(false)
+    }
+
+    /// Check if the right sidebar is enabled
+    pub fn has_right_sidebar(&self) -> bool {
+        self.right_sidebar.unwrap_or(false)
     }
 }
 

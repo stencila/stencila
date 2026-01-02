@@ -8,6 +8,7 @@ clap = { workspace = true }
 eyre = { workspace = true }
 figment = { version = "0.10.19", features = ["toml"] }
 glob = { workspace = true }
+notify = { workspace = true }
 regex = { workspace = true }
 schemars = { workspace = true }
 serde = { workspace = true }

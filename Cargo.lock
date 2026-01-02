@@ -4150,6 +4150,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "http-range-header"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9171a2ea8a68358193d15dd5d70c1c10a2afc3e7e4c5bc92bc9f025cebd7359c"
+
+[[package]]
 name = "httparse"
 version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8319,7 +8325,6 @@ dependencies = [
  "stencila-ask",
  "stencila-cli-utils",
  "stencila-cloud",
- "stencila-codec-site",
  "stencila-codec-utils",
  "stencila-codecs",
  "stencila-config",
@@ -8341,6 +8346,7 @@ dependencies = [
  "stencila-schema",
  "stencila-secrets",
  "stencila-server",
+ "stencila-site",
  "stencila-snap",
  "stencila-spread",
  "stencila-themes",
@@ -8433,6 +8439,7 @@ dependencies = [
  "smart-default",
  "stencila-codec-info",
  "stencila-codec-utils",
+ "stencila-config",
  "stencila-format",
  "stencila-node-strip",
  "stencila-schema",
@@ -8631,6 +8638,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-dom-trait",
  "stencila-codec-text-trait",
+ "stencila-config",
  "stencila-node-media",
  "stencila-themes",
  "stencila-version",
@@ -9167,36 +9175,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-codec-site"
-version = "0.0.0"
-dependencies = [
- "chrono",
- "eyre",
- "flate2",
- "futures",
- "ignore",
- "indexmap 2.12.1",
- "md-5",
- "reqwest",
- "serde",
- "serde_json",
- "serde_yaml",
- "stencila-cloud",
- "stencila-codec",
- "stencila-codec-dom",
- "stencila-codec-utils",
- "stencila-config",
- "stencila-dirs",
- "stencila-format",
- "stencila-node-media",
- "stencila-spread",
- "tempfile",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "stencila-codec-swb"
 version = "0.0.0"
 dependencies = [
@@ -9353,7 +9331,6 @@ dependencies = [
  "stencila-codec-pmc",
  "stencila-codec-png",
  "stencila-codec-rnw",
- "stencila-codec-site",
  "stencila-codec-swb",
  "stencila-codec-text",
  "stencila-codec-utils",
@@ -9380,6 +9357,7 @@ dependencies = [
  "figment",
  "glob",
  "jsonschema",
+ "notify",
  "regex",
  "schemars 1.1.0",
  "serde",
@@ -9465,7 +9443,6 @@ dependencies = [
  "stencila-codec-gdoc",
  "stencila-codec-json",
  "stencila-codec-m365",
- "stencila-codec-site",
  "stencila-codec-text",
  "stencila-codec-utils",
  "stencila-codecs",
@@ -9483,6 +9460,7 @@ dependencies = [
  "stencila-node-strip",
  "stencila-remotes",
  "stencila-schema",
+ "stencila-site",
  "stencila-tools",
  "strum",
  "tempfile",
@@ -10572,7 +10550,6 @@ dependencies = [
  "stencila-codec-gdoc",
  "stencila-codec-github",
  "stencila-codec-m365",
- "stencila-codec-site",
  "stencila-config",
  "stencila-dirs",
  "strum",
@@ -10710,9 +10687,11 @@ dependencies = [
  "stencila-codec-dom",
  "stencila-codec-text",
  "stencila-codecs",
+ "stencila-config",
  "stencila-dirs",
  "stencila-document",
  "stencila-format",
+ "stencila-site",
  "stencila-themes",
  "stencila-version",
  "stencila-web-dist",
@@ -10721,6 +10700,38 @@ dependencies = [
  "tower-http",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "stencila-site"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "eyre",
+ "flate2",
+ "futures",
+ "ignore",
+ "indexmap 2.12.1",
+ "md-5",
+ "notify",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-cloud",
+ "stencila-codec",
+ "stencila-codec-dom",
+ "stencila-codec-utils",
+ "stencila-config",
+ "stencila-dirs",
+ "stencila-format",
+ "stencila-node-media",
+ "stencila-spread",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+ "walkdir",
 ]
 
 [[package]]
@@ -11526,11 +11537,20 @@ checksum = "d4e6559d53cc268e5031cd8429d05415bc4cb4aefc4aa5d6cc35fbf5b924a1f8"
 dependencies = [
  "bitflags 2.10.0",
  "bytes",
+ "futures-core",
  "futures-util",
  "http",
  "http-body",
+ "http-body-util",
+ "http-range-header",
+ "httpdate",
  "iri-string",
+ "mime",
+ "mime_guess",
+ "percent-encoding",
  "pin-project-lite",
+ "tokio",
+ "tokio-util",
  "tower",
  "tower-layer",
  "tower-service",

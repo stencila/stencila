@@ -21,10 +21,14 @@ use eyre::bail;
 use rand::{Rng, rng};
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
-use tokio::{net::TcpListener, sync::mpsc};
+use tokio::{
+    net::TcpListener,
+    sync::{broadcast, mpsc},
+};
 use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
 use tower_http::{
     cors::{Any, CorsLayer},
+    services::ServeDir,
     trace::TraceLayer,
 };
 
@@ -35,7 +39,9 @@ pub(crate) use stencila_version::STENCILA_VERSION;
 use crate::{
     auth,
     documents::{self, Documents},
-    login, statics, themes,
+    login,
+    site::{self, SiteMessage},
+    statics, themes,
 };
 
 /// Server runtime information written to disk for discovery
@@ -113,6 +119,9 @@ pub(crate) struct ServerState {
     /// The directory that is being served
     pub dir: PathBuf,
 
+    /// Broadcast sender for site notifications
+    pub site_notify: Option<broadcast::Sender<SiteMessage>>,
+
     /// The `server_token` for the server
     pub server_token: Option<String>,
 
@@ -156,6 +165,21 @@ pub struct ServeOptions {
     #[arg(default_value = ".")]
     #[default(".")]
     pub dir: PathBuf,
+
+    /// Directory to serve as static files
+    ///
+    /// When set, all files in this directory are served directly without
+    /// document processing. Used by site preview to serve pre-rendered HTML.
+    #[clap(skip)]
+    pub static_dir: Option<PathBuf>,
+
+    /// Broadcast sender for site notifications
+    ///
+    /// When set, the site WebSocket will receive notifications from this
+    /// channel instead of watching files directly. The CLI sends messages
+    /// on this channel after re-rendering completes.
+    #[clap(skip)]
+    pub site_notify: Option<broadcast::Sender<SiteMessage>>,
 
     /// The address to serve on
     ///
@@ -236,6 +260,8 @@ pub async fn serve(
         address,
         port,
         dir,
+        static_dir,
+        site_notify,
         no_auth,
         raw,
         source,
@@ -302,6 +328,7 @@ pub async fn serve(
 
     let state = ServerState {
         dir,
+        site_notify,
         server_token,
         raw,
         source,
@@ -310,32 +337,64 @@ pub async fn serve(
         ..Default::default()
     };
 
-    let router = Router::new()
-        .nest("/~static", statics::router())
-        .route("/~login", get(login::login))
-        .nest("/~auth", auth::router())
-        .nest(
-            "/~documents",
-            documents::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
-        )
-        .route(
-            "/~themes/websocket",
-            get(themes::websocket_handler)
-                .route_layer(middleware_fn(state.clone(), auth_middleware)),
-        )
-        .route(
-            "/{*path}",
-            get(documents::serve_path).route_layer(middleware_fn(state.clone(), auth_middleware)),
-        )
-        .route(
-            "/",
-            get(documents::serve_root).route_layer(middleware_fn(state.clone(), auth_middleware)),
-        )
-        .layer(create_cors_layer(cors))
-        .layer(TraceLayer::new_for_http())
-        .layer(CookieManagerLayer::new())
-        .with_state(state)
-        .into_make_service();
+    // Build router based on whether we're serving static files directly
+    let router = if let Some(static_dir) = static_dir {
+        // Static serve mode: serve pre-rendered files directly without document processing
+        Router::new()
+            .nest("/~static", statics::router())
+            .route("/~login", get(login::login))
+            .route(
+                "/~themes/websocket",
+                get(themes::websocket_handler)
+                    .route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .route(
+                "/~site/websocket",
+                get(site::websocket_handler)
+                    .route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .fallback_service(ServeDir::new(&static_dir))
+            .layer(create_cors_layer(cors))
+            .layer(TraceLayer::new_for_http())
+            .layer(CookieManagerLayer::new())
+            .with_state(state)
+            .into_make_service()
+    } else {
+        // Normal mode: dynamic document processing
+        Router::new()
+            .nest("/~static", statics::router())
+            .route("/~login", get(login::login))
+            .nest("/~auth", auth::router())
+            .nest(
+                "/~documents",
+                documents::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .route(
+                "/~themes/websocket",
+                get(themes::websocket_handler)
+                    .route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .route(
+                "/~site/websocket",
+                get(site::websocket_handler)
+                    .route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .route(
+                "/{*path}",
+                get(documents::serve_path)
+                    .route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .route(
+                "/",
+                get(documents::serve_root)
+                    .route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .layer(create_cors_layer(cors))
+            .layer(TraceLayer::new_for_http())
+            .layer(CookieManagerLayer::new())
+            .with_state(state)
+            .into_make_service()
+    };
 
     if !no_startup_message {
         tracing::info!("Starting server at {url}");

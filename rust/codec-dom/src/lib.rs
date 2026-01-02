@@ -15,6 +15,7 @@ use stencila_codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
+use stencila_config::SiteLayout;
 use stencila_node_media::{collect_media, embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
@@ -218,6 +219,8 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             .and_then(|options| options.view.as_deref())
             .unwrap_or("static");
 
+        let layout = options.as_ref().and_then(|options| options.layout.as_ref());
+
         standalone_html(
             String::new(),
             node_type,
@@ -228,6 +231,7 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             web_base,
             theme.as_ref(),
             view,
+            layout,
         )
         .await
     };
@@ -252,6 +256,10 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
 /// # Theme parameter
 /// - `None`: Skip theme entirely
 /// - `Some(theme)`: Use the resolved theme
+///
+/// # Layout parameter
+/// - `None`: No layout wrapper (document content only)
+/// - `Some(layout)`: Wrap content in `<stencila-layout>` with configured sidebars
 #[allow(clippy::too_many_arguments)]
 pub async fn standalone_html(
     doc_id: String,
@@ -263,6 +271,7 @@ pub async fn standalone_html(
     web_base: String,
     theme: Option<&Theme>,
     view: &str,
+    layout: Option<&SiteLayout>,
 ) -> String {
     let title = node_title.as_ref().map_or_else(
         || "Stencila Document".to_string(),
@@ -442,16 +451,40 @@ pub async fn standalone_html(
     "#,
     );
 
-    // Body content
-    if view != "none" {
-        // Wrap the root's HTML in the view element
-        html.push_str(&format!(
+    // Build the view-wrapped content
+    let view_content = if view != "none" {
+        format!(
             r#"<stencila-{view}-view view={view} doc={doc_id} type={node_type}>{node_html}</stencila-{view}-view>"#
+        )
+    } else {
+        node_html
+    };
+
+    // Optionally wrap in layout
+    if let Some(layout) = layout {
+        let left_sidebar = layout.has_left_sidebar();
+        let right_sidebar = layout.has_right_sidebar();
+
+        // Build layout attributes
+        let mut layout_attrs = String::new();
+        if left_sidebar {
+            layout_attrs.push_str(" left-sidebar");
+        }
+        if right_sidebar {
+            layout_attrs.push_str(" right-sidebar");
+        }
+
+        html.push_str(&format!(
+            r##"<stencila-layout{layout_attrs}>
+      <a href="#main-content" class="skip-link">Skip to content</a>
+      <main id="main-content" slot="content">
+        {view_content}
+      </main>
+    </stencila-layout>"##
         ));
     } else {
-        // No wrapping element if view is none
-        html.push_str(&node_html);
-    };
+        html.push_str(&view_content);
+    }
 
     html.push_str(
         r#"
