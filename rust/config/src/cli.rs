@@ -707,6 +707,20 @@ impl Check {
                     if let Some(exclude) = &site.exclude {
                         message!("   🚫 Site exclusions: {} patterns", exclude.len());
                     }
+                    if let Some(layout) = &site.layout {
+                        let mut features = Vec::new();
+                        if layout.has_left_sidebar() {
+                            features.push("left-sidebar");
+                        }
+                        if layout.has_right_sidebar() {
+                            features.push("right-sidebar");
+                        }
+                        if features.is_empty() {
+                            message!("   📐 Site layout: (no features enabled)");
+                        } else {
+                            message!("   📐 Site layout: {}", features.join(", "));
+                        }
+                    }
                 }
 
                 if let Some(remotes) = &cfg.remotes {

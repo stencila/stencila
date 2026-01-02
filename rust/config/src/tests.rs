@@ -9,12 +9,14 @@ use figment::{
 use serial_test::serial;
 use tempfile::TempDir;
 
-use crate::{
-    CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, RedirectStatus, RemoteTarget, RemoteValue,
-    find_config_file,
+use crate::config_update_remote_watch;
+
+use super::{
+    CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, find_config_file,
+    remotes::{RemoteTarget, RemoteValue},
+    site::RedirectStatus,
     utils::{
-        ConfigTarget, collect_config_paths, config_set, config_unset, config_update_remote_watch,
-        config_value, normalize_path,
+        ConfigTarget, collect_config_paths, config_set, config_unset, config_value, normalize_path,
     },
 };
 

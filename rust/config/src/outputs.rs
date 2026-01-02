@@ -1,12 +1,252 @@
 use std::{collections::HashMap, fs, path::PathBuf};
 
+use clap::ValueEnum;
 use eyre::{Result, bail, eyre};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
-use crate::{OutputCommand, SpreadMode, find_config_file};
+use crate::{ConfigRelativePath, RESERVED_PLACEHOLDERS, SpreadMode, find_config_file, validate_placeholders};
 
-/// Reserved placeholders that don't require arguments
-const RESERVED_PLACEHOLDERS: &[&str] = &["branch", "tag", "i"];
+/// Target for an output - either a simple source path or a full configuration
+///
+/// Outputs define files to be rendered/converted and uploaded to Stencila Cloud
+/// workspace outputs. The key is the output path template.
+///
+/// Example in TOML:
+/// ```toml
+/// [outputs]
+/// # Simple: source path (rendered if extension differs)
+/// "report.pdf" = "report.md"
+///
+/// # Full config with options
+/// "report.docx" = { source = "report.md", command = "render" }
+///
+/// # Static file (omit source = use key as source)
+/// "data/results.csv" = {}
+///
+/// # Pattern for multiple files
+/// "exports/*.csv" = { pattern = "exports/*.csv" }
+///
+/// # Spread with parameters
+/// "{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }
+/// ```
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum OutputTarget {
+    /// Simple source path (rendered if extension differs from key)
+    ///
+    /// Example: `"report.pdf" = "report.md"`
+    Source(ConfigRelativePath),
+
+    /// Full configuration object
+    ///
+    /// Example: `"report.pdf" = { source = "report.md", command = "render" }`
+    /// Example: `"data.csv" = {}` (static, source = output path)
+    Config(OutputConfig),
+}
+
+impl OutputTarget {
+    /// Validate the output target configuration
+    ///
+    /// Ensures that:
+    /// - `arguments` and `spread` are only allowed with `command = render`
+    /// - If `arguments` is present, it must be non-empty
+    /// - `source` and `pattern` cannot both be set
+    /// - If `refs` is present, it must be non-empty
+    /// - Pattern keys must include `*.ext` suffix
+    pub fn validate(&self, key: &str) -> Result<()> {
+        match self {
+            OutputTarget::Source(_) => Ok(()),
+            OutputTarget::Config(config) => config.validate(key),
+        }
+    }
+
+    /// Get the source path if this is a simple source target
+    pub fn source(&self) -> Option<&ConfigRelativePath> {
+        match self {
+            OutputTarget::Source(path) => Some(path),
+            OutputTarget::Config(_) => None,
+        }
+    }
+
+    /// Get the configuration if this is a config target
+    pub fn config(&self) -> Option<&OutputConfig> {
+        match self {
+            OutputTarget::Config(config) => Some(config),
+            OutputTarget::Source(_) => None,
+        }
+    }
+
+    /// Check if this is a spread output (has arguments)
+    pub fn is_spread(&self) -> bool {
+        match self {
+            OutputTarget::Source(_) => false,
+            OutputTarget::Config(config) => config.arguments.is_some(),
+        }
+    }
+
+    /// Check if this is a pattern output
+    pub fn is_pattern(&self) -> bool {
+        match self {
+            OutputTarget::Source(_) => false,
+            OutputTarget::Config(config) => config.pattern.is_some(),
+        }
+    }
+}
+
+/// Full output configuration
+///
+/// Provides detailed control over how an output is processed and uploaded.
+///
+/// Example:
+/// ```toml
+/// [outputs]
+/// "report.pdf" = { source = "report.md", command = "render" }
+/// "{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }
+/// "exports/*.csv" = { pattern = "exports/*.csv", exclude = ["temp-*.csv"] }
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+pub struct OutputConfig {
+    /// Source file path (for single-file outputs)
+    ///
+    /// Path relative to the config file. If not specified and `pattern` is not set,
+    /// the output key is used as the source path.
+    pub source: Option<String>,
+
+    /// Glob pattern for matching multiple source files
+    ///
+    /// Mutually exclusive with `source`. The output key must include `*.ext`
+    /// to specify the output format (e.g., `"reports/*.pdf"`).
+    pub pattern: Option<String>,
+
+    /// Processing command
+    ///
+    /// - `render`: Execute code, apply parameters, convert to output format (default if extensions differ)
+    /// - `convert`: Format transformation only, no code execution
+    /// - `none`: Copy file as-is (default if extensions are the same)
+    pub command: Option<OutputCommand>,
+
+    /// Spread mode for parameter variants
+    ///
+    /// Only valid with `command = render`.
+    /// - `grid`: Cartesian product of all arguments (default)
+    /// - `zip`: Positional pairing of values
+    pub spread: Option<SpreadMode>,
+
+    /// Parameter values for spread variants
+    ///
+    /// Only valid with `command = render`. Keys are parameter names,
+    /// values are arrays of possible values.
+    ///
+    /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
+    pub arguments: Option<HashMap<String, Vec<String>>>,
+
+    /// Git ref patterns to filter when this output is processed and uploaded
+    ///
+    /// If set, the output is only processed when the current git ref matches
+    /// one of these patterns. Supports glob matching.
+    ///
+    /// Examples: `["main"]`, `["release/*"]`, `["v*"]`
+    pub refs: Option<Vec<String>>,
+
+    /// Glob patterns to exclude from pattern matches
+    ///
+    /// Paths are relative to the repository root.
+    /// Only applies when `pattern` is set.
+    ///
+    /// Example: `["temp-*.csv", "draft-*"]`
+    pub exclude: Option<Vec<String>>,
+}
+
+impl OutputConfig {
+    /// Validate the output configuration
+    pub fn validate(&self, key: &str) -> Result<()> {
+        // Source and pattern are mutually exclusive
+        if self.source.is_some() && self.pattern.is_some() {
+            bail!("Output '{key}' cannot have both `source` and `pattern`");
+        }
+
+        // If pattern is set, key must include *.ext suffix
+        if self.pattern.is_some() && !key.contains("*.") {
+            bail!(
+                "Output '{key}' with `pattern` must include `*.ext` suffix to specify output format (e.g., 'reports/*.pdf')"
+            );
+        }
+
+        // Arguments and spread are only allowed with command = render
+        let command = self.command.unwrap_or_default();
+        if command != OutputCommand::Render {
+            if self.arguments.is_some() {
+                bail!("Output '{key}' has `arguments` but `command` is not `render`");
+            }
+            if self.spread.is_some() {
+                bail!("Output '{key}' has `spread` but `command` is not `render`");
+            }
+        }
+
+        // If arguments is present, it must be non-empty
+        if let Some(args) = &self.arguments
+            && args.is_empty()
+        {
+            bail!("Output '{key}' has empty `arguments`");
+        }
+
+        // If refs is present, it must be non-empty
+        if let Some(refs) = &self.refs
+            && refs.is_empty()
+        {
+            bail!("Output '{key}' has empty `refs`");
+        }
+
+        // Exclude only applies with pattern
+        if self.exclude.is_some() && self.pattern.is_none() {
+            bail!("Output '{key}' has `exclude` but no `pattern`");
+        }
+
+        // Validate that all placeholders have corresponding arguments
+        // (except reserved placeholders like {tag} and {branch})
+        validate_placeholders(key, self.arguments.as_ref(), "Output")?;
+
+        Ok(())
+    }
+}
+
+/// Processing command for outputs
+///
+/// Determines how source files are processed before upload:
+/// - `render`: Execute code, apply parameters, then convert to output format
+/// - `convert`: Pure format transformation (no code execution)
+/// - `none`: Copy file as-is (static upload)
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    PartialEq,
+    Eq,
+    Deserialize,
+    Serialize,
+    JsonSchema,
+    Display,
+    ValueEnum,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum OutputCommand {
+    /// Execute code and convert to output format (default for different extensions)
+    #[default]
+    Render,
+
+    /// Format transformation only, no code execution
+    Convert,
+
+    /// Copy file as-is (default for same extensions)
+    None,
+}
 
 /// Validate output configuration options before writing to config
 ///
