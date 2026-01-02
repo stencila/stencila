@@ -34,6 +34,7 @@ static DOMAIN_REGEX: LazyLock<Regex> =
 
 pub mod cli;
 mod init;
+mod layout;
 mod outputs;
 mod remotes;
 mod site;
@@ -41,14 +42,15 @@ mod utils;
 mod watch;
 
 pub use {
+    layout::{LayoutSidebar, NavConfig, NavItem, SidebarConfig, SiteLayout},
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,
         config_update_remote_watch,
     },
     site::{
-        RedirectStatus, RouteSpread, SiteConfig, SiteLayout, config_add_redirect_route,
-        config_add_route, config_remove_route, config_set_route_spread,
+        RedirectStatus, RouteSpread, SiteConfig, config_add_redirect_route, config_add_route,
+        config_remove_route, config_set_route_spread,
     },
     utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file},
     watch::watch,

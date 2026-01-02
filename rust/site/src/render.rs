@@ -16,12 +16,14 @@ use tokio::{
     sync::mpsc,
 };
 
-use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
-use stencila_codec_dom::DomCodec;
+use stencila_codec::stencila_schema::Node;
+use stencila_codec_dom::{SiteEncodeOptions, encode_site_document};
 use stencila_config::{RedirectStatus, SiteLayout};
+
+use crate::layout::ResolvedLayout;
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
-use crate::{RouteEntry, RouteType, list};
+use crate::{RouteEntry, RouteType, layout::resolve_layout, list};
 
 /// A document rendered to HTML
 #[derive(Debug)]
@@ -147,8 +149,12 @@ where
         workspace_dir.clone()
     };
 
-    // Get layout configuration
-    let layout = config.site.as_ref().and_then(|s| s.layout.clone());
+    // Get layout configuration (defaults to enabled with left sidebar)
+    let layout = config
+        .site
+        .as_ref()
+        .and_then(|s| s.layout.clone())
+        .unwrap_or_default();
 
     // Partition routes by type
     let mut document_routes: Vec<RouteEntry> = Vec::new();
@@ -235,13 +241,18 @@ where
 
         let result = async {
             let node = decode_document_fn(source_path.clone(), arguments.clone()).await?;
+
+            // Resolve layout with nav tree for this route
+            let resolved_layout = resolve_layout(&entry.route, &document_routes, &layout);
+
             render_document(
                 &node,
                 Some(source_path),
                 base_url,
                 output,
                 &entry.route,
-                layout.as_ref(),
+                Some(&layout),
+                Some(&resolved_layout),
             )
             .await
         }
@@ -345,6 +356,7 @@ where
 /// * `output_root` - Output directory root
 /// * `route` - The route for this document (e.g., "/docs/report/")
 /// * `layout` - Optional site layout configuration for wrapping content
+/// * `resolved_layout` - Pre-resolved layout with nav tree for current route
 ///
 /// # Returns
 /// The rendered document with path information and media files collected.
@@ -355,6 +367,7 @@ async fn render_document(
     output_root: &Path,
     route: &str,
     layout: Option<&SiteLayout>,
+    resolved_layout: Option<&ResolvedLayout>,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -393,26 +406,18 @@ async fn render_document(
     }
 
     // Encode HTML with media collection to shared directory
-    DomCodec
-        .to_path(
-            node,
-            &html_file,
-            Some(EncodeOptions {
-                standalone: Some(true),
-                base_url: Some(base_url.to_string()),
-                from_path: path.map(|p| p.to_path_buf()),
-                to_path: Some(html_file.clone()),
-                // Collect and extract media to the shared media directory
-                extract_media: Some(media_dir.clone()),
-                collect_media: Some(media_dir.clone()),
-                // Use static view for site publishing
-                view: Some("static".into()),
-                // Apply site layout wrapper if configured
-                layout: layout.cloned(),
-                ..Default::default()
-            }),
-        )
-        .await?;
+    encode_site_document(
+        node,
+        &html_file,
+        SiteEncodeOptions {
+            source_path: path,
+            base_url,
+            media_dir: &media_dir,
+            layout,
+            resolved_layout,
+        },
+    )
+    .await?;
 
     // Collect NEW media files created during this document's encoding
     let mut media_files = Vec::new();

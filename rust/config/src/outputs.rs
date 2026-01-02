@@ -8,7 +8,9 @@ use serde_with::skip_serializing_none;
 use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
-use crate::{ConfigRelativePath, RESERVED_PLACEHOLDERS, SpreadMode, find_config_file, validate_placeholders};
+use crate::{
+    ConfigRelativePath, RESERVED_PLACEHOLDERS, SpreadMode, find_config_file, validate_placeholders,
+};
 
 /// Target for an output - either a simple source path or a full configuration
 ///

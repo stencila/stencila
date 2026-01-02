@@ -5,8 +5,14 @@ use url::Url;
 
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 
+mod layout;
+pub use layout::{ResolvedLayout, resolve_layout};
+
 mod list;
 pub use list::{RouteEntry, RouteType, list};
+
+mod nav;
+pub use nav::{NavTreeItem, build_nav_tree};
 
 mod render;
 pub use render::{RenderProgress, RenderResult, render};

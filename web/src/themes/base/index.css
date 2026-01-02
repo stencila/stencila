@@ -13,6 +13,7 @@
 @import url("./tokens-semantic.css");
 
 @import url("./root.css");
+@import url("./layout.css");
 @import url("./browsers.css");
 @import url("./pages.css");
 

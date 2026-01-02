@@ -281,6 +281,7 @@ pub async fn serve_path(
         theme.as_ref(),
         view,
         None, // No layout for individual documents
+        None, // No resolved layout for individual documents
     )
     .await;
 

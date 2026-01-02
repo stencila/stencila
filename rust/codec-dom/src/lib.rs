@@ -4,6 +4,8 @@ use itertools::Itertools;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 use tokio::fs::{create_dir_all, write};
 
+use serde::{Deserialize, Serialize};
+
 use stencila_codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
@@ -12,7 +14,7 @@ use stencila_codec::{
 };
 use stencila_codec_dom_trait::{
     DomCodec as DomCodecTrait, DomEncodeContext,
-    html_escape::{encode_double_quoted_attribute, encode_safe},
+    html_escape::{self, encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
 use stencila_config::SiteLayout;
@@ -27,6 +29,74 @@ pub use stencila_codec_dom_trait::to_dom;
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
 const USE_LOCALHOST: bool = false;
+
+/// Options for encoding a document as part of a site
+#[derive(Debug)]
+pub struct SiteEncodeOptions<'a> {
+    /// Source path of the document (for media collection)
+    pub source_path: Option<&'a Path>,
+
+    /// Base URL for resolving relative paths
+    pub base_url: &'a str,
+
+    /// Directory for extracted/collected media files
+    pub media_dir: &'a Path,
+
+    /// Site layout configuration
+    pub layout: Option<&'a SiteLayout>,
+
+    /// Pre-resolved layout with nav tree for current route
+    pub resolved_layout: Option<&'a ResolvedLayout>,
+}
+
+/// Pre-computed layout data for a specific route
+///
+/// This struct contains all layout-related data needed to render
+/// a page, including the navigation tree with active/expanded states.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResolvedLayout {
+    /// Whether left sidebar is enabled
+    pub left_sidebar: bool,
+
+    /// Whether right sidebar is enabled
+    pub right_sidebar: bool,
+
+    /// Navigation tree for left sidebar (if enabled)
+    pub nav_tree: Option<Vec<NavTreeItem>>,
+
+    /// Whether nav groups are collapsible
+    pub collapsible: bool,
+
+    /// Initial expansion depth (None = expand all)
+    pub expanded_depth: Option<u8>,
+
+    /// Current route (for client-side active state updates)
+    pub current_route: String,
+}
+
+/// A navigation tree item for site layouts
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NavTreeItem {
+    /// Display label for this item
+    pub label: String,
+
+    /// URL to navigate to (None for group headers)
+    pub href: Option<String>,
+
+    /// Optional icon name (Lucide icon)
+    pub icon: Option<String>,
+
+    /// Whether this item is the current page
+    pub active: bool,
+
+    /// Whether this group is expanded (only relevant for items with children)
+    pub expanded: bool,
+
+    /// Child navigation items (for groups/directories)
+    pub children: Option<Vec<NavTreeItem>>,
+}
 
 /// A codec for DOM HTML
 pub struct DomCodec;
@@ -116,6 +186,117 @@ impl Codec for DomCodec {
 
         Ok(info)
     }
+}
+
+/// Encode a document as HTML for site rendering
+///
+/// This is a specialized encoding function for site generation that:
+/// - Always produces standalone HTML
+/// - Uses static view
+/// - Handles media collection/extraction
+/// - Applies layout wrapper with navigation
+pub async fn encode_site_document(
+    node: &Node,
+    output_path: &Path,
+    options: SiteEncodeOptions<'_>,
+) -> Result<EncodeInfo> {
+    let SiteEncodeOptions {
+        source_path,
+        base_url,
+        media_dir,
+        layout,
+        resolved_layout,
+    } = options;
+
+    // Collect media from source to shared media directory
+    let node = if let Some(source) = source_path {
+        let mut copy = node.clone();
+        collect_media(&mut copy, Some(source), output_path, media_dir)?;
+        copy
+    } else {
+        node.clone()
+    };
+
+    // Encode the document content to DOM HTML
+    let mut context = DomEncodeContext::new(Some("static"));
+    node.to_dom(&mut context);
+
+    // Add the root attribute to the root node
+    let mut node_html = context.content();
+    if let Some(pos) = node_html.find('>') {
+        node_html.insert_str(pos, " root");
+    }
+
+    // Get any CSS defined in the content
+    let css = context.css();
+    if !css.is_empty() {
+        let css = normalize_css(&css);
+        if let Some(pos) = node_html.find('>') {
+            node_html.insert_str(pos + 1, &["<style>", &css, "</style>"].concat());
+        }
+    }
+
+    // Get document metadata
+    let node_type = node.node_type();
+    let node_title = match &node {
+        Node::Article(article) => article.title.as_ref().map(to_text),
+        Node::Prompt(prompt) => Some(to_text(&prompt.title)),
+        _ => None,
+    };
+    let node_description = match &node {
+        Node::Article(article) => article
+            .options
+            .description
+            .as_ref()
+            .map(|cord| cord.to_string()),
+        Node::Prompt(prompt) => Some(prompt.description.to_string()),
+        _ => None,
+    };
+
+    // Build extra head content with OpenGraph image if available
+    let extra_head = context.image().as_ref().map(|image| {
+        format!(
+            r#"<meta property="og:image" content="{}" />"#,
+            encode_double_quoted_attribute(&format!("{base_url}/{image}"))
+        )
+    });
+
+    // Use local or production web assets based on USE_LOCALHOST constant
+    let web_base = if cfg!(debug_assertions) && USE_LOCALHOST {
+        "http://localhost:9000/~static/dev".to_string()
+    } else {
+        ["https://stencila.io/web/v", STENCILA_VERSION].concat()
+    };
+
+    // Resolve theme (always use default for site rendering)
+    let theme = stencila_themes::get(None::<String>, None)
+        .await
+        .ok()
+        .flatten();
+
+    // Generate standalone HTML with layout
+    let html = standalone_html(
+        String::new(),
+        node_type,
+        node_title,
+        node_description,
+        extra_head,
+        node_html,
+        web_base,
+        theme.as_ref(),
+        "static",
+        layout,
+        resolved_layout,
+    )
+    .await;
+
+    // Write to output file
+    if let Some(parent) = output_path.parent() {
+        create_dir_all(parent).await?;
+    }
+    write(output_path, html).await?;
+
+    Ok(EncodeInfo::none())
 }
 
 /// Encode a node to DOM HTML with options
@@ -219,8 +400,6 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             .and_then(|options| options.view.as_deref())
             .unwrap_or("static");
 
-        let layout = options.as_ref().and_then(|options| options.layout.as_ref());
-
         standalone_html(
             String::new(),
             node_type,
@@ -231,7 +410,8 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             web_base,
             theme.as_ref(),
             view,
-            layout,
+            None,
+            None,
         )
         .await
     };
@@ -260,6 +440,10 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
 /// # Layout parameter
 /// - `None`: No layout wrapper (document content only)
 /// - `Some(layout)`: Wrap content in `<stencila-layout>` with configured sidebars
+///
+/// # Resolved Layout
+/// - `None`: No navigation tree
+/// - `Some(resolved)`: Pre-resolved layout with nav tree for current route
 #[allow(clippy::too_many_arguments)]
 pub async fn standalone_html(
     doc_id: String,
@@ -272,6 +456,7 @@ pub async fn standalone_html(
     theme: Option<&Theme>,
     view: &str,
     layout: Option<&SiteLayout>,
+    resolved_layout: Option<&ResolvedLayout>,
 ) -> String {
     let title = node_title.as_ref().map_or_else(
         || "Stencila Document".to_string(),
@@ -474,9 +659,16 @@ pub async fn standalone_html(
             layout_attrs.push_str(" right-sidebar");
         }
 
+        // Render navigation tree if available
+        let nav_html = resolved_layout.and_then(render_nav).unwrap_or_default();
+
+        // The "skip link" is an accessibility feature (WCAG 2.4.1) that allows keyboard
+        // and screen reader users to bypass repetitive navigation elements and jump
+        // directly to the main content. It's visually hidden until focused.
         html.push_str(&format!(
             r##"<stencila-layout{layout_attrs}>
       <a href="#main-content" class="skip-link">Skip to content</a>
+      {nav_html}
       <main id="main-content" slot="content">
         {view_content}
       </main>
@@ -535,4 +727,110 @@ fn normalize_css(css: &str) -> String {
                 .unwrap_or_else(|_| css.to_string())
         })
         .unwrap_or_else(|_| css.to_string())
+}
+
+/// Render navigation tree from resolved layout
+///
+/// Generates ARIA-compliant HTML for the navigation tree.
+fn render_nav(layout: &ResolvedLayout) -> Option<String> {
+    /// Render a nav tree item recursively
+    fn render_item(item: &NavTreeItem, collapsible: bool) -> String {
+        let active_class = if item.active { " active" } else { "" };
+        let aria_current = if item.active {
+            r#" aria-current="page""#
+        } else {
+            ""
+        };
+
+        if let Some(ref children) = item.children {
+            // Group with children
+            let expanded = if item.expanded { " open" } else { "" };
+            let aria_expanded = if item.expanded { "true" } else { "false" };
+
+            if collapsible {
+                let mut html = format!(
+                    r#"
+            <li role="treeitem" aria-expanded="{aria_expanded}">
+              <details{expanded}>
+                <summary class="nav-group{active_class}">{}</summary>
+                <ul role="group">"#,
+                    html_escape::encode_text(&item.label)
+                );
+
+                for child in children {
+                    html.push_str(&render_item(child, collapsible));
+                }
+
+                html.push_str(
+                    r#"
+                </ul>
+              </details>
+            </li>"#,
+                );
+                html
+            } else {
+                let mut html = format!(
+                    r#"
+            <li role="treeitem">
+              <span class="nav-group{active_class}">{}</span>
+              <ul role="group">"#,
+                    html_escape::encode_text(&item.label)
+                );
+
+                for child in children {
+                    html.push_str(&render_item(child, collapsible));
+                }
+
+                html.push_str(
+                    r#"
+              </ul>
+            </li>"#,
+                );
+                html
+            }
+        } else if let Some(ref href) = item.href {
+            // Leaf link
+            format!(
+                r#"
+            <li role="treeitem"><a href="{}" class="nav-link{active_class}"{aria_current}>{}</a></li>"#,
+                html_escape::encode_double_quoted_attribute(href),
+                html_escape::encode_text(&item.label)
+            )
+        } else {
+            // Label only (no link)
+            format!(
+                r#"
+            <li role="treeitem"><span class="nav-label">{}</span></li>"#,
+                html_escape::encode_text(&item.label)
+            )
+        }
+    }
+
+    if !layout.left_sidebar {
+        return None;
+    }
+
+    let nav_tree = layout.nav_tree.as_ref()?;
+    if nav_tree.is_empty() {
+        return None;
+    }
+
+    let mut html = String::from(
+        r#"<nav slot="left-sidebar" role="navigation" aria-label="Main navigation">
+        <stencila-routes>
+          <ul role="tree">"#,
+    );
+
+    for item in nav_tree {
+        html.push_str(&render_item(item, layout.collapsible));
+    }
+
+    html.push_str(
+        r#"
+          </ul>
+        </stencila-routes>
+      </nav>"#,
+    );
+
+    Some(html)
 }

@@ -9,7 +9,6 @@ import '../nodes/code-block-static' // For display of code blocks (Prism.js)
 import '../nodes/code-chunk-static' // For code chunks that are `echo` (Prism.js)
 import '../nodes/image-object-static' // For display of JS-based visualizations (e.g. Mermaid)
 
-
 initUno()
 initSiteClient()
 

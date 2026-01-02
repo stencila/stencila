@@ -8635,6 +8635,8 @@ dependencies = [
  "itertools 0.14.0",
  "lightningcss",
  "quick-xml 0.37.5",
+ "serde",
+ "serde_json",
  "stencila-codec",
  "stencila-codec-dom-trait",
  "stencila-codec-text-trait",

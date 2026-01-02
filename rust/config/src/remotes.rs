@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fs, path::{Path, PathBuf}};
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use eyre::{OptionExt, Result, bail, eyre};
 use schemars::JsonSchema;
