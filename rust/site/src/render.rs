@@ -28,8 +28,10 @@ use crate::{RouteEntry, RouteType, list};
 struct RenderedDocument {
     /// The source file path
     source_path: PathBuf,
+
     /// The computed route (e.g., "/report/")
     route: String,
+
     /// Media files collected for this document: (filename, file_path)
     /// Note: The filename already contains the SeaHash (e.g., "a1b2c3d4.png")
     /// as computed by node-media's Collector
@@ -41,14 +43,19 @@ struct RenderedDocument {
 pub struct RenderResult {
     /// Documents successfully rendered: (source_path, route)
     pub documents_ok: Vec<(PathBuf, String)>,
+
     /// Documents that failed: (source_path, error_message)
     pub documents_failed: Vec<(PathBuf, String)>,
+
     /// Redirects processed: (route, target)
     pub redirects: Vec<(String, String)>,
+
     /// Static files copied
     pub static_files: Vec<PathBuf>,
+
     /// Total unique media files (after deduplication)
     pub media_files_count: usize,
+
     /// Number of duplicates eliminated
     pub media_duplicates_eliminated: usize,
 }
@@ -66,6 +73,7 @@ pub enum RenderProgress {
     /// Encoding a document
     EncodingDocument {
         path: PathBuf,
+        relative_path: String,
         index: usize,
         total: usize,
     },
@@ -83,13 +91,6 @@ pub enum RenderProgress {
 ///
 /// Walks the source path, encodes documents to HTML, and writes all files
 /// (HTML, redirects, media, static) to the output directory.
-///
-/// # Output Structure
-/// - `index.html` - root document
-/// - `docs/index.html` - nested routes
-/// - `media/{hash}.{ext}` - deduplicated media files
-/// - `{route}/redirect.json` - redirect metadata (JSON with location/status)
-/// - Static files preserving relative paths
 ///
 /// # Arguments
 /// * `source` - The source directory to render
@@ -210,8 +211,14 @@ where
             continue;
         }
 
+        let relative_path = source_path
+            .strip_prefix(source)
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_else(|_| source_path.to_string_lossy().to_string());
+
         send_progress!(RenderProgress::EncodingDocument {
             path: source_path.clone(),
+            relative_path,
             index,
             total: document_routes.len(),
         });

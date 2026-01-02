@@ -41,6 +41,7 @@ pub enum PushProgress {
     /// Encoding a document
     EncodingDocument {
         path: std::path::PathBuf,
+        relative_path: String,
         index: usize,
         total: usize,
     },
@@ -141,9 +142,17 @@ where
                         documents,
                         static_files,
                     },
-                    RenderProgress::EncodingDocument { path, index, total } => {
-                        PushProgress::EncodingDocument { path, index, total }
-                    }
+                    RenderProgress::EncodingDocument {
+                        path,
+                        relative_path,
+                        index,
+                        total,
+                    } => PushProgress::EncodingDocument {
+                        path,
+                        relative_path,
+                        index,
+                        total,
+                    },
                     RenderProgress::DocumentEncoded { path, route } => {
                         PushProgress::DocumentEncoded { path, route }
                     }
