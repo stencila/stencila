@@ -18,7 +18,7 @@ use tokio::{
 
 use stencila_codec::{Codec, EncodeOptions, stencila_schema::Node};
 use stencila_codec_dom::DomCodec;
-use stencila_config::RedirectStatus;
+use stencila_config::{RedirectStatus, SiteLayout};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 use crate::{RouteEntry, RouteType, list};
@@ -147,6 +147,9 @@ where
         workspace_dir.clone()
     };
 
+    // Get layout configuration
+    let layout = config.site.as_ref().and_then(|s| s.layout.clone());
+
     // Partition routes by type
     let mut document_routes: Vec<RouteEntry> = Vec::new();
     let mut static_files: Vec<PathBuf> = Vec::new();
@@ -232,7 +235,15 @@ where
 
         let result = async {
             let node = decode_document_fn(source_path.clone(), arguments.clone()).await?;
-            render_document(&node, Some(source_path), base_url, output, &entry.route).await
+            render_document(
+                &node,
+                Some(source_path),
+                base_url,
+                output,
+                &entry.route,
+                layout.as_ref(),
+            )
+            .await
         }
         .await;
 
@@ -333,6 +344,7 @@ where
 /// * `base_url` - Base URL for the site
 /// * `output_root` - Output directory root
 /// * `route` - The route for this document (e.g., "/docs/report/")
+/// * `layout` - Optional site layout configuration for wrapping content
 ///
 /// # Returns
 /// The rendered document with path information and media files collected.
@@ -342,6 +354,7 @@ async fn render_document(
     base_url: &str,
     output_root: &Path,
     route: &str,
+    layout: Option<&SiteLayout>,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -394,6 +407,8 @@ async fn render_document(
                 collect_media: Some(media_dir.clone()),
                 // Use static view for site publishing
                 view: Some("static".into()),
+                // Apply site layout wrapper if configured
+                layout: layout.cloned(),
                 ..Default::default()
             }),
         )
