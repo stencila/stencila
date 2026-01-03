@@ -75,6 +75,24 @@ pub struct SiteLayout {
     /// ```
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub navs: HashMap<String, NavConfig>,
+
+    /// Route-specific layout overrides
+    ///
+    /// Allows different layouts for specific routes using glob patterns.
+    /// Overrides are evaluated in array order; the first matching entry wins.
+    ///
+    /// Example:
+    /// ```toml
+    /// [[site.layout.overrides]]
+    /// routes = ["/blog/**"]
+    /// left-sidebar = false
+    ///
+    /// [[site.layout.overrides]]
+    /// routes = ["/api/**"]
+    /// left-sidebar = { nav = "api" }
+    /// ```
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub overrides: Vec<LayoutOverride>,
 }
 
 impl SiteLayout {
@@ -321,6 +339,81 @@ pub struct SidebarConfig {
     /// Default is to expand all levels. The client-side component may persist
     /// user preferences in local storage, overriding this on subsequent visits.
     pub expanded: Option<u8>,
+}
+
+/// Route-specific layout override
+///
+/// Allows different layout settings for specific routes using glob patterns.
+/// The first matching override wins (order matters in the array).
+///
+/// Example:
+/// ```toml
+/// # Blog pages: no left sidebar
+/// [[site.layout.overrides]]
+/// routes = ["/blog/**"]
+/// left-sidebar = false
+/// page-nav = false
+///
+/// # API docs: use named nav
+/// [[site.layout.overrides]]
+/// routes = ["/api/**"]
+/// left-sidebar = { nav = "api" }
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct LayoutOverride {
+    /// Glob patterns for routes this override applies to
+    ///
+    /// Examples: `["/blog/**"]`, `["/docs/api/**", "/api/**"]`
+    /// First matching override wins.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub routes: Vec<String>,
+
+    /// Header configuration override
+    ///
+    /// Use `false` to hide header, or provide config to replace it.
+    pub header: Option<LayoutHeaderOverride>,
+
+    /// Left sidebar configuration override
+    ///
+    /// Use `false` to disable, `true` for auto nav, or config object.
+    pub left_sidebar: Option<LayoutSidebar>,
+
+    /// Right sidebar configuration override
+    ///
+    /// Use `false` to disable, `true` to enable.
+    pub right_sidebar: Option<bool>,
+
+    /// Footer configuration override
+    ///
+    /// Use `false` to hide footer, or provide config to replace it.
+    pub footer: Option<LayoutFooterOverride>,
+
+    /// Page navigation override
+    ///
+    /// Use `false` to disable prev/next links.
+    pub page_nav: Option<bool>,
+}
+
+/// Header override - can be disabled or replaced
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(untagged)]
+pub enum LayoutHeaderOverride {
+    /// Disable header with `false`
+    Enabled(bool),
+    /// Replace header with config
+    Config(LayoutHeader),
+}
+
+/// Footer override - can be disabled or replaced
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(untagged)]
+pub enum LayoutFooterOverride {
+    /// Disable footer with `false`
+    Enabled(bool),
+    /// Replace footer with config
+    Config(LayoutFooter),
 }
 
 /// Named navigation configuration
@@ -616,6 +709,152 @@ mod tests {
         let toml = r#"page-nav = true"#;
         let layout: SiteLayout = toml::from_str(toml)?;
         assert!(layout.has_page_nav());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_override_basic() -> Result<()> {
+        let toml = r#"
+            [[overrides]]
+            routes = ["/blog/**"]
+            left-sidebar = false
+            page-nav = false
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert_eq!(layout.overrides.len(), 1);
+        assert_eq!(layout.overrides[0].routes, vec!["/blog/**"]);
+        assert!(matches!(
+            layout.overrides[0].left_sidebar,
+            Some(LayoutSidebar::Enabled(false))
+        ));
+        assert_eq!(layout.overrides[0].page_nav, Some(false));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_override_with_sidebar_config() -> Result<()> {
+        let toml = r#"
+            [[overrides]]
+            routes = ["/api/**"]
+            [overrides.left-sidebar]
+            nav = "api"
+            collapsible = false
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert_eq!(layout.overrides.len(), 1);
+        if let Some(LayoutSidebar::Config(config)) = &layout.overrides[0].left_sidebar {
+            assert_eq!(config.nav, Some("api".to_string()));
+            assert_eq!(config.collapsible, Some(false));
+        } else {
+            panic!("Expected LayoutSidebar::Config");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_override_header_disabled() -> Result<()> {
+        let toml = r#"
+            [[overrides]]
+            routes = ["/landing/**"]
+            header = false
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert!(matches!(
+            layout.overrides[0].header,
+            Some(LayoutHeaderOverride::Enabled(false))
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_override_header_replaced() -> Result<()> {
+        let toml = r#"
+            [[overrides]]
+            routes = ["/blog/**"]
+            [overrides.header]
+            logo = "blog-logo.svg"
+            title = "Blog"
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        if let Some(LayoutHeaderOverride::Config(header)) = &layout.overrides[0].header {
+            assert_eq!(header.logo, Some("blog-logo.svg".to_string()));
+            assert_eq!(header.title, Some("Blog".to_string()));
+        } else {
+            panic!("Expected LayoutHeaderOverride::Config");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_override_footer_disabled() -> Result<()> {
+        let toml = r#"
+            [[overrides]]
+            routes = ["/embed/**"]
+            footer = false
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert!(matches!(
+            layout.overrides[0].footer,
+            Some(LayoutFooterOverride::Enabled(false))
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_multiple_overrides() -> Result<()> {
+        let toml = r#"
+            [[overrides]]
+            routes = ["/docs/api/**"]
+            right-sidebar = true
+
+            [[overrides]]
+            routes = ["/docs/**"]
+            right-sidebar = false
+
+            [[overrides]]
+            routes = ["/blog/**"]
+            left-sidebar = false
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert_eq!(layout.overrides.len(), 3);
+        assert_eq!(layout.overrides[0].routes, vec!["/docs/api/**"]);
+        assert_eq!(layout.overrides[0].right_sidebar, Some(true));
+        assert_eq!(layout.overrides[1].routes, vec!["/docs/**"]);
+        assert_eq!(layout.overrides[1].right_sidebar, Some(false));
+        assert_eq!(layout.overrides[2].routes, vec!["/blog/**"]);
+        assert!(matches!(
+            layout.overrides[2].left_sidebar,
+            Some(LayoutSidebar::Enabled(false))
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_override_multiple_routes() -> Result<()> {
+        let toml = r#"
+            [[overrides]]
+            routes = ["/landing/", "/home/"]
+            left-sidebar = false
+            header = false
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert_eq!(layout.overrides[0].routes.len(), 2);
+        assert_eq!(layout.overrides[0].routes[0], "/landing/");
+        assert_eq!(layout.overrides[0].routes[1], "/home/");
 
         Ok(())
     }

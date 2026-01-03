@@ -10710,6 +10710,7 @@ dependencies = [
  "eyre",
  "flate2",
  "futures",
+ "glob",
  "ignore",
  "indexmap 2.12.1",
  "md-5",

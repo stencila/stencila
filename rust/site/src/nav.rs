@@ -198,7 +198,11 @@ fn nav_item_to_tree(item: &NavItem, routes: &[RouteEntry]) -> NavTreeItem {
                 children: None,
             }
         }
-        NavItem::Link { label, target: href, icon } => NavTreeItem {
+        NavItem::Link {
+            label,
+            target: href,
+            icon,
+        } => NavTreeItem {
             label: label.clone(),
             href: Some(href.clone()),
             icon: icon.clone(),
@@ -315,6 +319,10 @@ fn titlecase_word(word: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
+    use stencila_config::{NavConfig, NavItem, SidebarConfig};
+
     use super::*;
 
     #[test]
@@ -415,5 +423,118 @@ mod tests {
         assert!(!tree[0].active); // Home not active
         assert!(tree[1].expanded); // Docs expanded (has active child)
         assert!(tree[1].children.as_ref().unwrap()[0].active); // Intro active
+    }
+
+    #[test]
+    fn test_named_nav_config() {
+        // Create a named nav config
+        let mut named_navs = HashMap::new();
+        named_navs.insert(
+            "api".to_string(),
+            NavConfig {
+                items: vec![
+                    NavItem::Link {
+                        label: "Getting Started".to_string(),
+                        target: "/api/getting-started/".to_string(),
+                        icon: None,
+                    },
+                    NavItem::Group {
+                        group: "Endpoints".to_string(),
+                        children: vec![
+                            NavItem::Route("/api/documents/".to_string()),
+                            NavItem::Route("/api/nodes/".to_string()),
+                        ],
+                    },
+                ],
+            },
+        );
+
+        let routes = vec![
+            RouteEntry {
+                route: "/api/getting-started/".to_string(),
+                route_type: RouteType::Implied,
+                target: "api/getting-started.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+            RouteEntry {
+                route: "/api/documents/".to_string(),
+                route_type: RouteType::Implied,
+                target: "api/documents.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+            RouteEntry {
+                route: "/api/nodes/".to_string(),
+                route_type: RouteType::Implied,
+                target: "api/nodes.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+        ];
+
+        let config = SidebarConfig {
+            nav: Some("api".to_string()),
+            ..Default::default()
+        };
+
+        let tree = build_nav_tree(&routes, "/api/documents/", &config, &named_navs);
+
+        // Should have 2 items: "Getting Started" link and "Endpoints" group
+        assert_eq!(tree.len(), 2);
+        assert_eq!(tree[0].label, "Getting Started");
+        assert_eq!(tree[0].href, Some("/api/getting-started/".to_string()));
+
+        // Check the group
+        assert_eq!(tree[1].label, "Endpoints");
+        assert!(tree[1].children.is_some());
+        let children = tree[1].children.as_ref().expect("Endpoints children");
+        assert_eq!(children.len(), 2);
+        assert_eq!(children[0].label, "Documents");
+        assert!(children[0].active); // Current route should be active
+        assert_eq!(children[1].label, "Nodes");
+        assert!(!children[1].active);
+
+        // The group should be expanded because it contains the active item
+        assert!(tree[1].expanded);
+    }
+
+    #[test]
+    fn test_named_nav_fallback_to_auto() {
+        // When a named nav doesn't exist, it should fall back to auto nav
+        let named_navs = HashMap::new(); // Empty - no named navs
+
+        let routes = vec![
+            RouteEntry {
+                route: "/".to_string(),
+                route_type: RouteType::Implied,
+                target: "index.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+            RouteEntry {
+                route: "/about/".to_string(),
+                route_type: RouteType::Implied,
+                target: "about.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+        ];
+
+        let config = SidebarConfig {
+            nav: Some("nonexistent".to_string()),
+            ..Default::default()
+        };
+
+        let tree = build_nav_tree(&routes, "/about/", &config, &named_navs);
+
+        // Should fall back to auto nav
+        assert_eq!(tree.len(), 2); // Home and About
+        assert_eq!(tree[0].label, "Home");
     }
 }

@@ -8,6 +8,7 @@ chrono = { workspace = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
 futures = { workspace = true }
+glob = { workspace = true }
 ignore = { workspace = true }
 indexmap = { workspace = true }
 md-5 = "0.10"

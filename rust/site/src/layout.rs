@@ -3,7 +3,11 @@
 //! Resolves layout configuration for a specific route, including
 //! nav tree generation and preparing data for rendering.
 
-use stencila_config::{LayoutFooter, LayoutHeader, SiteLayout};
+use glob::Pattern;
+use stencila_config::{
+    LayoutFooter, LayoutFooterOverride, LayoutHeader, LayoutHeaderOverride, LayoutOverride,
+    LayoutSidebar, SidebarConfig, SiteLayout,
+};
 
 use crate::{
     list::{RouteEntry, RouteType},
@@ -16,11 +20,145 @@ pub use stencila_codec_dom::{
     ResolvedIconLink, ResolvedLayout, ResolvedNavLink,
 };
 
+/// Find the first matching override for a route
+///
+/// Evaluates overrides in array order using glob pattern matching.
+/// Returns the first override whose `routes` patterns match the given route.
+fn find_matching_override<'a>(
+    route: &str,
+    overrides: &'a [LayoutOverride],
+) -> Option<&'a LayoutOverride> {
+    for override_config in overrides {
+        for pattern in &override_config.routes {
+            // Compile glob pattern - if invalid, skip silently
+            if let Ok(glob) = Pattern::new(pattern)
+                && glob.matches(route)
+            {
+                return Some(override_config);
+            }
+        }
+    }
+    None
+}
+
+/// Resolved effective layout after applying overrides
+///
+/// This struct holds the effective values after merging base layout
+/// with any matching override.
+struct EffectiveLayout<'a> {
+    header: Option<&'a LayoutHeader>,
+    header_disabled: bool,
+    left_sidebar: Option<SidebarConfig>,
+    left_sidebar_enabled: bool,
+    right_sidebar: bool,
+    footer: Option<&'a LayoutFooter>,
+    footer_disabled: bool,
+    page_nav: bool,
+}
+
+/// Compute the effective layout by merging base with override
+fn compute_effective_layout<'a>(
+    layout: &'a SiteLayout,
+    override_config: Option<&'a LayoutOverride>,
+) -> EffectiveLayout<'a> {
+    // Start with base layout values
+    let mut header = layout.header_config();
+    let mut header_disabled = false;
+    let mut left_sidebar = layout.left_sidebar_config();
+    let mut left_sidebar_enabled = layout.has_left_sidebar();
+    let mut right_sidebar = layout.has_right_sidebar();
+    let mut footer = layout.footer_config();
+    let mut footer_disabled = false;
+    let mut page_nav = layout.has_page_nav();
+
+    // Apply override if present
+    if let Some(ov) = override_config {
+        // Header override
+        if let Some(ref header_ov) = ov.header {
+            match header_ov {
+                LayoutHeaderOverride::Enabled(false) => {
+                    header = None;
+                    header_disabled = true;
+                }
+                LayoutHeaderOverride::Enabled(true) => {
+                    // Keep base header
+                }
+                LayoutHeaderOverride::Config(h) => {
+                    header = Some(h);
+                }
+            }
+        }
+
+        // Left sidebar override
+        if let Some(ref sidebar_ov) = ov.left_sidebar {
+            match sidebar_ov {
+                LayoutSidebar::Enabled(false) => {
+                    left_sidebar = None;
+                    left_sidebar_enabled = false;
+                }
+                LayoutSidebar::Enabled(true) => {
+                    left_sidebar = Some(SidebarConfig::default());
+                    left_sidebar_enabled = true;
+                }
+                LayoutSidebar::Config(c) => {
+                    left_sidebar = Some(c.clone());
+                    left_sidebar_enabled = true;
+                }
+            }
+        }
+
+        // Right sidebar override
+        if let Some(right_ov) = ov.right_sidebar {
+            right_sidebar = right_ov;
+        }
+
+        // Footer override
+        if let Some(ref footer_ov) = ov.footer {
+            match footer_ov {
+                LayoutFooterOverride::Enabled(false) => {
+                    footer = None;
+                    footer_disabled = true;
+                }
+                LayoutFooterOverride::Enabled(true) => {
+                    // Keep base footer
+                }
+                LayoutFooterOverride::Config(f) => {
+                    footer = Some(f);
+                }
+            }
+        }
+
+        // Page nav override
+        // If explicitly set, use that value; otherwise re-derive from effective left_sidebar
+        if let Some(nav_ov) = ov.page_nav {
+            page_nav = nav_ov;
+        } else if ov.left_sidebar.is_some() {
+            // Left sidebar was overridden but page_nav wasn't - re-derive default
+            page_nav = left_sidebar_enabled;
+        }
+    }
+
+    EffectiveLayout {
+        header,
+        header_disabled,
+        left_sidebar,
+        left_sidebar_enabled,
+        right_sidebar,
+        footer,
+        footer_disabled,
+        page_nav,
+    }
+}
+
 /// Resolve layout configuration for a specific route
 ///
 /// Takes the site layout configuration and list of all routes,
 /// and produces a fully resolved layout with navigation tree
 /// and active/expanded states computed for the current route.
+///
+/// Applies route-specific overrides using first-match-wins semantics:
+/// overrides are evaluated in array order, and the first matching
+/// override's settings replace the corresponding base layout sections.
 ///
 /// # Arguments
 /// * `route` - The current route being rendered
@@ -30,18 +168,32 @@ pub use stencila_codec_dom::{
 /// # Returns
 /// A `ResolvedLayout` with all data needed for rendering
 pub fn resolve_layout(route: &str, routes: &[RouteEntry], layout: &SiteLayout) -> ResolvedLayout {
-    // Resolve header if configured
-    let header = layout.header_config().map(|h| resolve_header(h, route));
+    // Find first matching override (if any)
+    let override_config = find_matching_override(route, &layout.overrides);
 
-    let left_sidebar = layout.has_left_sidebar();
-    let right_sidebar = layout.has_right_sidebar();
+    // Compute effective layout after merging base with override
+    let effective = compute_effective_layout(layout, override_config);
 
-    // Resolve footer if configured
-    let footer = layout.footer_config().map(resolve_footer);
+    // Resolve header if configured and not disabled
+    let header = if effective.header_disabled {
+        None
+    } else {
+        effective.header.map(|h| resolve_header(h, route))
+    };
+
+    let left_sidebar = effective.left_sidebar_enabled;
+    let right_sidebar = effective.right_sidebar;
+
+    // Resolve footer if configured and not disabled
+    let footer = if effective.footer_disabled {
+        None
+    } else {
+        effective.footer.map(resolve_footer)
+    };
 
     // Build nav tree if left sidebar is enabled
     let (nav_tree, collapsible, expanded_depth) = if left_sidebar {
-        let config = layout.left_sidebar_config().unwrap_or_default();
+        let config = effective.left_sidebar.unwrap_or_default();
         let collapsible = config.collapsible.unwrap_or(true);
         let expanded_depth = config.expanded;
         let tree = build_nav_tree(routes, route, &config, &layout.navs);
@@ -54,7 +206,7 @@ pub fn resolve_layout(route: &str, routes: &[RouteEntry], layout: &SiteLayout) -
     let breadcrumbs = compute_breadcrumbs(route, routes);
 
     // Compute page navigation if enabled
-    let page_nav = if layout.has_page_nav() {
+    let page_nav = if effective.page_nav {
         compute_page_nav(route, routes)
     } else {
         None
@@ -272,7 +424,9 @@ fn compute_page_nav(route: &str, routes: &[RouteEntry]) -> Option<PageNavLinks> 
 
 #[cfg(test)]
 mod tests {
-    use stencila_config::{IconLink, LayoutHeader, LayoutSidebar, TextLink};
+    use stencila_config::{
+        IconLink, LayoutFooter, LayoutHeader, LayoutOverride, LayoutSidebar, TextLink,
+    };
 
     use super::*;
     use crate::list::RouteType;
@@ -510,5 +664,284 @@ mod tests {
         // Single page should have no navigation
         let page_nav = compute_page_nav("/", &routes);
         assert!(page_nav.is_none());
+    }
+
+    #[test]
+    fn test_find_matching_override() {
+        let overrides = vec![
+            LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                ..Default::default()
+            },
+            LayoutOverride {
+                routes: vec!["/docs/api/**".to_string()],
+                right_sidebar: Some(true),
+                ..Default::default()
+            },
+            LayoutOverride {
+                routes: vec!["/docs/**".to_string()],
+                page_nav: Some(false),
+                ..Default::default()
+            },
+        ];
+
+        // Should match /blog/**
+        let result = find_matching_override("/blog/post-1/", &overrides);
+        assert!(result.is_some());
+        assert!(matches!(
+            result.unwrap().left_sidebar,
+            Some(LayoutSidebar::Enabled(false))
+        ));
+
+        // Should match /docs/api/** (first match wins)
+        let result = find_matching_override("/docs/api/v2/", &overrides);
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().right_sidebar, Some(true));
+
+        // Should match /docs/** (not /docs/api/**)
+        let result = find_matching_override("/docs/getting-started/", &overrides);
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().page_nav, Some(false));
+
+        // Should not match any
+        let result = find_matching_override("/about/", &overrides);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_resolve_layout_with_override() {
+        // Base layout has header and left sidebar enabled
+        let layout = SiteLayout {
+            header: Some(LayoutHeader {
+                logo: Some("logo.svg".to_string()),
+                title: Some("My Site".to_string()),
+                ..Default::default()
+            }),
+            left_sidebar: Some(LayoutSidebar::Enabled(true)),
+            footer: Some(LayoutFooter {
+                copyright: Some("© 2024".to_string()),
+                ..Default::default()
+            }),
+            overrides: vec![
+                // Blog pages: no sidebar, no page nav
+                LayoutOverride {
+                    routes: vec!["/blog/**".to_string()],
+                    left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                    page_nav: Some(false),
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        };
+
+        // Non-matching route should use base layout
+        let resolved = resolve_layout("/docs/", &[], &layout);
+        assert!(resolved.left_sidebar);
+        assert!(resolved.header.is_some());
+        assert!(resolved.footer.is_some());
+
+        // Blog route should use override (no sidebar, no page nav)
+        let resolved = resolve_layout("/blog/post-1/", &[], &layout);
+        assert!(!resolved.left_sidebar);
+        assert!(resolved.nav_tree.is_none());
+        assert!(resolved.page_nav.is_none());
+        // Header and footer should still be present (not overridden)
+        assert!(resolved.header.is_some());
+        assert!(resolved.footer.is_some());
+    }
+
+    #[test]
+    fn test_resolve_layout_override_disables_header() {
+        let layout = SiteLayout {
+            header: Some(LayoutHeader {
+                title: Some("My Site".to_string()),
+                ..Default::default()
+            }),
+            overrides: vec![LayoutOverride {
+                routes: vec!["/landing/**".to_string()],
+                header: Some(LayoutHeaderOverride::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        // Regular route has header
+        let resolved = resolve_layout("/docs/", &[], &layout);
+        assert!(resolved.header.is_some());
+
+        // Landing page has no header
+        let resolved = resolve_layout("/landing/page1/", &[], &layout);
+        assert!(resolved.header.is_none());
+    }
+
+    #[test]
+    fn test_resolve_layout_override_replaces_header() {
+        let layout = SiteLayout {
+            header: Some(LayoutHeader {
+                title: Some("Main Site".to_string()),
+                logo: Some("main-logo.svg".to_string()),
+                ..Default::default()
+            }),
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                header: Some(LayoutHeaderOverride::Config(LayoutHeader {
+                    title: Some("Blog".to_string()),
+                    logo: Some("blog-logo.svg".to_string()),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        // Regular route has main header
+        let resolved = resolve_layout("/docs/", &[], &layout);
+        let header = resolved.header.expect("header");
+        assert_eq!(header.title, Some("Main Site".to_string()));
+        assert_eq!(header.logo, Some("/main-logo.svg".to_string()));
+
+        // Blog route has blog header
+        let resolved = resolve_layout("/blog/post/", &[], &layout);
+        let header = resolved.header.expect("header");
+        assert_eq!(header.title, Some("Blog".to_string()));
+        assert_eq!(header.logo, Some("/blog-logo.svg".to_string()));
+    }
+
+    #[test]
+    fn test_override_first_match_wins() {
+        let layout = SiteLayout {
+            overrides: vec![
+                // More specific pattern first
+                LayoutOverride {
+                    routes: vec!["/docs/api/**".to_string()],
+                    right_sidebar: Some(true),
+                    ..Default::default()
+                },
+                // Less specific pattern second
+                LayoutOverride {
+                    routes: vec!["/docs/**".to_string()],
+                    right_sidebar: Some(false),
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        };
+
+        // /docs/api/test/ should match first override (right_sidebar = true)
+        let resolved = resolve_layout("/docs/api/test/", &[], &layout);
+        assert!(resolved.right_sidebar);
+
+        // /docs/guide/ should match second override (right_sidebar = false)
+        let resolved = resolve_layout("/docs/guide/", &[], &layout);
+        assert!(!resolved.right_sidebar);
+    }
+
+    #[test]
+    fn test_page_nav_follows_left_sidebar_override() {
+        // Base layout: left sidebar enabled (default), page_nav not set
+        // So page_nav defaults to true
+        let layout = SiteLayout {
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                // Disable left sidebar but DON'T explicitly set page_nav
+                left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        // Create routes so page_nav can actually be computed
+        let routes = vec![
+            RouteEntry {
+                route: "/docs/".to_string(),
+                route_type: RouteType::Implied,
+                target: "docs.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+            RouteEntry {
+                route: "/docs/guide/".to_string(),
+                route_type: RouteType::Implied,
+                target: "docs/guide.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+            RouteEntry {
+                route: "/blog/post1/".to_string(),
+                route_type: RouteType::Implied,
+                target: "blog/post1.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+            RouteEntry {
+                route: "/blog/post2/".to_string(),
+                route_type: RouteType::Implied,
+                target: "blog/post2.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+        ];
+
+        // Non-matching route: left sidebar enabled, page nav should be computed
+        let resolved = resolve_layout("/docs/", &routes, &layout);
+        assert!(resolved.left_sidebar);
+        assert!(resolved.page_nav.is_some(), "page_nav should be Some for docs route");
+
+        // Blog route: left sidebar disabled, page nav should ALSO be disabled
+        // (because page_nav wasn't explicitly set, it should follow left_sidebar)
+        let resolved = resolve_layout("/blog/post1/", &routes, &layout);
+        assert!(!resolved.left_sidebar);
+        assert!(
+            resolved.page_nav.is_none(),
+            "page_nav should be None when left_sidebar is disabled and page_nav not explicitly set"
+        );
+    }
+
+    #[test]
+    fn test_page_nav_explicit_override_independent() {
+        // Test that explicit page_nav override is independent of left_sidebar
+        let layout = SiteLayout {
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                // Disable left sidebar but EXPLICITLY enable page nav
+                left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                page_nav: Some(true),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        // Create routes so page_nav can actually be computed
+        let routes = vec![
+            RouteEntry {
+                route: "/blog/post1/".to_string(),
+                route_type: RouteType::Implied,
+                target: "blog/post1.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+            RouteEntry {
+                route: "/blog/post2/".to_string(),
+                route_type: RouteType::Implied,
+                target: "blog/post2.md".to_string(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            },
+        ];
+
+        // Blog route: left sidebar disabled, but page nav explicitly enabled
+        let resolved = resolve_layout("/blog/post1/", &routes, &layout);
+        assert!(!resolved.left_sidebar);
+        assert!(
+            resolved.page_nav.is_some(),
+            "page_nav should be Some when explicitly set to true"
+        );
     }
 }
