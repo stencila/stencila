@@ -9,13 +9,16 @@ mod headings;
 pub use headings::extract_headings_from_node;
 
 mod layout;
-pub use layout::{ResolvedLayout, resolve_layout};
+pub use layout::{
+    HeadingItem, NavTreeItem, ResolvedFooter, ResolvedHeader, ResolvedLayout, ResolvedLeftSidebar,
+    ResolvedRightSidebar, resolve_layout,
+};
 
 mod list;
 pub use list::{RouteEntry, RouteType, list};
 
 mod nav;
-pub use nav::{NavTreeItem, build_nav_tree};
+pub use nav::build_nav_tree;
 
 mod render;
 pub use render::{RenderProgress, RenderResult, render};

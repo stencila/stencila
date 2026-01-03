@@ -4,20 +4,23 @@
 //! nav tree generation and preparing data for rendering.
 
 use glob::Pattern;
+use stencila_codec::stencila_schema::Node;
 use stencila_config::{
     LayoutFooter, LayoutFooterOverride, LayoutHeader, LayoutHeaderOverride, LayoutLeftSidebar,
     LayoutOverride, LayoutRightSidebar, LeftSidebarConfig, RightSidebarConfig, SiteLayout,
 };
 
 use crate::{
+    headings::extract_headings_from_node,
     list::{RouteEntry, RouteType},
     nav::{build_nav_tree, label_from_route},
 };
 
 // Re-export layout types from codec-dom
 pub use stencila_codec_dom::{
-    BreadcrumbItem, PageLink, PageNavLinks, ResolvedFooter, ResolvedFooterGroup, ResolvedHeader,
-    ResolvedIconLink, ResolvedLayout, ResolvedNavLink,
+    BreadcrumbItem, HeadingItem, NavTreeItem, PageLink, PageNavLinks, ResolvedFooter,
+    ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedLeftSidebar,
+    ResolvedNavLink, ResolvedRightSidebar,
 };
 
 /// Find the first matching override for a route
@@ -48,13 +51,16 @@ fn find_matching_override<'a>(
 struct EffectiveLayout<'a> {
     header: Option<&'a LayoutHeader>,
     header_disabled: bool,
-    left_sidebar: Option<LeftSidebarConfig>,
-    left_sidebar_enabled: bool,
-    right_sidebar: bool,
+    /// Left sidebar explicit setting: Some(true)=enabled, Some(false)=disabled, None=use smart default
+    left_sidebar_explicit: Option<bool>,
+    left_sidebar_config: Option<LeftSidebarConfig>,
+    /// Right sidebar explicit setting: Some(true)=enabled, Some(false)=disabled, None=use smart default
+    right_sidebar_explicit: Option<bool>,
     right_sidebar_config: Option<RightSidebarConfig>,
     footer: Option<&'a LayoutFooter>,
     footer_disabled: bool,
-    page_nav: bool,
+    /// None means "use smart default based on left sidebar visibility"
+    page_nav: Option<bool>,
 }
 
 /// Compute the effective layout by merging base with override
@@ -63,11 +69,12 @@ fn compute_effective_layout<'a>(
     override_config: Option<&'a LayoutOverride>,
 ) -> EffectiveLayout<'a> {
     // Start with base layout values
+    // Sidebar explicit settings use Option<bool>: Some(true)=enabled, Some(false)=disabled, None=smart default
     let mut header = layout.header_config();
     let mut header_disabled = false;
-    let mut left_sidebar = layout.left_sidebar_config();
-    let mut left_sidebar_enabled = layout.has_left_sidebar();
-    let mut right_sidebar = layout.has_right_sidebar();
+    let mut left_sidebar_explicit = layout.left_sidebar_explicit();
+    let mut left_sidebar_config = layout.left_sidebar_config();
+    let mut right_sidebar_explicit = layout.right_sidebar_explicit();
     let mut right_sidebar_config = layout.right_sidebar_config();
     let mut footer = layout.footer_config();
     let mut footer_disabled = false;
@@ -93,25 +100,17 @@ fn compute_effective_layout<'a>(
 
         // Left sidebar override
         if let Some(ref sidebar_ov) = ov.left_sidebar {
-            match sidebar_ov {
-                LayoutLeftSidebar::Enabled(false) => {
-                    left_sidebar = None;
-                    left_sidebar_enabled = false;
-                }
-                LayoutLeftSidebar::Enabled(true) => {
-                    left_sidebar = Some(LeftSidebarConfig::default());
-                    left_sidebar_enabled = true;
-                }
-                LayoutLeftSidebar::Config(c) => {
-                    left_sidebar = Some(c.clone());
-                    left_sidebar_enabled = true;
-                }
-            }
+            left_sidebar_explicit = Some(sidebar_ov.is_enabled());
+            left_sidebar_config = match sidebar_ov {
+                LayoutLeftSidebar::Enabled(false) => None,
+                LayoutLeftSidebar::Enabled(true) => Some(LeftSidebarConfig::default()),
+                LayoutLeftSidebar::Config(c) => Some(c.clone()),
+            };
         }
 
         // Right sidebar override
         if let Some(ref right_ov) = ov.right_sidebar {
-            right_sidebar = right_ov.is_enabled();
+            right_sidebar_explicit = Some(right_ov.is_enabled());
             right_sidebar_config = match right_ov {
                 LayoutRightSidebar::Enabled(false) => None,
                 LayoutRightSidebar::Enabled(true) => Some(RightSidebarConfig::default()),
@@ -136,21 +135,17 @@ fn compute_effective_layout<'a>(
         }
 
         // Page nav override
-        // If explicitly set, use that value; otherwise re-derive from effective left_sidebar
         if let Some(nav_ov) = ov.page_nav {
-            page_nav = nav_ov;
-        } else if ov.left_sidebar.is_some() {
-            // Left sidebar was overridden but page_nav wasn't - re-derive default
-            page_nav = left_sidebar_enabled;
+            page_nav = Some(nav_ov);
         }
     }
 
     EffectiveLayout {
         header,
         header_disabled,
-        left_sidebar,
-        left_sidebar_enabled,
-        right_sidebar,
+        left_sidebar_explicit,
+        left_sidebar_config,
+        right_sidebar_explicit,
         right_sidebar_config,
         footer,
         footer_disabled,
@@ -172,10 +167,16 @@ fn compute_effective_layout<'a>(
 /// * `route` - The current route being rendered
 /// * `routes` - All discovered routes for the site
 /// * `layout` - The site layout configuration
+/// * `node` - Optional document node for extracting headings
 ///
 /// # Returns
 /// A `ResolvedLayout` with all data needed for rendering
-pub fn resolve_layout(route: &str, routes: &[RouteEntry], layout: &SiteLayout) -> ResolvedLayout {
+pub fn resolve_layout(
+    route: &str,
+    routes: &[RouteEntry],
+    layout: &SiteLayout,
+    node: Option<&Node>,
+) -> ResolvedLayout {
     // Find first matching override (if any)
     let override_config = find_matching_override(route, &layout.overrides);
 
@@ -189,8 +190,23 @@ pub fn resolve_layout(route: &str, routes: &[RouteEntry], layout: &SiteLayout) -
         effective.header.map(|h| resolve_header(h, route))
     };
 
-    let left_sidebar = effective.left_sidebar_enabled;
-    let right_sidebar = effective.right_sidebar;
+    // Count document routes to determine if this is a multi-page site
+    let document_route_count = routes
+        .iter()
+        .filter(|r| {
+            matches!(
+                r.route_type,
+                RouteType::File | RouteType::Implied | RouteType::Spread
+            )
+        })
+        .count();
+    let is_multi_page = document_route_count > 1;
+
+    // Apply smart defaults for left sidebar:
+    // - Some(true): explicitly enabled → show
+    // - Some(false): explicitly disabled → hide
+    // - None: use smart default (multi-page sites)
+    let left_sidebar_enabled = effective.left_sidebar_explicit.unwrap_or(is_multi_page);
 
     // Resolve footer if configured and not disabled
     let footer = if effective.footer_disabled {
@@ -199,22 +215,63 @@ pub fn resolve_layout(route: &str, routes: &[RouteEntry], layout: &SiteLayout) -
         effective.footer.map(resolve_footer)
     };
 
-    // Build nav tree if left sidebar is enabled
-    let (nav_tree, collapsible, expanded_depth) = if left_sidebar {
-        let config = effective.left_sidebar.unwrap_or_default();
+    // Build left sidebar if enabled
+    let left_sidebar = if left_sidebar_enabled {
+        let config = effective.left_sidebar_config.unwrap_or_default();
         let collapsible = config.collapsible.unwrap_or(true);
         let expanded_depth = config.expanded;
-        let tree = build_nav_tree(routes, route, &config, &layout.navs);
-        (Some(tree), collapsible, expanded_depth)
+        let nav_tree = build_nav_tree(routes, route, &config, &layout.navs);
+        Some(ResolvedLeftSidebar {
+            nav_tree,
+            collapsible,
+            expanded_depth,
+        })
     } else {
-        (None, false, None)
+        None
+    };
+
+    // Extract headings from document if provided
+    let headings =
+        node.and_then(|n| extract_headings_from_node(n, effective.right_sidebar_config.as_ref()));
+
+    // Resolve right sidebar:
+    // - Some(true): explicitly enabled → show if headings exist
+    // - Some(false): explicitly disabled → never show
+    // - None: use smart default (auto-enable if headings exist)
+    let right_sidebar = match effective.right_sidebar_explicit {
+        Some(false) => None, // Explicitly disabled
+        Some(true) => {
+            // Explicitly enabled - show if headings exist
+            headings.map(|h| {
+                let title = effective
+                    .right_sidebar_config
+                    .as_ref()
+                    .and_then(|c| c.title.clone())
+                    .unwrap_or_else(|| "On this page".to_string());
+                ResolvedRightSidebar { title, headings: h }
+            })
+        }
+        None => {
+            // Smart default - auto-enable if headings exist
+            headings.map(|h| {
+                let title = effective
+                    .right_sidebar_config
+                    .as_ref()
+                    .and_then(|c| c.title.clone())
+                    .unwrap_or_else(|| "On this page".to_string());
+                ResolvedRightSidebar { title, headings: h }
+            })
+        }
     };
 
     // Compute breadcrumbs for current route
     let breadcrumbs = compute_breadcrumbs(route, routes);
 
-    // Compute page navigation if enabled
-    let page_nav = if effective.page_nav {
+    // Compute page navigation:
+    // - If explicitly enabled/disabled: use that value
+    // - If not specified: derive from left sidebar visibility
+    let page_nav_enabled = effective.page_nav.unwrap_or(left_sidebar_enabled);
+    let page_nav = if page_nav_enabled {
         compute_page_nav(route, routes)
     } else {
         None
@@ -224,12 +281,7 @@ pub fn resolve_layout(route: &str, routes: &[RouteEntry], layout: &SiteLayout) -
         header,
         left_sidebar,
         right_sidebar,
-        right_sidebar_config: effective.right_sidebar_config,
-        headings: None, // Populated later from article in render.rs
         footer,
-        nav_tree,
-        collapsible,
-        expanded_depth,
         breadcrumbs,
         page_nav,
         current_route: route.to_string(),
@@ -450,12 +502,11 @@ mod tests {
         };
         let routes: Vec<RouteEntry> = vec![];
 
-        let resolved = resolve_layout("/", &routes, &layout);
+        let resolved = resolve_layout("/", &routes, &layout, None);
 
         assert!(resolved.header.is_none());
-        assert!(!resolved.left_sidebar);
-        assert!(!resolved.right_sidebar);
-        assert!(resolved.nav_tree.is_none());
+        assert!(resolved.left_sidebar.is_none());
+        assert!(resolved.right_sidebar.is_none());
     }
 
     #[test]
@@ -485,18 +536,21 @@ mod tests {
             },
         ];
 
-        let resolved = resolve_layout("/about/", &routes, &layout);
+        let resolved = resolve_layout("/about/", &routes, &layout, None);
 
         assert!(resolved.header.is_none());
-        assert!(resolved.left_sidebar);
-        assert!(resolved.right_sidebar);
-        assert!(resolved.nav_tree.is_some());
-        assert!(resolved.collapsible);
+        // Left sidebar should be enabled (no headings for right sidebar without Node)
+        let left = resolved
+            .left_sidebar
+            .expect("left sidebar should be present");
+        assert!(left.collapsible);
+        // Right sidebar is None because no Node was provided to extract headings
+        assert!(resolved.right_sidebar.is_none());
         assert_eq!(resolved.current_route, "/about/");
 
         // Check that About is marked active
-        let tree = resolved.nav_tree.unwrap();
-        let about = tree
+        let about = left
+            .nav_tree
             .iter()
             .find(|i| i.label == "About")
             .expect("About item");
@@ -529,7 +583,7 @@ mod tests {
             ..Default::default()
         };
 
-        let resolved = resolve_layout("/docs/install/", &[], &layout);
+        let resolved = resolve_layout("/docs/install/", &[], &layout, None);
 
         let header = resolved.header.expect("header should be present");
         assert_eq!(header.logo, Some("/logo.svg".to_string())); // Relative paths get / prefix
@@ -749,15 +803,14 @@ mod tests {
         };
 
         // Non-matching route should use base layout
-        let resolved = resolve_layout("/docs/", &[], &layout);
-        assert!(resolved.left_sidebar);
+        let resolved = resolve_layout("/docs/", &[], &layout, None);
+        assert!(resolved.left_sidebar.is_some());
         assert!(resolved.header.is_some());
         assert!(resolved.footer.is_some());
 
         // Blog route should use override (no sidebar, no page nav)
-        let resolved = resolve_layout("/blog/post-1/", &[], &layout);
-        assert!(!resolved.left_sidebar);
-        assert!(resolved.nav_tree.is_none());
+        let resolved = resolve_layout("/blog/post-1/", &[], &layout, None);
+        assert!(resolved.left_sidebar.is_none());
         assert!(resolved.page_nav.is_none());
         // Header and footer should still be present (not overridden)
         assert!(resolved.header.is_some());
@@ -780,11 +833,11 @@ mod tests {
         };
 
         // Regular route has header
-        let resolved = resolve_layout("/docs/", &[], &layout);
+        let resolved = resolve_layout("/docs/", &[], &layout, None);
         assert!(resolved.header.is_some());
 
         // Landing page has no header
-        let resolved = resolve_layout("/landing/page1/", &[], &layout);
+        let resolved = resolve_layout("/landing/page1/", &[], &layout, None);
         assert!(resolved.header.is_none());
     }
 
@@ -809,13 +862,13 @@ mod tests {
         };
 
         // Regular route has main header
-        let resolved = resolve_layout("/docs/", &[], &layout);
+        let resolved = resolve_layout("/docs/", &[], &layout, None);
         let header = resolved.header.expect("header");
         assert_eq!(header.title, Some("Main Site".to_string()));
         assert_eq!(header.logo, Some("/main-logo.svg".to_string()));
 
         // Blog route has blog header
-        let resolved = resolve_layout("/blog/post/", &[], &layout);
+        let resolved = resolve_layout("/blog/post/", &[], &layout, None);
         let header = resolved.header.expect("header");
         assert_eq!(header.title, Some("Blog".to_string()));
         assert_eq!(header.logo, Some("/blog-logo.svg".to_string()));
@@ -841,13 +894,14 @@ mod tests {
             ..Default::default()
         };
 
-        // /docs/api/test/ should match first override (right_sidebar = true)
-        let resolved = resolve_layout("/docs/api/test/", &[], &layout);
-        assert!(resolved.right_sidebar);
+        // /docs/api/test/ should match first override (right_sidebar = true config)
+        // but without a Node to extract headings, right_sidebar will be None
+        let resolved = resolve_layout("/docs/api/test/", &[], &layout, None);
+        assert!(resolved.right_sidebar.is_none());
 
         // /docs/guide/ should match second override (right_sidebar = false)
-        let resolved = resolve_layout("/docs/guide/", &[], &layout);
-        assert!(!resolved.right_sidebar);
+        let resolved = resolve_layout("/docs/guide/", &[], &layout, None);
+        assert!(resolved.right_sidebar.is_none());
     }
 
     #[test]
@@ -901,8 +955,8 @@ mod tests {
         ];
 
         // Non-matching route: left sidebar enabled, page nav should be computed
-        let resolved = resolve_layout("/docs/", &routes, &layout);
-        assert!(resolved.left_sidebar);
+        let resolved = resolve_layout("/docs/", &routes, &layout, None);
+        assert!(resolved.left_sidebar.is_some());
         assert!(
             resolved.page_nav.is_some(),
             "page_nav should be Some for docs route"
@@ -910,8 +964,8 @@ mod tests {
 
         // Blog route: left sidebar disabled, page nav should ALSO be disabled
         // (because page_nav wasn't explicitly set, it should follow left_sidebar)
-        let resolved = resolve_layout("/blog/post1/", &routes, &layout);
-        assert!(!resolved.left_sidebar);
+        let resolved = resolve_layout("/blog/post1/", &routes, &layout, None);
+        assert!(resolved.left_sidebar.is_none());
         assert!(
             resolved.page_nav.is_none(),
             "page_nav should be None when left_sidebar is disabled and page_nav not explicitly set"
@@ -953,8 +1007,8 @@ mod tests {
         ];
 
         // Blog route: left sidebar disabled, but page nav explicitly enabled
-        let resolved = resolve_layout("/blog/post1/", &routes, &layout);
-        assert!(!resolved.left_sidebar);
+        let resolved = resolve_layout("/blog/post1/", &routes, &layout, None);
+        assert!(resolved.left_sidebar.is_none());
         assert!(
             resolved.page_nav.is_some(),
             "page_nav should be Some when explicitly set to true"

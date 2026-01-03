@@ -39,15 +39,27 @@ pub struct SiteLayout {
     /// Left sidebar configuration
     ///
     /// Can be a boolean to enable/disable, or a configuration object.
-    /// Defaults to `true` (enabled with auto-generated navigation).
-    /// Set to `false` to explicitly disable the left sidebar.
+    ///
+    /// **Default behavior** (not specified):
+    /// - Multi-page sites (2+ routes): auto-enabled with navigation
+    /// - Single-page sites (1 route): hidden (no navigation needed)
+    ///
+    /// **Explicit values**:
+    /// - `true` or `{ ... }`: Always show, even for single-page sites
+    /// - `false`: Always hide, even for multi-page sites
     pub left_sidebar: Option<LayoutLeftSidebar>,
 
     /// Right sidebar configuration
     ///
     /// Can be a boolean to enable/disable, or a configuration object.
-    /// When `true`, displays a right sidebar with document headings.
-    /// When `false` or not specified, the right sidebar is hidden.
+    ///
+    /// **Default behavior** (not specified):
+    /// - Documents with headings: auto-enabled with table of contents
+    /// - Documents without headings: hidden
+    ///
+    /// **Explicit values**:
+    /// - `true` or `{ ... }`: Always show (may be empty if no headings)
+    /// - `false`: Always hide, even if document has headings
     pub right_sidebar: Option<LayoutRightSidebar>,
 
     /// Enable prev/next page navigation
@@ -97,12 +109,12 @@ pub struct SiteLayout {
 }
 
 impl SiteLayout {
-    /// Check if layout has any active sections
+    /// Check if layout has any explicitly configured sections
     pub fn has_any(&self) -> bool {
         self.has_header()
-            || self.has_left_sidebar()
-            || self.has_right_sidebar()
-            || self.has_page_nav()
+            || self.left_sidebar_explicit().is_some()
+            || self.right_sidebar_explicit().is_some()
+            || self.has_page_nav().is_some()
             || self.has_footer()
     }
 
@@ -116,33 +128,37 @@ impl SiteLayout {
         self.header.as_ref()
     }
 
-    /// Check if the left sidebar is enabled
+    /// Get the explicit left sidebar setting
     ///
-    /// Defaults to `true` when not specified.
-    pub fn has_left_sidebar(&self) -> bool {
-        self.left_sidebar
-            .as_ref()
-            .map(|sidebar| sidebar.is_enabled())
-            .unwrap_or(true)
+    /// Returns:
+    /// - `Some(true)` if explicitly enabled (`left-sidebar = true` or `{ config }`)
+    /// - `Some(false)` if explicitly disabled (`left-sidebar = false`)
+    /// - `None` if not specified (smart default applied at render time)
+    pub fn left_sidebar_explicit(&self) -> Option<bool> {
+        self.left_sidebar.as_ref().map(|s| s.is_enabled())
     }
 
-    /// Check if the right sidebar is enabled
-    pub fn has_right_sidebar(&self) -> bool {
-        self.right_sidebar
-            .as_ref()
-            .map(|sidebar| sidebar.is_enabled())
-            .unwrap_or(false)
+    /// Get the explicit right sidebar setting
+    ///
+    /// Returns:
+    /// - `Some(true)` if explicitly enabled (`right-sidebar = true` or `{ config }`)
+    /// - `Some(false)` if explicitly disabled (`right-sidebar = false`)
+    /// - `None` if not specified (smart default applied at render time)
+    pub fn right_sidebar_explicit(&self) -> Option<bool> {
+        self.right_sidebar.as_ref().map(|s| s.is_enabled())
     }
 
-    /// Check if the right sidebar is explicitly disabled
+    /// Get the left sidebar configuration if explicitly enabled
     ///
-    /// Returns true only if user explicitly set `right-sidebar = false`.
-    /// Returns false if not configured (None) or if enabled.
-    pub fn is_right_sidebar_explicitly_disabled(&self) -> bool {
-        self.right_sidebar
-            .as_ref()
-            .map(|sidebar| sidebar.is_explicitly_disabled())
-            .unwrap_or(false)
+    /// Returns `None` when not specified. The actual config is determined
+    /// at render time based on route count (auto-enabled for multi-page sites).
+    pub fn left_sidebar_config(&self) -> Option<LeftSidebarConfig> {
+        match &self.left_sidebar {
+            None => None,
+            Some(LayoutLeftSidebar::Enabled(true)) => Some(LeftSidebarConfig::default()),
+            Some(LayoutLeftSidebar::Enabled(false)) => None,
+            Some(LayoutLeftSidebar::Config(config)) => Some(config.clone()),
+        }
     }
 
     /// Get the right sidebar configuration if enabled
@@ -157,11 +173,12 @@ impl SiteLayout {
         }
     }
 
-    /// Check if page navigation is enabled
+    /// Check if page navigation is explicitly enabled in config
     ///
-    /// Defaults to `true` when left sidebar is enabled.
-    pub fn has_page_nav(&self) -> bool {
-        self.page_nav.unwrap_or_else(|| self.has_left_sidebar())
+    /// Returns `None` when not specified. The actual visibility is determined
+    /// at render time based on left sidebar visibility.
+    pub fn has_page_nav(&self) -> Option<bool> {
+        self.page_nav
     }
 
     /// Check if the footer is enabled
@@ -172,18 +189,6 @@ impl SiteLayout {
     /// Get the footer configuration if enabled
     pub fn footer_config(&self) -> Option<&LayoutFooter> {
         self.footer.as_ref()
-    }
-
-    /// Get the left sidebar configuration if enabled
-    ///
-    /// Returns default config when not specified (since left sidebar defaults to enabled).
-    pub fn left_sidebar_config(&self) -> Option<LeftSidebarConfig> {
-        match &self.left_sidebar {
-            None => Some(LeftSidebarConfig::default()),
-            Some(LayoutLeftSidebar::Enabled(true)) => Some(LeftSidebarConfig::default()),
-            Some(LayoutLeftSidebar::Enabled(false)) => None,
-            Some(LayoutLeftSidebar::Config(config)) => Some(config.clone()),
-        }
     }
 }
 
@@ -390,14 +395,6 @@ impl LayoutRightSidebar {
             LayoutRightSidebar::Enabled(enabled) => *enabled,
             LayoutRightSidebar::Config(_) => true,
         }
-    }
-
-    /// Check if the sidebar is explicitly disabled
-    ///
-    /// Returns true only if the user explicitly set `right-sidebar = false`.
-    /// Returns false for Config variants or Enabled(true).
-    pub fn is_explicitly_disabled(&self) -> bool {
-        matches!(self, LayoutRightSidebar::Enabled(false))
     }
 
     /// Get the configuration if this is a Config variant
@@ -625,12 +622,17 @@ mod tests {
     fn test_layout_sidebar_bool() -> Result<()> {
         let toml = r#"left-sidebar = true"#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert!(layout.has_left_sidebar());
+        assert_eq!(layout.left_sidebar_explicit(), Some(true));
         assert!(layout.left_sidebar_config().is_some());
 
         let toml = r#"left-sidebar = false"#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert!(!layout.has_left_sidebar());
+        assert_eq!(layout.left_sidebar_explicit(), Some(false));
+        assert!(layout.left_sidebar_config().is_none());
+
+        // Not specified - should return None (smart default)
+        let layout = SiteLayout::default();
+        assert_eq!(layout.left_sidebar_explicit(), None);
         assert!(layout.left_sidebar_config().is_none());
 
         Ok(())
@@ -645,7 +647,7 @@ mod tests {
             depth = 2
         "#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert!(layout.has_left_sidebar());
+        assert_eq!(layout.left_sidebar_explicit(), Some(true));
 
         let config = layout
             .left_sidebar_config()
@@ -787,19 +789,19 @@ mod tests {
 
     #[test]
     fn test_page_nav_default() -> Result<()> {
-        // Defaults to true when left sidebar is enabled (default)
+        // Defaults to None (smart default applied at render time)
         let layout = SiteLayout::default();
-        assert!(layout.has_page_nav());
+        assert_eq!(layout.has_page_nav(), None);
 
         // Explicit false
         let toml = r#"page-nav = false"#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert!(!layout.has_page_nav());
+        assert_eq!(layout.has_page_nav(), Some(false));
 
         // Explicit true
         let toml = r#"page-nav = true"#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert!(layout.has_page_nav());
+        assert_eq!(layout.has_page_nav(), Some(true));
 
         Ok(())
     }

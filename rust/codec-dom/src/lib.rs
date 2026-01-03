@@ -15,7 +15,6 @@ use stencila_codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
-use stencila_config::SiteLayout;
 use stencila_node_media::{collect_media, embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
@@ -27,7 +26,8 @@ mod layout;
 use layout::render_layout;
 pub use layout::{
     BreadcrumbItem, HeadingItem, NavTreeItem, PageLink, PageNavLinks, ResolvedFooter,
-    ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedNavLink,
+    ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedLeftSidebar,
+    ResolvedNavLink, ResolvedRightSidebar,
 };
 
 /// Use local development web assets instead of production CDN.
@@ -46,9 +46,6 @@ pub struct SiteEncodeOptions<'a> {
 
     /// Directory for extracted/collected media files
     pub media_dir: &'a Path,
-
-    /// Site layout configuration
-    pub layout: Option<&'a SiteLayout>,
 
     /// Pre-resolved layout with nav tree for current route
     pub resolved_layout: Option<&'a ResolvedLayout>,
@@ -160,7 +157,6 @@ pub async fn encode_site_document(
         source_path,
         base_url,
         media_dir,
-        layout,
         resolved_layout,
     } = options;
 
@@ -241,7 +237,6 @@ pub async fn encode_site_document(
         web_base,
         theme.as_ref(),
         "static",
-        layout,
         resolved_layout,
     )
     .await;
@@ -367,7 +362,6 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             theme.as_ref(),
             view,
             None,
-            None,
         )
         .await
     };
@@ -411,7 +405,6 @@ pub async fn standalone_html(
     web_base: String,
     theme: Option<&Theme>,
     view: &str,
-    layout: Option<&SiteLayout>,
     resolved_layout: Option<&ResolvedLayout>,
 ) -> String {
     let title = node_title.as_ref().map_or_else(
@@ -601,9 +594,9 @@ pub async fn standalone_html(
         node_html
     };
 
-    // Optionally wrap in layout
-    if let (Some(layout), Some(resolved_layout)) = (layout, resolved_layout) {
-        html.push_str(&render_layout(&view_content, layout, resolved_layout));
+    // Optionally wrap in resolved layout
+    if let Some(resolved_layout) = resolved_layout {
+        html.push_str(&render_layout(&view_content, resolved_layout));
     } else {
         html.push_str(&view_content);
     }

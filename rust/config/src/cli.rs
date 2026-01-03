@@ -709,14 +709,14 @@ impl Check {
                     }
                     if let Some(layout) = &site.layout {
                         let mut features = Vec::new();
-                        if layout.has_left_sidebar() {
+                        if layout.left_sidebar_explicit() == Some(true) {
                             features.push("left-sidebar");
                         }
-                        if layout.has_right_sidebar() {
+                        if layout.right_sidebar_explicit() == Some(true) {
                             features.push("right-sidebar");
                         }
                         if features.is_empty() {
-                            message!("   📐 Site layout: (no features enabled)");
+                            message!("   📐 Site layout: (using smart defaults)");
                         } else {
                             message!("   📐 Site layout: {}", features.join(", "));
                         }

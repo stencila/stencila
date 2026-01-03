@@ -18,12 +18,12 @@ use tokio::{
 
 use stencila_codec::stencila_schema::Node;
 use stencila_codec_dom::{SiteEncodeOptions, encode_site_document};
-use stencila_config::{RedirectStatus, SiteLayout};
+use stencila_config::RedirectStatus;
 
 use crate::layout::ResolvedLayout;
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
-use crate::{RouteEntry, RouteType, extract_headings_from_node, layout::resolve_layout, list};
+use crate::{RouteEntry, RouteType, layout::resolve_layout, list};
 
 /// A document rendered to HTML
 #[derive(Debug)]
@@ -242,24 +242,9 @@ where
         let result = async {
             let node = decode_document_fn(source_path.clone(), arguments.clone()).await?;
 
-            // Resolve layout with nav tree for this route
-            let mut resolved_layout = resolve_layout(&entry.route, &document_routes, &layout);
-
-            // Always try to extract headings from the article
-            let headings = extract_headings_from_node(
-                &node,
-                resolved_layout.right_sidebar_config.as_ref(),
-            );
-
-            // Handle right sidebar and headings:
-            // - If headings exist and not explicitly disabled, auto-enable
-            // - If already enabled (from config), populate headings
-            if headings.is_some() {
-                if !layout.is_right_sidebar_explicitly_disabled() {
-                    resolved_layout.right_sidebar = true;
-                }
-                resolved_layout.headings = headings;
-            }
+            // Resolve layout with nav tree and headings for this route
+            let resolved_layout =
+                resolve_layout(&entry.route, &document_routes, &layout, Some(&node));
 
             render_document(
                 &node,
@@ -267,7 +252,6 @@ where
                 base_url,
                 output,
                 &entry.route,
-                Some(&layout),
                 Some(&resolved_layout),
             )
             .await
@@ -382,7 +366,6 @@ async fn render_document(
     base_url: &str,
     output_root: &Path,
     route: &str,
-    layout: Option<&SiteLayout>,
     resolved_layout: Option<&ResolvedLayout>,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
@@ -429,7 +412,6 @@ async fn render_document(
             source_path: path,
             base_url,
             media_dir: &media_dir,
-            layout,
             resolved_layout,
         },
     )

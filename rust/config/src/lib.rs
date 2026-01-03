@@ -44,8 +44,8 @@ mod watch;
 pub use {
     layout::{
         FooterGroup, IconLink, LayoutFooter, LayoutFooterOverride, LayoutHeader,
-        LayoutHeaderOverride, LayoutOverride, LayoutRightSidebar, LayoutLeftSidebar, NavConfig,
-        NavItem, RightSidebarConfig, LeftSidebarConfig, SiteLayout, TextLink,
+        LayoutHeaderOverride, LayoutLeftSidebar, LayoutOverride, LayoutRightSidebar,
+        LeftSidebarConfig, NavConfig, NavItem, RightSidebarConfig, SiteLayout, TextLink,
     },
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{

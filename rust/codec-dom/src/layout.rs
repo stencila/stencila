@@ -1,5 +1,4 @@
 use stencila_codec_dom_trait::html_escape::{self, encode_double_quoted_attribute, encode_safe};
-use stencila_config::{RightSidebarConfig, SiteLayout};
 
 /// Pre-computed layout data for a specific route
 ///
@@ -10,29 +9,14 @@ pub struct ResolvedLayout {
     /// Resolved header configuration (if enabled)
     pub header: Option<ResolvedHeader>,
 
-    /// Whether left sidebar is enabled
-    pub left_sidebar: bool,
+    /// Resolved left sidebar configuration (if enabled)
+    pub left_sidebar: Option<ResolvedLeftSidebar>,
 
-    /// Whether right sidebar is enabled
-    pub right_sidebar: bool,
-
-    /// Right sidebar configuration (if enabled)
-    pub right_sidebar_config: Option<RightSidebarConfig>,
-
-    /// Headings for right sidebar table of contents
-    pub headings: Option<Vec<HeadingItem>>,
+    /// Resolved right sidebar configuration (if enabled)
+    pub right_sidebar: Option<ResolvedRightSidebar>,
 
     /// Resolved footer configuration (if enabled)
     pub footer: Option<ResolvedFooter>,
-
-    /// Navigation tree for left sidebar (if enabled)
-    pub nav_tree: Option<Vec<NavTreeItem>>,
-
-    /// Whether nav groups are collapsible
-    pub collapsible: bool,
-
-    /// Initial expansion depth (None = expand all)
-    pub expanded_depth: Option<u8>,
 
     /// Breadcrumb trail for the current route
     pub breadcrumbs: Vec<BreadcrumbItem>,
@@ -109,6 +93,33 @@ pub struct ResolvedFooterGroup {
     pub links: Vec<ResolvedNavLink>,
 }
 
+/// Resolved left sidebar configuration
+///
+/// Contains the navigation tree and display options for the left sidebar.
+#[derive(Debug, Clone)]
+pub struct ResolvedLeftSidebar {
+    /// Navigation tree items
+    pub nav_tree: Vec<NavTreeItem>,
+
+    /// Whether nav groups are collapsible
+    pub collapsible: bool,
+
+    /// Initial expansion depth (None = expand all)
+    pub expanded_depth: Option<u8>,
+}
+
+/// Resolved right sidebar configuration
+///
+/// Contains the table of contents (headings) for the right sidebar.
+#[derive(Debug, Clone)]
+pub struct ResolvedRightSidebar {
+    /// Title displayed above the headings (e.g., "On this page")
+    pub title: String,
+
+    /// Headings for table of contents
+    pub headings: Vec<HeadingItem>,
+}
+
 /// A breadcrumb item in the navigation trail
 #[derive(Debug, Clone)]
 pub struct BreadcrumbItem {
@@ -180,20 +191,17 @@ pub struct HeadingItem {
     pub children: Vec<HeadingItem>,
 }
 
-pub fn render_layout(
-    content: &str,
-    layout: &SiteLayout,
-    resolved_layout: &ResolvedLayout,
-) -> String {
-    let left_sidebar = layout.has_left_sidebar();
-    let right_sidebar = layout.has_right_sidebar();
+pub fn render_layout(content: &str, resolved_layout: &ResolvedLayout) -> String {
+    // Check sidebar presence
+    let has_left_sidebar = resolved_layout.left_sidebar.is_some();
+    let has_right_sidebar = resolved_layout.right_sidebar.is_some();
 
     // Build layout attributes
     let mut layout_attrs = String::new();
-    if left_sidebar {
+    if has_left_sidebar {
         layout_attrs.push_str(" left-sidebar");
     }
-    if right_sidebar {
+    if has_right_sidebar {
         layout_attrs.push_str(" right-sidebar");
     }
 
@@ -217,7 +225,7 @@ pub fn render_layout(
 
     // Hamburger button for mobile navigation - rendered when left sidebar is enabled
     // This is associated with the left sidebar, not the header
-    let hamburger_html = if left_sidebar {
+    let hamburger_html = if has_left_sidebar {
         MOBILE_NAV_TOGGLE_HTML
     } else {
         ""
@@ -441,12 +449,8 @@ pub fn render_nav(layout: &ResolvedLayout) -> Option<String> {
         }
     }
 
-    if !layout.left_sidebar {
-        return None;
-    }
-
-    let nav_tree = layout.nav_tree.as_ref()?;
-    if nav_tree.is_empty() {
+    let left_sidebar = layout.left_sidebar.as_ref()?;
+    if left_sidebar.nav_tree.is_empty() {
         return None;
     }
 
@@ -456,8 +460,8 @@ pub fn render_nav(layout: &ResolvedLayout) -> Option<String> {
           <ul role="tree">"#,
     );
 
-    for item in nav_tree {
-        html.push_str(&render_item(item, layout.collapsible));
+    for item in &left_sidebar.nav_tree {
+        html.push_str(&render_item(item, left_sidebar.collapsible));
     }
 
     html.push_str(
@@ -475,32 +479,20 @@ pub fn render_nav(layout: &ResolvedLayout) -> Option<String> {
 /// Generates HTML for the right sidebar with table of contents (headings).
 /// The headings are rendered as a nested list with links to each heading anchor.
 pub fn render_right_sidebar(layout: &ResolvedLayout) -> Option<String> {
-    if !layout.right_sidebar {
+    let right_sidebar = layout.right_sidebar.as_ref()?;
+    if right_sidebar.headings.is_empty() {
         return None;
     }
-
-    let headings = layout.headings.as_ref()?;
-    if headings.is_empty() {
-        return None;
-    }
-
-    // Get title from config or use default
-    let title = layout
-        .right_sidebar_config
-        .as_ref()
-        .and_then(|c| c.title.as_ref())
-        .map(|s| s.as_str())
-        .unwrap_or("On this page");
 
     let mut html = format!(
         r#"<nav slot="right-sidebar" class="toc" aria-label="Table of contents">
         <h2 class="toc-title">{}</h2>
         <stencila-toc-tree>
           <ul role="tree">"#,
-        encode_safe(title)
+        encode_safe(&right_sidebar.title)
     );
 
-    for heading in headings {
+    for heading in &right_sidebar.headings {
         html.push_str(&render_heading_item(heading));
     }
 

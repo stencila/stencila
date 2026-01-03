@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use stencila_config::{NavConfig, NavItem, LeftSidebarConfig};
+use stencila_config::{LeftSidebarConfig, NavConfig, NavItem};
 
 use crate::list::{RouteEntry, RouteType};
 
@@ -321,7 +321,7 @@ fn titlecase_word(word: &str) -> String {
 mod tests {
     use std::collections::HashMap;
 
-    use stencila_config::{NavConfig, NavItem, LeftSidebarConfig};
+    use stencila_config::{LeftSidebarConfig, NavConfig, NavItem};
 
     use super::*;
 

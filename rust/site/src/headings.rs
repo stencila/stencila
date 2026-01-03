@@ -162,10 +162,7 @@ mod tests {
     /// Create a simple heading list item with a link
     fn make_heading_item(id: &str, text: &str, children: Option<List>) -> ListItem {
         let mut content = vec![Block::Paragraph(Paragraph::new(vec![Inline::Link(
-            Link::new(
-                vec![Inline::Text(Text::from(text))],
-                format!("#{id}"),
-            ),
+            Link::new(vec![Inline::Text(Text::from(text))], format!("#{id}")),
         )]))];
 
         if let Some(nested) = children {
