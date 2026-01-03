@@ -163,7 +163,8 @@ stencila-layout[no-left-sidebar][no-right-sidebar] {
     grid-area: left-sidebar;
     position: sticky;
     top: var(--layout-header-height);
-    height: calc(100vh - var(--layout-header-height));
+    align-self: start;
+    max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--space-4);
     background: var(--nav-background);
@@ -175,7 +176,8 @@ stencila-layout[no-left-sidebar][no-right-sidebar] {
     grid-area: right-sidebar;
     position: sticky;
     top: var(--layout-header-height);
-    height: calc(100vh - var(--layout-header-height));
+    align-self: start;
+    max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--space-4);
     border-left: 1px solid var(--border-color-muted);
@@ -194,6 +196,8 @@ stencila-layout[no-left-sidebar][no-right-sidebar] {
 /* Footer Slot */
 [slot="footer"] {
     grid-area: footer;
+    width: 100%;
+    max-width: none;
     padding: var(--footer-padding);
     background: var(--footer-background);
     border-top: 1px solid var(--footer-border-color);
@@ -588,6 +592,278 @@ stencila-nav-tree .nav-label {
     color: var(--text-color-tertiary);
     font-size: var(--font-size-sm);
 }
+
+
+/* =================================
+ * Footer Component Styles
+ * ================================= */
+
+stencila-footer {
+    display: block;
+    width: 100%;
+}
+
+/* Footer groups container */
+.footer-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-8);
+    margin-bottom: var(--space-6);
+}
+
+/* Individual footer group (column) */
+.footer-group {
+    min-width: 0;
+}
+
+.footer-group-title {
+    margin: 0 0 var(--space-3) 0;
+    padding: 0;
+    color: var(--footer-group-title-color);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.footer-group-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.footer-group-links li {
+    margin: 0;
+    padding: 0;
+}
+
+.footer-group-links a {
+    display: inline-block;
+    padding: var(--space-1) 0;
+    color: var(--footer-link-color);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-duration-fast);
+}
+
+.footer-group-links a:hover {
+    color: var(--text-color-primary);
+}
+
+.footer-group-links a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* Footer bottom section (icons + copyright) */
+.footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--footer-border-color);
+}
+
+.footer-icons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.footer-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--footer-link-color);
+    border-radius: var(--border-radius-default);
+    transition:
+        color var(--transition-duration-fast),
+        background-color var(--transition-duration-fast);
+}
+
+.footer-icon-link:hover {
+    color: var(--text-color-primary);
+    background: var(--surface-background);
+}
+
+.footer-icon-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* UnoCSS icon styling for footer */
+.footer-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: currentColor;
+}
+
+.footer-copyright {
+    margin: 0;
+    color: var(--text-color-tertiary);
+    font-size: var(--font-size-sm);
+}
+
+/* Responsive: Stack footer bottom on mobile */
+@media (max-width: 480px) {
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-groups {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+/* =================================
+ * Breadcrumbs Component Styles
+ * ================================= */
+
+stencila-breadcrumbs {
+    display: block;
+    margin-bottom: var(--space-4);
+}
+
+stencila-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+stencila-breadcrumbs li {
+    display: flex;
+    align-items: center;
+}
+
+/* Separator between items */
+stencila-breadcrumbs li:not(:last-child)::after {
+    content: var(--breadcrumb-separator);
+    margin-left: var(--space-1);
+    color: var(--text-color-tertiary);
+}
+
+stencila-breadcrumbs a {
+    color: var(--breadcrumb-color);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-duration-fast);
+}
+
+stencila-breadcrumbs a:hover {
+    color: var(--text-color-primary);
+    text-decoration: underline;
+}
+
+stencila-breadcrumbs a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-default);
+}
+
+/* Current page (last item, no link) */
+stencila-breadcrumbs li[aria-current="page"] {
+    color: var(--breadcrumb-color-current);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+
+/* =================================
+ * Page Navigation Component Styles
+ * ================================= */
+
+stencila-page-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--page-nav-margin-top);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--page-nav-border-color);
+}
+
+/* Page nav links */
+.page-nav-prev,
+.page-nav-next {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--border-radius-default);
+    text-decoration: none;
+    transition:
+        border-color var(--transition-duration-fast),
+        background-color var(--transition-duration-fast);
+}
+
+.page-nav-prev:not(.page-nav-empty):hover,
+.page-nav-next:not(.page-nav-empty):hover {
+    border-color: var(--color-accent);
+    background: var(--surface-sunken);
+}
+
+.page-nav-prev:focus-visible,
+.page-nav-next:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* Previous link - align left */
+.page-nav-prev {
+    align-items: flex-start;
+}
+
+/* Next link - align right */
+.page-nav-next {
+    align-items: flex-end;
+    text-align: right;
+}
+
+/* Empty placeholder (maintains grid layout) */
+.page-nav-empty {
+    background: transparent;
+    border-color: transparent;
+    cursor: default;
+}
+
+/* Label ("Previous" / "Next") */
+.page-nav-label {
+    color: var(--text-color-tertiary);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Title of the page */
+.page-nav-title {
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 480px) {
+    stencila-page-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .page-nav-prev,
+    .page-nav-next {
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
 
 /* Print: Hide layout chrome */
 @media print {

@@ -9,25 +9,6 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// SVG markup for the mobile navigation toggle button (hamburger menu)
-///
-/// This is defined as a constant rather than inline to:
-/// 1. Keep the SVG in one maintainable location
-/// 2. Ensure the hamburger works without JS/CSS (critical mobile UI)
-/// 3. Allow both open (hamburger) and close (X) states via CSS toggle
-pub const MOBILE_NAV_TOGGLE_HTML: &str = r#"<button class="mobile-nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="left-sidebar">
-        <svg class="hamburger-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-        <svg class="hamburger-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>"#;
-
-
 /// Site layout configuration
 ///
 /// Controls the layout structure of site pages including header, sidebars,
@@ -68,6 +49,17 @@ pub struct SiteLayout {
     /// When `false` or not specified, the right sidebar is hidden.
     pub right_sidebar: Option<bool>,
 
+    /// Enable prev/next page navigation
+    ///
+    /// When `true`, displays prev/next links at the bottom of the content area.
+    /// Defaults to `true` when left sidebar navigation is enabled.
+    pub page_nav: Option<bool>,
+
+    /// Footer configuration
+    ///
+    /// Configure the site footer with link groups, icon links, and copyright text.
+    pub footer: Option<LayoutFooter>,
+
     /// Named navigation configurations
     ///
     /// Define reusable navigation trees that can be referenced by name
@@ -88,7 +80,11 @@ pub struct SiteLayout {
 impl SiteLayout {
     /// Check if layout has any active sections
     pub fn has_any(&self) -> bool {
-        self.has_header() || self.has_left_sidebar() || self.has_right_sidebar()
+        self.has_header()
+            || self.has_left_sidebar()
+            || self.has_right_sidebar()
+            || self.has_page_nav()
+            || self.has_footer()
     }
 
     /// Check if the header is enabled
@@ -116,6 +112,23 @@ impl SiteLayout {
         self.right_sidebar.unwrap_or(false)
     }
 
+    /// Check if page navigation is enabled
+    ///
+    /// Defaults to `true` when left sidebar is enabled.
+    pub fn has_page_nav(&self) -> bool {
+        self.page_nav.unwrap_or_else(|| self.has_left_sidebar())
+    }
+
+    /// Check if the footer is enabled
+    pub fn has_footer(&self) -> bool {
+        self.footer.is_some()
+    }
+
+    /// Get the footer configuration if enabled
+    pub fn footer_config(&self) -> Option<&LayoutFooter> {
+        self.footer.as_ref()
+    }
+
     /// Get the left sidebar configuration if enabled
     ///
     /// Returns default config when not specified (since left sidebar defaults to enabled).
@@ -131,7 +144,7 @@ impl SiteLayout {
 
 /// Header configuration
 ///
-/// Controls the site header appearance including logo, title, navigation tabs,
+/// Controls the site header appearance including logo, title, navigation links,
 /// and icon links.
 ///
 /// Example:
@@ -140,13 +153,13 @@ impl SiteLayout {
 /// logo = "images/logo.svg"
 /// title = "My Site"
 ///
-/// [[site.layout.header.tabs]]
+/// [[site.layout.header.links]]
 /// label = "Docs"
-/// href = "/docs/"
+/// target = "/docs/"
 ///
 /// [[site.layout.header.icons]]
 /// icon = "github"
-/// href = "https://github.com/example/repo"
+/// target = "https://github.com/example/repo"
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
@@ -158,23 +171,73 @@ pub struct LayoutHeader {
     /// Site title displayed in header
     pub title: Option<String>,
 
-    /// Navigation tabs (top-level links)
+    /// Navigation top-level links
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub tabs: Vec<TabLink>,
+    pub links: Vec<TextLink>,
 
     /// Icon links (e.g., GitHub, Discord)
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub icons: Vec<IconLink>,
 }
 
-/// A navigation tab link in the header
+/// Footer configuration
+///
+/// Controls the site footer appearance with link groups, icon links,
+/// and copyright text.
+///
+/// Example:
+/// ```toml
+/// [site.layout.footer]
+/// copyright = "© 2024 Stencila Inc."
+///
+/// [[site.layout.footer.groups]]
+/// title = "Product"
+/// links = [
+///   { label = "Features", target = "/features/" },
+///   { label = "Pricing", target = "/pricing/" },
+/// ]
+///
+/// [[site.layout.footer.icons]]
+/// icon = "github"
+/// target = "https://github.com/stencila/stencila"
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct LayoutFooter {
+    /// Groups of links displayed in columns
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub groups: Vec<FooterGroup>,
+
+    /// Icon links (e.g., social media)
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub icons: Vec<IconLink>,
+
+    /// Copyright text displayed at the bottom
+    pub copyright: Option<String>,
+}
+
+/// A group of links in the footer
+///
+/// Displayed as a column with a title and list of links.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-pub struct TabLink {
-    /// Display label for the tab
+pub struct FooterGroup {
+    /// Group title displayed above the links
+    pub title: String,
+
+    /// Links in this group
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub links: Vec<TextLink>,
+}
+
+/// A text link (used in header tabs and footer groups)
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+pub struct TextLink {
+    /// Display label for the link
     pub label: String,
 
     /// URL to link to
-    pub href: String,
+    pub target: String,
 }
 
 /// An icon link (used in header and footer)
@@ -185,7 +248,7 @@ pub struct IconLink {
     pub icon: String,
 
     /// URL to link to
-    pub href: String,
+    pub target: String,
 
     /// Accessible label (used for aria-label and tooltip)
     pub label: Option<String>,
@@ -273,7 +336,7 @@ pub struct NavConfig {
 ///
 /// Can be:
 /// - A route string (e.g., `"/docs/intro/"`)
-/// - A link with label and href
+/// - A link with label and target URL
 /// - A group with children
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
 #[serde(untagged)]
@@ -286,7 +349,7 @@ pub enum NavItem {
         /// Display label for the link
         label: String,
         /// URL to link to
-        href: String,
+        target: String,
         /// Optional icon name (Lucide icon)
         #[serde(skip_serializing_if = "Option::is_none")]
         icon: Option<String>,
@@ -303,126 +366,143 @@ pub enum NavItem {
 
 #[cfg(test)]
 mod tests {
+    use eyre::{OptionExt, Result};
+
     use super::*;
 
-
     #[test]
-    fn test_header_config() {
+    fn test_header_config() -> Result<()> {
         let toml = r#"
             [header]
             logo = "images/logo.svg"
             title = "My Site"
 
-            [[header.tabs]]
+            [[header.links]]
             label = "Docs"
-            href = "/docs/"
+            target = "/docs/"
 
-            [[header.tabs]]
+            [[header.links]]
             label = "API"
-            href = "/api/"
+            target = "/api/"
 
             [[header.icons]]
             icon = "github"
-            href = "https://github.com/example/repo"
+            target = "https://github.com/example/repo"
             label = "GitHub"
         "#;
-        let layout: SiteLayout = toml::from_str(toml).unwrap();
+        let layout: SiteLayout = toml::from_str(toml)?;
 
         assert!(layout.has_header());
         let header = layout.header_config().expect("header should be present");
         assert_eq!(header.logo, Some("images/logo.svg".to_string()));
         assert_eq!(header.title, Some("My Site".to_string()));
-        assert_eq!(header.tabs.len(), 2);
-        assert_eq!(header.tabs[0].label, "Docs");
-        assert_eq!(header.tabs[0].href, "/docs/");
+        assert_eq!(header.links.len(), 2);
+        assert_eq!(header.links[0].label, "Docs");
+        assert_eq!(header.links[0].target, "/docs/");
         assert_eq!(header.icons.len(), 1);
         assert_eq!(header.icons[0].icon, "github");
         assert_eq!(header.icons[0].label, Some("GitHub".to_string()));
+
+        Ok(())
     }
 
     #[test]
-    fn test_header_minimal() {
+    fn test_header_minimal() -> Result<()> {
         let toml = r#"
             [header]
             title = "Simple Site"
         "#;
-        let layout: SiteLayout = toml::from_str(toml).unwrap();
+        let layout: SiteLayout = toml::from_str(toml)?;
 
         assert!(layout.has_header());
         let header = layout.header_config().expect("header should be present");
         assert_eq!(header.logo, None);
         assert_eq!(header.title, Some("Simple Site".to_string()));
-        assert!(header.tabs.is_empty());
+        assert!(header.links.is_empty());
         assert!(header.icons.is_empty());
+
+        Ok(())
     }
 
     #[test]
-    fn test_no_header() {
+    fn test_no_header() -> Result<()> {
         let toml = r#"
             left-sidebar = true
         "#;
-        let layout: SiteLayout = toml::from_str(toml).unwrap();
+        let layout: SiteLayout = toml::from_str(toml)?;
 
         assert!(!layout.has_header());
         assert!(layout.header_config().is_none());
+
+        Ok(())
     }
 
     #[test]
-    fn test_layout_sidebar_bool() {
+    fn test_layout_sidebar_bool() -> Result<()> {
         let toml = r#"left-sidebar = true"#;
-        let layout: SiteLayout = toml::from_str(toml).unwrap();
+        let layout: SiteLayout = toml::from_str(toml)?;
         assert!(layout.has_left_sidebar());
         assert!(layout.left_sidebar_config().is_some());
 
         let toml = r#"left-sidebar = false"#;
-        let layout: SiteLayout = toml::from_str(toml).unwrap();
+        let layout: SiteLayout = toml::from_str(toml)?;
         assert!(!layout.has_left_sidebar());
         assert!(layout.left_sidebar_config().is_none());
+
+        Ok(())
     }
 
     #[test]
-    fn test_layout_sidebar_config() {
+    fn test_layout_sidebar_config() -> Result<()> {
         let toml = r#"
             [left-sidebar]
             nav = "auto"
             collapsible = true
             depth = 2
         "#;
-        let layout: SiteLayout = toml::from_str(toml).unwrap();
+        let layout: SiteLayout = toml::from_str(toml)?;
         assert!(layout.has_left_sidebar());
 
-        let config = layout.left_sidebar_config().unwrap();
+        let config = layout
+            .left_sidebar_config()
+            .ok_or_eyre("expected left sidebar")?;
         assert_eq!(config.nav, Some("auto".to_string()));
         assert_eq!(config.collapsible, Some(true));
         assert_eq!(config.depth, Some(2));
+
+        Ok(())
     }
 
     #[test]
-    fn test_nav_item_route() {
+    fn test_nav_item_route() -> Result<()> {
         let toml = r#"items = ["/docs/intro/", "/docs/guide/"]"#;
-        let config: NavConfig = toml::from_str(toml).unwrap();
+        let config: NavConfig = toml::from_str(toml)?;
         assert_eq!(config.items.len(), 2);
         assert!(matches!(&config.items[0], NavItem::Route(r) if r == "/docs/intro/"));
+
+        Ok(())
     }
 
     #[test]
-    fn test_nav_item_link() {
-        let toml = r#"items = [{ label = "Home", href = "/" }]"#;
-        let config: NavConfig = toml::from_str(toml).unwrap();
+    fn test_nav_item_link() -> Result<()> {
+        let toml = r#"items = [{ label = "Home", target = "/" }]"#;
+        let config: NavConfig = toml::from_str(toml)?;
         assert_eq!(config.items.len(), 1);
         assert!(
-            matches!(&config.items[0], NavItem::Link { label, href, .. } if label == "Home" && href == "/")
+            matches!(&config.items[0], NavItem::Link { label, target, .. } if label == "Home" && target == "/")
         );
+
+        Ok(())
     }
 
     #[test]
-    fn test_nav_item_group() {
+    fn test_nav_item_group() -> Result<()> {
         let toml = r#"
             [[items]]
             group = "Getting Started"
             children = ["/docs/install/", "/docs/quickstart/"]
         "#;
-        let config: NavConfig = toml::from_str(toml).unwrap();
+        let config: NavConfig = toml::from_str(toml)?;
         assert_eq!(config.items.len(), 1);
         if let NavItem::Group { group, children } = &config.items[0] {
             assert_eq!(group, "Getting Started");
@@ -430,10 +510,12 @@ mod tests {
         } else {
             panic!("Expected Group variant");
         }
+
+        Ok(())
     }
 
     #[test]
-    fn test_named_navs() {
+    fn test_named_navs() -> Result<()> {
         let toml = r#"
             [navs.api]
             items = ["/api/intro/"]
@@ -441,9 +523,100 @@ mod tests {
             [navs.docs]
             items = ["/docs/intro/"]
         "#;
-        let layout: SiteLayout = toml::from_str(toml).unwrap();
+        let layout: SiteLayout = toml::from_str(toml)?;
         assert!(!layout.navs.is_empty());
         assert!(layout.navs.contains_key("api"));
         assert!(layout.navs.contains_key("docs"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_footer_config() -> Result<()> {
+        let toml = r#"
+            [footer]
+            copyright = "© 2024 Stencila Inc."
+
+            [[footer.groups]]
+            title = "Product"
+            links = [
+                { label = "Features", target = "/features/" },
+                { label = "Pricing", target = "/pricing/" },
+            ]
+
+            [[footer.groups]]
+            title = "Resources"
+            links = [
+                { label = "Documentation", target = "/docs/" },
+            ]
+
+            [[footer.icons]]
+            icon = "github"
+            target = "https://github.com/stencila/stencila"
+            label = "GitHub"
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert!(layout.has_footer());
+        let footer = layout.footer_config().expect("footer should be present");
+        assert_eq!(footer.copyright, Some("© 2024 Stencila Inc.".to_string()));
+        assert_eq!(footer.groups.len(), 2);
+        assert_eq!(footer.groups[0].title, "Product");
+        assert_eq!(footer.groups[0].links.len(), 2);
+        assert_eq!(footer.groups[0].links[0].label, "Features");
+        assert_eq!(footer.groups[1].title, "Resources");
+        assert_eq!(footer.icons.len(), 1);
+        assert_eq!(footer.icons[0].icon, "github");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_footer_minimal() -> Result<()> {
+        let toml = r#"
+            [footer]
+            copyright = "© 2024"
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert!(layout.has_footer());
+        let footer = layout.footer_config().expect("footer should be present");
+        assert_eq!(footer.copyright, Some("© 2024".to_string()));
+        assert!(footer.groups.is_empty());
+        assert!(footer.icons.is_empty());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_no_footer() -> Result<()> {
+        let toml = r#"
+            left-sidebar = true
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        assert!(!layout.has_footer());
+        assert!(layout.footer_config().is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_page_nav_default() -> Result<()> {
+        // Defaults to true when left sidebar is enabled (default)
+        let layout = SiteLayout::default();
+        assert!(layout.has_page_nav());
+
+        // Explicit false
+        let toml = r#"page-nav = false"#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+        assert!(!layout.has_page_nav());
+
+        // Explicit true
+        let toml = r#"page-nav = true"#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+        assert!(layout.has_page_nav());
+
+        Ok(())
     }
 }

@@ -198,7 +198,7 @@ fn nav_item_to_tree(item: &NavItem, routes: &[RouteEntry]) -> NavTreeItem {
                 children: None,
             }
         }
-        NavItem::Link { label, href, icon } => NavTreeItem {
+        NavItem::Link { label, target: href, icon } => NavTreeItem {
             label: label.clone(),
             href: Some(href.clone()),
             icon: icon.clone(),

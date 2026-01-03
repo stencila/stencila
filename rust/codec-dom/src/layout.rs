@@ -1,12 +1,11 @@
-use serde::{Deserialize, Serialize};
 use stencila_codec_dom_trait::html_escape::{self, encode_double_quoted_attribute, encode_safe};
+use stencila_config::SiteLayout;
 
 /// Pre-computed layout data for a specific route
 ///
 /// This struct contains all layout-related data needed to render
 /// a page, including the navigation tree with active/expanded states.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone)]
 pub struct ResolvedLayout {
     /// Resolved header configuration (if enabled)
     pub header: Option<ResolvedHeader>,
@@ -17,6 +16,9 @@ pub struct ResolvedLayout {
     /// Whether right sidebar is enabled
     pub right_sidebar: bool,
 
+    /// Resolved footer configuration (if enabled)
+    pub footer: Option<ResolvedFooter>,
+
     /// Navigation tree for left sidebar (if enabled)
     pub nav_tree: Option<Vec<NavTreeItem>>,
 
@@ -26,13 +28,18 @@ pub struct ResolvedLayout {
     /// Initial expansion depth (None = expand all)
     pub expanded_depth: Option<u8>,
 
+    /// Breadcrumb trail for the current route
+    pub breadcrumbs: Vec<BreadcrumbItem>,
+
+    /// Page navigation links (prev/next)
+    pub page_nav: Option<PageNavLinks>,
+
     /// Current route (for client-side active state updates)
     pub current_route: String,
 }
 
 /// Pre-computed header data for a specific route
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone)]
 pub struct ResolvedHeader {
     /// Logo path (resolved relative to base URL)
     pub logo: Option<String>,
@@ -40,17 +47,16 @@ pub struct ResolvedHeader {
     /// Site title
     pub title: Option<String>,
 
-    /// Navigation tabs with active state computed
-    pub tabs: Vec<ResolvedTab>,
+    /// Navigation links with active state computed
+    pub links: Vec<ResolvedNavLink>,
 
     /// Icon links
     pub icons: Vec<ResolvedIconLink>,
 }
 
 /// A resolved tab with active state
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ResolvedTab {
+#[derive(Debug, Clone)]
+pub struct ResolvedNavLink {
     /// Display label
     pub label: String,
 
@@ -62,7 +68,7 @@ pub struct ResolvedTab {
 }
 
 /// A resolved icon link
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ResolvedIconLink {
     /// Icon name (Lucide icon name)
     pub icon: String,
@@ -74,9 +80,64 @@ pub struct ResolvedIconLink {
     pub label: String,
 }
 
+/// Pre-computed footer data
+#[derive(Debug, Clone)]
+pub struct ResolvedFooter {
+    /// Groups of links
+    pub groups: Vec<ResolvedFooterGroup>,
+
+    /// Icon links
+    pub icons: Vec<ResolvedIconLink>,
+
+    /// Copyright text
+    pub copyright: Option<String>,
+}
+
+/// A resolved footer link group
+#[derive(Debug, Clone)]
+pub struct ResolvedFooterGroup {
+    /// Group title
+    pub title: String,
+
+    /// Links in this group
+    pub links: Vec<ResolvedNavLink>,
+}
+
+/// A breadcrumb item in the navigation trail
+#[derive(Debug, Clone)]
+pub struct BreadcrumbItem {
+    /// Display label
+    pub label: String,
+
+    /// URL to link to
+    pub href: String,
+
+    /// Whether this is the current page (last item)
+    pub current: bool,
+}
+
+/// Page navigation links (prev/next)
+#[derive(Debug, Clone)]
+pub struct PageNavLinks {
+    /// Link to previous page
+    pub prev: Option<PageLink>,
+
+    /// Link to next page
+    pub next: Option<PageLink>,
+}
+
+/// A page link for navigation
+#[derive(Debug, Clone)]
+pub struct PageLink {
+    /// Display label
+    pub label: String,
+
+    /// URL to link to
+    pub href: String,
+}
+
 /// A navigation tree item for site layouts
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone)]
 pub struct NavTreeItem {
     /// Display label for this item
     pub label: String,
@@ -96,6 +157,81 @@ pub struct NavTreeItem {
     /// Child navigation items (for groups/directories)
     pub children: Option<Vec<NavTreeItem>>,
 }
+
+pub fn render_layout(
+    content: &str,
+    layout: &SiteLayout,
+    resolved_layout: &ResolvedLayout,
+) -> String {
+    let left_sidebar = layout.has_left_sidebar();
+    let right_sidebar = layout.has_right_sidebar();
+
+    // Build layout attributes
+    let mut layout_attrs = String::new();
+    if left_sidebar {
+        layout_attrs.push_str(" left-sidebar");
+    }
+    if right_sidebar {
+        layout_attrs.push_str(" right-sidebar");
+    }
+
+    // Render header if available
+    let header_html = render_header(resolved_layout).unwrap_or_default();
+
+    // Render navigation tree if available
+    let nav_html = render_nav(resolved_layout).unwrap_or_default();
+
+    // Render footer if available
+    let footer_html = render_footer(resolved_layout).unwrap_or_default();
+
+    // Render breadcrumbs if available
+    let breadcrumbs_html = render_breadcrumbs(resolved_layout).unwrap_or_default();
+
+    // Render page navigation if available
+    let page_nav_html = render_page_nav(resolved_layout).unwrap_or_default();
+
+    // Hamburger button for mobile navigation - rendered when left sidebar is enabled
+    // This is associated with the left sidebar, not the header
+    let hamburger_html = if left_sidebar {
+        MOBILE_NAV_TOGGLE_HTML
+    } else {
+        ""
+    };
+
+    // The "skip link" is an accessibility feature (WCAG 2.4.1) that allows keyboard
+    // and screen reader users to bypass repetitive navigation elements and jump
+    // directly to the main content. It's visually hidden until focused.
+    format!(
+        r##"<stencila-layout{layout_attrs}>
+      <a href="#main-content" class="skip-link">Skip to content</a>{hamburger_html}
+      {header_html}
+      {nav_html}
+      <main id="main-content" slot="content">
+        {breadcrumbs_html}
+        {content}
+        {page_nav_html}
+      </main>{footer_html}
+    </stencila-layout>"##
+    )
+}
+
+/// SVG markup for the mobile navigation toggle button (hamburger menu)
+///
+/// This is defined as a constant rather than inline to:
+/// 1. Keep the SVG in one maintainable location
+/// 2. Ensure the hamburger works without JS/CSS (critical mobile UI)
+/// 3. Allow both open (hamburger) and close (X) states via CSS toggle
+pub const MOBILE_NAV_TOGGLE_HTML: &str = r#"<button class="mobile-nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="left-sidebar">
+        <svg class="hamburger-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg class="hamburger-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>"#;
 
 /// Render header from resolved layout
 ///
@@ -135,13 +271,13 @@ pub fn render_header(layout: &ResolvedLayout) -> Option<String> {
     }
 
     // Navigation tabs
-    if !header.tabs.is_empty() {
+    if !header.links.is_empty() {
         html.push_str(
             r#"
       <stencila-nav-tabs role="navigation" aria-label="Main navigation">"#,
         );
 
-        for tab in &header.tabs {
+        for tab in &header.links {
             let active_class = if tab.active { " active" } else { "" };
             let aria_current = if tab.active {
                 r#" aria-current="page""#
@@ -303,6 +439,204 @@ pub fn render_nav(layout: &ResolvedLayout) -> Option<String> {
           </ul>
         </stencila-nav-tree>
       </nav>"#,
+    );
+
+    Some(html)
+}
+
+/// Render footer from resolved layout
+///
+/// Generates HTML for the site footer with link groups, icons, and copyright.
+pub fn render_footer(layout: &ResolvedLayout) -> Option<String> {
+    let footer = layout.footer.as_ref()?;
+
+    let mut html = String::from(r#"<stencila-footer slot="footer">"#);
+
+    // Link groups
+    if !footer.groups.is_empty() {
+        html.push_str(
+            r#"
+      <div class="footer-groups">"#,
+        );
+
+        for group in &footer.groups {
+            html.push_str(&format!(
+                r#"
+        <div class="footer-group">
+          <h4 class="footer-group-title">{}</h4>
+          <ul class="footer-group-links">"#,
+                encode_safe(&group.title)
+            ));
+
+            for link in &group.links {
+                html.push_str(&format!(
+                    r#"
+            <li><a href="{}">{}</a></li>"#,
+                    encode_double_quoted_attribute(&link.href),
+                    encode_safe(&link.label)
+                ));
+            }
+
+            html.push_str(
+                r#"
+          </ul>
+        </div>"#,
+            );
+        }
+
+        html.push_str(
+            r#"
+      </div>"#,
+        );
+    }
+
+    // Bottom section with icons and copyright
+    let has_bottom = !footer.icons.is_empty() || footer.copyright.is_some();
+    if has_bottom {
+        html.push_str(
+            r#"
+      <div class="footer-bottom">"#,
+        );
+
+        // Icon links
+        if !footer.icons.is_empty() {
+            html.push_str(
+                r#"
+        <div class="footer-icons">"#,
+            );
+
+            for icon in &footer.icons {
+                html.push_str(&format!(
+                    r#"
+          <a href="{}" class="footer-icon-link" aria-label="{}" target="_blank" rel="noopener noreferrer" data-icon="{}">
+            <span class="icon-placeholder"></span>
+          </a>"#,
+                    encode_double_quoted_attribute(&icon.href),
+                    encode_double_quoted_attribute(&icon.label),
+                    encode_double_quoted_attribute(&icon.icon)
+                ));
+            }
+
+            html.push_str(
+                r#"
+        </div>"#,
+            );
+        }
+
+        // Copyright
+        if let Some(ref copyright) = footer.copyright {
+            html.push_str(&format!(
+                r#"
+        <p class="footer-copyright">{}</p>"#,
+                encode_safe(copyright)
+            ));
+        }
+
+        html.push_str(
+            r#"
+      </div>"#,
+        );
+    }
+
+    html.push_str(
+        r#"
+    </stencila-footer>"#,
+    );
+
+    Some(html)
+}
+
+/// Render breadcrumbs from resolved layout
+///
+/// Generates HTML for the breadcrumb navigation trail.
+pub fn render_breadcrumbs(layout: &ResolvedLayout) -> Option<String> {
+    if layout.breadcrumbs.is_empty() {
+        return None;
+    }
+
+    let mut html = String::from(
+        r#"<stencila-breadcrumbs aria-label="Breadcrumb">
+        <ol>"#,
+    );
+
+    for crumb in &layout.breadcrumbs {
+        if crumb.current {
+            html.push_str(&format!(
+                r#"
+          <li aria-current="page">{}</li>"#,
+                encode_safe(&crumb.label)
+            ));
+        } else {
+            html.push_str(&format!(
+                r#"
+          <li><a href="{}">{}</a></li>"#,
+                encode_double_quoted_attribute(&crumb.href),
+                encode_safe(&crumb.label)
+            ));
+        }
+    }
+
+    html.push_str(
+        r#"
+        </ol>
+      </stencila-breadcrumbs>"#,
+    );
+
+    Some(html)
+}
+
+/// Render page navigation from resolved layout
+///
+/// Generates HTML for prev/next page links.
+pub fn render_page_nav(layout: &ResolvedLayout) -> Option<String> {
+    let page_nav = layout.page_nav.as_ref()?;
+
+    // Only render if there's at least one link
+    if page_nav.prev.is_none() && page_nav.next.is_none() {
+        return None;
+    }
+
+    let mut html = String::from(r#"<stencila-page-nav>"#);
+
+    // Previous link
+    if let Some(ref prev) = page_nav.prev {
+        html.push_str(&format!(
+            r#"
+        <a href="{}" class="page-nav-prev" rel="prev">
+          <span class="page-nav-label">Previous</span>
+          <span class="page-nav-title">{}</span>
+        </a>"#,
+            encode_double_quoted_attribute(&prev.href),
+            encode_safe(&prev.label)
+        ));
+    } else {
+        html.push_str(
+            r#"
+        <span class="page-nav-prev page-nav-empty"></span>"#,
+        );
+    }
+
+    // Next link
+    if let Some(ref next) = page_nav.next {
+        html.push_str(&format!(
+            r#"
+        <a href="{}" class="page-nav-next" rel="next">
+          <span class="page-nav-label">Next</span>
+          <span class="page-nav-title">{}</span>
+        </a>"#,
+            encode_double_quoted_attribute(&next.href),
+            encode_safe(&next.label)
+        ));
+    } else {
+        html.push_str(
+            r#"
+        <span class="page-nav-next page-nav-empty"></span>"#,
+        );
+    }
+
+    html.push_str(
+        r#"
+      </stencila-page-nav>"#,
     );
 
     Some(html)

@@ -15,7 +15,7 @@ use stencila_codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
-use stencila_config::{SiteLayout, MOBILE_NAV_TOGGLE_HTML};
+use stencila_config::SiteLayout;
 use stencila_node_media::{collect_media, embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
@@ -24,13 +24,16 @@ use stencila_version::STENCILA_VERSION;
 pub use stencila_codec_dom_trait::to_dom;
 
 mod layout;
-pub use layout::{NavTreeItem, ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedTab};
-use layout::{render_header, render_nav};
+use layout::render_layout;
+pub use layout::{
+    BreadcrumbItem, NavTreeItem, PageLink, PageNavLinks, ResolvedFooter, ResolvedFooterGroup,
+    ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedNavLink,
+};
 
 /// Use local development web assets instead of production CDN.
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
-const USE_LOCALHOST: bool = false;
+const USE_LOCALHOST: bool = true;
 
 /// Options for encoding a document as part of a site
 #[derive(Debug)]
@@ -599,46 +602,8 @@ pub async fn standalone_html(
     };
 
     // Optionally wrap in layout
-    if let Some(layout) = layout {
-        let left_sidebar = layout.has_left_sidebar();
-        let right_sidebar = layout.has_right_sidebar();
-
-        // Build layout attributes
-        let mut layout_attrs = String::new();
-        if left_sidebar {
-            layout_attrs.push_str(" left-sidebar");
-        }
-        if right_sidebar {
-            layout_attrs.push_str(" right-sidebar");
-        }
-
-        // Render header if available
-        let header_html = resolved_layout.and_then(render_header).unwrap_or_default();
-
-        // Render navigation tree if available
-        let nav_html = resolved_layout.and_then(render_nav).unwrap_or_default();
-
-        // Hamburger button for mobile navigation - rendered when left sidebar is enabled
-        // This is associated with the left sidebar, not the header
-        let hamburger_html = if left_sidebar {
-            MOBILE_NAV_TOGGLE_HTML
-        } else {
-            ""
-        };
-
-        // The "skip link" is an accessibility feature (WCAG 2.4.1) that allows keyboard
-        // and screen reader users to bypass repetitive navigation elements and jump
-        // directly to the main content. It's visually hidden until focused.
-        html.push_str(&format!(
-            r##"<stencila-layout{layout_attrs}>
-      <a href="#main-content" class="skip-link">Skip to content</a>{hamburger_html}
-      {header_html}
-      {nav_html}
-      <main id="main-content" slot="content">
-        {view_content}
-      </main>
-    </stencila-layout>"##
-        ));
+    if let (Some(layout), Some(resolved_layout)) = (layout, resolved_layout) {
+        html.push_str(&render_layout(&view_content, layout, resolved_layout));
     } else {
         html.push_str(&view_content);
     }
