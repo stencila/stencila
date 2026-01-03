@@ -38,7 +38,6 @@ impl Demo {
         let ignore_errors = self.execute_options.ignore_errors;
 
         if !self.no_execute {
-            doc.compile().await?;
             doc.execute(self.execute_options).await?;
 
             let (errors, ..) = doc.diagnostics_print().await?;

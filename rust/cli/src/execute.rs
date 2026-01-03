@@ -54,7 +54,6 @@ impl Cli {
             .build(Some(&self.input), StripOptions::default());
 
         let doc = Document::open(&self.input, Some(decode_options)).await?;
-        doc.compile().await?;
         doc.execute(self.execute_options).await?;
         let (errors, warnings, ..) = doc.diagnostics_print().await?;
 

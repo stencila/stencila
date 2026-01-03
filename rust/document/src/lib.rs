@@ -736,6 +736,17 @@ impl Document {
         Ok(())
     }
 
+    /// Has the document been compiled?
+    async fn is_compiled(&self) -> bool {
+        self.inspect(|root: &Node| -> bool {
+            match root {
+                Node::Article(article) => article.options.compilation_digest.is_some(),
+                _ => false,
+            }
+        })
+        .await
+    }
+
     /// Compile the document
     ///
     /// Note that this does not do any linting. Use the [`Document::lint`] function for that.
@@ -773,6 +784,11 @@ impl Document {
     pub async fn execute(&self, options: ExecuteOptions) -> Result<()> {
         tracing::trace!("Executing document");
 
+        // If the document has not yet been compiled yet, then compile it
+        if !self.is_compiled().await {
+            self.compile().await?;
+        }
+
         self.command_wait(Command::ExecuteDocument(options)).await
     }
 
@@ -783,7 +799,12 @@ impl Document {
 
         // If there are no arguments then just execute the document
         if arguments.is_empty() {
-            return self.command_wait(Command::ExecuteDocument(options)).await;
+            return self.execute(options).await;
+        }
+
+        // If the document has not yet been compiled yet, then compile it
+        if !self.is_compiled().await {
+            self.compile().await?;
         }
 
         // Get the default language of the document. Currently this is just the first
