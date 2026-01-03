@@ -4,8 +4,6 @@ use itertools::Itertools;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 use tokio::fs::{create_dir_all, write};
 
-use serde::{Deserialize, Serialize};
-
 use stencila_codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
@@ -14,16 +12,20 @@ use stencila_codec::{
 };
 use stencila_codec_dom_trait::{
     DomCodec as DomCodecTrait, DomEncodeContext,
-    html_escape::{self, encode_double_quoted_attribute, encode_safe},
+    html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
-use stencila_config::SiteLayout;
+use stencila_config::{SiteLayout, MOBILE_NAV_TOGGLE_HTML};
 use stencila_node_media::{collect_media, embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
 use stencila_version::STENCILA_VERSION;
 
 // Re-export to_dom
 pub use stencila_codec_dom_trait::to_dom;
+
+mod layout;
+pub use layout::{NavTreeItem, ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedTab};
+use layout::{render_header, render_nav};
 
 /// Use local development web assets instead of production CDN.
 /// Set to false for normal operation (uses production CDN).
@@ -47,55 +49,6 @@ pub struct SiteEncodeOptions<'a> {
 
     /// Pre-resolved layout with nav tree for current route
     pub resolved_layout: Option<&'a ResolvedLayout>,
-}
-
-/// Pre-computed layout data for a specific route
-///
-/// This struct contains all layout-related data needed to render
-/// a page, including the navigation tree with active/expanded states.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ResolvedLayout {
-    /// Whether left sidebar is enabled
-    pub left_sidebar: bool,
-
-    /// Whether right sidebar is enabled
-    pub right_sidebar: bool,
-
-    /// Navigation tree for left sidebar (if enabled)
-    pub nav_tree: Option<Vec<NavTreeItem>>,
-
-    /// Whether nav groups are collapsible
-    pub collapsible: bool,
-
-    /// Initial expansion depth (None = expand all)
-    pub expanded_depth: Option<u8>,
-
-    /// Current route (for client-side active state updates)
-    pub current_route: String,
-}
-
-/// A navigation tree item for site layouts
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct NavTreeItem {
-    /// Display label for this item
-    pub label: String,
-
-    /// URL to navigate to (None for group headers)
-    pub href: Option<String>,
-
-    /// Optional icon name (Lucide icon)
-    pub icon: Option<String>,
-
-    /// Whether this item is the current page
-    pub active: bool,
-
-    /// Whether this group is expanded (only relevant for items with children)
-    pub expanded: bool,
-
-    /// Child navigation items (for groups/directories)
-    pub children: Option<Vec<NavTreeItem>>,
 }
 
 /// A codec for DOM HTML
@@ -659,15 +612,27 @@ pub async fn standalone_html(
             layout_attrs.push_str(" right-sidebar");
         }
 
+        // Render header if available
+        let header_html = resolved_layout.and_then(render_header).unwrap_or_default();
+
         // Render navigation tree if available
         let nav_html = resolved_layout.and_then(render_nav).unwrap_or_default();
+
+        // Hamburger button for mobile navigation - rendered when left sidebar is enabled
+        // This is associated with the left sidebar, not the header
+        let hamburger_html = if left_sidebar {
+            MOBILE_NAV_TOGGLE_HTML
+        } else {
+            ""
+        };
 
         // The "skip link" is an accessibility feature (WCAG 2.4.1) that allows keyboard
         // and screen reader users to bypass repetitive navigation elements and jump
         // directly to the main content. It's visually hidden until focused.
         html.push_str(&format!(
             r##"<stencila-layout{layout_attrs}>
-      <a href="#main-content" class="skip-link">Skip to content</a>
+      <a href="#main-content" class="skip-link">Skip to content</a>{hamburger_html}
+      {header_html}
       {nav_html}
       <main id="main-content" slot="content">
         {view_content}
@@ -727,110 +692,4 @@ fn normalize_css(css: &str) -> String {
                 .unwrap_or_else(|_| css.to_string())
         })
         .unwrap_or_else(|_| css.to_string())
-}
-
-/// Render navigation tree from resolved layout
-///
-/// Generates ARIA-compliant HTML for the navigation tree.
-fn render_nav(layout: &ResolvedLayout) -> Option<String> {
-    /// Render a nav tree item recursively
-    fn render_item(item: &NavTreeItem, collapsible: bool) -> String {
-        let active_class = if item.active { " active" } else { "" };
-        let aria_current = if item.active {
-            r#" aria-current="page""#
-        } else {
-            ""
-        };
-
-        if let Some(ref children) = item.children {
-            // Group with children
-            let expanded = if item.expanded { " open" } else { "" };
-            let aria_expanded = if item.expanded { "true" } else { "false" };
-
-            if collapsible {
-                let mut html = format!(
-                    r#"
-            <li role="treeitem" aria-expanded="{aria_expanded}">
-              <details{expanded}>
-                <summary class="nav-group{active_class}">{}</summary>
-                <ul role="group">"#,
-                    html_escape::encode_text(&item.label)
-                );
-
-                for child in children {
-                    html.push_str(&render_item(child, collapsible));
-                }
-
-                html.push_str(
-                    r#"
-                </ul>
-              </details>
-            </li>"#,
-                );
-                html
-            } else {
-                let mut html = format!(
-                    r#"
-            <li role="treeitem">
-              <span class="nav-group{active_class}">{}</span>
-              <ul role="group">"#,
-                    html_escape::encode_text(&item.label)
-                );
-
-                for child in children {
-                    html.push_str(&render_item(child, collapsible));
-                }
-
-                html.push_str(
-                    r#"
-              </ul>
-            </li>"#,
-                );
-                html
-            }
-        } else if let Some(ref href) = item.href {
-            // Leaf link
-            format!(
-                r#"
-            <li role="treeitem"><a href="{}" class="nav-link{active_class}"{aria_current}>{}</a></li>"#,
-                html_escape::encode_double_quoted_attribute(href),
-                html_escape::encode_text(&item.label)
-            )
-        } else {
-            // Label only (no link)
-            format!(
-                r#"
-            <li role="treeitem"><span class="nav-label">{}</span></li>"#,
-                html_escape::encode_text(&item.label)
-            )
-        }
-    }
-
-    if !layout.left_sidebar {
-        return None;
-    }
-
-    let nav_tree = layout.nav_tree.as_ref()?;
-    if nav_tree.is_empty() {
-        return None;
-    }
-
-    let mut html = String::from(
-        r#"<nav slot="left-sidebar" role="navigation" aria-label="Main navigation">
-        <stencila-routes>
-          <ul role="tree">"#,
-    );
-
-    for item in nav_tree {
-        html.push_str(&render_item(item, layout.collapsible));
-    }
-
-    html.push_str(
-        r#"
-          </ul>
-        </stencila-routes>
-      </nav>"#,
-    );
-
-    Some(html)
 }

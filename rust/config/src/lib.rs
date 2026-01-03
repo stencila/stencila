@@ -42,7 +42,7 @@ mod utils;
 mod watch;
 
 pub use {
-    layout::{LayoutSidebar, NavConfig, NavItem, SidebarConfig, SiteLayout},
+    layout::{IconLink, LayoutHeader, LayoutSidebar, NavConfig, NavItem, SidebarConfig, SiteLayout, TabLink, MOBILE_NAV_TOGGLE_HTML},
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,

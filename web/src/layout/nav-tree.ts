@@ -2,7 +2,7 @@ import { LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 /** Local storage key for persisted expansion state */
-const STORAGE_KEY = 'stencila-nav-expanded'
+const STORAGE_KEY = 'stencila-nav-tree-expanded'
 
 /**
  * Navigation tree component for site routes
@@ -22,8 +22,8 @@ const STORAGE_KEY = 'stencila-nav-expanded'
  * - Persistent expansion state in local storage
  * - Focus management
  */
-@customElement('stencila-routes')
-export class StencilaRoutes extends LitElement {
+@customElement('stencila-nav-tree')
+export class StencilaNavTree extends LitElement {
   /**
    * Override to use Light DOM so theme CSS applies
    */
@@ -347,6 +347,6 @@ export class StencilaRoutes extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'stencila-routes': StencilaRoutes
+    'stencila-nav-tree': StencilaNavTree
   }
 }

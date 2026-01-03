@@ -9,6 +9,25 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
+/// SVG markup for the mobile navigation toggle button (hamburger menu)
+///
+/// This is defined as a constant rather than inline to:
+/// 1. Keep the SVG in one maintainable location
+/// 2. Ensure the hamburger works without JS/CSS (critical mobile UI)
+/// 3. Allow both open (hamburger) and close (X) states via CSS toggle
+pub const MOBILE_NAV_TOGGLE_HTML: &str = r#"<button class="mobile-nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="left-sidebar">
+        <svg class="hamburger-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg class="hamburger-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>"#;
+
+
 /// Site layout configuration
 ///
 /// Controls the layout structure of site pages including header, sidebars,
@@ -31,6 +50,11 @@ use serde_with::skip_serializing_none;
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
 pub struct SiteLayout {
+    /// Header configuration
+    ///
+    /// Configure the site header with logo, title, navigation tabs, and icon links.
+    pub header: Option<LayoutHeader>,
+
     /// Left sidebar configuration
     ///
     /// Can be a boolean to enable/disable, or a configuration object.
@@ -64,7 +88,17 @@ pub struct SiteLayout {
 impl SiteLayout {
     /// Check if layout has any active sections
     pub fn has_any(&self) -> bool {
-        self.has_left_sidebar() || self.has_right_sidebar()
+        self.has_header() || self.has_left_sidebar() || self.has_right_sidebar()
+    }
+
+    /// Check if the header is enabled
+    pub fn has_header(&self) -> bool {
+        self.header.is_some()
+    }
+
+    /// Get the header configuration if enabled
+    pub fn header_config(&self) -> Option<&LayoutHeader> {
+        self.header.as_ref()
     }
 
     /// Check if the left sidebar is enabled
@@ -93,6 +127,68 @@ impl SiteLayout {
             Some(LayoutSidebar::Config(config)) => Some(config.clone()),
         }
     }
+}
+
+/// Header configuration
+///
+/// Controls the site header appearance including logo, title, navigation tabs,
+/// and icon links.
+///
+/// Example:
+/// ```toml
+/// [site.layout.header]
+/// logo = "images/logo.svg"
+/// title = "My Site"
+///
+/// [[site.layout.header.tabs]]
+/// label = "Docs"
+/// href = "/docs/"
+///
+/// [[site.layout.header.icons]]
+/// icon = "github"
+/// href = "https://github.com/example/repo"
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct LayoutHeader {
+    /// Path to logo image (relative to site root)
+    pub logo: Option<String>,
+
+    /// Site title displayed in header
+    pub title: Option<String>,
+
+    /// Navigation tabs (top-level links)
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tabs: Vec<TabLink>,
+
+    /// Icon links (e.g., GitHub, Discord)
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub icons: Vec<IconLink>,
+}
+
+/// A navigation tab link in the header
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+pub struct TabLink {
+    /// Display label for the tab
+    pub label: String,
+
+    /// URL to link to
+    pub href: String,
+}
+
+/// An icon link (used in header and footer)
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+pub struct IconLink {
+    /// Icon name (Lucide icon name, e.g., "github", "discord")
+    pub icon: String,
+
+    /// URL to link to
+    pub href: String,
+
+    /// Accessible label (used for aria-label and tooltip)
+    pub label: Option<String>,
 }
 
 /// Left sidebar configuration
@@ -208,6 +304,68 @@ pub enum NavItem {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+
+    #[test]
+    fn test_header_config() {
+        let toml = r#"
+            [header]
+            logo = "images/logo.svg"
+            title = "My Site"
+
+            [[header.tabs]]
+            label = "Docs"
+            href = "/docs/"
+
+            [[header.tabs]]
+            label = "API"
+            href = "/api/"
+
+            [[header.icons]]
+            icon = "github"
+            href = "https://github.com/example/repo"
+            label = "GitHub"
+        "#;
+        let layout: SiteLayout = toml::from_str(toml).unwrap();
+
+        assert!(layout.has_header());
+        let header = layout.header_config().expect("header should be present");
+        assert_eq!(header.logo, Some("images/logo.svg".to_string()));
+        assert_eq!(header.title, Some("My Site".to_string()));
+        assert_eq!(header.tabs.len(), 2);
+        assert_eq!(header.tabs[0].label, "Docs");
+        assert_eq!(header.tabs[0].href, "/docs/");
+        assert_eq!(header.icons.len(), 1);
+        assert_eq!(header.icons[0].icon, "github");
+        assert_eq!(header.icons[0].label, Some("GitHub".to_string()));
+    }
+
+    #[test]
+    fn test_header_minimal() {
+        let toml = r#"
+            [header]
+            title = "Simple Site"
+        "#;
+        let layout: SiteLayout = toml::from_str(toml).unwrap();
+
+        assert!(layout.has_header());
+        let header = layout.header_config().expect("header should be present");
+        assert_eq!(header.logo, None);
+        assert_eq!(header.title, Some("Simple Site".to_string()));
+        assert!(header.tabs.is_empty());
+        assert!(header.icons.is_empty());
+    }
+
+    #[test]
+    fn test_no_header() {
+        let toml = r#"
+            left-sidebar = true
+        "#;
+        let layout: SiteLayout = toml::from_str(toml).unwrap();
+
+        assert!(!layout.has_header());
+        assert!(layout.header_config().is_none());
+    }
 
     #[test]
     fn test_layout_sidebar_bool() {

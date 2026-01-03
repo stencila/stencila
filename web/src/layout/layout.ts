@@ -1,7 +1,9 @@
 import { LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import './routes' // Navigation tree component
+import './header' // Header component
+import './nav-tabs' // Navigation tabs component
+import './nav-tree' // Navigation tree component
 
 /**
  * Site layout shell component
@@ -37,6 +39,8 @@ export class StencilaLayout extends LitElement {
   @property({ type: Boolean, reflect: true, attribute: 'mobile-sidebar-open' })
   mobileSidebarOpen: boolean = false
 
+  private mobileNavToggle: HTMLButtonElement | null = null
+
   /**
    * Override to use Light DOM so theme CSS applies
    */
@@ -50,12 +54,23 @@ export class StencilaLayout extends LitElement {
     // Set attributes for CSS grid layout based on sidebar state
     this.updateLayoutAttributes()
 
+    // Set up mobile nav toggle button
+    this.mobileNavToggle = this.querySelector('.mobile-nav-toggle')
+    if (this.mobileNavToggle) {
+      this.mobileNavToggle.addEventListener('click', this.handleMobileNavToggleClick)
+    }
+
     // Listen for escape key to close mobile sidebar
     this.addEventListener('keydown', this.handleKeydown)
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback()
+
+    if (this.mobileNavToggle) {
+      this.mobileNavToggle.removeEventListener('click', this.handleMobileNavToggleClick)
+    }
+
     this.removeEventListener('keydown', this.handleKeydown)
   }
 
@@ -65,6 +80,11 @@ export class StencilaLayout extends LitElement {
       changedProperties.has('rightSidebar')
     ) {
       this.updateLayoutAttributes()
+    }
+
+    // Update mobile nav toggle aria-expanded state
+    if (changedProperties.has('mobileSidebarOpen') && this.mobileNavToggle) {
+      this.mobileNavToggle.setAttribute('aria-expanded', String(this.mobileSidebarOpen))
     }
   }
 
@@ -92,6 +112,13 @@ export class StencilaLayout extends LitElement {
     if (event.key === 'Escape' && this.mobileSidebarOpen) {
       this.closeMobileSidebar()
     }
+  }
+
+  /**
+   * Handle mobile nav toggle button click
+   */
+  private handleMobileNavToggleClick = () => {
+    this.toggleMobileSidebar()
   }
 
   /**
