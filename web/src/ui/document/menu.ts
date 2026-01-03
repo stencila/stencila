@@ -45,23 +45,14 @@ export class DocumentMenu extends LitElement {
   }
 
   @state()
-  protected colorScheme: ColorScheme = 'system'
+  // Placeholder value, actual value loaded from ColorSchemeManager in connectedCallback
+  protected colorScheme: ColorScheme = 'light'
 
   @state()
   protected theme: Theme = 'stencila'
 
   @state()
   protected open: boolean = false
-
-  /**
-   * Get the current effective color scheme (resolving 'system' to actual preference)
-   */
-  private getEffectiveColorScheme(): 'light' | 'dark' {
-    if (this.colorScheme === 'system') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
-    return this.colorScheme
-  }
 
   /**
    * Get the custom theme info if one is available (workspace or user)
@@ -99,19 +90,17 @@ export class DocumentMenu extends LitElement {
   }
 
   /**
-   * Cycle through color scheme options: system → light → dark → system
+   * Toggle between light and dark color schemes
    */
-  private cycleColorScheme() {
-    const schemes: ColorScheme[] = ['system', 'light', 'dark']
-    const currentIndex = schemes.indexOf(this.colorScheme)
-    const nextScheme = schemes[(currentIndex + 1) % schemes.length]
+  private toggleColorScheme() {
+    const newScheme: ColorScheme = this.colorScheme === 'light' ? 'dark' : 'light'
 
     // Update local state
-    this.colorScheme = nextScheme
+    this.colorScheme = newScheme
 
-    // Apply to DOM and persist
-    ColorSchemeManager.applyColorScheme(nextScheme)
-    ColorSchemeManager.persistColorScheme(nextScheme)
+    // Persist first so event listeners read the correct value, then apply
+    ColorSchemeManager.persistColorScheme(newScheme)
+    ColorSchemeManager.applyColorScheme(newScheme)
   }
 
   /**
@@ -244,25 +233,8 @@ export class DocumentMenu extends LitElement {
   }
 
   renderMenu = () => {
-    const effectiveColorScheme = this.getEffectiveColorScheme()
-    const colorSchemeIcon = effectiveColorScheme === 'dark' ? 'moon' : 'sun'
-
-    // Calculate next scheme in cycle
-    const schemes: ColorScheme[] = ['system', 'light', 'dark']
-    const currentIndex = schemes.indexOf(this.colorScheme)
-    const nextScheme = schemes[(currentIndex + 1) % schemes.length]
-
-    // Format current scheme display
-    const currentDisplay = this.colorScheme === 'system'
-      ? `Auto (${effectiveColorScheme})`
-      : this.colorScheme.charAt(0).toUpperCase() + this.colorScheme.slice(1)
-
-    // Format next scheme display
-    const nextDisplay = nextScheme === 'system'
-      ? `Auto (${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'})`
-      : nextScheme.charAt(0).toUpperCase() + nextScheme.slice(1)
-
-    const colorSchemeLabel = `${currentDisplay} → ${nextDisplay}`
+    const colorSchemeIcon = this.colorScheme === 'dark' ? 'moon' : 'sun'
+    const colorSchemeLabel = this.colorScheme === 'dark' ? 'Dark mode' : 'Light mode'
 
     return html`
       <sl-menu
@@ -273,7 +245,7 @@ export class DocumentMenu extends LitElement {
         <sl-menu-label>
           <div class="flex items-center gap-2">Appearance</div>
         </sl-menu-label>
-        <sl-menu-item @click=${() => this.cycleColorScheme()}>
+        <sl-menu-item @click=${() => this.toggleColorScheme()}>
           <stencila-ui-icon name="${colorSchemeIcon}" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">${colorSchemeLabel}</span>
         </sl-menu-item>
