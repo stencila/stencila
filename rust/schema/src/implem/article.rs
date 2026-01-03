@@ -260,12 +260,6 @@ impl DomCodec for Article {
             });
         }
 
-        if context.is_root()
-            && let Some(headings) = &self.options.headings
-        {
-            context.push_slot_fn("nav", "headings", |context| headings.to_dom(context));
-        }
-
         if !self.content.is_empty() {
             context.push_slot_fn("section", "content", |context| self.content.to_dom(context));
         }

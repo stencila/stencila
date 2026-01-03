@@ -38,11 +38,6 @@ async function normalizeHtml(html: string): Promise<string> {
       .replace(/<span slot="output">\s*</g, '<span slot="output">')
       .replace(/<\/stencila-integer>\s*<\/span>/g, '</stencila-integer><span>')
       .replace(/<\/stencila-string>\s*<\/span>/g, '</stencila-string><span>')
-      // These are only added by Rust, not here
-      .replace(
-        /<stencila-heading-end heading="xxx"><\/stencila-heading-end>\n\s*/g,
-        ''
-      )
   )
 }
 
