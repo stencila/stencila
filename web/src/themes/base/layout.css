@@ -595,6 +595,96 @@ stencila-nav-tree .nav-label {
 
 
 /* =================================
+ * Table of Contents (TOC) Styles
+ * ================================= */
+
+/* TOC container (right sidebar navigation) */
+nav.toc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+/* TOC title */
+.toc-title {
+    margin: 0;
+    padding: 0 var(--space-2);
+    color: var(--text-color-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--toc-title-font-weight);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* TOC tree component */
+stencila-toc-tree {
+    display: block;
+}
+
+/* TOC tree lists */
+stencila-toc-tree ul[role="tree"],
+stencila-toc-tree ul[role="group"] {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Nested groups - subtle indentation */
+stencila-toc-tree ul[role="group"] {
+    padding-left: var(--space-3);
+}
+
+/* TOC tree items */
+stencila-toc-tree li[role="treeitem"] {
+    margin: 0;
+    padding: 0;
+}
+
+/* TOC links */
+stencila-toc-tree .toc-link {
+    display: block;
+    padding: var(--space-1) var(--space-2);
+    color: var(--toc-item-color);
+    text-decoration: none;
+    font-size: var(--toc-item-font-size);
+    line-height: 1.4;
+    border-left: 2px solid transparent;
+    transition:
+        color var(--transition-duration-fast),
+        border-color var(--transition-duration-fast);
+}
+
+/* Depth-based styling for TOC links */
+stencila-toc-tree .toc-link[data-level="1"] {
+    font-weight: 500;
+}
+
+stencila-toc-tree .toc-link[data-level="2"] {
+    font-weight: 400;
+}
+
+stencila-toc-tree .toc-link[data-level="3"] {
+    font-size: calc(var(--toc-item-font-size) * 0.95);
+    color: var(--text-color-tertiary);
+}
+
+/* Hover and focus states - grey bar for all levels */
+stencila-toc-tree .toc-link:hover,
+stencila-toc-tree .toc-link:focus-visible {
+    outline: none;
+    color: var(--text-color-primary);
+    border-left-color: var(--border-color-emphasis);
+}
+
+/* Active TOC link - blue bar */
+stencila-toc-tree .toc-link[data-active="true"] {
+    color: var(--toc-item-color-active);
+    border-left-color: var(--toc-item-color-active);
+    font-weight: 500;
+}
+
+
+/* =================================
  * Footer Component Styles
  * ================================= */
 

@@ -25,7 +25,7 @@ use serde_with::skip_serializing_none;
 /// ```toml
 /// [site.layout]
 /// left-sidebar = { nav = "auto", collapsible = true, depth = 3 }
-/// right-sidebar = true
+/// right-sidebar = { content = "headings", depth = 3 }
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
@@ -41,13 +41,14 @@ pub struct SiteLayout {
     /// Can be a boolean to enable/disable, or a configuration object.
     /// Defaults to `true` (enabled with auto-generated navigation).
     /// Set to `false` to explicitly disable the left sidebar.
-    pub left_sidebar: Option<LayoutSidebar>,
+    pub left_sidebar: Option<LayoutLeftSidebar>,
 
-    /// Enable the right sidebar
+    /// Right sidebar configuration
     ///
-    /// When `true`, displays a right sidebar area that can contain a table of contents.
+    /// Can be a boolean to enable/disable, or a configuration object.
+    /// When `true`, displays a right sidebar with document headings.
     /// When `false` or not specified, the right sidebar is hidden.
-    pub right_sidebar: Option<bool>,
+    pub right_sidebar: Option<LayoutRightSidebar>,
 
     /// Enable prev/next page navigation
     ///
@@ -127,7 +128,33 @@ impl SiteLayout {
 
     /// Check if the right sidebar is enabled
     pub fn has_right_sidebar(&self) -> bool {
-        self.right_sidebar.unwrap_or(false)
+        self.right_sidebar
+            .as_ref()
+            .map(|sidebar| sidebar.is_enabled())
+            .unwrap_or(false)
+    }
+
+    /// Check if the right sidebar is explicitly disabled
+    ///
+    /// Returns true only if user explicitly set `right-sidebar = false`.
+    /// Returns false if not configured (None) or if enabled.
+    pub fn is_right_sidebar_explicitly_disabled(&self) -> bool {
+        self.right_sidebar
+            .as_ref()
+            .map(|sidebar| sidebar.is_explicitly_disabled())
+            .unwrap_or(false)
+    }
+
+    /// Get the right sidebar configuration if enabled
+    ///
+    /// Returns default config when enabled with boolean shorthand.
+    pub fn right_sidebar_config(&self) -> Option<RightSidebarConfig> {
+        match &self.right_sidebar {
+            None => None,
+            Some(LayoutRightSidebar::Enabled(false)) => None,
+            Some(LayoutRightSidebar::Enabled(true)) => Some(RightSidebarConfig::default()),
+            Some(LayoutRightSidebar::Config(config)) => Some(config.clone()),
+        }
     }
 
     /// Check if page navigation is enabled
@@ -150,12 +177,12 @@ impl SiteLayout {
     /// Get the left sidebar configuration if enabled
     ///
     /// Returns default config when not specified (since left sidebar defaults to enabled).
-    pub fn left_sidebar_config(&self) -> Option<SidebarConfig> {
+    pub fn left_sidebar_config(&self) -> Option<LeftSidebarConfig> {
         match &self.left_sidebar {
-            None => Some(SidebarConfig::default()),
-            Some(LayoutSidebar::Enabled(true)) => Some(SidebarConfig::default()),
-            Some(LayoutSidebar::Enabled(false)) => None,
-            Some(LayoutSidebar::Config(config)) => Some(config.clone()),
+            None => Some(LeftSidebarConfig::default()),
+            Some(LayoutLeftSidebar::Enabled(true)) => Some(LeftSidebarConfig::default()),
+            Some(LayoutLeftSidebar::Enabled(false)) => None,
+            Some(LayoutLeftSidebar::Config(config)) => Some(config.clone()),
         }
     }
 }
@@ -280,27 +307,27 @@ pub struct IconLink {
 /// - `left-sidebar = { nav = "api" }` → Sidebar with named navigation
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
 #[serde(untagged)]
-pub enum LayoutSidebar {
+pub enum LayoutLeftSidebar {
     /// Boolean shorthand for enable/disable
     Enabled(bool),
     /// Full sidebar configuration
-    Config(SidebarConfig),
+    Config(LeftSidebarConfig),
 }
 
-impl LayoutSidebar {
+impl LayoutLeftSidebar {
     /// Check if the sidebar is enabled
     pub fn is_enabled(&self) -> bool {
         match self {
-            LayoutSidebar::Enabled(enabled) => *enabled,
-            LayoutSidebar::Config(_) => true,
+            LayoutLeftSidebar::Enabled(enabled) => *enabled,
+            LayoutLeftSidebar::Config(_) => true,
         }
     }
 
     /// Get the configuration if this is a Config variant
-    pub fn config(&self) -> Option<&SidebarConfig> {
+    pub fn config(&self) -> Option<&LeftSidebarConfig> {
         match self {
-            LayoutSidebar::Config(config) => Some(config),
-            LayoutSidebar::Enabled(_) => None,
+            LayoutLeftSidebar::Config(config) => Some(config),
+            LayoutLeftSidebar::Enabled(_) => None,
         }
     }
 }
@@ -309,7 +336,7 @@ impl LayoutSidebar {
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
-pub struct SidebarConfig {
+pub struct LeftSidebarConfig {
     /// Navigation source
     ///
     /// - `"auto"` - Auto-generate navigation from file structure (default)
@@ -339,6 +366,70 @@ pub struct SidebarConfig {
     /// Default is to expand all levels. The client-side component may persist
     /// user preferences in local storage, overriding this on subsequent visits.
     pub expanded: Option<u8>,
+}
+
+/// Right sidebar configuration
+///
+/// Supports both boolean shorthand and full configuration:
+/// - `right-sidebar = false` → Sidebar disabled
+/// - `right-sidebar = true` → Sidebar with headings (default content)
+/// - `right-sidebar = { content = "headings", depth = 3 }` → Full configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(untagged)]
+pub enum LayoutRightSidebar {
+    /// Boolean shorthand for enable/disable
+    Enabled(bool),
+    /// Full sidebar configuration
+    Config(RightSidebarConfig),
+}
+
+impl LayoutRightSidebar {
+    /// Check if the sidebar is enabled
+    pub fn is_enabled(&self) -> bool {
+        match self {
+            LayoutRightSidebar::Enabled(enabled) => *enabled,
+            LayoutRightSidebar::Config(_) => true,
+        }
+    }
+
+    /// Check if the sidebar is explicitly disabled
+    ///
+    /// Returns true only if the user explicitly set `right-sidebar = false`.
+    /// Returns false for Config variants or Enabled(true).
+    pub fn is_explicitly_disabled(&self) -> bool {
+        matches!(self, LayoutRightSidebar::Enabled(false))
+    }
+
+    /// Get the configuration if this is a Config variant
+    pub fn config(&self) -> Option<&RightSidebarConfig> {
+        match self {
+            LayoutRightSidebar::Config(config) => Some(config),
+            LayoutRightSidebar::Enabled(_) => None,
+        }
+    }
+}
+
+/// Right sidebar configuration options
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct RightSidebarConfig {
+    /// Content type for the right sidebar
+    ///
+    /// - `"headings"` - Display document headings as table of contents (default)
+    /// - Future: other content types may be added
+    pub content: Option<String>,
+
+    /// Title displayed above the content
+    ///
+    /// Default: "On this page" for headings content
+    pub title: Option<String>,
+
+    /// Maximum heading depth to include (1-6)
+    ///
+    /// Only applies when `content = "headings"`. Limits how deep the heading
+    /// tree will go. Default is 3 (h1, h2, h3).
+    pub depth: Option<u8>,
 }
 
 /// Route-specific layout override
@@ -378,12 +469,12 @@ pub struct LayoutOverride {
     /// Left sidebar configuration override
     ///
     /// Use `false` to disable, `true` for auto nav, or config object.
-    pub left_sidebar: Option<LayoutSidebar>,
+    pub left_sidebar: Option<LayoutLeftSidebar>,
 
     /// Right sidebar configuration override
     ///
-    /// Use `false` to disable, `true` to enable.
-    pub right_sidebar: Option<bool>,
+    /// Use `false` to disable, `true` for default headings, or config object.
+    pub right_sidebar: Option<LayoutRightSidebar>,
 
     /// Footer configuration override
     ///
@@ -727,7 +818,7 @@ mod tests {
         assert_eq!(layout.overrides[0].routes, vec!["/blog/**"]);
         assert!(matches!(
             layout.overrides[0].left_sidebar,
-            Some(LayoutSidebar::Enabled(false))
+            Some(LayoutLeftSidebar::Enabled(false))
         ));
         assert_eq!(layout.overrides[0].page_nav, Some(false));
 
@@ -746,7 +837,7 @@ mod tests {
         let layout: SiteLayout = toml::from_str(toml)?;
 
         assert_eq!(layout.overrides.len(), 1);
-        if let Some(LayoutSidebar::Config(config)) = &layout.overrides[0].left_sidebar {
+        if let Some(LayoutLeftSidebar::Config(config)) = &layout.overrides[0].left_sidebar {
             assert_eq!(config.nav, Some("api".to_string()));
             assert_eq!(config.collapsible, Some(false));
         } else {
@@ -830,13 +921,19 @@ mod tests {
 
         assert_eq!(layout.overrides.len(), 3);
         assert_eq!(layout.overrides[0].routes, vec!["/docs/api/**"]);
-        assert_eq!(layout.overrides[0].right_sidebar, Some(true));
+        assert!(matches!(
+            layout.overrides[0].right_sidebar,
+            Some(LayoutRightSidebar::Enabled(true))
+        ));
         assert_eq!(layout.overrides[1].routes, vec!["/docs/**"]);
-        assert_eq!(layout.overrides[1].right_sidebar, Some(false));
+        assert!(matches!(
+            layout.overrides[1].right_sidebar,
+            Some(LayoutRightSidebar::Enabled(false))
+        ));
         assert_eq!(layout.overrides[2].routes, vec!["/blog/**"]);
         assert!(matches!(
             layout.overrides[2].left_sidebar,
-            Some(LayoutSidebar::Enabled(false))
+            Some(LayoutLeftSidebar::Enabled(false))
         ));
 
         Ok(())

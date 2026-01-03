@@ -5,6 +5,9 @@ use url::Url;
 
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 
+mod headings;
+pub use headings::extract_headings_from_node;
+
 mod layout;
 pub use layout::{ResolvedLayout, resolve_layout};
 

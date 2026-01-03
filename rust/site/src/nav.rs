@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use stencila_config::{NavConfig, NavItem, SidebarConfig};
+use stencila_config::{NavConfig, NavItem, LeftSidebarConfig};
 
 use crate::list::{RouteEntry, RouteType};
 
@@ -21,7 +21,7 @@ pub use stencila_codec_dom::NavTreeItem;
 pub fn build_nav_tree(
     routes: &[RouteEntry],
     current_route: &str,
-    config: &SidebarConfig,
+    config: &LeftSidebarConfig,
     named_navs: &HashMap<String, NavConfig>,
 ) -> Vec<NavTreeItem> {
     let nav_source = config.nav.as_deref().unwrap_or("auto");
@@ -321,7 +321,7 @@ fn titlecase_word(word: &str) -> String {
 mod tests {
     use std::collections::HashMap;
 
-    use stencila_config::{NavConfig, NavItem, SidebarConfig};
+    use stencila_config::{NavConfig, NavItem, LeftSidebarConfig};
 
     use super::*;
 
@@ -476,7 +476,7 @@ mod tests {
             },
         ];
 
-        let config = SidebarConfig {
+        let config = LeftSidebarConfig {
             nav: Some("api".to_string()),
             ..Default::default()
         };
@@ -526,7 +526,7 @@ mod tests {
             },
         ];
 
-        let config = SidebarConfig {
+        let config = LeftSidebarConfig {
             nav: Some("nonexistent".to_string()),
             ..Default::default()
         };

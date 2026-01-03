@@ -5,8 +5,8 @@
 
 use glob::Pattern;
 use stencila_config::{
-    LayoutFooter, LayoutFooterOverride, LayoutHeader, LayoutHeaderOverride, LayoutOverride,
-    LayoutSidebar, SidebarConfig, SiteLayout,
+    LayoutFooter, LayoutFooterOverride, LayoutHeader, LayoutHeaderOverride, LayoutLeftSidebar,
+    LayoutOverride, LayoutRightSidebar, LeftSidebarConfig, RightSidebarConfig, SiteLayout,
 };
 
 use crate::{
@@ -48,9 +48,10 @@ fn find_matching_override<'a>(
 struct EffectiveLayout<'a> {
     header: Option<&'a LayoutHeader>,
     header_disabled: bool,
-    left_sidebar: Option<SidebarConfig>,
+    left_sidebar: Option<LeftSidebarConfig>,
     left_sidebar_enabled: bool,
     right_sidebar: bool,
+    right_sidebar_config: Option<RightSidebarConfig>,
     footer: Option<&'a LayoutFooter>,
     footer_disabled: bool,
     page_nav: bool,
@@ -67,6 +68,7 @@ fn compute_effective_layout<'a>(
     let mut left_sidebar = layout.left_sidebar_config();
     let mut left_sidebar_enabled = layout.has_left_sidebar();
     let mut right_sidebar = layout.has_right_sidebar();
+    let mut right_sidebar_config = layout.right_sidebar_config();
     let mut footer = layout.footer_config();
     let mut footer_disabled = false;
     let mut page_nav = layout.has_page_nav();
@@ -92,15 +94,15 @@ fn compute_effective_layout<'a>(
         // Left sidebar override
         if let Some(ref sidebar_ov) = ov.left_sidebar {
             match sidebar_ov {
-                LayoutSidebar::Enabled(false) => {
+                LayoutLeftSidebar::Enabled(false) => {
                     left_sidebar = None;
                     left_sidebar_enabled = false;
                 }
-                LayoutSidebar::Enabled(true) => {
-                    left_sidebar = Some(SidebarConfig::default());
+                LayoutLeftSidebar::Enabled(true) => {
+                    left_sidebar = Some(LeftSidebarConfig::default());
                     left_sidebar_enabled = true;
                 }
-                LayoutSidebar::Config(c) => {
+                LayoutLeftSidebar::Config(c) => {
                     left_sidebar = Some(c.clone());
                     left_sidebar_enabled = true;
                 }
@@ -108,8 +110,13 @@ fn compute_effective_layout<'a>(
         }
 
         // Right sidebar override
-        if let Some(right_ov) = ov.right_sidebar {
-            right_sidebar = right_ov;
+        if let Some(ref right_ov) = ov.right_sidebar {
+            right_sidebar = right_ov.is_enabled();
+            right_sidebar_config = match right_ov {
+                LayoutRightSidebar::Enabled(false) => None,
+                LayoutRightSidebar::Enabled(true) => Some(RightSidebarConfig::default()),
+                LayoutRightSidebar::Config(c) => Some(c.clone()),
+            };
         }
 
         // Footer override
@@ -144,6 +151,7 @@ fn compute_effective_layout<'a>(
         left_sidebar,
         left_sidebar_enabled,
         right_sidebar,
+        right_sidebar_config,
         footer,
         footer_disabled,
         page_nav,
@@ -216,6 +224,8 @@ pub fn resolve_layout(route: &str, routes: &[RouteEntry], layout: &SiteLayout) -
         header,
         left_sidebar,
         right_sidebar,
+        right_sidebar_config: effective.right_sidebar_config,
+        headings: None, // Populated later from article in render.rs
         footer,
         nav_tree,
         collapsible,
@@ -425,7 +435,7 @@ fn compute_page_nav(route: &str, routes: &[RouteEntry]) -> Option<PageNavLinks> 
 #[cfg(test)]
 mod tests {
     use stencila_config::{
-        IconLink, LayoutFooter, LayoutHeader, LayoutOverride, LayoutSidebar, TextLink,
+        IconLink, LayoutFooter, LayoutHeader, LayoutLeftSidebar, LayoutOverride, TextLink,
     };
 
     use super::*;
@@ -435,7 +445,7 @@ mod tests {
     fn test_resolve_layout_no_sidebar() {
         // Explicitly disable left sidebar (it defaults to true)
         let layout = SiteLayout {
-            left_sidebar: Some(LayoutSidebar::Enabled(false)),
+            left_sidebar: Some(LayoutLeftSidebar::Enabled(false)),
             ..Default::default()
         };
         let routes: Vec<RouteEntry> = vec![];
@@ -451,8 +461,8 @@ mod tests {
     #[test]
     fn test_resolve_layout_with_sidebar() {
         let layout = SiteLayout {
-            left_sidebar: Some(LayoutSidebar::Enabled(true)),
-            right_sidebar: Some(true),
+            left_sidebar: Some(LayoutLeftSidebar::Enabled(true)),
+            right_sidebar: Some(LayoutRightSidebar::Enabled(true)),
             ..Default::default()
         };
 
@@ -515,7 +525,7 @@ mod tests {
                     label: None,
                 }],
             }),
-            left_sidebar: Some(LayoutSidebar::Enabled(false)),
+            left_sidebar: Some(LayoutLeftSidebar::Enabled(false)),
             ..Default::default()
         };
 
@@ -671,12 +681,12 @@ mod tests {
         let overrides = vec![
             LayoutOverride {
                 routes: vec!["/blog/**".to_string()],
-                left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                left_sidebar: Some(LayoutLeftSidebar::Enabled(false)),
                 ..Default::default()
             },
             LayoutOverride {
                 routes: vec!["/docs/api/**".to_string()],
-                right_sidebar: Some(true),
+                right_sidebar: Some(LayoutRightSidebar::Enabled(true)),
                 ..Default::default()
             },
             LayoutOverride {
@@ -691,13 +701,16 @@ mod tests {
         assert!(result.is_some());
         assert!(matches!(
             result.unwrap().left_sidebar,
-            Some(LayoutSidebar::Enabled(false))
+            Some(LayoutLeftSidebar::Enabled(false))
         ));
 
         // Should match /docs/api/** (first match wins)
         let result = find_matching_override("/docs/api/v2/", &overrides);
         assert!(result.is_some());
-        assert_eq!(result.unwrap().right_sidebar, Some(true));
+        assert!(matches!(
+            result.unwrap().right_sidebar,
+            Some(LayoutRightSidebar::Enabled(true))
+        ));
 
         // Should match /docs/** (not /docs/api/**)
         let result = find_matching_override("/docs/getting-started/", &overrides);
@@ -718,7 +731,7 @@ mod tests {
                 title: Some("My Site".to_string()),
                 ..Default::default()
             }),
-            left_sidebar: Some(LayoutSidebar::Enabled(true)),
+            left_sidebar: Some(LayoutLeftSidebar::Enabled(true)),
             footer: Some(LayoutFooter {
                 copyright: Some("© 2024".to_string()),
                 ..Default::default()
@@ -727,7 +740,7 @@ mod tests {
                 // Blog pages: no sidebar, no page nav
                 LayoutOverride {
                     routes: vec!["/blog/**".to_string()],
-                    left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                    left_sidebar: Some(LayoutLeftSidebar::Enabled(false)),
                     page_nav: Some(false),
                     ..Default::default()
                 },
@@ -815,13 +828,13 @@ mod tests {
                 // More specific pattern first
                 LayoutOverride {
                     routes: vec!["/docs/api/**".to_string()],
-                    right_sidebar: Some(true),
+                    right_sidebar: Some(LayoutRightSidebar::Enabled(true)),
                     ..Default::default()
                 },
                 // Less specific pattern second
                 LayoutOverride {
                     routes: vec!["/docs/**".to_string()],
-                    right_sidebar: Some(false),
+                    right_sidebar: Some(LayoutRightSidebar::Enabled(false)),
                     ..Default::default()
                 },
             ],
@@ -845,7 +858,7 @@ mod tests {
             overrides: vec![LayoutOverride {
                 routes: vec!["/blog/**".to_string()],
                 // Disable left sidebar but DON'T explicitly set page_nav
-                left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                left_sidebar: Some(LayoutLeftSidebar::Enabled(false)),
                 ..Default::default()
             }],
             ..Default::default()
@@ -890,7 +903,10 @@ mod tests {
         // Non-matching route: left sidebar enabled, page nav should be computed
         let resolved = resolve_layout("/docs/", &routes, &layout);
         assert!(resolved.left_sidebar);
-        assert!(resolved.page_nav.is_some(), "page_nav should be Some for docs route");
+        assert!(
+            resolved.page_nav.is_some(),
+            "page_nav should be Some for docs route"
+        );
 
         // Blog route: left sidebar disabled, page nav should ALSO be disabled
         // (because page_nav wasn't explicitly set, it should follow left_sidebar)
@@ -909,7 +925,7 @@ mod tests {
             overrides: vec![LayoutOverride {
                 routes: vec!["/blog/**".to_string()],
                 // Disable left sidebar but EXPLICITLY enable page nav
-                left_sidebar: Some(LayoutSidebar::Enabled(false)),
+                left_sidebar: Some(LayoutLeftSidebar::Enabled(false)),
                 page_nav: Some(true),
                 ..Default::default()
             }],

@@ -1,5 +1,5 @@
 use stencila_codec_dom_trait::html_escape::{self, encode_double_quoted_attribute, encode_safe};
-use stencila_config::SiteLayout;
+use stencila_config::{RightSidebarConfig, SiteLayout};
 
 /// Pre-computed layout data for a specific route
 ///
@@ -15,6 +15,12 @@ pub struct ResolvedLayout {
 
     /// Whether right sidebar is enabled
     pub right_sidebar: bool,
+
+    /// Right sidebar configuration (if enabled)
+    pub right_sidebar_config: Option<RightSidebarConfig>,
+
+    /// Headings for right sidebar table of contents
+    pub headings: Option<Vec<HeadingItem>>,
 
     /// Resolved footer configuration (if enabled)
     pub footer: Option<ResolvedFooter>,
@@ -158,6 +164,22 @@ pub struct NavTreeItem {
     pub children: Option<Vec<NavTreeItem>>,
 }
 
+/// A heading item for right sidebar table of contents
+#[derive(Debug, Clone)]
+pub struct HeadingItem {
+    /// Node ID for linking (used as anchor)
+    pub id: String,
+
+    /// Heading text content
+    pub text: String,
+
+    /// Heading level (1-6)
+    pub level: u8,
+
+    /// Child headings (nested subheadings)
+    pub children: Vec<HeadingItem>,
+}
+
 pub fn render_layout(
     content: &str,
     layout: &SiteLayout,
@@ -178,8 +200,11 @@ pub fn render_layout(
     // Render header if available
     let header_html = render_header(resolved_layout).unwrap_or_default();
 
-    // Render navigation tree if available
+    // Render navigation tree (left sidebar) if available
     let nav_html = render_nav(resolved_layout).unwrap_or_default();
+
+    // Render right sidebar (table of contents) if available
+    let right_sidebar_html = render_right_sidebar(resolved_layout).unwrap_or_default();
 
     // Render footer if available
     let footer_html = render_footer(resolved_layout).unwrap_or_default();
@@ -210,7 +235,8 @@ pub fn render_layout(
         {breadcrumbs_html}
         {content}
         {page_nav_html}
-      </main>{footer_html}
+      </main>
+      {right_sidebar_html}{footer_html}
     </stencila-layout>"##
     )
 }
@@ -442,6 +468,86 @@ pub fn render_nav(layout: &ResolvedLayout) -> Option<String> {
     );
 
     Some(html)
+}
+
+/// Render right sidebar from resolved layout
+///
+/// Generates HTML for the right sidebar with table of contents (headings).
+/// The headings are rendered as a nested list with links to each heading anchor.
+pub fn render_right_sidebar(layout: &ResolvedLayout) -> Option<String> {
+    if !layout.right_sidebar {
+        return None;
+    }
+
+    let headings = layout.headings.as_ref()?;
+    if headings.is_empty() {
+        return None;
+    }
+
+    // Get title from config or use default
+    let title = layout
+        .right_sidebar_config
+        .as_ref()
+        .and_then(|c| c.title.as_ref())
+        .map(|s| s.as_str())
+        .unwrap_or("On this page");
+
+    let mut html = format!(
+        r#"<nav slot="right-sidebar" class="toc" aria-label="Table of contents">
+        <h2 class="toc-title">{}</h2>
+        <stencila-toc-tree>
+          <ul role="tree">"#,
+        encode_safe(title)
+    );
+
+    for heading in headings {
+        html.push_str(&render_heading_item(heading));
+    }
+
+    html.push_str(
+        r#"
+          </ul>
+        </stencila-toc-tree>
+      </nav>"#,
+    );
+
+    Some(html)
+}
+
+/// Render a single heading item and its children recursively
+fn render_heading_item(item: &HeadingItem) -> String {
+    let has_children = !item.children.is_empty();
+    let escaped_id = encode_double_quoted_attribute(&item.id);
+    let escaped_text = encode_safe(&item.text);
+
+    if has_children {
+        let mut html = format!(
+            r##"
+            <li role="treeitem" aria-expanded="true">
+              <a href="#{escaped_id}" class="toc-link" data-level="{}">{escaped_text}</a>
+              <ul role="group">"##,
+            item.level
+        );
+
+        for child in &item.children {
+            html.push_str(&render_heading_item(child));
+        }
+
+        html.push_str(
+            r#"
+              </ul>
+            </li>"#,
+        );
+        html
+    } else {
+        format!(
+            r##"
+            <li role="treeitem">
+              <a href="#{escaped_id}" class="toc-link" data-level="{}">{escaped_text}</a>
+            </li>"##,
+            item.level
+        )
+    }
 }
 
 /// Render footer from resolved layout
