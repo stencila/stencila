@@ -236,33 +236,20 @@ pub fn resolve_layout(
         node.and_then(|n| extract_headings_from_node(n, effective.right_sidebar_config.as_ref()));
 
     // Resolve right sidebar:
-    // - Some(true): explicitly enabled → show if headings exist
     // - Some(false): explicitly disabled → never show
-    // - None: use smart default (auto-enable if headings exist)
-    let right_sidebar = match effective.right_sidebar_explicit {
-        Some(false) => None, // Explicitly disabled
-        Some(true) => {
-            // Explicitly enabled - show if headings exist
-            headings.map(|h| {
-                let title = effective
-                    .right_sidebar_config
-                    .as_ref()
-                    .and_then(|c| c.title.clone())
-                    .unwrap_or_else(|| "On this page".to_string());
-                ResolvedRightSidebar { title, headings: h }
-            })
-        }
-        None => {
-            // Smart default - auto-enable if headings exist
-            headings.map(|h| {
-                let title = effective
-                    .right_sidebar_config
-                    .as_ref()
-                    .and_then(|c| c.title.clone())
-                    .unwrap_or_else(|| "On this page".to_string());
-                ResolvedRightSidebar { title, headings: h }
-            })
-        }
+    // - Otherwise: always show (with data-empty when no headings for layout stability)
+    let right_sidebar = if effective.right_sidebar_explicit == Some(false) {
+        None
+    } else {
+        let title = effective
+            .right_sidebar_config
+            .as_ref()
+            .and_then(|c| c.title.clone())
+            .unwrap_or_else(|| "On this page".to_string());
+        Some(ResolvedRightSidebar {
+            title,
+            headings: headings.unwrap_or_default(),
+        })
     };
 
     // Compute breadcrumbs for current route
@@ -321,7 +308,7 @@ fn resolve_header(header: &LayoutHeader, current_route: &str) -> ResolvedHeader 
     let color_scheme_switcher = header
         .color_scheme_switcher
         .as_ref()
-        .and_then(|s| resolve_color_scheme_switcher(s));
+        .and_then(resolve_color_scheme_switcher);
 
     ResolvedHeader {
         logo: header.logo.as_ref().map(|path| make_absolute(path)),

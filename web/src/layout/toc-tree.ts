@@ -125,7 +125,8 @@ export class StencilaTocTree extends LitElement {
     }
 
     // Set initial active state based on current scroll position
-    this.updateActiveFromScroll()
+    // Don't auto-scroll TOC on initial setup - let the page scroll restore naturally
+    this.updateActiveFromScroll(false)
   }
 
   /**
@@ -158,8 +159,10 @@ export class StencilaTocTree extends LitElement {
    *
    * Used when no heading is in the intersection zone (e.g., scrolled
    * between headings). Finds the last heading that's above the viewport.
+   *
+   * @param scrollIntoView - Whether to scroll the TOC to show the active link
    */
-  private updateActiveFromScroll() {
+  private updateActiveFromScroll(scrollIntoView: boolean = true) {
     const scrollTop = window.scrollY + 100 // Account for header offset
 
     // Find the last heading that's above the current scroll position
@@ -176,17 +179,20 @@ export class StencilaTocTree extends LitElement {
     }
 
     if (lastAbove) {
-      this.setActiveHeading(lastAbove.id)
+      this.setActiveHeading(lastAbove.id, scrollIntoView)
     } else if (this.headingElements.length > 0) {
       // If we're above all headings, activate the first one
-      this.setActiveHeading(this.headingElements[0].id)
+      this.setActiveHeading(this.headingElements[0].id, scrollIntoView)
     }
   }
 
   /**
    * Set the active heading and update TOC link styles
+   *
+   * @param id - The heading ID to set as active
+   * @param scrollIntoView - Whether to scroll the TOC to show the active link (default true)
    */
-  private setActiveHeading(id: string) {
+  private setActiveHeading(id: string, scrollIntoView: boolean = true) {
     if (this.activeId === id) {
       return // No change
     }
@@ -207,7 +213,9 @@ export class StencilaTocTree extends LitElement {
       newLink.setAttribute('aria-current', 'location')
 
       // Ensure the active link is visible in the TOC (scroll if needed)
-      this.scrollActiveIntoView(newLink)
+      if (scrollIntoView) {
+        this.scrollActiveIntoView(newLink)
+      }
     }
 
     this.activeId = id
@@ -215,8 +223,11 @@ export class StencilaTocTree extends LitElement {
 
   /**
    * Scroll the TOC container to make the active link visible
+   *
+   * @param link - The link element to scroll into view
+   * @param smooth - Whether to use smooth scrolling (default true)
    */
-  private scrollActiveIntoView(link: HTMLAnchorElement) {
+  private scrollActiveIntoView(link: HTMLAnchorElement, smooth: boolean = true) {
     // Find the scrollable container (the nav element or this component)
     const container = this.closest('nav[slot="right-sidebar"]') || this
 
@@ -225,7 +236,7 @@ export class StencilaTocTree extends LitElement {
     const linkRect = link.getBoundingClientRect()
 
     if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
-      link.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      link.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'instant' })
     }
   }
 

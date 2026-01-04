@@ -496,14 +496,18 @@ pub fn render_nav(layout: &ResolvedLayout) -> Option<String> {
 ///
 /// Generates HTML for the right sidebar with table of contents (headings).
 /// The headings are rendered as a nested list with links to each heading anchor.
+/// When there are no headings, the sidebar is still rendered (for layout stability)
+/// but with a `data-empty` attribute that CSS uses to hide the content.
 pub fn render_right_sidebar(layout: &ResolvedLayout) -> Option<String> {
     let right_sidebar = layout.right_sidebar.as_ref()?;
-    if right_sidebar.headings.is_empty() {
-        return None;
-    }
+    let is_empty = right_sidebar.headings.is_empty();
+
+    // Add data-empty attribute when there are no headings
+    // CSS uses this to hide content while preserving layout space
+    let empty_attr = if is_empty { " data-empty" } else { "" };
 
     let mut html = format!(
-        r#"<nav slot="right-sidebar" class="toc" aria-label="Table of contents">
+        r#"<nav slot="right-sidebar" class="toc" aria-label="Table of contents"{empty_attr}>
         <h2 class="toc-title">{}</h2>
         <stencila-toc-tree>
           <ul role="tree">"#,

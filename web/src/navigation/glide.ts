@@ -98,54 +98,60 @@ async function swapContent(
  * Rehydrate components after content swap
  *
  * Updates the TOC and nav tree to reflect the new page content.
+ * TOC updates use a crossfade to avoid visual jumping.
  */
 export function rehydrateComponents(url: string, mainElement: Element): void {
   // Update TOC with new headings
-  const layout = document.querySelector('stencila-layout') as HTMLElement | null
-  const rightSidebar = document.querySelector('nav[slot="right-sidebar"]') as HTMLElement | null
-  const tocTree = document.querySelector('stencila-toc-tree') as StencilaTocTree | null
+  const rightSidebar = document.querySelector(
+    'nav[slot="right-sidebar"]'
+  ) as HTMLElement | null
+  const tocTree = document.querySelector(
+    'stencila-toc-tree'
+  ) as StencilaTocTree | null
 
-  if (mainElement instanceof HTMLElement) {
+  if (mainElement instanceof HTMLElement && rightSidebar) {
     const tocHtml = generateTocFromHeadings(mainElement, config.tocMaxDepth)
     const hasHeadings = tocHtml.length > 0
 
-    if (rightSidebar) {
-      // Show/hide the entire sidebar based on whether there are headings
-      if (hasHeadings) {
-        rightSidebar.style.display = ''
-        rightSidebar.removeAttribute('hidden')
+    // Toggle data-empty attribute - CSS hides content but keeps layout space
+    if (hasHeadings) {
+      rightSidebar.removeAttribute('data-empty')
+    } else {
+      rightSidebar.setAttribute('data-empty', '')
+    }
 
-        // Update layout attribute for CSS grid
-        if (layout) {
-          layout.setAttribute('right-sidebar', '')
-          layout.removeAttribute('no-right-sidebar')
-        }
+    if (tocTree) {
+      // Crossfade the TOC to avoid visual jumping
+      const fadeDuration = 100
+      tocTree.style.opacity = '0'
+      tocTree.style.transition = `opacity ${fadeDuration}ms ease-out`
 
-        if (tocTree) {
-          const tocContainer = tocTree.querySelector('ul[role="tree"]')
-          if (tocContainer) {
-            tocContainer.outerHTML = tocHtml
-          } else {
-            tocTree.innerHTML = tocHtml
-          }
-          tocTree.reinitialize()
+      // Wait for fade out to complete before updating content
+      setTimeout(() => {
+        const tocContainer = tocTree.querySelector('ul[role="tree"]')
+        if (tocContainer) {
+          tocContainer.outerHTML = tocHtml
+        } else {
+          tocTree.innerHTML = tocHtml
         }
-      } else {
-        // Hide the sidebar when there are no headings
-        rightSidebar.style.display = 'none'
-        rightSidebar.setAttribute('hidden', '')
+        tocTree.reinitialize()
 
-        // Update layout attribute for CSS grid
-        if (layout) {
-          layout.removeAttribute('right-sidebar')
-          layout.setAttribute('no-right-sidebar', '')
-        }
-      }
+        // Fade back in
+        requestAnimationFrame(() => {
+          tocTree.style.opacity = '1'
+          // Clean up transition after it completes
+          setTimeout(() => {
+            tocTree.style.transition = ''
+          }, fadeDuration)
+        })
+      }, fadeDuration)
     }
   }
 
   // Update nav tree active link
-  const navTree = document.querySelector('stencila-nav-tree') as StencilaNavTree | null
+  const navTree = document.querySelector(
+    'stencila-nav-tree'
+  ) as StencilaNavTree | null
   if (navTree) {
     navTree.updateActiveLink(url)
   }

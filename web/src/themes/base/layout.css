@@ -183,6 +183,12 @@ stencila-layout[no-left-sidebar][no-right-sidebar] {
     border-left: 1px solid var(--border-color-muted);
 }
 
+/* Hide TOC content when empty (but keep sidebar space for layout stability) */
+[slot="right-sidebar"][data-empty] .toc-title,
+[slot="right-sidebar"][data-empty] stencila-toc-tree {
+    display: none;
+}
+
 /* Main Content Slot */
 [slot="content"],
 #main-content {
