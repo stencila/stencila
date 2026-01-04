@@ -512,13 +512,21 @@ pub async fn standalone_html(
         ))
     }
 
-    // View Javascript
-    if view != "none" {
-        html.push_str(&format!(
+    // Site or view Javascript
+    let js = if site.is_some() {
+        format!(
+            r#"
+    <script type="module" src="{web_base}/site.js"></script>"#
+        )
+    } else if view != "none" {
+        format!(
             r#"
     <script type="module" src="{web_base}/views/{view}.js"></script>"#
-        ))
-    }
+        )
+    } else {
+        String::new()
+    };
+    html.push_str(&js);
 
     // Base theme CSS (always loaded unless theme is None)
     // This provides foundational styles that all themes build upon

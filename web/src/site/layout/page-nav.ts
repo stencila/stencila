@@ -1,7 +1,7 @@
 import { LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import { GLIDE_REQUEST } from '../navigation/events'
+import { GLIDE_REQUEST } from '../glide/events'
 
 /**
  * Page navigation component (prev/next links)

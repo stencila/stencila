@@ -4,7 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import {
   ColorScheme,
   ColorSchemeManager,
-} from '../ui/document/color-scheme'
+} from '../../ui/document/color-scheme'
 
 /**
  * Color scheme switcher component

@@ -28,7 +28,8 @@
         "src/themes/init.js",
         "src/themes/*.css",
         "src/views/dynamic.ts",
-        "src/views/static.ts"
+        "src/views/static.ts",
+        "src/site.ts"
       ],
       "distDir": "./dist"
     },

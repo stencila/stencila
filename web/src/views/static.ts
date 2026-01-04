@@ -1,18 +1,13 @@
 import { LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import { initSiteClient } from '../clients/site'
-import { initSiteGlide } from '../navigation'
 import { initUno } from '../unocss'
 
-import '../layout/layout' // Site layout shell component
 import '../nodes/code-block-static' // For display of code blocks (Prism.js)
 import '../nodes/code-chunk-static' // For code chunks that are `echo` (Prism.js)
 import '../nodes/image-object-static' // For display of JS-based visualizations (e.g. Mermaid)
 
 initUno()
-initSiteClient()
-initSiteGlide()
 
 /**
  * Static view of a document
