@@ -8,7 +8,8 @@
 import type {
   GlideEventDetail,
   GlideErrorEventDetail,
-  PrefetchEventDetail,
+  PrefetchEndEventDetail,
+  PrefetchStartEventDetail,
 } from './types'
 
 /**
@@ -75,8 +76,8 @@ declare global {
     [GlideEvents.AFTER_SWAP]: CustomEvent<GlideEventDetail>
     [GlideEvents.END]: CustomEvent<GlideEventDetail>
     [GlideEvents.ERROR]: CustomEvent<GlideErrorEventDetail>
-    [PrefetchEvents.START]: CustomEvent<PrefetchEventDetail>
-    [PrefetchEvents.END]: CustomEvent<PrefetchEventDetail>
+    [PrefetchEvents.START]: CustomEvent<PrefetchStartEventDetail>
+    [PrefetchEvents.END]: CustomEvent<PrefetchEndEventDetail>
     [GLIDE_REQUEST]: CustomEvent<{ url: string; trigger: string }>
   }
 }

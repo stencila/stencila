@@ -111,9 +111,20 @@ export interface GlideErrorEventDetail extends GlideEventDetail {
 }
 
 /**
- * Event detail for prefetch events
+ * Event detail for prefetch start events
  */
-export interface PrefetchEventDetail {
+export interface PrefetchStartEventDetail {
   /** The URL being prefetched */
   url: string
+}
+
+/**
+ * Event detail for prefetch end events
+ */
+export interface PrefetchEndEventDetail {
+  /** The URL that was prefetched */
+  url: string
+
+  /** Whether the prefetch completed successfully */
+  success: boolean
 }

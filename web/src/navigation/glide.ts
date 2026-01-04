@@ -15,7 +15,9 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from './history'
+import { isEligibleLink, normalizeUrl } from './links'
 import { parseHTML } from './parser'
+import { initPrefetch } from './prefetch'
 import { scrollToId } from './scroll'
 import { generateTocFromHeadings } from './toc'
 import { DEFAULT_CONFIG } from './types'
@@ -23,16 +25,6 @@ import type { GlideEventDetail, NavConfig, NavTrigger } from './types'
 
 /** Current configuration */
 let config: NavConfig = { ...DEFAULT_CONFIG }
-
-/**
- * Normalize a URL for cache key (excludes hash fragment)
- *
- * This ensures that different hash targets on the same page share a cache entry.
- */
-function normalizeUrlForCache(url: string): string {
-  const parsed = new URL(url, window.location.origin)
-  return parsed.origin + parsed.pathname + parsed.search
-}
 
 /** Whether navigation is currently in progress */
 let isNavigating = false
@@ -42,46 +34,6 @@ let lastNormalizedUrl = ''
 
 /** Last full URL (with hash) for scroll position tracking */
 let lastFullUrl = ''
-
-/**
- * Check if a link is eligible for client-side navigation
- */
-function isEligibleLink(link: HTMLAnchorElement): boolean {
-  // Must have href
-  if (!link.href) {
-    return false
-  }
-
-  // Must be same origin
-  const url = new URL(link.href, window.location.origin)
-  if (url.origin !== window.location.origin) {
-    return false
-  }
-
-  // Skip if link has data-stencila-glide="off"
-  if (link.dataset.stencilaGlide === 'off') {
-    return false
-  }
-
-  // Skip download links
-  if (link.hasAttribute('download')) {
-    return false
-  }
-
-  // Skip links with target other than _self
-  const target = link.getAttribute('target')
-  if (target && target !== '_self') {
-    return false
-  }
-
-  // Skip mailto, tel, javascript links
-  const protocol = url.protocol
-  if (protocol !== 'http:' && protocol !== 'https:') {
-    return false
-  }
-
-  return true
-}
 
 /**
  * Check if a click event should trigger navigation
@@ -228,7 +180,7 @@ export async function navigate(
 
     // Check cache first (normalize URL to exclude hash)
     const cache = getPageCache()
-    const cacheKey = normalizeUrlForCache(url)
+    const cacheKey = normalizeUrl(url)
     let entry = config.cacheSize > 0 ? cache.get(cacheKey) : undefined
     let fromCache = false
 
@@ -284,7 +236,7 @@ export async function navigate(
     dispatch(GlideEvents.AFTER_SWAP, detailWithCache)
 
     // Track current page for hash-only popstate detection
-    lastNormalizedUrl = normalizeUrlForCache(url)
+    lastNormalizedUrl = normalizeUrl(url)
     lastFullUrl = url
 
     // Handle scroll position
@@ -373,7 +325,7 @@ function handlePopstate(_event: PopStateEvent): void {
   }
 
   const url = window.location.href
-  const cacheKey = normalizeUrlForCache(url)
+  const cacheKey = normalizeUrl(url)
 
   // Save scroll position for the page we're leaving before any swap
   if (lastFullUrl) {
@@ -490,7 +442,7 @@ export function initNavigation(): () => void {
   history.scrollRestoration = 'manual'
 
   // Track current page for hash-only popstate detection
-  lastNormalizedUrl = normalizeUrlForCache(window.location.href)
+  lastNormalizedUrl = normalizeUrl(window.location.href)
   lastFullUrl = window.location.href
 
   // Initialize cache with configured size
@@ -502,7 +454,7 @@ export function initNavigation(): () => void {
   if (config.cacheSize > 0) {
     const mainElement = document.querySelector(config.contentSelector)
     if (mainElement) {
-      getPageCache().set(normalizeUrlForCache(window.location.href), {
+      getPageCache().set(normalizeUrl(window.location.href), {
         title: document.title,
         mainHTML: mainElement.innerHTML,
         timestamp: Date.now(),
@@ -513,6 +465,9 @@ export function initNavigation(): () => void {
   // Save initial scroll position
   saveScrollPosition(window.location.href)
 
+  // Initialize prefetch manager
+  const cleanupPrefetch = initPrefetch(config)
+
   // Set up event listeners
   document.addEventListener('click', handleClick)
   window.addEventListener('popstate', handlePopstate)
@@ -522,6 +477,7 @@ export function initNavigation(): () => void {
     document.removeEventListener('click', handleClick)
     window.removeEventListener('popstate', handlePopstate)
     window.removeEventListener(GLIDE_REQUEST, handleGlideRequest as EventListener)
+    cleanupPrefetch()
     history.scrollRestoration = 'auto'
     cleanup = null
   }
