@@ -154,7 +154,7 @@ stencila-header {
 stencila-left-sidebar {
     position: sticky;
     top: var(--layout-header-height);
-    align-self: start;
+    align-self: stretch;
     max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--sidebar-padding);
@@ -170,7 +170,7 @@ stencila-left-sidebar {
 stencila-right-sidebar {
     position: sticky;
     top: var(--layout-header-height);
-    align-self: start;
+    align-self: stretch;
     max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--sidebar-padding);
