@@ -1,6 +1,8 @@
 import { LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
+import { GLIDE_REQUEST } from '../navigation/events'
+
 /**
  * Page navigation component (prev/next links)
  *
@@ -76,14 +78,24 @@ export class StencilaPageNav extends LitElement {
   private navigatePrev() {
     const prevLink = this.querySelector<HTMLAnchorElement>('.page-nav-prev')
     if (prevLink?.href) {
-      window.location.href = prevLink.href
+      // Use client-side navigation if available
+      window.dispatchEvent(
+        new CustomEvent(GLIDE_REQUEST, {
+          detail: { url: prevLink.href, trigger: 'keyboard' },
+        })
+      )
     }
   }
 
   private navigateNext() {
     const nextLink = this.querySelector<HTMLAnchorElement>('.page-nav-next')
     if (nextLink?.href) {
-      window.location.href = nextLink.href
+      // Use client-side navigation if available
+      window.dispatchEvent(
+        new CustomEvent(GLIDE_REQUEST, {
+          detail: { url: nextLink.href, trigger: 'keyboard' },
+        })
+      )
     }
   }
 }

@@ -5,4 +5,4 @@
  * using the View Transitions API when available.
  */
 
-export { initNavigation, navigate, getConfig } from './glide'
+export { initSiteGlide } from './glide'

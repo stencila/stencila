@@ -425,7 +425,7 @@ let cleanup: (() => void) | null = null
  * Sets up event listeners and reads configuration from data attributes.
  * Returns a cleanup function to remove listeners.
  */
-export function initNavigation(): () => void {
+export function initSiteGlide(): () => void {
   // Clean up any previous initialization
   if (cleanup) {
     cleanup()
@@ -483,11 +483,4 @@ export function initNavigation(): () => void {
   }
 
   return cleanup
-}
-
-/**
- * Get the current configuration
- */
-export function getConfig(): Readonly<NavConfig> {
-  return config
 }

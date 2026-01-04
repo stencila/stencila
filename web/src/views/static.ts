@@ -2,6 +2,7 @@ import { LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { initSiteClient } from '../clients/site'
+import { initSiteGlide } from '../navigation'
 import { initUno } from '../unocss'
 
 import '../layout/layout' // Site layout shell component
@@ -11,6 +12,7 @@ import '../nodes/image-object-static' // For display of JS-based visualizations 
 
 initUno()
 initSiteClient()
+initSiteGlide()
 
 /**
  * Static view of a document
