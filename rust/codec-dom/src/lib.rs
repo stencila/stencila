@@ -35,6 +35,21 @@ pub use layout::{
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
 const USE_LOCALHOST: bool = true;
 
+/// Resolved glide configuration for client-side navigation
+///
+/// Contains the effective values after applying defaults.
+#[derive(Debug, Clone)]
+pub struct ResolvedGlide {
+    /// Whether glide is enabled (default: true)
+    pub enabled: bool,
+
+    /// Maximum prefetches per session (default: 20, 0 to disable)
+    pub prefetch: usize,
+
+    /// Maximum pages to cache (default: 10, 0 to disable)
+    pub cache: usize,
+}
+
 /// Options for encoding a document as part of a site
 #[derive(Debug)]
 pub struct SiteEncodeOptions<'a> {
@@ -47,8 +62,11 @@ pub struct SiteEncodeOptions<'a> {
     /// Directory for extracted/collected media files
     pub media_dir: &'a Path,
 
-    /// Pre-resolved layout with nav tree for current route
-    pub resolved_layout: Option<&'a ResolvedLayout>,
+    /// Resolved layout with nav tree for current route
+    pub resolved_layout: &'a ResolvedLayout,
+
+    /// Resolved glide configuration for client-side navigation
+    pub resolved_glide: &'a ResolvedGlide,
 }
 
 /// A codec for DOM HTML
@@ -157,7 +175,8 @@ pub async fn encode_site_document(
         source_path,
         base_url,
         media_dir,
-        resolved_layout,
+        resolved_layout: layout,
+        resolved_glide: glide,
     } = options;
 
     // Collect media from source to shared media directory
@@ -226,7 +245,6 @@ pub async fn encode_site_document(
         .ok()
         .flatten();
 
-    // Generate standalone HTML with layout
     let html = standalone_html(
         String::new(),
         node_type,
@@ -237,7 +255,7 @@ pub async fn encode_site_document(
         web_base,
         theme.as_ref(),
         "static",
-        resolved_layout,
+        Some((layout, glide)),
     )
     .await;
 
@@ -387,13 +405,11 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
 /// - `None`: Skip theme entirely
 /// - `Some(theme)`: Use the resolved theme
 ///
-/// # Layout parameter
-/// - `None`: No layout wrapper (document content only)
-/// - `Some(layout)`: Wrap content in `<stencila-layout>` with configured sidebars
-///
-/// # Resolved Layout
-/// - `None`: No navigation tree
-/// - `Some(resolved)`: Pre-resolved layout with nav tree for current route
+/// # Site parameter
+/// Combined layout and glide configuration for site rendering:
+/// - `None`: No layout wrapper or glide data attributes
+/// - `Some((layout, glide))`: Wrap content in `<stencila-layout>` with nav tree,
+///   and add glide data attributes to `<body>` for client-side navigation
 #[allow(clippy::too_many_arguments)]
 pub async fn standalone_html(
     doc_id: String,
@@ -405,7 +421,7 @@ pub async fn standalone_html(
     web_base: String,
     theme: Option<&Theme>,
     view: &str,
-    resolved_layout: Option<&ResolvedLayout>,
+    site: Option<(&ResolvedLayout, &ResolvedGlide)>,
 ) -> String {
     let title = node_title.as_ref().map_or_else(
         || "Stencila Document".to_string(),
@@ -578,12 +594,27 @@ pub async fn standalone_html(
         html.push_str(&extra_head);
     }
 
-    html.push_str(
+    // Build body tag with optional glide data attributes
+    let body_tag = if let Some((_, glide_config)) = site {
+        let glide_attr = if glide_config.enabled { "on" } else { "off" };
+        if glide_config.enabled {
+            format!(
+                r#"<body data-stencila-glide="{}" data-stencila-prefetch="{}" data-stencila-cache="{}">"#,
+                glide_attr, glide_config.prefetch, glide_config.cache
+            )
+        } else {
+            format!(r#"<body data-stencila-glide="{}">"#, glide_attr)
+        }
+    } else {
+        "<body>".to_string()
+    };
+
+    html.push_str(&format!(
         r#"
   </head>
-  <body>
+  {body_tag}
     "#,
-    );
+    ));
 
     // Build the view-wrapped content
     let view_content = if view != "none" {
@@ -595,7 +626,7 @@ pub async fn standalone_html(
     };
 
     // Optionally wrap in resolved layout
-    if let Some(resolved_layout) = resolved_layout {
+    if let Some((resolved_layout, _)) = site {
         html.push_str(&render_layout(&view_content, resolved_layout));
     } else {
         html.push_str(&view_content);

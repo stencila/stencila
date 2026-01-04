@@ -96,6 +96,19 @@ pub struct SiteConfig {
     /// right-sidebar = true
     /// ```
     pub layout: Option<SiteLayout>,
+
+    /// Glide configuration for client-side navigation
+    ///
+    /// When enabled, internal link clicks are intercepted and content
+    /// is swapped without full page reloads, using View Transitions API
+    /// when available.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.glide]
+    /// prefetch = 25
+    /// ```
+    pub glide: Option<GlideConfig>,
 }
 
 impl SiteConfig {
@@ -315,6 +328,59 @@ pub struct RouteSpread {
     /// Keys are parameter names, values are arrays of possible values.
     /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
     pub arguments: HashMap<String, Vec<String>>,
+}
+
+/// Configuration for client-side navigation (glide)
+///
+/// When enabled, internal link clicks are intercepted and content
+/// is swapped without full page reloads, using View Transitions API
+/// when available.
+///
+/// Example:
+/// ```toml
+/// [site.glide]
+/// prefetch = 25
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(default)]
+pub struct GlideConfig {
+    /// Enable client-side navigation
+    ///
+    /// When true, internal links use AJAX navigation with View Transitions.
+    /// Default: true
+    pub enabled: Option<bool>,
+
+    /// Maximum prefetches per session
+    ///
+    /// Pages are fetched on hover/focus before click, up to this limit.
+    /// Set to 0 to disable prefetching. Only applies when glide is enabled.
+    /// Default: 20
+    pub prefetch: Option<usize>,
+
+    /// Maximum number of pages to cache
+    ///
+    /// Controls how many pages are kept in the LRU cache for instant
+    /// back/forward navigation. Set to 0 to disable caching.
+    /// Default: 10
+    pub cache: Option<usize>,
+}
+
+impl GlideConfig {
+    /// Check if glide is enabled (defaults to true)
+    pub fn enabled(&self) -> bool {
+        self.enabled.unwrap_or(true)
+    }
+
+    /// Get the prefetch limit (defaults to 20)
+    pub fn prefetch(&self) -> usize {
+        self.prefetch.unwrap_or(20)
+    }
+
+    /// Get the cache size (defaults to 10)
+    pub fn cache(&self) -> usize {
+        self.cache.unwrap_or(10)
+    }
 }
 
 /// Add a route to the [site.routes] section of stencila.toml

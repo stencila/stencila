@@ -17,10 +17,8 @@ use tokio::{
 };
 
 use stencila_codec::stencila_schema::Node;
-use stencila_codec_dom::{SiteEncodeOptions, encode_site_document};
+use stencila_codec_dom::{ResolvedGlide, ResolvedLayout, SiteEncodeOptions, encode_site_document};
 use stencila_config::RedirectStatus;
-
-use crate::layout::ResolvedLayout;
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 use crate::{RouteEntry, RouteType, layout::resolve_layout, list};
@@ -138,7 +136,7 @@ where
     let workspace_dir = workspace_dir(&stencila_dir)?;
 
     // Load config from workspace
-    let config = stencila_config::config(&workspace_dir)?;
+    let mut config = stencila_config::config(&workspace_dir)?;
 
     // Resolve site root for static file paths
     let site_root = if let Some(site) = &config.site
@@ -149,11 +147,18 @@ where
         workspace_dir.clone()
     };
 
-    // Get layout configuration (defaults to enabled with left sidebar)
+    // Get layout configuration
     let layout = config
         .site
-        .as_ref()
-        .and_then(|s| s.layout.clone())
+        .as_mut()
+        .and_then(|site| site.layout.take())
+        .unwrap_or_default();
+
+    // Get glide configuration
+    let glide = config
+        .site
+        .as_mut()
+        .and_then(|site| site.glide.take())
         .unwrap_or_default();
 
     // Partition routes by type
@@ -246,13 +251,21 @@ where
             let resolved_layout =
                 resolve_layout(&entry.route, &document_routes, &layout, Some(&node));
 
+            // Resolve glide
+            let resolved_glide = ResolvedGlide {
+                enabled: glide.enabled(),
+                prefetch: glide.prefetch(),
+                cache: glide.cache(),
+            };
+
             render_document(
                 &node,
                 Some(source_path),
                 base_url,
                 output,
                 &entry.route,
-                Some(&resolved_layout),
+                &resolved_layout,
+                &resolved_glide,
             )
             .await
         }
@@ -355,8 +368,8 @@ where
 /// * `base_url` - Base URL for the site
 /// * `output_root` - Output directory root
 /// * `route` - The route for this document (e.g., "/docs/report/")
-/// * `layout` - Optional site layout configuration for wrapping content
 /// * `resolved_layout` - Pre-resolved layout with nav tree for current route
+/// * `resolved_glide` - Glide configuration for client-side navigation
 ///
 /// # Returns
 /// The rendered document with path information and media files collected.
@@ -366,7 +379,8 @@ async fn render_document(
     base_url: &str,
     output_root: &Path,
     route: &str,
-    resolved_layout: Option<&ResolvedLayout>,
+    resolved_layout: &ResolvedLayout,
+    resolved_glide: &ResolvedGlide,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -413,6 +427,7 @@ async fn render_document(
             base_url,
             media_dir: &media_dir,
             resolved_layout,
+            resolved_glide,
         },
     )
     .await?;
