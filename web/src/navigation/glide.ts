@@ -98,23 +98,50 @@ async function swapContent(
  * Rehydrate components after content swap
  *
  * Updates the TOC and nav tree to reflect the new page content.
- * Also exposed as window.__stencilaRehydrate for external callers.
  */
 export function rehydrateComponents(url: string, mainElement: Element): void {
   // Update TOC with new headings
+  const layout = document.querySelector('stencila-layout') as HTMLElement | null
+  const rightSidebar = document.querySelector('nav[slot="right-sidebar"]') as HTMLElement | null
   const tocTree = document.querySelector('stencila-toc-tree') as StencilaTocTree | null
-  if (tocTree && mainElement instanceof HTMLElement) {
+
+  if (mainElement instanceof HTMLElement) {
     const tocHtml = generateTocFromHeadings(mainElement, config.tocMaxDepth)
-    const tocContainer = tocTree.querySelector('ul[role="tree"]')
-    if (tocContainer) {
-      // Replace the TOC content
-      tocContainer.outerHTML = tocHtml || '<ul role="tree" class="toc-list"></ul>'
-    } else if (tocHtml) {
-      // No existing TOC, insert new one
-      tocTree.innerHTML = tocHtml
+    const hasHeadings = tocHtml.length > 0
+
+    if (rightSidebar) {
+      // Show/hide the entire sidebar based on whether there are headings
+      if (hasHeadings) {
+        rightSidebar.style.display = ''
+        rightSidebar.removeAttribute('hidden')
+
+        // Update layout attribute for CSS grid
+        if (layout) {
+          layout.setAttribute('right-sidebar', '')
+          layout.removeAttribute('no-right-sidebar')
+        }
+
+        if (tocTree) {
+          const tocContainer = tocTree.querySelector('ul[role="tree"]')
+          if (tocContainer) {
+            tocContainer.outerHTML = tocHtml
+          } else {
+            tocTree.innerHTML = tocHtml
+          }
+          tocTree.reinitialize()
+        }
+      } else {
+        // Hide the sidebar when there are no headings
+        rightSidebar.style.display = 'none'
+        rightSidebar.setAttribute('hidden', '')
+
+        // Update layout attribute for CSS grid
+        if (layout) {
+          layout.removeAttribute('right-sidebar')
+          layout.setAttribute('no-right-sidebar', '')
+        }
+      }
     }
-    // Reinitialize the TOC tree component
-    tocTree.reinitialize()
   }
 
   // Update nav tree active link
