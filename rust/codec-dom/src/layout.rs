@@ -42,6 +42,9 @@ pub struct ResolvedHeader {
 
     /// Icon links
     pub icons: Vec<ResolvedIconLink>,
+
+    /// Color scheme switcher (if enabled)
+    pub color_scheme_switcher: Option<ResolvedColorSchemeSwitcher>,
 }
 
 /// A resolved tab with active state
@@ -81,6 +84,9 @@ pub struct ResolvedFooter {
 
     /// Copyright text
     pub copyright: Option<String>,
+
+    /// Color scheme switcher (if enabled)
+    pub color_scheme_switcher: Option<ResolvedColorSchemeSwitcher>,
 }
 
 /// A resolved footer link group
@@ -131,6 +137,13 @@ pub struct BreadcrumbItem {
 
     /// Whether this is the current page (last item)
     pub current: bool,
+}
+
+/// Resolved color scheme switcher configuration
+#[derive(Debug, Clone)]
+pub struct ResolvedColorSchemeSwitcher {
+    /// Display style for the switcher
+    pub style: String,
 }
 
 /// Page navigation links (prev/next)
@@ -364,6 +377,11 @@ pub fn render_header(layout: &ResolvedLayout) -> Option<String> {
         );
     }
 
+    // Color scheme switcher
+    if let Some(ref switcher) = header.color_scheme_switcher {
+        html.push_str(&render_color_scheme_switcher(switcher));
+    }
+
     html.push_str(
         r#"
     </stencila-header>"#,
@@ -588,8 +606,10 @@ pub fn render_footer(layout: &ResolvedLayout) -> Option<String> {
         );
     }
 
-    // Bottom section with icons and copyright
-    let has_bottom = !footer.icons.is_empty() || footer.copyright.is_some();
+    // Bottom section with icons, copyright, and color scheme switcher
+    let has_bottom = !footer.icons.is_empty()
+        || footer.copyright.is_some()
+        || footer.color_scheme_switcher.is_some();
     if has_bottom {
         html.push_str(
             r#"
@@ -628,6 +648,11 @@ pub fn render_footer(layout: &ResolvedLayout) -> Option<String> {
         <p class="footer-copyright">{}</p>"#,
                 encode_safe(copyright)
             ));
+        }
+
+        // Color scheme switcher
+        if let Some(ref switcher) = footer.color_scheme_switcher {
+            html.push_str(&render_color_scheme_switcher(switcher));
         }
 
         html.push_str(
@@ -738,4 +763,15 @@ pub fn render_page_nav(layout: &ResolvedLayout) -> Option<String> {
     );
 
     Some(html)
+}
+
+/// Render color scheme switcher HTML
+///
+/// Generates a button that toggles between light and dark mode.
+/// The actual toggle behavior is handled by JavaScript.
+fn render_color_scheme_switcher(switcher: &ResolvedColorSchemeSwitcher) -> String {
+    format!(
+        r#"<stencila-color-scheme-switcher display-style="{}"></stencila-color-scheme-switcher>"#,
+        switcher.style
+    )
 }

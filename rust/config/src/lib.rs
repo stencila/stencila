@@ -43,7 +43,8 @@ mod watch;
 
 pub use {
     layout::{
-        FooterGroup, IconLink, LayoutFooter, LayoutFooterOverride, LayoutHeader,
+        ColorSchemeSwitcherConfig, ColorSchemeSwitcherStyle, FooterGroup, IconLink,
+        LayoutColorSchemeSwitcher, LayoutFooter, LayoutFooterOverride, LayoutHeader,
         LayoutHeaderOverride, LayoutLeftSidebar, LayoutOverride, LayoutRightSidebar,
         LeftSidebarConfig, NavConfig, NavItem, RightSidebarConfig, SiteLayout, TextLink,
     },

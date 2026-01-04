@@ -6,8 +6,9 @@
 use glob::Pattern;
 use stencila_codec::stencila_schema::Node;
 use stencila_config::{
-    LayoutFooter, LayoutFooterOverride, LayoutHeader, LayoutHeaderOverride, LayoutLeftSidebar,
-    LayoutOverride, LayoutRightSidebar, LeftSidebarConfig, RightSidebarConfig, SiteLayout,
+    LayoutColorSchemeSwitcher, LayoutFooter, LayoutFooterOverride, LayoutHeader,
+    LayoutHeaderOverride, LayoutLeftSidebar, LayoutOverride, LayoutRightSidebar, LeftSidebarConfig,
+    RightSidebarConfig, SiteLayout,
 };
 
 use crate::{
@@ -18,9 +19,9 @@ use crate::{
 
 // Re-export layout types from codec-dom
 pub use stencila_codec_dom::{
-    BreadcrumbItem, HeadingItem, NavTreeItem, PageLink, PageNavLinks, ResolvedFooter,
-    ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedLeftSidebar,
-    ResolvedNavLink, ResolvedRightSidebar,
+    BreadcrumbItem, HeadingItem, NavTreeItem, PageLink, PageNavLinks, ResolvedColorSchemeSwitcher,
+    ResolvedFooter, ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout,
+    ResolvedLeftSidebar, ResolvedNavLink, ResolvedRightSidebar,
 };
 
 /// Find the first matching override for a route
@@ -316,11 +317,18 @@ fn resolve_header(header: &LayoutHeader, current_route: &str) -> ResolvedHeader 
         })
         .collect();
 
+    // Resolve color scheme switcher (disabled by default in header)
+    let color_scheme_switcher = header
+        .color_scheme_switcher
+        .as_ref()
+        .and_then(|s| resolve_color_scheme_switcher(s));
+
     ResolvedHeader {
         logo: header.logo.as_ref().map(|path| make_absolute(path)),
         title: header.title.clone(),
         links: tabs,
         icons,
+        color_scheme_switcher,
     }
 }
 
@@ -378,11 +386,35 @@ fn resolve_footer(footer: &LayoutFooter) -> ResolvedFooter {
         })
         .collect();
 
+    // Resolve color scheme switcher (enabled by default in footer)
+    let color_scheme_switcher = match &footer.color_scheme_switcher {
+        // Explicitly configured
+        Some(config) => resolve_color_scheme_switcher(config),
+        // Default: enabled with icon style
+        None => Some(ResolvedColorSchemeSwitcher {
+            style: "icon".to_string(),
+        }),
+    };
+
     ResolvedFooter {
         groups,
         icons,
         copyright: footer.copyright.clone(),
+        color_scheme_switcher,
     }
+}
+
+/// Resolve color scheme switcher from config
+fn resolve_color_scheme_switcher(
+    config: &LayoutColorSchemeSwitcher,
+) -> Option<ResolvedColorSchemeSwitcher> {
+    if !config.is_enabled() {
+        return None;
+    }
+
+    Some(ResolvedColorSchemeSwitcher {
+        style: config.style().to_string(),
+    })
 }
 
 /// Compute breadcrumbs for a route
@@ -578,6 +610,7 @@ mod tests {
                     target: "https://github.com/example".to_string(),
                     label: None,
                 }],
+                ..Default::default()
             }),
             left_sidebar: Some(LayoutLeftSidebar::Enabled(false)),
             ..Default::default()

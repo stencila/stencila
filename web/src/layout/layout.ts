@@ -8,6 +8,7 @@ import './toc-tree' // Table of contents tree component
 import './footer' // Footer component
 import './breadcrumbs' // Breadcrumbs component
 import './page-nav' // Page navigation component
+import './color-scheme-switcher' // Color scheme toggle component
 
 /**
  * Site layout shell component

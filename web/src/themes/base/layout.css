@@ -955,6 +955,53 @@ stencila-page-nav {
 }
 
 
+/* =================================
+ * Color Scheme Switcher Styles
+ * ================================= */
+
+stencila-color-scheme-switcher {
+    display: inline-flex;
+    align-items: center;
+}
+
+.color-scheme-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    border-radius: var(--border-radius-default);
+    transition:
+        color var(--transition-duration-fast),
+        background-color var(--transition-duration-fast);
+}
+
+.color-scheme-switcher:hover {
+    color: var(--text-color-primary);
+    background: var(--surface-background);
+}
+
+.color-scheme-switcher:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.color-scheme-switcher-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: currentColor;
+}
+
+.color-scheme-switcher-label {
+    font-weight: 500;
+}
+
+
 /* Print: Hide layout chrome */
 @media print {
     stencila-layout {

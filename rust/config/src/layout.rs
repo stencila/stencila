@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use strum::Display;
 
 /// Site layout configuration
 ///
@@ -192,6 +193,81 @@ impl SiteLayout {
     }
 }
 
+/// Display style for color scheme switcher
+#[derive(Debug, Clone, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum ColorSchemeSwitcherStyle {
+    /// Sun/moon icon only (default)
+    #[default]
+    Icon,
+    /// "Light"/"Dark" text label only
+    Label,
+    /// Icon and label
+    Both,
+}
+
+/// Color scheme switcher configuration
+///
+/// Controls whether a light/dark mode toggle is displayed.
+///
+/// Example:
+/// ```toml
+/// # Simple boolean
+/// [site.layout.footer]
+/// color-scheme-switcher = true
+///
+/// # With style configuration
+/// [site.layout.header.color-scheme-switcher]
+/// style = "both"
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+pub struct ColorSchemeSwitcherConfig {
+    /// Display style for the switcher
+    #[serde(default)]
+    pub style: ColorSchemeSwitcherStyle,
+}
+
+/// Color scheme switcher option
+///
+/// Supports both boolean shorthand and full configuration:
+/// - `color-scheme-switcher = true` → Switcher with icon style (default)
+/// - `color-scheme-switcher = false` → Switcher disabled
+/// - `color-scheme-switcher = { style = "both" }` → Full configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(untagged)]
+pub enum LayoutColorSchemeSwitcher {
+    /// Boolean shorthand for enable/disable
+    Enabled(bool),
+    /// Full configuration
+    Config(ColorSchemeSwitcherConfig),
+}
+
+impl Default for LayoutColorSchemeSwitcher {
+    fn default() -> Self {
+        Self::Enabled(true)
+    }
+}
+
+impl LayoutColorSchemeSwitcher {
+    /// Check if the switcher is enabled
+    pub fn is_enabled(&self) -> bool {
+        match self {
+            Self::Enabled(enabled) => *enabled,
+            Self::Config(_) => true,
+        }
+    }
+
+    /// Get the style configuration
+    pub fn style(&self) -> ColorSchemeSwitcherStyle {
+        match self {
+            Self::Enabled(_) => ColorSchemeSwitcherStyle::default(),
+            Self::Config(config) => config.style.clone(),
+        }
+    }
+}
+
 /// Header configuration
 ///
 /// Controls the site header appearance including logo, title, navigation links,
@@ -228,6 +304,11 @@ pub struct LayoutHeader {
     /// Icon links (e.g., GitHub, Discord)
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub icons: Vec<IconLink>,
+
+    /// Color scheme (light/dark) switcher
+    ///
+    /// Disabled by default in header. Set to `true` or config object to enable.
+    pub color_scheme_switcher: Option<LayoutColorSchemeSwitcher>,
 }
 
 /// Footer configuration
@@ -265,6 +346,12 @@ pub struct LayoutFooter {
 
     /// Copyright text displayed at the bottom
     pub copyright: Option<String>,
+
+    /// Color scheme (light/dark) switcher
+    ///
+    /// Enabled by default in footer (with icon style). Set to `false` to disable,
+    /// or provide a config object to customize the style.
+    pub color_scheme_switcher: Option<LayoutColorSchemeSwitcher>,
 }
 
 /// A group of links in the footer

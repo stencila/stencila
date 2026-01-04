@@ -25,9 +25,9 @@ pub use stencila_codec_dom_trait::to_dom;
 mod layout;
 use layout::render_layout;
 pub use layout::{
-    BreadcrumbItem, HeadingItem, NavTreeItem, PageLink, PageNavLinks, ResolvedFooter,
-    ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout, ResolvedLeftSidebar,
-    ResolvedNavLink, ResolvedRightSidebar,
+    BreadcrumbItem, HeadingItem, NavTreeItem, PageLink, PageNavLinks, ResolvedColorSchemeSwitcher,
+    ResolvedFooter, ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout,
+    ResolvedLeftSidebar, ResolvedNavLink, ResolvedRightSidebar,
 };
 
 /// Use local development web assets instead of production CDN.
