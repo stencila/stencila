@@ -1,7 +1,25 @@
 //! Site layout configuration types
 //!
-//! This module contains types for configuring the layout of site pages,
-//! including sidebars, navigation, headers, and footers.
+//! This module contains types for configuring the layout of site pages using
+//! a region-based system where components can be placed in any region's sub-regions.
+//!
+//! ## Architecture
+//!
+//! The layout consists of regions (header, left-sidebar, top, content, bottom,
+//! right-sidebar, footer), each with sub-regions (start, middle, end). Components
+//! can be placed in any sub-region.
+//!
+//! ## Example
+//!
+//! ```toml
+//! [site.layout.header]
+//! start = "logo"
+//! middle = { type = "nav-links", links = [...] }
+//! end = ["icon-links", "color-mode"]
+//!
+//! [site.layout.left-sidebar]
+//! middle = { type = "nav-tree", collapsible = true }
+//! ```
 
 use std::collections::HashMap;
 
@@ -12,883 +30,666 @@ use strum::Display;
 
 /// Site layout configuration
 ///
-/// Controls the layout structure of site pages including header, sidebars,
-/// footer, and navigation.
+/// Controls the layout structure of site pages using a region-based system.
+/// Each region (header, sidebars, etc.) has sub-regions (start, middle, end)
+/// where components can be placed.
 ///
 /// Example:
 /// ```toml
 /// [site.layout]
-/// left-sidebar = true
-/// right-sidebar = true
-/// ```
+/// preset = "docs"
 ///
-/// Or with full sidebar configuration:
-/// ```toml
-/// [site.layout]
-/// left-sidebar = { nav = "auto", collapsible = true, depth = 3 }
-/// right-sidebar = { content = "headings", depth = 3 }
+/// [site.layout.header]
+/// start = "logo"
+/// end = ["icon-links", "color-mode"]
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
 pub struct SiteLayout {
-    /// Header configuration
+    /// Named preset to use as base (docs, blog, landing, api)
     ///
-    /// Configure the site header with logo, title, navigation tabs, and icon links.
-    pub header: Option<LayoutHeader>,
+    /// Presets provide sensible defaults that can be extended with explicit config.
+    pub preset: Option<LayoutPreset>,
 
-    /// Left sidebar configuration
+    /// Named component definitions for reuse
     ///
-    /// Can be a boolean to enable/disable, or a configuration object.
-    ///
-    /// **Default behavior** (not specified):
-    /// - Multi-page sites (2+ routes): auto-enabled with navigation
-    /// - Single-page sites (1 route): hidden (no navigation needed)
-    ///
-    /// **Explicit values**:
-    /// - `true` or `{ ... }`: Always show, even for single-page sites
-    /// - `false`: Always hide, even for multi-page sites
-    pub left_sidebar: Option<LayoutLeftSidebar>,
-
-    /// Right sidebar configuration
-    ///
-    /// Can be a boolean to enable/disable, or a configuration object.
-    ///
-    /// **Default behavior** (not specified):
-    /// - Documents with headings: auto-enabled with table of contents
-    /// - Documents without headings: hidden
-    ///
-    /// **Explicit values**:
-    /// - `true` or `{ ... }`: Always show (may be empty if no headings)
-    /// - `false`: Always hide, even if document has headings
-    pub right_sidebar: Option<LayoutRightSidebar>,
-
-    /// Enable prev/next page navigation
-    ///
-    /// When `true`, displays prev/next links at the bottom of the content area.
-    /// Defaults to `true` when left sidebar navigation is enabled.
-    pub page_nav: Option<bool>,
-
-    /// Footer configuration
-    ///
-    /// Configure the site footer with link groups, icon links, and copyright text.
-    pub footer: Option<LayoutFooter>,
-
-    /// Named navigation configurations
-    ///
-    /// Define reusable navigation trees that can be referenced by name
-    /// in sidebar configurations.
+    /// Define components once and reference them by name in regions.
     ///
     /// Example:
     /// ```toml
-    /// [site.layout.navs.api]
-    /// items = [
-    ///   "/api/getting-started/",
-    ///   { group = "Endpoints", children = ["/api/documents/", "/api/nodes/"] }
-    /// ]
+    /// [site.layout.components.main-nav]
+    /// type = "nav-tree"
+    /// collapsible = true
+    /// depth = 3
     /// ```
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
-    pub navs: HashMap<String, NavConfig>,
+    pub components: HashMap<String, ComponentConfig>,
+
+    /// Header region configuration
+    ///
+    /// Horizontal region at the top of the page.
+    pub header: Option<RegionSpec>,
+
+    /// Left sidebar region configuration
+    ///
+    /// Vertical region on the left side of the page.
+    /// Auto-enabled for multi-page sites when not specified.
+    pub left_sidebar: Option<RegionSpec>,
+
+    /// Top region configuration
+    ///
+    /// Horizontal region above the main content area.
+    pub top: Option<RegionSpec>,
+
+    /// Bottom region configuration
+    ///
+    /// Horizontal region below the main content area.
+    pub bottom: Option<RegionSpec>,
+
+    /// Right sidebar region configuration
+    ///
+    /// Vertical region on the right side of the page.
+    /// Auto-enabled when document has headings.
+    pub right_sidebar: Option<RegionSpec>,
+
+    /// Footer region configuration
+    ///
+    /// Horizontal region at the bottom of the page.
+    pub footer: Option<RegionSpec>,
 
     /// Route-specific layout overrides
     ///
-    /// Allows different layouts for specific routes using glob patterns.
-    /// Overrides are evaluated in array order; the first matching entry wins.
+    /// First matching override wins (order matters).
     ///
     /// Example:
     /// ```toml
     /// [[site.layout.overrides]]
     /// routes = ["/blog/**"]
     /// left-sidebar = false
-    ///
-    /// [[site.layout.overrides]]
-    /// routes = ["/api/**"]
-    /// left-sidebar = { nav = "api" }
     /// ```
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub overrides: Vec<LayoutOverride>,
 }
 
 impl SiteLayout {
-    /// Check if layout has any explicitly configured sections
-    pub fn has_any(&self) -> bool {
-        self.has_header()
-            || self.left_sidebar_explicit().is_some()
-            || self.right_sidebar_explicit().is_some()
-            || self.has_page_nav().is_some()
-            || self.has_footer()
-    }
-
-    /// Check if the header is enabled
-    pub fn has_header(&self) -> bool {
-        self.header.is_some()
-    }
-
-    /// Get the header configuration if enabled
-    pub fn header_config(&self) -> Option<&LayoutHeader> {
-        self.header.as_ref()
-    }
-
-    /// Get the explicit left sidebar setting
-    ///
-    /// Returns:
-    /// - `Some(true)` if explicitly enabled (`left-sidebar = true` or `{ config }`)
-    /// - `Some(false)` if explicitly disabled (`left-sidebar = false`)
-    /// - `None` if not specified (smart default applied at render time)
-    pub fn left_sidebar_explicit(&self) -> Option<bool> {
-        self.left_sidebar.as_ref().map(|s| s.is_enabled())
-    }
-
-    /// Get the explicit right sidebar setting
-    ///
-    /// Returns:
-    /// - `Some(true)` if explicitly enabled (`right-sidebar = true` or `{ config }`)
-    /// - `Some(false)` if explicitly disabled (`right-sidebar = false`)
-    /// - `None` if not specified (smart default applied at render time)
-    pub fn right_sidebar_explicit(&self) -> Option<bool> {
-        self.right_sidebar.as_ref().map(|s| s.is_enabled())
-    }
-
-    /// Get the left sidebar configuration if explicitly enabled
-    ///
-    /// Returns `None` when not specified. The actual config is determined
-    /// at render time based on route count (auto-enabled for multi-page sites).
-    pub fn left_sidebar_config(&self) -> Option<LeftSidebarConfig> {
-        match &self.left_sidebar {
-            None => None,
-            Some(LayoutLeftSidebar::Enabled(true)) => Some(LeftSidebarConfig::default()),
-            Some(LayoutLeftSidebar::Enabled(false)) => None,
-            Some(LayoutLeftSidebar::Config(config)) => Some(config.clone()),
+    /// Validate the layout configuration
+    pub fn validate(&self) -> eyre::Result<()> {
+        for (index, override_config) in self.overrides.iter().enumerate() {
+            override_config
+                .validate()
+                .map_err(|e| eyre::eyre!("Invalid layout override at index {}: {}", index, e))?;
         }
-    }
-
-    /// Get the right sidebar configuration if enabled
-    ///
-    /// Returns default config when enabled with boolean shorthand.
-    pub fn right_sidebar_config(&self) -> Option<RightSidebarConfig> {
-        match &self.right_sidebar {
-            None => None,
-            Some(LayoutRightSidebar::Enabled(false)) => None,
-            Some(LayoutRightSidebar::Enabled(true)) => Some(RightSidebarConfig::default()),
-            Some(LayoutRightSidebar::Config(config)) => Some(config.clone()),
-        }
-    }
-
-    /// Check if page navigation is explicitly enabled in config
-    ///
-    /// Returns `None` when not specified. The actual visibility is determined
-    /// at render time based on left sidebar visibility.
-    pub fn has_page_nav(&self) -> Option<bool> {
-        self.page_nav
-    }
-
-    /// Check if the footer is enabled
-    pub fn has_footer(&self) -> bool {
-        self.footer.is_some()
-    }
-
-    /// Get the footer configuration if enabled
-    pub fn footer_config(&self) -> Option<&LayoutFooter> {
-        self.footer.as_ref()
+        Ok(())
     }
 }
 
-/// Display style for color scheme switcher
-#[derive(Debug, Clone, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase")]
-pub enum ColorSchemeSwitcherStyle {
-    /// Sun/moon icon only (default)
+/// Named layout presets for common documentation patterns
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum LayoutPreset {
+    /// Documentation site: nav-tree left, toc-tree right, breadcrumbs, page-nav
     #[default]
-    Icon,
-    /// "Light"/"Dark" text label only
-    Label,
-    /// Icon and label
-    Both,
+    Docs,
+
+    /// Blog/article site: no left sidebar, toc-tree right, no page-nav
+    Blog,
+
+    /// Landing page: no sidebars, centered content
+    Landing,
+
+    /// API reference: nav-tree left (flat), no right sidebar
+    Api,
 }
 
-/// Color scheme switcher configuration
+/// Region specification that can be enabled/disabled or fully configured
 ///
-/// Controls whether a light/dark mode toggle is displayed.
-///
-/// Example:
-/// ```toml
-/// # Simple boolean
-/// [site.layout.footer]
-/// color-scheme-switcher = true
-///
-/// # With style configuration
-/// [site.layout.header.color-scheme-switcher]
-/// style = "both"
-/// ```
-#[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-pub struct ColorSchemeSwitcherConfig {
-    /// Display style for the switcher
-    #[serde(default)]
-    pub style: ColorSchemeSwitcherStyle,
-}
-
-/// Color scheme switcher option
-///
-/// Supports both boolean shorthand and full configuration:
-/// - `color-scheme-switcher = true` → Switcher with icon style (default)
-/// - `color-scheme-switcher = false` → Switcher disabled
-/// - `color-scheme-switcher = { style = "both" }` → Full configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+/// Supports boolean shorthand and full configuration:
+/// - `region = false` → Region disabled
+/// - `region = true` → Region with smart defaults
+/// - `region = { start = [...], middle = [...] }` → Full configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(untagged)]
-pub enum LayoutColorSchemeSwitcher {
-    /// Boolean shorthand for enable/disable
+pub enum RegionSpec {
+    /// Boolean: false = disabled, true = use smart defaults
     Enabled(bool),
-    /// Full configuration
-    Config(ColorSchemeSwitcherConfig),
+
+    /// Full configuration with sub-regions
+    Config(RegionConfig),
 }
 
-impl Default for LayoutColorSchemeSwitcher {
+impl Default for RegionSpec {
     fn default() -> Self {
         Self::Enabled(true)
     }
 }
 
-impl LayoutColorSchemeSwitcher {
-    /// Check if the switcher is enabled
+impl RegionSpec {
+    /// Check if the region is enabled
     pub fn is_enabled(&self) -> bool {
         match self {
             Self::Enabled(enabled) => *enabled,
-            Self::Config(_) => true,
+            Self::Config(config) => config.enabled.unwrap_or(true),
         }
     }
 
-    /// Get the style configuration
-    pub fn style(&self) -> ColorSchemeSwitcherStyle {
+    /// Get the configuration if this is a Config variant
+    pub fn config(&self) -> Option<&RegionConfig> {
         match self {
-            Self::Enabled(_) => ColorSchemeSwitcherStyle::default(),
-            Self::Config(config) => config.style.clone(),
+            Self::Config(config) => Some(config),
+            Self::Enabled(_) => None,
         }
     }
 }
 
-/// Header configuration
+/// Region with sub-regions (start, middle, end)
 ///
-/// Controls the site header appearance including logo, title, navigation links,
-/// and icon links.
-///
-/// Example:
-/// ```toml
-/// [site.layout.header]
-/// logo = "images/logo.svg"
-/// title = "My Site"
-///
-/// [[site.layout.header.links]]
-/// label = "Docs"
-/// target = "/docs/"
-///
-/// [[site.layout.header.icons]]
-/// icon = "github"
-/// target = "https://github.com/example/repo"
-/// ```
+/// All sub-regions are Option:
+/// - None = inherit from base/defaults
+/// - Some([]) = explicitly empty
+/// - Some([...]) = these components
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
-pub struct LayoutHeader {
-    /// Path to logo image (relative to site root)
-    pub logo: Option<String>,
+pub struct RegionConfig {
+    /// Explicit enable/disable (for use in overrides that also set sub-regions)
+    pub enabled: Option<bool>,
 
-    /// Site title displayed in header
-    pub title: Option<String>,
+    /// Components in the start sub-region (left for horizontal, top for vertical)
+    #[serde(default, deserialize_with = "deserialize_component_list")]
+    pub start: Option<Vec<ComponentSpec>>,
 
-    /// Navigation top-level links
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub links: Vec<TextLink>,
+    /// Components in the middle sub-region (center)
+    #[serde(default, deserialize_with = "deserialize_component_list")]
+    pub middle: Option<Vec<ComponentSpec>>,
 
-    /// Icon links (e.g., GitHub, Discord)
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub icons: Vec<IconLink>,
-
-    /// Color scheme (light/dark) switcher
-    ///
-    /// Disabled by default in header. Set to `true` or config object to enable.
-    pub color_scheme_switcher: Option<LayoutColorSchemeSwitcher>,
+    /// Components in the end sub-region (right for horizontal, bottom for vertical)
+    #[serde(default, deserialize_with = "deserialize_component_list")]
+    pub end: Option<Vec<ComponentSpec>>,
 }
 
-/// Footer configuration
+/// Custom deserializer that accepts a single component or array of components
+fn deserialize_component_list<'de, D>(
+    deserializer: D,
+) -> Result<Option<Vec<ComponentSpec>>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{self, SeqAccess, Visitor};
+
+    struct ComponentListVisitor;
+
+    impl<'de> Visitor<'de> for ComponentListVisitor {
+        type Value = Option<Vec<ComponentSpec>>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("null, a string, an object, or an array of components")
+        }
+
+        fn visit_none<E>(self) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            Ok(None)
+        }
+
+        fn visit_unit<E>(self) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            Ok(None)
+        }
+
+        fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            Ok(Some(vec![ComponentSpec::Name(value.to_string())]))
+        }
+
+        fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            Ok(Some(vec![ComponentSpec::Name(value)]))
+        }
+
+        fn visit_map<M>(self, map: M) -> Result<Self::Value, M::Error>
+        where
+            M: de::MapAccess<'de>,
+        {
+            let component = ComponentSpec::deserialize(de::value::MapAccessDeserializer::new(map))?;
+            Ok(Some(vec![component]))
+        }
+
+        fn visit_seq<S>(self, mut seq: S) -> Result<Self::Value, S::Error>
+        where
+            S: SeqAccess<'de>,
+        {
+            let mut components = Vec::new();
+            while let Some(component) = seq.next_element::<ComponentSpec>()? {
+                components.push(component);
+            }
+            Ok(Some(components))
+        }
+    }
+
+    deserializer.deserialize_any(ComponentListVisitor)
+}
+
+/// Component specification: string name or full configuration
 ///
-/// Controls the site footer appearance with link groups, icon links,
-/// and copyright text.
+/// Resolution order for string names:
+/// 1. Check site.layout.components for named component
+/// 2. Fall back to built-in component type
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum ComponentSpec {
+    /// Simple type name: "logo" or named component: "main-nav"
+    Name(String),
+
+    /// Full config with optional condition
+    Config(ComponentWithCondition),
+}
+
+/// Wrapper that adds optional `if` condition to any component
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct ComponentWithCondition {
+    /// Condition for showing this component
+    ///
+    /// Supported conditions:
+    /// - `site.search.enabled` - Search feature is configured
+    /// - `document.headings` - Current document has headings
+    /// - `site.multi-page` - Site has multiple pages
+    #[serde(rename = "if")]
+    pub condition: Option<String>,
+
+    /// The component configuration
+    #[serde(flatten)]
+    pub component: ComponentConfig,
+}
+
+/// Component configuration (internally tagged by type)
 ///
-/// Example:
+/// All fields are Option - bare string usage gets defaults from site config
+/// at resolution time.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(tag = "type", rename_all = "kebab-case")]
+pub enum ComponentConfig {
+    /// Site logo image
+    Logo {
+        /// Path to logo image (relative to site root)
+        src: Option<String>,
+
+        /// Link target when logo is clicked (default: "/")
+        link: Option<String>,
+    },
+
+    /// Site title text
+    Title {
+        /// Title text (defaults to site.title)
+        text: Option<String>,
+    },
+
+    /// Breadcrumb navigation trail
+    Breadcrumbs,
+
+    /// Hierarchical navigation tree
+    NavTree {
+        /// Specific items to show (defaults to auto-generated from site structure)
+        items: Option<Vec<NavTreeItem>>,
+
+        /// Whether groups are collapsible (default: true)
+        collapsible: Option<bool>,
+
+        /// Maximum depth (default: 3)
+        depth: Option<u8>,
+    },
+
+    /// Table of contents tree from document headings
+    TocTree {
+        /// Title above the TOC (default: "On this page")
+        title: Option<String>,
+
+        /// Maximum heading depth (default: 3)
+        depth: Option<u8>,
+    },
+
+    /// Previous/next page navigation links
+    PageNav,
+
+    /// Light/dark mode toggle
+    ColorMode {
+        /// Display style (default: icon)
+        style: Option<ColorModeStyle>,
+    },
+
+    /// Copyright text
+    Copyright {
+        /// Copyright text (defaults to site.copyright)
+        text: Option<String>,
+    },
+}
+
+/// Navigation tree item for explicit nav configuration
+///
+/// Used in `NavTree.items` to explicitly define navigation structure instead of
+/// auto-generating from the file system. This gives full control over ordering,
+/// labels, grouping, and which pages appear in navigation.
+///
+/// ## Variants
+///
+/// ### Route (string shorthand)
+/// 
+/// A simple route path. The label is derived from the route (e.g., "/docs/guide/"
+/// becomes "Guide"). Use this for quick references to existing pages:
 /// ```toml
-/// [site.layout.footer]
-/// copyright = "© 2024 Stencila Inc."
+/// items = ["/docs/", "/docs/getting-started/", "/docs/guide/"]
+/// ```
 ///
-/// [[site.layout.footer.groups]]
-/// title = "Product"
-/// links = [
-///   { label = "Features", target = "/features/" },
-///   { label = "Pricing", target = "/pricing/" },
+/// ### Link (object with label)
+/// 
+/// Explicit label and target. Use when you need a custom label or linking to
+/// external URLs:
+/// ```toml
+/// items = [
+///   { label = "Getting Started", target = "/docs/getting-started/" },
+///   { label = "GitHub", target = "https://github.com/example", icon = "github" }
 /// ]
-///
-/// [[site.layout.footer.icons]]
-/// icon = "github"
-/// target = "https://github.com/stencila/stencila"
 /// ```
-#[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
-pub struct LayoutFooter {
-    /// Groups of links displayed in columns
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub groups: Vec<FooterGroup>,
-
-    /// Icon links (e.g., social media)
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub icons: Vec<IconLink>,
-
-    /// Copyright text displayed at the bottom
-    pub copyright: Option<String>,
-
-    /// Color scheme (light/dark) switcher
-    ///
-    /// Enabled by default in footer (with icon style). Set to `false` to disable,
-    /// or provide a config object to customize the style.
-    pub color_scheme_switcher: Option<LayoutColorSchemeSwitcher>,
-}
-
-/// A group of links in the footer
 ///
-/// Displayed as a column with a title and list of links.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-pub struct FooterGroup {
-    /// Group title displayed above the links
-    pub title: String,
-
-    /// Links in this group
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub links: Vec<TextLink>,
-}
-
-/// A text link (used in header tabs and footer groups)
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-pub struct TextLink {
-    /// Display label for the link
-    pub label: String,
-
-    /// URL to link to
-    pub target: String,
-}
-
-/// An icon link (used in header and footer)
-#[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-pub struct IconLink {
-    /// Icon name (Lucide icon name, e.g., "github", "discord")
-    pub icon: String,
-
-    /// URL to link to
-    pub target: String,
-
-    /// Accessible label (used for aria-label and tooltip)
-    pub label: Option<String>,
-}
-
-/// Left sidebar configuration
+/// ### Group (object with children)
 ///
-/// Supports both boolean shorthand and full configuration:
-/// - `left-sidebar = false` → Sidebar disabled
-/// - `left-sidebar = true` → Sidebar with auto navigation
-/// - `left-sidebar = { nav = "api" }` → Sidebar with named navigation
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+/// A collapsible group containing nested items. The group header can optionally link
+/// to a page, or just act as an expand/collapse toggle:
+/// ```toml
+/// items = [
+///   # Group with clickable header linking to /docs/
+///   { label = "Guides", target = "/docs/", children = [
+///     "/docs/installation/",
+///     "/docs/configuration/"
+///   ]},
+///   # Group without target - header only expands/collapses
+///   { label = "Community", children = [
+///     { label = "Discord", target = "https://discord.gg/example", icon = "message-circle" },
+///     { label = "GitHub", target = "https://github.com/example", icon = "github" }
+///   ]}
+/// ]
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(untagged)]
-pub enum LayoutLeftSidebar {
-    /// Boolean shorthand for enable/disable
-    Enabled(bool),
-    /// Full sidebar configuration
-    Config(LeftSidebarConfig),
+pub enum NavTreeItem {
+    /// Route path shorthand - label derived from route
+    ///
+    /// Example: `"/docs/guide/"` → label "Guide", href "/docs/guide/"
+    Route(String),
+
+    /// Link with explicit label and optional icon
+    ///
+    /// Use for custom labels or external links.
+    Link {
+        /// Display text for the navigation item
+        label: String,
+
+        /// URL or route path to link to
+        target: String,
+
+        /// Optional icon name (e.g., "github", "book", "settings")
+        icon: Option<String>,
+    },
+
+    /// Collapsible group with nested children
+    ///
+    /// Groups can optionally link to a page (making the header clickable).
+    /// If `target` is omitted, the header just expands/collapses the children.
+    Group {
+        /// Display text for the group header
+        label: String,
+
+        /// Optional URL or route path for the group header link
+        ///
+        /// When set, clicking the group header navigates to this page.
+        /// When omitted, the header only toggles expand/collapse.
+        target: Option<String>,
+
+        /// Optional icon name
+        icon: Option<String>,
+
+        /// Nested navigation items (can include routes, links, or more groups)
+        children: Vec<NavTreeItem>,
+    },
 }
 
-impl LayoutLeftSidebar {
-    /// Check if the sidebar is enabled
-    pub fn is_enabled(&self) -> bool {
-        match self {
-            LayoutLeftSidebar::Enabled(enabled) => *enabled,
-            LayoutLeftSidebar::Config(_) => true,
-        }
-    }
+/// Display style for color mode switcher
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum ColorModeStyle {
+    /// Sun/moon icon only (default)
+    #[default]
+    Icon,
+    
+    /// "Light"/"Dark" text label only
+    Label,
 
-    /// Get the configuration if this is a Config variant
-    pub fn config(&self) -> Option<&LeftSidebarConfig> {
-        match self {
-            LayoutLeftSidebar::Config(config) => Some(config),
-            LayoutLeftSidebar::Enabled(_) => None,
-        }
-    }
-}
-
-/// Sidebar configuration options
-#[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
-pub struct LeftSidebarConfig {
-    /// Navigation source
-    ///
-    /// - `"auto"` - Auto-generate navigation from file structure (default)
-    /// - Any other value - Use a named navigation config from `site.layout.navs`
-    pub nav: Option<String>,
-
-    /// Maximum depth for auto-generated navigation
-    ///
-    /// Only applies when `nav = "auto"`. Limits how deep the navigation
-    /// tree will go. Default is 5.
-    pub depth: Option<u8>,
-
-    /// Whether navigation groups are collapsible
-    ///
-    /// When `true` (default), groups can be expanded/collapsed.
-    /// When `false`, all groups are always expanded.
-    pub collapsible: Option<bool>,
-
-    /// Initial expansion depth for navigation groups
-    ///
-    /// Controls how many levels of navigation are expanded by default:
-    /// - `0` - All groups start collapsed (only groups with active page are expanded)
-    /// - `1` - Top-level groups expanded
-    /// - `2` - Two levels expanded
-    /// - etc.
-    ///
-    /// Default is to expand all levels. The client-side component may persist
-    /// user preferences in local storage, overriding this on subsequent visits.
-    pub expanded: Option<u8>,
-}
-
-/// Right sidebar configuration
-///
-/// Supports both boolean shorthand and full configuration:
-/// - `right-sidebar = false` → Sidebar disabled
-/// - `right-sidebar = true` → Sidebar with headings (default content)
-/// - `right-sidebar = { content = "headings", depth = 3 }` → Full configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(untagged)]
-pub enum LayoutRightSidebar {
-    /// Boolean shorthand for enable/disable
-    Enabled(bool),
-    /// Full sidebar configuration
-    Config(RightSidebarConfig),
-}
-
-impl LayoutRightSidebar {
-    /// Check if the sidebar is enabled
-    pub fn is_enabled(&self) -> bool {
-        match self {
-            LayoutRightSidebar::Enabled(enabled) => *enabled,
-            LayoutRightSidebar::Config(_) => true,
-        }
-    }
-
-    /// Get the configuration if this is a Config variant
-    pub fn config(&self) -> Option<&RightSidebarConfig> {
-        match self {
-            LayoutRightSidebar::Config(config) => Some(config),
-            LayoutRightSidebar::Enabled(_) => None,
-        }
-    }
-}
-
-/// Right sidebar configuration options
-#[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
-pub struct RightSidebarConfig {
-    /// Content type for the right sidebar
-    ///
-    /// - `"headings"` - Display document headings as table of contents (default)
-    /// - Future: other content types may be added
-    pub content: Option<String>,
-
-    /// Title displayed above the content
-    ///
-    /// Default: "On this page" for headings content
-    pub title: Option<String>,
-
-    /// Maximum heading depth to include (1-6)
-    ///
-    /// Only applies when `content = "headings"`. Limits how deep the heading
-    /// tree will go. Default is 3 (h1, h2, h3).
-    pub depth: Option<u8>,
+    /// Icon and label
+    Both,
 }
 
 /// Route-specific layout override
 ///
-/// Allows different layout settings for specific routes using glob patterns.
-/// The first matching override wins (order matters in the array).
+/// First matching override wins (order matters in the array).
 ///
 /// Example:
 /// ```toml
-/// # Blog pages: no left sidebar
 /// [[site.layout.overrides]]
 /// routes = ["/blog/**"]
 /// left-sidebar = false
-/// page-nav = false
+/// bottom = false
 ///
-/// # API docs: use named nav
 /// [[site.layout.overrides]]
 /// routes = ["/api/**"]
-/// left-sidebar = { nav = "api" }
+/// left-sidebar.middle = "api-nav"
+/// right-sidebar = false
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
 pub struct LayoutOverride {
-    /// Glob patterns for routes this override applies to
+    /// Glob patterns for routes this override applies to (required, non-empty)
     ///
     /// Examples: `["/blog/**"]`, `["/docs/api/**", "/api/**"]`
-    /// First matching override wins.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub routes: Vec<String>,
 
-    /// Header configuration override
-    ///
-    /// Use `false` to hide header, or provide config to replace it.
-    pub header: Option<LayoutHeaderOverride>,
+    /// Header region override
+    pub header: Option<RegionSpec>,
 
-    /// Left sidebar configuration override
-    ///
-    /// Use `false` to disable, `true` for auto nav, or config object.
-    pub left_sidebar: Option<LayoutLeftSidebar>,
+    /// Left sidebar region override
+    pub left_sidebar: Option<RegionSpec>,
 
-    /// Right sidebar configuration override
-    ///
-    /// Use `false` to disable, `true` for default headings, or config object.
-    pub right_sidebar: Option<LayoutRightSidebar>,
+    /// Top region override
+    pub top: Option<RegionSpec>,
 
-    /// Footer configuration override
-    ///
-    /// Use `false` to hide footer, or provide config to replace it.
-    pub footer: Option<LayoutFooterOverride>,
+    /// Bottom region override
+    pub bottom: Option<RegionSpec>,
 
-    /// Page navigation override
-    ///
-    /// Use `false` to disable prev/next links.
-    pub page_nav: Option<bool>,
+    /// Right sidebar region override
+    pub right_sidebar: Option<RegionSpec>,
+
+    /// Footer region override
+    pub footer: Option<RegionSpec>,
 }
 
-/// Header override - can be disabled or replaced
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(untagged)]
-pub enum LayoutHeaderOverride {
-    /// Disable header with `false`
-    Enabled(bool),
-    /// Replace header with config
-    Config(LayoutHeader),
-}
-
-/// Footer override - can be disabled or replaced
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(untagged)]
-pub enum LayoutFooterOverride {
-    /// Disable footer with `false`
-    Enabled(bool),
-    /// Replace footer with config
-    Config(LayoutFooter),
-}
-
-/// Named navigation configuration
-///
-/// Defines a navigation tree that can be referenced by name.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-pub struct NavConfig {
-    /// Navigation items in this configuration
-    pub items: Vec<NavItem>,
-}
-
-/// A navigation item
-///
-/// Can be:
-/// - A route string (e.g., `"/docs/intro/"`)
-/// - A link with label and target URL
-/// - A group with children
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(untagged)]
-pub enum NavItem {
-    /// A route path - label will be derived from the route
-    Route(String),
-
-    /// A link with explicit label
-    Link {
-        /// Display label for the link
-        label: String,
-        /// URL to link to
-        target: String,
-        /// Optional icon name (Lucide icon)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        icon: Option<String>,
-    },
-
-    /// A group of navigation items
-    Group {
-        /// Group title/label
-        group: String,
-        /// Child navigation items
-        children: Vec<NavItem>,
-    },
+impl LayoutOverride {
+    /// Validate the layout override configuration
+    pub fn validate(&self) -> eyre::Result<()> {
+        if self.routes.is_empty() {
+            eyre::bail!(
+                "Layout override must have at least one route pattern in `routes`. \
+                 An override with empty routes would never match any page."
+            );
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use eyre::{OptionExt, Result};
+    use eyre::Result;
 
     use super::*;
 
     #[test]
-    fn test_header_config() -> Result<()> {
-        let toml = r#"
-            [header]
-            logo = "images/logo.svg"
-            title = "My Site"
-
-            [[header.links]]
-            label = "Docs"
-            target = "/docs/"
-
-            [[header.links]]
-            label = "API"
-            target = "/api/"
-
-            [[header.icons]]
-            icon = "github"
-            target = "https://github.com/example/repo"
-            label = "GitHub"
-        "#;
+    fn test_preset_parsing() -> Result<()> {
+        let toml = r#"preset = "docs""#;
         let layout: SiteLayout = toml::from_str(toml)?;
+        assert_eq!(layout.preset, Some(LayoutPreset::Docs));
 
-        assert!(layout.has_header());
-        let header = layout.header_config().expect("header should be present");
-        assert_eq!(header.logo, Some("images/logo.svg".to_string()));
-        assert_eq!(header.title, Some("My Site".to_string()));
-        assert_eq!(header.links.len(), 2);
-        assert_eq!(header.links[0].label, "Docs");
-        assert_eq!(header.links[0].target, "/docs/");
-        assert_eq!(header.icons.len(), 1);
-        assert_eq!(header.icons[0].icon, "github");
-        assert_eq!(header.icons[0].label, Some("GitHub".to_string()));
+        let toml = r#"preset = "blog""#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+        assert_eq!(layout.preset, Some(LayoutPreset::Blog));
+
+        let toml = r#"preset = "landing""#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+        assert_eq!(layout.preset, Some(LayoutPreset::Landing));
+
+        let toml = r#"preset = "api""#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+        assert_eq!(layout.preset, Some(LayoutPreset::Api));
 
         Ok(())
     }
 
     #[test]
-    fn test_header_minimal() -> Result<()> {
-        let toml = r#"
-            [header]
-            title = "Simple Site"
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        assert!(layout.has_header());
-        let header = layout.header_config().expect("header should be present");
-        assert_eq!(header.logo, None);
-        assert_eq!(header.title, Some("Simple Site".to_string()));
-        assert!(header.links.is_empty());
-        assert!(header.icons.is_empty());
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_no_header() -> Result<()> {
-        let toml = r#"
-            left-sidebar = true
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        assert!(!layout.has_header());
-        assert!(layout.header_config().is_none());
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_layout_sidebar_bool() -> Result<()> {
+    fn test_region_bool() -> Result<()> {
         let toml = r#"left-sidebar = true"#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert_eq!(layout.left_sidebar_explicit(), Some(true));
-        assert!(layout.left_sidebar_config().is_some());
+        assert!(matches!(
+            layout.left_sidebar,
+            Some(RegionSpec::Enabled(true))
+        ));
 
         let toml = r#"left-sidebar = false"#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert_eq!(layout.left_sidebar_explicit(), Some(false));
-        assert!(layout.left_sidebar_config().is_none());
-
-        // Not specified - should return None (smart default)
-        let layout = SiteLayout::default();
-        assert_eq!(layout.left_sidebar_explicit(), None);
-        assert!(layout.left_sidebar_config().is_none());
+        assert!(matches!(
+            layout.left_sidebar,
+            Some(RegionSpec::Enabled(false))
+        ));
 
         Ok(())
     }
 
     #[test]
-    fn test_layout_sidebar_config() -> Result<()> {
+    fn test_region_config_string() -> Result<()> {
         let toml = r#"
-            [left-sidebar]
-            nav = "auto"
-            collapsible = true
-            depth = 2
+            [header]
+            start = "logo"
         "#;
         let layout: SiteLayout = toml::from_str(toml)?;
-        assert_eq!(layout.left_sidebar_explicit(), Some(true));
 
-        let config = layout
-            .left_sidebar_config()
-            .ok_or_eyre("expected left sidebar")?;
-        assert_eq!(config.nav, Some("auto".to_string()));
-        assert_eq!(config.collapsible, Some(true));
-        assert_eq!(config.depth, Some(2));
+        let header = layout.header.expect("header should be present");
+        let config = header.config().expect("should be config");
+        assert_eq!(config.start.as_ref().map(|v| v.len()), Some(1));
+        let start = config.start.as_ref().expect("start should be present");
+        assert!(matches!(&start[0], ComponentSpec::Name(n) if n == "logo"));
 
         Ok(())
     }
 
     #[test]
-    fn test_nav_item_route() -> Result<()> {
-        let toml = r#"items = ["/docs/intro/", "/docs/guide/"]"#;
-        let config: NavConfig = toml::from_str(toml)?;
-        assert_eq!(config.items.len(), 2);
-        assert!(matches!(&config.items[0], NavItem::Route(r) if r == "/docs/intro/"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_nav_item_link() -> Result<()> {
-        let toml = r#"items = [{ label = "Home", target = "/" }]"#;
-        let config: NavConfig = toml::from_str(toml)?;
-        assert_eq!(config.items.len(), 1);
-        assert!(
-            matches!(&config.items[0], NavItem::Link { label, target, .. } if label == "Home" && target == "/")
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_nav_item_group() -> Result<()> {
+    fn test_region_config_array() -> Result<()> {
         let toml = r#"
-            [[items]]
-            group = "Getting Started"
-            children = ["/docs/install/", "/docs/quickstart/"]
+            [header]
+            end = ["icon-links", "color-mode"]
         "#;
-        let config: NavConfig = toml::from_str(toml)?;
-        assert_eq!(config.items.len(), 1);
-        if let NavItem::Group { group, children } = &config.items[0] {
-            assert_eq!(group, "Getting Started");
-            assert_eq!(children.len(), 2);
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        let header = layout.header.expect("header should be present");
+        let config = header.config().expect("should be config");
+        let end = config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "icon-links"));
+        assert!(matches!(&end[1], ComponentSpec::Name(n) if n == "color-mode"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_region_config_object() -> Result<()> {
+        let toml = r#"
+            [header]
+            middle = { type = "logo" }
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        let header = layout.header.expect("header should be present");
+        let config = header.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+        assert_eq!(middle.len(), 1);
+        assert!(matches!(
+            &middle[0],
+            ComponentSpec::Config(c) if matches!(c.component, ComponentConfig::Logo { .. })
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_component_with_condition() -> Result<()> {
+        let toml = r#"
+            [right-sidebar]
+            start = [{ type = "toc-tree", if = "document.headings" }]
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        let sidebar = layout
+            .right_sidebar
+            .expect("right-sidebar should be present");
+        let config = sidebar.config().expect("should be config");
+        let start = config.start.as_ref().expect("start should be present");
+        assert_eq!(start.len(), 1);
+
+        if let ComponentSpec::Config(c) = &start[0] {
+            assert_eq!(c.condition, Some("document.headings".to_string()));
+            assert!(matches!(c.component, ComponentConfig::TocTree { .. }));
         } else {
-            panic!("Expected Group variant");
+            panic!("Expected ComponentSpec::Config");
         }
 
         Ok(())
     }
 
     #[test]
-    fn test_named_navs() -> Result<()> {
+    fn test_named_components() -> Result<()> {
         let toml = r#"
-            [navs.api]
-            items = ["/api/intro/"]
+            [components.main-nav]
+            type = "nav-tree"
+            collapsible = true
+            depth = 3
 
-            [navs.docs]
-            items = ["/docs/intro/"]
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-        assert!(!layout.navs.is_empty());
-        assert!(layout.navs.contains_key("api"));
-        assert!(layout.navs.contains_key("docs"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_footer_config() -> Result<()> {
-        let toml = r#"
-            [footer]
-            copyright = "© 2024 Stencila Inc."
-
-            [[footer.groups]]
-            title = "Product"
-            links = [
-                { label = "Features", target = "/features/" },
-                { label = "Pricing", target = "/pricing/" },
-            ]
-
-            [[footer.groups]]
-            title = "Resources"
-            links = [
-                { label = "Documentation", target = "/docs/" },
-            ]
-
-            [[footer.icons]]
-            icon = "github"
-            target = "https://github.com/stencila/stencila"
-            label = "GitHub"
+            [left-sidebar]
+            middle = "main-nav"
         "#;
         let layout: SiteLayout = toml::from_str(toml)?;
 
-        assert!(layout.has_footer());
-        let footer = layout.footer_config().expect("footer should be present");
-        assert_eq!(footer.copyright, Some("© 2024 Stencila Inc.".to_string()));
-        assert_eq!(footer.groups.len(), 2);
-        assert_eq!(footer.groups[0].title, "Product");
-        assert_eq!(footer.groups[0].links.len(), 2);
-        assert_eq!(footer.groups[0].links[0].label, "Features");
-        assert_eq!(footer.groups[1].title, "Resources");
-        assert_eq!(footer.icons.len(), 1);
-        assert_eq!(footer.icons[0].icon, "github");
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_footer_minimal() -> Result<()> {
-        let toml = r#"
-            [footer]
-            copyright = "© 2024"
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        assert!(layout.has_footer());
-        let footer = layout.footer_config().expect("footer should be present");
-        assert_eq!(footer.copyright, Some("© 2024".to_string()));
-        assert!(footer.groups.is_empty());
-        assert!(footer.icons.is_empty());
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_no_footer() -> Result<()> {
-        let toml = r#"
-            left-sidebar = true
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        assert!(!layout.has_footer());
-        assert!(layout.footer_config().is_none());
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_page_nav_default() -> Result<()> {
-        // Defaults to None (smart default applied at render time)
-        let layout = SiteLayout::default();
-        assert_eq!(layout.has_page_nav(), None);
-
-        // Explicit false
-        let toml = r#"page-nav = false"#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-        assert_eq!(layout.has_page_nav(), Some(false));
-
-        // Explicit true
-        let toml = r#"page-nav = true"#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-        assert_eq!(layout.has_page_nav(), Some(true));
+        assert!(layout.components.contains_key("main-nav"));
+        if let ComponentConfig::NavTree {
+            collapsible, depth, ..
+        } = &layout.components["main-nav"]
+        {
+            assert_eq!(*collapsible, Some(true));
+            assert_eq!(*depth, Some(3));
+        } else {
+            panic!("Expected NavTree component");
+        }
 
         Ok(())
     }
@@ -899,7 +700,7 @@ mod tests {
             [[overrides]]
             routes = ["/blog/**"]
             left-sidebar = false
-            page-nav = false
+            bottom = false
         "#;
         let layout: SiteLayout = toml::from_str(toml)?;
 
@@ -907,140 +708,176 @@ mod tests {
         assert_eq!(layout.overrides[0].routes, vec!["/blog/**"]);
         assert!(matches!(
             layout.overrides[0].left_sidebar,
-            Some(LayoutLeftSidebar::Enabled(false))
+            Some(RegionSpec::Enabled(false))
         ));
-        assert_eq!(layout.overrides[0].page_nav, Some(false));
+        assert!(matches!(
+            layout.overrides[0].bottom,
+            Some(RegionSpec::Enabled(false))
+        ));
 
         Ok(())
     }
 
     #[test]
-    fn test_override_with_sidebar_config() -> Result<()> {
+    fn test_override_with_subregion() -> Result<()> {
         let toml = r#"
             [[overrides]]
             routes = ["/api/**"]
-            [overrides.left-sidebar]
-            nav = "api"
-            collapsible = false
+            right-sidebar = false
+            left-sidebar.middle = "api-nav"
         "#;
         let layout: SiteLayout = toml::from_str(toml)?;
 
         assert_eq!(layout.overrides.len(), 1);
-        if let Some(LayoutLeftSidebar::Config(config)) = &layout.overrides[0].left_sidebar {
-            assert_eq!(config.nav, Some("api".to_string()));
-            assert_eq!(config.collapsible, Some(false));
-        } else {
-            panic!("Expected LayoutSidebar::Config");
-        }
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_override_header_disabled() -> Result<()> {
-        let toml = r#"
-            [[overrides]]
-            routes = ["/landing/**"]
-            header = false
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        assert!(matches!(
-            layout.overrides[0].header,
-            Some(LayoutHeaderOverride::Enabled(false))
-        ));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_override_header_replaced() -> Result<()> {
-        let toml = r#"
-            [[overrides]]
-            routes = ["/blog/**"]
-            [overrides.header]
-            logo = "blog-logo.svg"
-            title = "Blog"
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        if let Some(LayoutHeaderOverride::Config(header)) = &layout.overrides[0].header {
-            assert_eq!(header.logo, Some("blog-logo.svg".to_string()));
-            assert_eq!(header.title, Some("Blog".to_string()));
-        } else {
-            panic!("Expected LayoutHeaderOverride::Config");
-        }
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_override_footer_disabled() -> Result<()> {
-        let toml = r#"
-            [[overrides]]
-            routes = ["/embed/**"]
-            footer = false
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        assert!(matches!(
-            layout.overrides[0].footer,
-            Some(LayoutFooterOverride::Enabled(false))
-        ));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_multiple_overrides() -> Result<()> {
-        let toml = r#"
-            [[overrides]]
-            routes = ["/docs/api/**"]
-            right-sidebar = true
-
-            [[overrides]]
-            routes = ["/docs/**"]
-            right-sidebar = false
-
-            [[overrides]]
-            routes = ["/blog/**"]
-            left-sidebar = false
-        "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
-
-        assert_eq!(layout.overrides.len(), 3);
-        assert_eq!(layout.overrides[0].routes, vec!["/docs/api/**"]);
         assert!(matches!(
             layout.overrides[0].right_sidebar,
-            Some(LayoutRightSidebar::Enabled(true))
+            Some(RegionSpec::Enabled(false))
         ));
-        assert_eq!(layout.overrides[1].routes, vec!["/docs/**"]);
-        assert!(matches!(
-            layout.overrides[1].right_sidebar,
-            Some(LayoutRightSidebar::Enabled(false))
-        ));
-        assert_eq!(layout.overrides[2].routes, vec!["/blog/**"]);
-        assert!(matches!(
-            layout.overrides[2].left_sidebar,
-            Some(LayoutLeftSidebar::Enabled(false))
-        ));
+
+        if let Some(RegionSpec::Config(config)) = &layout.overrides[0].left_sidebar {
+            let middle = config.middle.as_ref().expect("middle should be present");
+            assert!(matches!(&middle[0], ComponentSpec::Name(n) if n == "api-nav"));
+        } else {
+            panic!("Expected RegionSpec::Config for left-sidebar");
+        }
 
         Ok(())
     }
 
     #[test]
-    fn test_override_multiple_routes() -> Result<()> {
+    fn test_full_example() -> Result<()> {
         let toml = r#"
+            preset = "docs"
+
+            [components.api-nav]
+            type = "nav-tree"
+            collapsible = false
+
+            [header]
+            start = "logo"
+            middle = []
+            end = ["color-mode"]
+
+            [left-sidebar]
+            middle = { type = "nav-tree", collapsible = true }
+
+            [top]
+            start = "breadcrumbs"
+
+            [bottom]
+            middle = "page-nav"
+
+            [right-sidebar]
+            start = { type = "toc-tree", title = "On this page", depth = 3 }
+
+            [footer]
+            start = { type = "copyright" }
+            end = ["color-mode"]
+
             [[overrides]]
-            routes = ["/landing/", "/home/"]
+            routes = ["/blog/**"]
             left-sidebar = false
-            header = false
+            bottom = false
+
+            [[overrides]]
+            routes = ["/api/**"]
+            left-sidebar.middle = "api-nav"
+            right-sidebar = false
         "#;
         let layout: SiteLayout = toml::from_str(toml)?;
 
-        assert_eq!(layout.overrides[0].routes.len(), 2);
-        assert_eq!(layout.overrides[0].routes[0], "/landing/");
-        assert_eq!(layout.overrides[0].routes[1], "/home/");
+        assert_eq!(layout.preset, Some(LayoutPreset::Docs));
+        assert!(layout.components.contains_key("api-nav"));
+        assert!(layout.header.is_some());
+        assert!(layout.left_sidebar.is_some());
+        assert!(layout.top.is_some());
+        assert!(layout.bottom.is_some());
+        assert!(layout.right_sidebar.is_some());
+        assert!(layout.footer.is_some());
+        assert_eq!(layout.overrides.len(), 2);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_component_types() -> Result<()> {
+        // Test all component types can be parsed
+        let components = vec![
+            r#"type = "logo""#,
+            r#"type = "title""#,
+            r#"type = "nav-tree""#,
+            r#"type = "toc-tree""#,
+            r#"type = "breadcrumbs""#,
+            r#"type = "page-nav""#,
+            r#"type = "color-mode""#,
+            r#"type = "copyright""#,
+        ];
+
+        for component_toml in components {
+            let _: ComponentConfig = toml::from_str(component_toml)?;
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_override_empty_routes_validation() {
+        // An override with empty routes should fail validation
+        let layout = SiteLayout {
+            overrides: vec![LayoutOverride {
+                routes: vec![], // Empty routes
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        let result = layout.validate();
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("at least one route pattern"),
+            "Error message should mention missing routes: {err_msg}"
+        );
+    }
+
+    #[test]
+    fn test_override_with_routes_validation() -> Result<()> {
+        // An override with routes should pass validation
+        let layout = SiteLayout {
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        layout.validate()?;
+        Ok(())
+    }
+
+    #[test]
+    fn test_color_mode_style() -> Result<()> {
+        let toml = r#"
+            [header]
+            end = [{ type = "color-mode", style = "both" }]
+        "#;
+        let layout: SiteLayout = toml::from_str(toml)?;
+
+        let header = layout.header.expect("header should be present");
+        let config = header.config().expect("should be config");
+        let end = config.end.as_ref().expect("end should be present");
+
+        if let ComponentSpec::Config(c) = &end[0] {
+            if let ComponentConfig::ColorMode { style } = &c.component {
+                assert_eq!(*style, Some(ColorModeStyle::Both));
+            } else {
+                panic!("Expected ColorMode component");
+            }
+        } else {
+            panic!("Expected ComponentSpec::Config");
+        }
 
         Ok(())
     }

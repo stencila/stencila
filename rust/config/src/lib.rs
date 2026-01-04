@@ -42,12 +42,7 @@ mod utils;
 mod watch;
 
 pub use {
-    layout::{
-        ColorSchemeSwitcherConfig, ColorSchemeSwitcherStyle, FooterGroup, IconLink,
-        LayoutColorSchemeSwitcher, LayoutFooter, LayoutFooterOverride, LayoutHeader,
-        LayoutHeaderOverride, LayoutLeftSidebar, LayoutOverride, LayoutRightSidebar,
-        LeftSidebarConfig, NavConfig, NavItem, RightSidebarConfig, SiteLayout, TextLink,
-    },
+    layout::SiteLayout,
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,

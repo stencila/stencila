@@ -121,6 +121,11 @@ impl SiteConfig {
                 "Invalid domain `{domain}`: must be a valid domain name (e.g., 'docs.example.org')"
             );
         }
+
+        if let Some(layout) = &self.layout {
+            layout.validate()?;
+        }
+
         Ok(())
     }
 }

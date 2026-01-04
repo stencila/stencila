@@ -707,19 +707,8 @@ impl Check {
                     if let Some(exclude) = &site.exclude {
                         message!("   🚫 Site exclusions: {} patterns", exclude.len());
                     }
-                    if let Some(layout) = &site.layout {
-                        let mut features = Vec::new();
-                        if layout.left_sidebar_explicit() == Some(true) {
-                            features.push("left-sidebar");
-                        }
-                        if layout.right_sidebar_explicit() == Some(true) {
-                            features.push("right-sidebar");
-                        }
-                        if features.is_empty() {
-                            message!("   📐 Site layout: (using smart defaults)");
-                        } else {
-                            message!("   📐 Site layout: {}", features.join(", "));
-                        }
+                    if let Some(_layout) = &site.layout {
+                        message!("   📐 Site layout");
                     }
                 }
 
