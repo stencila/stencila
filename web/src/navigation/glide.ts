@@ -5,17 +5,21 @@
  * View Transitions API when available.
  */
 
-import type { NavConfig, NavTrigger, GlideEventDetail } from './types'
-import { DEFAULT_CONFIG } from './types'
-import { GlideEvents, GLIDE_REQUEST, dispatch } from './events'
+import type { StencilaNavTree } from '../layout/nav-tree'
+import type { StencilaTocTree } from '../layout/toc-tree'
+
 import { getPageCache, initPageCache } from './cache'
-import { parseHTML } from './parser'
+import { dispatch, GLIDE_REQUEST, GlideEvents } from './events'
 import {
   pushNavState,
   restoreScrollPosition,
   saveScrollPosition,
 } from './history'
+import { parseHTML } from './parser'
 import { scrollToId } from './scroll'
+import { generateTocFromHeadings } from './toc'
+import { DEFAULT_CONFIG } from './types'
+import type { GlideEventDetail, NavConfig, NavTrigger } from './types'
 
 /** Current configuration */
 let config: NavConfig = { ...DEFAULT_CONFIG }
@@ -138,6 +142,36 @@ async function swapContent(
   }
 }
 
+/**
+ * Rehydrate components after content swap
+ *
+ * Updates the TOC and nav tree to reflect the new page content.
+ * Also exposed as window.__stencilaRehydrate for external callers.
+ */
+export function rehydrateComponents(url: string, mainElement: Element): void {
+  // Update TOC with new headings
+  const tocTree = document.querySelector('stencila-toc-tree') as StencilaTocTree | null
+  if (tocTree && mainElement instanceof HTMLElement) {
+    const tocHtml = generateTocFromHeadings(mainElement, config.tocMaxDepth)
+    const tocContainer = tocTree.querySelector('ul[role="tree"]')
+    if (tocContainer) {
+      // Replace the TOC content
+      tocContainer.outerHTML = tocHtml || '<ul role="tree" class="toc-list"></ul>'
+    } else if (tocHtml) {
+      // No existing TOC, insert new one
+      tocTree.innerHTML = tocHtml
+    }
+    // Reinitialize the TOC tree component
+    tocTree.reinitialize()
+  }
+
+  // Update nav tree active link
+  const navTree = document.querySelector('stencila-nav-tree') as StencilaNavTree | null
+  if (navTree) {
+    navTree.updateActiveLink(url)
+  }
+}
+
 /** Options for navigate() */
 interface NavigateOptions {
   /** Skip pushing to history (used for popstate) */
@@ -239,6 +273,12 @@ export async function navigate(
 
     // Perform the swap
     await swapContent(entry.mainHTML, entry.title, config.contentSelector)
+
+    // Rehydrate components (TOC, nav tree)
+    const mainElement = document.querySelector(config.contentSelector)
+    if (mainElement) {
+      rehydrateComponents(url, mainElement)
+    }
 
     // Dispatch after-swap event
     dispatch(GlideEvents.AFTER_SWAP, detailWithCache)
@@ -359,6 +399,12 @@ function handlePopstate(_event: PopStateEvent): void {
     if (dispatch(GlideEvents.BEFORE_SWAP, detail, true)) {
       swapContent(entry.mainHTML, entry.title, config.contentSelector)
         .then(() => {
+          // Rehydrate components (TOC, nav tree)
+          const mainElement = document.querySelector(config.contentSelector)
+          if (mainElement) {
+            rehydrateComponents(url, mainElement)
+          }
+
           dispatch(GlideEvents.AFTER_SWAP, detail)
           lastNormalizedUrl = cacheKey
           lastFullUrl = url

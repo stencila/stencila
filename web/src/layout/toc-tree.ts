@@ -283,6 +283,29 @@ export class StencilaTocTree extends LitElement {
   }
 
   /**
+   * Reinitialize the TOC after content swap
+   *
+   * Called by the navigation module after the main content is replaced
+   * to rebuild the link map and set up a new observer for the new headings.
+   */
+  reinitialize() {
+    // Disconnect old observer
+    if (this.observer) {
+      this.observer.disconnect()
+      this.observer = null
+    }
+
+    // Clear old state
+    this.tocLinks.clear()
+    this.headingElements = []
+    this.activeId = null
+
+    // Rebuild from new TOC content
+    this.buildTocLinkMap()
+    this.setupObserver()
+  }
+
+  /**
    * Handle keyboard navigation
    */
   private handleKeydown = (event: KeyboardEvent) => {

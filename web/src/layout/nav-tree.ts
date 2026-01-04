@@ -314,6 +314,49 @@ export class StencilaNavTree extends LitElement {
   }
 
   /**
+   * Update the active link to match the current URL
+   *
+   * Called by the navigation module after a page swap to update
+   * which link is marked as active and ensure its ancestors are expanded.
+   *
+   * @param url - The new URL to match against nav links
+   */
+  updateActiveLink(url: string) {
+    // Parse URL to get pathname for matching
+    const pathname = new URL(url, window.location.origin).pathname
+
+    // Remove active class from old link
+    const oldActive = this.querySelector('.nav-link.active')
+    if (oldActive) {
+      oldActive.classList.remove('active')
+      oldActive.removeAttribute('aria-current')
+    }
+
+    // Find link matching the new URL
+    const links = this.querySelectorAll<HTMLAnchorElement>('a.nav-link')
+    for (const link of links) {
+      const linkPathname = new URL(link.href, window.location.origin).pathname
+      if (linkPathname === pathname) {
+        link.classList.add('active')
+        link.setAttribute('aria-current', 'page')
+
+        // Expand ancestor details elements
+        let element = link.parentElement
+        while (element && element !== this) {
+          if (element.tagName === 'DETAILS') {
+            ;(element as HTMLDetailsElement).open = true
+          }
+          element = element.parentElement
+        }
+
+        // Scroll active link into view if needed
+        link.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+        break
+      }
+    }
+  }
+
+  /**
    * Collapse a group or focus the parent summary
    */
   private collapseOrFocusParent(current: HTMLElement) {
