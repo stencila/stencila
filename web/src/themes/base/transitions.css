@@ -1,0 +1,52 @@
+/* View Transitions for Client-Side Navigation
+ *
+ * Styles for smooth page-to-page transitions using the View Transitions API.
+ * The navigation module uses document.startViewTransition() when supported
+ * and prefers-reduced-motion is not set.
+ */
+
+/* Assign a view-transition-name to main content for cross-fade */
+#main-content {
+  view-transition-name: stencila-glide;
+}
+
+/* Fade out animation for old page */
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Fade in animation for new page */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Apply animations to view transition pseudo-elements */
+::view-transition-old(stencila-glide) {
+  animation: fade-out 150ms ease-out;
+}
+
+::view-transition-new(stencila-glide) {
+  animation: fade-in 150ms ease-in;
+}
+
+/* Disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #main-content {
+    view-transition-name: none;
+  }
+
+  ::view-transition-old(stencila-glide),
+  ::view-transition-new(stencila-glide) {
+    animation: none;
+  }
+}
