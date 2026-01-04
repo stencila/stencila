@@ -1,14 +1,27 @@
-/* Site Layout System
+/* Site Layout System - Regions + Components
  *
- * CSS Grid-based layout for site pages with header, sidebars, content, and footer.
- * Uses Light DOM for theme styling integration.
+ * A CSS Grid-based layout using a region system where components can be
+ * placed in any region's sub-regions (start, middle, end).
  *
- * Architecture: The layout uses CSS Grid with named template areas.
- * - Header spans full width
- * - Left sidebar contains navigation
- * - Main content is centered with max-width
- * - Right sidebar contains table of contents
- * - Footer spans full width
+ * Architecture:
+ * - Outer grid: stencila-header, div.layout-body, stencila-footer (rows)
+ * - layout-body: stencila-left-sidebar, div.layout-main, stencila-right-sidebar (columns)
+ * - layout-main: stencila-top, #main-content, stencila-bottom (flex column)
+ * - Sticky sidebars with independent scrolling
+ *
+ * Regions:
+ * - header: Horizontal region at page top (sticky)
+ * - left-sidebar: Vertical region on left (sticky, scrollable)
+ * - top: Horizontal region above main content
+ * - main: Primary content area (centered, max-width constrained)
+ * - bottom: Horizontal region below main content
+ * - right-sidebar: Vertical region on right (sticky, scrollable)
+ * - footer: Horizontal region at page bottom
+ *
+ * Sub-regions:
+ * - Each region has start, middle, end sub-regions for component placement
+ * - Horizontal regions: start=left, middle=center, end=right
+ * - Vertical regions: start=top, middle=center, end=bottom
  */
 
 :root {
@@ -17,117 +30,90 @@
     --layout-left-sidebar-width: 280px;
     --layout-right-sidebar-width: 220px;
     --layout-content-max-width: 800px;
-    --layout-content-padding: var(--space-6);
+    --layout-content-padding: var(--content-spacing);
+    --layout-border-width: var(--border-width-default);
 
-    /* Breakpoints for layout changes */
-    --layout-breakpoint-hide-right: 1280px;
-    --layout-breakpoint-hide-left: 1024px;
-    --layout-breakpoint-mobile: 768px;
+    /* Z-index layers */
+    --layout-z-header: 100;
+    --layout-z-skip-link: 1000;
 
     /* Header */
     --header-background: var(--surface-foreground);
     --header-border-color: var(--border-color-default);
-    --header-border-width: 1px;
     --header-padding: var(--space-4);
+    --header-gap: var(--space-2);
 
-    /* Navigation (left sidebar) */
-    --nav-background: var(--surface-background);
-    --nav-item-padding: var(--space-2) var(--space-3);
-    --nav-item-color: var(--text-color-secondary);
-    --nav-item-color-hover: var(--text-color-primary);
-    --nav-item-color-active: var(--color-accent);
-    --nav-item-background-active: var(--color-accent-muted);
-    --nav-indent: var(--space-4);
-    --nav-group-margin-top: var(--space-4);
-
-    /* TOC (right sidebar) */
-    --toc-item-color: var(--text-color-secondary);
-    --toc-item-color-active: var(--color-accent);
-    --toc-item-font-size: var(--font-size-sm);
-    --toc-title-font-weight: 600;
+    /* Sidebars */
+    --sidebar-padding: var(--space-4);
+    --left-sidebar-background: var(--surface-background);
+    --left-sidebar-border-color: var(--border-color-muted);
+    --right-sidebar-background: var(--surface-background);
+    --right-sidebar-border-color: var(--border-color-muted);
 
     /* Footer */
     --footer-background: var(--surface-sunken);
     --footer-border-color: var(--border-color-default);
     --footer-padding: var(--space-8) var(--space-6);
-    --footer-group-title-color: var(--text-color-primary);
-    --footer-link-color: var(--text-color-secondary);
+    --footer-gap: var(--space-6);
 
-    /* Page navigation */
-    --page-nav-margin-top: var(--space-8);
-    --page-nav-border-color: var(--border-color-default);
+    /* Sub-regions */
+    --subregion-gap: var(--space-3);
 
-    /* Breadcrumbs */
-    --breadcrumb-separator: "/";
-    --breadcrumb-color: var(--text-color-secondary);
-    --breadcrumb-color-current: var(--text-color-primary);
-
-    /* Mobile */
-    --mobile-sidebar-width: 85vw;
-    --mobile-overlay-background: rgba(0, 0, 0, 0.5);
-    --mobile-transition-duration: 200ms;
-
-    /* Skip link */
+    /* Skip Link (Accessibility) */
     --skip-link-background: var(--color-accent);
-    --skip-link-color: white;
+    --skip-link-color: var(--text-color-inverse);
 }
 
-/* Dark mode overrides for layout */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-color-scheme="light"]) {
-        --mobile-overlay-background: rgba(0, 0, 0, 0.7);
-    }
-}
+/* =================================
+ * Main Layout Container
+ * ================================= */
 
-:root[data-color-scheme="dark"] {
-    --mobile-overlay-background: rgba(0, 0, 0, 0.7);
-}
-
-/* Main Layout Shell */
 stencila-layout {
     display: grid;
-    min-height: 100vh;
-    grid-template-areas:
-        "header header header"
-        "left-sidebar content right-sidebar"
-        "footer footer footer";
-    grid-template-columns: var(--layout-left-sidebar-width) 1fr var(--layout-right-sidebar-width);
     grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+}
+
+/* Layout body: sidebars + main content */
+.layout-body {
+    display: grid;
+    grid-template-columns: var(--layout-left-sidebar-width) 1fr var(--layout-right-sidebar-width);
 }
 
 /* Layout without left sidebar */
-stencila-layout[no-left-sidebar] {
-    grid-template-areas:
-        "header header"
-        "content right-sidebar"
-        "footer footer";
+stencila-layout:not([left-sidebar]) .layout-body {
     grid-template-columns: 1fr var(--layout-right-sidebar-width);
 }
 
 /* Layout without right sidebar */
-stencila-layout[no-right-sidebar] {
-    grid-template-areas:
-        "header header"
-        "left-sidebar content"
-        "footer footer";
+stencila-layout:not([right-sidebar]) .layout-body {
     grid-template-columns: var(--layout-left-sidebar-width) 1fr;
 }
 
 /* Layout without any sidebars */
-stencila-layout[no-left-sidebar][no-right-sidebar] {
-    grid-template-areas:
-        "header"
-        "content"
-        "footer";
+stencila-layout:not([left-sidebar]):not([right-sidebar]) .layout-body {
     grid-template-columns: 1fr;
 }
 
-/* Skip Link - Accessibility */
+/* Main content area (flex container for top/main/bottom) */
+.layout-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* =================================
+ * Skip Link (Accessibility)
+ *
+ * Hidden by default, visible on focus.
+ * Allows keyboard users to skip to main content.
+ * ================================= */
+
 .skip-link {
     position: absolute;
     top: -100%;
     left: var(--space-4);
-    z-index: 1000;
+    z-index: var(--layout-z-skip-link);
     padding: var(--space-2) var(--space-4);
     background: var(--skip-link-background);
     color: var(--skip-link-color);
@@ -139,890 +125,208 @@ stencila-layout[no-left-sidebar][no-right-sidebar] {
 
 .skip-link:focus {
     top: var(--space-2);
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--skip-link-background);
     outline-offset: 2px;
 }
 
-/* Header Slot */
-[slot="header"] {
-    grid-area: header;
+/* =================================
+ * Header Region
+ * ================================= */
+
+stencila-header {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: var(--layout-z-header);
     display: flex;
     align-items: center;
-    gap: var(--space-4);
-    height: var(--layout-header-height);
+    gap: var(--header-gap);
+    min-height: var(--layout-header-height);
     padding: 0 var(--header-padding);
     background: var(--header-background);
-    border-bottom: var(--header-border-width) solid var(--header-border-color);
+    border-bottom: var(--layout-border-width) solid var(--header-border-color);
 }
 
-/* Left Sidebar Slot */
-[slot="left-sidebar"] {
-    grid-area: left-sidebar;
+
+/* =================================
+ * Left Sidebar Region
+ * ================================= */
+
+stencila-left-sidebar {
     position: sticky;
     top: var(--layout-header-height);
     align-self: start;
     max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
-    padding: var(--space-4);
-    background: var(--nav-background);
-    border-right: 1px solid var(--border-color-muted);
+    padding: var(--sidebar-padding);
+    background: var(--left-sidebar-background);
+    border-right: var(--layout-border-width) solid var(--left-sidebar-border-color);
 }
 
-/* Right Sidebar Slot */
-[slot="right-sidebar"] {
-    grid-area: right-sidebar;
+
+/* =================================
+ * Right Sidebar Region
+ * ================================= */
+
+stencila-right-sidebar {
     position: sticky;
     top: var(--layout-header-height);
     align-self: start;
     max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
-    padding: var(--space-4);
-    border-left: 1px solid var(--border-color-muted);
+    padding: var(--sidebar-padding);
+    background: var(--right-sidebar-background);
+    border-left: var(--layout-border-width) solid var(--right-sidebar-border-color);
 }
 
-/* Hide TOC content when empty (but keep sidebar space for layout stability) */
-[slot="right-sidebar"][data-empty] .toc-title,
-[slot="right-sidebar"][data-empty] stencila-toc-tree {
-    display: none;
+/* When no header, sidebars start at viewport top */
+stencila-layout:not([header]) stencila-left-sidebar,
+stencila-layout:not([header]) stencila-right-sidebar {
+    top: 0;
+    max-height: 100vh;
 }
 
-/* Main Content Slot */
-[slot="content"],
+/* =================================
+ * Top Region
+ * ================================= */
+
+stencila-top {
+    display: flex;
+    align-items: center;
+    gap: var(--subregion-gap);
+    padding: var(--layout-content-padding);
+    padding-bottom: 0;
+    max-width: var(--layout-content-max-width);
+    width: 100%;
+    margin: 0 auto;
+}
+
+
+/* =================================
+ * Main Content
+ * ================================= */
+
 #main-content {
-    grid-area: content;
+    flex: 1;
     max-width: var(--layout-content-max-width);
     width: 100%;
     margin: 0 auto;
     padding: var(--layout-content-padding);
 }
 
-/* Footer Slot */
-[slot="footer"] {
-    grid-area: footer;
+/* =================================
+ * Bottom Region
+ * ================================= */
+
+stencila-bottom {
+    display: flex;
+    align-items: center;
+    gap: var(--subregion-gap);
+    padding: var(--layout-content-padding);
+    padding-top: 0;
+    max-width: var(--layout-content-max-width);
     width: 100%;
-    max-width: none;
-    padding: var(--footer-padding);
-    background: var(--footer-background);
-    border-top: 1px solid var(--footer-border-color);
-}
-
-/* Responsive: Hide right sidebar at medium widths */
-@media (max-width: 1280px) {
-    stencila-layout {
-        grid-template-areas:
-            "header header"
-            "left-sidebar content"
-            "footer footer";
-        grid-template-columns: var(--layout-left-sidebar-width) 1fr;
-    }
-
-    stencila-layout[no-left-sidebar] {
-        grid-template-areas:
-            "header"
-            "content"
-            "footer";
-        grid-template-columns: 1fr;
-    }
-
-    [slot="right-sidebar"] {
-        display: none;
-    }
-}
-
-/* Responsive: Hide left sidebar at smaller widths */
-@media (max-width: 1024px) {
-    stencila-layout,
-    stencila-layout[no-right-sidebar] {
-        grid-template-areas:
-            "header"
-            "content"
-            "footer";
-        grid-template-columns: 1fr;
-    }
-
-    [slot="left-sidebar"] {
-        /* Will be shown as a mobile drawer */
-        display: none;
-    }
-
-    /* Mobile sidebar overlay - shown when .mobile-open is added */
-    stencila-layout.mobile-sidebar-open [slot="left-sidebar"] {
-        display: block;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: var(--mobile-sidebar-width);
-        height: 100vh;
-        z-index: 200;
-        animation: slideIn var(--mobile-transition-duration) ease-out;
-    }
-}
-
-/* Mobile: Smaller padding */
-@media (max-width: 768px) {
-    :root {
-        --layout-content-padding: var(--space-4);
-        --header-padding: var(--space-3);
-    }
-}
-
-/* Mobile sidebar slide-in animation */
-@keyframes slideIn {
-    from {
-        transform: translateX(-100%);
-    }
-    to {
-        transform: translateX(0);
-    }
+    margin: 0 auto;
 }
 
 
 /* =================================
- * Header Component Styles
- * ================================= */
-
-/* Header container */
-stencila-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    width: 100%;
-}
-
-/* Brand (logo + title) */
-.header-brand {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    text-decoration: none;
-    color: var(--text-color-primary);
-    flex-shrink: 0;
-}
-
-.header-brand:hover {
-    opacity: 0.8;
-}
-
-.header-logo {
-    height: 32px;
-    width: auto;
-}
-
-.header-title {
-    font-weight: 600;
-    font-size: var(--font-size-lg);
-    white-space: nowrap;
-}
-
-/* Mobile navigation toggle button
- * This is associated with the left sidebar, not the header.
- * Hidden on desktop, shown fixed in top-left on mobile.
- */
-.mobile-nav-toggle {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    background: var(--surface-foreground);
-    border: 1px solid var(--border-color-default);
-    cursor: pointer;
-    color: var(--text-color-primary);
-    border-radius: var(--border-radius-default);
-    box-shadow: var(--shadow-sm);
-    z-index: 250;
-}
-
-.mobile-nav-toggle:hover {
-    background: var(--surface-sunken);
-}
-
-.mobile-nav-toggle:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-.mobile-nav-toggle .hamburger-close {
-    display: none;
-}
-
-.mobile-nav-toggle[aria-expanded="true"] .hamburger-open {
-    display: none;
-}
-
-.mobile-nav-toggle[aria-expanded="true"] .hamburger-close {
-    display: block;
-}
-
-/* Show mobile nav toggle on mobile when left sidebar is enabled */
-@media (max-width: 1024px) {
-    stencila-layout[left-sidebar] .mobile-nav-toggle {
-        display: flex;
-        position: fixed;
-        top: var(--space-3);
-        left: var(--space-3);
-    }
-
-    /* When header is present, position toggle inside header area */
-    stencila-layout[left-sidebar]:has([slot="header"]) .mobile-nav-toggle {
-        position: static;
-        box-shadow: none;
-        border: none;
-        background: transparent;
-    }
-}
-
-/* Spacer to push icons to right */
-.header-spacer {
-    flex: 1;
-}
-
-/* Navigation tabs */
-stencila-nav-tabs {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-}
-
-.nav-tab {
-    padding: var(--space-2) var(--space-3);
-    color: var(--text-color-secondary);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: var(--font-size-sm);
-    border-radius: var(--border-radius-default);
-    transition:
-        color var(--transition-duration-fast),
-        background-color var(--transition-duration-fast);
-    white-space: nowrap;
-}
-
-.nav-tab:hover {
-    color: var(--text-color-primary);
-    background: var(--surface-sunken);
-}
-
-.nav-tab:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: -2px;
-}
-
-.nav-tab.active {
-    color: var(--color-accent);
-    background: var(--color-accent-muted);
-}
-
-/* Icon links */
-.header-icons {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    flex-shrink: 0;
-}
-
-.header-icon-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    color: var(--text-color-secondary);
-    border-radius: var(--border-radius-default);
-    transition:
-        color var(--transition-duration-fast),
-        background-color var(--transition-duration-fast);
-}
-
-.header-icon-link:hover {
-    color: var(--text-color-primary);
-    background: var(--surface-sunken);
-}
-
-.header-icon-link:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-.header-icon-link svg {
-    width: 20px;
-    height: 20px;
-}
-
-/* UnoCSS icon styling */
-.header-icon {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    background-color: currentColor;
-}
-
-/* Responsive: Hide tabs on tablet/mobile */
-@media (max-width: 1024px) {
-    stencila-nav-tabs {
-        display: none;
-    }
-
-    .header-title {
-        display: none;
-    }
-}
-
-/* Very small screens */
-@media (max-width: 480px) {
-    .header-icons {
-        display: none;
-    }
-}
-
-/* =================================
- * Navigation Tree Styles
- * ================================= */
-
-/* Navigation container */
-stencila-nav-tree {
-    display: block;
-}
-
-/* Navigation tree (ARIA tree pattern) */
-stencila-nav-tree ul[role="tree"],
-stencila-nav-tree ul[role="group"] {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-/* Nested groups - indentation */
-stencila-nav-tree ul[role="group"] {
-    padding-left: var(--nav-indent);
-}
-
-/* Tree items */
-stencila-nav-tree li[role="treeitem"] {
-    margin: 0;
-    padding: 0;
-}
-
-/* Navigation links */
-stencila-nav-tree .nav-link {
-    display: block;
-    padding: var(--nav-item-padding);
-    color: var(--nav-item-color);
-    text-decoration: none;
-    border-radius: var(--border-radius-default);
-    transition:
-        color var(--transition-duration-fast),
-        background-color var(--transition-duration-fast);
-}
-
-stencila-nav-tree .nav-link:hover {
-    color: var(--nav-item-color-hover);
-    background: var(--surface-sunken);
-}
-
-stencila-nav-tree .nav-link:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: -2px;
-}
-
-/* Active navigation link */
-stencila-nav-tree .nav-link.active {
-    color: var(--nav-item-color-active);
-    background: var(--nav-item-background-active);
-    font-weight: 500;
-}
-
-/* Group headers (collapsible) */
-stencila-nav-tree .nav-group {
-    display: block;
-    padding: var(--nav-item-padding);
-    margin-top: var(--nav-group-margin-top);
-    color: var(--text-color-primary);
-    font-weight: 600;
-    font-size: var(--font-size-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-}
-
-/* First group doesn't need top margin */
-stencila-nav-tree ul[role="tree"] > li:first-child .nav-group {
-    margin-top: 0;
-}
-
-/* Details/summary for collapsible groups */
-stencila-nav-tree details {
-    margin: 0;
-}
-
-stencila-nav-tree details summary {
-    list-style: none;
-    user-select: none;
-}
-
-stencila-nav-tree details summary::-webkit-details-marker {
-    display: none;
-}
-
-/* Arrow indicator for collapsible groups */
-stencila-nav-tree details summary.nav-group::before {
-    content: "";
-    display: inline-block;
-    width: 0;
-    height: 0;
-    margin-right: var(--space-2);
-    border-left: 5px solid currentColor;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-    transition: transform var(--transition-duration-fast);
-}
-
-stencila-nav-tree details[open] summary.nav-group::before {
-    transform: rotate(90deg);
-}
-
-/* Summary focus styles */
-stencila-nav-tree details summary:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: -2px;
-    border-radius: var(--border-radius-default);
-}
-
-/* Label-only items (no link) */
-stencila-nav-tree .nav-label {
-    display: block;
-    padding: var(--nav-item-padding);
-    color: var(--text-color-tertiary);
-    font-size: var(--font-size-sm);
-}
-
-
-/* =================================
- * Table of Contents (TOC) Styles
- * ================================= */
-
-/* TOC container (right sidebar navigation) */
-nav.toc {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-}
-
-/* TOC title */
-.toc-title {
-    margin: 0;
-    padding: 0 var(--space-2);
-    color: var(--text-color-primary);
-    font-size: var(--font-size-sm);
-    font-weight: var(--toc-title-font-weight);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* TOC tree component */
-stencila-toc-tree {
-    display: block;
-}
-
-/* TOC tree lists */
-stencila-toc-tree ul[role="tree"],
-stencila-toc-tree ul[role="group"] {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-/* Nested groups - subtle indentation */
-stencila-toc-tree ul[role="group"] {
-    padding-left: var(--space-3);
-}
-
-/* TOC tree items */
-stencila-toc-tree li[role="treeitem"] {
-    margin: 0;
-    padding: 0;
-}
-
-/* TOC links */
-stencila-toc-tree .toc-link {
-    display: block;
-    padding: var(--space-1) var(--space-2);
-    color: var(--toc-item-color);
-    text-decoration: none;
-    font-size: var(--toc-item-font-size);
-    line-height: 1.4;
-    border-left: 2px solid transparent;
-    transition:
-        color var(--transition-duration-fast),
-        border-color var(--transition-duration-fast);
-}
-
-/* Depth-based styling for TOC links */
-stencila-toc-tree .toc-link[data-level="1"] {
-    font-weight: 500;
-}
-
-stencila-toc-tree .toc-link[data-level="2"] {
-    font-weight: 400;
-}
-
-stencila-toc-tree .toc-link[data-level="3"] {
-    font-size: calc(var(--toc-item-font-size) * 0.95);
-    color: var(--text-color-tertiary);
-}
-
-/* Hover and focus states - grey bar for all levels */
-stencila-toc-tree .toc-link:hover,
-stencila-toc-tree .toc-link:focus-visible {
-    outline: none;
-    color: var(--text-color-primary);
-    border-left-color: var(--border-color-emphasis);
-}
-
-/* Active TOC link - blue bar */
-stencila-toc-tree .toc-link[data-active="true"] {
-    color: var(--toc-item-color-active);
-    border-left-color: var(--toc-item-color-active);
-    font-weight: 500;
-}
-
-
-/* =================================
- * Footer Component Styles
+ * Footer Region
  * ================================= */
 
 stencila-footer {
-    display: block;
-    width: 100%;
-}
-
-/* Footer groups container */
-.footer-groups {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: var(--space-8);
-    margin-bottom: var(--space-6);
-}
-
-/* Individual footer group (column) */
-.footer-group {
-    min-width: 0;
-}
-
-.footer-group-title {
-    margin: 0 0 var(--space-3) 0;
-    padding: 0;
-    color: var(--footer-group-title-color);
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.footer-group-links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.footer-group-links li {
-    margin: 0;
-    padding: 0;
-}
-
-.footer-group-links a {
-    display: inline-block;
-    padding: var(--space-1) 0;
-    color: var(--footer-link-color);
-    text-decoration: none;
-    font-size: var(--font-size-sm);
-    transition: color var(--transition-duration-fast);
-}
-
-.footer-group-links a:hover {
-    color: var(--text-color-primary);
-}
-
-.footer-group-links a:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-/* Footer bottom section (icons + copyright) */
-.footer-bottom {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
     flex-wrap: wrap;
-    gap: var(--space-4);
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--footer-border-color);
+    align-items: flex-start;
+    gap: var(--footer-gap);
+    width: 100%;
+    padding: var(--footer-padding);
+    background: var(--footer-background);
+    border-top: var(--layout-border-width) solid var(--footer-border-color);
 }
 
-.footer-icons {
+
+/* =================================
+ * Sub-region Styles
+ *
+ * Sub-regions organize components within a region.
+ * - start: Left for horizontal, top for vertical
+ * - middle: Center
+ * - end: Right for horizontal, bottom for vertical
+ * ================================= */
+
+[data-subregion="start"] {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--subregion-gap);
+    flex-shrink: 0;
 }
 
-.footer-icon-link {
+[data-subregion="middle"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    color: var(--footer-link-color);
-    border-radius: var(--border-radius-default);
-    transition:
-        color var(--transition-duration-fast),
-        background-color var(--transition-duration-fast);
+    gap: var(--subregion-gap);
+    flex: 1;
 }
 
-.footer-icon-link:hover {
-    color: var(--text-color-primary);
-    background: var(--surface-background);
-}
-
-.footer-icon-link:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-/* UnoCSS icon styling for footer */
-.footer-icon {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    background-color: currentColor;
-}
-
-.footer-copyright {
-    margin: 0;
-    color: var(--text-color-tertiary);
-    font-size: var(--font-size-sm);
-}
-
-/* Responsive: Stack footer bottom on mobile */
-@media (max-width: 480px) {
-    .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .footer-groups {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-
-/* =================================
- * Breadcrumbs Component Styles
- * ================================= */
-
-stencila-breadcrumbs {
-    display: block;
-    margin-bottom: var(--space-4);
-}
-
-stencila-breadcrumbs ol {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-1);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-stencila-breadcrumbs li {
+[data-subregion="end"] {
     display: flex;
     align-items: center;
+    gap: var(--subregion-gap);
+    flex-shrink: 0;
+    margin-left: auto;
 }
-
-/* Separator between items */
-stencila-breadcrumbs li:not(:last-child)::after {
-    content: var(--breadcrumb-separator);
-    margin-left: var(--space-1);
-    color: var(--text-color-tertiary);
-}
-
-stencila-breadcrumbs a {
-    color: var(--breadcrumb-color);
-    text-decoration: none;
-    font-size: var(--font-size-sm);
-    transition: color var(--transition-duration-fast);
-}
-
-stencila-breadcrumbs a:hover {
-    color: var(--text-color-primary);
-    text-decoration: underline;
-}
-
-stencila-breadcrumbs a:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-    border-radius: var(--border-radius-default);
-}
-
-/* Current page (last item, no link) */
-stencila-breadcrumbs li[aria-current="page"] {
-    color: var(--breadcrumb-color-current);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-}
-
 
 /* =================================
- * Page Navigation Component Styles
+ * Responsive - Tablet (768px)
  * ================================= */
 
-stencila-page-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-    margin-top: var(--page-nav-margin-top);
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--page-nav-border-color);
-}
-
-/* Page nav links */
-.page-nav-prev,
-.page-nav-next {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-4);
-    border: 1px solid var(--border-color-default);
-    border-radius: var(--border-radius-default);
-    text-decoration: none;
-    transition:
-        border-color var(--transition-duration-fast),
-        background-color var(--transition-duration-fast);
-}
-
-.page-nav-prev:not(.page-nav-empty):hover,
-.page-nav-next:not(.page-nav-empty):hover {
-    border-color: var(--color-accent);
-    background: var(--surface-sunken);
-}
-
-.page-nav-prev:focus-visible,
-.page-nav-next:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-/* Previous link - align left */
-.page-nav-prev {
-    align-items: flex-start;
-}
-
-/* Next link - align right */
-.page-nav-next {
-    align-items: flex-end;
-    text-align: right;
-}
-
-/* Empty placeholder (maintains grid layout) */
-.page-nav-empty {
-    background: transparent;
-    border-color: transparent;
-    cursor: default;
-}
-
-/* Label ("Previous" / "Next") */
-.page-nav-label {
-    color: var(--text-color-tertiary);
-    font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* Title of the page */
-.page-nav-title {
-    color: var(--color-accent);
-    font-weight: 500;
-}
-
-/* Responsive: Stack on mobile */
-@media (max-width: 480px) {
-    stencila-page-nav {
-        grid-template-columns: 1fr;
-    }
-
-    .page-nav-prev,
-    .page-nav-next {
-        align-items: flex-start;
-        text-align: left;
+@media (max-width: 768px) {
+    :root {
+        --header-padding: var(--space-3);
+        --sidebar-padding: var(--space-3);
     }
 }
 
-
 /* =================================
- * Color Scheme Switcher Styles
+ * Responsive - Mobile (640px)
  * ================================= */
 
-stencila-color-scheme-switcher {
-    display: inline-flex;
-    align-items: center;
+@media (max-width: 640px) {
+    :root {
+        --header-padding: var(--space-2);
+        --sidebar-padding: var(--space-2);
+        --footer-padding: var(--space-6) var(--space-4);
+    }
 }
 
-.color-scheme-switcher {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-1) var(--space-2);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-    border-radius: var(--border-radius-default);
-    transition:
-        color var(--transition-duration-fast),
-        background-color var(--transition-duration-fast);
-}
+/* =================================
+ * Print Styles
+ * ================================= */
 
-.color-scheme-switcher:hover {
-    color: var(--text-color-primary);
-    background: var(--surface-background);
-}
-
-.color-scheme-switcher:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-.color-scheme-switcher-icon {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    background-color: currentColor;
-}
-
-.color-scheme-switcher-label {
-    font-weight: 500;
-}
-
-
-/* Print: Hide layout chrome */
 @media print {
     stencila-layout {
         display: block;
     }
 
-    [slot="header"],
-    [slot="left-sidebar"],
-    [slot="right-sidebar"],
-    [slot="footer"],
+    stencila-header,
+    stencila-left-sidebar,
+    stencila-right-sidebar,
+    stencila-footer,
+    stencila-top,
+    stencila-bottom,
     .skip-link {
         display: none !important;
     }
 
-    [slot="content"],
+    .layout-body {
+        display: block;
+    }
+
+    .layout-main {
+        overflow: visible;
+    }
+
     #main-content {
         max-width: none;
         padding: 0;

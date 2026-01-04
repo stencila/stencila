@@ -46,7 +46,7 @@ use strum::Display;
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
-pub struct SiteLayout {
+pub struct LayoutConfig {
     /// Named preset to use as base (docs, blog, landing, api)
     ///
     /// Presets provide sensible defaults that can be extended with explicit config.
@@ -112,7 +112,7 @@ pub struct SiteLayout {
     pub overrides: Vec<LayoutOverride>,
 }
 
-impl SiteLayout {
+impl LayoutConfig {
     /// Validate the layout configuration
     pub fn validate(&self) -> eyre::Result<()> {
         for (index, override_config) in self.overrides.iter().enumerate() {
@@ -550,19 +550,19 @@ mod tests {
     #[test]
     fn test_preset_parsing() -> Result<()> {
         let toml = r#"preset = "docs""#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
         assert_eq!(layout.preset, Some(LayoutPreset::Docs));
 
         let toml = r#"preset = "blog""#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
         assert_eq!(layout.preset, Some(LayoutPreset::Blog));
 
         let toml = r#"preset = "landing""#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
         assert_eq!(layout.preset, Some(LayoutPreset::Landing));
 
         let toml = r#"preset = "api""#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
         assert_eq!(layout.preset, Some(LayoutPreset::Api));
 
         Ok(())
@@ -571,14 +571,14 @@ mod tests {
     #[test]
     fn test_region_bool() -> Result<()> {
         let toml = r#"left-sidebar = true"#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
         assert!(matches!(
             layout.left_sidebar,
             Some(RegionSpec::Enabled(true))
         ));
 
         let toml = r#"left-sidebar = false"#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
         assert!(matches!(
             layout.left_sidebar,
             Some(RegionSpec::Enabled(false))
@@ -593,7 +593,7 @@ mod tests {
             [header]
             start = "logo"
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         let header = layout.header.expect("header should be present");
         let config = header.config().expect("should be config");
@@ -610,7 +610,7 @@ mod tests {
             [header]
             end = ["icon-links", "color-mode"]
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         let header = layout.header.expect("header should be present");
         let config = header.config().expect("should be config");
@@ -628,7 +628,7 @@ mod tests {
             [header]
             middle = { type = "logo" }
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         let header = layout.header.expect("header should be present");
         let config = header.config().expect("should be config");
@@ -648,7 +648,7 @@ mod tests {
             [right-sidebar]
             start = [{ type = "toc-tree", if = "document.headings" }]
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         let sidebar = layout
             .right_sidebar
@@ -678,7 +678,7 @@ mod tests {
             [left-sidebar]
             middle = "main-nav"
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         assert!(layout.components.contains_key("main-nav"));
         if let ComponentConfig::NavTree {
@@ -702,7 +702,7 @@ mod tests {
             left-sidebar = false
             bottom = false
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         assert_eq!(layout.overrides.len(), 1);
         assert_eq!(layout.overrides[0].routes, vec!["/blog/**"]);
@@ -726,7 +726,7 @@ mod tests {
             right-sidebar = false
             left-sidebar.middle = "api-nav"
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         assert_eq!(layout.overrides.len(), 1);
         assert!(matches!(
@@ -784,7 +784,7 @@ mod tests {
             left-sidebar.middle = "api-nav"
             right-sidebar = false
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         assert_eq!(layout.preset, Some(LayoutPreset::Docs));
         assert!(layout.components.contains_key("api-nav"));
@@ -823,7 +823,7 @@ mod tests {
     #[test]
     fn test_override_empty_routes_validation() {
         // An override with empty routes should fail validation
-        let layout = SiteLayout {
+        let layout = LayoutConfig {
             overrides: vec![LayoutOverride {
                 routes: vec![], // Empty routes
                 left_sidebar: Some(RegionSpec::Enabled(false)),
@@ -844,7 +844,7 @@ mod tests {
     #[test]
     fn test_override_with_routes_validation() -> Result<()> {
         // An override with routes should pass validation
-        let layout = SiteLayout {
+        let layout = LayoutConfig {
             overrides: vec![LayoutOverride {
                 routes: vec!["/blog/**".to_string()],
                 left_sidebar: Some(RegionSpec::Enabled(false)),
@@ -863,7 +863,7 @@ mod tests {
             [header]
             end = [{ type = "color-mode", style = "both" }]
         "#;
-        let layout: SiteLayout = toml::from_str(toml)?;
+        let layout: LayoutConfig = toml::from_str(toml)?;
 
         let header = layout.header.expect("header should be present");
         let config = header.config().expect("should be config");

@@ -22,52 +22,10 @@ use stencila_version::STENCILA_VERSION;
 // Re-export to_dom
 pub use stencila_codec_dom_trait::to_dom;
 
-mod layout;
-use layout::render_layout;
-pub use layout::{
-    BreadcrumbItem, HeadingItem, NavTreeItem, PageLink, PageNavLinks, ResolvedColorSchemeSwitcher,
-    ResolvedFooter, ResolvedFooterGroup, ResolvedHeader, ResolvedIconLink, ResolvedLayout,
-    ResolvedLeftSidebar, ResolvedNavLink, ResolvedRightSidebar,
-};
-
 /// Use local development web assets instead of production CDN.
 /// Set to false for normal operation (uses production CDN).
 /// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
 const USE_LOCALHOST: bool = true;
-
-/// Resolved glide configuration for client-side navigation
-///
-/// Contains the effective values after applying defaults.
-#[derive(Debug, Clone)]
-pub struct ResolvedGlide {
-    /// Whether glide is enabled (default: true)
-    pub enabled: bool,
-
-    /// Maximum prefetches per session (default: 20, 0 to disable)
-    pub prefetch: usize,
-
-    /// Maximum pages to cache (default: 10, 0 to disable)
-    pub cache: usize,
-}
-
-/// Options for encoding a document as part of a site
-#[derive(Debug)]
-pub struct SiteEncodeOptions<'a> {
-    /// Source path of the document (for media collection)
-    pub source_path: Option<&'a Path>,
-
-    /// Base URL for resolving relative paths
-    pub base_url: &'a str,
-
-    /// Directory for extracted/collected media files
-    pub media_dir: &'a Path,
-
-    /// Resolved layout with nav tree for current route
-    pub resolved_layout: &'a ResolvedLayout,
-
-    /// Resolved glide configuration for client-side navigation
-    pub resolved_glide: &'a ResolvedGlide,
-}
 
 /// A codec for DOM HTML
 pub struct DomCodec;
@@ -104,7 +62,7 @@ impl Codec for DomCodec {
                 options.as_ref().and_then(|opts| opts.to_path.as_deref()),
                 media,
             )?;
-            encode(&copy, options).await
+            encode(&copy, options, None).await
         } else if options
             .as_ref()
             .and_then(|opts| opts.embed_media)
@@ -115,9 +73,9 @@ impl Codec for DomCodec {
                 &mut copy,
                 options.as_ref().and_then(|opts| opts.from_path.as_deref()),
             )?;
-            encode(&copy, options).await
+            encode(&copy, options, None).await
         } else {
-            encode(node, options).await
+            encode(node, options, None).await
         }
     }
 
@@ -159,117 +117,12 @@ impl Codec for DomCodec {
     }
 }
 
-/// Encode a document as HTML for site rendering
-///
-/// This is a specialized encoding function for site generation that:
-/// - Always produces standalone HTML
-/// - Uses static view
-/// - Handles media collection/extraction
-/// - Applies layout wrapper with navigation
-pub async fn encode_site_document(
-    node: &Node,
-    output_path: &Path,
-    options: SiteEncodeOptions<'_>,
-) -> Result<EncodeInfo> {
-    let SiteEncodeOptions {
-        source_path,
-        base_url,
-        media_dir,
-        resolved_layout: layout,
-        resolved_glide: glide,
-    } = options;
-
-    // Collect media from source to shared media directory
-    let node = if let Some(source) = source_path {
-        let mut copy = node.clone();
-        collect_media(&mut copy, Some(source), output_path, media_dir)?;
-        copy
-    } else {
-        node.clone()
-    };
-
-    // Encode the document content to DOM HTML
-    let mut context = DomEncodeContext::new(Some("static"));
-    node.to_dom(&mut context);
-
-    // Add the root attribute to the root node
-    let mut node_html = context.content();
-    if let Some(pos) = node_html.find('>') {
-        node_html.insert_str(pos, " root");
-    }
-
-    // Get any CSS defined in the content
-    let css = context.css();
-    if !css.is_empty() {
-        let css = normalize_css(&css);
-        if let Some(pos) = node_html.find('>') {
-            node_html.insert_str(pos + 1, &["<style>", &css, "</style>"].concat());
-        }
-    }
-
-    // Get document metadata
-    let node_type = node.node_type();
-    let node_title = match &node {
-        Node::Article(article) => article.title.as_ref().map(to_text),
-        Node::Prompt(prompt) => Some(to_text(&prompt.title)),
-        _ => None,
-    };
-    let node_description = match &node {
-        Node::Article(article) => article
-            .options
-            .description
-            .as_ref()
-            .map(|cord| cord.to_string()),
-        Node::Prompt(prompt) => Some(prompt.description.to_string()),
-        _ => None,
-    };
-
-    // Build extra head content with OpenGraph image if available
-    let extra_head = context.image().as_ref().map(|image| {
-        format!(
-            r#"<meta property="og:image" content="{}" />"#,
-            encode_double_quoted_attribute(&format!("{base_url}/{image}"))
-        )
-    });
-
-    // Use local or production web assets based on USE_LOCALHOST constant
-    let web_base = if cfg!(debug_assertions) && USE_LOCALHOST {
-        "http://localhost:9000/~static/dev".to_string()
-    } else {
-        ["https://stencila.io/web/v", STENCILA_VERSION].concat()
-    };
-
-    // Resolve theme (always use default for site rendering)
-    let theme = stencila_themes::get(None::<String>, None)
-        .await
-        .ok()
-        .flatten();
-
-    let html = standalone_html(
-        String::new(),
-        node_type,
-        node_title,
-        node_description,
-        extra_head,
-        node_html,
-        web_base,
-        theme.as_ref(),
-        "static",
-        Some((layout, glide)),
-    )
-    .await;
-
-    // Write to output file
-    if let Some(parent) = output_path.parent() {
-        create_dir_all(parent).await?;
-    }
-    write(output_path, html).await?;
-
-    Ok(EncodeInfo::none())
-}
-
 /// Encode a node to DOM HTML with options
-async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
+pub async fn encode(
+    node: &Node,
+    options: Option<EncodeOptions>,
+    site: Option<String>,
+) -> Result<(String, EncodeInfo)> {
     // Encode to DOM HTML
     let mut context = DomEncodeContext::new(options.as_ref().and_then(|opts| opts.view.as_deref()));
     node.to_dom(&mut context);
@@ -291,10 +144,11 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
         }
     }
 
-    let standalone = options
-        .as_ref()
-        .and_then(|options| options.standalone)
-        .unwrap_or(false);
+    let standalone = site.is_some()
+        || options
+            .as_ref()
+            .and_then(|options| options.standalone)
+            .unwrap_or(false);
     let html = if !standalone {
         node_html
     } else {
@@ -379,7 +233,7 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
             web_base,
             theme.as_ref(),
             view,
-            None,
+            site,
         )
         .await
     };
@@ -398,18 +252,8 @@ async fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, 
 
 /// Generate standalone DOM HTML for a document with theme and view
 ///
-/// This is exposed as a public function for user by the `stencila-server` crate
-/// so that there is a single, optimized implementation.
-///
-/// # Theme parameter
-/// - `None`: Skip theme entirely
-/// - `Some(theme)`: Use the resolved theme
-///
-/// # Site parameter
-/// Combined layout and glide configuration for site rendering:
-/// - `None`: No layout wrapper or glide data attributes
-/// - `Some((layout, glide))`: Wrap content in `<stencila-layout>` with nav tree,
-///   and add glide data attributes to `<body>` for client-side navigation
+/// This is exposed as a public function for use by the `stencila-server` crate
+/// (and elsewhere) so that there is a single, optimized implementation.
 #[allow(clippy::too_many_arguments)]
 pub async fn standalone_html(
     doc_id: String,
@@ -421,7 +265,7 @@ pub async fn standalone_html(
     web_base: String,
     theme: Option<&Theme>,
     view: &str,
-    site: Option<(&ResolvedLayout, &ResolvedGlide)>,
+    site: Option<String>,
 ) -> String {
     let title = node_title.as_ref().map_or_else(
         || "Stencila Document".to_string(),
@@ -602,30 +446,8 @@ pub async fn standalone_html(
         html.push_str(&extra_head);
     }
 
-    // Build body tag with optional glide data attributes
-    let body_tag = if let Some((_, glide_config)) = site {
-        let glide_attr = if glide_config.enabled { "on" } else { "off" };
-        if glide_config.enabled {
-            format!(
-                r#"<body data-stencila-glide="{}" data-stencila-prefetch="{}" data-stencila-cache="{}">"#,
-                glide_attr, glide_config.prefetch, glide_config.cache
-            )
-        } else {
-            format!(r#"<body data-stencila-glide="{}">"#, glide_attr)
-        }
-    } else {
-        "<body>".to_string()
-    };
-
-    html.push_str(&format!(
-        r#"
-  </head>
-  {body_tag}
-    "#,
-    ));
-
     // Build the view-wrapped content
-    let view_content = if view != "none" {
+    let content = if view != "none" {
         format!(
             r#"<stencila-{view}-view view={view} doc={doc_id} type={node_type}>{node_html}</stencila-{view}-view>"#
         )
@@ -633,18 +455,15 @@ pub async fn standalone_html(
         node_html
     };
 
-    // Optionally wrap in resolved layout
-    if let Some((resolved_layout, _)) = site {
-        html.push_str(&render_layout(&view_content, resolved_layout));
+    // Build the body
+    let body = if let Some(site) = site {
+        site.replace("<!--MAIN CONTENT-->", &content)
     } else {
-        html.push_str(&view_content);
-    }
+        ["<body>", &content, "</body>"].concat()
+    };
+    html.push_str(&body);
 
-    html.push_str(
-        r#"
-  </body>
-</html>"#,
-    );
+    html.push_str("</html>");
 
     html
 }

@@ -5,8 +5,8 @@
  * View Transitions API when available.
  */
 
-import type { StencilaNavTree } from '../layout/nav-tree'
-import type { StencilaTocTree } from '../layout/toc-tree'
+//import type { StencilaNavTree } from '../layout/nav-tree'
+//import type { StencilaTocTree } from '../layout/toc-tree'
 
 import { getPageCache, initPageCache } from './cache'
 import { dispatch, GLIDE_REQUEST, GlideEvents } from './events'

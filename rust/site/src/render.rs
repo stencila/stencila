@@ -11,17 +11,17 @@ use std::{
 
 use eyre::Result;
 use serde_json::json;
+use stencila_node_media::collect_media;
 use tokio::{
-    fs::{create_dir_all, read_dir, write},
+    fs::{copy, create_dir_all, read_dir, write},
     sync::mpsc,
 };
 
-use stencila_codec::stencila_schema::Node;
-use stencila_codec_dom::{ResolvedGlide, ResolvedLayout, SiteEncodeOptions, encode_site_document};
-use stencila_config::RedirectStatus;
+use stencila_codec::{EncodeOptions, stencila_schema::Node};
+use stencila_config::{LayoutConfig, RedirectStatus};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
-use crate::{RouteEntry, RouteType, layout::resolve_layout, list};
+use crate::{RouteEntry, RouteType, glide::render_glide, layout::render_layout, list};
 
 /// A document rendered to HTML
 #[derive(Debug)]
@@ -89,12 +89,12 @@ pub enum RenderProgress {
 
 /// Render a site to a directory
 ///
-/// Walks the source path, encodes documents to HTML, and writes all files
+/// Walks the source directory, encodes documents to HTML, and writes all files
 /// (HTML, redirects, media, static) to the output directory.
 ///
 /// # Arguments
-/// * `source` - The source directory to render
-/// * `output` - The output directory for rendered files
+/// * `source_dir` - The source directory to render
+/// * `output_dir` - The output directory for rendered files
 /// * `base_url` - Base URL for the site (used in HTML for absolute links)
 /// * `route_filter` - Optional filter to only render routes matching prefix
 /// * `path_filter` - Optional filter to only render files matching path prefix
@@ -102,11 +102,12 @@ pub enum RenderProgress {
 /// * `decode_document_fn` - Async function to decode a document from a path
 ///
 /// # Error Handling
-/// - **Continue on error**: If one document fails, log it and continue with next
+/// - **Continue on error**: If one document fails, log it and continue with
+///   next
 #[allow(clippy::too_many_arguments)]
 pub async fn render<F, Fut>(
-    source: &Path,
-    output: &Path,
+    source_dir: &Path,
+    output_dir: &Path,
     base_url: &str,
     route_filter: Option<&str>,
     path_filter: Option<&str>,
@@ -129,10 +130,10 @@ where
     send_progress!(RenderProgress::WalkingDirectory);
 
     // List all routes
-    let all_routes = list(source, true, true, route_filter, path_filter).await?;
+    let all_routes = list(source_dir, true, true, route_filter, path_filter).await?;
 
     // Find workspace root for config
-    let stencila_dir = closest_stencila_dir(source, true).await?;
+    let stencila_dir = closest_stencila_dir(source_dir, true).await?;
     let workspace_dir = workspace_dir(&stencila_dir)?;
 
     // Load config from workspace
@@ -146,20 +147,6 @@ where
     } else {
         workspace_dir.clone()
     };
-
-    // Get layout configuration
-    let layout = config
-        .site
-        .as_mut()
-        .and_then(|site| site.layout.take())
-        .unwrap_or_default();
-
-    // Get glide configuration
-    let glide = config
-        .site
-        .as_mut()
-        .and_then(|site| site.glide.take())
-        .unwrap_or_default();
 
     // Partition routes by type
     let mut document_routes: Vec<RouteEntry> = Vec::new();
@@ -207,26 +194,47 @@ where
     });
 
     // Create output directory
-    create_dir_all(output).await?;
+    create_dir_all(output_dir).await?;
+
+    // Render glide attributes (used for all document routes)
+    let glide_config = config.site.as_ref().and_then(|site| site.glide.as_ref());
+    let glide_attrs = render_glide(glide_config);
+
+    // Get layout configuration (used for all document routes)
+    let layout_config = config
+        .site
+        .as_mut()
+        .and_then(|site| site.layout.take())
+        .unwrap_or_default();
 
     // Render all documents
-    let mut rendered_docs: Vec<RenderedDocument> = Vec::new();
-    let mut documents_failed: Vec<(PathBuf, String)> = Vec::new();
-    let mut total_media_created: usize = 0;
-
-    for (index, entry) in document_routes.iter().enumerate() {
-        let source_path = entry.source_path.as_ref().expect("filtered above");
+    let mut docs_rendered: Vec<RenderedDocument> = Vec::new();
+    let mut docs_failed: Vec<(PathBuf, String)> = Vec::new();
+    let mut media_created: usize = 0;
+    for (
+        index,
+        RouteEntry {
+            route,
+            target,
+            source_path,
+            spread_arguments,
+            ..
+        },
+    ) in document_routes.iter().enumerate()
+    {
+        let source_path = source_path.as_ref().expect("filtered above");
 
         // Skip if source file doesn't exist
         if !source_path.exists() {
-            let error_msg = format!("Source file not found: {}", entry.target);
+            let error_msg = format!("Source file not found: {}", target);
             tracing::warn!("{}", error_msg);
-            documents_failed.push((source_path.clone(), error_msg));
+            docs_failed.push((source_path.clone(), error_msg));
             continue;
         }
 
+        // Determine relative path
         let relative_path = source_path
-            .strip_prefix(source)
+            .strip_prefix(source_dir)
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|_| source_path.to_string_lossy().to_string());
 
@@ -238,34 +246,22 @@ where
         });
 
         // Convert spread arguments from IndexMap to HashMap
-        let arguments: HashMap<String, String> = entry
-            .spread_arguments
+        let arguments: HashMap<String, String> = spread_arguments
             .as_ref()
             .map(|args| args.iter().map(|(k, v)| (k.clone(), v.clone())).collect())
             .unwrap_or_default();
 
+        // Decode document and render it to route HTML
         let result = async {
             let node = decode_document_fn(source_path.clone(), arguments.clone()).await?;
-
-            // Resolve layout with nav tree and headings for this route
-            let resolved_layout =
-                resolve_layout(&entry.route, &document_routes, &layout, Some(&node));
-
-            // Resolve glide
-            let resolved_glide = ResolvedGlide {
-                enabled: glide.enabled(),
-                prefetch: glide.prefetch(),
-                cache: glide.cache(),
-            };
-
-            render_document(
-                &node,
-                Some(source_path),
+            render_document_route(
+                route,
+                node,
                 base_url,
-                output,
-                &entry.route,
-                &resolved_layout,
-                &resolved_glide,
+                &glide_attrs,
+                &layout_config,
+                source_path,
+                output_dir,
             )
             .await
         }
@@ -273,12 +269,12 @@ where
 
         match result {
             Ok(rendered) => {
-                total_media_created += rendered.media_files.len();
+                media_created += rendered.media_files.len();
                 send_progress!(RenderProgress::DocumentEncoded {
                     path: source_path.clone(),
                     route: rendered.route.clone(),
                 });
-                rendered_docs.push(rendered);
+                docs_rendered.push(rendered);
             }
             Err(e) => {
                 let error_msg = if arguments.is_empty() {
@@ -290,34 +286,24 @@ where
                     path: source_path.clone(),
                     error: error_msg.clone(),
                 });
-                documents_failed.push((source_path.clone(), error_msg));
+                docs_failed.push((source_path.clone(), error_msg));
             }
         }
     }
 
     // Write redirect files
     for (route, target, status) in &redirects {
-        let storage_path = route_to_redirect_storage_path(route);
-        let redirect_path = output.join(&storage_path);
-        if let Some(parent) = redirect_path.parent() {
-            create_dir_all(parent).await?;
-        }
-
-        let redirect_content = serde_json::to_string(&json!({
-            "location": target,
-            "status": status
-        }))?;
-        write(&redirect_path, redirect_content).await?;
+        render_redirect_route(route, target, status, output_dir).await?;
     }
 
     // Copy static files (preserving relative paths)
     for (index, static_path) in static_files.iter().enumerate() {
         let relative = static_path.strip_prefix(&site_root)?;
-        let dest_path = output.join(normalize_storage_path(&relative.to_string_lossy()));
+        let dest_path = output_dir.join(normalize_storage_path(&relative.to_string_lossy()));
         if let Some(parent) = dest_path.parent() {
             create_dir_all(parent).await?;
         }
-        tokio::fs::copy(static_path, &dest_path).await?;
+        copy(static_path, &dest_path).await?;
 
         send_progress!(RenderProgress::CopyingStatic {
             copied: index + 1,
@@ -326,7 +312,7 @@ where
     }
 
     // Count unique media files
-    let media_dir = output.join("media");
+    let media_dir = output_dir.join("media");
     let media_files_count = if media_dir.exists() {
         let mut count = 0;
         let mut entries = read_dir(&media_dir).await?;
@@ -338,14 +324,14 @@ where
         0
     };
 
-    let duplicate_count = total_media_created.saturating_sub(media_files_count);
+    let duplicate_count = media_created.saturating_sub(media_files_count);
 
     let result = RenderResult {
-        documents_ok: rendered_docs
+        documents_ok: docs_rendered
             .iter()
             .map(|d| (d.source_path.clone(), d.route.clone()))
             .collect(),
-        documents_failed,
+        documents_failed: docs_failed,
         redirects: redirects
             .iter()
             .map(|(r, t, _)| (r.clone(), t.clone()))
@@ -360,27 +346,15 @@ where
     Ok(result)
 }
 
-/// Render a document to HTML
-///
-/// # Arguments
-/// * `node` - The decoded document node
-/// * `path` - Original source file path (used for media resolution)
-/// * `base_url` - Base URL for the site
-/// * `output_root` - Output directory root
-/// * `route` - The route for this document (e.g., "/docs/report/")
-/// * `resolved_layout` - Pre-resolved layout with nav tree for current route
-/// * `resolved_glide` - Glide configuration for client-side navigation
-///
-/// # Returns
-/// The rendered document with path information and media files collected.
-async fn render_document(
-    node: &Node,
-    path: Option<&Path>,
-    base_url: &str,
-    output_root: &Path,
+/// Render a file-based route to an index.html file
+async fn render_document_route(
     route: &str,
-    resolved_layout: &ResolvedLayout,
-    resolved_glide: &ResolvedGlide,
+    mut node: Node,
+    base_url: &str,
+    glide_attrs: &str,
+    layout_config: &LayoutConfig,
+    source_file: &Path,
+    output_dir: &Path,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -389,22 +363,17 @@ async fn render_document(
         format!("{route}/")
     };
 
-    // Convert route to HTML path (e.g., "/docs/report/" -> "docs/report/index.html")
+    // Convert route to HTML file path (e.g., "/docs/report/" -> "docs/report/index.html")
     let trimmed = route.trim_start_matches('/').trim_end_matches('/');
-    let html_path = if trimmed.is_empty() {
+    let html_file = if trimmed.is_empty() {
         "index.html".to_string()
     } else {
         format!("{trimmed}/index.html")
     };
+    let html_file = output_dir.join(&html_file);
 
-    // Create HTML file at its route path
-    let html_file = output_root.join(&html_path);
-    if let Some(parent) = html_file.parent() {
-        create_dir_all(parent).await?;
-    }
-
-    // Media directory at output root for shared deduplication
-    let media_dir = output_root.join("media");
+    // Create media directory at output root for shared deduplication
+    let media_dir = output_dir.join("media");
     create_dir_all(&media_dir).await?;
 
     // Capture existing media files before encoding to detect new files
@@ -418,19 +387,31 @@ async fn render_document(
         }
     }
 
-    // Encode HTML with media collection to shared directory
-    encode_site_document(
-        node,
-        &html_file,
-        SiteEncodeOptions {
-            source_path: path,
-            base_url,
-            media_dir: &media_dir,
-            resolved_layout,
-            resolved_glide,
-        },
+    // Collect media from source file to shared media directory
+    collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
+
+    // Render layout for the route
+    let layout_html = render_layout(layout_config); //, &entry.route, &document_routes, Some(&node));
+
+    // Generate site body
+    let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");
+
+    // Generate standalone html
+    let (html, ..) = stencila_codec_dom::encode(
+        &node,
+        Some(EncodeOptions {
+            base_url: Some(base_url.to_string()),
+            ..Default::default()
+        }),
+        Some(site),
     )
     .await?;
+
+    // Write to output HTML file
+    if let Some(parent) = html_file.parent() {
+        create_dir_all(parent).await?;
+    }
+    write(html_file, html).await?;
 
     // Collect NEW media files created during this document's encoding
     let mut media_files = Vec::new();
@@ -448,10 +429,37 @@ async fn render_document(
     }
 
     Ok(RenderedDocument {
-        source_path: path.map(|p| p.to_path_buf()).unwrap_or_default(),
+        source_path: source_file.to_path_buf(),
         route,
         media_files,
     })
+}
+
+/// Render a redirect route to a JSON file
+async fn render_redirect_route(
+    route: &str,
+    target: &str,
+    status: &RedirectStatus,
+    output_dir: &Path,
+) -> Result<()> {
+    let trimmed = route.trim_matches('/');
+    let storage_path = if trimmed.is_empty() {
+        "redirect.json".to_string()
+    } else {
+        format!("{trimmed}/redirect.json")
+    };
+    let redirect_path = output_dir.join(&storage_path);
+    if let Some(parent) = redirect_path.parent() {
+        create_dir_all(parent).await?;
+    }
+
+    let redirect_content = serde_json::to_string(&json!({
+        "location": target,
+        "status": status
+    }))?;
+    write(&redirect_path, redirect_content).await?;
+
+    Ok(())
 }
 
 /// Normalize a path to use forward slashes for storage paths.
@@ -460,20 +468,6 @@ async fn render_document(
 /// invalid for URL routing.
 fn normalize_storage_path(path: &str) -> String {
     path.replace('\\', "/")
-}
-
-/// Convert a route to redirect storage path
-///
-/// # Examples
-/// - `"/"` -> `"redirect.json"`
-/// - `"/old-page/"` -> `"old-page/redirect.json"`
-fn route_to_redirect_storage_path(route: &str) -> String {
-    let trimmed = route.trim_matches('/');
-    if trimmed.is_empty() {
-        "redirect.json".to_string()
-    } else {
-        format!("{trimmed}/redirect.json")
-    }
 }
 
 #[cfg(test)]
@@ -489,19 +483,6 @@ mod tests {
         assert_eq!(
             normalize_storage_path("assets\\style.css"),
             "assets/style.css"
-        );
-    }
-
-    #[test]
-    fn test_route_to_redirect_storage_path() {
-        assert_eq!(route_to_redirect_storage_path("/"), "redirect.json");
-        assert_eq!(
-            route_to_redirect_storage_path("/old-page/"),
-            "old-page/redirect.json"
-        );
-        assert_eq!(
-            route_to_redirect_storage_path("/docs/old/"),
-            "docs/old/redirect.json"
         );
     }
 }

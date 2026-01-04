@@ -20,7 +20,7 @@ use stencila_cloud::sites::{
     list_site_branches, set_site_domain, update_site_access,
 };
 use stencila_config::{
-    ConfigTarget, RouteSpread, SiteLayout, SpreadMode, config, config_add_redirect_route,
+    ConfigTarget, RouteSpread, LayoutConfig, SpreadMode, config, config_add_redirect_route,
     config_add_route, config_remove_route, config_set, config_set_route_spread, config_unset,
     validate_placeholders,
 };
@@ -817,7 +817,7 @@ impl Preview {
     }
 
     /// Render the site to the output directory
-    async fn render_site(source: &Path, output: &Path, _layout: Option<&SiteLayout>) -> Result<()> {
+    async fn render_site(source: &Path, output: &Path, _layout: Option<&LayoutConfig>) -> Result<()> {
         use stencila_site::RenderProgress;
 
         // Use render() to render to the output directory
@@ -879,7 +879,7 @@ impl Preview {
         workspace_root: &Path,
         site_root: &Path,
         output: &Path,
-        mut layout: Option<SiteLayout>,
+        mut layout: Option<LayoutConfig>,
         site_notify: broadcast::Sender<SiteMessage>,
     ) -> Result<()> {
         // Watch config file for layout changes

@@ -10722,6 +10722,7 @@ dependencies = [
  "stencila-cloud",
  "stencila-codec",
  "stencila-codec-dom",
+ "stencila-codec-text",
  "stencila-codec-utils",
  "stencila-config",
  "stencila-dirs",

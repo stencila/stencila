@@ -5,20 +5,11 @@ use url::Url;
 
 use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 
-mod headings;
-pub use headings::extract_headings_from_node;
-
+mod glide;
 mod layout;
-pub use layout::{
-    HeadingItem, NavTreeItem, ResolvedFooter, ResolvedHeader, ResolvedLayout, ResolvedLeftSidebar,
-    ResolvedRightSidebar, resolve_layout,
-};
 
 mod list;
 pub use list::{RouteEntry, RouteType, list};
-
-mod nav;
-pub use nav::build_nav_tree;
 
 mod render;
 pub use render::{RenderProgress, RenderResult, render};

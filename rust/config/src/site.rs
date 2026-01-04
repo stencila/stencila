@@ -13,7 +13,7 @@ use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
     CONFIG_FILENAME, ConfigRelativePath, DOMAIN_REGEX, SpreadMode, find_config_file,
-    layout::SiteLayout, validate_placeholders,
+    layout::LayoutConfig, validate_placeholders,
 };
 
 /// Configuration for a site
@@ -95,7 +95,7 @@ pub struct SiteConfig {
     /// left-sidebar = true
     /// right-sidebar = true
     /// ```
-    pub layout: Option<SiteLayout>,
+    pub layout: Option<LayoutConfig>,
 
     /// Glide configuration for client-side navigation
     ///
@@ -369,23 +369,6 @@ pub struct GlideConfig {
     /// back/forward navigation. Set to 0 to disable caching.
     /// Default: 10
     pub cache: Option<usize>,
-}
-
-impl GlideConfig {
-    /// Check if glide is enabled (defaults to true)
-    pub fn enabled(&self) -> bool {
-        self.enabled.unwrap_or(true)
-    }
-
-    /// Get the prefetch limit (defaults to 20)
-    pub fn prefetch(&self) -> usize {
-        self.prefetch.unwrap_or(20)
-    }
-
-    /// Get the cache size (defaults to 10)
-    pub fn cache(&self) -> usize {
-        self.cache.unwrap_or(10)
-    }
 }
 
 /// Add a route to the [site.routes] section of stencila.toml
