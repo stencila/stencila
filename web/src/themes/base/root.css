@@ -17,7 +17,6 @@
 }
 
 [root] {
-    min-height: 100vh;
     margin: 0 auto;
 
     /* Overflow handling - Prevents long unbreakable strings (URLs, identifiers, etc.)

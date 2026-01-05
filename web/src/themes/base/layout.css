@@ -71,13 +71,20 @@
 stencila-layout {
     display: grid;
     grid-template-rows: auto 1fr auto;
-    min-height: 100vh;
 }
 
-/* Layout body: sidebars + main content */
+/* Layout body: sidebars + main content
+ * min-height ensures footer is pushed below the fold */
 .layout-body {
     display: grid;
     grid-template-columns: var(--layout-left-sidebar-width) 1fr var(--layout-right-sidebar-width);
+    grid-template-rows: 1fr;
+    min-height: calc(100vh - var(--layout-header-height));
+}
+
+/* When no header, body fills entire viewport */
+stencila-layout:not([header]) .layout-body {
+    min-height: 100vh;
 }
 
 /* Layout without left sidebar */
@@ -155,7 +162,6 @@ stencila-left-sidebar {
     position: sticky;
     top: var(--layout-header-height);
     align-self: stretch;
-    max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--sidebar-padding);
     background: var(--left-sidebar-background);
@@ -171,7 +177,6 @@ stencila-right-sidebar {
     position: sticky;
     top: var(--layout-header-height);
     align-self: stretch;
-    max-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--sidebar-padding);
     background: var(--right-sidebar-background);
@@ -182,7 +187,6 @@ stencila-right-sidebar {
 stencila-layout:not([header]) stencila-left-sidebar,
 stencila-layout:not([header]) stencila-right-sidebar {
     top: 0;
-    max-height: 100vh;
 }
 
 /* =================================
