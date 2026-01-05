@@ -232,7 +232,8 @@ impl LayoutConfig {
     /// This method:
     /// 1. Calls `resolve()` to merge preset defaults with explicit config
     /// 2. Finds the first matching override for the route (if any)
-    /// 3. Applies the override's region configs on top of the resolved base
+    /// 3. If the override has a preset, uses that preset's defaults as the new base
+    /// 4. Applies the override's explicit region configs on top
     ///
     /// Example:
     /// ```ignore
@@ -246,16 +247,66 @@ impl LayoutConfig {
             return base;
         };
 
-        // Apply override regions on top of resolved base
+        // Build the region base with proper layering:
+        // 1. If override has a preset, start with that preset's defaults
+        // 2. Merge global explicit config on top (so global customizations persist)
+        // 3. Merge override's explicit regions on top
+        //
+        // This ensures that global config like `header.end = ["search"]` applies
+        // everywhere, even on routes that switch to a different preset.
+        let region_base = match &override_config.preset {
+            Some(preset) => {
+                // Start with override's preset defaults
+                let preset_defaults = preset.defaults();
+                // Layer global explicit config on top of preset defaults
+                LayoutConfig {
+                    header: merge_region(&preset_defaults.header, &self.header),
+                    left_sidebar: merge_region(&preset_defaults.left_sidebar, &self.left_sidebar),
+                    top: merge_region(&preset_defaults.top, &self.top),
+                    bottom: merge_region(&preset_defaults.bottom, &self.bottom),
+                    right_sidebar: merge_region(
+                        &preset_defaults.right_sidebar,
+                        &self.right_sidebar,
+                    ),
+                    footer: merge_region(&preset_defaults.footer, &self.footer),
+                    ..Default::default()
+                }
+            }
+            None => base.clone(),
+        };
+
+        // Apply override's explicit regions on top of the region base,
+        // then resolve named component references (consistent with resolve())
+        let components = &base.components;
         Self {
-            preset: base.preset,
-            components: base.components,
-            header: merge_region(&base.header, &override_config.header),
-            left_sidebar: merge_region(&base.left_sidebar, &override_config.left_sidebar),
-            top: merge_region(&base.top, &override_config.top),
-            bottom: merge_region(&base.bottom, &override_config.bottom),
-            right_sidebar: merge_region(&base.right_sidebar, &override_config.right_sidebar),
-            footer: merge_region(&base.footer, &override_config.footer),
+            // Use override preset if specified, otherwise keep base preset
+            preset: override_config.preset.or(base.preset),
+            // Keep merged components from base
+            components: base.components.clone(),
+            header: resolve_region(
+                merge_region(&region_base.header, &override_config.header),
+                components,
+            ),
+            left_sidebar: resolve_region(
+                merge_region(&region_base.left_sidebar, &override_config.left_sidebar),
+                components,
+            ),
+            top: resolve_region(
+                merge_region(&region_base.top, &override_config.top),
+                components,
+            ),
+            bottom: resolve_region(
+                merge_region(&region_base.bottom, &override_config.bottom),
+                components,
+            ),
+            right_sidebar: resolve_region(
+                merge_region(&region_base.right_sidebar, &override_config.right_sidebar),
+                components,
+            ),
+            footer: resolve_region(
+                merge_region(&region_base.footer, &override_config.footer),
+                components,
+            ),
             // Don't include overrides in resolved config - they've been applied
             overrides: vec![],
         }
@@ -279,18 +330,57 @@ impl LayoutConfig {
     }
 }
 
-/// Merge two optional region specs (override takes precedence over base)
+/// Merge two optional region specs with deep merging of sub-regions
+///
+/// When both base and override are `RegionSpec::Config`, individual sub-regions
+/// (start, middle, end) are merged rather than the whole region being replaced.
+/// This allows setting only `header.end` without losing preset's `header.start`.
+///
+/// Sub-region merge semantics:
+/// - `None` = inherit from base
+/// - `Some([])` = explicitly empty (clears base)
+/// - `Some([...])` = override with these components
 fn merge_region(
     base: &Option<RegionSpec>,
     override_spec: &Option<RegionSpec>,
 ) -> Option<RegionSpec> {
     match (base, override_spec) {
-        // Override completely replaces base
+        // Both are Config: deep merge sub-regions
+        (Some(RegionSpec::Config(base_config)), Some(RegionSpec::Config(override_config))) => {
+            Some(RegionSpec::Config(RegionConfig {
+                // Override enabled flag if specified, otherwise inherit
+                enabled: override_config.enabled.or(base_config.enabled),
+                // Merge each sub-region: override takes precedence if specified
+                start: merge_subregion(&base_config.start, &override_config.start),
+                middle: merge_subregion(&base_config.middle, &override_config.middle),
+                end: merge_subregion(&base_config.end, &override_config.end),
+            }))
+        }
+        // Override is Enabled (bool): replaces base entirely (explicit enable/disable)
+        (_, Some(RegionSpec::Enabled(enabled))) => Some(RegionSpec::Enabled(*enabled)),
+        // Override is Config but base is Enabled or None: use override as-is
         (_, Some(override_spec)) => Some(override_spec.clone()),
         // No override, use base
         (Some(base), None) => Some(base.clone()),
         // Neither specified
         (None, None) => None,
+    }
+}
+
+/// Merge two optional sub-region component lists
+///
+/// - `None` in override = inherit from base
+/// - `Some([])` in override = explicitly empty
+/// - `Some([...])` in override = use override components
+fn merge_subregion(
+    base: &Option<Vec<ComponentSpec>>,
+    override_spec: &Option<Vec<ComponentSpec>>,
+) -> Option<Vec<ComponentSpec>> {
+    match override_spec {
+        // Override specified (even if empty): use override
+        Some(override_list) => Some(override_list.clone()),
+        // No override: inherit from base
+        None => base.clone(),
     }
 }
 
@@ -836,13 +926,37 @@ pub enum ColorModeStyle {
 ///
 /// First matching override wins (order matters in the array).
 ///
-/// Example:
+/// ## Layering Order
+///
+/// When resolving layout for a route, configuration is layered as follows:
+///
+/// 1. **Override preset** (if specified) - provides the base region defaults
+/// 2. **Global explicit config** - `[site.layout.header]` etc. merged on top
+/// 3. **Override explicit regions** - `header`, `left-sidebar`, etc. merged on top
+///
+/// This means global customizations (like adding search to the header) persist
+/// across all routes, even those that switch to a different preset. To remove
+/// a global customization for specific routes, explicitly override that region.
+///
+/// ## Examples
+///
 /// ```toml
+/// [site.layout]
+/// preset = "docs"
+/// header.end = ["search", "color-mode"]  # Global: search on all pages
+///
+/// # Blog routes use blog preset, but keep the global header customization
 /// [[site.layout.overrides]]
 /// routes = ["/blog/**"]
-/// left-sidebar = false
-/// bottom = false
+/// preset = "blog"
 ///
+/// # Landing pages use landing preset with explicit header override
+/// [[site.layout.overrides]]
+/// routes = ["/", "/features/"]
+/// preset = "landing"
+/// header.end = ["color-mode"]  # Override global: no search on landing
+///
+/// # Just override specific regions (no preset change)
 /// [[site.layout.overrides]]
 /// routes = ["/api/**"]
 /// left-sidebar.middle = "api-nav"
@@ -856,6 +970,13 @@ pub struct LayoutOverride {
     ///
     /// Examples: `["/blog/**"]`, `["/docs/api/**", "/api/**"]`
     pub routes: Vec<String>,
+
+    /// Preset to use for matching routes
+    ///
+    /// When specified, the preset's defaults are used as the base for this override.
+    /// Global explicit config is then merged on top, followed by any explicit
+    /// region overrides in this override.
+    pub preset: Option<LayoutPreset>,
 
     /// Header region override
     pub header: Option<RegionSpec>,
@@ -1693,5 +1814,508 @@ mod tests {
 
         let resolved = config.resolve_for_route("/blog/post/");
         assert!(resolved.overrides.is_empty());
+    }
+
+    #[test]
+    fn test_resolve_for_route_with_preset_override() {
+        // Override with a different preset should use that preset's defaults
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                preset: Some(LayoutPreset::Blog),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        // Non-blog route should use docs preset (left sidebar enabled)
+        let resolved = config.resolve_for_route("/docs/guide/");
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+        assert_eq!(resolved.preset, Some(LayoutPreset::Docs));
+
+        // Blog route should use blog preset (left sidebar disabled)
+        let resolved = config.resolve_for_route("/blog/post/");
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        assert_eq!(resolved.preset, Some(LayoutPreset::Blog));
+    }
+
+    #[test]
+    fn test_resolve_for_route_preset_override_with_region_override() {
+        // Override with preset AND explicit region should apply region on top of preset
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                preset: Some(LayoutPreset::Blog),
+                // Blog preset disables left sidebar, but we'll enable the right sidebar
+                // (which blog preset has enabled by default) and disable footer
+                footer: Some(RegionSpec::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        let resolved = config.resolve_for_route("/blog/post/");
+
+        // Left sidebar should be disabled (from blog preset)
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        // Right sidebar should be enabled (from blog preset)
+        assert!(
+            resolved
+                .right_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+        // Footer should be disabled (explicit override)
+        assert!(resolved.footer.as_ref().is_some_and(|r| !r.is_enabled()));
+    }
+
+    #[test]
+    fn test_resolve_for_route_landing_preset_override() {
+        // Test landing preset override (disables both sidebars)
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            overrides: vec![LayoutOverride {
+                routes: vec!["/", "/features/"]
+                    .into_iter()
+                    .map(String::from)
+                    .collect(),
+                preset: Some(LayoutPreset::Landing),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        // Landing pages should have no sidebars
+        let resolved = config.resolve_for_route("/");
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        assert!(
+            resolved
+                .right_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        assert_eq!(resolved.preset, Some(LayoutPreset::Landing));
+
+        // Docs pages should have sidebars
+        let resolved = config.resolve_for_route("/docs/guide/");
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+        assert_eq!(resolved.preset, Some(LayoutPreset::Docs));
+    }
+
+    #[test]
+    fn test_override_preset_parsing() -> Result<()> {
+        // Test that preset can be parsed in override TOML
+        let toml = r#"
+            preset = "docs"
+
+            [[overrides]]
+            routes = ["/blog/**"]
+            preset = "blog"
+
+            [[overrides]]
+            routes = ["/"]
+            preset = "landing"
+            footer = false
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        assert_eq!(config.preset, Some(LayoutPreset::Docs));
+        assert_eq!(config.overrides.len(), 2);
+        assert_eq!(config.overrides[0].preset, Some(LayoutPreset::Blog));
+        assert_eq!(config.overrides[1].preset, Some(LayoutPreset::Landing));
+        assert!(matches!(
+            config.overrides[1].footer,
+            Some(RegionSpec::Enabled(false))
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_resolve_for_route_expands_named_components_in_override() -> Result<()> {
+        // Regression test: named components should be expanded even when
+        // an override uses a different preset
+        let toml = r#"
+            preset = "docs"
+
+            [components.custom-nav]
+            type = "nav-tree"
+            collapsible = false
+            depth = 2
+
+            [[overrides]]
+            routes = ["/blog/**"]
+            preset = "blog"
+            left-sidebar.middle = "custom-nav"
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        // Resolve for blog route
+        let resolved = config.resolve_for_route("/blog/post/");
+
+        // The named component "custom-nav" should be expanded
+        let sidebar = resolved
+            .left_sidebar
+            .as_ref()
+            .expect("left-sidebar should be present");
+        let region_config = sidebar.config().expect("should be config");
+        let middle = region_config
+            .middle
+            .as_ref()
+            .expect("middle should be present");
+
+        assert_eq!(middle.len(), 1);
+        if let ComponentSpec::Config(c) = &middle[0] {
+            if let ComponentConfig::NavTree {
+                collapsible, depth, ..
+            } = &c.component
+            {
+                assert_eq!(*collapsible, Some(false));
+                assert_eq!(*depth, Some(2));
+            } else {
+                panic!("Expected NavTree component");
+            }
+        } else {
+            panic!("Expected ComponentSpec::Config after resolution, got Name");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_resolve_for_route_expands_components_from_preset_override() -> Result<()> {
+        // Regression test: when override uses a preset, its default regions
+        // should also have named components expanded
+        let toml = r#"
+            [components.custom-toc]
+            type = "toc-tree"
+            depth = 5
+
+            # Override right-sidebar to use custom component
+            [right-sidebar]
+            start = "custom-toc"
+
+            [[overrides]]
+            routes = ["/blog/**"]
+            preset = "blog"
+            # Blog preset has right-sidebar enabled by default with toc-tree
+            # We override it to use our custom component
+            right-sidebar.start = "custom-toc"
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve_for_route("/blog/post/");
+
+        let sidebar = resolved
+            .right_sidebar
+            .as_ref()
+            .expect("right-sidebar should be present");
+        let region_config = sidebar.config().expect("should be config");
+        let start = region_config
+            .start
+            .as_ref()
+            .expect("start should be present");
+
+        assert_eq!(start.len(), 1);
+        // custom-toc should be expanded to TocTree with depth=5
+        if let ComponentSpec::Config(c) = &start[0] {
+            if let ComponentConfig::TocTree { depth, .. } = &c.component {
+                assert_eq!(*depth, Some(5));
+            } else {
+                panic!("Expected TocTree component");
+            }
+        } else {
+            panic!("Expected ComponentSpec::Config after resolution");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_resolve_for_route_global_config_persists_through_preset_override() -> Result<()> {
+        // Test that global explicit config persists even when an override switches presets.
+        // This is the intended behavior: if you set header.end = ["search"] globally,
+        // you want search on ALL pages, not just non-overridden pages.
+        let toml = r#"
+            preset = "docs"
+
+            # Global customization: add search to header on all pages
+            [header]
+            end = ["search", "color-mode"]
+
+            [[overrides]]
+            routes = ["/blog/**"]
+            preset = "blog"
+            # Note: we're NOT overriding header here
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        // Non-blog route should have search in header
+        let resolved = config.resolve_for_route("/docs/guide/");
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "search"));
+
+        // Blog route should ALSO have search in header (global config persists)
+        let resolved = config.resolve_for_route("/blog/post/");
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+        assert!(
+            matches!(&end[0], ComponentSpec::Name(n) if n == "search"),
+            "Global header.end config should persist through preset override"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_resolve_for_route_override_can_still_override_global() -> Result<()> {
+        // Test that override's explicit regions still take precedence over global config
+        let toml = r#"
+            preset = "docs"
+
+            # Global customization
+            [header]
+            end = ["search", "color-mode"]
+
+            [[overrides]]
+            routes = ["/blog/**"]
+            preset = "blog"
+            # Explicitly override header for blog (overrides global)
+            header.end = ["color-mode"]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        // Non-blog route should have search + color-mode
+        let resolved = config.resolve_for_route("/docs/guide/");
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+
+        // Blog route should only have color-mode (override takes precedence)
+        let resolved = config.resolve_for_route("/blog/post/");
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 1);
+        assert!(
+            matches!(&end[0], ComponentSpec::Name(n) if n == "color-mode"),
+            "Override's explicit header.end should take precedence over global"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_deep_merge_setting_only_end_preserves_start_and_middle() -> Result<()> {
+        // Test that setting only header.end preserves preset's header.start and header.middle
+        let toml = r#"
+            preset = "docs"
+
+            # Only customize header.end - should preserve preset's start and middle
+            [header]
+            end = ["search", "color-mode"]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve();
+
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+
+        // start should be preserved from docs preset ("logo")
+        let start = region_config
+            .start
+            .as_ref()
+            .expect("start should be present from preset");
+        assert_eq!(start.len(), 1);
+        assert!(
+            matches!(&start[0], ComponentSpec::Name(n) if n == "logo"),
+            "preset's header.start should be preserved"
+        );
+
+        // middle should be preserved from docs preset ("title")
+        let middle = region_config
+            .middle
+            .as_ref()
+            .expect("middle should be present from preset");
+        assert_eq!(middle.len(), 1);
+        assert!(
+            matches!(&middle[0], ComponentSpec::Name(n) if n == "title"),
+            "preset's header.middle should be preserved"
+        );
+
+        // end should be our custom config
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "search"));
+        assert!(matches!(&end[1], ComponentSpec::Name(n) if n == "color-mode"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_deep_merge_explicitly_empty_clears_subregion() -> Result<()> {
+        // Test that setting header.start = [] explicitly clears it
+        let toml = r#"
+            preset = "docs"
+
+            [header]
+            start = []
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve();
+
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+
+        // start should be explicitly empty (not inherited from preset)
+        let start = region_config
+            .start
+            .as_ref()
+            .expect("start should be Some (explicit empty)");
+        assert!(
+            start.is_empty(),
+            "header.start = [] should clear the preset's start"
+        );
+
+        // middle should still be preserved from preset
+        let middle = region_config
+            .middle
+            .as_ref()
+            .expect("middle should be present from preset");
+        assert_eq!(middle.len(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_deep_merge_in_route_override() -> Result<()> {
+        // Test deep merge works in resolve_for_route with override preset
+        let toml = r#"
+            preset = "docs"
+
+            [[overrides]]
+            routes = ["/blog/**"]
+            preset = "blog"
+            # Only customize header.end for blog - should preserve blog preset's start/middle
+            header.end = ["rss-feed", "color-mode"]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve_for_route("/blog/post/");
+
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+
+        // start should be preserved from blog preset ("logo")
+        let start = region_config
+            .start
+            .as_ref()
+            .expect("start should be present from blog preset");
+        assert_eq!(start.len(), 1);
+        assert!(
+            matches!(&start[0], ComponentSpec::Name(n) if n == "logo"),
+            "blog preset's header.start should be preserved"
+        );
+
+        // middle should be preserved from blog preset ("title")
+        let middle = region_config
+            .middle
+            .as_ref()
+            .expect("middle should be present from blog preset");
+        assert_eq!(middle.len(), 1);
+
+        // end should be our custom override
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "rss-feed"));
+        assert!(matches!(&end[1], ComponentSpec::Name(n) if n == "color-mode"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_deep_merge_global_then_override_layers() -> Result<()> {
+        // Test that deep merge works through all layers:
+        // preset defaults -> global explicit -> override explicit
+        let toml = r#"
+            preset = "docs"
+
+            # Global: customize only header.end
+            [header]
+            end = ["search", "color-mode"]
+
+            [[overrides]]
+            routes = ["/landing/"]
+            preset = "landing"
+            # Override: customize only header.start
+            header.start = ["big-logo"]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve_for_route("/landing/");
+
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+
+        // start should be from override ("big-logo")
+        let start = region_config
+            .start
+            .as_ref()
+            .expect("start should be present from override");
+        assert_eq!(start.len(), 1);
+        assert!(matches!(&start[0], ComponentSpec::Name(n) if n == "big-logo"));
+
+        // middle should be from landing preset ("title")
+        let middle = region_config
+            .middle
+            .as_ref()
+            .expect("middle should be present from preset");
+        assert_eq!(middle.len(), 1);
+        assert!(matches!(&middle[0], ComponentSpec::Name(n) if n == "title"));
+
+        // end should be from global config (preserved through preset switch)
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+        assert!(
+            matches!(&end[0], ComponentSpec::Name(n) if n == "search"),
+            "global header.end should persist through preset override"
+        );
+
+        Ok(())
     }
 }
