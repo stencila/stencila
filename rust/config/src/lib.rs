@@ -44,7 +44,7 @@ mod watch;
 pub use {
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LayoutOverride, LayoutPreset,
-        RegionConfig, RegionSpec,
+        PrevNextStyle, RegionConfig, RegionSpec,
     },
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{

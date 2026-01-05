@@ -149,6 +149,9 @@ where
     };
 
     // Partition routes by type
+    // TODO: document_routes is sorted by route path (alphabetically), which is used for
+    // prev/next navigation. This may not match custom nav-tree ordering or groupings.
+    // Consider allowing navigation order to be derived from nav-tree structure instead.
     let mut document_routes: Vec<RouteEntry> = Vec::new();
     let mut static_files: Vec<PathBuf> = Vec::new();
     let mut redirects: Vec<(String, String, RedirectStatus)> = Vec::new();
@@ -259,6 +262,7 @@ where
                 &site_root,
                 source_path,
                 output_dir,
+                &document_routes,
             )
             .await
         }
@@ -353,6 +357,7 @@ async fn render_document_route(
     site_root: &Path,
     source_file: &Path,
     output_dir: &Path,
+    routes: &[RouteEntry],
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -389,7 +394,7 @@ async fn render_document_route(
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Render layout for the route
-    let layout_html = render_layout(site_config, site_root, &route); //, &document_routes, Some(&node));
+    let layout_html = render_layout(site_config, site_root, &route, routes);
 
     // Generate site body
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");

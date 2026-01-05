@@ -1,0 +1,209 @@
+/* Site Prev/Next Navigation Component
+ *
+ * Navigation links to previous and next pages in the site.
+ * Supports four display styles via the `style` attribute.
+ *
+ * Structure:
+ * - stencila-prev-next: Custom element container
+ *   - nav[aria-label="Page navigation"]: Semantic navigation landmark
+ *     - a.link.prev: Previous page link
+ *       - span.icon: Arrow icon (UnoCSS i-lucide:arrow-left)
+ *       - span.content: Label + title wrapper
+ *         - span.label: "Previous" text
+ *         - span.title: Page title
+ *     - span.separator: Optional separator between links
+ *     - span.position: Position indicator (detailed style only)
+ *     - a.link.next: Next page link
+ *       - span.content: Label + title wrapper
+ *       - span.icon: Arrow icon (UnoCSS i-lucide:arrow-right)
+ *
+ * Attributes:
+ * - style="minimal": Icons only
+ * - style="compact": Icons + labels
+ * - style="standard": Icons + labels + titles (default)
+ * - style="detailed": Icons + labels + titles + position
+ *
+ * Design tokens:
+ * - --prev-next-gap: Space between prev and next links
+ * - --prev-next-gap-mobile: Space between links on mobile (stacked layout)
+ * - --prev-next-icon-size: Size of arrow icons
+ * - --prev-next-prev-icon: Unicode character for previous arrow (default: "‹")
+ * - --prev-next-next-icon: Unicode character for next arrow (default: "›")
+ * - --prev-next-link-gap: Space between icon and content
+ * - --prev-next-label-font-size: Font size for "Previous"/"Next" labels
+ * - --prev-next-label-text-transform: Text transform for labels (default: uppercase)
+ * - --prev-next-title-font-size: Font size for page titles
+ * - --prev-next-link-color: Link text color
+ * - --prev-next-link-color-hover: Link hover color
+ * - --prev-next-separator-color: Separator text color
+ * - --prev-next-position-color: Position indicator color
+ * - --prev-next-border-color: Top border color
+ * - --prev-next-border-width: Top border width (default: 0)
+ * - --prev-next-padding: Vertical padding
+ * - --prev-next-margin-top: Top margin separating from content above
+ */
+
+:root {
+    --prev-next-gap: var(--space-8);
+    --prev-next-gap-mobile: var(--space-4);
+    --prev-next-icon-size: calc(var(--layout-icon-size) * 1.8);
+    --prev-next-prev-icon: "‹";
+    --prev-next-next-icon: "›";
+    --prev-next-link-gap: var(--space-3);
+    --prev-next-label-font-size: var(--font-size-xs);
+    --prev-next-label-text-transform: uppercase;
+    --prev-next-title-font-size: var(--text-font-size);
+    --prev-next-link-color: var(--text-color-secondary);
+    --prev-next-link-color-hover: var(--text-color-primary);
+    --prev-next-separator-color: var(--text-color-muted);
+    --prev-next-position-color: var(--text-color-muted);
+    --prev-next-border-color: var(--border-color-muted);
+    --prev-next-border-width: 0;
+    --prev-next-padding: var(--space-6);
+    --prev-next-margin-top: var(--space-8);
+}
+
+/* Container */
+stencila-prev-next {
+    display: block;
+    padding: var(--prev-next-padding) 0;
+    border-top: var(--prev-next-border-width) solid var(--prev-next-border-color);
+    margin-top: var(--prev-next-margin-top);
+}
+
+/* Navigation wrapper */
+stencila-prev-next nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--prev-next-gap);
+}
+
+/* Links */
+stencila-prev-next .link {
+    display: flex;
+    align-items: center;
+    gap: var(--prev-next-link-gap);
+    color: var(--prev-next-link-color);
+    text-decoration: none;
+    transition: color var(--transition-duration-fast);
+}
+
+stencila-prev-next .link:hover {
+    color: var(--prev-next-link-color-hover);
+}
+
+stencila-prev-next .link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-default);
+}
+
+stencila-prev-next .prev {
+    flex: 1;
+    justify-content: flex-start;
+}
+
+stencila-prev-next .next {
+    flex: 1;
+    justify-content: flex-end;
+    text-align: right;
+}
+
+/* Icon */
+stencila-prev-next .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--prev-next-icon-size);
+    height: var(--prev-next-icon-size);
+    flex-shrink: 0;
+    font-size: var(--prev-next-icon-size);
+    line-height: 1;
+}
+
+stencila-prev-next .prev .icon::before {
+    content: var(--prev-next-prev-icon);
+}
+
+stencila-prev-next .next .icon::before {
+    content: var(--prev-next-next-icon);
+}
+
+/* Content wrapper (label + title) */
+stencila-prev-next .content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Label ("Previous" / "Next") */
+stencila-prev-next .label {
+    font-size: var(--prev-next-label-font-size);
+    text-transform: var(--prev-next-label-text-transform);
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+}
+
+/* Page title */
+stencila-prev-next .title {
+    font-size: var(--prev-next-title-font-size);
+    font-weight: 500;
+}
+
+/* Separator */
+stencila-prev-next .separator {
+    flex-shrink: 0;
+    color: var(--prev-next-separator-color);
+}
+
+/* Position indicator */
+stencila-prev-next .position {
+    flex-shrink: 0;
+    font-size: var(--prev-next-label-font-size);
+    color: var(--prev-next-position-color);
+}
+
+/* ==========================================================================
+   Style Variants (via `style` attribute)
+   ========================================================================== */
+
+/* Minimal: hide labels, titles, position */
+stencila-prev-next[style="minimal"] .label,
+stencila-prev-next[style="minimal"] .title,
+stencila-prev-next[style="minimal"] .position {
+    display: none;
+}
+
+/* Compact: hide titles, position */
+stencila-prev-next[style="compact"] .title,
+stencila-prev-next[style="compact"] .position {
+    display: none;
+}
+
+/* Standard (default): hide position */
+stencila-prev-next:not([style]) .position,
+stencila-prev-next[style="standard"] .position {
+    display: none;
+}
+
+/* Detailed: show everything (no hiding needed) */
+
+@media (max-width: 640px) {
+    stencila-prev-next nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--prev-next-gap-mobile);
+    }
+
+    stencila-prev-next .prev,
+    stencila-prev-next .next {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    /* Hide separator and position on mobile */
+    stencila-prev-next .separator,
+    stencila-prev-next .position {
+        display: none;
+    }
+}

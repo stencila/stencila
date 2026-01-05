@@ -1,24 +1,37 @@
 use std::path::Path;
 
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LogoConfig, RegionSpec,
-    SiteConfig,
+    ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LogoConfig, PrevNextStyle,
+    RegionSpec, SiteConfig,
 };
 
-use crate::logo;
+use crate::{RouteEntry, logo};
 
 struct RenderContext<'a> {
     site_config: &'a SiteConfig,
     site_root: &'a Path,
     route: &'a str,
+    routes: &'a [RouteEntry],
 }
 
 /// Render a Stencila site layout for a specific route
-pub(crate) fn render_layout(site_config: &SiteConfig, site_root: &Path, route: &str) -> String {
+///
+/// # Arguments
+/// * `site_config` - Site configuration
+/// * `site_root` - Path to the site root directory
+/// * `route` - Current route being rendered
+/// * `routes` - All document routes for prev/next navigation etc
+pub(crate) fn render_layout(
+    site_config: &SiteConfig,
+    site_root: &Path,
+    route: &str,
+    routes: &[RouteEntry],
+) -> String {
     let context = RenderContext {
         site_config,
         site_root,
         route,
+        routes,
     };
 
     // Resolve the config for the route
@@ -159,8 +172,9 @@ fn render_subregion(components: &Option<Vec<ComponentSpec>>, context: &RenderCon
 fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> String {
     match component {
         ComponentSpec::Name(name) => match name.as_str() {
-            "logo" => render_logo(None, context),
             "breadcrumbs" => render_breadcrumbs(context),
+            "logo" => render_logo(None, context),
+            "prev-next" => render_prev_next(&None, &None, &None, &None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -170,9 +184,15 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
 /// Render a component config
 fn render_component_config(component: &ComponentConfig, context: &RenderContext) -> String {
     match component {
-        ComponentConfig::Logo(config) => render_logo(Some(config), context),
         ComponentConfig::Breadcrumbs => render_breadcrumbs(context),
         ComponentConfig::ColorMode { style } => render_color_mode(style),
+        ComponentConfig::Logo(config) => render_logo(Some(config), context),
+        ComponentConfig::PrevNext {
+            style,
+            prev_text,
+            next_text,
+            separator,
+        } => render_prev_next(style, prev_text, next_text, separator, context),
         _ => String::new(),
     }
 }
@@ -266,5 +286,110 @@ fn render_color_mode(style: &Option<ColorModeStyle>) -> String {
             Some(style) => format!(" style={style}"),
             None => String::new(),
         },
+    )
+}
+
+/// Render a prev/next navigation component
+///
+/// Generates navigation links to previous and next pages based on the document routes.
+/// The style controls what information is shown (icons, labels, titles, position).
+fn render_prev_next(
+    style: &Option<PrevNextStyle>,
+    prev_text: &Option<String>,
+    next_text: &Option<String>,
+    separator: &Option<String>,
+    context: &RenderContext,
+) -> String {
+    // Find current route index
+    // Note: Routes are already normalized with trailing slashes (see render.rs:357-362)
+    let current_idx = context.routes.iter().position(|r| r.route == context.route);
+    let Some(idx) = current_idx else {
+        return "<stencila-prev-next></stencila-prev-next>".to_string();
+    };
+
+    // Determine prev/next routes
+    let prev = if idx > 0 {
+        Some(&context.routes[idx - 1])
+    } else {
+        None
+    };
+    let next = if idx < context.routes.len() - 1 {
+        Some(&context.routes[idx + 1])
+    } else {
+        None
+    };
+
+    // If neither prev nor next exists, render empty component
+    if prev.is_none() && next.is_none() {
+        return "<stencila-prev-next></stencila-prev-next>".to_string();
+    }
+
+    // Get config values with defaults
+    let style = style.unwrap_or_default();
+    let prev_label = prev_text.clone().unwrap_or_else(|| "Previous".to_string());
+    let next_label = next_text.clone().unwrap_or_else(|| "Next".to_string());
+    let total_pages = context.routes.len();
+    let current_page = idx + 1;
+
+    // Derive what to show from style
+    let (show_labels, show_titles, show_position) = match style {
+        PrevNextStyle::Minimal => (false, false, false),
+        PrevNextStyle::Compact => (true, false, false),
+        PrevNextStyle::Standard => (true, true, false),
+        PrevNextStyle::Detailed => (true, true, true),
+    };
+
+    let link_content = |label: &str, title: &str| -> String {
+        match (show_labels, show_titles) {
+            (true, true) => format!(
+                r#"<span class="content"><span class="label">{label}</span><span class="title">{title}</span></span>"#
+            ),
+            (true, false) => {
+                format!(r#"<span class="content"><span class="label">{label}</span></span>"#)
+            }
+            (false, true) => {
+                format!(r#"<span class="content"><span class="title">{title}</span></span>"#)
+            }
+            (false, false) => String::new(),
+        }
+    };
+
+    // Build prev link HTML
+    let prev_html = if let Some(prev_route) = prev {
+        let content = link_content(&prev_label, &prev_route.title());
+        format!(
+            r#"<a href="{}" rel="prev" class="link prev"><span class="icon"></span>{content}</a>"#,
+            prev_route.route
+        )
+    } else {
+        String::new()
+    };
+
+    // Build next link HTML
+    let next_html = if let Some(next_route) = next {
+        let content = link_content(&next_label, &next_route.title());
+        format!(
+            r#"<a href="{}" rel="next" class="link next">{content}<span class="icon"></span></a>"#,
+            next_route.route
+        )
+    } else {
+        String::new()
+    };
+
+    // Build center element (separator or position indicator)
+    let center_html = if show_position {
+        format!(r#"<span class="position">Page {current_page} of {total_pages}</span>"#)
+    } else if let Some(sep) = separator
+        && prev.is_some()
+        && next.is_some()
+    {
+        format!(r#"<span class="separator">{sep}</span>"#)
+    } else {
+        String::new()
+    };
+
+    // Build the complete component
+    format!(
+        r#"<stencila-prev-next style="{style}"><nav aria-label="Page navigation">{prev_html}{center_html}{next_html}</nav></stencila-prev-next>"#
     )
 }

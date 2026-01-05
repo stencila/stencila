@@ -365,6 +365,45 @@ pub struct RouteEntry {
     pub spread_arguments: Option<IndexMap<String, String>>,
 }
 
+impl RouteEntry {
+    /// Convert a route path to a human-readable title
+    ///
+    /// Extracts the last segment of the route and converts it to title case.
+    /// For example: "/docs/getting-started/" -> "Getting Started"
+    pub fn title(&self) -> String {
+        let segments: Vec<&str> = self
+            .route
+            .trim_matches('/')
+            .split('/')
+            .filter(|s| !s.is_empty())
+            .collect();
+
+        // Use the last segment, or "Home" for root
+        match segments.last() {
+            Some(segment) => Self::segment_to_title(segment),
+            None => "Home".to_string(),
+        }
+    }
+
+    /// Convert a URL segment to a human-readable title
+    ///
+    /// - Replaces hyphens and underscores with spaces
+    /// - Capitalizes each word
+    fn segment_to_title(segment: &str) -> String {
+        segment
+            .split(['-', '_'])
+            .map(|word| {
+                let mut chars = word.chars();
+                match chars.next() {
+                    Some(first) => first.to_uppercase().chain(chars).collect(),
+                    None => String::new(),
+                }
+            })
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
+}
+
 /// List routes for a site, including both configured and file-implied routes
 ///
 /// # Arguments

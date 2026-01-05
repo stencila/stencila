@@ -468,11 +468,11 @@ fn resolve_component_spec(
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab-case")]
 pub enum LayoutPreset {
-    /// Documentation site: nav-tree left, toc-tree right, breadcrumbs, page-nav
+    /// Documentation site: nav-tree left, toc-tree right, breadcrumbs, prev-next
     #[default]
     Docs,
 
-    /// Blog/article site: no left sidebar, toc-tree right, no page-nav
+    /// Blog/article site: no left sidebar, toc-tree right, no prev-next
     Blog,
 
     /// Landing page: no sidebars, centered content
@@ -502,7 +502,7 @@ impl LayoutPreset {
                     ..Default::default()
                 })),
                 bottom: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("page-nav".into())]),
+                    middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
                     ..Default::default()
                 })),
                 right_sidebar: Some(RegionSpec::Config(RegionConfig {
@@ -572,7 +572,7 @@ impl LayoutPreset {
                     ..Default::default()
                 })),
                 bottom: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("page-nav".into())]),
+                    middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
                     ..Default::default()
                 })),
                 right_sidebar: Some(RegionSpec::Enabled(false)),
@@ -770,12 +770,6 @@ pub enum ComponentConfig {
         text: Option<String>,
     },
 
-    /// Light/dark mode toggle
-    ColorMode {
-        /// Display style (default: icon)
-        style: Option<ColorModeStyle>,
-    },
-
     /// Breadcrumb navigation trail
     Breadcrumbs,
 
@@ -801,7 +795,55 @@ pub enum ComponentConfig {
     },
 
     /// Previous/next page navigation links
-    PageNav,
+    ///
+    /// Displays links to previous and next pages in the navigation sequence.
+    /// Style controls what information is shown (see PrevNextStyle).
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.bottom]
+    /// middle = "prev-next"  # Uses default "standard" style
+    ///
+    /// # Or with configuration:
+    /// middle = { type = "prev-next", style = "compact" }
+    ///
+    /// # Custom labels:
+    /// middle = { type = "prev-next", prev-text = "Back", next-text = "Continue" }
+    /// ```
+    PrevNext {
+        /// Display style (default: standard)
+        ///
+        /// Controls what information is shown:
+        /// - minimal: icons only
+        /// - compact: icons + labels
+        /// - standard: icons + labels + titles (default)
+        /// - detailed: icons + labels + titles + position
+        style: Option<PrevNextStyle>,
+
+        /// Custom text for previous link (default: "Previous")
+        ///
+        /// Useful for localization.
+        #[serde(rename = "prev-text")]
+        prev_text: Option<String>,
+
+        /// Custom text for next link (default: "Next")
+        ///
+        /// Useful for localization.
+        #[serde(rename = "next-text")]
+        next_text: Option<String>,
+
+        /// Separator between prev and next links (default: none)
+        ///
+        /// Common values: "|", "·", or any custom string.
+        /// Only shown when both prev and next links are present.
+        separator: Option<String>,
+    },
+
+    /// Light/dark mode toggle
+    ColorMode {
+        /// Display style (default: icon)
+        style: Option<ColorModeStyle>,
+    },
 
     /// Copyright text
     Copyright {
@@ -817,7 +859,7 @@ const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "breadcrumbs",
     "nav-tree",
     "toc-tree",
-    "page-nav",
+    "prev-next",
     "color-mode",
     "copyright",
 ];
@@ -932,6 +974,37 @@ pub enum ColorModeStyle {
 
     /// Icon and label
     Both,
+}
+
+/// Display style for prev/next navigation
+///
+/// Controls what information is shown in the prev/next navigation links.
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum PrevNextStyle {
+    /// Minimal: just arrow icons
+    ///
+    /// Output: ← | →
+    Minimal,
+
+    /// Compact: icons + labels
+    ///
+    /// Output: ← Previous | Next →
+    Compact,
+
+    /// Standard: icons + labels + page titles (default)
+    ///
+    /// Output: ← Previous: Getting Started | Next: Configuration →
+    #[default]
+    Standard,
+
+    /// Detailed: icons + labels + titles + position indicator
+    ///
+    /// Output: ← Previous: Getting Started | Page 3 of 10 | Next: Configuration →
+    Detailed,
 }
 
 /// Toggle button style for collapsible sidebars
@@ -1275,7 +1348,7 @@ mod tests {
             start = "breadcrumbs"
 
             [bottom]
-            middle = "page-nav"
+            middle = "prev-next"
 
             [right-sidebar]
             start = { type = "toc-tree", title = "On this page", depth = 3 }
@@ -1318,7 +1391,7 @@ mod tests {
             r#"type = "nav-tree""#,
             r#"type = "toc-tree""#,
             r#"type = "breadcrumbs""#,
-            r#"type = "page-nav""#,
+            r#"type = "prev-next""#,
             r#"type = "color-mode""#,
             r#"type = "copyright""#,
         ];
@@ -1385,6 +1458,146 @@ mod tests {
             assert_eq!(*style, Some(ColorModeStyle::Both));
         } else {
             panic!("Expected ComponentSpec::Config(ComponentConfig::ColorMode)");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_prev_next_style() -> Result<()> {
+        // Test all PrevNext style variants
+        let toml = r#"
+            [bottom]
+            middle = { type = "prev-next", style = "minimal" }
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+        let bottom = layout.bottom.expect("bottom should be present");
+        let config = bottom.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+        if let ComponentSpec::Config(ComponentConfig::PrevNext { style, .. }) = &middle[0] {
+            assert_eq!(*style, Some(PrevNextStyle::Minimal));
+        } else {
+            panic!("Expected ComponentSpec::Config(ComponentConfig::PrevNext)");
+        }
+
+        let toml = r#"
+            [bottom]
+            middle = { type = "prev-next", style = "compact" }
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+        let bottom = layout.bottom.expect("bottom should be present");
+        let config = bottom.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+        if let ComponentSpec::Config(ComponentConfig::PrevNext { style, .. }) = &middle[0] {
+            assert_eq!(*style, Some(PrevNextStyle::Compact));
+        } else {
+            panic!("Expected ComponentSpec::Config(ComponentConfig::PrevNext)");
+        }
+
+        let toml = r#"
+            [bottom]
+            middle = { type = "prev-next", style = "standard" }
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+        let bottom = layout.bottom.expect("bottom should be present");
+        let config = bottom.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+        if let ComponentSpec::Config(ComponentConfig::PrevNext { style, .. }) = &middle[0] {
+            assert_eq!(*style, Some(PrevNextStyle::Standard));
+        } else {
+            panic!("Expected ComponentSpec::Config(ComponentConfig::PrevNext)");
+        }
+
+        let toml = r#"
+            [bottom]
+            middle = { type = "prev-next", style = "detailed" }
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+        let bottom = layout.bottom.expect("bottom should be present");
+        let config = bottom.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+        if let ComponentSpec::Config(ComponentConfig::PrevNext { style, .. }) = &middle[0] {
+            assert_eq!(*style, Some(PrevNextStyle::Detailed));
+        } else {
+            panic!("Expected ComponentSpec::Config(ComponentConfig::PrevNext)");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_prev_next_custom_labels() -> Result<()> {
+        let toml = r#"
+            [bottom]
+            middle = { type = "prev-next", prev-text = "Précédent", next-text = "Suivant" }
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+
+        let bottom = layout.bottom.expect("bottom should be present");
+        let config = bottom.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+
+        if let ComponentSpec::Config(ComponentConfig::PrevNext {
+            prev_text,
+            next_text,
+            ..
+        }) = &middle[0]
+        {
+            assert_eq!(prev_text.as_deref(), Some("Précédent"));
+            assert_eq!(next_text.as_deref(), Some("Suivant"));
+        } else {
+            panic!("Expected ComponentSpec::Config(ComponentConfig::PrevNext)");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_prev_next_separator() -> Result<()> {
+        let toml = r#"
+            [bottom]
+            middle = { type = "prev-next", separator = "·" }
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+
+        let bottom = layout.bottom.expect("bottom should be present");
+        let config = bottom.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+
+        if let ComponentSpec::Config(ComponentConfig::PrevNext { separator, .. }) = &middle[0] {
+            assert_eq!(separator.as_deref(), Some("·"));
+        } else {
+            panic!("Expected ComponentSpec::Config(ComponentConfig::PrevNext)");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_prev_next_all_options() -> Result<()> {
+        let toml = r#"
+            [bottom]
+            middle = { type = "prev-next", style = "compact", prev-text = "Back", next-text = "Forward", separator = "|" }
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+
+        let bottom = layout.bottom.expect("bottom should be present");
+        let config = bottom.config().expect("should be config");
+        let middle = config.middle.as_ref().expect("middle should be present");
+
+        if let ComponentSpec::Config(ComponentConfig::PrevNext {
+            style,
+            prev_text,
+            next_text,
+            separator,
+        }) = &middle[0]
+        {
+            assert_eq!(*style, Some(PrevNextStyle::Compact));
+            assert_eq!(prev_text.as_deref(), Some("Back"));
+            assert_eq!(next_text.as_deref(), Some("Forward"));
+            assert_eq!(separator.as_deref(), Some("|"));
+        } else {
+            panic!("Expected ComponentSpec::Config(ComponentConfig::PrevNext)");
         }
 
         Ok(())
@@ -1622,7 +1835,7 @@ mod tests {
             [header]
             start = "logo"
             middle = "title"
-            end = ["breadcrumbs", "nav-tree", "toc-tree", "page-nav", "color-mode", "copyright"]
+            end = ["breadcrumbs", "nav-tree", "toc-tree", "prev-next", "color-mode", "copyright"]
         "#;
         let config: LayoutConfig = toml::from_str(toml)?;
         config.validate()?;
