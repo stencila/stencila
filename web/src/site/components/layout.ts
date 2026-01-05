@@ -1,7 +1,7 @@
 import { LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import './color-mode' // Color mode toggle component
+import './color-mode'
 
 /**
  * Site layout shell component

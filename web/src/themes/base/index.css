@@ -16,9 +16,6 @@
 @import url("./browsers.css");
 @import url("./pages.css");
 
-@import url("./layout.css");
-@import url("./layout-components.css");
-
 @import url("./captions.css");
 @import url("./labels.css");
 
@@ -40,3 +37,9 @@
 @import url("./references.css");
 @import url("./tables.css");
 @import url("./datatables.css");
+
+@import url("./site-layout.css");
+@import url("./site-icons.css");
+
+@import url("./site-breadcrumbs.css");
+@import url("./site-color-mode.css");

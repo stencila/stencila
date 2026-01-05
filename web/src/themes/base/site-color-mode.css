@@ -1,0 +1,64 @@
+/* Site Color Mode Switcher Component
+ *
+ * A toggle button that switches between light and dark color schemes.
+ * Supports three display styles via the `style` attribute: icon, label, or both.
+ *
+ * Structure:
+ * - stencila-color-mode: Custom element container
+ *   - .toggle: Clickable toggle button (div with role="button")
+ *     - .icon: Sun/moon icon (UnoCSS icon classes applied dynamically)
+ *     - .label: "Light"/"Dark" text label
+ *
+ * Attributes:
+ * - style="icon": Show only the icon (default)
+ * - style="label": Show only the text label
+ * - style="both": Show icon and label
+ *
+ * Design tokens:
+ * - --color-mode-icon-size: Size of the sun/moon icon
+ * - --color-mode-opacity: Default opacity (subtle appearance)
+ * - --color-mode-opacity-hover: Opacity on hover (full visibility)
+ * - --color-mode-gap: Space between icon and label
+ * - --color-mode-label-font-size: Text size for the label
+ */
+
+:root {
+    --color-mode-icon-size: var(--layout-icon-size);
+    --color-mode-opacity: 0.7;
+    --color-mode-opacity-hover: 1;
+    --color-mode-gap: var(--space-2);
+    --color-mode-label-font-size: var(--font-size-sm);
+}
+
+/* Toggle button container */
+stencila-color-mode .toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--color-mode-gap);
+    cursor: pointer;
+    opacity: var(--color-mode-opacity);
+    transition: opacity var(--transition-duration-fast);
+}
+
+stencila-color-mode .toggle:hover {
+    opacity: var(--color-mode-opacity-hover);
+}
+
+stencila-color-mode .toggle:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-default);
+}
+
+/* Icon (uses UnoCSS icon classes) */
+stencila-color-mode .icon {
+    display: inline-block;
+    width: var(--color-mode-icon-size);
+    height: var(--color-mode-icon-size);
+    background-color: currentColor;
+}
+
+/* Text label */
+stencila-color-mode .label {
+    font-size: var(--color-mode-label-font-size);
+}

@@ -1,0 +1,83 @@
+/* Site Breadcrumbs Component
+ *
+ * A breadcrumb navigation trail showing the current page's location within
+ * the site hierarchy. The HTML is server-rendered for SEO and accessibility.
+ *
+ * Structure:
+ * - stencila-breadcrumbs: Custom element container
+ *   - nav[aria-label="Breadcrumb"]: Semantic navigation landmark
+ *     - ol: Ordered list of breadcrumb items
+ *       - li: Breadcrumb item (with ::after separator)
+ *         - a: Link to ancestor page
+ *       - li[aria-current="page"]: Current page (no link)
+ *
+ * Design tokens:
+ * - --breadcrumbs-separator: Character(s) between items (default: "/")
+ * - --breadcrumbs-*-color: Colors for links, hover, separator, current page
+ * - --breadcrumbs-font-size: Text size for all items
+ * - --breadcrumbs-gap: Spacing between items
+ * - --breadcrumbs-margin-bottom: Space below the component
+ */
+
+:root {
+    --breadcrumbs-separator: "/";
+    --breadcrumbs-separator-color: var(--text-color-tertiary);
+    --breadcrumbs-link-color: var(--text-color-secondary);
+    --breadcrumbs-link-color-hover: var(--text-color-primary);
+    --breadcrumbs-current-color: var(--text-color-primary);
+    --breadcrumbs-font-size: var(--font-size-sm);
+    --breadcrumbs-gap: var(--space-1);
+    --breadcrumbs-margin-bottom: var(--space-4);
+}
+
+stencila-breadcrumbs {
+    display: block;
+    margin-bottom: var(--breadcrumbs-margin-bottom);
+}
+
+stencila-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--breadcrumbs-gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+stencila-breadcrumbs li {
+    display: flex;
+    align-items: center;
+}
+
+/* Separator between items */
+stencila-breadcrumbs li:not(:last-child)::after {
+    content: var(--breadcrumbs-separator);
+    margin-left: var(--breadcrumbs-gap);
+    color: var(--breadcrumbs-separator-color);
+}
+
+stencila-breadcrumbs a {
+    color: var(--breadcrumbs-link-color);
+    text-decoration: none;
+    font-size: var(--breadcrumbs-font-size);
+    transition: color var(--transition-duration-fast);
+}
+
+stencila-breadcrumbs a:hover {
+    color: var(--breadcrumbs-link-color-hover);
+    text-decoration: underline;
+}
+
+stencila-breadcrumbs a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-default);
+}
+
+/* Current page (last item, no link) */
+stencila-breadcrumbs li[aria-current="page"] {
+    color: var(--breadcrumbs-current-color);
+    font-size: var(--breadcrumbs-font-size);
+    font-weight: 500;
+}

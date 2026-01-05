@@ -86,7 +86,7 @@ export class StencilaColorMode extends LitElement {
 
     return html`
       <div
-        class="flex items-center gap-2 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
+        class="toggle"
         role="button"
         tabindex="0"
         @click=${this.toggle}
@@ -99,12 +99,8 @@ export class StencilaColorMode extends LitElement {
         aria-label=${ariaLabel}
         title=${ariaLabel}
       >
-        ${showIcon
-          ? html`<span
-              class="${targetIcon} inline-block bg-current w-[--color-mode-icon-size] h-[--color-mode-icon-size]"
-            ></span>`
-          : ''}
-        ${showLabel ? html`<span class="text-sm">${targetLabel}</span>` : ''}
+        ${showIcon ? html`<span class="${targetIcon} icon"></span>` : ''}
+        ${showLabel ? html`<span class="label">${targetLabel}</span>` : ''}
       </div>
     `
   }

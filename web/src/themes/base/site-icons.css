@@ -1,0 +1,12 @@
+/* Site Icon Defaults
+ *
+ * Base sizing tokens for icons used throughout the site layout.
+ * Individual components can override these with their own tokens.
+ *
+ * Design tokens:
+ * - --layout-icon-size: Default size for icons in layout components
+ */
+
+:root {
+    --layout-icon-size: var(--text-font-size);
+}
