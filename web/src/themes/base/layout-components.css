@@ -1,6 +1,12 @@
-stencila-layout .icon {
-    display: inline-block;
-    width: 1.25rem;
-    height: 1.25rem;
-    background-color: currentColor;
+/* Site Layout Components
+ *
+ * Design tokens for customizing the appearance of components
+ * withing regions of the site layout.
+ */
+
+:root {
+    --layout-icon-size: var(--text-font-size);
+
+    /* Color mode switcher */
+    --color-mode-icon-size: var(--layout-icon-size);
 }

@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import {
@@ -9,11 +9,9 @@ import {
 /**
  * Color scheme switcher component
  *
- * A Light DOM component that provides a toggle button to switch between
- * light and dark color schemes. The style can be icon-only, label-only,
- * or both, controlled by the style attribute.
- *
- * Styles are defined in themes/base/layout-components.css since this uses Light DOM.
+ * A component that provides a toggle button to switch between light and dark
+ * color schemes. The style can be icon-only, label-only, or both, controlled by
+ * the style attribute.
  */
 @customElement('stencila-color-mode')
 export class StencilaColorMode extends LitElement {
@@ -30,7 +28,7 @@ export class StencilaColorMode extends LitElement {
   private colorScheme: ColorScheme = 'light'
 
   /**
-   * Use Light DOM so theme CSS applies
+   * Use Light DOM so UnoCSS icons can be used
    */
   protected override createRenderRoot() {
     return this
@@ -77,27 +75,7 @@ export class StencilaColorMode extends LitElement {
     ColorSchemeManager.applyColorScheme(newScheme)
   }
 
-  static override styles = css`
-    button {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 150ms;
-    }
-
-    button:hover {
-      opacity: 1;
-    }
-
-    .label {
-      font-size: 0.875rem;
-    }
-  `
-
   protected override render() {
-    // Show the TARGET state (what clicking will switch to), not current state
     const isCurrentlyDark = this.colorScheme === 'dark'
     const targetIcon = isCurrentlyDark ? 'i-lucide:sun' : 'i-lucide:moon'
     const targetLabel = isCurrentlyDark ? 'Light' : 'Dark'
@@ -107,14 +85,27 @@ export class StencilaColorMode extends LitElement {
     const showLabel = this.displayStyle !== 'icon'
 
     return html`
-      <button
+      <div
+        class="flex items-center gap-2 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
+        role="button"
+        tabindex="0"
         @click=${this.toggle}
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            this.toggle()
+          }
+        }}
         aria-label=${ariaLabel}
         title=${ariaLabel}
       >
-        ${showIcon ? html`<span class="icon ${targetIcon}"></span>` : ''}
-        ${showLabel ? html`<span class="label">${targetLabel}</span>` : ''}
-      </button>
+        ${showIcon
+          ? html`<span
+              class="${targetIcon} inline-block bg-current w-[--color-mode-icon-size] h-[--color-mode-icon-size]"
+            ></span>`
+          : ''}
+        ${showLabel ? html`<span class="text-sm">${targetLabel}</span>` : ''}
+      </div>
     `
   }
 }
