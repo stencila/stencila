@@ -50,5 +50,5 @@
    * ═══════════════════════════════════════════════════════════════ */
 
   --plot-legend-border-width: var(--border-width-thick);
-  --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 30%, var(--surface-foreground));
+  --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 30%, var(--surface-elevated));
 }

@@ -37,7 +37,7 @@
      * - Recommended text: #E0E0E0 to #D0D0D0 (not pure white)
      *
      * Our Approach:
-     * We use #1E1E1E for background and gray-300 (#d4d4d4) for primary text.
+     * We use gray-850 (#1e1e1e) for background and gray-300 (#d4d4d4) for primary text.
      * This provides contrast ratio exceeding WCAG AAA (7:1) while being
      * significantly more comfortable than pure black/white for long-form content.
      *
@@ -55,19 +55,22 @@
      * For content-heavy applications, prioritize readability over aesthetics.
      */
 
-    /* Surface Colors - Background colors for different depth levels with dark and print variants */
+    /* Surface Colors - derived from background using color-mix */
     --surface-background: var(--color-gray-50);
-    --surface-background-dark: #1E1E1E;
+    --surface-background-dark: var(--color-gray-850);
     --surface-background-print: white;
-    --surface-foreground: white;
-    --surface-foreground-dark: var(--color-gray-700);
-    --surface-foreground-print: white;
-    --surface-overlay: rgba(0, 0, 0, 0.05);
-    --surface-overlay-dark: rgba(255, 255, 255, 0.08);
-    --surface-raised: white;
-    --surface-raised-dark: var(--color-gray-600);
-    --surface-sunken: var(--color-gray-100);
-    --surface-sunken-dark: var(--color-gray-900);
+
+    --surface-sunken: color-mix(in srgb, var(--surface-background) 95%, black);
+    --surface-sunken-dark: color-mix(in srgb, var(--surface-background-dark) 98%, black);
+    --surface-sunken-print: white;
+
+    --surface-elevated: color-mix(in srgb, var(--surface-background) 50%, white);
+    --surface-elevated-dark: color-mix(in srgb, var(--surface-background-dark) 99%, white);
+    --surface-elevated-print: white;
+
+    --surface-raised: color-mix(in srgb, var(--surface-background) 25%, white);
+    --surface-raised-dark: color-mix(in srgb, var(--surface-background-dark) 98%, white);
+    --surface-raised-print: white;
 
     /* Text Colors - Hierarchy and emphasis with dark and print variants */
     --text-color-primary: var(--color-gray-800);
@@ -131,8 +134,7 @@
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
         --surface-background: var(--surface-background-dark);
-        --surface-foreground: var(--surface-foreground-dark);
-        --surface-overlay: var(--surface-overlay-dark);
+        --surface-elevated: var(--surface-elevated-dark);
         --surface-raised: var(--surface-raised-dark);
         --surface-sunken: var(--surface-sunken-dark);
 
@@ -161,8 +163,7 @@
 /* Dark Mode Application - Explicit User Choice */
 :root[data-color-scheme="dark"] {
     --surface-background: var(--surface-background-dark);
-    --surface-foreground: var(--surface-foreground-dark);
-    --surface-overlay: var(--surface-overlay-dark);
+    --surface-elevated: var(--surface-elevated-dark);
     --surface-raised: var(--surface-raised-dark);
     --surface-sunken: var(--surface-sunken-dark);
 
@@ -215,8 +216,10 @@
         --content-spacing: var(--content-spacing-print);
         --content-width: var(--content-width-print);
 
+        --surface-sunken: var(--surface-sunken-print);
         --surface-background: var(--surface-background-print);
-        --surface-foreground: var(--surface-foreground-print);
+        --surface-elevated: var(--surface-elevated-print);
+        --surface-raised: var(--surface-raised-print);
 
         --text-font-size: var(--text-font-size-print);
         --text-line-height: var(--text-line-height-print);

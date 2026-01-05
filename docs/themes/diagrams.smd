@@ -21,7 +21,7 @@ Base styling tokens that apply to all diagram types.
 
 | Token                   | Description                   | Default Value                                                                  |
 | ----------------------- | ----------------------------- | ------------------------------------------------------------------------------ |
-| `--diagram-background`  | Background color for diagrams | `var(--surface-foreground)`                                                    |
+| `--diagram-background`  | Background color for diagrams | `var(--surface-elevated)`                                                    |
 | `--diagram-font-family` | Font family for diagram text  | `var(--font-family-sans)`                                                      |
 | `--diagram-font-size`   | Font size for diagram text    | `var(--font-size-sm)`                                                          |
 | `--diagram-text-color`  | Primary text color            | `color-mix(in srgb, var(--diagram-base-color) 95%, var(--diagram-background))` |

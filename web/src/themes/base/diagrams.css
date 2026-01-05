@@ -18,8 +18,8 @@
     --diagram-base-color-dark: var(--color-accent-dark);
 
     /* Background - Uses semantic token for consistency */
-    --diagram-background: var(--surface-foreground);
-    --diagram-background-dark: var(--surface-foreground-dark);
+    --diagram-background: var(--surface-elevated);
+    --diagram-background-dark: var(--surface-elevated-dark);
 
     /* Typography */
     --diagram-font-family: var(--font-family-sans);

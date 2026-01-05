@@ -75,21 +75,23 @@ fn find_logo_file(site_root: &Path, dir: &Path, prefix: &str, depth: u8) -> Opti
 
     // If not found and we haven't reached max depth, search subdirectories
     if depth < MAX_SEARCH_DEPTH
-        && let Ok(entries) = std::fs::read_dir(dir) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if path.is_dir() {
-                    // Skip hidden directories
-                    if let Some(name) = path.file_name().and_then(|n| n.to_str())
-                        && name.starts_with('.') {
-                            continue;
-                        }
-                    if let Some(found) = find_logo_file(site_root, &path, prefix, depth + 1) {
-                        return Some(found);
-                    }
+        && let Ok(entries) = std::fs::read_dir(dir)
+    {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                // Skip hidden directories
+                if let Some(name) = path.file_name().and_then(|n| n.to_str())
+                    && name.starts_with('.')
+                {
+                    continue;
+                }
+                if let Some(found) = find_logo_file(site_root, &path, prefix, depth + 1) {
+                    return Some(found);
                 }
             }
         }
+    }
 
     None
 }
@@ -219,13 +221,12 @@ pub fn render_logo(config: &LogoConfig) -> String {
     };
 
     let link = html_escape(config.link.as_deref().unwrap_or("/"));
-    let aria_label = config
-        .alt
-        .as_deref()
-        .unwrap_or("Home");
+    let aria_label = config.alt.as_deref().unwrap_or("Home");
     let aria_label_escaped = html_escape(aria_label);
 
-    format!("<stencila-logo{style}><a href=\"{link}\" aria-label=\"{aria_label_escaped}\"></a></stencila-logo>")
+    format!(
+        "<stencila-logo{style}><a href=\"{link}\" aria-label=\"{aria_label_escaped}\"></a></stencila-logo>"
+    )
 }
 
 /// Make a path absolute (prefix with / if not already absolute or a URL)

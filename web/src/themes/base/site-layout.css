@@ -38,20 +38,20 @@
     --layout-z-skip-link: 1000;
 
     /* Header */
-    --header-background: var(--surface-foreground);
+    --header-background: var(--surface-raised);
     --header-border-color: var(--border-color-default);
     --header-padding: var(--space-4);
     --header-gap: var(--space-2);
 
     /* Sidebars */
     --sidebar-padding: var(--space-4);
-    --left-sidebar-background: var(--surface-background);
+    --left-sidebar-background: var(--surface-elevated);
     --left-sidebar-border-color: var(--border-color-muted);
-    --right-sidebar-background: var(--surface-background);
+    --right-sidebar-background: var(--surface-elevated);
     --right-sidebar-border-color: var(--border-color-muted);
 
     /* Footer */
-    --footer-background: var(--surface-sunken);
+    --footer-background: var(--surface-raised);
     --footer-border-color: var(--border-color-default);
     --footer-padding: var(--space-8) var(--space-6);
     --footer-gap: var(--space-6);

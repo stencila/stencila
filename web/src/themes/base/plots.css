@@ -304,8 +304,8 @@
     --plot-legend-text-color-dark: var(--plot-text-color-dark);
     --plot-legend-text-size: calc(var(--text-font-size) * 0.85);
 
-    --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 20%, var(--surface-foreground));
-    --plot-legend-border-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 20%, var(--surface-foreground-dark));
+    --plot-legend-border-color: color-mix(in srgb, var(--text-color-primary) 20%, var(--surface-elevated));
+    --plot-legend-border-color-dark: color-mix(in srgb, var(--text-color-primary-dark) 20%, var(--surface-elevated-dark));
 
     --plot-legend-border-width: var(--border-width-default);
 

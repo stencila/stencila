@@ -77,7 +77,7 @@ When defining component tokens, consider their relationship to semantic tokens f
 ```css
 /* ✅ Good - Gets dark mode automatically */
 :root {
-  --component-background: var(--surface-foreground);
+  --component-background: var(--surface-elevated);
   --component-text: var(--text-color-primary);
 }
 ```
