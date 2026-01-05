@@ -18,7 +18,7 @@ use tokio::{
 };
 
 use stencila_codec::{EncodeOptions, stencila_schema::Node};
-use stencila_config::{LayoutConfig, RedirectStatus};
+use stencila_config::{RedirectStatus, SiteConfig};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 use crate::{RouteEntry, RouteType, glide::render_glide, layout::render_layout, list};
@@ -137,7 +137,7 @@ where
     let workspace_dir = workspace_dir(&stencila_dir)?;
 
     // Load config from workspace
-    let mut config = stencila_config::config(&workspace_dir)?;
+    let config = stencila_config::config(&workspace_dir)?;
 
     // Resolve site root for static file paths
     let site_root = if let Some(site) = &config.site
@@ -200,12 +200,8 @@ where
     let glide_config = config.site.as_ref().and_then(|site| site.glide.as_ref());
     let glide_attrs = render_glide(glide_config);
 
-    // Get layout configuration (used for all document routes)
-    let layout_config = config
-        .site
-        .as_mut()
-        .and_then(|site| site.layout.take())
-        .unwrap_or_default();
+    // Get site configuration (used for all document routes)
+    let site_config = config.site.unwrap_or_default();
 
     // Render all documents
     let mut docs_rendered: Vec<RenderedDocument> = Vec::new();
@@ -259,7 +255,8 @@ where
                 node,
                 base_url,
                 &glide_attrs,
-                &layout_config,
+                &site_config,
+                &site_root,
                 source_path,
                 output_dir,
             )
@@ -352,7 +349,8 @@ async fn render_document_route(
     mut node: Node,
     base_url: &str,
     glide_attrs: &str,
-    layout_config: &LayoutConfig,
+    site_config: &SiteConfig,
+    site_root: &Path,
     source_file: &Path,
     output_dir: &Path,
 ) -> Result<RenderedDocument> {
@@ -391,7 +389,7 @@ async fn render_document_route(
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Render layout for the route
-    let layout_html = render_layout(layout_config, &route); //, &document_routes, Some(&node));
+    let layout_html = render_layout(site_config, site_root, &route); //, &document_routes, Some(&node));
 
     // Generate site body
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");

@@ -1,28 +1,50 @@
-use stencila_config::{ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, RegionSpec};
+use std::path::Path;
+
+use stencila_config::{
+    ColorModeStyle, ComponentConfig, ComponentSpec, LogoConfig, RegionSpec, SiteConfig,
+};
+
+use crate::logo;
+
+struct RenderContext<'a> {
+    site_config: &'a SiteConfig,
+    site_root: &'a Path,
+    route: &'a str,
+}
 
 /// Render a Stencila site layout for a specific route
-pub(crate) fn render_layout(config: &LayoutConfig, route: &str) -> String {
+pub(crate) fn render_layout(site_config: &SiteConfig, site_root: &Path, route: &str) -> String {
+    let context = RenderContext {
+        site_config,
+        site_root,
+        route,
+    };
+
     // Resolve the config for the route
-    let resolved = config.resolve_for_route(route);
+    let resolved = site_config
+        .layout
+        .as_ref()
+        .map(|layout| layout.resolve_for_route(route))
+        .unwrap_or_default();
 
     // Render regions
     let mut regions_enabled = String::new();
-    let header = render_region("header", &resolved.header, &mut regions_enabled, route);
+    let header = render_region("header", &resolved.header, &mut regions_enabled, &context);
     let left_sidebar = render_region(
         "left-sidebar",
         &resolved.left_sidebar,
         &mut regions_enabled,
-        route,
+        &context,
     );
-    let top = render_region("top", &resolved.top, &mut regions_enabled, route);
-    let bottom = render_region("bottom", &resolved.bottom, &mut regions_enabled, route);
+    let top = render_region("top", &resolved.top, &mut regions_enabled, &context);
+    let bottom = render_region("bottom", &resolved.bottom, &mut regions_enabled, &context);
     let right_sidebar = render_region(
         "right-sidebar",
         &resolved.right_sidebar,
         &mut regions_enabled,
-        route,
+        &context,
     );
-    let footer = render_region("footer", &resolved.footer, &mut regions_enabled, route);
+    let footer = render_region("footer", &resolved.footer, &mut regions_enabled, &context);
 
     format!(
         r##"<stencila-layout{regions_enabled}>
@@ -47,7 +69,7 @@ fn render_region(
     name: &str,
     spec: &Option<RegionSpec>,
     regions_enabled: &mut String,
-    route: &str,
+    context: &RenderContext,
 ) -> String {
     let Some(spec) = spec else {
         return String::new();
@@ -62,9 +84,9 @@ fn render_region(
 
     // Render subregions
     let subregions = if let Some(config) = spec.config() {
-        let start = render_subregion(&config.start, route);
-        let middle = render_subregion(&config.middle, route);
-        let end = render_subregion(&config.end, route);
+        let start = render_subregion(&config.start, context);
+        let middle = render_subregion(&config.middle, context);
+        let end = render_subregion(&config.end, context);
         format!(
             r#"<div data-subregion="start">{start}</div><div data-subregion="middle">{middle}</div><div data-subregion="end">{end}</div>"#
         )
@@ -76,36 +98,55 @@ fn render_region(
 }
 
 /// Render a layout subregion (returns empty string if not enabled or no components)
-fn render_subregion(components: &Option<Vec<ComponentSpec>>, route: &str) -> String {
+fn render_subregion(components: &Option<Vec<ComponentSpec>>, context: &RenderContext) -> String {
     let Some(components) = components else {
         return String::new();
     };
 
     let mut html = String::new();
     for component in components {
-        html.push_str(&render_component_spec(component, route));
+        html.push_str(&render_component_spec(component, context));
     }
 
     html
 }
 
 /// Render a component spec
-fn render_component_spec(component: &ComponentSpec, route: &str) -> String {
+fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> String {
     match component {
         ComponentSpec::Name(name) => match name.as_str() {
-            "breadcrumbs" => render_breadcrumbs(route),
+            "logo" => render_logo(None, context),
+            "breadcrumbs" => render_breadcrumbs(context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
-        ComponentSpec::Config(config) => render_component_config(config, route),
+        ComponentSpec::Config(config) => render_component_config(config, context),
     }
 }
 
 /// Render a component config
-fn render_component_config(component: &ComponentConfig, route: &str) -> String {
+fn render_component_config(component: &ComponentConfig, context: &RenderContext) -> String {
     match component {
-        ComponentConfig::Breadcrumbs => render_breadcrumbs(route),
+        ComponentConfig::Logo(config) => render_logo(Some(config), context),
+        ComponentConfig::Breadcrumbs => render_breadcrumbs(context),
         ComponentConfig::ColorMode { style } => render_color_mode(style),
         _ => String::new(),
+    }
+}
+
+/// Render a logo component
+///
+/// When component_config is None, uses site-level logo config.
+/// When provided, merges component config with site config.
+fn render_logo(logo_config: Option<&LogoConfig>, context: &RenderContext) -> String {
+    if let Some(config) = logo::resolve_logo(
+        logo_config,
+        context.site_config.logo.as_ref(),
+        Some(context.site_root),
+    ) {
+        logo::render_logo(&config)
+    } else {
+        // Empty logo placeholder when no config available
+        "<stencila-logo></stencila-logo>".to_string()
     }
 }
 
@@ -114,9 +155,10 @@ fn render_component_config(component: &ComponentConfig, route: &str) -> String {
 /// Generates semantic HTML for breadcrumb navigation based on the route path.
 /// For example, `/docs/guide/getting-started/` generates:
 ///   Home > Docs > Guide > Getting Started
-fn render_breadcrumbs(route: &str) -> String {
+fn render_breadcrumbs(context: &RenderContext) -> String {
     // Parse the route into segments
-    let segments: Vec<&str> = route
+    let segments: Vec<&str> = context
+        .route
         .trim_matches('/')
         .split('/')
         .filter(|s| !s.is_empty())

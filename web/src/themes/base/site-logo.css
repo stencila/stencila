@@ -1,0 +1,103 @@
+/* Site Logo Component
+ *
+ * A responsive logo with dark mode support using CSS custom properties.
+ * Logo variants are set via inline style on the element.
+ *
+ * Structure:
+ * - stencila-logo: Custom element container with inline style CSS variables
+ *   - a: Link wrapper with background-image (logo displayed via CSS)
+ *
+ * CSS Variables (set via inline style):
+ * - --logo: Default logo URL (desktop, light mode)
+ * - --logo-mobile: Mobile breakpoint variant (< 640px)
+ * - --logo-tablet: Tablet breakpoint variant (640px - 768px)
+ * - --logo-dark: Dark mode variant (desktop)
+ * - --logo-dark-mobile: Dark mode mobile variant
+ * - --logo-dark-tablet: Dark mode tablet variant
+ *
+ * Fallback chain (CSS handles missing variants):
+ * - dark-mobile -> dark -> mobile -> default
+ * - dark-tablet -> dark -> tablet -> default
+ * - dark -> default
+ * - mobile -> default
+ * - tablet -> default
+ *
+ * Design tokens:
+ * - --logo-height: Height of the logo
+ * - --logo-max-width: Maximum width of the logo
+ */
+
+:root {
+    --logo-height: 2rem;
+    --logo-max-width: 20rem;
+}
+
+/* Logo link - displays logo via background-image */
+stencila-logo a {
+    display: block;
+    height: var(--logo-height);
+    width: var(--logo-max-width); /* Wide logos need horizontal space */
+    background-image: var(--logo);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: left center;
+}
+
+/* Focus styles for accessibility */
+stencila-logo a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-default);
+}
+
+/* Tablet breakpoint (640px - 768px) - light mode */
+@media (min-width: 640px) and (max-width: 768px) {
+    stencila-logo a {
+        background-image: var(--logo-tablet, var(--logo));
+    }
+}
+
+/* Mobile breakpoint (< 640px) - light mode */
+@media (max-width: 639px) {
+    stencila-logo a {
+        background-image: var(--logo-mobile, var(--logo));
+    }
+}
+
+/* Dark mode - desktop */
+[data-color-scheme="dark"] stencila-logo a {
+    background-image: var(--logo-dark, var(--logo));
+}
+
+/* Dark mode - tablet */
+@media (min-width: 640px) and (max-width: 768px) {
+    [data-color-scheme="dark"] stencila-logo a {
+        background-image: var(--logo-dark-tablet, var(--logo-dark, var(--logo-tablet, var(--logo))));
+    }
+}
+
+/* Dark mode - mobile */
+@media (max-width: 639px) {
+    [data-color-scheme="dark"] stencila-logo a {
+        background-image: var(--logo-dark-mobile, var(--logo-dark, var(--logo-mobile, var(--logo))));
+    }
+}
+
+/* System dark mode preference (when no explicit color scheme set) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) stencila-logo a {
+        background-image: var(--logo-dark, var(--logo));
+    }
+}
+
+@media (prefers-color-scheme: dark) and (min-width: 640px) and (max-width: 768px) {
+    :root:not([data-color-scheme="light"]) stencila-logo a {
+        background-image: var(--logo-dark-tablet, var(--logo-dark, var(--logo-tablet, var(--logo))));
+    }
+}
+
+@media (prefers-color-scheme: dark) and (max-width: 639px) {
+    :root:not([data-color-scheme="light"]) stencila-logo a {
+        background-image: var(--logo-dark-mobile, var(--logo-dark, var(--logo-mobile, var(--logo))));
+    }
+}

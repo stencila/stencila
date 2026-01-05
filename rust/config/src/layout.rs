@@ -29,6 +29,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::Display;
 
+use crate::LogoConfig;
+
 /// Site layout configuration
 ///
 /// Controls the layout structure of site pages using a region-based system.
@@ -718,19 +720,31 @@ pub enum ComponentSpec {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum ComponentConfig {
-    /// Site logo image
-    Logo {
-        /// Path to logo image (relative to site root)
-        src: Option<String>,
-
-        /// Link target when logo is clicked (default: "/")
-        link: Option<String>,
-    },
+    /// Site logo image with responsive and dark mode variants
+    ///
+    /// When used as a bare `"logo"` string, inherits configuration from
+    /// `site.logo`. When used as an object, can override any fields.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.header]
+    /// start = "logo"  # Uses site.logo config
+    ///
+    /// # Or with overrides:
+    /// start = { type = "logo", default = "header-logo.svg", dark = "header-logo-dark.svg" }
+    /// ```
+    Logo(LogoConfig),
 
     /// Site title text
     Title {
         /// Title text (defaults to site.title)
         text: Option<String>,
+    },
+
+    /// Light/dark mode toggle
+    ColorMode {
+        /// Display style (default: icon)
+        style: Option<ColorModeStyle>,
     },
 
     /// Breadcrumb navigation trail
@@ -759,12 +773,6 @@ pub enum ComponentConfig {
 
     /// Previous/next page navigation links
     PageNav,
-
-    /// Light/dark mode toggle
-    ColorMode {
-        /// Display style (default: icon)
-        style: Option<ColorModeStyle>,
-    },
 
     /// Copyright text
     Copyright {

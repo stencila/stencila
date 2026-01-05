@@ -16,6 +16,73 @@ use crate::{
     layout::LayoutConfig, validate_placeholders,
 };
 
+/// Logo configuration - simple string or responsive object
+///
+/// Supports both simple usage with a single logo path and advanced usage
+/// with responsive variants and dark mode support.
+///
+/// Example (simple):
+/// ```toml
+/// [site]
+/// logo = "logo.svg"
+/// ```
+///
+/// Example (responsive):
+/// ```toml
+/// [site.logo]
+/// default = "logo.svg"
+/// mobile = "logo-mobile.svg"
+/// dark = "logo-dark.svg"
+/// link = "/"
+/// alt = "Company Logo"
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum LogoSpec {
+    /// Simple path to logo image
+    Path(String),
+
+    /// Responsive logo configuration with variants
+    Config(LogoConfig),
+}
+
+/// Responsive logo configuration with breakpoint and dark mode variants
+///
+/// All fields are optional. Missing variants fall back through a cascade:
+/// - `dark-mobile` → `dark` → `mobile` → `default`
+/// - `dark-tablet` → `dark` → `tablet` → `default`
+/// - `dark` → `default`
+/// - `mobile` → `default`
+/// - `tablet` → `default`
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct LogoConfig {
+    /// Default logo image path (used for desktop light mode)
+    pub default: Option<String>,
+
+    /// Logo for mobile breakpoint (< 640px)
+    pub mobile: Option<String>,
+
+    /// Logo for tablet breakpoint (640px - 768px)
+    pub tablet: Option<String>,
+
+    /// Logo for dark mode (desktop)
+    pub dark: Option<String>,
+
+    /// Logo for dark mode on mobile
+    pub dark_mobile: Option<String>,
+
+    /// Logo for dark mode on tablet
+    pub dark_tablet: Option<String>,
+
+    /// Link target when logo is clicked (default: "/")
+    pub link: Option<String>,
+
+    /// Alt text for accessibility (used as aria-label on the link)
+    pub alt: Option<String>,
+}
+
 /// Configuration for a site
 ///
 /// Site settings are associated with a workspace (see `WorkspaceConfig`).
@@ -33,7 +100,7 @@ use crate::{
 /// "/about/" = "README.md"
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[derive(Debug, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct SiteConfig {
     /// Custom domain for the site
     ///
@@ -53,6 +120,26 @@ pub struct SiteConfig {
     /// Example: If set to "docs" in /myproject/stencila.toml,
     /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
     pub root: Option<ConfigRelativePath>,
+
+    /// Site logo configuration
+    ///
+    /// Can be a simple path string or a responsive configuration with
+    /// breakpoint and dark mode variants.
+    ///
+    /// Example (simple):
+    /// ```toml
+    /// [site]
+    /// logo = "logo.svg"
+    /// ```
+    ///
+    /// Example (responsive):
+    /// ```toml
+    /// [site.logo]
+    /// default = "logo.svg"
+    /// dark = "logo-dark.svg"
+    /// mobile = "logo-mobile.svg"
+    /// ```
+    pub logo: Option<LogoSpec>,
 
     /// Glob patterns for files to exclude when publishing
     ///
@@ -127,6 +214,11 @@ impl SiteConfig {
         }
 
         Ok(())
+    }
+
+    /// Get the root path
+    pub fn resolve_root(&self, base_dir: &Path) -> Option<PathBuf> {
+        self.root.as_ref().map(|root| root.resolve(base_dir))
     }
 }
 
