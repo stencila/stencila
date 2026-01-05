@@ -1,0 +1,6 @@
+stencila-layout .icon {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    background-color: currentColor;
+}
