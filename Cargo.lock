@@ -9368,6 +9368,7 @@ dependencies = [
  "stencila-cli-utils",
  "stencila-dirs",
  "stencila-format",
+ "stencila-schema",
  "strum",
  "syn 2.0.111",
  "tempfile",

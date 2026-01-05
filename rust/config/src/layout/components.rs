@@ -129,10 +129,48 @@ pub enum ComponentConfig {
         style: Option<ColorModeStyle>,
     },
 
-    /// Copyright text
+    /// Copyright notice with auto-updating year
+    ///
+    /// Displays a copyright notice with optional auto-updating year.
+    /// When used as a bare `"copyright"` string, uses `site.author` as the holder
+    /// and current year.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.footer]
+    /// middle = "copyright"  # Uses site.author, current year
+    ///
+    /// # With year range:
+    /// middle = { type = "copyright", start-year = 2020 }
+    ///
+    /// # With custom holder:
+    /// middle = { type = "copyright", holder = "Acme Inc", link = "https://acme.com" }
+    ///
+    /// # Full custom text (no auto-year):
+    /// middle = { type = "copyright", text = "Custom copyright notice" }
+    /// ```
     Copyright {
-        /// Copyright text (defaults to site.copyright)
+        /// Full custom text (overrides all other fields)
+        ///
+        /// When provided, this text is used verbatim with no auto-year.
+        /// Example: "© 2024 Acme Inc. All rights reserved."
         text: Option<String>,
+
+        /// Copyright holder name (defaults to site.author)
+        ///
+        /// Example: "Acme Inc"
+        holder: Option<String>,
+
+        /// Start year for copyright range (e.g., 2020 in "2020-2024")
+        ///
+        /// If not set, only current year is shown.
+        #[serde(rename = "start-year")]
+        start_year: Option<u16>,
+
+        /// Link URL for the holder name
+        ///
+        /// When provided, the holder name becomes a clickable link.
+        link: Option<String>,
     },
 }
 
@@ -584,6 +622,115 @@ children = ["/docs/installation/", "/docs/configuration/"]"#,
             assert_eq!(children.len(), 2);
         } else {
             panic!("Expected NavTreeItem::Group");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copyright_basic_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(r#"type = "copyright""#)?;
+        assert!(matches!(
+            config,
+            ComponentConfig::Copyright {
+                text: None,
+                holder: None,
+                start_year: None,
+                link: None,
+            }
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copyright_with_holder_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copyright"
+holder = "Acme Inc""#,
+        )?;
+
+        if let ComponentConfig::Copyright { holder, .. } = config {
+            assert_eq!(holder.as_deref(), Some("Acme Inc"));
+        } else {
+            panic!("Expected ComponentConfig::Copyright");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copyright_with_start_year_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copyright"
+start-year = 2020"#,
+        )?;
+
+        if let ComponentConfig::Copyright { start_year, .. } = config {
+            assert_eq!(start_year, Some(2020));
+        } else {
+            panic!("Expected ComponentConfig::Copyright");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copyright_with_link_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copyright"
+holder = "Acme Inc"
+link = "https://acme.com""#,
+        )?;
+
+        if let ComponentConfig::Copyright { holder, link, .. } = config {
+            assert_eq!(holder.as_deref(), Some("Acme Inc"));
+            assert_eq!(link.as_deref(), Some("https://acme.com"));
+        } else {
+            panic!("Expected ComponentConfig::Copyright");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copyright_with_text_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copyright"
+text = "© 2024 Custom Copyright Notice""#,
+        )?;
+
+        if let ComponentConfig::Copyright { text, .. } = config {
+            assert_eq!(text.as_deref(), Some("© 2024 Custom Copyright Notice"));
+        } else {
+            panic!("Expected ComponentConfig::Copyright");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copyright_all_options_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copyright"
+holder = "Acme Inc"
+start-year = 2020
+link = "https://acme.com""#,
+        )?;
+
+        if let ComponentConfig::Copyright {
+            text,
+            holder,
+            start_year,
+            link,
+        } = config
+        {
+            assert!(text.is_none());
+            assert_eq!(holder.as_deref(), Some("Acme Inc"));
+            assert_eq!(start_year, Some(2020));
+            assert_eq!(link.as_deref(), Some("https://acme.com"));
+        } else {
+            panic!("Expected ComponentConfig::Copyright");
         }
 
         Ok(())

@@ -173,8 +173,10 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
     match component {
         ComponentSpec::Name(name) => match name.as_str() {
             "breadcrumbs" => render_breadcrumbs(context),
+            "copyright" => render_copyright(&None, &None, &None, &None, context),
             "logo" => render_logo(None, context),
             "prev-next" => render_prev_next(&None, &None, &None, &None, context),
+            "title" => render_title(&None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -186,6 +188,12 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
     match component {
         ComponentConfig::Breadcrumbs => render_breadcrumbs(context),
         ComponentConfig::ColorMode { style } => render_color_mode(style),
+        ComponentConfig::Copyright {
+            text,
+            holder,
+            start_year,
+            link,
+        } => render_copyright(text, holder, start_year, link, context),
         ComponentConfig::Logo(config) => render_logo(Some(config), context),
         ComponentConfig::PrevNext {
             style,
@@ -193,6 +201,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             next_text,
             separator,
         } => render_prev_next(style, prev_text, next_text, separator, context),
+        ComponentConfig::Title { text } => render_title(text, context),
         _ => String::new(),
     }
 }
@@ -286,6 +295,57 @@ fn render_color_mode(style: &Option<ColorModeStyle>) -> String {
             Some(style) => format!(" style={style}"),
             None => String::new(),
         },
+    )
+}
+
+/// Render a copyright component
+///
+/// Generates a copyright notice with auto-updating year support.
+/// When `text` is provided, uses it verbatim.
+/// Otherwise, generates: © {start_year?}-{current_year} {holder}
+fn render_copyright(
+    text: &Option<String>,
+    holder: &Option<String>,
+    start_year: &Option<u16>,
+    link: &Option<String>,
+    context: &RenderContext,
+) -> String {
+    // If custom text is provided, use it verbatim (no auto-year)
+    if let Some(custom_text) = text {
+        return format!(
+            r#"<stencila-copyright><span class="text">{custom_text}</span></stencila-copyright>"#
+        );
+    }
+
+    // Get current year
+    let current_year = chrono::Utc::now().format("%Y").to_string();
+
+    // Build year string with data attributes for client-side updates
+    let year_html = if let Some(start) = start_year {
+        format!(
+            r#"<span class="year" data-start="{start}" data-end="{current_year}">{start}-{current_year}</span>"#
+        )
+    } else {
+        format!(r#"<span class="year" data-end="{current_year}">{current_year}</span>"#)
+    };
+
+    // Resolve holder: component holder > site.author > empty
+    let holder_name = holder
+        .clone()
+        .or_else(|| context.site_config.author.as_ref().map(|a| a.name()))
+        .unwrap_or_default();
+
+    // Build holder HTML (with optional link)
+    let holder_html = if holder_name.is_empty() {
+        String::new()
+    } else if let Some(url) = link {
+        format!(r#" <a class="holder" href="{url}">{holder_name}</a>"#)
+    } else {
+        format!(r#" <span class="holder">{holder_name}</span>"#)
+    };
+
+    format!(
+        r#"<stencila-copyright><span class="symbol">©</span> {year_html}{holder_html}</stencila-copyright>"#
     )
 }
 
@@ -392,4 +452,20 @@ fn render_prev_next(
     format!(
         r#"<stencila-prev-next style="{style}"><nav aria-label="Page navigation">{prev_html}{center_html}{next_html}</nav></stencila-prev-next>"#
     )
+}
+
+/// Render a title component
+///
+/// Displays the site title. When `text` is None, uses `site.title`.
+fn render_title(text: &Option<String>, context: &RenderContext) -> String {
+    let title_text = text
+        .clone()
+        .or_else(|| context.site_config.title.clone())
+        .unwrap_or_default();
+
+    if title_text.is_empty() {
+        "<stencila-title></stencila-title>".to_string()
+    } else {
+        format!("<stencila-title>{title_text}</stencila-title>")
+    }
 }

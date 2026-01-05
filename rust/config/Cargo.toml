@@ -18,6 +18,7 @@ stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-format = { path = "../format" }
+stencila-schema = { path = "../schema" }
 strum = { workspace = true }
 syn = { version = "2", features = ["full", "parsing", "extra-traits"] }
 tokio = { workspace = true }

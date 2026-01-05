@@ -83,6 +83,60 @@ pub struct LogoConfig {
     pub alt: Option<String>,
 }
 
+/// Author specification - simple string or full Author object
+///
+/// Supports both simple usage with a name string and advanced usage
+/// with a full Stencila Author object for richer metadata.
+///
+/// Example (simple):
+/// ```toml
+/// [site]
+/// author = "Acme Inc"
+/// ```
+///
+/// Example (full):
+/// ```toml
+/// [site.author]
+/// type = "Organization"
+/// name = "Acme Inc"
+/// url = "https://acme.com"
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum AuthorSpec {
+    /// Simple name string (will be used as-is for copyright)
+    Name(String),
+
+    /// Full Author object (Person, Organization, etc.)
+    /// Uses Author::name() for copyright holder text
+    #[schemars(schema_with = "author_schema")]
+    Author(stencila_schema::Author),
+}
+
+impl AuthorSpec {
+    /// Get the display name for copyright purposes
+    pub fn name(&self) -> String {
+        match self {
+            AuthorSpec::Name(name) => name.clone(),
+            AuthorSpec::Author(author) => author.name(),
+        }
+    }
+}
+
+/// Simple JSON schema for Author - describes it as an object with type, name, and url
+fn author_schema(_gen: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    serde_json::from_value(serde_json::json!({
+        "type": "object",
+        "properties": {
+            "type": { "type": "string", "enum": ["Person", "Organization"] },
+            "name": { "type": "string" },
+            "url": { "type": "string", "format": "uri" }
+        },
+        "required": ["type", "name"]
+    }))
+    .expect("valid schema")
+}
+
 /// Configuration for a site
 ///
 /// Site settings are associated with a workspace (see `WorkspaceConfig`).
@@ -109,6 +163,38 @@ pub struct SiteConfig {
     /// The canonical source is the Stencila Cloud API.
     #[schemars(regex(pattern = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"))]
     pub domain: Option<String>,
+
+    /// Site title
+    ///
+    /// Used by the Title component and as fallback metadata.
+    /// When not specified, the Title component will render empty.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site]
+    /// title = "My Documentation"
+    /// ```
+    pub title: Option<String>,
+
+    /// Site author
+    ///
+    /// Used as the default copyright holder and for site metadata.
+    /// Can be a simple string or a full Author object for richer metadata.
+    ///
+    /// Example (simple):
+    /// ```toml
+    /// [site]
+    /// author = "Acme Inc"
+    /// ```
+    ///
+    /// Example (full):
+    /// ```toml
+    /// [site.author]
+    /// type = "Organization"
+    /// name = "Acme Inc"
+    /// url = "https://acme.com"
+    /// ```
+    pub author: Option<AuthorSpec>,
 
     /// Root directory for site content
     ///

@@ -1,0 +1,26 @@
+/* Site Title Component
+ *
+ * Displays the site title text.
+ *
+ * Structure:
+ * - stencila-title: Custom element containing title text
+ *
+ * Design tokens:
+ * - --site-title-font-size: Font size
+ * - --site-title-font-weight: Font weight
+ * - --site-title-color: Text color
+ */
+
+:root {
+    --site-title-font-size: var(--font-size-lg);
+    --site-title-font-weight: 600;
+    --site-title-color: var(--text-color-primary);
+}
+
+/* Container */
+stencila-title {
+    display: inline-block;
+    font-size: var(--site-title-font-size);
+    font-weight: var(--site-title-font-weight);
+    color: var(--site-title-color);
+}
