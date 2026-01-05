@@ -1,9 +1,9 @@
 use stencila_config::{LayoutConfig, RegionSpec};
 
 /// Render a Stencila site layout for a specific route
-pub(crate) fn render_layout(config: &LayoutConfig) -> String {
-    // Resolve the config (merge preset defaults with explicit config)
-    let resolved = config.resolve();
+pub(crate) fn render_layout(config: &LayoutConfig, route: &str) -> String {
+    // Resolve the config for the route
+    let resolved = config.resolve_for_route(route);
 
     // Render regions
     let mut regions_enabled = String::new();

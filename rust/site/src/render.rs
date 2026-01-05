@@ -391,7 +391,7 @@ async fn render_document_route(
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Render layout for the route
-    let layout_html = render_layout(layout_config); //, &entry.route, &document_routes, Some(&node));
+    let layout_html = render_layout(layout_config, &route); //, &document_routes, Some(&node));
 
     // Generate site body
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");

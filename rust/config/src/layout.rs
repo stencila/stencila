@@ -23,6 +23,7 @@
 
 use std::collections::HashMap;
 
+use glob::Pattern;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -224,6 +225,57 @@ impl LayoutConfig {
             footer: resolve_region(merge_region(&base.footer, &self.footer), &components),
             overrides: self.overrides.clone(),
         }
+    }
+
+    /// Resolve the layout configuration for a specific route
+    ///
+    /// This method:
+    /// 1. Calls `resolve()` to merge preset defaults with explicit config
+    /// 2. Finds the first matching override for the route (if any)
+    /// 3. Applies the override's region configs on top of the resolved base
+    ///
+    /// Example:
+    /// ```ignore
+    /// let config = layout_config.resolve_for_route("/blog/my-post/");
+    /// ```
+    pub fn resolve_for_route(&self, route: &str) -> Self {
+        let base = self.resolve();
+
+        // Find first matching override
+        let Some(override_config) = self.find_matching_override(route) else {
+            return base;
+        };
+
+        // Apply override regions on top of resolved base
+        Self {
+            preset: base.preset,
+            components: base.components,
+            header: merge_region(&base.header, &override_config.header),
+            left_sidebar: merge_region(&base.left_sidebar, &override_config.left_sidebar),
+            top: merge_region(&base.top, &override_config.top),
+            bottom: merge_region(&base.bottom, &override_config.bottom),
+            right_sidebar: merge_region(&base.right_sidebar, &override_config.right_sidebar),
+            footer: merge_region(&base.footer, &override_config.footer),
+            // Don't include overrides in resolved config - they've been applied
+            overrides: vec![],
+        }
+    }
+
+    /// Find the first override that matches a route
+    ///
+    /// Returns the first `LayoutOverride` where any of its route patterns
+    /// match the given route. Patterns are glob patterns (e.g., "/blog/**").
+    fn find_matching_override(&self, route: &str) -> Option<&LayoutOverride> {
+        for override_config in &self.overrides {
+            for pattern in &override_config.routes {
+                if let Ok(glob) = Pattern::new(pattern)
+                    && glob.matches(route)
+                {
+                    return Some(override_config);
+                }
+            }
+        }
+        None
     }
 }
 
@@ -1486,5 +1538,160 @@ mod tests {
             err_msg.contains("[site.layout.components.my-nav]"),
             "Error should suggest defining the component: {err_msg}"
         );
+    }
+
+    #[test]
+    fn test_resolve_for_route_no_override() {
+        // Route that doesn't match any override should return base resolved config
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        let resolved = config.resolve_for_route("/docs/guide/");
+
+        // Should have left sidebar (from docs preset, not affected by blog override)
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+    }
+
+    #[test]
+    fn test_resolve_for_route_with_matching_override() {
+        // Route that matches override should have override applied
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                bottom: Some(RegionSpec::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        let resolved = config.resolve_for_route("/blog/my-post/");
+
+        // Left sidebar should be disabled (from override)
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        // Bottom should be disabled (from override)
+        assert!(resolved.bottom.as_ref().is_some_and(|r| !r.is_enabled()));
+        // Header should still be enabled (from preset, not overridden)
+        assert!(resolved.header.as_ref().is_some_and(|r| r.is_enabled()));
+    }
+
+    #[test]
+    fn test_resolve_for_route_first_match_wins() {
+        // First matching override should be applied
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            overrides: vec![
+                LayoutOverride {
+                    routes: vec!["/blog/special/**".to_string()],
+                    left_sidebar: Some(RegionSpec::Enabled(false)),
+                    right_sidebar: Some(RegionSpec::Enabled(false)),
+                    ..Default::default()
+                },
+                LayoutOverride {
+                    routes: vec!["/blog/**".to_string()],
+                    left_sidebar: Some(RegionSpec::Enabled(false)),
+                    // right_sidebar not overridden here
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        };
+
+        // /blog/special/post/ should match first override (both sidebars disabled)
+        let resolved = config.resolve_for_route("/blog/special/post/");
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        assert!(
+            resolved
+                .right_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+
+        // /blog/regular/ should match second override (only left sidebar disabled)
+        let resolved = config.resolve_for_route("/blog/regular/");
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        // Right sidebar should still be enabled (from preset)
+        assert!(
+            resolved
+                .right_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+    }
+
+    #[test]
+    fn test_resolve_for_route_glob_patterns() {
+        // Test various glob patterns
+        let config = LayoutConfig {
+            overrides: vec![
+                LayoutOverride {
+                    routes: vec!["/api/**".to_string()],
+                    header: Some(RegionSpec::Enabled(false)),
+                    ..Default::default()
+                },
+                LayoutOverride {
+                    routes: vec!["/docs/*/intro/".to_string()],
+                    footer: Some(RegionSpec::Enabled(false)),
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        };
+
+        // /api/users/ should match first override
+        let resolved = config.resolve_for_route("/api/users/");
+        assert!(resolved.header.as_ref().is_some_and(|r| !r.is_enabled()));
+
+        // /docs/guide/intro/ should match second override
+        let resolved = config.resolve_for_route("/docs/guide/intro/");
+        assert!(resolved.footer.as_ref().is_some_and(|r| !r.is_enabled()));
+
+        // /docs/guide/advanced/ should not match second override
+        let resolved = config.resolve_for_route("/docs/guide/advanced/");
+        assert!(resolved.footer.is_none()); // No footer config at all
+    }
+
+    #[test]
+    fn test_resolve_for_route_clears_overrides() {
+        // Resolved config should have empty overrides (they've been applied)
+        let config = LayoutConfig {
+            overrides: vec![LayoutOverride {
+                routes: vec!["/blog/**".to_string()],
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        let resolved = config.resolve_for_route("/blog/post/");
+        assert!(resolved.overrides.is_empty());
     }
 }
