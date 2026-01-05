@@ -284,6 +284,11 @@ stencila-footer {
     flex: 1;
 }
 
+/* Middle subregion children expand to fill available width */
+[data-subregion="middle"] > * {
+    width: 100%;
+}
+
 [data-subregion="end"] {
     display: flex;
     align-items: center;
