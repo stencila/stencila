@@ -425,10 +425,7 @@ fn resolve_component_spec(
     match spec {
         ComponentSpec::Name(name) => {
             if let Some(config) = components.get(&name) {
-                ComponentSpec::Config(ComponentWithCondition {
-                    condition: None,
-                    component: config.clone(),
-                })
+                ComponentSpec::Config(config.clone())
             } else {
                 // Not a named component - assume it's a built-in type
                 ComponentSpec::Name(name)
@@ -537,13 +534,10 @@ impl LayoutPreset {
                     ..Default::default()
                 })),
                 left_sidebar: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Config(ComponentWithCondition {
-                        condition: None,
-                        component: ComponentConfig::NavTree {
-                            items: None,
-                            collapsible: Some(false),
-                            depth: None,
-                        },
+                    middle: Some(vec![ComponentSpec::Config(ComponentConfig::NavTree {
+                        items: None,
+                        collapsible: Some(false),
+                        depth: None,
                     })]),
                     ..Default::default()
                 })),
@@ -712,27 +706,8 @@ pub enum ComponentSpec {
     /// Simple type name: "logo" or named component: "main-nav"
     Name(String),
 
-    /// Full config with optional condition
-    Config(ComponentWithCondition),
-}
-
-/// Wrapper that adds optional `if` condition to any component
-#[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
-pub struct ComponentWithCondition {
-    /// Condition for showing this component
-    ///
-    /// Supported conditions:
-    /// - `site.search.enabled` - Search feature is configured
-    /// - `document.headings` - Current document has headings
-    /// - `site.multi-page` - Site has multiple pages
-    #[serde(rename = "if")]
-    pub condition: Option<String>,
-
-    /// The component configuration
-    #[serde(flatten)]
-    pub component: ComponentConfig,
+    /// Full component configuration
+    Config(ComponentConfig),
 }
 
 /// Component configuration (internally tagged by type)
@@ -1105,33 +1080,8 @@ mod tests {
         assert_eq!(middle.len(), 1);
         assert!(matches!(
             &middle[0],
-            ComponentSpec::Config(c) if matches!(c.component, ComponentConfig::Logo { .. })
+            ComponentSpec::Config(ComponentConfig::Logo { .. })
         ));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_component_with_condition() -> Result<()> {
-        let toml = r#"
-            [right-sidebar]
-            start = [{ type = "toc-tree", if = "document.headings" }]
-        "#;
-        let layout: LayoutConfig = toml::from_str(toml)?;
-
-        let sidebar = layout
-            .right_sidebar
-            .expect("right-sidebar should be present");
-        let config = sidebar.config().expect("should be config");
-        let start = config.start.as_ref().expect("start should be present");
-        assert_eq!(start.len(), 1);
-
-        if let ComponentSpec::Config(c) = &start[0] {
-            assert_eq!(c.condition, Some("document.headings".to_string()));
-            assert!(matches!(c.component, ComponentConfig::TocTree { .. }));
-        } else {
-            panic!("Expected ComponentSpec::Config");
-        }
 
         Ok(())
     }
@@ -1340,14 +1290,10 @@ mod tests {
         let config = header.config().expect("should be config");
         let end = config.end.as_ref().expect("end should be present");
 
-        if let ComponentSpec::Config(c) = &end[0] {
-            if let ComponentConfig::ColorMode { style } = &c.component {
-                assert_eq!(*style, Some(ColorModeStyle::Both));
-            } else {
-                panic!("Expected ColorMode component");
-            }
+        if let ComponentSpec::Config(ComponentConfig::ColorMode { style }) = &end[0] {
+            assert_eq!(*style, Some(ColorModeStyle::Both));
         } else {
-            panic!("Expected ComponentSpec::Config");
+            panic!("Expected ComponentSpec::Config(ComponentConfig::ColorMode)");
         }
 
         Ok(())
@@ -1495,18 +1441,14 @@ mod tests {
             .expect("middle should be present");
 
         assert_eq!(middle.len(), 1);
-        if let ComponentSpec::Config(c) = &middle[0] {
-            if let ComponentConfig::NavTree {
-                collapsible, depth, ..
-            } = &c.component
-            {
-                assert_eq!(*collapsible, Some(false));
-                assert_eq!(*depth, Some(2));
-            } else {
-                panic!("Expected NavTree component");
-            }
+        if let ComponentSpec::Config(ComponentConfig::NavTree {
+            collapsible, depth, ..
+        }) = &middle[0]
+        {
+            assert_eq!(*collapsible, Some(false));
+            assert_eq!(*depth, Some(2));
         } else {
-            panic!("Expected ComponentSpec::Config after resolution");
+            panic!("Expected ComponentSpec::Config(ComponentConfig::NavTree) after resolution");
         }
 
         Ok(())
@@ -1568,11 +1510,13 @@ mod tests {
         assert_eq!(end.len(), 2);
 
         // custom-toc should be expanded
-        if let ComponentSpec::Config(c) = &end[0] {
-            assert!(matches!(c.component, ComponentConfig::TocTree { .. }));
-        } else {
-            panic!("Expected custom-toc to be expanded");
-        }
+        assert!(
+            matches!(
+                &end[0],
+                ComponentSpec::Config(ComponentConfig::TocTree { .. })
+            ),
+            "Expected custom-toc to be expanded"
+        );
 
         // color-mode should remain as Name
         assert!(matches!(&end[1], ComponentSpec::Name(n) if n == "color-mode"));
@@ -1992,18 +1936,14 @@ mod tests {
             .expect("middle should be present");
 
         assert_eq!(middle.len(), 1);
-        if let ComponentSpec::Config(c) = &middle[0] {
-            if let ComponentConfig::NavTree {
-                collapsible, depth, ..
-            } = &c.component
-            {
-                assert_eq!(*collapsible, Some(false));
-                assert_eq!(*depth, Some(2));
-            } else {
-                panic!("Expected NavTree component");
-            }
+        if let ComponentSpec::Config(ComponentConfig::NavTree {
+            collapsible, depth, ..
+        }) = &middle[0]
+        {
+            assert_eq!(*collapsible, Some(false));
+            assert_eq!(*depth, Some(2));
         } else {
-            panic!("Expected ComponentSpec::Config after resolution, got Name");
+            panic!("Expected ComponentSpec::Config(ComponentConfig::NavTree) after resolution");
         }
 
         Ok(())
@@ -2045,14 +1985,10 @@ mod tests {
 
         assert_eq!(start.len(), 1);
         // custom-toc should be expanded to TocTree with depth=5
-        if let ComponentSpec::Config(c) = &start[0] {
-            if let ComponentConfig::TocTree { depth, .. } = &c.component {
-                assert_eq!(*depth, Some(5));
-            } else {
-                panic!("Expected TocTree component");
-            }
+        if let ComponentSpec::Config(ComponentConfig::TocTree { depth, .. }) = &start[0] {
+            assert_eq!(*depth, Some(5));
         } else {
-            panic!("Expected ComponentSpec::Config after resolution");
+            panic!("Expected ComponentSpec::Config(ComponentConfig::TocTree) after resolution");
         }
 
         Ok(())
