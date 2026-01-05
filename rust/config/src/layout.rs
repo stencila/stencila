@@ -122,6 +122,49 @@ impl LayoutConfig {
         }
         Ok(())
     }
+
+    /// Resolve the layout configuration by merging preset defaults with explicit config
+    ///
+    /// If a preset is specified, its defaults are used as the base and any explicit
+    /// region configurations override those defaults. If no preset is specified,
+    /// the explicit config is used as-is.
+    pub fn resolve(&self) -> Self {
+        let base = match &self.preset {
+            Some(preset) => preset.defaults(),
+            None => Self::default(),
+        };
+
+        Self {
+            preset: self.preset,
+            components: {
+                let mut merged = base.components;
+                merged.extend(self.components.clone());
+                merged
+            },
+            header: merge_region(&base.header, &self.header),
+            left_sidebar: merge_region(&base.left_sidebar, &self.left_sidebar),
+            top: merge_region(&base.top, &self.top),
+            bottom: merge_region(&base.bottom, &self.bottom),
+            right_sidebar: merge_region(&base.right_sidebar, &self.right_sidebar),
+            footer: merge_region(&base.footer, &self.footer),
+            overrides: self.overrides.clone(),
+        }
+    }
+}
+
+/// Merge two optional region specs (override takes precedence over base)
+fn merge_region(
+    base: &Option<RegionSpec>,
+    override_spec: &Option<RegionSpec>,
+) -> Option<RegionSpec> {
+    match (base, override_spec) {
+        // Override completely replaces base
+        (_, Some(override_spec)) => Some(override_spec.clone()),
+        // No override, use base
+        (Some(base), None) => Some(base.clone()),
+        // Neither specified
+        (None, None) => None,
+    }
 }
 
 /// Named layout presets for common documentation patterns
@@ -143,6 +186,113 @@ pub enum LayoutPreset {
 
     /// API reference: nav-tree left (flat), no right sidebar
     Api,
+}
+
+impl LayoutPreset {
+    /// Get the default layout configuration for this preset
+    pub fn defaults(&self) -> LayoutConfig {
+        match self {
+            Self::Docs => LayoutConfig {
+                header: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("logo".into())]),
+                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
+                    ..Default::default()
+                })),
+                left_sidebar: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Name("nav-tree".into())]),
+                    ..Default::default()
+                })),
+                top: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("breadcrumbs".into())]),
+                    ..Default::default()
+                })),
+                bottom: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Name("page-nav".into())]),
+                    ..Default::default()
+                })),
+                right_sidebar: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("toc-tree".into())]),
+                    ..Default::default()
+                })),
+                footer: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            },
+            Self::Blog => LayoutConfig {
+                header: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("logo".into())]),
+                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
+                    ..Default::default()
+                })),
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                top: Some(RegionSpec::Enabled(false)),
+                bottom: Some(RegionSpec::Enabled(false)),
+                right_sidebar: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("toc-tree".into())]),
+                    ..Default::default()
+                })),
+                footer: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            },
+            Self::Landing => LayoutConfig {
+                header: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("logo".into())]),
+                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
+                    ..Default::default()
+                })),
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                top: Some(RegionSpec::Enabled(false)),
+                bottom: Some(RegionSpec::Enabled(false)),
+                right_sidebar: Some(RegionSpec::Enabled(false)),
+                footer: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            },
+            Self::Api => LayoutConfig {
+                header: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("logo".into())]),
+                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
+                    ..Default::default()
+                })),
+                left_sidebar: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Config(ComponentWithCondition {
+                        condition: None,
+                        component: ComponentConfig::NavTree {
+                            items: None,
+                            collapsible: Some(false),
+                            depth: None,
+                        },
+                    })]),
+                    ..Default::default()
+                })),
+                top: Some(RegionSpec::Config(RegionConfig {
+                    start: Some(vec![ComponentSpec::Name("breadcrumbs".into())]),
+                    ..Default::default()
+                })),
+                bottom: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Name("page-nav".into())]),
+                    ..Default::default()
+                })),
+                right_sidebar: Some(RegionSpec::Enabled(false)),
+                footer: Some(RegionSpec::Config(RegionConfig {
+                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            },
+        }
+    }
 }
 
 /// Region specification that can be enabled/disabled or fully configured
@@ -386,7 +536,7 @@ pub enum ComponentConfig {
 /// ## Variants
 ///
 /// ### Route (string shorthand)
-/// 
+///
 /// A simple route path. The label is derived from the route (e.g., "/docs/guide/"
 /// becomes "Guide"). Use this for quick references to existing pages:
 /// ```toml
@@ -394,7 +544,7 @@ pub enum ComponentConfig {
 /// ```
 ///
 /// ### Link (object with label)
-/// 
+///
 /// Explicit label and target. Use when you need a custom label or linking to
 /// external URLs:
 /// ```toml
@@ -476,7 +626,7 @@ pub enum ColorModeStyle {
     /// Sun/moon icon only (default)
     #[default]
     Icon,
-    
+
     /// "Light"/"Dark" text label only
     Label,
 
@@ -834,7 +984,9 @@ mod tests {
 
         let result = layout.validate();
         assert!(result.is_err());
-        let err_msg = result.unwrap_err().to_string();
+        let err_msg = result
+            .expect_err("validation should fail for empty routes")
+            .to_string();
         assert!(
             err_msg.contains("at least one route pattern"),
             "Error message should mention missing routes: {err_msg}"
@@ -878,6 +1030,120 @@ mod tests {
         } else {
             panic!("Expected ComponentSpec::Config");
         }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_preset_defaults() {
+        // Each preset should have sensible defaults
+        let docs = LayoutPreset::Docs.defaults();
+        assert!(docs.header.is_some());
+        assert!(docs.left_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
+        assert!(docs.right_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
+
+        let blog = LayoutPreset::Blog.defaults();
+        assert!(blog.left_sidebar.as_ref().is_some_and(|r| !r.is_enabled()));
+        assert!(blog.right_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
+
+        let landing = LayoutPreset::Landing.defaults();
+        assert!(
+            landing
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        assert!(
+            landing
+                .right_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+
+        let api = LayoutPreset::Api.defaults();
+        assert!(api.left_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
+        assert!(api.right_sidebar.as_ref().is_some_and(|r| !r.is_enabled()));
+    }
+
+    #[test]
+    fn test_resolve_no_preset() {
+        // Without a preset, resolve returns the explicit config
+        let config = LayoutConfig {
+            header: Some(RegionSpec::Enabled(false)),
+            ..Default::default()
+        };
+
+        let resolved = config.resolve();
+        assert!(matches!(resolved.header, Some(RegionSpec::Enabled(false))));
+        // Other regions should remain None
+        assert!(resolved.left_sidebar.is_none());
+    }
+
+    #[test]
+    fn test_resolve_preset_only() {
+        // With only a preset, resolve returns preset defaults
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            ..Default::default()
+        };
+
+        let resolved = config.resolve();
+        assert!(resolved.header.is_some());
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+        assert!(
+            resolved
+                .right_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+    }
+
+    #[test]
+    fn test_resolve_preset_with_override() {
+        // Explicit config should override preset defaults
+        let config = LayoutConfig {
+            preset: Some(LayoutPreset::Docs),
+            // Override left sidebar to be disabled (docs normally has it enabled)
+            left_sidebar: Some(RegionSpec::Enabled(false)),
+            ..Default::default()
+        };
+
+        let resolved = config.resolve();
+        // Left sidebar should be disabled (overridden)
+        assert!(
+            resolved
+                .left_sidebar
+                .as_ref()
+                .is_some_and(|r| !r.is_enabled())
+        );
+        // Right sidebar should still be enabled (from preset)
+        assert!(
+            resolved
+                .right_sidebar
+                .as_ref()
+                .is_some_and(|r| r.is_enabled())
+        );
+    }
+
+    #[test]
+    fn test_resolve_preset_with_components() -> Result<()> {
+        // Named components should be merged
+        let toml = r#"
+            preset = "docs"
+
+            [components.custom-nav]
+            type = "nav-tree"
+            collapsible = false
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve();
+        assert!(resolved.components.contains_key("custom-nav"));
 
         Ok(())
     }
