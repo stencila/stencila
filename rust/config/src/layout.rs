@@ -114,7 +114,20 @@ pub struct LayoutConfig {
 
 impl LayoutConfig {
     /// Validate the layout configuration
+    ///
+    /// Checks that:
+    /// - All component name references are either built-in types or defined in `components`
+    /// - All layout overrides have valid route patterns
     pub fn validate(&self) -> eyre::Result<()> {
+        // Validate component references in each region
+        self.validate_region("header", &self.header)?;
+        self.validate_region("left-sidebar", &self.left_sidebar)?;
+        self.validate_region("top", &self.top)?;
+        self.validate_region("bottom", &self.bottom)?;
+        self.validate_region("right-sidebar", &self.right_sidebar)?;
+        self.validate_region("footer", &self.footer)?;
+
+        // Validate overrides
         for (index, override_config) in self.overrides.iter().enumerate() {
             override_config
                 .validate()
@@ -123,30 +136,92 @@ impl LayoutConfig {
         Ok(())
     }
 
+    /// Validate component references in a region
+    fn validate_region(&self, region_name: &str, spec: &Option<RegionSpec>) -> eyre::Result<()> {
+        let Some(spec) = spec else {
+            return Ok(());
+        };
+
+        let RegionSpec::Config(config) = spec else {
+            return Ok(());
+        };
+
+        self.validate_component_list(region_name, "start", &config.start)?;
+        self.validate_component_list(region_name, "middle", &config.middle)?;
+        self.validate_component_list(region_name, "end", &config.end)?;
+
+        Ok(())
+    }
+
+    /// Validate a list of component specs
+    fn validate_component_list(
+        &self,
+        region_name: &str,
+        subregion_name: &str,
+        specs: &Option<Vec<ComponentSpec>>,
+    ) -> eyre::Result<()> {
+        let Some(specs) = specs else {
+            return Ok(());
+        };
+
+        for spec in specs {
+            if let ComponentSpec::Name(name) = spec
+                && !is_builtin_component_type(name)
+                && !self.components.contains_key(name)
+            {
+                eyre::bail!(
+                    "Unknown component '{}' in {}.{}. \
+                         Must be a built-in type ({}) or defined in [site.layout.components.{}]",
+                    name,
+                    region_name,
+                    subregion_name,
+                    BUILTIN_COMPONENT_TYPES.join(", "),
+                    name
+                );
+            }
+        }
+
+        Ok(())
+    }
+
     /// Resolve the layout configuration by merging preset defaults with explicit config
     ///
     /// If a preset is specified, its defaults are used as the base and any explicit
     /// region configurations override those defaults. If no preset is specified,
     /// the explicit config is used as-is.
+    ///
+    /// This method also resolves named component references: any `ComponentSpec::Name`
+    /// that matches a key in `components` is expanded to `ComponentSpec::Config` with
+    /// the corresponding configuration.
     pub fn resolve(&self) -> Self {
         let base = match &self.preset {
             Some(preset) => preset.defaults(),
             None => Self::default(),
         };
 
+        // Merge components from base and self
+        let components = {
+            let mut merged = base.components;
+            merged.extend(self.components.clone());
+            merged
+        };
+
+        // Merge regions and resolve named component references
         Self {
             preset: self.preset,
-            components: {
-                let mut merged = base.components;
-                merged.extend(self.components.clone());
-                merged
-            },
-            header: merge_region(&base.header, &self.header),
-            left_sidebar: merge_region(&base.left_sidebar, &self.left_sidebar),
-            top: merge_region(&base.top, &self.top),
-            bottom: merge_region(&base.bottom, &self.bottom),
-            right_sidebar: merge_region(&base.right_sidebar, &self.right_sidebar),
-            footer: merge_region(&base.footer, &self.footer),
+            components: components.clone(),
+            header: resolve_region(merge_region(&base.header, &self.header), &components),
+            left_sidebar: resolve_region(
+                merge_region(&base.left_sidebar, &self.left_sidebar),
+                &components,
+            ),
+            top: resolve_region(merge_region(&base.top, &self.top), &components),
+            bottom: resolve_region(merge_region(&base.bottom, &self.bottom), &components),
+            right_sidebar: resolve_region(
+                merge_region(&base.right_sidebar, &self.right_sidebar),
+                &components,
+            ),
+            footer: resolve_region(merge_region(&base.footer, &self.footer), &components),
             overrides: self.overrides.clone(),
         }
     }
@@ -164,6 +239,60 @@ fn merge_region(
         (Some(base), None) => Some(base.clone()),
         // Neither specified
         (None, None) => None,
+    }
+}
+
+/// Resolve named component references in a region spec
+fn resolve_region(
+    spec: Option<RegionSpec>,
+    components: &HashMap<String, ComponentConfig>,
+) -> Option<RegionSpec> {
+    spec.map(|spec| match spec {
+        RegionSpec::Enabled(enabled) => RegionSpec::Enabled(enabled),
+        RegionSpec::Config(config) => RegionSpec::Config(RegionConfig {
+            enabled: config.enabled,
+            start: resolve_component_list(config.start, components),
+            middle: resolve_component_list(config.middle, components),
+            end: resolve_component_list(config.end, components),
+        }),
+    })
+}
+
+/// Resolve named component references in a component list
+fn resolve_component_list(
+    specs: Option<Vec<ComponentSpec>>,
+    components: &HashMap<String, ComponentConfig>,
+) -> Option<Vec<ComponentSpec>> {
+    specs.map(|specs| {
+        specs
+            .into_iter()
+            .map(|spec| resolve_component_spec(spec, components))
+            .collect()
+    })
+}
+
+/// Resolve a single component spec, expanding named references
+///
+/// If the spec is a `Name` that exists in `components`, it's expanded to a `Config`.
+/// Otherwise, the spec is returned unchanged (names not in `components` are assumed
+/// to be built-in component types like "logo", "nav-tree", etc.).
+fn resolve_component_spec(
+    spec: ComponentSpec,
+    components: &HashMap<String, ComponentConfig>,
+) -> ComponentSpec {
+    match spec {
+        ComponentSpec::Name(name) => {
+            if let Some(config) = components.get(&name) {
+                ComponentSpec::Config(ComponentWithCondition {
+                    condition: None,
+                    component: config.clone(),
+                })
+            } else {
+                // Not a named component - assume it's a built-in type
+                ComponentSpec::Name(name)
+            }
+        }
+        ComponentSpec::Config(config) => ComponentSpec::Config(config),
     }
 }
 
@@ -525,6 +654,23 @@ pub enum ComponentConfig {
         /// Copyright text (defaults to site.copyright)
         text: Option<String>,
     },
+}
+
+/// Built-in component type names (kebab-case as used in TOML)
+const BUILTIN_COMPONENT_TYPES: &[&str] = &[
+    "logo",
+    "title",
+    "breadcrumbs",
+    "nav-tree",
+    "toc-tree",
+    "page-nav",
+    "color-mode",
+    "copyright",
+];
+
+/// Check if a name is a built-in component type
+fn is_builtin_component_type(name: &str) -> bool {
+    BUILTIN_COMPONENT_TYPES.contains(&name)
 }
 
 /// Navigation tree item for explicit nav configuration
@@ -1146,5 +1292,199 @@ mod tests {
         assert!(resolved.components.contains_key("custom-nav"));
 
         Ok(())
+    }
+
+    #[test]
+    fn test_resolve_named_component_reference() -> Result<()> {
+        // Named component references should be expanded
+        let toml = r#"
+            [components.my-nav]
+            type = "nav-tree"
+            collapsible = false
+            depth = 2
+
+            [left-sidebar]
+            middle = "my-nav"
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve();
+
+        // The reference should be expanded to the full config
+        let sidebar = resolved
+            .left_sidebar
+            .as_ref()
+            .expect("left-sidebar should be present");
+        let region_config = sidebar.config().expect("should be config");
+        let middle = region_config
+            .middle
+            .as_ref()
+            .expect("middle should be present");
+
+        assert_eq!(middle.len(), 1);
+        if let ComponentSpec::Config(c) = &middle[0] {
+            if let ComponentConfig::NavTree {
+                collapsible, depth, ..
+            } = &c.component
+            {
+                assert_eq!(*collapsible, Some(false));
+                assert_eq!(*depth, Some(2));
+            } else {
+                panic!("Expected NavTree component");
+            }
+        } else {
+            panic!("Expected ComponentSpec::Config after resolution");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_resolve_builtin_name_unchanged() -> Result<()> {
+        // Built-in component names should remain as Name variants
+        let toml = r#"
+            [header]
+            start = "logo"
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve();
+
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+        let start = region_config
+            .start
+            .as_ref()
+            .expect("start should be present");
+
+        assert_eq!(start.len(), 1);
+        // "logo" is not in components, so it should remain as Name
+        assert!(matches!(&start[0], ComponentSpec::Name(n) if n == "logo"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_resolve_mixed_named_and_builtin() -> Result<()> {
+        // Can mix named component references with built-in names
+        let toml = r#"
+            [components.custom-toc]
+            type = "toc-tree"
+            depth = 4
+
+            [header]
+            start = "logo"
+            end = ["custom-toc", "color-mode"]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+
+        let resolved = config.resolve();
+
+        let header = resolved.header.as_ref().expect("header should be present");
+        let region_config = header.config().expect("should be config");
+
+        // start should have "logo" unchanged
+        let start = region_config
+            .start
+            .as_ref()
+            .expect("start should be present");
+        assert!(matches!(&start[0], ComponentSpec::Name(n) if n == "logo"));
+
+        // end should have expanded custom-toc and unchanged color-mode
+        let end = region_config.end.as_ref().expect("end should be present");
+        assert_eq!(end.len(), 2);
+
+        // custom-toc should be expanded
+        if let ComponentSpec::Config(c) = &end[0] {
+            assert!(matches!(c.component, ComponentConfig::TocTree { .. }));
+        } else {
+            panic!("Expected custom-toc to be expanded");
+        }
+
+        // color-mode should remain as Name
+        assert!(matches!(&end[1], ComponentSpec::Name(n) if n == "color-mode"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_validate_builtin_component_names() -> Result<()> {
+        // Built-in component names should pass validation
+        let toml = r#"
+            [header]
+            start = "logo"
+            middle = "title"
+            end = ["breadcrumbs", "nav-tree", "toc-tree", "page-nav", "color-mode", "copyright"]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+        config.validate()?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_validate_named_component_reference() -> Result<()> {
+        // Named components defined in components should pass validation
+        let toml = r#"
+            [components.my-nav]
+            type = "nav-tree"
+            collapsible = false
+
+            [left-sidebar]
+            middle = "my-nav"
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+        config.validate()?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_validate_unknown_component_fails() {
+        // Unknown component name should fail validation
+        let toml = r#"
+            [header]
+            start = "unknown-component"
+        "#;
+        let config: LayoutConfig = toml::from_str(toml).expect("should parse");
+
+        let result = config.validate();
+        assert!(result.is_err());
+        let err_msg = result
+            .expect_err("validation should fail for unknown component")
+            .to_string();
+        assert!(
+            err_msg.contains("Unknown component 'unknown-component'"),
+            "Error should mention unknown component: {err_msg}"
+        );
+        assert!(
+            err_msg.contains("header.start"),
+            "Error should mention location: {err_msg}"
+        );
+    }
+
+    #[test]
+    fn test_validate_undefined_named_component_fails() {
+        // Reference to component not defined in components map should fail
+        let toml = r#"
+            [left-sidebar]
+            middle = "my-nav"
+        "#;
+        // Note: my-nav is NOT defined in components
+        let config: LayoutConfig = toml::from_str(toml).expect("should parse");
+
+        let result = config.validate();
+        assert!(result.is_err());
+        let err_msg = result
+            .expect_err("validation should fail for undefined component")
+            .to_string();
+        assert!(
+            err_msg.contains("Unknown component 'my-nav'"),
+            "Error should mention undefined component: {err_msg}"
+        );
+        assert!(
+            err_msg.contains("[site.layout.components.my-nav]"),
+            "Error should suggest defining the component: {err_msg}"
+        );
     }
 }
