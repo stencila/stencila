@@ -1,7 +1,8 @@
 use std::path::Path;
 
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, LogoConfig, RegionSpec, SiteConfig,
+    ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LogoConfig, RegionSpec,
+    SiteConfig,
 };
 
 use crate::logo;
@@ -46,8 +47,11 @@ pub(crate) fn render_layout(site_config: &SiteConfig, site_root: &Path, route: &
     );
     let footer = render_region("footer", &resolved.footer, &mut regions_enabled, &context);
 
+    // Build responsive configuration attributes
+    let responsive_attrs = build_responsive_attributes(&resolved);
+
     format!(
-        r##"<stencila-layout{regions_enabled}>
+        r##"<stencila-layout{regions_enabled}{responsive_attrs}>
   <a href="#main-content" class="skip-link">Skip to content</a>
   {header}
   <div class="layout-body">
@@ -62,6 +66,46 @@ pub(crate) fn render_layout(site_config: &SiteConfig, site_root: &Path, route: &
   {footer}
 </stencila-layout>"##
     )
+}
+
+/// Build responsive configuration attributes for the layout element
+///
+/// Returns attributes for:
+/// - `collapse-breakpoint`: Custom breakpoint (only if not default 1024)
+/// - `left-sidebar-collapsible="false"`: When left sidebar should not collapse
+/// - `right-sidebar-collapsible="false"`: When right sidebar should not collapse
+fn build_responsive_attributes(config: &LayoutConfig) -> String {
+    let mut attrs = String::new();
+
+    // Get global responsive settings
+    let global_breakpoint = config
+        .responsive
+        .as_ref()
+        .and_then(|r| r.breakpoint)
+        .unwrap_or(1024);
+
+    // Add breakpoint attribute if not default
+    if global_breakpoint != 1024 {
+        attrs.push_str(&format!(" collapse-breakpoint=\"{global_breakpoint}\""));
+    }
+
+    // Check left sidebar collapsible setting
+    if let Some(RegionSpec::Config(left_config)) = &config.left_sidebar
+        && let Some(responsive) = &left_config.responsive
+        && responsive.collapsible == Some(false)
+    {
+        attrs.push_str(" left-sidebar-collapsible=\"false\"");
+    }
+
+    // Check right sidebar collapsible setting
+    if let Some(RegionSpec::Config(right_config)) = &config.right_sidebar
+        && let Some(responsive) = &right_config.responsive
+        && responsive.collapsible == Some(false)
+    {
+        attrs.push_str(" right-sidebar-collapsible=\"false\"");
+    }
+
+    attrs
 }
 
 /// Render a layout region (returns empty string if not enabled)

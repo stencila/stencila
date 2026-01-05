@@ -52,7 +52,7 @@ pub use {
         config_update_remote_watch,
     },
     site::{
-        GlideConfig, LogoSpec, RedirectStatus, LogoConfig, RouteSpread, SiteConfig,
+        GlideConfig, LogoConfig, LogoSpec, RedirectStatus, RouteSpread, SiteConfig,
         config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread,
     },
     utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file},

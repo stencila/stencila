@@ -55,20 +55,6 @@ pub struct LayoutConfig {
     /// Presets provide sensible defaults that can be extended with explicit config.
     pub preset: Option<LayoutPreset>,
 
-    /// Named component definitions for reuse
-    ///
-    /// Define components once and reference them by name in regions.
-    ///
-    /// Example:
-    /// ```toml
-    /// [site.layout.components.main-nav]
-    /// type = "nav-tree"
-    /// collapsible = true
-    /// depth = 3
-    /// ```
-    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
-    pub components: HashMap<String, ComponentConfig>,
-
     /// Header region configuration
     ///
     /// Horizontal region at the top of the page.
@@ -100,6 +86,32 @@ pub struct LayoutConfig {
     ///
     /// Horizontal region at the bottom of the page.
     pub footer: Option<RegionSpec>,
+
+    /// Global responsive configuration for sidebar collapse
+    ///
+    /// These settings apply to both sidebars unless overridden per-sidebar.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.responsive]
+    /// breakpoint = 1024
+    /// toggle-style = "fixed-edge"
+    /// ```
+    pub responsive: Option<ResponsiveConfig>,
+
+    /// Named component definitions for reuse
+    ///
+    /// Define components once and reference them by name in regions.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.components.main-nav]
+    /// type = "nav-tree"
+    /// collapsible = true
+    /// depth = 3
+    /// ```
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub components: HashMap<String, ComponentConfig>,
 
     /// Route-specific layout overrides
     ///
@@ -225,6 +237,7 @@ impl LayoutConfig {
                 &components,
             ),
             footer: resolve_region(merge_region(&base.footer, &self.footer), &components),
+            responsive: self.responsive.clone().or(base.responsive.clone()),
             overrides: self.overrides.clone(),
         }
     }
@@ -309,6 +322,11 @@ impl LayoutConfig {
                 merge_region(&region_base.footer, &override_config.footer),
                 components,
             ),
+            // Use override responsive if specified, otherwise keep base
+            responsive: override_config
+                .responsive
+                .clone()
+                .or(base.responsive.clone()),
             // Don't include overrides in resolved config - they've been applied
             overrides: vec![],
         }
@@ -356,6 +374,11 @@ fn merge_region(
                 start: merge_subregion(&base_config.start, &override_config.start),
                 middle: merge_subregion(&base_config.middle, &override_config.middle),
                 end: merge_subregion(&base_config.end, &override_config.end),
+                // Override responsive if specified, otherwise inherit
+                responsive: override_config
+                    .responsive
+                    .clone()
+                    .or(base_config.responsive.clone()),
             }))
         }
         // Override is Enabled (bool): replaces base entirely (explicit enable/disable)
@@ -398,6 +421,7 @@ fn resolve_region(
             start: resolve_component_list(config.start, components),
             middle: resolve_component_list(config.middle, components),
             end: resolve_component_list(config.end, components),
+            responsive: config.responsive,
         }),
     })
 }
@@ -626,6 +650,11 @@ pub struct RegionConfig {
     /// Components in the end sub-region (right for horizontal, bottom for vertical)
     #[serde(default, deserialize_with = "deserialize_component_list")]
     pub end: Option<Vec<ComponentSpec>>,
+
+    /// Responsive configuration (only applicable to sidebars)
+    ///
+    /// Controls when the sidebar becomes collapsible and how the toggle appears.
+    pub responsive: Option<ResponsiveConfig>,
 }
 
 /// Custom deserializer that accepts a single component or array of components
@@ -905,6 +934,57 @@ pub enum ColorModeStyle {
     Both,
 }
 
+/// Toggle button style for collapsible sidebars
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum SidebarToggleStyle {
+    /// Fixed edge buttons (buttons fixed to left/right viewport edges)
+    #[default]
+    FixedEdge,
+
+    /// Header buttons (toggle buttons inside header region)
+    Header,
+
+    /// Hamburger menu (single button for all sidebars)
+    Hamburger,
+}
+
+/// Responsive configuration for layout sidebars
+///
+/// Controls when sidebars collapse and how toggle buttons appear.
+///
+/// Example:
+/// ```toml
+/// [site.layout.responsive]
+/// breakpoint = 1024
+/// toggle-style = "fixed-edge"
+///
+/// [site.layout.left-sidebar]
+/// responsive.collapsible = false
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct ResponsiveConfig {
+    /// Breakpoint at which sidebars collapse (in pixels)
+    ///
+    /// Default: 1024
+    pub breakpoint: Option<u16>,
+
+    /// Whether the sidebar is collapsible
+    ///
+    /// Default: true
+    pub collapsible: Option<bool>,
+
+    /// Toggle button style
+    ///
+    /// Default: fixed-edge
+    pub toggle_style: Option<SidebarToggleStyle>,
+}
+
 /// Route-specific layout override
 ///
 /// First matching override wins (order matters in the array).
@@ -978,6 +1058,9 @@ pub struct LayoutOverride {
 
     /// Footer region override
     pub footer: Option<RegionSpec>,
+
+    /// Global responsive configuration override
+    pub responsive: Option<ResponsiveConfig>,
 }
 
 impl LayoutOverride {
