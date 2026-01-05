@@ -1,7 +1,7 @@
 use stencila_config::GlideConfig;
 
 /// Render a Stencila Glide config as data attributes for the <body>
-/// 
+///
 /// Only options that are not `None` are rendered as attributes and default
 /// behavior is determined by the TypeScript in web/src/site/glide
 pub(crate) fn render_glide(config: Option<&GlideConfig>) -> String {
