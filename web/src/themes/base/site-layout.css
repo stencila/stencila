@@ -33,6 +33,11 @@
     --layout-content-padding: var(--content-spacing);
     --layout-border-width: var(--border-width-default);
 
+    /* Layout Typography */
+    --layout-font-family: var(--font-family-sans);
+    --layout-font-size: var(--font-size-sm);
+    --layout-font-weight: 400;
+
     /* Z-index layers */
     --layout-z-header: 100;
     --layout-z-skip-link: 1000;

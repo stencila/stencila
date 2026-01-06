@@ -12,6 +12,7 @@
  */
 
 :root {
+    --site-title-font-family: var(--layout-font-family);
     --site-title-font-size: var(--font-size-lg);
     --site-title-font-weight: 600;
     --site-title-color: var(--text-color-primary);
@@ -20,6 +21,7 @@
 /* Container */
 stencila-title {
     display: inline-block;
+    font-family: var(--site-title-font-family);
     font-size: var(--site-title-font-size);
     font-weight: var(--site-title-font-weight);
     color: var(--site-title-color);

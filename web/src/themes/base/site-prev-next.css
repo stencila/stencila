@@ -44,9 +44,10 @@
  */
 
 :root {
+    --prev-next-font-family: var(--layout-font-family);
     --prev-next-gap: var(--space-8);
     --prev-next-gap-mobile: var(--space-4);
-    --prev-next-icon-size: calc(var(--layout-icon-size) * 1.8);
+    --prev-next-icon-size: 1.5rem;
     --prev-next-prev-icon: "‹";
     --prev-next-next-icon: "›";
     --prev-next-link-gap: var(--space-3);
@@ -77,6 +78,7 @@ stencila-prev-next nav {
     align-items: center;
     justify-content: space-between;
     gap: var(--prev-next-gap);
+    font-family: var(--prev-next-font-family);
 }
 
 /* Links */

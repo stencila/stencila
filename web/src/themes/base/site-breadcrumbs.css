@@ -20,18 +20,20 @@
  */
 
 :root {
+    --breadcrumbs-font-family: var(--layout-font-family);
+    --breadcrumbs-font-size: var(--layout-font-size);
     --breadcrumbs-separator: "/";
-    --breadcrumbs-separator-color: var(--text-color-tertiary);
+    --breadcrumbs-separator-color: var(--text-color-muted);
     --breadcrumbs-link-color: var(--text-color-secondary);
     --breadcrumbs-link-color-hover: var(--text-color-primary);
     --breadcrumbs-current-color: var(--text-color-primary);
-    --breadcrumbs-font-size: var(--font-size-sm);
     --breadcrumbs-gap: var(--space-1);
     --breadcrumbs-margin-bottom: var(--space-4);
 }
 
 stencila-breadcrumbs {
     display: block;
+    font-family: var(--breadcrumbs-font-family);
     margin-bottom: var(--breadcrumbs-margin-bottom);
 }
 

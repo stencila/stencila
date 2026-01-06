@@ -17,7 +17,8 @@
  */
 
 :root {
-    --copyright-font-size: var(--font-size-sm);
+    --copyright-font-family: var(--layout-font-family);
+    --copyright-font-size: var(--layout-font-size);
     --copyright-color: var(--text-color-secondary);
     --copyright-link-color: var(--text-color-secondary);
     --copyright-link-color-hover: var(--text-color-primary);
@@ -26,6 +27,7 @@
 /* Container */
 stencila-copyright {
     display: inline-block;
+    font-family: var(--copyright-font-family);
     font-size: var(--copyright-font-size);
     color: var(--copyright-color);
 }
