@@ -52,7 +52,8 @@
     --prev-next-next-icon: "›";
     --prev-next-link-gap: var(--space-3);
     --prev-next-label-font-size: var(--font-size-xs);
-    --prev-next-label-text-transform: uppercase;
+    --prev-next-label-font-weight: 200;
+    --prev-next-label-text-transform: none;
     --prev-next-title-font-size: var(--text-font-size);
     --prev-next-link-color: var(--text-color-secondary);
     --prev-next-link-color-hover: var(--text-color-primary);
@@ -141,9 +142,8 @@ stencila-prev-next .content {
 /* Label ("Previous" / "Next") */
 stencila-prev-next .label {
     font-size: var(--prev-next-label-font-size);
+    font-weight: var(--prev-next-label-font-weight);
     text-transform: var(--prev-next-label-text-transform);
-    letter-spacing: 0.05em;
-    opacity: 0.7;
 }
 
 /* Page title */
@@ -162,6 +162,7 @@ stencila-prev-next .separator {
 stencila-prev-next .position {
     flex-shrink: 0;
     font-size: var(--prev-next-label-font-size);
+    font-weight: var(--prev-next-label-font-weight);
     color: var(--prev-next-position-color);
 }
 
