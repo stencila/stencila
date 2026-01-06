@@ -174,14 +174,20 @@ stencila-header {
  * Left Sidebar Region
  * ================================= */
 
+/* Outer element stretches full height for background/border */
 stencila-left-sidebar {
-    position: sticky;
-    top: var(--layout-header-height);
     align-self: stretch;
-    overflow-y: auto;
-    padding: var(--sidebar-padding);
     background: var(--left-sidebar-background);
     border-right: var(--layout-border-width) solid var(--left-sidebar-border-color);
+}
+
+/* Inner wrapper is sticky with scrolling */
+stencila-left-sidebar .sidebar-content {
+    position: sticky;
+    top: var(--layout-header-height);
+    max-height: calc(100vh - var(--layout-header-height));
+    overflow-y: auto;
+    padding: var(--sidebar-padding);
 }
 
 
@@ -189,20 +195,26 @@ stencila-left-sidebar {
  * Right Sidebar Region
  * ================================= */
 
+/* Outer element stretches full height for background/border */
 stencila-right-sidebar {
-    position: sticky;
-    top: var(--layout-header-height);
     align-self: stretch;
-    overflow-y: auto;
-    padding: var(--sidebar-padding);
     background: var(--right-sidebar-background);
     border-left: var(--layout-border-width) solid var(--right-sidebar-border-color);
 }
 
-/* When no header, sidebars start at viewport top */
-stencila-layout:not([header]) stencila-left-sidebar,
-stencila-layout:not([header]) stencila-right-sidebar {
+/* Inner wrapper is sticky with scrolling */
+stencila-right-sidebar .sidebar-content {
+    position: sticky;
+    top: var(--layout-header-height);
+    max-height: calc(100vh - var(--layout-header-height));
+    overflow-y: auto;
+    padding: var(--sidebar-padding);
+}
+
+/* When no header, sidebar content starts at viewport top */
+stencila-layout:not([header]) .sidebar-content {
     top: 0;
+    max-height: 100vh;
 }
 
 /* =================================
@@ -460,6 +472,18 @@ stencila-layout[header] .sidebar-overlay {
 
         overflow-y: auto;
         height: auto;
+    }
+
+    /* Reset sticky behavior for mobile drawers
+     * - Prevents 64px gap from sticky top offset
+     * - Avoids nested scroll containers (parent sidebar has overflow-y: auto) */
+    stencila-left-sidebar .sidebar-content,
+    stencila-right-sidebar .sidebar-content {
+        position: static;
+        top: auto;
+        max-height: none;
+        overflow-y: visible;
+        padding: var(--sidebar-padding);
     }
 
     /* When no header, sidebars start at top */

@@ -151,7 +151,13 @@ fn render_region(
         String::new()
     };
 
-    format!(r#"<stencila-{name}>{subregions}</stencila-{name}>"#)
+    // Sidebars get an inner wrapper for sticky positioning
+    // (outer element stretches for background, inner element is sticky)
+    if name == "left-sidebar" || name == "right-sidebar" {
+        format!(r#"<stencila-{name}><div class="sidebar-content">{subregions}</div></stencila-{name}>"#)
+    } else {
+        format!(r#"<stencila-{name}>{subregions}</stencila-{name}>"#)
+    }
 }
 
 /// Render a layout subregion (returns empty string if not enabled or no components)
