@@ -177,6 +177,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "logo" => render_logo(None, context),
             "prev-next" => render_prev_next(&None, &None, &None, &None, context),
             "title" => render_title(&None, context),
+            "toc-tree" => render_toc_tree(&None, &None),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -202,6 +203,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             separator,
         } => render_prev_next(style, prev_text, next_text, separator, context),
         ComponentConfig::Title { text } => render_title(text, context),
+        ComponentConfig::TocTree { title, depth } => render_toc_tree(title, depth),
         _ => String::new(),
     }
 }
@@ -468,4 +470,21 @@ fn render_title(text: &Option<String>, context: &RenderContext) -> String {
     } else {
         format!("<stencila-title>{title_text}</stencila-title>")
     }
+}
+
+/// Render a table of contents tree component
+///
+/// Renders an empty shell with config attributes. The web component will
+/// extract headings from the DOM and build the TOC client-side.
+fn render_toc_tree(title: &Option<String>, depth: &Option<u8>) -> String {
+    let title_attr = title
+        .as_ref()
+        .map(|t| format!(r#" title="{t}""#))
+        .unwrap_or_default();
+
+    let depth_attr = depth
+        .map(|d| format!(r#" depth="{d}""#))
+        .unwrap_or_default();
+
+    format!("<stencila-toc-tree{title_attr}{depth_attr}></stencila-toc-tree>")
 }

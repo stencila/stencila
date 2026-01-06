@@ -1,0 +1,264 @@
+/* Site Table of Contents Tree Component
+ *
+ * Displays a navigable list of document headings with scroll-spy highlighting.
+ *
+ * Structure:
+ * - stencila-toc-tree: Custom element container
+ *   - nav[aria-label="Table of contents"]: Semantic navigation landmark
+ *     - h2.toc-title: Title (default: "On this page")
+ *     - ul.toc-list: List of heading links
+ *       - li.toc-item[data-level="1|2|3"][data-active="true|false"]: Heading item
+ *         - a[href="#..."]: Link to heading
+ *
+ * Attributes:
+ * - title: Custom title text (default: "On this page")
+ * - depth: Maximum heading depth to show (default: 3)
+ *
+ * Design tokens:
+ * - --toc-font-family: Font family (default: --layout-font-family)
+ * - --toc-title-font-size: Title font size
+ * - --toc-title-font-weight: Title font weight
+ * - --toc-title-color: Title text color
+ * - --toc-title-gap: Space between icon and title text
+ * - --toc-title-margin-bottom: Space below title
+ * - --toc-title-icon: Icon before title (default: none, set to e.g. "\2630" to enable)
+ * - --toc-title-icon-size: Size of title icon
+ * - --toc-item-font-size: Base font size for TOC items
+ * - --toc-item-line-height: Line height for TOC items
+ * - --toc-item-padding-y: Vertical padding for items
+ * - --toc-item-padding-x: Horizontal padding for items (default: 0)
+ * - --toc-item-color: Default text color for items
+ * - --toc-item-color-hover: Hover text color
+ * - --toc-item-color-active: Active item text color
+ * - --toc-item-color-muted: Color for deeper level items
+ * - --toc-indent: Indentation per heading level
+ * - --toc-sticky-top: Top offset when sticky (0 to disable sticky)
+ * - --toc-max-height: Maximum height of container (default: calc(100vh - sticky-top * 2))
+ * - --toc-border-width: Width of left border line
+ * - --toc-border-width-emphasis: Width of border on hover/active states
+ * - --toc-border-color: Color of left border line
+ * - --toc-border-color-hover: Color of border on hover
+ * - --toc-border-color-active: Color of active item border
+ * - --toc-focus-ring-width: Width of focus outline (default: --focus-ring-width)
+ * - --toc-focus-ring-color: Color of focus outline (default: --focus-ring-color)
+ * - --toc-focus-ring-offset: Offset of focus outline (default: --focus-ring-offset)
+ * - --toc-focus-radius: Corner radius for focus outline (default: --radius-xs)
+ */
+
+:root {
+    --toc-font-family: var(--layout-font-family);
+
+    --toc-title-font-size: var(--font-size-xs);
+    --toc-title-font-weight: var(--font-weight-extralight);
+    --toc-title-color: var(--text-color-secondary);
+    --toc-title-gap: var(--space-2);
+    --toc-title-margin-bottom: var(--space-3);
+    --toc-title-icon: none;  /* Set to e.g. "\2630" for hamburger icon */
+    --toc-title-icon-size: var(--font-size-xs);
+
+    --toc-item-font-size: var(--font-size-sm);
+    --toc-item-line-height: var(--line-height-snug);
+    --toc-item-padding-y: var(--space-1);
+    --toc-item-padding-x: var(--space-1);
+    --toc-item-color: var(--text-color-secondary);
+    --toc-item-color-hover: var(--text-color-primary);
+    --toc-item-color-active: var(--color-accent);
+    --toc-item-color-muted: var(--text-color-muted);
+
+    --toc-indent: var(--space-4);
+
+    --toc-sticky-top: var(--space-4);
+    --toc-max-height: calc(100vh - var(--toc-sticky-top) * 2);
+
+    --toc-border-width: var(--border-width-default);
+    --toc-border-width-emphasis: var(--border-width-thick);
+    --toc-border-color: var(--border-color-muted);
+    --toc-border-color-hover: var(--border-color-default);
+    --toc-border-color-active: var(--toc-item-color-active);
+
+    --toc-focus-ring-width: var(--focus-ring-width);
+    --toc-focus-ring-color: var(--focus-ring-color);
+    --toc-focus-ring-offset: var(--focus-ring-offset);
+    --toc-focus-radius: var(--radius-xs);
+}
+
+/* Container */
+stencila-toc-tree {
+    display: block;
+    position: sticky;
+    top: var(--toc-sticky-top);
+    max-height: var(--toc-max-height);
+    overflow-y: auto;
+}
+
+/* Navigation wrapper */
+stencila-toc-tree nav {
+    font-family: var(--toc-font-family);
+}
+
+/* Title */
+stencila-toc-tree .toc-title {
+    display: flex;
+    align-items: center;
+    gap: var(--toc-title-gap);
+    margin: 0 0 var(--toc-title-margin-bottom) 0;
+    font-size: var(--toc-title-font-size);
+    font-weight: var(--toc-title-font-weight);
+    color: var(--toc-title-color);
+}
+
+/* Icon before title - set --toc-title-icon to a string like "\2630" to enable */
+stencila-toc-tree .toc-title::before {
+    content: var(--toc-title-icon);
+    font-size: var(--toc-title-icon-size);
+    line-height: 1;
+}
+
+/* List */
+stencila-toc-tree .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: var(--toc-border-width) solid var(--toc-border-color);
+}
+
+/* Items */
+stencila-toc-tree .toc-item {
+    margin: 0;
+    padding: 0;
+}
+
+stencila-toc-tree .toc-item a {
+    display: block;
+    padding: var(--toc-item-padding-y) var(--toc-item-padding-x);
+    font-size: var(--toc-item-font-size);
+    line-height: var(--toc-item-line-height);
+    color: var(--toc-item-color);
+    text-decoration: none;
+    transition: color var(--transition-duration-fast);
+}
+
+stencila-toc-tree .toc-item a:hover {
+    color: var(--toc-item-color-hover);
+    border-left: var(--toc-border-width-emphasis) solid var(--toc-border-color-hover);
+    margin-left: calc(-1 * var(--toc-border-width));
+}
+
+/* Hover state level-specific padding (compensate for wider border) */
+stencila-toc-tree .toc-item[data-level="1"] a:hover {
+    padding-left: calc(var(--toc-indent) - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="2"] a:hover {
+    padding-left: calc(var(--toc-indent) * 2 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="3"] a:hover {
+    padding-left: calc(var(--toc-indent) * 3 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="4"] a:hover {
+    padding-left: calc(var(--toc-indent) * 4 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="5"] a:hover {
+    padding-left: calc(var(--toc-indent) * 5 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="6"] a:hover {
+    padding-left: calc(var(--toc-indent) * 6 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item a:focus-visible {
+    outline: var(--toc-focus-ring-width) solid var(--toc-focus-ring-color);
+    outline-offset: var(--toc-focus-ring-offset);
+    border-radius: var(--toc-focus-radius);
+}
+
+/* Active state - thicker accent border overlays the list border */
+stencila-toc-tree .toc-item[data-active="true"] a {
+    color: var(--toc-item-color-active);
+    border-left: var(--toc-border-width-emphasis) solid var(--toc-border-color-active);
+    margin-left: calc(-1 * var(--toc-border-width));
+}
+
+/* Active state level-specific padding (compensate for thicker border) */
+stencila-toc-tree .toc-item[data-level="1"][data-active="true"] a {
+    padding-left: calc(var(--toc-indent) - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="2"][data-active="true"] a {
+    padding-left: calc(var(--toc-indent) * 2 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="3"][data-active="true"] a {
+    padding-left: calc(var(--toc-indent) * 3 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="4"][data-active="true"] a {
+    padding-left: calc(var(--toc-indent) * 4 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="5"][data-active="true"] a {
+    padding-left: calc(var(--toc-indent) * 5 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="6"][data-active="true"] a {
+    padding-left: calc(var(--toc-indent) * 6 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+/* Level-based indentation and styling */
+stencila-toc-tree .toc-item[data-level="1"] a {
+    padding-left: calc(var(--toc-indent));
+}
+
+stencila-toc-tree .toc-item[data-level="2"] a {
+    padding-left: calc(var(--toc-indent) * 2);
+}
+
+stencila-toc-tree .toc-item[data-level="3"] a {
+    padding-left: calc(var(--toc-indent) * 3);
+}
+
+stencila-toc-tree .toc-item[data-level="3"]:not([data-active="true"]) a:not(:hover) {
+    color: var(--toc-item-color-muted);
+}
+
+stencila-toc-tree .toc-item[data-level="4"] a {
+    padding-left: calc(var(--toc-indent) * 4);
+}
+
+stencila-toc-tree .toc-item[data-level="4"]:not([data-active="true"]) a:not(:hover) {
+    color: var(--toc-item-color-muted);
+}
+
+stencila-toc-tree .toc-item[data-level="5"] a {
+    padding-left: calc(var(--toc-indent) * 5);
+}
+
+stencila-toc-tree .toc-item[data-level="5"]:not([data-active="true"]) a:not(:hover) {
+    color: var(--toc-item-color-muted);
+}
+
+stencila-toc-tree .toc-item[data-level="6"] a {
+    padding-left: calc(var(--toc-indent) * 6);
+}
+
+stencila-toc-tree .toc-item[data-level="6"]:not([data-active="true"]) a:not(:hover) {
+    color: var(--toc-item-color-muted);
+}
+
+/* Hide on mobile - TOC typically moves to different location or is hidden */
+@media (max-width: 1024px) {
+    stencila-toc-tree {
+        position: static;
+        max-height: none;
+    }
+}
+
+/* Print - hide TOC as it's navigation-focused */
+@media print {
+    stencila-toc-tree {
+        display: none;
+    }
+}
