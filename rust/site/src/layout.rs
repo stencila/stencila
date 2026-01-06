@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LogoConfig, PrevNextStyle,
-    RegionSpec, SiteConfig,
+    ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LogoConfig, NavItem,
+    NavTreeExpanded, PrevNextStyle, RegionSpec, SiteConfig,
 };
 
 use crate::{RouteEntry, logo};
@@ -154,7 +154,9 @@ fn render_region(
     // Sidebars get an inner wrapper for sticky positioning
     // (outer element stretches for background, inner element is sticky)
     if name == "left-sidebar" || name == "right-sidebar" {
-        format!(r#"<stencila-{name}><div class="sidebar-content">{subregions}</div></stencila-{name}>"#)
+        format!(
+            r#"<stencila-{name}><div class="sidebar-content">{subregions}</div></stencila-{name}>"#
+        )
     } else {
         format!(r#"<stencila-{name}>{subregions}</stencila-{name}>"#)
     }
@@ -181,6 +183,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "breadcrumbs" => render_breadcrumbs(context),
             "copyright" => render_copyright(&None, &None, &None, &None, context),
             "logo" => render_logo(None, context),
+            "nav-tree" => render_nav_tree(&None, &None, &None, &None, &None, context),
             "prev-next" => render_prev_next(&None, &None, &None, &None, context),
             "title" => render_title(&None, context),
             "toc-tree" => render_toc_tree(&None, &None),
@@ -202,6 +205,20 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             link,
         } => render_copyright(text, holder, start_year, link, context),
         ComponentConfig::Logo(config) => render_logo(Some(config), context),
+        ComponentConfig::NavTree {
+            title,
+            depth,
+            collapsible,
+            expanded,
+            scroll_to_active,
+        } => render_nav_tree(
+            title,
+            depth,
+            collapsible,
+            expanded,
+            scroll_to_active,
+            context,
+        ),
         ComponentConfig::PrevNext {
             style,
             prev_text,
@@ -210,7 +227,6 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => render_prev_next(style, prev_text, next_text, separator, context),
         ComponentConfig::Title { text } => render_title(text, context),
         ComponentConfig::TocTree { title, depth } => render_toc_tree(title, depth),
-        _ => String::new(),
     }
 }
 
@@ -275,24 +291,6 @@ fn render_breadcrumbs(context: &RenderContext) -> String {
     format!(
         r#"<stencila-breadcrumbs><nav aria-label="Breadcrumb"><ol>{items}</ol></nav></stencila-breadcrumbs>"#
     )
-}
-
-/// Convert a URL segment to a human-readable label
-///
-/// - Replaces hyphens and underscores with spaces
-/// - Capitalizes each word
-fn segment_to_label(segment: &str) -> String {
-    segment
-        .split(['-', '_'])
-        .map(|word| {
-            let mut chars = word.chars();
-            match chars.next() {
-                Some(first) => first.to_uppercase().chain(chars).collect(),
-                None => String::new(),
-            }
-        })
-        .collect::<Vec<String>>()
-        .join(" ")
 }
 
 /// Render a color mode component
@@ -360,6 +358,8 @@ fn render_copyright(
 /// Render a prev/next navigation component
 ///
 /// Generates navigation links to previous and next pages based on the document routes.
+/// When `site.nav` is configured, follows that order for consistency with nav-tree.
+/// Otherwise, uses the default route order.
 /// The style controls what information is shown (icons, labels, titles, position).
 fn render_prev_next(
     style: &Option<PrevNextStyle>,
@@ -368,24 +368,30 @@ fn render_prev_next(
     separator: &Option<String>,
     context: &RenderContext,
 ) -> String {
-    // Find current route index
-    // Note: Routes are already normalized with trailing slashes (see render.rs:357-362)
-    let current_idx = context.routes.iter().position(|r| r.route == context.route);
+    // Get navigation order: use site.nav if available, else default route order
+    let nav_routes = get_nav_order(context);
+
+    // Find current route index in the navigation order
+    let current_idx = nav_routes.iter().position(|r| *r == context.route);
     let Some(idx) = current_idx else {
         return "<stencila-prev-next></stencila-prev-next>".to_string();
     };
 
-    // Determine prev/next routes
-    let prev = if idx > 0 {
-        Some(&context.routes[idx - 1])
+    // Find prev/next routes and look up their RouteEntry for title
+    let prev_route = if idx > 0 {
+        Some(&nav_routes[idx - 1])
     } else {
         None
     };
-    let next = if idx < context.routes.len() - 1 {
-        Some(&context.routes[idx + 1])
+    let next_route = if idx < nav_routes.len() - 1 {
+        Some(&nav_routes[idx + 1])
     } else {
         None
     };
+
+    // Look up RouteEntry for each (to get title)
+    let prev = prev_route.and_then(|r| context.routes.iter().find(|re| re.route == *r));
+    let next = next_route.and_then(|r| context.routes.iter().find(|re| re.route == *r));
 
     // If neither prev nor next exists, render empty component
     if prev.is_none() && next.is_none() {
@@ -396,7 +402,8 @@ fn render_prev_next(
     let style = style.unwrap_or_default();
     let prev_label = prev_text.clone().unwrap_or_else(|| "Previous".to_string());
     let next_label = next_text.clone().unwrap_or_else(|| "Next".to_string());
-    let total_pages = context.routes.len();
+    // Use nav_routes length for correct page position when site.nav is configured
+    let total_pages = nav_routes.len();
     let current_page = idx + 1;
 
     // Derive what to show from style
@@ -493,4 +500,326 @@ fn render_toc_tree(title: &Option<String>, depth: &Option<u8>) -> String {
         .unwrap_or_default();
 
     format!("<stencila-toc-tree{title_attr}{depth_attr}></stencila-toc-tree>")
+}
+
+/// Render a navigation tree component
+///
+/// Displays hierarchical site navigation from `site.nav` configuration.
+/// If `site.nav` is not specified, auto-generates navigation from routes.
+fn render_nav_tree(
+    title: &Option<String>,
+    depth: &Option<u8>,
+    collapsible: &Option<bool>,
+    expanded: &Option<NavTreeExpanded>,
+    scroll_to_active: &Option<bool>,
+    context: &RenderContext,
+) -> String {
+    // Get config values with defaults
+    let collapsible = collapsible.unwrap_or(true);
+    let expanded = expanded.unwrap_or_default();
+    let scroll_to_active = scroll_to_active.unwrap_or(true);
+
+    // Resolve nav items: site.nav or auto-generated
+    let nav_items = context
+        .site_config
+        .nav
+        .clone()
+        .unwrap_or_else(|| auto_generate_nav(context.routes, depth));
+
+    // If no items, render empty component
+    if nav_items.is_empty() {
+        return "<stencila-nav-tree></stencila-nav-tree>".to_string();
+    }
+
+    // Build title HTML
+    let title_html = title
+        .as_ref()
+        .map(|t| format!(r#"<h2 class="nav-tree-title">{t}</h2>"#))
+        .unwrap_or_default();
+
+    // Render nav items recursively (empty string for root-level parent_id)
+    let items_html =
+        render_nav_items(&nav_items, context.route, 1, depth, &expanded, collapsible, "");
+
+    // Build attributes
+    let attrs = format!(
+        r#" collapsible="{collapsible}" expanded="{expanded}" scroll-to-active="{scroll_to_active}""#
+    );
+
+    format!(
+        r#"<stencila-nav-tree{attrs}><nav aria-label="Site navigation">{title_html}<ul class="nav-tree-list" role="tree">{items_html}</ul></nav></stencila-nav-tree>"#
+    )
+}
+
+/// Auto-generate navigation structure from routes
+///
+/// Groups routes by their path prefixes to create a hierarchical structure.
+/// For example:
+/// - `/` → Home
+/// - `/docs/getting-started/` → under "Docs" group
+/// - `/docs/configuration/` → under "Docs" group
+/// - `/about/` → About
+fn auto_generate_nav(routes: &[RouteEntry], max_depth: &Option<u8>) -> Vec<NavItem> {
+    // Simple auto-generation: create flat list limited by depth
+    // For now, just list all routes at top level
+    // A more sophisticated implementation could group by path prefix
+
+    routes
+        .iter()
+        .filter(|r| {
+            // If max_depth is set, filter by path depth
+            if let Some(max) = max_depth {
+                let segments: Vec<&str> = r
+                    .route
+                    .trim_matches('/')
+                    .split('/')
+                    .filter(|s| !s.is_empty())
+                    .collect();
+                segments.len() <= *max as usize || r.route == "/"
+            } else {
+                // No depth limit - include all routes
+                true
+            }
+        })
+        .map(|r| NavItem::Route(r.route.clone()))
+        .collect()
+}
+
+/// Render navigation items recursively
+fn render_nav_items(
+    items: &[NavItem],
+    current_route: &str,
+    level: u8,
+    max_depth: &Option<u8>,
+    expanded: &NavTreeExpanded,
+    collapsible: bool,
+    parent_id: &str,
+) -> String {
+    // Check depth limit
+    if let Some(max) = max_depth
+        && level > *max
+    {
+        return String::new();
+    }
+
+    let mut html = String::new();
+
+    for (index, item) in items.iter().enumerate() {
+        match item {
+            NavItem::Route(route) => {
+                let is_active = route == current_route;
+                let label = route_to_label(route);
+                html.push_str(&format!(
+                    r#"<li class="nav-tree-item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{label}</a></li>"#,
+                    if is_active { r#" aria-current="page""# } else { "" }
+                ));
+            }
+            NavItem::Link { label, route } => {
+                let is_active = route == current_route;
+                html.push_str(&format!(
+                    r#"<li class="nav-tree-item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{label}</a></li>"#,
+                    if is_active { r#" aria-current="page""# } else { "" }
+                ));
+            }
+            NavItem::Group {
+                label,
+                route,
+                children,
+            } => {
+                // Determine if group should be expanded
+                let is_expanded =
+                    should_expand_group(expanded, level, route, children, current_route);
+                // Include parent_id to ensure unique IDs across the full tree
+                let label_slug = label.to_lowercase().replace(' ', "-");
+                let group_id = if parent_id.is_empty() {
+                    format!("nav-{index}-{label_slug}")
+                } else {
+                    format!("{parent_id}-{index}-{label_slug}")
+                };
+
+                // Check if the group header itself is active (if it has a route)
+                let header_active = route.as_ref().is_some_and(|r| r == current_route);
+
+                // Build the group header based on collapsible setting
+                let header_html = if collapsible {
+                    // Collapsible mode: include toggle button
+                    if let Some(group_route) = route {
+                        // Group has a route - render as clickable link with separate toggle
+                        format!(
+                            r#"<div class="nav-tree-group-header"><a href="{group_route}" class="nav-tree-group-link"{}>{label}</a><button class="nav-tree-toggle" aria-controls="{group_id}" aria-expanded="{is_expanded}"><span class="chevron"></span></button></div>"#,
+                            if header_active {
+                                r#" aria-current="page""#
+                            } else {
+                                ""
+                            }
+                        )
+                    } else {
+                        // Group has no route - header is just a toggle button
+                        format!(
+                            r#"<button class="nav-tree-toggle" aria-controls="{group_id}" aria-expanded="{is_expanded}"><span class="chevron"></span><span class="label">{label}</span></button>"#
+                        )
+                    }
+                } else {
+                    // Non-collapsible mode: no toggle button, always expanded
+                    if let Some(group_route) = route {
+                        format!(
+                            r#"<a href="{group_route}" class="nav-tree-group-link"{}>{label}</a>"#,
+                            if header_active {
+                                r#" aria-current="page""#
+                            } else {
+                                ""
+                            }
+                        )
+                    } else {
+                        format!(r#"<span class="nav-tree-group-label">{label}</span>"#)
+                    }
+                };
+
+                // When not collapsible, groups are always expanded
+                let display_expanded = if collapsible { is_expanded } else { true };
+
+                // Render children, passing this group's ID as parent for nested groups
+                let children_html = render_nav_items(
+                    children,
+                    current_route,
+                    level + 1,
+                    max_depth,
+                    expanded,
+                    collapsible,
+                    &group_id,
+                );
+
+                html.push_str(&format!(
+                    r#"<li class="nav-tree-item" data-type="group" data-expanded="{display_expanded}" data-active="{header_active}" data-level="{level}" role="treeitem"{}>{header_html}<ul id="{group_id}" class="nav-tree-children" role="group">{children_html}</ul></li>"#,
+                    if collapsible {
+                        format!(r#" aria-expanded="{display_expanded}""#)
+                    } else {
+                        String::new()
+                    }
+                ));
+            }
+        }
+    }
+
+    html
+}
+
+/// Determine if a navigation group should be expanded based on the expansion mode
+fn should_expand_group(
+    expanded: &NavTreeExpanded,
+    level: u8,
+    group_route: &Option<String>,
+    children: &[NavItem],
+    current_route: &str,
+) -> bool {
+    match expanded {
+        NavTreeExpanded::All => true,
+        NavTreeExpanded::None => false,
+        NavTreeExpanded::FirstLevel => level == 1,
+        NavTreeExpanded::CurrentPath => {
+            // Expand if the group's own route is active
+            if let Some(r) = group_route
+                && r == current_route
+            {
+                return true;
+            }
+            // Or if any child (recursively) is the current route
+            contains_route(children, current_route)
+        }
+    }
+}
+
+/// Check if any nav item (recursively) contains the given route
+fn contains_route(items: &[NavItem], route: &str) -> bool {
+    for item in items {
+        match item {
+            NavItem::Route(r) if r == route => return true,
+            NavItem::Link { route: r, .. } if r == route => return true,
+            NavItem::Group { route: Some(r), .. } if r == route => return true,
+            NavItem::Group { children, .. } => {
+                if contains_route(children, route) {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+/// Convert a route path to a human-readable label
+///
+/// Takes the last segment of the path and converts it to title case.
+/// - `/docs/getting-started/` → "Getting Started"
+/// - `/` → "Home"
+fn route_to_label(route: &str) -> String {
+    let trimmed = route.trim_matches('/');
+    if trimmed.is_empty() {
+        return "Home".to_string();
+    }
+
+    // Get the last segment
+    let segment = trimmed.rsplit('/').next().unwrap_or(trimmed);
+    segment_to_label(segment)
+}
+
+/// Convert a URL segment to a human-readable label
+///
+/// - Replaces hyphens and underscores with spaces
+/// - Capitalizes each word
+fn segment_to_label(segment: &str) -> String {
+    segment
+        .split(['-', '_'])
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                Some(first) => first.to_uppercase().chain(chars).collect(),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<String>>()
+        .join(" ")
+}
+
+/// Get navigation order for prev/next links
+///
+/// If `site.nav` is configured, flattens it to get the navigation order.
+/// Otherwise, returns the default route order from context.routes.
+fn get_nav_order(context: &RenderContext) -> Vec<String> {
+    if let Some(nav) = &context.site_config.nav {
+        flatten_nav_routes(nav)
+    } else {
+        context.routes.iter().map(|r| r.route.clone()).collect()
+    }
+}
+
+/// Flatten nav items into an ordered list of routes
+///
+/// Traverses the nav tree depth-first, collecting all routes in order.
+/// Groups with routes have their route included before children.
+fn flatten_nav_routes(items: &[NavItem]) -> Vec<String> {
+    let mut routes = Vec::new();
+
+    for item in items {
+        match item {
+            NavItem::Route(route) => {
+                routes.push(route.clone());
+            }
+            NavItem::Link { route, .. } => {
+                routes.push(route.clone());
+            }
+            NavItem::Group {
+                route, children, ..
+            } => {
+                // If group has a route, include it first
+                if let Some(r) = route {
+                    routes.push(r.clone());
+                }
+                // Then include children's routes
+                routes.extend(flatten_nav_routes(children));
+            }
+        }
+    }
+
+    routes
 }
