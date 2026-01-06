@@ -538,8 +538,15 @@ fn render_nav_tree(
         .unwrap_or_default();
 
     // Render nav items recursively (empty string for root-level parent_id)
-    let items_html =
-        render_nav_items(&nav_items, context.route, 1, depth, &expanded, collapsible, "");
+    let items_html = render_nav_items(
+        &nav_items,
+        context.route,
+        1,
+        depth,
+        &expanded,
+        collapsible,
+        "",
+    );
 
     // Build attributes
     let attrs = format!(
@@ -560,29 +567,102 @@ fn render_nav_tree(
 /// - `/docs/configuration/` → under "Docs" group
 /// - `/about/` → About
 fn auto_generate_nav(routes: &[RouteEntry], max_depth: &Option<u8>) -> Vec<NavItem> {
-    // Simple auto-generation: create flat list limited by depth
-    // For now, just list all routes at top level
-    // A more sophisticated implementation could group by path prefix
+    use std::collections::BTreeMap;
 
-    routes
-        .iter()
-        .filter(|r| {
-            // If max_depth is set, filter by path depth
-            if let Some(max) = max_depth {
-                let segments: Vec<&str> = r
-                    .route
-                    .trim_matches('/')
-                    .split('/')
-                    .filter(|s| !s.is_empty())
-                    .collect();
-                segments.len() <= *max as usize || r.route == "/"
-            } else {
-                // No depth limit - include all routes
-                true
+    // Build a tree structure from routes
+    // Each node can have a route (if a page exists at that path) and children
+    #[derive(Default)]
+    struct NavNode {
+        /// The route for this node (if a page exists at this path)
+        route: Option<String>,
+        /// Child nodes keyed by path segment
+        children: BTreeMap<String, NavNode>,
+    }
+
+    let mut root = NavNode::default();
+
+    // Insert all routes into the tree
+    for entry in routes {
+        let trimmed = entry.route.trim_matches('/');
+        if trimmed.is_empty() {
+            // Root route
+            root.route = Some(entry.route.clone());
+        } else {
+            // Split into segments and traverse/create nodes
+            let segments: Vec<&str> = trimmed.split('/').collect();
+            let mut current = &mut root;
+
+            for (i, segment) in segments.iter().enumerate() {
+                current = current.children.entry((*segment).to_string()).or_default();
+
+                // If this is the last segment, set the route
+                if i == segments.len() - 1 {
+                    current.route = Some(entry.route.clone());
+                }
             }
-        })
-        .map(|r| NavItem::Route(r.route.clone()))
-        .collect()
+        }
+    }
+
+    // Convert tree to NavItems recursively
+    fn build_nav_items(node: &NavNode, depth: u8, max_depth: &Option<u8>) -> Vec<NavItem> {
+        // Check depth limit
+        if let Some(max) = max_depth
+            && depth > *max
+        {
+            return Vec::new();
+        }
+
+        let mut items = Vec::new();
+
+        // BTreeMap keeps children sorted alphabetically by segment name
+        let sorted_children: Vec<_> = node.children.iter().collect();
+
+        for (segment, child_node) in sorted_children {
+            let label = segment_to_label(segment);
+
+            if child_node.children.is_empty() {
+                // Leaf node - create a simple link
+                if let Some(route) = &child_node.route {
+                    items.push(NavItem::Route(route.clone()));
+                }
+            } else {
+                // Has children - create a group
+                let children = build_nav_items(child_node, depth + 1, max_depth);
+
+                // Only create a group if there are children to show
+                if children.is_empty() && child_node.route.is_none() {
+                    continue;
+                }
+
+                if children.is_empty() {
+                    // No children after filtering - just add as link
+                    if let Some(route) = &child_node.route {
+                        items.push(NavItem::Route(route.clone()));
+                    }
+                } else {
+                    items.push(NavItem::Group {
+                        label,
+                        route: child_node.route.clone(),
+                        children,
+                    });
+                }
+            }
+        }
+
+        items
+    }
+
+    // Start building from root's children (depth 1)
+    // Include root route ("/") as "Home" if it exists
+    let mut nav_items = Vec::new();
+
+    if root.route.is_some() {
+        nav_items.push(NavItem::Route("/".to_string()));
+    }
+
+    nav_items.extend(build_nav_items(&root, 1, max_depth));
+
+    nav_items
 }
 
 /// Render navigation items recursively
