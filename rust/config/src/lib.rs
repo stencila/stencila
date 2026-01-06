@@ -44,7 +44,7 @@ mod watch;
 pub use {
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LayoutOverride, LayoutPreset,
-        PrevNextStyle, RegionConfig, RegionSpec,
+        NavTreeExpanded, PrevNextStyle, RegionConfig, RegionSpec,
     },
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
@@ -52,8 +52,9 @@ pub use {
         config_update_remote_watch,
     },
     site::{
-        AuthorSpec, GlideConfig, LogoConfig, LogoSpec, RedirectStatus, RouteSpread, SiteConfig,
-        config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread,
+        AuthorSpec, GlideConfig, LogoConfig, LogoSpec, NavItem, RedirectStatus, RouteSpread,
+        SiteConfig, config_add_redirect_route, config_add_route, config_remove_route,
+        config_set_route_spread,
     },
     utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file},
     watch::watch,
@@ -123,6 +124,15 @@ pub fn config(path: &Path) -> Result<Config> {
     // Validate site configuration
     if let Some(site) = &config.site {
         site.validate()?;
+    }
+
+    // Validate site navigation items (must be internal routes)
+    if let Some(site) = &config.site
+        && let Some(nav) = &site.nav
+    {
+        for item in nav {
+            item.validate()?;
+        }
     }
 
     // Validate all route configurations

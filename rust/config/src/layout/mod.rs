@@ -27,7 +27,9 @@ mod overrides;
 mod presets;
 mod regions;
 
-pub use components::{ColorModeStyle, ComponentConfig, ComponentSpec, PrevNextStyle};
+pub use components::{
+    ColorModeStyle, ComponentConfig, ComponentSpec, NavTreeExpanded, PrevNextStyle,
+};
 pub use config::LayoutConfig;
 pub use overrides::LayoutOverride;
 pub use presets::LayoutPreset;

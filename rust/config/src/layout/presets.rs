@@ -111,9 +111,11 @@ impl LayoutPreset {
                 })),
                 left_sidebar: Some(RegionSpec::Config(RegionConfig {
                     middle: Some(vec![ComponentSpec::Config(ComponentConfig::NavTree {
-                        items: None,
-                        collapsible: Some(false),
+                        title: None,
                         depth: None,
+                        collapsible: Some(false),
+                        expanded: None,
+                        scroll_to_active: None,
                     })]),
                     ..Default::default()
                 })),

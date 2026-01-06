@@ -123,6 +123,121 @@ impl AuthorSpec {
     }
 }
 
+/// Navigation item for site.nav configuration
+///
+/// Defines hierarchical navigation structure used by nav-tree and prev-next components.
+/// Supports three forms for flexible TOML configuration:
+///
+/// 1. Route string shorthand - label derived from route:
+/// ```toml
+/// nav = ["/", "/docs/getting-started/", "/about/"]
+/// ```
+///
+/// 2. Link with explicit label:
+/// ```toml
+/// nav = [
+///   { label = "Home", route = "/" },
+///   { label = "Getting Started", route = "/docs/getting-started/" },
+/// ]
+/// ```
+///
+/// 3. Group with nested children:
+/// ```toml
+/// nav = [
+///   "/",
+///   { label = "Docs", children = [
+///     "/docs/getting-started/",
+///     "/docs/configuration/",
+///   ]},
+///   { label = "Guides", route = "/guides/", children = [
+///     "/guides/deployment/",
+///   ]},
+/// ]
+/// ```
+///
+/// Note: Only internal routes are supported. External URLs should be placed
+/// in header/footer components, not in site navigation.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum NavItem {
+    /// Route path shorthand - label derived from route
+    ///
+    /// Example: `"/docs/guide/"` → label "Guide", href "/docs/guide/"
+    Route(String),
+
+    /// Group with nested children
+    ///
+    /// Groups can optionally link to a page (making the header clickable).
+    /// If `route` is omitted, the header only toggles expand/collapse.
+    ///
+    /// Note: This variant must come before `Link` in the enum because serde's
+    /// untagged deserialization tries variants in order. Since `Group` has
+    /// a required `children` field, it's more specific than `Link`.
+    Group {
+        /// Display text for the group header
+        label: String,
+
+        /// Optional route for the group header link
+        ///
+        /// When set, clicking the group header navigates to this page.
+        /// When omitted, the header only toggles expand/collapse.
+        route: Option<String>,
+
+        /// Nested navigation items
+        children: Vec<NavItem>,
+    },
+
+    /// Link with explicit label
+    ///
+    /// Use when you need a custom label different from the route-derived one.
+    Link {
+        /// Display text for the navigation item
+        label: String,
+
+        /// Internal route path (must start with "/")
+        route: String,
+    },
+}
+
+impl NavItem {
+    /// Validate that all routes in the nav item are internal (start with "/")
+    pub fn validate(&self) -> Result<()> {
+        match self {
+            NavItem::Route(route) => {
+                if !route.starts_with('/') {
+                    bail!(
+                        "Invalid nav route `{route}`: must be an internal route starting with '/'"
+                    );
+                }
+            }
+            NavItem::Group {
+                label,
+                route,
+                children,
+            } => {
+                if let Some(route) = route
+                    && !route.starts_with('/')
+                {
+                    bail!(
+                        "Invalid nav route `{route}` in group `{label}`: must be an internal route starting with '/'"
+                    );
+                }
+                for child in children {
+                    child.validate()?;
+                }
+            }
+            NavItem::Link { label, route } => {
+                if !route.starts_with('/') {
+                    bail!(
+                        "Invalid nav route `{route}` for `{label}`: must be an internal route starting with '/'"
+                    );
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
 /// Simple JSON schema for Author - describes it as an object with type, name, and url
 fn author_schema(_gen: &mut schemars::SchemaGenerator) -> schemars::Schema {
     serde_json::from_value(serde_json::json!({
@@ -226,6 +341,25 @@ pub struct SiteConfig {
     /// mobile = "logo-mobile.svg"
     /// ```
     pub logo: Option<LogoSpec>,
+
+    /// Site navigation structure
+    ///
+    /// Defines the hierarchical navigation used by nav-tree and prev-next components.
+    /// If not specified, navigation is auto-generated from document routes.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site]
+    /// nav = [
+    ///   "/",
+    ///   { label = "Docs", children = [
+    ///     "/docs/getting-started/",
+    ///     "/docs/configuration/",
+    ///   ]},
+    ///   "/about/",
+    /// ]
+    /// ```
+    pub nav: Option<Vec<NavItem>>,
 
     /// Glob patterns for files to exclude when publishing
     ///

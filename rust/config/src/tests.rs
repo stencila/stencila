@@ -56,7 +56,51 @@ fn config_isolated(path: &Path) -> Result<Config> {
         }
     }
 
-    figment.extract().map_err(|error| eyre!(error))
+    let config: Config = figment.extract().map_err(|error| eyre!(error))?;
+
+    // Validate workspace configuration
+    if let Some(workspace) = &config.workspace {
+        workspace.validate()?;
+    }
+
+    // Validate site configuration
+    if let Some(site) = &config.site {
+        site.validate()?;
+    }
+
+    // Validate site navigation items (must be internal routes)
+    if let Some(site) = &config.site
+        && let Some(nav) = &site.nav
+    {
+        for item in nav {
+            item.validate()?;
+        }
+    }
+
+    // Validate all route configurations
+    if let Some(site) = &config.site
+        && let Some(routes) = &site.routes
+    {
+        for (path_key, target) in routes {
+            target.validate(path_key)?;
+        }
+    }
+
+    // Validate all remote configurations
+    if let Some(remotes) = &config.remotes {
+        for (path_key, value) in remotes {
+            value.validate(path_key)?;
+        }
+    }
+
+    // Validate all output configurations
+    if let Some(outputs) = &config.outputs {
+        for (path_key, target) in outputs {
+            target.validate(path_key)?;
+        }
+    }
+
+    Ok(config)
 }
 
 #[test]
@@ -850,7 +894,7 @@ fn test_config_remotes_with_watch() -> Result<()> {
     // Create config with watch IDs
     let config_content = r#"
 [remotes]
-"docs/report.md" = { url = "https://docs.google.com/...", watch = "w123456789" }
+"docs/report.md" = { url = "https://docs.google.com/...", watch = "wa1234567890" }
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
@@ -868,7 +912,7 @@ fn test_config_remotes_with_watch() -> Result<()> {
     ));
     if let RemoteValue::Single(RemoteTarget::Watch(info)) = report {
         assert_eq!(info.url.as_str(), "https://docs.google.com/...");
-        assert_eq!(info.watch, Some("w123456789".to_string()));
+        assert_eq!(info.watch, Some("wa1234567890".to_string()));
     }
 
     Ok(())
@@ -916,7 +960,7 @@ fn test_config_remotes_multiple() -> Result<()> {
     let config_content = r#"
 [remotes]
 "article.md" = [
-  { url = "https://docs.google.com/...", watch = "w456" },
+  { url = "https://docs.google.com/...", watch = "wa4567890abc" },
   "https://sharepoint.com/..."
 ]
 "#;
@@ -942,7 +986,7 @@ fn test_config_remotes_multiple() -> Result<()> {
             .expect("Expected target with watch");
         if let RemoteTarget::Watch(info) = with_watch {
             assert_eq!(info.url.as_str(), "https://docs.google.com/...");
-            assert_eq!(info.watch, Some("w456".to_string()));
+            assert_eq!(info.watch, Some("wa4567890abc".to_string()));
         }
 
         let without_watch = targets
@@ -1102,4 +1146,353 @@ fn test_pattern_constants_match_schemars() {
         Some(crate::WATCH_ID_PATTERN),
         "RemoteWatch.watch schemars pattern doesn't match WATCH_ID_PATTERN constant"
     );
+}
+
+#[test]
+fn test_nav_item_route_shorthand() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with route shorthand nav items
+    let config_content = r#"
+[site]
+nav = ["/", "/docs/getting-started/", "/about/"]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let nav = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.nav.as_ref())
+        .expect("Expected nav to be present");
+
+    assert_eq!(nav.len(), 3);
+
+    // Check that all items are Route variants
+    use crate::NavItem;
+    assert!(matches!(&nav[0], NavItem::Route(r) if r == "/"));
+    assert!(matches!(&nav[1], NavItem::Route(r) if r == "/docs/getting-started/"));
+    assert!(matches!(&nav[2], NavItem::Route(r) if r == "/about/"));
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_link_with_label() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with link nav items (explicit labels)
+    let config_content = r#"
+[site]
+nav = [
+    { label = "Home", route = "/" },
+    { label = "Getting Started", route = "/docs/getting-started/" },
+]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let nav = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.nav.as_ref())
+        .expect("Expected nav to be present");
+
+    assert_eq!(nav.len(), 2);
+
+    use crate::NavItem;
+    if let NavItem::Link { label, route } = &nav[0] {
+        assert_eq!(label, "Home");
+        assert_eq!(route, "/");
+    } else {
+        panic!("Expected NavItem::Link for first item");
+    }
+
+    if let NavItem::Link { label, route } = &nav[1] {
+        assert_eq!(label, "Getting Started");
+        assert_eq!(route, "/docs/getting-started/");
+    } else {
+        panic!("Expected NavItem::Link for second item");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_group_without_route() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with group nav item (no header route)
+    let config_content = r#"
+[site]
+nav = [
+    { label = "Docs", children = [
+        "/docs/getting-started/",
+        "/docs/configuration/",
+    ]},
+]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let nav = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.nav.as_ref())
+        .expect("Expected nav to be present");
+
+    assert_eq!(nav.len(), 1);
+
+    use crate::NavItem;
+    if let NavItem::Group {
+        label,
+        route,
+        children,
+    } = &nav[0]
+    {
+        assert_eq!(label, "Docs");
+        assert!(route.is_none());
+        assert_eq!(children.len(), 2);
+        assert!(matches!(&children[0], NavItem::Route(r) if r == "/docs/getting-started/"));
+        assert!(matches!(&children[1], NavItem::Route(r) if r == "/docs/configuration/"));
+    } else {
+        panic!("Expected NavItem::Group");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_group_with_route() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with group nav item that has a clickable header
+    let config_content = r#"
+[site]
+nav = [
+    { label = "Guides", route = "/guides/", children = [
+        "/guides/deployment/",
+        "/guides/configuration/",
+    ]},
+]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let nav = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.nav.as_ref())
+        .expect("Expected nav to be present");
+
+    assert_eq!(nav.len(), 1);
+
+    use crate::NavItem;
+    if let NavItem::Group {
+        label,
+        route,
+        children,
+    } = &nav[0]
+    {
+        assert_eq!(label, "Guides");
+        assert_eq!(route.as_deref(), Some("/guides/"));
+        assert_eq!(children.len(), 2);
+    } else {
+        panic!("Expected NavItem::Group");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_mixed_types() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with mixed nav item types
+    let config_content = r#"
+[site]
+nav = [
+    "/",
+    { label = "Docs", children = [
+        "/docs/getting-started/",
+        { label = "Advanced", route = "/docs/advanced/" },
+    ]},
+    { label = "About", route = "/about/" },
+]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let nav = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.nav.as_ref())
+        .expect("Expected nav to be present");
+
+    assert_eq!(nav.len(), 3);
+
+    use crate::NavItem;
+
+    // First item: Route shorthand
+    assert!(matches!(&nav[0], NavItem::Route(r) if r == "/"));
+
+    // Second item: Group with mixed children
+    if let NavItem::Group { children, .. } = &nav[1] {
+        assert_eq!(children.len(), 2);
+        assert!(matches!(&children[0], NavItem::Route(_)));
+        assert!(matches!(&children[1], NavItem::Link { .. }));
+    } else {
+        panic!("Expected NavItem::Group for second item");
+    }
+
+    // Third item: Link with label
+    assert!(
+        matches!(&nav[2], NavItem::Link { label, route } if label == "About" && route == "/about/")
+    );
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_nested_groups() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // Create config with nested groups
+    let config_content = r#"
+[site]
+nav = [
+    { label = "Docs", children = [
+        { label = "Getting Started", children = [
+            "/docs/getting-started/installation/",
+            "/docs/getting-started/quick-start/",
+        ]},
+        "/docs/configuration/",
+    ]},
+]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let nav = cfg
+        .site
+        .as_ref()
+        .and_then(|s| s.nav.as_ref())
+        .expect("Expected nav to be present");
+
+    assert_eq!(nav.len(), 1);
+
+    use crate::NavItem;
+    if let NavItem::Group { children, .. } = &nav[0] {
+        assert_eq!(children.len(), 2);
+
+        // First child is a nested group
+        if let NavItem::Group {
+            label,
+            children: nested,
+            ..
+        } = &children[0]
+        {
+            assert_eq!(label, "Getting Started");
+            assert_eq!(nested.len(), 2);
+        } else {
+            panic!("Expected nested NavItem::Group");
+        }
+
+        // Second child is a route
+        assert!(matches!(&children[1], NavItem::Route(_)));
+    } else {
+        panic!("Expected NavItem::Group");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_validation_rejects_external_route() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // External URL in Route variant should fail validation
+    let config_content = r#"
+[site]
+nav = ["https://example.com"]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let result = config_isolated(temp_dir.path());
+    assert!(result.is_err());
+    let err = result
+        .expect_err("expected validation error")
+        .to_string();
+    assert!(err.contains("must be an internal route starting with '/'"));
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_validation_rejects_external_link() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // External URL in Link variant should fail validation
+    let config_content = r#"
+[site]
+nav = [{ label = "GitHub", route = "https://github.com/example" }]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let result = config_isolated(temp_dir.path());
+    assert!(result.is_err());
+    let err = result
+        .expect_err("expected validation error")
+        .to_string();
+    assert!(err.contains("must be an internal route starting with '/'"));
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_validation_rejects_external_group_route() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // External URL in Group.route should fail validation
+    let config_content = r#"
+[site]
+nav = [{ label = "External", route = "https://example.com", children = ["/docs/"] }]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let result = config_isolated(temp_dir.path());
+    assert!(result.is_err());
+    let err = result
+        .expect_err("expected validation error")
+        .to_string();
+    assert!(err.contains("must be an internal route starting with '/'"));
+
+    Ok(())
+}
+
+#[test]
+fn test_nav_item_validation_rejects_nested_external() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    // External URL nested inside children should fail validation
+    let config_content = r#"
+[site]
+nav = [{ label = "Docs", children = ["/docs/", "https://example.com"] }]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let result = config_isolated(temp_dir.path());
+    assert!(result.is_err());
+    let err = result
+        .expect_err("expected validation error")
+        .to_string();
+    assert!(err.contains("must be an internal route starting with '/'"));
+
+    Ok(())
 }

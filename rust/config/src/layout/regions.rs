@@ -490,9 +490,11 @@ mod tests {
         components.insert(
             "custom-nav".to_string(),
             ComponentConfig::NavTree {
-                items: None,
-                collapsible: Some(false),
+                title: None,
                 depth: Some(2),
+                collapsible: Some(false),
+                expanded: None,
+                scroll_to_active: None,
             },
         );
 

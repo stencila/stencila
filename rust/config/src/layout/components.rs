@@ -58,15 +58,47 @@ pub enum ComponentConfig {
     Breadcrumbs,
 
     /// Hierarchical navigation tree
+    ///
+    /// Displays site navigation from `site.nav` configuration (or auto-generated
+    /// from routes if not specified). Supports collapsible groups, active page
+    /// highlighting, and keyboard navigation.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.left-sidebar]
+    /// start = "nav-tree"  # Uses defaults
+    ///
+    /// # Or with configuration:
+    /// start = { type = "nav-tree", title = "Documentation", expanded = "current-path" }
+    /// ```
     NavTree {
-        /// Specific items to show (defaults to auto-generated from site structure)
-        items: Option<Vec<NavTreeItem>>,
+        /// Optional title above the nav tree (e.g., "Navigation", "Docs")
+        title: Option<String>,
+
+        /// Maximum depth to display (default: unlimited)
+        ///
+        /// Limits how deep the navigation tree renders. Useful for large sites
+        /// where you want to show only top-level sections.
+        depth: Option<u8>,
 
         /// Whether groups are collapsible (default: true)
+        ///
+        /// When true, group headers can be clicked to expand/collapse children.
+        /// When false, all groups are always expanded.
         collapsible: Option<bool>,
 
-        /// Maximum depth (default: 3)
-        depth: Option<u8>,
+        /// Default expansion state for collapsible groups (default: all)
+        ///
+        /// Controls initial expand/collapse state:
+        /// - all: All groups expanded
+        /// - none: All groups collapsed
+        /// - first-level: Only top-level groups expanded
+        /// - current-path: Expand groups containing the active page
+        expanded: Option<NavTreeExpanded>,
+
+        /// Auto-scroll nav container to show active item on page load (default: true)
+        #[serde(rename = "scroll-to-active")]
+        scroll_to_active: Option<bool>,
     },
 
     /// Table of contents tree from document headings
@@ -191,95 +223,6 @@ pub fn is_builtin_component_type(name: &str) -> bool {
     BUILTIN_COMPONENT_TYPES.contains(&name)
 }
 
-/// Navigation tree item for explicit nav configuration
-///
-/// Used in `NavTree.items` to explicitly define navigation structure instead of
-/// auto-generating from the file system. This gives full control over ordering,
-/// labels, grouping, and which pages appear in navigation.
-///
-/// ## Variants
-///
-/// ### Route (string shorthand)
-///
-/// A simple route path. The label is derived from the route (e.g., "/docs/guide/"
-/// becomes "Guide"). Use this for quick references to existing pages:
-/// ```toml
-/// items = ["/docs/", "/docs/getting-started/", "/docs/guide/"]
-/// ```
-///
-/// ### Link (object with label)
-///
-/// Explicit label and target. Use when you need a custom label or linking to
-/// external URLs:
-/// ```toml
-/// items = [
-///   { label = "Getting Started", target = "/docs/getting-started/" },
-///   { label = "GitHub", target = "https://github.com/example", icon = "github" }
-/// ]
-/// ```
-///
-/// ### Group (object with children)
-///
-/// A collapsible group containing nested items. The group header can optionally link
-/// to a page, or just act as an expand/collapse toggle:
-/// ```toml
-/// items = [
-///   # Group with clickable header linking to /docs/
-///   { label = "Guides", target = "/docs/", children = [
-///     "/docs/installation/",
-///     "/docs/configuration/"
-///   ]},
-///   # Group without target - header only expands/collapses
-///   { label = "Community", children = [
-///     { label = "Discord", target = "https://discord.gg/example", icon = "message-circle" },
-///     { label = "GitHub", target = "https://github.com/example", icon = "github" }
-///   ]}
-/// ]
-/// ```
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(untagged)]
-pub enum NavTreeItem {
-    /// Route path shorthand - label derived from route
-    ///
-    /// Example: `"/docs/guide/"` → label "Guide", href "/docs/guide/"
-    Route(String),
-
-    /// Link with explicit label and optional icon
-    ///
-    /// Use for custom labels or external links.
-    Link {
-        /// Display text for the navigation item
-        label: String,
-
-        /// URL or route path to link to
-        target: String,
-
-        /// Optional icon name (e.g., "github", "book", "settings")
-        icon: Option<String>,
-    },
-
-    /// Collapsible group with nested children
-    ///
-    /// Groups can optionally link to a page (making the header clickable).
-    /// If `target` is omitted, the header just expands/collapses the children.
-    Group {
-        /// Display text for the group header
-        label: String,
-
-        /// Optional URL or route path for the group header link
-        ///
-        /// When set, clicking the group header navigates to this page.
-        /// When omitted, the header only toggles expand/collapse.
-        target: Option<String>,
-
-        /// Optional icon name
-        icon: Option<String>,
-
-        /// Nested navigation items (can include routes, links, or more groups)
-        children: Vec<NavTreeItem>,
-    },
-}
-
 /// Display style for color mode switcher
 #[derive(
     Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
@@ -327,6 +270,38 @@ pub enum PrevNextStyle {
     ///
     /// Output: ← Previous: Getting Started | Page 3 of 10 | Next: Configuration →
     Detailed,
+}
+
+/// Default expansion state for NavTree groups
+///
+/// Controls the initial expand/collapse state of collapsible navigation groups.
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum NavTreeExpanded {
+    /// All groups expanded (default)
+    ///
+    /// Every collapsible group is initially open, showing all navigation items.
+    #[default]
+    All,
+
+    /// All groups collapsed
+    ///
+    /// Every collapsible group is initially closed. Users must click to expand.
+    None,
+
+    /// Only top-level groups expanded
+    ///
+    /// First-level groups are open, but nested groups are collapsed.
+    FirstLevel,
+
+    /// Expand groups containing the active page
+    ///
+    /// Only groups that are ancestors of the current page are expanded.
+    /// This keeps the navigation focused on the user's current location.
+    CurrentPath,
 }
 
 #[cfg(test)]
@@ -538,90 +513,179 @@ separator = "|""#,
     }
 
     #[test]
-    fn test_nav_tree_item_route() -> Result<()> {
-        // NavTreeItem::Route is used in arrays within NavTree.items
-        // Test via a wrapper since TOML can't parse bare strings at top level
-        #[derive(Deserialize)]
-        struct Wrapper {
-            items: Vec<NavTreeItem>,
-        }
-        let wrapper: Wrapper = toml::from_str(r#"items = ["/docs/guide/"]"#)?;
-        assert_eq!(wrapper.items.len(), 1);
-        assert!(matches!(&wrapper.items[0], NavTreeItem::Route(s) if s == "/docs/guide/"));
+    fn test_nav_tree_basic_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(r#"type = "nav-tree""#)?;
+        assert!(matches!(
+            config,
+            ComponentConfig::NavTree {
+                title: None,
+                depth: None,
+                collapsible: None,
+                expanded: None,
+                scroll_to_active: None,
+            }
+        ));
 
         Ok(())
     }
 
     #[test]
-    fn test_nav_tree_item_link() -> Result<()> {
-        let item: NavTreeItem = toml::from_str(
-            r#"label = "Getting Started"
-target = "/docs/getting-started/""#,
+    fn test_nav_tree_with_title() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+title = "Documentation""#,
         )?;
 
-        if let NavTreeItem::Link {
-            label,
-            target,
-            icon,
-        } = item
-        {
-            assert_eq!(label, "Getting Started");
-            assert_eq!(target, "/docs/getting-started/");
-            assert!(icon.is_none());
+        if let ComponentConfig::NavTree { title, .. } = config {
+            assert_eq!(title.as_deref(), Some("Documentation"));
         } else {
-            panic!("Expected NavTreeItem::Link");
+            panic!("Expected ComponentConfig::NavTree");
         }
 
         Ok(())
     }
 
     #[test]
-    fn test_nav_tree_item_link_with_icon() -> Result<()> {
-        let item: NavTreeItem = toml::from_str(
-            r#"label = "GitHub"
-target = "https://github.com/example"
-icon = "github""#,
+    fn test_nav_tree_with_depth() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+depth = 2"#,
         )?;
 
-        if let NavTreeItem::Link {
-            label,
-            target,
-            icon,
-        } = item
-        {
-            assert_eq!(label, "GitHub");
-            assert_eq!(target, "https://github.com/example");
-            assert_eq!(icon.as_deref(), Some("github"));
+        if let ComponentConfig::NavTree { depth, .. } = config {
+            assert_eq!(depth, Some(2));
         } else {
-            panic!("Expected NavTreeItem::Link");
+            panic!("Expected ComponentConfig::NavTree");
         }
 
         Ok(())
     }
 
     #[test]
-    fn test_nav_tree_item_group() -> Result<()> {
-        // Group without target (target is optional for groups)
-        // Note: if both target and children are present, serde's untagged enum
-        // matches Link first (ignoring children). So we test without target here.
-        let item: NavTreeItem = toml::from_str(
-            r#"label = "Guides"
-children = ["/docs/installation/", "/docs/configuration/"]"#,
+    fn test_nav_tree_expanded_all() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+expanded = "all""#,
         )?;
 
-        if let NavTreeItem::Group {
-            label,
-            target,
-            icon,
-            children,
-        } = item
-        {
-            assert_eq!(label, "Guides");
-            assert!(target.is_none());
-            assert!(icon.is_none());
-            assert_eq!(children.len(), 2);
+        if let ComponentConfig::NavTree { expanded, .. } = config {
+            assert_eq!(expanded, Some(NavTreeExpanded::All));
         } else {
-            panic!("Expected NavTreeItem::Group");
+            panic!("Expected ComponentConfig::NavTree");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_tree_expanded_none() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+expanded = "none""#,
+        )?;
+
+        if let ComponentConfig::NavTree { expanded, .. } = config {
+            assert_eq!(expanded, Some(NavTreeExpanded::None));
+        } else {
+            panic!("Expected ComponentConfig::NavTree");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_tree_expanded_first_level() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+expanded = "first-level""#,
+        )?;
+
+        if let ComponentConfig::NavTree { expanded, .. } = config {
+            assert_eq!(expanded, Some(NavTreeExpanded::FirstLevel));
+        } else {
+            panic!("Expected ComponentConfig::NavTree");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_tree_expanded_current_path() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+expanded = "current-path""#,
+        )?;
+
+        if let ComponentConfig::NavTree { expanded, .. } = config {
+            assert_eq!(expanded, Some(NavTreeExpanded::CurrentPath));
+        } else {
+            panic!("Expected ComponentConfig::NavTree");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_tree_collapsible() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+collapsible = false"#,
+        )?;
+
+        if let ComponentConfig::NavTree { collapsible, .. } = config {
+            assert_eq!(collapsible, Some(false));
+        } else {
+            panic!("Expected ComponentConfig::NavTree");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_tree_scroll_to_active() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+scroll-to-active = false"#,
+        )?;
+
+        if let ComponentConfig::NavTree {
+            scroll_to_active, ..
+        } = config
+        {
+            assert_eq!(scroll_to_active, Some(false));
+        } else {
+            panic!("Expected ComponentConfig::NavTree");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_tree_all_options() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-tree"
+title = "Site Navigation"
+depth = 3
+collapsible = true
+expanded = "current-path"
+scroll-to-active = true"#,
+        )?;
+
+        if let ComponentConfig::NavTree {
+            title,
+            depth,
+            collapsible,
+            expanded,
+            scroll_to_active,
+        } = config
+        {
+            assert_eq!(title.as_deref(), Some("Site Navigation"));
+            assert_eq!(depth, Some(3));
+            assert_eq!(collapsible, Some(true));
+            assert_eq!(expanded, Some(NavTreeExpanded::CurrentPath));
+            assert_eq!(scroll_to_active, Some(true));
+        } else {
+            panic!("Expected ComponentConfig::NavTree");
         }
 
         Ok(())
