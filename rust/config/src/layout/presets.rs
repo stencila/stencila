@@ -39,7 +39,7 @@ impl LayoutPreset {
             Self::Docs => LayoutConfig {
                 header: Some(RegionSpec::Config(RegionConfig {
                     start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
                     end: Some(vec![ComponentSpec::Name("color-mode".into())]),
                     ..Default::default()
                 })),
@@ -68,7 +68,7 @@ impl LayoutPreset {
             Self::Blog => LayoutConfig {
                 header: Some(RegionSpec::Config(RegionConfig {
                     start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
                     end: Some(vec![ComponentSpec::Name("color-mode".into())]),
                     ..Default::default()
                 })),
@@ -88,7 +88,7 @@ impl LayoutPreset {
             Self::Landing => LayoutConfig {
                 header: Some(RegionSpec::Config(RegionConfig {
                     start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
                     end: Some(vec![ComponentSpec::Name("color-mode".into())]),
                     ..Default::default()
                 })),
@@ -105,7 +105,7 @@ impl LayoutPreset {
             Self::Api => LayoutConfig {
                 header: Some(RegionSpec::Config(RegionConfig {
                     start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("title".into())]),
+                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
                     end: Some(vec![ComponentSpec::Name("color-mode".into())]),
                     ..Default::default()
                 })),
@@ -116,6 +116,9 @@ impl LayoutPreset {
                         collapsible: Some(false),
                         expanded: None,
                         scroll_to_active: None,
+                        include: None,
+                        exclude: None,
+                        icons: None,
                     })]),
                     ..Default::default()
                 })),

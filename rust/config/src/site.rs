@@ -174,6 +174,11 @@ pub enum NavItem {
     /// untagged deserialization tries variants in order. Since `Group` has
     /// a required `children` field, it's more specific than `Link`.
     Group {
+        /// Stable identifier for filtering (optional)
+        ///
+        /// Use when label may change for UX copy reasons. Filter with `#id` syntax.
+        id: Option<String>,
+
         /// Display text for the group header
         label: String,
 
@@ -185,17 +190,39 @@ pub enum NavItem {
 
         /// Nested navigation items
         children: Vec<NavItem>,
+
+        /// Optional icon name for nav rendering
+        ///
+        /// Icon format: "banana" (default set) or "lucide:banana" (explicit library)
+        icon: Option<String>,
+
+        /// Optional section title for grouping within nav-menu dropdowns
+        #[serde(rename = "section-title")]
+        section_title: Option<String>,
     },
 
     /// Link with explicit label
     ///
     /// Use when you need a custom label different from the route-derived one.
     Link {
+        /// Stable identifier for filtering (optional)
+        ///
+        /// Use when label may change for UX copy reasons. Filter with `#id` syntax.
+        id: Option<String>,
+
         /// Display text for the navigation item
         label: String,
 
         /// Internal route path (must start with "/")
         route: String,
+
+        /// Optional icon name for nav rendering
+        ///
+        /// Icon format: "banana" (default set) or "lucide:banana" (explicit library)
+        icon: Option<String>,
+
+        /// Optional short description for nav-menu dropdowns
+        description: Option<String>,
     },
 }
 
@@ -214,6 +241,7 @@ impl NavItem {
                 label,
                 route,
                 children,
+                ..
             } => {
                 if let Some(route) = route
                     && !route.starts_with('/')
@@ -226,7 +254,7 @@ impl NavItem {
                     child.validate()?;
                 }
             }
-            NavItem::Link { label, route } => {
+            NavItem::Link { label, route, .. } => {
                 if !route.starts_with('/') {
                     bail!(
                         "Invalid nav route `{route}` for `{label}`: must be an internal route starting with '/'"
@@ -236,6 +264,48 @@ impl NavItem {
         }
         Ok(())
     }
+}
+
+/// Featured/promotional content for nav-menu dropdowns
+///
+/// Used to display promotional or highlighted content in mega menu panels.
+/// Keyed by group label or route in `site.featured` configuration.
+///
+/// Example:
+/// ```toml
+/// [site.featured]
+/// "Features" = {
+///   title = "Interactive Charts",
+///   image = "/images/charts-promo.png",
+///   description = "Explore data with dynamic visualizations",
+///   cta = { label = "See examples", route = "/features/charts/" }
+/// }
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct FeaturedContent {
+    /// Promotional title
+    pub title: String,
+
+    /// Image path (relative to site root)
+    pub image: Option<String>,
+
+    /// Short description text
+    pub description: Option<String>,
+
+    /// Call-to-action button
+    pub cta: Option<FeaturedCta>,
+}
+
+/// Call-to-action button for featured content
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+pub struct FeaturedCta {
+    /// Button label text
+    pub label: String,
+
+    /// Target route
+    pub route: String,
 }
 
 /// Simple JSON schema for Author - describes it as an object with type, name, and url
@@ -360,6 +430,38 @@ pub struct SiteConfig {
     /// ]
     /// ```
     pub nav: Option<Vec<NavItem>>,
+
+    /// Icon assignments for nav items
+    ///
+    /// Keyed by route or label, applied during nav construction.
+    /// Icons specified directly on NavItem take precedence.
+    ///
+    /// Icon format: "banana" (default set) or "lucide:banana" (explicit library)
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.icons]
+    /// "/" = "home"
+    /// "/docs/" = "book"
+    /// "Features" = "sparkles"
+    /// ```
+    pub icons: Option<HashMap<String, String>>,
+
+    /// Featured/promotional content for nav-menu dropdowns
+    ///
+    /// Keyed by group label or route. Only used by nav-menu component.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.featured]
+    /// "Features" = {
+    ///   title = "Interactive Charts",
+    ///   image = "/images/charts-promo.png",
+    ///   description = "Explore data with dynamic visualizations",
+    ///   cta = { label = "See examples", route = "/features/charts/" }
+    /// }
+    /// ```
+    pub featured: Option<HashMap<String, FeaturedContent>>,
 
     /// Glob patterns for files to exclude when publishing
     ///

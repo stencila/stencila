@@ -495,6 +495,9 @@ mod tests {
                 collapsible: Some(false),
                 expanded: None,
                 scroll_to_active: None,
+                include: None,
+                exclude: None,
+                icons: None,
             },
         );
 

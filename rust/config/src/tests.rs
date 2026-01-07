@@ -1203,14 +1203,14 @@ nav = [
     assert_eq!(nav.len(), 2);
 
     use crate::NavItem;
-    if let NavItem::Link { label, route } = &nav[0] {
+    if let NavItem::Link { label, route, .. } = &nav[0] {
         assert_eq!(label, "Home");
         assert_eq!(route, "/");
     } else {
         panic!("Expected NavItem::Link for first item");
     }
 
-    if let NavItem::Link { label, route } = &nav[1] {
+    if let NavItem::Link { label, route, .. } = &nav[1] {
         assert_eq!(label, "Getting Started");
         assert_eq!(route, "/docs/getting-started/");
     } else {
@@ -1251,6 +1251,7 @@ nav = [
         label,
         route,
         children,
+        ..
     } = &nav[0]
     {
         assert_eq!(label, "Docs");
@@ -1296,6 +1297,7 @@ nav = [
         label,
         route,
         children,
+        ..
     } = &nav[0]
     {
         assert_eq!(label, "Guides");
@@ -1352,7 +1354,7 @@ nav = [
 
     // Third item: Link with label
     assert!(
-        matches!(&nav[2], NavItem::Link { label, route } if label == "About" && route == "/about/")
+        matches!(&nav[2], NavItem::Link { label, route, .. } if label == "About" && route == "/about/")
     );
 
     Ok(())
@@ -1426,9 +1428,7 @@ nav = ["https://example.com"]
 
     let result = config_isolated(temp_dir.path());
     assert!(result.is_err());
-    let err = result
-        .expect_err("expected validation error")
-        .to_string();
+    let err = result.expect_err("expected validation error").to_string();
     assert!(err.contains("must be an internal route starting with '/'"));
 
     Ok(())
@@ -1447,9 +1447,7 @@ nav = [{ label = "GitHub", route = "https://github.com/example" }]
 
     let result = config_isolated(temp_dir.path());
     assert!(result.is_err());
-    let err = result
-        .expect_err("expected validation error")
-        .to_string();
+    let err = result.expect_err("expected validation error").to_string();
     assert!(err.contains("must be an internal route starting with '/'"));
 
     Ok(())
@@ -1468,9 +1466,7 @@ nav = [{ label = "External", route = "https://example.com", children = ["/docs/"
 
     let result = config_isolated(temp_dir.path());
     assert!(result.is_err());
-    let err = result
-        .expect_err("expected validation error")
-        .to_string();
+    let err = result.expect_err("expected validation error").to_string();
     assert!(err.contains("must be an internal route starting with '/'"));
 
     Ok(())
@@ -1489,9 +1485,7 @@ nav = [{ label = "Docs", children = ["/docs/", "https://example.com"] }]
 
     let result = config_isolated(temp_dir.path());
     assert!(result.is_err());
-    let err = result
-        .expect_err("expected validation error")
-        .to_string();
+    let err = result.expect_err("expected validation error").to_string();
     assert!(err.contains("must be an internal route starting with '/'"));
 
     Ok(())
