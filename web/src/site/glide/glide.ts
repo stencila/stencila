@@ -273,7 +273,16 @@ export async function navigate(
     lastFullUrl = url
 
     // Handle scroll position
-    restoreScrollPosition(url)
+    // Only restore saved scroll position for back/forward navigation
+    // Fresh navigations should start at top (or hash target)
+    if (trigger === 'popstate') {
+      restoreScrollPosition(url)
+    } else {
+      const hash = new URL(url, window.location.origin).hash
+      if (!hash || !scrollToId(hash.slice(1))) {
+        window.scrollTo(0, 0)
+      }
+    }
 
     // Dispatch end event
     dispatch(GlideEvents.END, detailWithCache)
