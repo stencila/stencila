@@ -12,7 +12,7 @@ export interface CacheEntry {
   /** Page title from <title> element */
   title: string
 
-  /** Main content HTML from #main-content */
+  /** Main content HTML from .layout-main */
   mainHTML: string
 
   /** Meta description content (optional) */
@@ -77,7 +77,7 @@ export const DEFAULT_CONFIG: NavConfig = {
   enabled: true,
   prefetchLimit: DEFAULT_PREFETCH_LIMIT,
   cacheSize: DEFAULT_CACHE_SIZE,
-  contentSelector: '#main-content',
+  contentSelector: '.layout-main',
   tocMaxDepth: 3,
 }
 
