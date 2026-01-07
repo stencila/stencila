@@ -170,9 +170,35 @@ stencila-toc-tree .toc-item[data-level="6"] a:hover {
 }
 
 stencila-toc-tree .toc-item a:focus-visible {
-    outline: var(--toc-focus-ring-width) solid var(--toc-focus-ring-color);
-    outline-offset: var(--toc-focus-ring-offset);
-    border-radius: var(--toc-focus-radius);
+    outline: none;
+    color: var(--toc-item-color-hover);
+    border-left: var(--toc-border-width-emphasis) solid var(--toc-border-color-hover);
+    margin-left: calc(-1 * var(--toc-border-width));
+}
+
+/* Focus state level-specific padding (compensate for wider border) */
+stencila-toc-tree .toc-item[data-level="1"] a:focus-visible {
+    padding-left: calc(var(--toc-indent) - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="2"] a:focus-visible {
+    padding-left: calc(var(--toc-indent) * 2 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="3"] a:focus-visible {
+    padding-left: calc(var(--toc-indent) * 3 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="4"] a:focus-visible {
+    padding-left: calc(var(--toc-indent) * 4 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="5"] a:focus-visible {
+    padding-left: calc(var(--toc-indent) * 5 - var(--toc-border-width-emphasis) + var(--toc-border-width));
+}
+
+stencila-toc-tree .toc-item[data-level="6"] a:focus-visible {
+    padding-left: calc(var(--toc-indent) * 6 - var(--toc-border-width-emphasis) + var(--toc-border-width));
 }
 
 /* Active state - thicker accent border overlays the list border */
@@ -220,7 +246,7 @@ stencila-toc-tree .toc-item[data-level="3"] a {
     padding-left: calc(var(--toc-indent) * 3);
 }
 
-stencila-toc-tree .toc-item[data-level="3"]:not([data-active="true"]) a:not(:hover) {
+stencila-toc-tree .toc-item[data-level="3"]:not([data-active="true"]) a:not(:hover):not(:focus-visible) {
     color: var(--toc-item-color-muted);
 }
 
@@ -228,7 +254,7 @@ stencila-toc-tree .toc-item[data-level="4"] a {
     padding-left: calc(var(--toc-indent) * 4);
 }
 
-stencila-toc-tree .toc-item[data-level="4"]:not([data-active="true"]) a:not(:hover) {
+stencila-toc-tree .toc-item[data-level="4"]:not([data-active="true"]) a:not(:hover):not(:focus-visible) {
     color: var(--toc-item-color-muted);
 }
 
@@ -236,7 +262,7 @@ stencila-toc-tree .toc-item[data-level="5"] a {
     padding-left: calc(var(--toc-indent) * 5);
 }
 
-stencila-toc-tree .toc-item[data-level="5"]:not([data-active="true"]) a:not(:hover) {
+stencila-toc-tree .toc-item[data-level="5"]:not([data-active="true"]) a:not(:hover):not(:focus-visible) {
     color: var(--toc-item-color-muted);
 }
 
@@ -244,7 +270,7 @@ stencila-toc-tree .toc-item[data-level="6"] a {
     padding-left: calc(var(--toc-indent) * 6);
 }
 
-stencila-toc-tree .toc-item[data-level="6"]:not([data-active="true"]) a:not(:hover) {
+stencila-toc-tree .toc-item[data-level="6"]:not([data-active="true"]) a:not(:hover):not(:focus-visible) {
     color: var(--toc-item-color-muted);
 }
 
