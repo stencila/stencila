@@ -274,7 +274,7 @@ export class StencilaLayout extends LitElement {
                 ? 'Close navigation sidebar'
                 : 'Open navigation sidebar'}
             >
-              <span class="toggle-icon i-lucide:panel-left-open"></span>
+              <span class="toggle-icon"></span>
             </button>
           `
         : nothing}
@@ -288,7 +288,7 @@ export class StencilaLayout extends LitElement {
                 ? 'Close table of contents'
                 : 'Open table of contents'}
             >
-              <span class="toggle-icon i-lucide:panel-right-open"></span>
+              <span class="toggle-icon"></span>
             </button>
           `
         : nothing}

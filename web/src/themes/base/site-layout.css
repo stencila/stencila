@@ -71,8 +71,12 @@
     /* Responsive Sidebar */
     --sidebar-transition-duration: var(--transition-duration-base);
     --sidebar-overlay-background: rgba(0, 0, 0, 0.5);
-    --sidebar-toggle-size: 44px;
-    --sidebar-toggle-offset: var(--space-3);
+    --sidebar-toggle-top: 25%;
+    --sidebar-toggle-width: 20px;
+    --sidebar-toggle-height: 40px;
+    --sidebar-toggle-left-icon: "›";
+    --sidebar-toggle-right-icon: "‹";
+    --sidebar-toggle-icon-size: 1.5rem;
     --sidebar-toggle-background: var(--surface-elevated);
     --sidebar-toggle-border-color: var(--border-color-default);
     --sidebar-toggle-color: var(--text-color-secondary);
@@ -324,12 +328,12 @@ stencila-footer {
 .sidebar-toggle {
     display: none;
     position: fixed;
-    top: 50%;
+    top: var(--sidebar-toggle-top);
     transform: translateY(-50%);
     z-index: var(--sidebar-toggle-z-index);
 
-    width: var(--sidebar-toggle-size);
-    height: var(--sidebar-toggle-size);
+    width: var(--sidebar-toggle-width);
+    height: var(--sidebar-toggle-height);
     padding: 0;
 
     background: var(--sidebar-toggle-background);
@@ -370,11 +374,17 @@ stencila-footer {
     border-bottom-right-radius: 0;
 }
 
-/* Chevron icon */
+/* Toggle icon using CSS content */
 .sidebar-toggle .toggle-icon {
-    width: 20px;
-    height: 20px;
-    transition: transform var(--transition-duration-fast);
+    font-size: var(--sidebar-toggle-icon-size);
+}
+
+.sidebar-toggle-left .toggle-icon::before {
+    content: var(--sidebar-toggle-left-icon);
+}
+
+.sidebar-toggle-right .toggle-icon::before {
+    content: var(--sidebar-toggle-right-icon);
 }
 
 /* Rotate chevron when sidebar is open */
