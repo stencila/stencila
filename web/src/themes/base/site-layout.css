@@ -52,8 +52,8 @@
     --sidebar-padding: var(--space-4);
     --left-sidebar-background: var(--surface-elevated);
     --left-sidebar-border-color: var(--border-color-muted);
-    --right-sidebar-background: var(--surface-elevated);
-    --right-sidebar-border-color: var(--border-color-muted);
+    --right-sidebar-background: var(--surface-background);
+    --right-sidebar-border-color: none;
 
     /* Footer */
     --footer-background: var(--surface-raised);
@@ -482,6 +482,9 @@ stencila-layout[header] .sidebar-overlay {
 
         overflow-y: auto;
         height: auto;
+
+        /* Always show border on mobile drawer for visual separation */
+        border-left: var(--layout-border-width) solid var(--border-color-muted);
     }
 
     /* Reset sticky behavior for mobile drawers
