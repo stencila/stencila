@@ -53,12 +53,24 @@ function isEligibleClick(event: MouseEvent): boolean {
 }
 
 /**
+ * Scroll target for content swap
+ */
+type ScrollTarget =
+  | { type: 'top' }
+  | { type: 'hash'; hash: string }
+  | { type: 'restore'; url: string }
+
+/**
  * Perform the DOM swap with optional View Transition
+ *
+ * Scroll handling is included inside the swap so it's captured by
+ * the View Transition, resulting in smooth animated transitions.
  */
 async function swapContent(
   mainHTML: string,
   title: string,
-  contentSelector: string
+  contentSelector: string,
+  scrollTarget: ScrollTarget
 ): Promise<void> {
   const mainElement = document.querySelector(contentSelector)
   if (!mainElement) {
@@ -71,6 +83,22 @@ async function swapContent(
 
     // Swap main content
     mainElement.innerHTML = mainHTML
+
+    // Handle scroll as part of the transition so View Transitions API
+    // animates both content and scroll position together
+    switch (scrollTarget.type) {
+      case 'restore':
+        restoreScrollPosition(scrollTarget.url)
+        break
+      case 'hash':
+        if (!scrollToId(scrollTarget.hash)) {
+          window.scrollTo(0, 0)
+        }
+        break
+      case 'top':
+        window.scrollTo(0, 0)
+        break
+    }
 
     // Focus management: focus the first h1 for screen readers
     const h1 = mainElement.querySelector('h1')
@@ -256,8 +284,17 @@ export async function navigate(
       pushNavState(url)
     }
 
-    // Perform the swap
-    await swapContent(entry.mainHTML, entry.title, config.contentSelector)
+    // Determine scroll target: restore for popstate, otherwise top or hash
+    const hash = new URL(url, window.location.origin).hash.slice(1)
+    const scrollTarget: ScrollTarget =
+      trigger === 'popstate'
+        ? { type: 'restore', url }
+        : hash
+          ? { type: 'hash', hash }
+          : { type: 'top' }
+
+    // Perform the swap (includes scroll handling for smooth transition)
+    await swapContent(entry.mainHTML, entry.title, config.contentSelector, scrollTarget)
 
     // Rehydrate components (TOC, nav tree)
     const mainElement = document.querySelector(config.contentSelector)
@@ -271,18 +308,6 @@ export async function navigate(
     // Track current page for hash-only popstate detection
     lastNormalizedUrl = normalizeUrl(url)
     lastFullUrl = url
-
-    // Handle scroll position
-    // Only restore saved scroll position for back/forward navigation
-    // Fresh navigations should start at top (or hash target)
-    if (trigger === 'popstate') {
-      restoreScrollPosition(url)
-    } else {
-      const hash = new URL(url, window.location.origin).hash
-      if (!hash || !scrollToId(hash.slice(1))) {
-        window.scrollTo(0, 0)
-      }
-    }
 
     // Dispatch end event
     dispatch(GlideEvents.END, detailWithCache)
@@ -391,7 +416,8 @@ function handlePopstate(_event: PopStateEvent): void {
     dispatch(GlideEvents.START, detail)
 
     if (dispatch(GlideEvents.BEFORE_SWAP, detail, true)) {
-      swapContent(entry.mainHTML, entry.title, config.contentSelector)
+      // Restore scroll position as part of the swap for smooth transition
+      swapContent(entry.mainHTML, entry.title, config.contentSelector, { type: 'restore', url })
         .then(() => {
           // Rehydrate components (TOC, nav tree)
           const mainElement = document.querySelector(config.contentSelector)
@@ -402,7 +428,6 @@ function handlePopstate(_event: PopStateEvent): void {
           dispatch(GlideEvents.AFTER_SWAP, detail)
           lastNormalizedUrl = cacheKey
           lastFullUrl = url
-          restoreScrollPosition(url)
           dispatch(GlideEvents.END, detail)
         })
         .catch(() => {
