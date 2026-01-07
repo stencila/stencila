@@ -5,11 +5,8 @@
  * View Transitions API when available.
  */
 
+import type { StencilaNavTree } from '../components/nav-tree'
 import type { StencilaTocTree } from '../components/toc-tree'
-
-// TODO: Import when nav-tree is implemented
-// import type { StencilaNavTree } from '../components/nav-tree'
-type StencilaNavTree = HTMLElement & { updateActiveLink(url: string): void }
 
 import { getPageCache, initPageCache } from './cache'
 import { dispatch, GLIDE_REQUEST, GlideEvents } from './events'

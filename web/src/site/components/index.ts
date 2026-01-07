@@ -1,5 +1,6 @@
 import './color-mode'
 import './copyright'
 import './layout'
+import './nav-tree'
 import './prev-next'
 import './toc-tree'
