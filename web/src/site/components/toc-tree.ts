@@ -412,17 +412,16 @@ export class StencilaTocTree extends LitElement {
   }
 
   protected override render() {
-    // Always render nav structure - CSS can hide if empty
+    if (this.headings.length === 0) {
+      return nothing
+    }
+
     return html`
       <nav aria-label="Table of contents" @keydown=${this.handleKeydown}>
         <h2 class="toc-title">${this.tocTitle}</h2>
-        ${this.headings.length > 0
-          ? html`
-              <ul class="toc-list" role="list">
-                ${this.headings.map((heading) => this.renderHeading(heading))}
-              </ul>
-            `
-          : nothing}
+        <ul class="toc-list" role="list">
+          ${this.headings.map((heading) => this.renderHeading(heading))}
+        </ul>
       </nav>
     `
   }
