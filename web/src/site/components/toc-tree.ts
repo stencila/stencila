@@ -355,15 +355,15 @@ export class StencilaTocTree extends LitElement {
 
   /**
    * Re-enable scroll-spy after click navigation completes.
-   * Clears stale intersection state and recomputes active heading.
+   * Clears stale intersection state but keeps the clicked heading active.
    */
   private reEnableScrollSpy() {
     this.cleanupScrollEndListeners()
     this.scrollSpyDisabled = false
     // Clear stale intersection state accumulated during disabled period
     this.intersectingIds.clear()
-    // Recompute active heading based on current scroll position
-    this.updateActiveFromScroll()
+    // Don't recalculate active heading - keep the clicked heading active.
+    // The IntersectionObserver will update it naturally when the user scrolls.
   }
 
   /**
