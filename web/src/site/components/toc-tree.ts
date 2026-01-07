@@ -3,6 +3,8 @@ import { customElement, property, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../glide/events'
 
+import type { StencilaLayout } from './layout'
+
 /**
  * Represents a heading in the table of contents
  */
@@ -336,6 +338,10 @@ export class StencilaTocTree extends LitElement {
 
     // Update URL hash without jumping
     history.pushState(null, '', `#${heading.id}`)
+
+    // Close mobile sidebar after navigation
+    const layout = this.closest('stencila-layout') as StencilaLayout | null
+    layout?.closeSidebars()
 
     // Re-enable scroll-spy when scroll ends
     this.scrollEndController = new AbortController()

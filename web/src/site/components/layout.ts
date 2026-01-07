@@ -1,6 +1,8 @@
 import { html, LitElement, nothing, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
+import { GlideEvents } from '../glide/events'
+
 import './color-mode'
 
 /**
@@ -69,12 +71,15 @@ export class StencilaLayout extends LitElement {
     super.connectedCallback()
     this.setupMediaQuery()
     document.addEventListener('keydown', this.handleKeydown)
+    // Auto-close sidebars after SPA navigation completes
+    window.addEventListener(GlideEvents.END, this.handleGlideEnd)
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback()
     this.mediaQuery?.removeEventListener('change', this.handleMediaQueryChange)
     document.removeEventListener('keydown', this.handleKeydown)
+    window.removeEventListener(GlideEvents.END, this.handleGlideEnd)
   }
 
   override updated(changedProperties: PropertyValues) {
@@ -113,6 +118,15 @@ export class StencilaLayout extends LitElement {
    */
   private handleKeydown = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && (this.leftSidebarOpen || this.rightSidebarOpen)) {
+      this.closeSidebars()
+    }
+  }
+
+  /**
+   * Handle Glide navigation end - auto-close sidebars on mobile
+   */
+  private handleGlideEnd = () => {
+    if (this.isCollapsedMode && (this.leftSidebarOpen || this.rightSidebarOpen)) {
       this.closeSidebars()
     }
   }
