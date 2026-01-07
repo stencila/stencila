@@ -168,11 +168,22 @@ stencila-toc-tree .toc-item:is([data-level="3"], [data-level="4"], [data-level="
     color: var(--toc-item-color-muted);
 }
 
-/* Hide on mobile - TOC typically moves to different location or is hidden */
 @media (max-width: 1024px) {
     stencila-toc-tree {
         position: static;
         max-height: none;
+    }
+
+    /* Remove left borders in right sidebar drawer (too close to drawer border) */
+    stencila-right-sidebar stencila-toc-tree .toc-list {
+        border-left: none;
+    }
+
+    stencila-right-sidebar stencila-toc-tree .toc-item a:is(:hover, :focus-visible),
+    stencila-right-sidebar stencila-toc-tree .toc-item[data-active="true"] a {
+        border-left: none;
+        margin-left: 0;
+        padding-left: calc(var(--toc-indent) * var(--level));
     }
 }
 
