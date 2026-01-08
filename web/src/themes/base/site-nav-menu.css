@@ -368,8 +368,13 @@ stencila-nav-menu .dropdown-group > .section-title {
     padding: var(--space-2) var(--space-2) var(--space-1) var(--space-2);
 }
 
-/* Nested list within dropdown groups */
+/* Nested list within dropdown groups - no padding for first level */
 stencila-nav-menu .nested-list {
+    padding-left: 0;
+}
+
+/* Deeper nested lists get indentation */
+stencila-nav-menu .nested-list .nested-list {
     padding-left: var(--space-3);
 }
 

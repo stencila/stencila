@@ -207,7 +207,7 @@ fn render_nav_menu_items(
                 label, route, icon, ..
             } => {
                 let is_active = route == current_route;
-                let icon_html = render_menu_icon(icon, icons_mode, false);
+                let icon_html = render_menu_icon(icon, icons_mode, false, false);
                 html.push_str(&format!(
                     r#"<li class="item" data-type="link"><a href="{route}"{}>{icon_html}{label}</a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
@@ -233,7 +233,7 @@ fn render_nav_menu_items(
                         "dropdown-{index}-{}",
                         label.to_lowercase().replace(' ', "-")
                     );
-                    let icon_html = render_menu_icon(icon, icons_mode, false);
+                    let icon_html = render_menu_icon(icon, icons_mode, false, false);
 
                     // Build dropdown panel content
                     let dropdown_html = render_nav_menu_dropdown(
@@ -251,7 +251,7 @@ fn render_nav_menu_items(
                 } else if let Some(group_route) = route {
                     // Render as link
                     let is_active = group_route == current_route;
-                    let icon_html = render_menu_icon(icon, icons_mode, false);
+                    let icon_html = render_menu_icon(icon, icons_mode, false, false);
                     html.push_str(&format!(
                         r#"<li class="item" data-type="link"><a href="{group_route}"{}>{icon_html}{label}</a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
@@ -265,9 +265,23 @@ fn render_nav_menu_items(
     html
 }
 
+/// Check if any items in a list have icons
+fn any_items_have_icons(items: &[NavItem]) -> bool {
+    items.iter().any(|item| match item {
+        NavItem::Link { icon, .. } | NavItem::Group { icon, .. } => icon.is_some(),
+        NavItem::Route(_) => false,
+    })
+}
+
 /// Render an icon for the menu (respects icons mode)
-/// In dropdowns, returns a placeholder span when no icon to maintain alignment
-fn render_menu_icon(icon: &Option<String>, mode: &NavMenuIcons, in_dropdown: bool) -> String {
+/// In dropdowns, returns a placeholder span when no icon to maintain alignment,
+/// but only if other items in the group have icons (group_has_icons=true)
+fn render_menu_icon(
+    icon: &Option<String>,
+    mode: &NavMenuIcons,
+    in_dropdown: bool,
+    group_has_icons: bool,
+) -> String {
     let should_show = match mode {
         NavMenuIcons::Show => true,
         NavMenuIcons::Hide => false,
@@ -280,8 +294,8 @@ fn render_menu_icon(icon: &Option<String>, mode: &NavMenuIcons, in_dropdown: boo
 
     match icon {
         Some(icon_name) => render_icon_span(icon_name),
-        // In dropdowns, render placeholder for alignment when no icon specified
-        None if in_dropdown => r#"<span class="icon"></span>"#.to_string(),
+        // In dropdowns, render placeholder for alignment only when other items have icons
+        None if in_dropdown && group_has_icons => r#"<span class="icon"></span>"#.to_string(),
         None => String::new(),
     }
 }
@@ -296,6 +310,9 @@ fn render_nav_menu_dropdown(
     featured: &Option<HashMap<String, FeaturedContent>>,
 ) -> String {
     let mut main_html = String::new();
+
+    // Check if any children have icons (for alignment purposes)
+    let has_icons = any_items_have_icons(children);
 
     // Group children by section_title if present
     let mut current_section: Option<String> = None;
@@ -319,8 +336,8 @@ fn render_nav_menu_dropdown(
             NavItem::Route(route) => {
                 let is_active = route == current_route;
                 let label = route_to_label(route);
-                // Route items have no icon, but need placeholder for alignment
-                let icon_html = render_menu_icon(&None, icons_mode, true);
+                // Route items have no icon, but need placeholder for alignment if others have icons
+                let icon_html = render_menu_icon(&None, icons_mode, true, has_icons);
                 section_items.push_str(&format!(
                     r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
@@ -334,7 +351,7 @@ fn render_nav_menu_dropdown(
                 ..
             } => {
                 let is_active = route == current_route;
-                let icon_html = render_menu_icon(icon, icons_mode, true);
+                let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                 let desc_html = if descriptions {
                     description
                         .as_ref()
@@ -367,7 +384,7 @@ fn render_nav_menu_dropdown(
                     } else if let Some(group_route) = route {
                         // Children produced no output but group has route - render as link
                         let is_active = group_route == current_route;
-                        let icon_html = render_menu_icon(icon, icons_mode, true);
+                        let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                         section_items.push_str(&format!(
                             r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                             if is_active { r#" aria-current="page""# } else { "" }
@@ -377,7 +394,7 @@ fn render_nav_menu_dropdown(
                 } else if let Some(group_route) = route {
                     // Group with route but no children - render as link
                     let is_active = group_route == current_route;
-                    let icon_html = render_menu_icon(icon, icons_mode, true);
+                    let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                     section_items.push_str(&format!(
                         r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
@@ -411,13 +428,16 @@ fn render_nested_dropdown_items(
 ) -> String {
     let mut html = String::new();
 
+    // Check if any items have icons (for alignment purposes)
+    let has_icons = any_items_have_icons(items);
+
     for item in items {
         match item {
             NavItem::Route(route) => {
                 let is_active = route == current_route;
                 let label = route_to_label(route);
-                // Route items have no icon, but need placeholder for alignment
-                let icon_html = render_menu_icon(&None, icons_mode, true);
+                // Route items have no icon, but need placeholder for alignment if others have icons
+                let icon_html = render_menu_icon(&None, icons_mode, true, has_icons);
                 html.push_str(&format!(
                     r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
@@ -427,7 +447,7 @@ fn render_nested_dropdown_items(
                 label, route, icon, ..
             } => {
                 let is_active = route == current_route;
-                let icon_html = render_menu_icon(icon, icons_mode, true);
+                let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                 html.push_str(&format!(
                     r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
@@ -442,7 +462,7 @@ fn render_nested_dropdown_items(
             } => {
                 if let Some(group_route) = route {
                     let is_active = group_route == current_route;
-                    let icon_html = render_menu_icon(icon, icons_mode, true);
+                    let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                     html.push_str(&format!(
                         r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
