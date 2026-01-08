@@ -8,6 +8,9 @@ use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 mod glide;
 mod layout;
 mod logo;
+mod nav_common;
+mod nav_menu;
+mod nav_tree;
 
 mod list;
 pub use list::{RouteEntry, RouteType, list};
