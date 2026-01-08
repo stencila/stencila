@@ -61,12 +61,11 @@
     --nav-menu-color: var(--text-color-secondary);
     --nav-menu-color-hover: var(--text-color-primary);
     --nav-menu-color-active: var(--color-accent);
-    --nav-menu-dropdown-bg: var(--color-surface);
-    --nav-menu-dropdown-border: var(--color-border);
+    --nav-menu-dropdown-bg: var(--surface-elevated);
+    --nav-menu-dropdown-border: var(--border-color-default);
     --nav-menu-dropdown-shadow: var(--shadow-lg);
 
     /* Structure */
-    --nav-menu-height: var(--space-12);
     --nav-menu-item-padding-x: var(--space-3);
     --nav-menu-item-padding-y: var(--space-2);
     --nav-menu-dropdown-padding: var(--space-4);
@@ -84,7 +83,7 @@
 
     /* Featured panel */
     --nav-menu-featured-width: 280px;
-    --nav-menu-featured-bg: var(--color-surface-subtle);
+    --nav-menu-featured-bg: var(--surface-sunken);
     --nav-menu-featured-padding: var(--space-4);
 
     /* Section titles */
@@ -103,7 +102,6 @@
     --nav-menu-focus-radius: var(--radius-xs);
 
     /* Mobile */
-    --nav-menu-mobile-bg: var(--color-surface);
     --nav-menu-mobile-padding: var(--space-4);
 
     /* Z-index - must be above header content like breadcrumbs */
@@ -199,7 +197,7 @@ stencila-nav-menu .trigger {
 stencila-nav-menu .item > a:hover,
 stencila-nav-menu .trigger:hover {
     color: var(--nav-menu-color-hover);
-    background-color: var(--color-surface-hover);
+    background-color: var(--surface-sunken);
 }
 
 /* Active state */
@@ -328,7 +326,7 @@ stencila-nav-menu .dropdown-item a {
 
 stencila-nav-menu .dropdown-item a:hover {
     color: var(--nav-menu-color-hover);
-    background-color: var(--color-surface-hover);
+    background-color: var(--surface-sunken);
 }
 
 stencila-nav-menu .dropdown-item a[aria-current="page"] {
@@ -416,7 +414,7 @@ stencila-nav-menu .featured-cta {
 }
 
 stencila-nav-menu .featured-cta:hover {
-    color: var(--color-accent-dark);
+    color: var(--color-accent);
     text-decoration: underline;
 }
 
@@ -486,7 +484,7 @@ stencila-nav-menu[data-mobile-mode="true"] .list {
     align-items: stretch;
     gap: 0;
     padding: var(--nav-menu-mobile-padding);
-    background: var(--nav-menu-mobile-bg);
+    background: var(--surface-background);
     border-top: 1px solid var(--nav-menu-dropdown-border);
     border-radius: 0;
     box-shadow: var(--nav-menu-dropdown-shadow);
@@ -535,6 +533,7 @@ stencila-nav-menu[data-mobile-mode="true"][dropdown-style="full-width"] .item[da
 /* Show dropdown when item is expanded */
 stencila-nav-menu[data-mobile-mode="true"] .item[data-dropdown-open="true"] .dropdown {
     display: block;
+    background: var(--surface-background);
 }
 
 /* Mobile dropdown inner elements - override flex-based sizing */

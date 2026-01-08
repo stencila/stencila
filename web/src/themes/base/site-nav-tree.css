@@ -47,7 +47,7 @@
     --nav-tree-item-color: var(--text-color-secondary);
     --nav-tree-item-color-hover: var(--text-color-primary);
     --nav-tree-item-color-active: var(--color-accent);
-    --nav-tree-item-bg-hover: var(--color-surface-hover);
+    --nav-tree-item-bg-hover: var(--surface-sunken);
     --nav-tree-item-bg-active: color-mix(in srgb, var(--color-accent) 10%, transparent);
 
     /* Structure */
