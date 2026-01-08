@@ -310,6 +310,15 @@ stencila-footer {
     width: 100%;
 }
 
+/* Footer middle subregion should center content without full-width children. */
+stencila-footer [data-subregion="middle"] {
+    text-align: center;
+}
+
+stencila-footer [data-subregion="middle"] > * {
+    width: auto;
+}
+
 [data-subregion="end"] {
     display: flex;
     align-items: center;
