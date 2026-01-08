@@ -225,6 +225,9 @@ export class StencilaNavMenu extends LitElement {
   private handleMobileToggle = () => {
     this.mobileExpanded = !this.mobileExpanded
     this.updateMobileToggleState()
+    if (this.isMobileMode && this.mobileExpanded) {
+      this.expandToCurrentRoute()
+    }
   }
 
   /**
@@ -427,6 +430,35 @@ export class StencilaNavMenu extends LitElement {
         link.setAttribute('aria-current', 'page')
         break
       }
+    }
+  }
+
+  /**
+   * Expand the mobile accordion to the current route.
+   */
+  private expandToCurrentRoute() {
+    if (!this.isMobileMode) return
+
+    const currentPath = this.normalizePathname(window.location.pathname)
+    const links = this.querySelectorAll<HTMLAnchorElement>('a[href]')
+    let activeLink: HTMLAnchorElement | null = null
+
+    for (const link of links) {
+      const href = link.getAttribute('href')
+      if (href && this.normalizePathname(href) === currentPath) {
+        activeLink = link
+        break
+      }
+    }
+
+    if (!activeLink) return
+
+    const parentItem = activeLink.closest<HTMLLIElement>('li.item')
+    if (!parentItem) return
+
+    const trigger = parentItem.querySelector<HTMLButtonElement>('.trigger')
+    if (trigger) {
+      this.openDropdown(trigger)
     }
   }
 
