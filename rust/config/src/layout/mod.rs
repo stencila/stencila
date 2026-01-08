@@ -34,4 +34,4 @@ pub use components::{
 pub use config::LayoutConfig;
 pub use overrides::LayoutOverride;
 pub use presets::LayoutPreset;
-pub use regions::{RegionConfig, RegionSpec};
+pub use regions::{RegionConfig, RegionSpec, RowConfig};

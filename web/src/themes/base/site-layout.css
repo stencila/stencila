@@ -328,6 +328,32 @@ stencila-footer [data-subregion="middle"] > * {
 }
 
 /* =================================
+ * Multi-Row Layouts
+ *
+ * When a region uses `rows`, each row is wrapped in a [data-row]
+ * container with its own start/middle/end sub-regions.
+ * Rows stack vertically within the region.
+ * ================================= */
+
+/* Row container - mirrors the flex layout of the parent region */
+[data-row] {
+    display: flex;
+    align-items: center;
+    gap: var(--subregion-gap);
+    width: 100%;
+}
+
+/* Regions with rows stack them vertically
+ * Uses flex-direction: column on the region content */
+stencila-top:has([data-row]),
+stencila-bottom:has([data-row]),
+stencila-header:has([data-row]),
+stencila-footer:has([data-row]) {
+    flex-direction: column;
+    gap: var(--subregion-gap);
+}
+
+/* =================================
  * Sidebar Toggle Buttons
  *
  * Fixed edge buttons for collapsing/expanding sidebars.

@@ -8,7 +8,7 @@ use std::path::Path;
 use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
     ColorModeStyle, ComponentConfig, ComponentSpec, EditPageStyle, LayoutConfig, LogoConfig,
-    NavItem, PrevNextStyle, RegionSpec, SiteConfig,
+    NavItem, PrevNextStyle, RegionSpec, RowConfig, SiteConfig,
 };
 
 use crate::{
@@ -150,14 +150,20 @@ fn render_region(
     regions_enabled.push(' ');
     regions_enabled.push_str(name);
 
-    // Render subregions
-    let subregions = if let Some(config) = spec.config() {
-        let start = render_subregion(&config.start, context);
-        let middle = render_subregion(&config.middle, context);
-        let end = render_subregion(&config.end, context);
-        format!(
-            r#"<div data-subregion="start">{start}</div><div data-subregion="middle">{middle}</div><div data-subregion="end">{end}</div>"#
-        )
+    // Render subregions (or rows if specified)
+    let content = if let Some(config) = spec.config() {
+        // Check if rows are specified; if so, render each row
+        if let Some(rows) = &config.rows {
+            render_rows(rows, context)
+        } else {
+            // Single-row mode: render start/middle/end directly
+            let start = render_subregion(&config.start, context);
+            let middle = render_subregion(&config.middle, context);
+            let end = render_subregion(&config.end, context);
+            format!(
+                r#"<div data-subregion="start">{start}</div><div data-subregion="middle">{middle}</div><div data-subregion="end">{end}</div>"#
+            )
+        }
     } else {
         String::new()
     };
@@ -166,11 +172,31 @@ fn render_region(
     // (outer element stretches for background, inner element is sticky)
     if name == "left-sidebar" || name == "right-sidebar" {
         format!(
-            r#"<stencila-{name}><div class="sidebar-content">{subregions}</div></stencila-{name}>"#
+            r#"<stencila-{name}><div class="sidebar-content">{content}</div></stencila-{name}>"#
         )
     } else {
-        format!(r#"<stencila-{name}>{subregions}</stencila-{name}>"#)
+        format!(r#"<stencila-{name}>{content}</stencila-{name}>"#)
     }
+}
+
+/// Render multiple rows within a region
+///
+/// Each row is wrapped in a `<div data-row="N">` container with its own
+/// start/middle/end sub-regions. This enables multi-row layouts like:
+/// - Row 0: prev-next navigation in the middle
+/// - Row 1: edit-page on the left, last-edited on the right
+fn render_rows(rows: &[RowConfig], context: &RenderContext) -> String {
+    rows.iter()
+        .enumerate()
+        .map(|(idx, row)| {
+            let start = render_subregion(&row.start, context);
+            let middle = render_subregion(&row.middle, context);
+            let end = render_subregion(&row.end, context);
+            format!(
+                r#"<div data-row="{idx}"><div data-subregion="start">{start}</div><div data-subregion="middle">{middle}</div><div data-subregion="end">{end}</div></div>"#
+            )
+        })
+        .collect()
 }
 
 /// Render a layout subregion (returns empty string if not enabled or no components)
@@ -236,9 +262,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "prev-next" => render_prev_next(&None, &None, &None, &None, context),
             "title" => render_title(&None, context),
             "toc-tree" => render_toc_tree(&None, &None),
-            "edit-page" => {
-                render_edit_page(&None, &None, &None, &None, &None, &None, context)
-            }
+            "edit-page" => render_edit_page(&None, &None, &None, &None, &None, &None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -332,7 +356,15 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             branch,
             path_prefix,
             show_platform,
-        } => render_edit_page(text, style, base_url, branch, path_prefix, show_platform, context),
+        } => render_edit_page(
+            text,
+            style,
+            base_url,
+            branch,
+            path_prefix,
+            show_platform,
+            context,
+        ),
     }
 }
 
@@ -779,7 +811,9 @@ fn render_edit_page(
         EditPageStyle::Icon => r#"<span class="icon i-lucide:square-pen"></span>"#.to_string(),
         EditPageStyle::Text => format!(r#"<span class="text">{link_text}</span>"#),
         EditPageStyle::Both => {
-            format!(r#"<span class="icon i-lucide:square-pen"></span><span class="text">{link_text}</span>"#)
+            format!(
+                r#"<span class="icon i-lucide:square-pen"></span><span class="text">{link_text}</span>"#
+            )
         }
     };
 

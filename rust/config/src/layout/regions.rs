@@ -77,10 +77,55 @@ pub struct RegionConfig {
     #[serde(default, deserialize_with = "deserialize_component_list")]
     pub end: Option<Vec<ComponentSpec>>,
 
+    /// Multiple rows, each with their own start/middle/end sub-regions
+    ///
+    /// When specified, `start`, `middle`, and `end` are ignored and each row
+    /// is rendered separately. This enables multi-row layouts within a region.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.bottom]
+    /// rows = [
+    ///   { middle = "prev-next" },
+    ///   { start = "edit-page", end = "last-edited" }
+    /// ]
+    /// ```
+    pub rows: Option<Vec<RowConfig>>,
+
     /// Responsive configuration (only applicable to sidebars)
     ///
     /// Controls when the sidebar becomes collapsible and how the toggle appears.
     pub responsive: Option<ResponsiveConfig>,
+}
+
+/// A single row within a region, containing start/middle/end sub-regions
+///
+/// Used with `RegionConfig.rows` for multi-row layouts. Each row has
+/// the same sub-region structure as a single-row region.
+///
+/// Example TOML:
+/// ```toml
+/// [site.layout.bottom]
+/// rows = [
+///   { middle = "prev-next" },
+///   { start = "edit-page", end = "last-edited" }
+/// ]
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub struct RowConfig {
+    /// Components in the start sub-region (left for horizontal, top for vertical)
+    #[serde(default, deserialize_with = "deserialize_component_list")]
+    pub start: Option<Vec<ComponentSpec>>,
+
+    /// Components in the middle sub-region (center)
+    #[serde(default, deserialize_with = "deserialize_component_list")]
+    pub middle: Option<Vec<ComponentSpec>>,
+
+    /// Components in the end sub-region (right for horizontal, bottom for vertical)
+    #[serde(default, deserialize_with = "deserialize_component_list")]
+    pub end: Option<Vec<ComponentSpec>>,
 }
 
 /// Custom deserializer that accepts a single component or array of components
@@ -220,18 +265,42 @@ pub(crate) fn merge_region(
     match (base, override_spec) {
         // Both are Config: deep merge sub-regions
         (Some(RegionSpec::Config(base_config)), Some(RegionSpec::Config(override_config))) => {
+            // Override enabled flag if specified, otherwise inherit
+            let enabled = override_config.enabled.or(base_config.enabled);
+
+            // Merge each sub-region: override takes precedence if specified
+            let start = merge_subregion(&base_config.start, &override_config.start);
+            let middle = merge_subregion(&base_config.middle, &override_config.middle);
+            let end = merge_subregion(&base_config.end, &override_config.end);
+
+            // Rows: if override specifies rows, use them; if override specifies any
+            // subregion but not rows, clear rows (intent is single-row mode);
+            // otherwise inherit from base
+            let override_has_subregions = override_config.start.is_some()
+                || override_config.middle.is_some()
+                || override_config.end.is_some();
+            let rows = if override_config.rows.is_some() {
+                override_config.rows.clone()
+            } else if override_has_subregions {
+                // Override specifies subregions without rows - clear rows
+                None
+            } else {
+                base_config.rows.clone()
+            };
+
+            // Override responsive if specified, otherwise inherit
+            let responsive = override_config
+                .responsive
+                .clone()
+                .or(base_config.responsive.clone());
+
             Some(RegionSpec::Config(RegionConfig {
-                // Override enabled flag if specified, otherwise inherit
-                enabled: override_config.enabled.or(base_config.enabled),
-                // Merge each sub-region: override takes precedence if specified
-                start: merge_subregion(&base_config.start, &override_config.start),
-                middle: merge_subregion(&base_config.middle, &override_config.middle),
-                end: merge_subregion(&base_config.end, &override_config.end),
-                // Override responsive if specified, otherwise inherit
-                responsive: override_config
-                    .responsive
-                    .clone()
-                    .or(base_config.responsive.clone()),
+                enabled,
+                start,
+                middle,
+                end,
+                rows,
+                responsive,
             }))
         }
         // Override is Enabled (bool): replaces base entirely (explicit enable/disable)
@@ -274,6 +343,15 @@ pub(crate) fn resolve_region(
             start: resolve_component_list(config.start, components),
             middle: resolve_component_list(config.middle, components),
             end: resolve_component_list(config.end, components),
+            rows: config.rows.map(|rows| {
+                rows.into_iter()
+                    .map(|row| RowConfig {
+                        start: resolve_component_list(row.start, components),
+                        middle: resolve_component_list(row.middle, components),
+                        end: resolve_component_list(row.end, components),
+                    })
+                    .collect()
+            }),
             responsive: config.responsive,
         }),
     })
@@ -521,5 +599,130 @@ mod tests {
             resolved,
             ComponentSpec::Config(ComponentConfig::Breadcrumbs)
         ));
+    }
+
+    #[test]
+    fn test_row_config_parsing() -> Result<()> {
+        let toml = r#"
+            rows = [
+                { middle = "prev-next" },
+                { start = "edit-page", end = "copyright" }
+            ]
+        "#;
+        let config: RegionConfig = toml::from_str(toml)?;
+
+        let rows = config.rows.expect("rows should be present");
+        assert_eq!(rows.len(), 2);
+
+        // First row has only middle
+        assert!(rows[0].start.is_none());
+        assert!(rows[0].middle.is_some());
+        assert!(rows[0].end.is_none());
+
+        // Second row has start and end
+        assert!(rows[1].start.is_some());
+        assert!(rows[1].middle.is_none());
+        assert!(rows[1].end.is_some());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_merge_region_subregion_override_clears_rows() {
+        // Base has rows
+        let base = Some(RegionSpec::Config(RegionConfig {
+            rows: Some(vec![
+                RowConfig {
+                    middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
+                    ..Default::default()
+                },
+                RowConfig {
+                    start: Some(vec![ComponentSpec::Name("edit-page".into())]),
+                    ..Default::default()
+                },
+            ]),
+            ..Default::default()
+        }));
+
+        // Override specifies subregions without rows - should clear rows
+        let override_spec = Some(RegionSpec::Config(RegionConfig {
+            middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
+            ..Default::default()
+        }));
+
+        let merged = merge_region(&base, &override_spec);
+
+        if let Some(RegionSpec::Config(config)) = merged {
+            // rows should be cleared because override has subregions
+            assert!(config.rows.is_none(), "rows should be cleared");
+            // middle should be set from override
+            assert!(config.middle.is_some());
+        } else {
+            panic!("Expected RegionSpec::Config");
+        }
+    }
+
+    #[test]
+    fn test_merge_region_rows_override_replaces_rows() {
+        // Base has rows
+        let base = Some(RegionSpec::Config(RegionConfig {
+            rows: Some(vec![RowConfig {
+                middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
+                ..Default::default()
+            }]),
+            ..Default::default()
+        }));
+
+        // Override specifies different rows
+        let override_spec = Some(RegionSpec::Config(RegionConfig {
+            rows: Some(vec![
+                RowConfig {
+                    start: Some(vec![ComponentSpec::Name("edit-page".into())]),
+                    ..Default::default()
+                },
+                RowConfig {
+                    end: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    ..Default::default()
+                },
+            ]),
+            ..Default::default()
+        }));
+
+        let merged = merge_region(&base, &override_spec);
+
+        if let Some(RegionSpec::Config(config)) = merged {
+            let rows = config.rows.expect("rows should be present");
+            assert_eq!(rows.len(), 2, "should have 2 rows from override");
+        } else {
+            panic!("Expected RegionSpec::Config");
+        }
+    }
+
+    #[test]
+    fn test_merge_region_rows_inherited_when_no_override() {
+        // Base has rows
+        let base = Some(RegionSpec::Config(RegionConfig {
+            rows: Some(vec![RowConfig {
+                middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
+                ..Default::default()
+            }]),
+            ..Default::default()
+        }));
+
+        // Override only changes enabled, not subregions or rows
+        let override_spec = Some(RegionSpec::Config(RegionConfig {
+            enabled: Some(true),
+            ..Default::default()
+        }));
+
+        let merged = merge_region(&base, &override_spec);
+
+        if let Some(RegionSpec::Config(config)) = merged {
+            // rows should be inherited from base
+            let rows = config.rows.expect("rows should be inherited");
+            assert_eq!(rows.len(), 1);
+        } else {
+            panic!("Expected RegionSpec::Config");
+        }
     }
 }

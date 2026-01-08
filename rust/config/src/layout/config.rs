@@ -147,9 +147,30 @@ impl LayoutConfig {
             return Ok(());
         };
 
+        // Rows are not supported in sidebars (they are already vertical regions)
+        if config.rows.is_some()
+            && (region_name == "left-sidebar" || region_name == "right-sidebar")
+        {
+            eyre::bail!(
+                "The 'rows' option is not supported in {}. \
+                 Sidebars are vertical regions; use start/middle/end for vertical positioning.",
+                region_name
+            );
+        }
+
         self.validate_component_list(region_name, "start", &config.start)?;
         self.validate_component_list(region_name, "middle", &config.middle)?;
         self.validate_component_list(region_name, "end", &config.end)?;
+
+        // Validate components in rows
+        if let Some(rows) = &config.rows {
+            for (idx, row) in rows.iter().enumerate() {
+                let row_prefix = format!("{}.rows[{}]", region_name, idx);
+                self.validate_component_list(&row_prefix, "start", &row.start)?;
+                self.validate_component_list(&row_prefix, "middle", &row.middle)?;
+                self.validate_component_list(&row_prefix, "end", &row.end)?;
+            }
+        }
 
         Ok(())
     }
@@ -666,6 +687,45 @@ mod tests {
             err_msg.contains("[site.layout.components.my-nav]"),
             "Error should suggest defining the component: {err_msg}"
         );
+    }
+
+    #[test]
+    fn test_validate_rows_in_sidebar_fails() {
+        let toml = r#"
+            [left-sidebar]
+            rows = [
+                { middle = "nav-tree" }
+            ]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml).expect("should parse");
+
+        let result = config.validate();
+        assert!(result.is_err());
+        let err_msg = result
+            .expect_err("validation should fail for rows in sidebar")
+            .to_string();
+        assert!(
+            err_msg.contains("rows"),
+            "Error should mention rows: {err_msg}"
+        );
+        assert!(
+            err_msg.contains("left-sidebar"),
+            "Error should mention the region: {err_msg}"
+        );
+    }
+
+    #[test]
+    fn test_validate_rows_in_horizontal_region_succeeds() -> Result<()> {
+        let toml = r#"
+            [bottom]
+            rows = [
+                { middle = "prev-next" },
+                { start = "edit-page", end = "copyright" }
+            ]
+        "#;
+        let config: LayoutConfig = toml::from_str(toml)?;
+        config.validate()?;
+        Ok(())
     }
 
     #[test]
