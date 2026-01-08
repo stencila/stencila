@@ -50,7 +50,8 @@
     --prev-next-icon-size: 1.5rem;
     --prev-next-prev-icon: "‹";
     --prev-next-next-icon: "›";
-    --prev-next-link-gap: var(--space-3);
+    --prev-next-link-gap: var(--space-1);
+    --prev-next-icon-color: var(--text-color-muted);
     --prev-next-label-font-size: var(--font-size-xs);
     --prev-next-label-font-weight: 200;
     --prev-next-label-text-transform: none;
@@ -123,6 +124,7 @@ stencila-prev-next .icon {
     flex-shrink: 0;
     font-size: var(--prev-next-icon-size);
     line-height: 1;
+    color: var(--prev-next-icon-color);
 }
 
 stencila-prev-next .prev .icon::before {
