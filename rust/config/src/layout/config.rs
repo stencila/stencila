@@ -597,7 +597,7 @@ mod tests {
         let toml = r#"
             [header]
             start = "logo"
-            middle = "title"
+            middle = ["title", "nav-menu"]
             end = ["breadcrumbs", "nav-tree", "toc-tree", "prev-next", "color-mode", "copyright"]
         "#;
         let config: LayoutConfig = toml::from_str(toml)?;
@@ -1294,7 +1294,7 @@ mod tests {
             .expect("middle should be present from preset");
         assert_eq!(middle.len(), 1);
         assert!(
-            matches!(&middle[0], ComponentSpec::Name(n) if n == "title"),
+            matches!(&middle[0], ComponentSpec::Name(n) if n == "nav-menu"),
             "preset's header.middle should be preserved"
         );
 
@@ -1412,7 +1412,7 @@ mod tests {
             .as_ref()
             .expect("middle should be present from preset");
         assert_eq!(middle.len(), 1);
-        assert!(matches!(&middle[0], ComponentSpec::Name(n) if n == "title"));
+        assert!(matches!(&middle[0], ComponentSpec::Name(n) if n == "nav-menu"));
 
         let end = region_config.end.as_ref().expect("end should be present");
         assert_eq!(end.len(), 2);

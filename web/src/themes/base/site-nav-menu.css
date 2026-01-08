@@ -1,0 +1,557 @@
+/* Site Navigation Menu Component
+ *
+ * Horizontal navigation bar with mega-dropdown panels for desktop
+ * and accordion-style mobile menu.
+ *
+ * Structure:
+ * - stencila-nav-menu: Custom element container
+ *   - nav[aria-label="Main navigation"]: Semantic navigation landmark
+ *     - ul.list: Horizontal list of top-level items
+ *       - li.item[data-type="link"]: Simple link item
+ *         - a[href]: Navigation link
+ *       - li.item[data-type="dropdown"]: Dropdown item
+ *         - button.trigger: Dropdown trigger button
+ *           - span.icon: Optional icon (UnoCSS i-xxx class)
+ *           - span.chevron: Dropdown indicator
+ *         - div.dropdown: Dropdown panel
+ *           - div.dropdown-main: Main content area
+ *             - ul.section-list: List of sections/items
+ *               - div.section: Grouped section
+ *                 - h3.section-title: Section heading
+ *                 - ul.section-list: Section items
+ *               - li.dropdown-item: Individual link
+ *                 - a[href]: Link with icon, label, description
+ *                   - span.icon: Icon (UnoCSS i-xxx class)
+ *                   - span.content: Label + description wrapper
+ *                     - span.label: Link text
+ *                     - span.description: Short description
+ *           - aside.featured: Featured content panel
+ *             - img.featured-image: Featured image
+ *             - h4.featured-title: Featured title
+ *             - p.featured-description: Featured description
+ *             - a.featured-cta: Call to action link
+ *
+ * Attributes (on stencila-nav-menu):
+ * - groups: auto|dropdowns|links - how to render groups
+ * - icons: show|hide|dropdowns-only - icon visibility
+ * - descriptions: true|false - show item descriptions in dropdowns
+ * - trigger: hover|click - dropdown trigger mode
+ * - dropdown-style: full-width|aligned - dropdown positioning
+ * - hover-delay: ms before opening on hover
+ * - close-delay: ms before closing on mouse leave
+ * - mobile-breakpoint: viewport width for mobile mode
+ * - mobile-expanded: whether mobile menu is open
+ *
+ * Design tokens (prefixed with --nav-menu-):
+ * - Typography: font-family, font-size, item-font-weight
+ * - Colors: color, color-hover, color-active, dropdown-bg
+ * - Structure: height, item-padding, dropdown-max-width
+ * - Featured: featured-width, featured-bg
+ * - Animation: transition-duration
+ * - Focus: focus-ring-width, focus-ring-color
+ */
+
+:root {
+    /* Typography */
+    --nav-menu-font-family: var(--layout-font-family);
+    --nav-menu-font-size: var(--font-size-sm);
+    --nav-menu-item-font-weight: var(--font-weight-medium);
+
+    /* Colors */
+    --nav-menu-color: var(--text-color-secondary);
+    --nav-menu-color-hover: var(--text-color-primary);
+    --nav-menu-color-active: var(--color-accent);
+    --nav-menu-dropdown-bg: var(--color-surface);
+    --nav-menu-dropdown-border: var(--color-border);
+    --nav-menu-dropdown-shadow: var(--shadow-lg);
+
+    /* Structure */
+    --nav-menu-height: var(--space-12);
+    --nav-menu-item-padding-x: var(--space-3);
+    --nav-menu-item-padding-y: var(--space-2);
+    --nav-menu-dropdown-padding: var(--space-4);
+    --nav-menu-dropdown-max-width: 800px;
+    --nav-menu-dropdown-min-width: 280px;
+
+    /* Icons */
+    --nav-menu-icon-size: 1.25rem;
+    --nav-menu-icon-gap: var(--space-2);
+    --nav-menu-chevron-size: 0.5em;
+
+    /* Descriptions */
+    --nav-menu-description-color: var(--text-color-muted);
+    --nav-menu-description-font-size: var(--font-size-xs);
+
+    /* Featured panel */
+    --nav-menu-featured-width: 280px;
+    --nav-menu-featured-bg: var(--color-surface-subtle);
+    --nav-menu-featured-padding: var(--space-4);
+
+    /* Section titles */
+    --nav-menu-section-title-font-size: var(--font-size-xs);
+    --nav-menu-section-title-font-weight: var(--font-weight-semibold);
+    --nav-menu-section-title-color: var(--text-color-muted);
+    --nav-menu-section-title-margin-bottom: var(--space-2);
+
+    /* Animation */
+    --nav-menu-transition-duration: var(--transition-duration-fast);
+
+    /* Focus */
+    --nav-menu-focus-ring-width: var(--focus-ring-width);
+    --nav-menu-focus-ring-color: var(--focus-ring-color);
+    --nav-menu-focus-ring-offset: var(--focus-ring-offset);
+    --nav-menu-focus-radius: var(--radius-xs);
+
+    /* Mobile */
+    --nav-menu-mobile-bg: var(--color-surface);
+    --nav-menu-mobile-padding: var(--space-4);
+
+    /* Z-index - must be above header content like breadcrumbs */
+    --nav-menu-dropdown-z-index: calc(var(--layout-z-header) + 50);
+}
+
+/* ====================
+ * Shared Patterns
+ * ==================== */
+
+/* List reset - shared across all list elements */
+stencila-nav-menu .list,
+stencila-nav-menu .section-list,
+stencila-nav-menu .nested-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Focus-visible styles - shared across all interactive elements */
+stencila-nav-menu .item > a:focus-visible,
+stencila-nav-menu .trigger:focus-visible,
+stencila-nav-menu .dropdown-item a:focus-visible,
+stencila-nav-menu .featured-cta:focus-visible,
+stencila-nav-menu .mobile-toggle:focus-visible {
+    outline: var(--nav-menu-focus-ring-width) solid var(--nav-menu-focus-ring-color);
+    outline-offset: var(--nav-menu-focus-ring-offset);
+}
+
+/* Margin-bottom with last-child reset - shared pattern */
+stencila-nav-menu .section,
+stencila-nav-menu .dropdown-group {
+    margin-bottom: var(--space-4);
+}
+
+stencila-nav-menu .section:last-child,
+stencila-nav-menu .dropdown-group:last-child {
+    margin-bottom: 0;
+}
+
+/* ====================
+ * Container & Navigation
+ * ==================== */
+
+stencila-nav-menu {
+    display: block;
+    font-family: var(--nav-menu-font-family);
+}
+
+stencila-nav-menu nav {
+    display: flex;
+    align-items: center;
+    position: relative; /* Anchor for mobile menu absolute positioning */
+}
+
+/* Main list - horizontal on desktop */
+stencila-nav-menu .list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+/* Menu items */
+stencila-nav-menu .item {
+    position: relative;
+}
+
+/* Links and triggers - shared base styles */
+stencila-nav-menu .item > a,
+stencila-nav-menu .trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--nav-menu-icon-gap);
+    padding: var(--nav-menu-item-padding-y) var(--nav-menu-item-padding-x);
+    font-size: var(--nav-menu-font-size);
+    font-weight: var(--nav-menu-item-font-weight);
+    color: var(--nav-menu-color);
+    text-decoration: none;
+    border-radius: var(--nav-menu-focus-radius);
+    transition:
+        color var(--nav-menu-transition-duration),
+        background-color var(--nav-menu-transition-duration);
+}
+
+/* Trigger button specific */
+stencila-nav-menu .trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Hover states */
+stencila-nav-menu .item > a:hover,
+stencila-nav-menu .trigger:hover {
+    color: var(--nav-menu-color-hover);
+    background-color: var(--color-surface-hover);
+}
+
+/* Active state */
+stencila-nav-menu .item > a[aria-current="page"] {
+    color: var(--nav-menu-color-active);
+}
+
+/* Item icons (styled via UnoCSS i-xxx classes) */
+stencila-nav-menu .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nav-menu-icon-size);
+    height: var(--nav-menu-icon-size);
+    flex-shrink: 0;
+}
+
+/* Chevron for dropdowns */
+stencila-nav-menu .chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-4);
+    height: var(--space-4);
+    flex-shrink: 0;
+    margin-left: var(--space-1);
+    transition: transform var(--nav-menu-transition-duration);
+}
+
+stencila-nav-menu .chevron::before {
+    content: "";
+    display: block;
+    width: var(--nav-menu-chevron-size);
+    height: var(--nav-menu-chevron-size);
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform var(--nav-menu-transition-duration);
+}
+
+/* Rotate chevron when expanded */
+stencila-nav-menu .trigger[aria-expanded="true"] .chevron::before {
+    transform: rotate(-135deg);
+}
+
+/* ====================
+ * Dropdown Panel
+ * ==================== */
+
+stencila-nav-menu .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: var(--nav-menu-dropdown-z-index);
+    min-width: var(--nav-menu-dropdown-min-width);
+    max-width: var(--nav-menu-dropdown-max-width);
+    background: var(--nav-menu-dropdown-bg);
+    border: 1px solid var(--nav-menu-dropdown-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--nav-menu-dropdown-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition:
+        opacity var(--nav-menu-transition-duration),
+        transform var(--nav-menu-transition-duration),
+        visibility var(--nav-menu-transition-duration);
+}
+
+/* Full-width dropdown style */
+stencila-nav-menu[dropdown-style="full-width"] .dropdown {
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+}
+
+stencila-nav-menu[dropdown-style="full-width"] .item[data-dropdown-open="true"] .dropdown {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Show dropdown */
+stencila-nav-menu .item[data-dropdown-open="true"] .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown with featured content - use flex layout */
+stencila-nav-menu .dropdown:has(.featured) {
+    display: flex;
+    align-items: stretch;
+}
+
+/* Main dropdown content */
+stencila-nav-menu .dropdown-main {
+    flex: 1;
+    padding: var(--nav-menu-dropdown-padding);
+}
+
+/* Section titles */
+stencila-nav-menu .section-title {
+    margin: 0 0 var(--nav-menu-section-title-margin-bottom) 0;
+    font-size: var(--nav-menu-section-title-font-size);
+    font-weight: var(--nav-menu-section-title-font-weight);
+    color: var(--nav-menu-section-title-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Dropdown items */
+stencila-nav-menu .dropdown-item {
+    margin: 0;
+}
+
+stencila-nav-menu .dropdown-item a {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nav-menu-icon-gap);
+    padding: var(--space-2) var(--space-2);
+    color: var(--nav-menu-color);
+    text-decoration: none;
+    border-radius: var(--nav-menu-focus-radius);
+    transition:
+        color var(--nav-menu-transition-duration),
+        background-color var(--nav-menu-transition-duration);
+}
+
+stencila-nav-menu .dropdown-item a:hover {
+    color: var(--nav-menu-color-hover);
+    background-color: var(--color-surface-hover);
+}
+
+stencila-nav-menu .dropdown-item a[aria-current="page"] {
+    color: var(--nav-menu-color-active);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+/* Icon in dropdown items */
+stencila-nav-menu .dropdown-item .icon {
+    margin-top: 0.125rem; /* Align with text baseline */
+}
+
+/* Content wrapper for label + description */
+stencila-nav-menu .content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-0-5);
+}
+
+/* Item label */
+stencila-nav-menu .label {
+    font-size: var(--nav-menu-font-size);
+    font-weight: var(--nav-menu-item-font-weight);
+    line-height: var(--line-height-snug);
+}
+
+/* Item description */
+stencila-nav-menu .description {
+    font-size: var(--nav-menu-description-font-size);
+    color: var(--nav-menu-description-color);
+    line-height: var(--line-height-normal);
+}
+
+stencila-nav-menu .dropdown-group > .section-title {
+    padding: var(--space-2) var(--space-2) var(--space-1) var(--space-2);
+}
+
+/* Nested list within dropdown groups */
+stencila-nav-menu .nested-list {
+    padding-left: var(--space-3);
+}
+
+/* ====================
+ * Featured Content Panel
+ * ==================== */
+
+stencila-nav-menu .featured {
+    width: var(--nav-menu-featured-width);
+    padding: var(--nav-menu-featured-padding);
+    background: var(--nav-menu-featured-bg);
+    border-left: 1px solid var(--nav-menu-dropdown-border);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+stencila-nav-menu .featured-image {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-3);
+}
+
+stencila-nav-menu .featured-title {
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-primary);
+}
+
+stencila-nav-menu .featured-description {
+    margin: 0 0 var(--space-3) 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    line-height: var(--line-height-normal);
+}
+
+stencila-nav-menu .featured-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--nav-menu-transition-duration);
+}
+
+stencila-nav-menu .featured-cta:hover {
+    color: var(--color-accent-dark);
+    text-decoration: underline;
+}
+
+stencila-nav-menu .featured-cta:focus-visible {
+    border-radius: var(--nav-menu-focus-radius);
+}
+
+/* ====================
+ * Mobile Menu
+ * ==================== */
+
+/* Mobile toggle button - hidden by default, shown by JS when in mobile mode */
+stencila-nav-menu .mobile-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-10);
+    height: var(--space-10);
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--nav-menu-color);
+    border-radius: var(--nav-menu-focus-radius);
+    transition: color var(--nav-menu-transition-duration);
+}
+
+stencila-nav-menu .mobile-toggle:hover {
+    color: var(--nav-menu-color-hover);
+}
+
+/* Hamburger icon */
+stencila-nav-menu .mobile-toggle .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 20px;
+    height: 20px;
+}
+
+stencila-nav-menu .mobile-toggle .hamburger span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    transition: transform var(--nav-menu-transition-duration);
+}
+
+/* Mobile mode - applied via JS based on breakpoint */
+stencila-nav-menu[data-mobile-mode="true"] .mobile-toggle {
+    display: flex;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--nav-menu-mobile-padding);
+    background: var(--nav-menu-mobile-bg);
+    border: 1px solid var(--nav-menu-dropdown-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--nav-menu-dropdown-shadow);
+}
+
+stencila-nav-menu[data-mobile-mode="true"][mobile-expanded="true"] .list {
+    display: flex;
+}
+
+/* Mobile items - full width */
+stencila-nav-menu[data-mobile-mode="true"] .item {
+    width: 100%;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .item > a,
+stencila-nav-menu[data-mobile-mode="true"] .trigger {
+    width: 100%;
+    justify-content: space-between;
+}
+
+/* Mobile dropdown - accordion style */
+stencila-nav-menu[data-mobile-mode="true"] .dropdown {
+    position: static;
+    max-width: none;
+    min-width: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding-left: var(--space-4);
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    display: none;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .item[data-dropdown-open="true"] .dropdown {
+    display: block;
+}
+
+/* Mobile dropdown removes featured panel styling */
+stencila-nav-menu[data-mobile-mode="true"] .dropdown:has(.featured) {
+    display: block;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .featured {
+    width: 100%;
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-left: none;
+    border-top: 1px solid var(--nav-menu-dropdown-border);
+    border-radius: 0;
+}
+
+/* ====================
+ * Hide descriptions when disabled
+ * ==================== */
+
+stencila-nav-menu[descriptions="false"] .item-description {
+    display: none;
+}
+
+/* ====================
+ * Print - hide navigation
+ * ==================== */
+
+@media print {
+    stencila-nav-menu {
+        display: none;
+    }
+}

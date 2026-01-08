@@ -44,7 +44,8 @@ mod watch;
 pub use {
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LayoutOverride, LayoutPreset,
-        NavTreeExpanded, PrevNextStyle, RegionConfig, RegionSpec,
+        NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeExpanded,
+        NavTreeIcons, PrevNextStyle, RegionConfig, RegionSpec,
     },
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
@@ -52,9 +53,9 @@ pub use {
         config_update_remote_watch,
     },
     site::{
-        AuthorSpec, GlideConfig, LogoConfig, LogoSpec, NavItem, RedirectStatus, RouteSpread,
-        SiteConfig, config_add_redirect_route, config_add_route, config_remove_route,
-        config_set_route_spread,
+        AuthorSpec, FeaturedContent, FeaturedCta, GlideConfig, LogoConfig, LogoSpec, NavItem,
+        RedirectStatus, RouteSpread, SiteConfig, config_add_redirect_route, config_add_route,
+        config_remove_route, config_set_route_spread,
     },
     utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file},
     watch::watch,
