@@ -66,7 +66,7 @@ export class StencilaNavTree extends LitElement {
    * Set up click listeners on all toggle buttons
    */
   private setupToggleListeners() {
-    const toggleButtons = this.querySelectorAll<HTMLButtonElement>('.nav-tree-toggle')
+    const toggleButtons = this.querySelectorAll<HTMLButtonElement>('.toggle')
 
     for (const button of toggleButtons) {
       button.addEventListener('click', this.handleToggleClick)
@@ -84,7 +84,7 @@ export class StencilaNavTree extends LitElement {
    */
   private handleToggleClick = (event: Event) => {
     const button = event.currentTarget as HTMLButtonElement
-    const groupItem = button.closest('.nav-tree-item[data-type="group"]')
+    const groupItem = button.closest('.item[data-type="group"]')
 
     if (!groupItem) {
       return
@@ -139,7 +139,7 @@ export class StencilaNavTree extends LitElement {
     for (const link of links) {
       const href = link.getAttribute('href')
       if (href === currentPath) {
-        const item = link.closest('.nav-tree-item')
+        const item = link.closest('.item')
         if (item) {
           item.setAttribute('data-active', 'true')
           link.setAttribute('aria-current', 'page')
@@ -163,14 +163,14 @@ export class StencilaNavTree extends LitElement {
     let current: Element | null = activeItem.parentElement
     while (current && current !== this) {
       if (
-        current.classList.contains('nav-tree-item') &&
+        current.classList.contains('item') &&
         current.getAttribute('data-type') === 'group'
       ) {
         current.setAttribute('data-expanded', 'true')
         current.setAttribute('aria-expanded', 'true')
 
         // Also update the toggle button
-        const toggle = current.querySelector('.nav-tree-toggle')
+        const toggle = current.querySelector('.toggle')
         if (toggle) {
           toggle.setAttribute('aria-expanded', 'true')
         }
@@ -211,7 +211,7 @@ export class StencilaNavTree extends LitElement {
   private handleKeydown = (event: KeyboardEvent) => {
     // Get all focusable elements (links and toggle buttons)
     const focusableSelector =
-      'a[href], button.nav-tree-toggle:not([disabled])'
+      'a[href], button.toggle:not([disabled])'
     const focusables = Array.from(
       this.querySelectorAll<HTMLElement>(focusableSelector)
     ).filter(
@@ -238,11 +238,11 @@ export class StencilaNavTree extends LitElement {
 
       case 'ArrowRight': {
         // If on a collapsed group toggle, expand it
-        const groupItem = currentElement.closest('.nav-tree-item[data-type="group"]')
+        const groupItem = currentElement.closest('.item[data-type="group"]')
         if (
           groupItem &&
           groupItem.getAttribute('data-expanded') === 'false' &&
-          currentElement.classList.contains('nav-tree-toggle')
+          currentElement.classList.contains('toggle')
         ) {
           event.preventDefault()
           currentElement.click()
@@ -252,11 +252,11 @@ export class StencilaNavTree extends LitElement {
 
       case 'ArrowLeft': {
         // If on an expanded group toggle, collapse it
-        const groupItem = currentElement.closest('.nav-tree-item[data-type="group"]')
+        const groupItem = currentElement.closest('.item[data-type="group"]')
         if (
           groupItem &&
           groupItem.getAttribute('data-expanded') === 'true' &&
-          currentElement.classList.contains('nav-tree-toggle')
+          currentElement.classList.contains('toggle')
         ) {
           event.preventDefault()
           currentElement.click()
@@ -264,12 +264,12 @@ export class StencilaNavTree extends LitElement {
         }
 
         // Otherwise, move focus to parent group's toggle
-        const parentGroup = currentElement.closest('.nav-tree-children')?.closest(
-          '.nav-tree-item[data-type="group"]'
+        const parentGroup = currentElement.closest('.children')?.closest(
+          '.item[data-type="group"]'
         )
         if (parentGroup) {
           const parentToggle =
-            parentGroup.querySelector<HTMLButtonElement>('.nav-tree-toggle')
+            parentGroup.querySelector<HTMLButtonElement>('.toggle')
           if (parentToggle) {
             event.preventDefault()
             parentToggle.focus()

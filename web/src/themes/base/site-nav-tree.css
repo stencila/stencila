@@ -5,17 +5,17 @@
  * Structure:
  * - stencila-nav-tree: Custom element container
  *   - nav[aria-label="Site navigation"]: Semantic navigation landmark
- *     - h2.nav-tree-title: Optional title
- *     - ul.nav-tree-list[role="tree"]: Root list
- *       - li.nav-tree-item[data-type="link"][data-active][data-level]: Link item
+ *     - h2.title: Optional title
+ *     - ul.list[role="tree"]: Root list
+ *       - li.item[data-type="link"][data-active][data-level]: Link item
  *         - a[href]: Navigation link
- *       - li.nav-tree-item[data-type="group"][data-expanded][data-level]: Group item
- *         - .nav-tree-group-header: Header with link and toggle (when group has route)
- *           - a.nav-tree-group-link: Clickable group header
- *           - button.nav-tree-toggle: Expand/collapse button
- *         - button.nav-tree-toggle: Toggle button (when group has no route)
- *         - span.nav-tree-group-label: Non-collapsible group label
- *         - ul.nav-tree-children[role="group"]: Child items
+ *       - li.item[data-type="group"][data-expanded][data-level]: Group item
+ *         - .group-header: Header with link and toggle (when group has route)
+ *           - a.group-link: Clickable group header
+ *           - button.toggle: Expand/collapse button
+ *         - button.toggle: Toggle button (when group has no route)
+ *         - span.group-label: Non-collapsible group label
+ *         - ul.children[role="group"]: Child items
  *
  * Attributes:
  * - collapsible: Whether groups can expand/collapse (default: true)
@@ -76,7 +76,7 @@ stencila-nav-tree nav {
 }
 
 /* Title */
-stencila-nav-tree .nav-tree-title {
+stencila-nav-tree .title {
     margin: 0 0 var(--nav-tree-title-margin-bottom) 0;
     font-size: var(--nav-tree-title-font-size);
     font-weight: var(--nav-tree-title-font-weight);
@@ -86,26 +86,26 @@ stencila-nav-tree .nav-tree-title {
 }
 
 /* Lists */
-stencila-nav-tree .nav-tree-list,
-stencila-nav-tree .nav-tree-children {
+stencila-nav-tree .list,
+stencila-nav-tree .children {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
 /* Hide children when group is collapsed */
-stencila-nav-tree .nav-tree-item[data-type="group"][data-expanded="false"] > .nav-tree-children {
+stencila-nav-tree .item[data-type="group"][data-expanded="false"] > .children {
     display: none;
 }
 
 /* Items */
-stencila-nav-tree .nav-tree-item {
+stencila-nav-tree .item {
     margin: 0;
     padding: 0;
 }
 
 /* Link items */
-stencila-nav-tree .nav-tree-item[data-type="link"] a {
+stencila-nav-tree .item[data-type="link"] a {
     display: block;
     padding: var(--nav-tree-item-padding-y) var(--nav-tree-item-padding-x);
     padding-left: 0; /* Left padding set by level-based rules */
@@ -119,26 +119,26 @@ stencila-nav-tree .nav-tree-item[data-type="link"] a {
         background-color var(--nav-tree-transition-duration);
 }
 
-stencila-nav-tree .nav-tree-item[data-type="link"] a:hover {
+stencila-nav-tree .item[data-type="link"] a:hover {
     color: var(--nav-tree-item-color-hover);
     background-color: var(--nav-tree-item-bg-hover);
 }
 
-stencila-nav-tree .nav-tree-item[data-type="link"][data-active="true"] a {
+stencila-nav-tree .item[data-type="link"][data-active="true"] a {
     color: var(--nav-tree-item-color-active);
     background-color: var(--nav-tree-item-bg-active);
     font-weight: var(--font-weight-medium);
 }
 
 /* Focus styles for links */
-stencila-nav-tree .nav-tree-item a:focus-visible {
+stencila-nav-tree .item a:focus-visible {
     outline: var(--nav-tree-focus-ring-width) solid var(--nav-tree-focus-ring-color);
     outline-offset: var(--nav-tree-focus-ring-offset);
     border-radius: var(--nav-tree-focus-radius);
 }
 
 /* Group header container (when group has a route) */
-stencila-nav-tree .nav-tree-group-header {
+stencila-nav-tree .group-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -147,7 +147,7 @@ stencila-nav-tree .nav-tree-group-header {
 }
 
 /* Group link (clickable header when group has route) */
-stencila-nav-tree .nav-tree-group-link {
+stencila-nav-tree .group-link {
     flex: 1;
     display: block;
     padding: var(--nav-tree-item-padding-y) var(--nav-tree-item-padding-x);
@@ -163,24 +163,24 @@ stencila-nav-tree .nav-tree-group-link {
         background-color var(--nav-tree-transition-duration);
 }
 
-stencila-nav-tree .nav-tree-group-link:hover {
+stencila-nav-tree .group-link:hover {
     color: var(--nav-tree-item-color-hover);
     background-color: var(--nav-tree-item-bg-hover);
 }
 
-stencila-nav-tree .nav-tree-item[data-active="true"] > .nav-tree-group-header > .nav-tree-group-link {
+stencila-nav-tree .item[data-active="true"] > .group-header > .group-link {
     color: var(--nav-tree-item-color-active);
     background-color: var(--nav-tree-item-bg-active);
 }
 
-stencila-nav-tree .nav-tree-group-link:focus-visible {
+stencila-nav-tree .group-link:focus-visible {
     outline: var(--nav-tree-focus-ring-width) solid var(--nav-tree-focus-ring-color);
     outline-offset: var(--nav-tree-focus-ring-offset);
     border-radius: var(--nav-tree-focus-radius);
 }
 
 /* Non-collapsible group label */
-stencila-nav-tree .nav-tree-group-label {
+stencila-nav-tree .group-label {
     display: block;
     padding: var(--nav-tree-item-padding-y) var(--nav-tree-item-padding-x);
     padding-left: 0; /* Left padding set by level-based rules */
@@ -191,7 +191,7 @@ stencila-nav-tree .nav-tree-group-label {
 }
 
 /* Toggle button */
-stencila-nav-tree .nav-tree-toggle {
+stencila-nav-tree .toggle {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -212,33 +212,33 @@ stencila-nav-tree .nav-tree-toggle {
 }
 
 /* Toggle button as direct child (group without route) - full width */
-stencila-nav-tree .nav-tree-item > .nav-tree-toggle {
+stencila-nav-tree .item > .toggle {
     width: 100%;
 }
 
 /* Toggle button within group header (when group has route) - chevron only */
-stencila-nav-tree .nav-tree-group-header .nav-tree-toggle {
+stencila-nav-tree .group-header .toggle {
     width: auto;
     justify-content: center;
     padding: var(--nav-tree-item-padding-y) var(--nav-tree-item-padding-x);
 }
 
 /* Hover for toggle button in group header (has route) - full hover effect */
-stencila-nav-tree .nav-tree-group-header .nav-tree-toggle:hover {
+stencila-nav-tree .group-header .toggle:hover {
     color: var(--nav-tree-item-color-hover);
     background-color: var(--nav-tree-item-bg-hover);
 }
 
 /* Hover for toggle button as direct child (no route) - no background, label stays muted */
-stencila-nav-tree .nav-tree-item > .nav-tree-toggle:hover {
+stencila-nav-tree .item > .toggle:hover {
     background-color: transparent;
 }
 
-stencila-nav-tree .nav-tree-item > .nav-tree-toggle:hover .label {
+stencila-nav-tree .item > .toggle:hover .label {
     color: var(--text-color-muted);
 }
 
-stencila-nav-tree .nav-tree-toggle:focus-visible {
+stencila-nav-tree .toggle:focus-visible {
     outline: var(--nav-tree-focus-ring-width) solid var(--nav-tree-focus-ring-color);
     outline-offset: var(--nav-tree-focus-ring-offset);
 }
@@ -246,7 +246,7 @@ stencila-nav-tree .nav-tree-toggle:focus-visible {
 /* Toggle button label (when group has no route)
  * Styled differently from navigable links to indicate it's just a grouping label
  */
-stencila-nav-tree .nav-tree-toggle .label {
+stencila-nav-tree .toggle .label {
     flex: 1;
     text-align: left;
     color: var(--text-color-muted);
@@ -254,7 +254,7 @@ stencila-nav-tree .nav-tree-toggle .label {
 }
 
 /* Chevron icon */
-stencila-nav-tree .nav-tree-toggle .chevron {
+stencila-nav-tree .toggle .chevron {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -268,7 +268,7 @@ stencila-nav-tree .nav-tree-toggle .chevron {
 }
 
 /* Chevron arrow */
-stencila-nav-tree .nav-tree-toggle .chevron::before {
+stencila-nav-tree .toggle .chevron::before {
     content: "";
     display: block;
     width: var(--nav-tree-chevron-size);
@@ -280,68 +280,68 @@ stencila-nav-tree .nav-tree-toggle .chevron::before {
 }
 
 /* Rotate chevron when expanded */
-stencila-nav-tree .nav-tree-toggle[aria-expanded="true"] .chevron::before {
+stencila-nav-tree .toggle[aria-expanded="true"] .chevron::before {
     transform: rotate(45deg);
 }
 
 /* Chevron hover effect for group-only toggles */
-stencila-nav-tree .nav-tree-item > .nav-tree-toggle .chevron:hover {
+stencila-nav-tree .item > .toggle .chevron:hover {
     background-color: var(--nav-tree-item-bg-hover);
 }
 
 /* Level-based indentation
  * Apply padding only to text elements, not containers, so chevrons align on the right.
  * - Link items: padding on the <a>
- * - Group with route: padding on .nav-tree-group-link (chevron is separate)
+ * - Group with route: padding on .group-link (chevron is separate)
  * - Group without route: padding on .label inside toggle (chevron uses order:1)
- * - Non-collapsible: padding on .nav-tree-group-label
+ * - Non-collapsible: padding on .group-label
  */
 
 /* Level 1 */
-stencila-nav-tree .nav-tree-item[data-level="1"] > a,
-stencila-nav-tree .nav-tree-item[data-level="1"] > .nav-tree-group-header > .nav-tree-group-link,
-stencila-nav-tree .nav-tree-item[data-level="1"] > .nav-tree-toggle > .label,
-stencila-nav-tree .nav-tree-item[data-level="1"] > .nav-tree-group-label {
+stencila-nav-tree .item[data-level="1"] > a,
+stencila-nav-tree .item[data-level="1"] > .group-header > .group-link,
+stencila-nav-tree .item[data-level="1"] > .toggle > .label,
+stencila-nav-tree .item[data-level="1"] > .group-label {
     padding-left: var(--nav-tree-item-padding-x);
 }
 
 /* Level 2 */
-stencila-nav-tree .nav-tree-item[data-level="2"] > a,
-stencila-nav-tree .nav-tree-item[data-level="2"] > .nav-tree-group-header > .nav-tree-group-link,
-stencila-nav-tree .nav-tree-item[data-level="2"] > .nav-tree-toggle > .label,
-stencila-nav-tree .nav-tree-item[data-level="2"] > .nav-tree-group-label {
+stencila-nav-tree .item[data-level="2"] > a,
+stencila-nav-tree .item[data-level="2"] > .group-header > .group-link,
+stencila-nav-tree .item[data-level="2"] > .toggle > .label,
+stencila-nav-tree .item[data-level="2"] > .group-label {
     padding-left: calc(var(--nav-tree-indent) + var(--nav-tree-item-padding-x));
 }
 
 /* Level 3 */
-stencila-nav-tree .nav-tree-item[data-level="3"] > a,
-stencila-nav-tree .nav-tree-item[data-level="3"] > .nav-tree-group-header > .nav-tree-group-link,
-stencila-nav-tree .nav-tree-item[data-level="3"] > .nav-tree-toggle > .label,
-stencila-nav-tree .nav-tree-item[data-level="3"] > .nav-tree-group-label {
+stencila-nav-tree .item[data-level="3"] > a,
+stencila-nav-tree .item[data-level="3"] > .group-header > .group-link,
+stencila-nav-tree .item[data-level="3"] > .toggle > .label,
+stencila-nav-tree .item[data-level="3"] > .group-label {
     padding-left: calc(var(--nav-tree-indent) * 2 + var(--nav-tree-item-padding-x));
 }
 
 /* Level 4 */
-stencila-nav-tree .nav-tree-item[data-level="4"] > a,
-stencila-nav-tree .nav-tree-item[data-level="4"] > .nav-tree-group-header > .nav-tree-group-link,
-stencila-nav-tree .nav-tree-item[data-level="4"] > .nav-tree-toggle > .label,
-stencila-nav-tree .nav-tree-item[data-level="4"] > .nav-tree-group-label {
+stencila-nav-tree .item[data-level="4"] > a,
+stencila-nav-tree .item[data-level="4"] > .group-header > .group-link,
+stencila-nav-tree .item[data-level="4"] > .toggle > .label,
+stencila-nav-tree .item[data-level="4"] > .group-label {
     padding-left: calc(var(--nav-tree-indent) * 3 + var(--nav-tree-item-padding-x));
 }
 
 /* Level 5 */
-stencila-nav-tree .nav-tree-item[data-level="5"] > a,
-stencila-nav-tree .nav-tree-item[data-level="5"] > .nav-tree-group-header > .nav-tree-group-link,
-stencila-nav-tree .nav-tree-item[data-level="5"] > .nav-tree-toggle > .label,
-stencila-nav-tree .nav-tree-item[data-level="5"] > .nav-tree-group-label {
+stencila-nav-tree .item[data-level="5"] > a,
+stencila-nav-tree .item[data-level="5"] > .group-header > .group-link,
+stencila-nav-tree .item[data-level="5"] > .toggle > .label,
+stencila-nav-tree .item[data-level="5"] > .group-label {
     padding-left: calc(var(--nav-tree-indent) * 4 + var(--nav-tree-item-padding-x));
 }
 
 /* Level 6 */
-stencila-nav-tree .nav-tree-item[data-level="6"] > a,
-stencila-nav-tree .nav-tree-item[data-level="6"] > .nav-tree-group-header > .nav-tree-group-link,
-stencila-nav-tree .nav-tree-item[data-level="6"] > .nav-tree-toggle > .label,
-stencila-nav-tree .nav-tree-item[data-level="6"] > .nav-tree-group-label {
+stencila-nav-tree .item[data-level="6"] > a,
+stencila-nav-tree .item[data-level="6"] > .group-header > .group-link,
+stencila-nav-tree .item[data-level="6"] > .toggle > .label,
+stencila-nav-tree .item[data-level="6"] > .group-label {
     padding-left: calc(var(--nav-tree-indent) * 5 + var(--nav-tree-item-padding-x));
 }
 

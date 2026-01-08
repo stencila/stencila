@@ -588,7 +588,7 @@ fn render_nav_tree(
     // Build title HTML
     let title_html = title
         .as_ref()
-        .map(|t| format!(r#"<h2 class="nav-tree-title">{t}</h2>"#))
+        .map(|t| format!(r#"<h2 class="title">{t}</h2>"#))
         .unwrap_or_default();
 
     // Render nav items recursively (empty string for root-level parent_id)
@@ -609,7 +609,7 @@ fn render_nav_tree(
     );
 
     format!(
-        r#"<stencila-nav-tree{attrs}><nav aria-label="Site navigation">{title_html}<ul class="nav-tree-list" role="tree">{items_html}</ul></nav></stencila-nav-tree>"#
+        r#"<stencila-nav-tree{attrs}><nav aria-label="Site navigation">{title_html}<ul class="list" role="tree">{items_html}</ul></nav></stencila-nav-tree>"#
     )
 }
 
@@ -1098,7 +1098,7 @@ fn render_featured_content(
         .unwrap_or_default();
 
     format!(
-        r#"<aside class="featured">{image_html}<h4 class="nav-menu-featured-title">{}</h4>{desc_html}{cta_html}</aside>"#,
+        r#"<aside class="featured">{image_html}<h4 class="featured-title">{}</h4>{desc_html}{cta_html}</aside>"#,
         content.title
     )
 }
@@ -1240,7 +1240,7 @@ fn render_nav_items(
                 let is_active = route == current_route;
                 let label = route_to_label(route);
                 html.push_str(&format!(
-                    r#"<li class="nav-tree-item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{label}</a></li>"#,
+                    r#"<li class="item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{label}</a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -1250,7 +1250,7 @@ fn render_nav_items(
                 let is_active = route == current_route;
                 let icon_html = render_nav_tree_icon(icon, icons_mode);
                 html.push_str(&format!(
-                    r#"<li class="nav-tree-item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{icon_html}{label}</a></li>"#,
+                    r#"<li class="item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{icon_html}{label}</a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -1284,7 +1284,7 @@ fn render_nav_items(
                     if let Some(group_route) = route {
                         // Group has a route - render as clickable link with separate toggle
                         format!(
-                            r#"<div class="nav-tree-group-header"><a href="{group_route}" class="nav-tree-group-link"{}>{icon_html}{label}</a><button class="nav-tree-toggle" aria-controls="{group_id}" aria-expanded="{is_expanded}"><span class="chevron"></span></button></div>"#,
+                            r#"<div class="group-header"><a href="{group_route}" class="group-link"{}>{icon_html}{label}</a><button class="toggle" aria-controls="{group_id}" aria-expanded="{is_expanded}"><span class="chevron"></span></button></div>"#,
                             if header_active {
                                 r#" aria-current="page""#
                             } else {
@@ -1294,14 +1294,14 @@ fn render_nav_items(
                     } else {
                         // Group has no route - header is just a toggle button
                         format!(
-                            r#"<button class="nav-tree-toggle" aria-controls="{group_id}" aria-expanded="{is_expanded}"><span class="chevron"></span><span class="label">{icon_html}{label}</span></button>"#
+                            r#"<button class="toggle" aria-controls="{group_id}" aria-expanded="{is_expanded}"><span class="chevron"></span><span class="label">{icon_html}{label}</span></button>"#
                         )
                     }
                 } else {
                     // Non-collapsible mode: no toggle button, always expanded
                     if let Some(group_route) = route {
                         format!(
-                            r#"<a href="{group_route}" class="nav-tree-group-link"{}>{icon_html}{label}</a>"#,
+                            r#"<a href="{group_route}" class="group-link"{}>{icon_html}{label}</a>"#,
                             if header_active {
                                 r#" aria-current="page""#
                             } else {
@@ -1309,7 +1309,7 @@ fn render_nav_items(
                             }
                         )
                     } else {
-                        format!(r#"<span class="nav-tree-group-label">{icon_html}{label}</span>"#)
+                        format!(r#"<span class="group-label">{icon_html}{label}</span>"#)
                     }
                 };
 
@@ -1329,7 +1329,7 @@ fn render_nav_items(
                 );
 
                 html.push_str(&format!(
-                    r#"<li class="nav-tree-item" data-type="group" data-expanded="{display_expanded}" data-active="{header_active}" data-level="{level}" role="treeitem"{}>{header_html}<ul id="{group_id}" class="nav-tree-children" role="group">{children_html}</ul></li>"#,
+                    r#"<li class="item" data-type="group" data-expanded="{display_expanded}" data-active="{header_active}" data-level="{level}" role="treeitem"{}>{header_html}<ul id="{group_id}" class="children" role="group">{children_html}</ul></li>"#,
                     if collapsible {
                         format!(r#" aria-expanded="{display_expanded}""#)
                     } else {
