@@ -346,6 +346,9 @@ fn render_logo(logo_config: Option<&LogoConfig>, context: &RenderContext) -> Str
 /// Generates semantic HTML for breadcrumb navigation based on the route path.
 /// For example, `/docs/guide/getting-started/` generates:
 ///   Home > Docs > Guide > Getting Started
+///
+/// Intermediate segments are only rendered as links if the route exists.
+/// Non-existent routes are rendered as non-clickable text (similar to nav-tree groups).
 fn render_breadcrumbs(context: &RenderContext) -> String {
     // Parse the route into segments
     let segments: Vec<&str> = context
@@ -362,7 +365,7 @@ fn render_breadcrumbs(context: &RenderContext) -> String {
     // Home link (always first)
     items.push_str(r#"<li><a href="/">Home</a></li>"#);
 
-    // Add intermediate segments as links
+    // Add intermediate segments
     let segment_count = segments.len();
     for (index, segment) in segments.iter().enumerate() {
         current_path.push('/');
@@ -375,10 +378,22 @@ fn render_breadcrumbs(context: &RenderContext) -> String {
             // Last segment: current page (no link)
             items.push_str(&format!(r#"<li aria-current="page">{label}</li>"#));
         } else {
-            // Intermediate segment: link to parent
-            items.push_str(&format!(
-                r#"<li><a href="{current_path}/">{label}</a></li>"#
-            ));
+            // Intermediate segment: check if route exists
+            let route_with_slash = format!("{current_path}/");
+            let route_exists = context
+                .routes
+                .iter()
+                .any(|r| r.route == route_with_slash || r.route == current_path);
+
+            if route_exists {
+                // Route exists: render as clickable link
+                items.push_str(&format!(
+                    r#"<li><a href="{current_path}/">{label}</a></li>"#
+                ));
+            } else {
+                // Route doesn't exist: render as non-clickable text
+                items.push_str(&format!(r#"<li><span>{label}</span></li>"#));
+            }
         }
     }
 
