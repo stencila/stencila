@@ -9,6 +9,7 @@ mod glide;
 mod layout;
 mod logo;
 mod nav_common;
+mod nav_groups;
 mod nav_menu;
 mod nav_tree;
 

@@ -14,6 +14,7 @@ use stencila_config::{
 use crate::{
     RouteEntry, logo,
     nav_common::segment_to_label,
+    nav_groups::{self, NavGroupsContext},
     nav_menu::{self, NavMenuContext},
     nav_tree::{self, NavTreeContext},
 };
@@ -259,6 +260,14 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
                     &tree_context,
                 )
             }
+            "nav-groups" => {
+                let groups_context = NavGroupsContext {
+                    site_config: context.site_config,
+                    route: context.route,
+                    routes: context.routes,
+                };
+                nav_groups::render_nav_groups(&None, &None, &None, &None, &groups_context)
+            }
             "prev-next" => render_prev_next(&None, &None, &None, &None, context),
             "social-links" => render_social_links(&None, &None, &None, &None, &None, context),
             "title" => render_title(&None, context),
@@ -373,6 +382,19 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             exclude,
             custom,
         } => render_social_links(style, new_tab, include, exclude, custom, context),
+        ComponentConfig::NavGroups {
+            include,
+            exclude,
+            depth,
+            icons,
+        } => {
+            let groups_context = NavGroupsContext {
+                site_config: context.site_config,
+                route: context.route,
+                routes: context.routes,
+            };
+            nav_groups::render_nav_groups(include, exclude, depth, icons, &groups_context)
+        }
     }
 }
 

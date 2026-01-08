@@ -1,0 +1,170 @@
+/* Site Navigation Groups Component
+ *
+ * Footer-style navigation with flat, grouped links under headings.
+ * Uses CSS grid for responsive auto-columns.
+ *
+ * Structure:
+ * - stencila-nav-groups: Custom element container
+ *   - nav[aria-label="Footer navigation"]: Semantic navigation landmark
+ *     - div.groups: CSS grid container for auto-columns
+ *       - div.group: Individual group
+ *         - h3.group-heading: Group title (may contain <a> or text)
+ *         - ul.group-links: List of links
+ *           - li.link[data-active]: Link item
+ *             - a[href]: Navigation link
+ *               - span.icon: Optional icon
+ *               - span.label: Link text
+ *
+ * CSS custom properties for theming:
+ * - --nav-groups-columns-min-width: Min column width for auto-fit (default: 160px)
+ * - --nav-groups-gap: Gap between groups (default: 2rem)
+ * - --nav-groups-heading-*: Heading typography and color
+ * - --nav-groups-link-*: Link typography, colors, and spacing
+ */
+
+:root {
+    /* Typography */
+    --nav-groups-font-family: var(--layout-font-family);
+    --nav-groups-heading-font-size: var(--font-size-xs);
+    --nav-groups-heading-font-weight: var(--font-weight-semibold);
+    --nav-groups-heading-text-transform: uppercase;
+    --nav-groups-heading-letter-spacing: 0.05em;
+    --nav-groups-heading-margin-bottom: var(--space-1);
+    --nav-groups-link-font-size: var(--font-size-sm);
+    --nav-groups-link-line-height: var(--line-height-normal);
+
+    /* Colors */
+    --nav-groups-heading-color: var(--text-color-primary);
+    --nav-groups-link-color: var(--text-color-secondary);
+    --nav-groups-link-color-hover: var(--text-color-primary);
+    --nav-groups-link-color-active: var(--color-accent);
+
+    /* Structure - Grid */
+    --nav-groups-gap: var(--space-8);
+    --nav-groups-columns-min-width: 160px;
+
+    /* Structure - Links */
+    --nav-groups-link-gap: var(--space-2);
+    --nav-groups-link-padding-y: var(--space-1);
+    --nav-groups-icon-size: 1rem;
+    --nav-groups-icon-gap: var(--space-2);
+
+    /* Animation */
+    --nav-groups-transition-duration: var(--transition-duration-fast);
+
+    /* Focus */
+    --nav-groups-focus-ring-width: 2px;
+    --nav-groups-focus-ring-color: var(--color-accent);
+    --nav-groups-focus-ring-offset: 2px;
+}
+
+/* Container */
+stencila-nav-groups {
+    display: block;
+    width: 100%;
+    font-family: var(--nav-groups-font-family);
+}
+
+/* Override footer middle subregion width:auto constraint */
+stencila-footer [data-subregion='middle'] > stencila-nav-groups {
+    width: 100%;
+    text-align: left;
+}
+
+/* Groups grid - auto-fit responsive columns */
+stencila-nav-groups .groups {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(var(--nav-groups-columns-min-width), 1fr)
+    );
+    gap: var(--nav-groups-gap);
+}
+
+/* Individual group */
+stencila-nav-groups .group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Group heading */
+stencila-nav-groups .group-heading {
+    margin: 0 0 var(--nav-groups-heading-margin-bottom) 0;
+    font-size: var(--nav-groups-heading-font-size);
+    font-weight: var(--nav-groups-heading-font-weight);
+    color: var(--nav-groups-heading-color);
+    text-transform: var(--nav-groups-heading-text-transform);
+    letter-spacing: var(--nav-groups-heading-letter-spacing);
+}
+
+stencila-nav-groups .group-heading a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--nav-groups-transition-duration);
+}
+
+stencila-nav-groups .group-heading a:hover {
+    color: var(--nav-groups-link-color-hover);
+}
+
+/* Links list */
+stencila-nav-groups .group-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--nav-groups-link-gap);
+}
+
+/* Link item */
+stencila-nav-groups .link {
+    margin: 0;
+    padding: 0;
+}
+
+stencila-nav-groups .link a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nav-groups-icon-gap);
+    padding: var(--nav-groups-link-padding-y) 0;
+    font-size: var(--nav-groups-link-font-size);
+    line-height: var(--nav-groups-link-line-height);
+    color: var(--nav-groups-link-color);
+    text-decoration: none;
+    transition: color var(--nav-groups-transition-duration);
+}
+
+stencila-nav-groups .link a:hover {
+    color: var(--nav-groups-link-color-hover);
+}
+
+stencila-nav-groups .link[data-active='true'] a {
+    color: var(--nav-groups-link-color-active);
+}
+
+/* Focus styles */
+stencila-nav-groups .link a:focus-visible,
+stencila-nav-groups .group-heading a:focus-visible {
+    outline: var(--nav-groups-focus-ring-width) solid
+        var(--nav-groups-focus-ring-color);
+    outline-offset: var(--nav-groups-focus-ring-offset);
+    border-radius: var(--radius-xs);
+}
+
+/* Icons */
+stencila-nav-groups .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nav-groups-icon-size);
+    height: var(--nav-groups-icon-size);
+    flex-shrink: 0;
+}
+
+/* Print - hide navigation */
+@media print {
+    stencila-nav-groups {
+        display: none;
+    }
+}

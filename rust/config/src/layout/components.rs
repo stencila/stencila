@@ -391,6 +391,49 @@ pub enum ComponentConfig {
         /// Custom links are always appended after `site.socials` links.
         custom: Option<Vec<CustomSocialLink>>,
     },
+
+    /// Footer-style grouped navigation
+    ///
+    /// Displays flat navigation links organized under headings (e.g., "Products",
+    /// "Company", "Resources" sections). Top-level nav items become group headings,
+    /// their children become links. Uses CSS grid for responsive auto-columns.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.footer]
+    /// middle = "nav-groups"  # Uses defaults
+    ///
+    /// # With configuration:
+    /// middle = { type = "nav-groups", depth = 2, icons = "hide" }
+    ///
+    /// # Filter specific groups:
+    /// middle = { type = "nav-groups", include = ["Products", "Company"] }
+    /// ```
+    NavGroups {
+        /// Include only items matching these patterns
+        ///
+        /// Supports routes ("/docs/*"), IDs ("#features"), and labels ("Features").
+        /// See filtering documentation for pattern syntax.
+        include: Option<Vec<String>>,
+
+        /// Exclude items matching these patterns
+        ///
+        /// Supports routes ("/docs/*"), IDs ("#features"), and labels ("Features").
+        /// Exclude takes precedence over include.
+        exclude: Option<Vec<String>>,
+
+        /// Maximum depth to display (default: 2)
+        ///
+        /// Level 1 = group headings, Level 2 = links under headings.
+        /// Set to 1 to show only group headings as links.
+        depth: Option<u8>,
+
+        /// Whether to show icons on links (default: hide)
+        ///
+        /// - show: Show icons from site.icons on links
+        /// - hide: Never show icons (default, cleaner footer style)
+        icons: Option<NavGroupsIcons>,
+    },
 }
 
 /// Built-in component type names (kebab-case as used in TOML)
@@ -400,6 +443,7 @@ pub const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "breadcrumbs",
     "nav-tree",
     "nav-menu",
+    "nav-groups",
     "toc-tree",
     "prev-next",
     "color-mode",
@@ -523,6 +567,21 @@ pub enum NavTreeIcons {
     Show,
 
     /// Hide icons (default for nav-tree)
+    #[default]
+    Hide,
+}
+
+/// Whether to show icons in nav-groups
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum NavGroupsIcons {
+    /// Show icons from site.icons
+    Show,
+
+    /// Hide icons (default for nav-groups)
     #[default]
     Hide,
 }
@@ -674,6 +733,7 @@ mod tests {
             r#"type = "logo""#,
             r#"type = "title""#,
             r#"type = "nav-tree""#,
+            r#"type = "nav-groups""#,
             r#"type = "toc-tree""#,
             r#"type = "breadcrumbs""#,
             r#"type = "prev-next""#,
@@ -696,6 +756,8 @@ mod tests {
         assert!(is_builtin_component_type("title"));
         assert!(is_builtin_component_type("breadcrumbs"));
         assert!(is_builtin_component_type("nav-tree"));
+        assert!(is_builtin_component_type("nav-menu"));
+        assert!(is_builtin_component_type("nav-groups"));
         assert!(is_builtin_component_type("toc-tree"));
         assert!(is_builtin_component_type("prev-next"));
         assert!(is_builtin_component_type("color-mode"));
@@ -1478,6 +1540,115 @@ icon = "lucide:rss""#,
                 wrapper.platform, expected,
                 "Failed to parse platform: {name}"
             );
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_groups_basic_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(r#"type = "nav-groups""#)?;
+        assert!(matches!(
+            config,
+            ComponentConfig::NavGroups {
+                include: None,
+                exclude: None,
+                depth: None,
+                icons: None,
+            }
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_groups_with_depth() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-groups"
+depth = 2"#,
+        )?;
+
+        if let ComponentConfig::NavGroups { depth, .. } = config {
+            assert_eq!(depth, Some(2));
+        } else {
+            panic!("Expected ComponentConfig::NavGroups");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_groups_with_icons() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-groups"
+icons = "show""#,
+        )?;
+        if let ComponentConfig::NavGroups { icons, .. } = config {
+            assert_eq!(icons, Some(NavGroupsIcons::Show));
+        } else {
+            panic!("Expected ComponentConfig::NavGroups");
+        }
+
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-groups"
+icons = "hide""#,
+        )?;
+        if let ComponentConfig::NavGroups { icons, .. } = config {
+            assert_eq!(icons, Some(NavGroupsIcons::Hide));
+        } else {
+            panic!("Expected ComponentConfig::NavGroups");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_groups_with_include_exclude() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-groups"
+include = ["Products", "Company"]
+exclude = ["Internal"]"#,
+        )?;
+
+        if let ComponentConfig::NavGroups {
+            include, exclude, ..
+        } = config
+        {
+            assert_eq!(
+                include,
+                Some(vec!["Products".to_string(), "Company".to_string()])
+            );
+            assert_eq!(exclude, Some(vec!["Internal".to_string()]));
+        } else {
+            panic!("Expected ComponentConfig::NavGroups");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_nav_groups_all_options() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "nav-groups"
+include = ["Products"]
+exclude = ["Internal"]
+depth = 3
+icons = "show""#,
+        )?;
+
+        if let ComponentConfig::NavGroups {
+            include,
+            exclude,
+            depth,
+            icons,
+        } = config
+        {
+            assert_eq!(include, Some(vec!["Products".to_string()]));
+            assert_eq!(exclude, Some(vec!["Internal".to_string()]));
+            assert_eq!(depth, Some(3));
+            assert_eq!(icons, Some(NavGroupsIcons::Show));
+        } else {
+            panic!("Expected ComponentConfig::NavGroups");
         }
 
         Ok(())

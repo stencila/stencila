@@ -64,6 +64,13 @@
     /* Sub-regions */
     --subregion-gap: var(--space-3);
 
+    /* Row gaps (for multi-row region layouts) */
+    --region-row-gap: var(--space-1);
+    --header-row-gap: var(--region-row-gap);
+    --top-row-gap: var(--region-row-gap);
+    --bottom-row-gap: var(--region-row-gap);
+    --footer-row-gap: calc(var(--region-row-gap) * 5);
+
     /* Skip Link (Accessibility) */
     --skip-link-background: var(--color-accent);
     --skip-link-color: var(--text-color-inverse);
@@ -344,13 +351,25 @@ stencila-footer [data-subregion="middle"] > * {
 }
 
 /* Regions with rows stack them vertically
- * Uses flex-direction: column on the region content */
-stencila-top:has([data-row]),
-stencila-bottom:has([data-row]),
-stencila-header:has([data-row]),
+ * Each region uses its own row gap token for customization */
+stencila-header:has([data-row]) {
+    flex-direction: column;
+    gap: var(--header-row-gap);
+}
+
 stencila-footer:has([data-row]) {
     flex-direction: column;
-    gap: var(--subregion-gap);
+    gap: var(--footer-row-gap);
+}
+
+stencila-top:has([data-row]) {
+    flex-direction: column;
+    gap: var(--top-row-gap);
+}
+
+stencila-bottom:has([data-row]) {
+    flex-direction: column;
+    gap: var(--bottom-row-gap);
 }
 
 /* =================================

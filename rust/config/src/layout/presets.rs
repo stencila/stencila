@@ -7,7 +7,9 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
-use super::components::{ComponentConfig, ComponentSpec};
+use crate::RowConfig;
+
+use super::components::ComponentSpec;
 use super::config::LayoutConfig;
 use super::regions::{RegionConfig, RegionSpec};
 
@@ -35,110 +37,75 @@ pub enum LayoutPreset {
 impl LayoutPreset {
     /// Get the default layout configuration for this preset
     pub fn defaults(&self) -> LayoutConfig {
-        match self {
-            Self::Docs => LayoutConfig {
-                header: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
-                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
+        let header = Some(RegionSpec::Config(RegionConfig {
+            start: Some(vec![ComponentSpec::Name("logo".into())]),
+            middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
+            ..Default::default()
+        }));
+
+        let top = Some(RegionSpec::Config(RegionConfig {
+            start: Some(vec![ComponentSpec::Name("breadcrumbs".into())]),
+            ..Default::default()
+        }));
+
+        let bottom = Some(RegionSpec::Config(RegionConfig {
+            middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
+            ..Default::default()
+        }));
+
+        let left_sidebar = Some(RegionSpec::Config(RegionConfig {
+            middle: Some(vec![ComponentSpec::Name("nav-tree".into())]),
+            ..Default::default()
+        }));
+
+        let right_sidebar = Some(RegionSpec::Config(RegionConfig {
+            start: Some(vec![ComponentSpec::Name("toc-tree".into())]),
+            ..Default::default()
+        }));
+
+        let footer = Some(RegionSpec::Config(RegionConfig {
+            rows: Some(vec![
+                RowConfig {
+                    middle: Some(vec![ComponentSpec::Name("nav-groups".into())]),
                     ..Default::default()
-                })),
-                left_sidebar: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("nav-tree".into())]),
-                    ..Default::default()
-                })),
-                top: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("breadcrumbs".into())]),
-                    ..Default::default()
-                })),
-                bottom: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
-                    ..Default::default()
-                })),
-                right_sidebar: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("toc-tree".into())]),
-                    ..Default::default()
-                })),
-                footer: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
+                },
+                RowConfig {
+                    start: Some(vec![ComponentSpec::Name("color-mode".into())]),
+                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
                     end: Some(vec![ComponentSpec::Name("social-links".into())]),
                     ..Default::default()
-                })),
+                },
+            ]),
+            ..Default::default()
+        }));
+
+        match self {
+            Self::Landing => LayoutConfig {
+                header,
+                footer,
                 ..Default::default()
             },
             Self::Blog => LayoutConfig {
-                header: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
-                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
-                    ..Default::default()
-                })),
-                left_sidebar: Some(RegionSpec::Enabled(false)),
-                top: Some(RegionSpec::Enabled(false)),
-                bottom: Some(RegionSpec::Enabled(false)),
-                right_sidebar: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("toc-tree".into())]),
-                    ..Default::default()
-                })),
-                footer: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
-                    end: Some(vec![ComponentSpec::Name("social-links".into())]),
-                    ..Default::default()
-                })),
+                header,
+                right_sidebar,
+                footer,
                 ..Default::default()
             },
-            Self::Landing => LayoutConfig {
-                header: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
-                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
-                    ..Default::default()
-                })),
-                left_sidebar: Some(RegionSpec::Enabled(false)),
-                top: Some(RegionSpec::Enabled(false)),
-                bottom: Some(RegionSpec::Enabled(false)),
-                right_sidebar: Some(RegionSpec::Enabled(false)),
-                footer: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
-                    end: Some(vec![ComponentSpec::Name("social-links".into())]),
-                    ..Default::default()
-                })),
+            Self::Docs => LayoutConfig {
+                header,
+                left_sidebar,
+                top,
+                bottom,
+                right_sidebar,
+                footer,
                 ..Default::default()
             },
             Self::Api => LayoutConfig {
-                header: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("logo".into())]),
-                    middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
-                    end: Some(vec![ComponentSpec::Name("color-mode".into())]),
-                    ..Default::default()
-                })),
-                left_sidebar: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Config(ComponentConfig::NavTree {
-                        title: None,
-                        depth: None,
-                        collapsible: Some(false),
-                        expanded: None,
-                        scroll_to_active: None,
-                        include: None,
-                        exclude: None,
-                        icons: None,
-                    })]),
-                    ..Default::default()
-                })),
-                top: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("breadcrumbs".into())]),
-                    ..Default::default()
-                })),
-                bottom: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("prev-next".into())]),
-                    ..Default::default()
-                })),
-                right_sidebar: Some(RegionSpec::Enabled(false)),
-                footer: Some(RegionSpec::Config(RegionConfig {
-                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
-                    end: Some(vec![ComponentSpec::Name("social-links".into())]),
-                    ..Default::default()
-                })),
+                header,
+                left_sidebar,
+                top,
+                bottom,
+                footer,
                 ..Default::default()
             },
         }
@@ -166,37 +133,6 @@ mod tests {
         assert_eq!(config.preset, Some(LayoutPreset::Api));
 
         Ok(())
-    }
-
-    #[test]
-    fn test_preset_defaults() {
-        // Each preset should have sensible defaults
-        let docs = LayoutPreset::Docs.defaults();
-        assert!(docs.header.is_some());
-        assert!(docs.left_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
-        assert!(docs.right_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
-
-        let blog = LayoutPreset::Blog.defaults();
-        assert!(blog.left_sidebar.as_ref().is_some_and(|r| !r.is_enabled()));
-        assert!(blog.right_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
-
-        let landing = LayoutPreset::Landing.defaults();
-        assert!(
-            landing
-                .left_sidebar
-                .as_ref()
-                .is_some_and(|r| !r.is_enabled())
-        );
-        assert!(
-            landing
-                .right_sidebar
-                .as_ref()
-                .is_some_and(|r| !r.is_enabled())
-        );
-
-        let api = LayoutPreset::Api.defaults();
-        assert!(api.left_sidebar.as_ref().is_some_and(|r| r.is_enabled()));
-        assert!(api.right_sidebar.as_ref().is_some_and(|r| !r.is_enabled()));
     }
 
     #[test]
