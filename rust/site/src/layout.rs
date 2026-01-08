@@ -1201,16 +1201,8 @@ fn auto_generate_nav(routes: &[RouteEntry], max_depth: &Option<u8>) -> Vec<NavIt
     }
 
     // Start building from root's children (depth 1)
-    // Include root route ("/") as "Home" if it exists
-    let mut nav_items = Vec::new();
-
-    if root.route.is_some() {
-        nav_items.push(NavItem::Route("/".to_string()));
-    }
-
-    nav_items.extend(build_nav_items(&root, 1, max_depth));
-
-    nav_items
+    // Note: the root route ("/") is not included since the logo links to home
+    build_nav_items(&root, 1, max_depth)
 }
 
 /// Render navigation items recursively
