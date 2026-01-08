@@ -188,25 +188,3 @@ stencila-prev-next:not([style]) .position,
 stencila-prev-next[style="standard"] .position {
     display: none;
 }
-
-/* Detailed: show everything (no hiding needed) */
-
-@media (max-width: 640px) {
-    stencila-prev-next nav {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--prev-next-gap-mobile);
-    }
-
-    stencila-prev-next .prev,
-    stencila-prev-next .next {
-        justify-content: flex-start;
-        text-align: left;
-    }
-
-    /* Hide separator and position on mobile */
-    stencila-prev-next .separator,
-    stencila-prev-next .position {
-        display: none;
-    }
-}
