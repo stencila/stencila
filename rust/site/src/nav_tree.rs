@@ -7,7 +7,7 @@ use stencila_config::{NavItem, NavTreeExpanded, NavTreeIcons, SiteConfig};
 
 use crate::{
     RouteEntry,
-    nav_common::{apply_icons, auto_generate_nav, filter_nav_items},
+    nav_common::{apply_icons, auto_generate_nav, filter_nav_items, render_icon_span},
 };
 
 /// Context for rendering the nav tree
@@ -223,7 +223,7 @@ fn render_nav_tree_icon(icon: &Option<String>, mode: &NavTreeIcons) -> String {
     };
 
     if matches!(mode, NavTreeIcons::Show) {
-        format!(r#"<span class="icon i-{icon_name}"></span>"#)
+        render_icon_span(icon_name)
     } else {
         String::new()
     }

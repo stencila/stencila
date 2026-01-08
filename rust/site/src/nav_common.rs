@@ -426,3 +426,24 @@ fn lookup_icon(
     // Try label
     icons.get(label).cloned()
 }
+
+/// Normalize an icon name by adding the default "lucide:" prefix if no icon set is specified
+///
+/// This allows users to use shorthand like "home" instead of "lucide:home" in configuration.
+/// If the icon name already contains a ":" (e.g., "simple-icons:github"), it is returned as-is.
+pub(crate) fn normalize_icon_name(icon: &str) -> String {
+    if icon.contains(':') {
+        icon.to_string()
+    } else {
+        ["lucide:", icon].concat()
+    }
+}
+
+pub(crate) fn render_icon_span(icon: &str) -> String {
+    [
+        r#"<span class="icon i-"#,
+        &normalize_icon_name(icon),
+        r#""></span>"#,
+    ]
+    .concat()
+}

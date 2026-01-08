@@ -12,7 +12,9 @@ use stencila_config::{
 
 use crate::{
     RouteEntry,
-    nav_common::{apply_icons, auto_generate_nav, filter_nav_items, route_to_label},
+    nav_common::{
+        apply_icons, auto_generate_nav, filter_nav_items, render_icon_span, route_to_label,
+    },
 };
 
 /// Context for rendering navigation components
@@ -277,7 +279,7 @@ fn render_menu_icon(icon: &Option<String>, mode: &NavMenuIcons, in_dropdown: boo
     }
 
     match icon {
-        Some(icon_name) => format!(r#"<span class="icon i-{icon_name}"></span>"#),
+        Some(icon_name) => render_icon_span(icon_name),
         // In dropdowns, render placeholder for alignment when no icon specified
         None if in_dropdown => r#"<span class="icon"></span>"#.to_string(),
         None => String::new(),

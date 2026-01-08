@@ -8,7 +8,7 @@ use stencila_config::{NavGroupsIcons, NavItem, SiteConfig};
 
 use crate::{
     RouteEntry,
-    nav_common::{apply_icons, auto_generate_nav, filter_nav_items},
+    nav_common::{apply_icons, auto_generate_nav, filter_nav_items, render_icon_span},
 };
 
 /// Context for rendering nav groups
@@ -190,7 +190,7 @@ fn render_icon(icon: &Option<String>, mode: &NavGroupsIcons) -> String {
     };
 
     if matches!(mode, NavGroupsIcons::Show) {
-        format!(r#"<span class="icon i-{icon_name}"></span>"#)
+        render_icon_span(icon_name)
     } else {
         String::new()
     }

@@ -13,7 +13,7 @@ use stencila_config::{
 
 use crate::{
     RouteEntry, logo,
-    nav_common::segment_to_label,
+    nav_common::{normalize_icon_name, segment_to_label},
     nav_groups::{self, NavGroupsContext},
     nav_menu::{self, NavMenuContext},
     nav_tree::{self, NavTreeContext},
@@ -987,7 +987,7 @@ fn render_social_links(
         .map(|(name, url, custom_icon)| {
             let icon_class = custom_icon
                 .as_ref()
-                .map(|i| format!("i-{i}"))
+                .map(|i| ["i-", &normalize_icon_name(i)].concat())
                 .unwrap_or_else(|| get_social_icon_class(name));
 
             let label = get_platform_label(name);
