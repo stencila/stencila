@@ -49,6 +49,7 @@
  * - Featured: featured-width, featured-bg
  * - Animation: transition-duration
  * - Focus: focus-ring-width, focus-ring-color
+ * - Mobile: item-border-color, accordion-transition-duration
  */
 
 :root {
@@ -64,6 +65,7 @@
     --nav-menu-dropdown-bg: var(--surface-elevated);
     --nav-menu-dropdown-border: var(--border-color-default);
     --nav-menu-dropdown-shadow: var(--shadow-lg);
+    --nav-menu-item-border-color: var(--border-color-muted);
 
     /* Structure */
     --nav-menu-item-padding-x: var(--space-3);
@@ -93,7 +95,8 @@
     --nav-menu-section-title-margin-bottom: var(--space-2);
 
     /* Animation */
-    --nav-menu-transition-duration: var(--transition-duration-fast);
+    --nav-menu-transition-duration: var(--transition-duration-base);
+    --nav-menu-accordion-transition-duration: var(--transition-duration-slowest);
 
     /* Focus */
     --nav-menu-focus-ring-width: var(--focus-ring-width);
@@ -103,6 +106,7 @@
 
     /* Mobile */
     --nav-menu-mobile-padding: var(--space-4);
+    --nav-menu-accordion-max-height: 70vh;
 
     /* Z-index - must be above header content like breadcrumbs */
     --nav-menu-dropdown-z-index: calc(var(--layout-z-header) + 50);
@@ -490,6 +494,10 @@ stencila-nav-menu[data-mobile-mode="true"] .list {
     box-shadow: var(--nav-menu-dropdown-shadow);
 }
 
+stencila-nav-menu[data-mobile-mode="true"] {
+    --nav-menu-transition-duration: var(--nav-menu-accordion-transition-duration);
+}
+
 stencila-nav-menu[data-mobile-mode="true"][mobile-expanded] .list {
     display: flex;
 }
@@ -505,6 +513,11 @@ stencila-nav-menu[data-mobile-mode="true"] .trigger {
     justify-content: space-between;
 }
 
+stencila-nav-menu[data-mobile-mode="true"] .list > .item > a,
+stencila-nav-menu[data-mobile-mode="true"] .list > .item > .trigger {
+    border-bottom: 1px solid var(--nav-menu-item-border-color);
+}
+
 /* Mobile dropdown - accordion style */
 stencila-nav-menu[data-mobile-mode="true"] .dropdown {
     position: static;
@@ -515,12 +528,19 @@ stencila-nav-menu[data-mobile-mode="true"] .dropdown {
     border-radius: 0;
     box-shadow: none;
     background: transparent;
-    padding-left: var(--space-4);
-    opacity: 1;
-    visibility: visible;
-    transform: none;
+    padding-left: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
     left: 0;
-    display: none;
+    overflow: hidden;
+    max-height: 0;
+    pointer-events: none;
+    transition:
+        max-height var(--nav-menu-transition-duration) ease,
+        opacity var(--nav-menu-transition-duration),
+        transform var(--nav-menu-transition-duration),
+        visibility var(--nav-menu-transition-duration);
 }
 
 /* Override full-width dropdown positioning on mobile */
@@ -532,8 +552,12 @@ stencila-nav-menu[data-mobile-mode="true"][dropdown-style="full-width"] .item[da
 
 /* Show dropdown when item is expanded */
 stencila-nav-menu[data-mobile-mode="true"] .item[data-dropdown-open="true"] .dropdown {
-    display: block;
     background: var(--surface-background);
+    max-height: var(--nav-menu-accordion-max-height);
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
 }
 
 /* Mobile dropdown inner elements - override flex-based sizing */
@@ -550,6 +574,10 @@ stencila-nav-menu[data-mobile-mode="true"] .featured {
     border-left: none;
     border-top: 1px solid var(--nav-menu-dropdown-border);
     border-radius: 0;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .nested-list {
+    padding-left: 0;
 }
 
 /* ====================

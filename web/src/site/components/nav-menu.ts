@@ -275,8 +275,10 @@ export class StencilaNavMenu extends LitElement {
     if (isExpanded) {
       this.closeDropdown(trigger)
     } else {
-      // Close other dropdowns first
-      this.closeAllDropdowns()
+      // Close other dropdowns first (desktop behavior)
+      if (!this.isMobileMode) {
+        this.closeAllDropdowns()
+      }
       this.openDropdown(trigger)
     }
   }

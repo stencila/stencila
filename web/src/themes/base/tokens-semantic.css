@@ -116,9 +116,11 @@
     --text-line-height-print: 1.4;
     --text-letter-spacing: 0;
 
+    --transition-duration-fastest: 100ms;
     --transition-duration-fast: 150ms;
     --transition-duration-base: 250ms;
     --transition-duration-slow: 350ms;
+    --transition-duration-slowest: 500ms;
 
     /* Responsive Breakpoints - Documentation only */
     /* These document the breakpoints used in token variants and media queries.
