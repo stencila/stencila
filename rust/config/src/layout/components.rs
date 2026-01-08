@@ -284,6 +284,54 @@ pub enum ComponentConfig {
         /// When provided, the holder name becomes a clickable link.
         link: Option<String>,
     },
+
+    /// Edit page link for GitHub/GitLab/Bitbucket
+    ///
+    /// Displays a link to edit the current page on the source repository.
+    /// Auto-detects the repository from git origin for github.com, gitlab.com,
+    /// and bitbucket.org. For self-hosted instances or other platforms, use
+    /// the `base-url` option.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.footer]
+    /// end = "edit-page"  # Auto-detect from git origin
+    ///
+    /// # With custom text:
+    /// end = { type = "edit-page", text = "Suggest changes" }
+    ///
+    /// # For self-hosted GitLab:
+    /// end = { type = "edit-page", base-url = "https://gitlab.mycompany.com/team/docs/-/edit/main/" }
+    /// ```
+    EditPage {
+        /// Custom link text (default: "Edit on GitHub" / "Edit on GitLab" based on platform)
+        text: Option<String>,
+
+        /// Display style (default: both)
+        style: Option<EditPageStyle>,
+
+        /// Full edit URL prefix (e.g., "https://github.com/org/repo/edit/main/")
+        ///
+        /// When provided, the file path is simply appended. Required for
+        /// self-hosted instances or unsupported platforms (Gitea, Forgejo, etc).
+        #[serde(rename = "base-url")]
+        base_url: Option<String>,
+
+        /// Override branch name for auto-detected URLs (default: auto-detect or "main")
+        ///
+        /// Ignored when `base-url` is provided.
+        branch: Option<String>,
+
+        /// Path prefix within repo (e.g., "docs/" if content is in a subdirectory)
+        #[serde(rename = "path-prefix")]
+        path_prefix: Option<String>,
+
+        /// Whether to include platform name in default text (default: true)
+        ///
+        /// When true: "Edit on GitHub". When false: "Edit this page".
+        #[serde(rename = "show-platform")]
+        show_platform: Option<bool>,
+    },
 }
 
 /// Built-in component type names (kebab-case as used in TOML)
@@ -297,6 +345,7 @@ pub const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "prev-next",
     "color-mode",
     "copyright",
+    "edit-page",
 ];
 
 /// Check if a name is a built-in component type
@@ -319,6 +368,24 @@ pub enum ColorModeStyle {
     Label,
 
     /// Icon and label
+    Both,
+}
+
+/// Display style for edit page link
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum EditPageStyle {
+    /// Pencil/edit icon only
+    Icon,
+
+    /// Text only
+    Text,
+
+    /// Icon and text (default)
+    #[default]
     Both,
 }
 
@@ -484,6 +551,7 @@ mod tests {
             r#"type = "prev-next""#,
             r#"type = "color-mode""#,
             r#"type = "copyright""#,
+            r#"type = "edit-page""#,
         ];
 
         for component_toml in components {
@@ -503,6 +571,7 @@ mod tests {
         assert!(is_builtin_component_type("prev-next"));
         assert!(is_builtin_component_type("color-mode"));
         assert!(is_builtin_component_type("copyright"));
+        assert!(is_builtin_component_type("edit-page"));
         assert!(!is_builtin_component_type("unknown"));
         assert!(!is_builtin_component_type("custom-nav"));
     }
@@ -961,6 +1030,131 @@ link = "https://acme.com""#,
             assert_eq!(link.as_deref(), Some("https://acme.com"));
         } else {
             panic!("Expected ComponentConfig::Copyright");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_edit_page_basic_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(r#"type = "edit-page""#)?;
+        assert!(matches!(
+            config,
+            ComponentConfig::EditPage {
+                text: None,
+                style: None,
+                base_url: None,
+                branch: None,
+                path_prefix: None,
+                show_platform: None,
+            }
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_edit_page_style_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "edit-page"
+style = "icon""#,
+        )?;
+        if let ComponentConfig::EditPage { style, .. } = config {
+            assert_eq!(style, Some(EditPageStyle::Icon));
+        } else {
+            panic!("Expected ComponentConfig::EditPage");
+        }
+
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "edit-page"
+style = "text""#,
+        )?;
+        if let ComponentConfig::EditPage { style, .. } = config {
+            assert_eq!(style, Some(EditPageStyle::Text));
+        } else {
+            panic!("Expected ComponentConfig::EditPage");
+        }
+
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "edit-page"
+style = "both""#,
+        )?;
+        if let ComponentConfig::EditPage { style, .. } = config {
+            assert_eq!(style, Some(EditPageStyle::Both));
+        } else {
+            panic!("Expected ComponentConfig::EditPage");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_edit_page_with_text() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "edit-page"
+text = "Suggest changes""#,
+        )?;
+
+        if let ComponentConfig::EditPage { text, .. } = config {
+            assert_eq!(text.as_deref(), Some("Suggest changes"));
+        } else {
+            panic!("Expected ComponentConfig::EditPage");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_edit_page_with_base_url() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "edit-page"
+base-url = "https://github.com/org/repo/edit/main/""#,
+        )?;
+
+        if let ComponentConfig::EditPage { base_url, .. } = config {
+            assert_eq!(
+                base_url.as_deref(),
+                Some("https://github.com/org/repo/edit/main/")
+            );
+        } else {
+            panic!("Expected ComponentConfig::EditPage");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_edit_page_all_options_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "edit-page"
+text = "Edit on GitHub"
+style = "both"
+base-url = "https://github.com/org/repo/edit/main/"
+branch = "develop"
+path-prefix = "docs/"
+show-platform = false"#,
+        )?;
+
+        if let ComponentConfig::EditPage {
+            text,
+            style,
+            base_url,
+            branch,
+            path_prefix,
+            show_platform,
+        } = config
+        {
+            assert_eq!(text.as_deref(), Some("Edit on GitHub"));
+            assert_eq!(style, Some(EditPageStyle::Both));
+            assert_eq!(
+                base_url.as_deref(),
+                Some("https://github.com/org/repo/edit/main/")
+            );
+            assert_eq!(branch.as_deref(), Some("develop"));
+            assert_eq!(path_prefix.as_deref(), Some("docs/"));
+            assert_eq!(show_platform, Some(false));
+        } else {
+            panic!("Expected ComponentConfig::EditPage");
         }
 
         Ok(())

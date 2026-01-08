@@ -7,7 +7,7 @@
  * - stencila-prev-next: Custom element container
  *   - nav[aria-label="Page navigation"]: Semantic navigation landmark
  *     - a.link.prev: Previous page link
- *       - span.icon: Arrow icon (UnoCSS i-lucide:arrow-left)
+ *       - span.icon: Arrow icon
  *       - span.content: Label + title wrapper
  *         - span.label: "Previous" text
  *         - span.title: Page title
@@ -15,7 +15,7 @@
  *     - span.position: Position indicator (detailed style only)
  *     - a.link.next: Next page link
  *       - span.content: Label + title wrapper
- *       - span.icon: Arrow icon (UnoCSS i-lucide:arrow-right)
+ *       - span.icon: Arrow icon 
  *
  * Attributes:
  * - style="minimal": Icons only

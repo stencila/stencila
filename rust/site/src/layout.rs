@@ -5,9 +5,10 @@
 
 use std::path::Path;
 
+use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, LayoutConfig, LogoConfig, NavItem,
-    PrevNextStyle, RegionSpec, SiteConfig,
+    ColorModeStyle, ComponentConfig, ComponentSpec, EditPageStyle, LayoutConfig, LogoConfig,
+    NavItem, PrevNextStyle, RegionSpec, SiteConfig,
 };
 
 use crate::{
@@ -235,6 +236,9 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "prev-next" => render_prev_next(&None, &None, &None, &None, context),
             "title" => render_title(&None, context),
             "toc-tree" => render_toc_tree(&None, &None),
+            "edit-page" => {
+                render_edit_page(&None, &None, &None, &None, &None, &None, context)
+            }
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -321,6 +325,14 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => render_prev_next(style, prev_text, next_text, separator, context),
         ComponentConfig::Title { text } => render_title(text, context),
         ComponentConfig::TocTree { title, depth } => render_toc_tree(title, depth),
+        ComponentConfig::EditPage {
+            text,
+            style,
+            base_url,
+            branch,
+            path_prefix,
+            show_platform,
+        } => render_edit_page(text, style, base_url, branch, path_prefix, show_platform, context),
     }
 }
 
@@ -609,6 +621,213 @@ fn render_toc_tree(title: &Option<String>, depth: &Option<u8>) -> String {
         .unwrap_or_default();
 
     format!("<stencila-toc-tree{title_attr}{depth_attr}></stencila-toc-tree>")
+}
+
+/// Supported platforms for edit page links
+#[derive(Debug, Clone, Copy)]
+enum EditPlatform {
+    GitHub,
+    GitLab,
+    Bitbucket,
+}
+
+impl EditPlatform {
+    /// Detect platform from normalized origin URL
+    ///
+    /// Only matches exact hosts (github.com, gitlab.com, bitbucket.org).
+    /// Self-hosted instances require `base-url` override.
+    fn from_origin(origin: &str) -> Option<Self> {
+        if origin.contains("://github.com/") || origin.starts_with("https://github.com") {
+            Some(Self::GitHub)
+        } else if origin.contains("://gitlab.com/") || origin.starts_with("https://gitlab.com") {
+            Some(Self::GitLab)
+        } else if origin.contains("://bitbucket.org/")
+            || origin.starts_with("https://bitbucket.org")
+        {
+            Some(Self::Bitbucket)
+        } else {
+            None
+        }
+    }
+
+    /// Platform name for display
+    fn name(&self) -> &'static str {
+        match self {
+            Self::GitHub => "GitHub",
+            Self::GitLab => "GitLab",
+            Self::Bitbucket => "Bitbucket",
+        }
+    }
+
+    /// Construct edit URL for this platform
+    fn edit_url(&self, origin: &str, branch: &str, path: &str) -> String {
+        // URL-encode the path for special characters
+        let encoded_path = percent_encode_path(path);
+
+        match self {
+            Self::GitHub => {
+                format!("{origin}/edit/{branch}/{encoded_path}")
+            }
+            Self::GitLab => {
+                format!("{origin}/-/edit/{branch}/{encoded_path}")
+            }
+            Self::Bitbucket => {
+                format!("{origin}/src/{branch}/{encoded_path}?mode=edit")
+            }
+        }
+    }
+}
+
+/// Render an edit page link component
+///
+/// Displays a link to edit the current page on GitHub/GitLab/Bitbucket.
+/// Auto-detects the repository from git origin for supported hosts.
+/// For self-hosted instances, use the `base-url` option.
+///
+/// The component hides itself when:
+/// - No source file path is available for the current route
+/// - Not in a git repository
+/// - No git origin is configured and no `base-url` is provided
+/// - Origin host is not supported and no `base-url` is provided
+fn render_edit_page(
+    text: &Option<String>,
+    style: &Option<EditPageStyle>,
+    base_url: &Option<String>,
+    branch: &Option<String>,
+    path_prefix: &Option<String>,
+    show_platform: &Option<bool>,
+    context: &RenderContext,
+) -> String {
+    // Get source_path from routes by matching current route
+    let source_path = context
+        .routes
+        .iter()
+        .find(|r| r.route == context.route)
+        .and_then(|r| r.source_path.as_ref());
+
+    let Some(source_path) = source_path else {
+        // Hide: no source path for this route
+        return String::new();
+    };
+
+    // Get git info (origin + repo-relative path)
+    let Ok(info) = git_info(source_path) else {
+        // Hide: not in a git repo or git error
+        return String::new();
+    };
+
+    // Get the repo-relative file path
+    let Some(relative_path) = info.path else {
+        // Hide: couldn't determine relative path
+        return String::new();
+    };
+
+    // Construct the file path with optional prefix
+    let file_path = construct_edit_path(path_prefix, &relative_path);
+
+    // Determine edit URL and platform
+    let (edit_url, platform) = if let Some(base) = base_url {
+        // User-provided base URL - just append path
+        let url = format!(
+            "{}/{}",
+            base.trim_end_matches('/'),
+            percent_encode_path(&file_path)
+        );
+        (url, None)
+    } else {
+        // Auto-detect from origin
+        let Some(origin) = info.origin else {
+            // Hide: no git origin
+            return String::new();
+        };
+
+        let Some(platform) = EditPlatform::from_origin(&origin) else {
+            // Hide: unsupported host
+            return String::new();
+        };
+
+        // Determine branch: config > auto-detect > "main"
+        let branch_name = branch
+            .clone()
+            .or_else(|| get_current_branch(Some(source_path)))
+            .unwrap_or_else(|| "main".to_string());
+
+        let url = platform.edit_url(&origin, &branch_name, &file_path);
+        (url, Some(platform))
+    };
+
+    // Determine link text
+    let show_platform_name = show_platform.unwrap_or(true);
+    let link_text = if let Some(custom_text) = text {
+        custom_text.clone()
+    } else if show_platform_name {
+        if let Some(p) = platform {
+            format!("Edit on {}", p.name())
+        } else {
+            "Edit this page".to_string()
+        }
+    } else {
+        "Edit this page".to_string()
+    };
+
+    // Get style with default
+    let style = style.unwrap_or_default();
+
+    // Build inner HTML based on style
+    // Uses UnoCSS i-lucide:square-pen icon class
+    let inner_html = match style {
+        EditPageStyle::Icon => r#"<span class="icon i-lucide:square-pen"></span>"#.to_string(),
+        EditPageStyle::Text => format!(r#"<span class="text">{link_text}</span>"#),
+        EditPageStyle::Both => {
+            format!(r#"<span class="icon i-lucide:square-pen"></span><span class="text">{link_text}</span>"#)
+        }
+    };
+
+    format!(
+        r#"<stencila-edit-page><a href="{edit_url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-page>"#
+    )
+}
+
+/// Construct the file path for edit URL
+///
+/// Combines optional path prefix with the repo-relative file path,
+/// normalizing slashes to avoid double slashes or missing separators.
+fn construct_edit_path(path_prefix: &Option<String>, relative_path: &str) -> String {
+    let prefix = path_prefix
+        .as_ref()
+        .map(|p| p.trim_matches('/'))
+        .unwrap_or("");
+    let file_path = relative_path.trim_start_matches('/');
+
+    if prefix.is_empty() {
+        file_path.to_string()
+    } else {
+        format!("{prefix}/{file_path}")
+    }
+}
+
+/// Percent-encode a file path for use in URLs
+///
+/// Encodes characters that need escaping in URL paths while preserving
+/// forward slashes (which are valid path separators). This handles common
+/// special characters like spaces, hash signs, and percent signs.
+fn percent_encode_path(path: &str) -> String {
+    let mut result = String::with_capacity(path.len() * 2);
+    for ch in path.chars() {
+        match ch {
+            // Safe characters (unreserved + slash for path separators)
+            'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | '.' | '~' | '/' => {
+                result.push(ch);
+            }
+            // Encode everything else
+            _ => {
+                for byte in ch.to_string().as_bytes() {
+                    result.push_str(&format!("%{byte:02X}"));
+                }
+            }
+        }
+    }
+    result
 }
 
 /// Get navigation order for prev/next links

@@ -28,8 +28,8 @@ mod presets;
 mod regions;
 
 pub use components::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, NavMenuDropdownStyle, NavMenuGroups,
-    NavMenuIcons, NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle,
+    ColorModeStyle, ComponentConfig, ComponentSpec, EditPageStyle, NavMenuDropdownStyle,
+    NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle,
 };
 pub use config::LayoutConfig;
 pub use overrides::LayoutOverride;
