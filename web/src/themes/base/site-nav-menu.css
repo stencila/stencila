@@ -471,25 +471,28 @@ stencila-nav-menu .mobile-toggle .hamburger span {
 /* Mobile mode - applied via JS based on breakpoint */
 stencila-nav-menu[data-mobile-mode="true"] .mobile-toggle {
     display: flex;
+    margin-left: auto; /* Push to right side */
 }
 
 stencila-nav-menu[data-mobile-mode="true"] .list {
     display: none;
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: var(--layout-header-height, 3.5rem);
     left: 0;
     right: 0;
+    max-height: calc(100vh - var(--layout-header-height, 3.5rem));
+    overflow-y: auto;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
     padding: var(--nav-menu-mobile-padding);
     background: var(--nav-menu-mobile-bg);
-    border: 1px solid var(--nav-menu-dropdown-border);
-    border-radius: var(--radius-md);
+    border-top: 1px solid var(--nav-menu-dropdown-border);
+    border-radius: 0;
     box-shadow: var(--nav-menu-dropdown-shadow);
 }
 
-stencila-nav-menu[data-mobile-mode="true"][mobile-expanded="true"] .list {
+stencila-nav-menu[data-mobile-mode="true"][mobile-expanded] .list {
     display: flex;
 }
 
@@ -507,6 +510,7 @@ stencila-nav-menu[data-mobile-mode="true"] .trigger {
 /* Mobile dropdown - accordion style */
 stencila-nav-menu[data-mobile-mode="true"] .dropdown {
     position: static;
+    width: 100%;
     max-width: none;
     min-width: 0;
     border: none;
@@ -517,16 +521,27 @@ stencila-nav-menu[data-mobile-mode="true"] .dropdown {
     opacity: 1;
     visibility: visible;
     transform: none;
+    left: 0;
     display: none;
 }
 
+/* Override full-width dropdown positioning on mobile */
+stencila-nav-menu[data-mobile-mode="true"][dropdown-style="full-width"] .dropdown,
+stencila-nav-menu[data-mobile-mode="true"][dropdown-style="full-width"] .item[data-dropdown-open="true"] .dropdown {
+    transform: none;
+    left: 0;
+}
+
+/* Show dropdown when item is expanded */
 stencila-nav-menu[data-mobile-mode="true"] .item[data-dropdown-open="true"] .dropdown {
     display: block;
 }
 
-/* Mobile dropdown removes featured panel styling */
-stencila-nav-menu[data-mobile-mode="true"] .dropdown:has(.featured) {
-    display: block;
+/* Mobile dropdown inner elements - override flex-based sizing */
+stencila-nav-menu[data-mobile-mode="true"] .dropdown-main {
+    flex: none;
+    width: 100%;
+    padding: 0;
 }
 
 stencila-nav-menu[data-mobile-mode="true"] .featured {
