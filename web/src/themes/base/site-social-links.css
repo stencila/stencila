@@ -1,0 +1,64 @@
+/* Site Social Links Component
+ *
+ * Links to social media and external platforms with automatic icons.
+ *
+ * Structure:
+ * - stencila-social-links: Custom element container
+ *   - a[aria-label]: Link to social platform (opens in new tab by default)
+ *     - span.icon.i-simple-icons:*: Platform icon (via UnoCSS)
+ *     - span.text: Link text (for "text" or "both" style)
+ *
+ * CSS custom properties for theming:
+ * - --social-links-icon-size: Size of icons (default: 1.25rem)
+ * - --social-links-gap: Gap between links (default: 0.75rem)
+ * - --social-links-color: Link color
+ * - --social-links-color-hover: Link hover color
+ */
+
+:root {
+    --social-links-font-family: var(--layout-font-family);
+    --social-links-font-size: var(--font-size-sm);
+
+    /* Icon size and gap - customize these in your theme */
+    --social-links-icon-size: 1.25rem;
+    --social-links-gap: var(--space-3);
+
+    /* Colors */
+    --social-links-color: var(--text-color-secondary);
+    --social-links-color-hover: var(--text-color-primary);
+}
+
+stencila-social-links {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--social-links-gap);
+    font-family: var(--social-links-font-family);
+    font-size: var(--social-links-font-size);
+}
+
+stencila-social-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--social-links-color);
+    text-decoration: none;
+    transition: color var(--transition-duration-fast);
+}
+
+stencila-social-links a:hover {
+    color: var(--social-links-color-hover);
+}
+
+stencila-social-links a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-default);
+}
+
+stencila-social-links .icon {
+    display: inline-block;
+    width: var(--social-links-icon-size);
+    height: var(--social-links-icon-size);
+    flex-shrink: 0;
+}

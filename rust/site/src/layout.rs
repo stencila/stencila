@@ -7,8 +7,8 @@ use std::path::Path;
 
 use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, EditPageStyle, LayoutConfig, LogoConfig,
-    NavItem, PrevNextStyle, RegionSpec, RowConfig, SiteConfig,
+    ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditPageStyle, LayoutConfig,
+    LogoConfig, NavItem, PrevNextStyle, RegionSpec, RowConfig, SiteConfig, SocialLinksStyle,
 };
 
 use crate::{
@@ -260,6 +260,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
                 )
             }
             "prev-next" => render_prev_next(&None, &None, &None, &None, context),
+            "social-links" => render_social_links(&None, &None, &None, &None, &None, context),
             "title" => render_title(&None, context),
             "toc-tree" => render_toc_tree(&None, &None),
             "edit-page" => render_edit_page(&None, &None, &None, &None, &None, &None, context),
@@ -365,6 +366,13 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             show_platform,
             context,
         ),
+        ComponentConfig::SocialLinks {
+            style,
+            new_tab,
+            include,
+            exclude,
+            custom,
+        } => render_social_links(style, new_tab, include, exclude, custom, context),
     }
 }
 
@@ -862,6 +870,245 @@ fn percent_encode_path(path: &str) -> String {
         }
     }
     result
+}
+
+/// Render a social links component
+///
+/// Displays links to social media and external platforms with automatic icons.
+/// Uses `site.socials` as the primary data source, with optional filtering
+/// and custom links from component config.
+#[allow(clippy::too_many_arguments)]
+fn render_social_links(
+    style: &Option<SocialLinksStyle>,
+    new_tab: &Option<bool>,
+    include: &Option<Vec<String>>,
+    exclude: &Option<Vec<String>>,
+    custom: &Option<Vec<CustomSocialLink>>,
+    context: &RenderContext,
+) -> String {
+    // Collect social links from site.socials and custom
+    let mut social_links: Vec<(String, String, Option<String>)> = Vec::new();
+
+    // Add links from site.socials
+    // If `include` is specified, use it to control order; otherwise iterate over socials
+    if let Some(socials) = &context.site_config.socials {
+        // Check if x is present (for twitter/x deduplication)
+        let has_x = socials.keys().any(|k| k.eq_ignore_ascii_case("x"));
+
+        if let Some(inc) = include {
+            // Iterate over include list to preserve order
+            for platform in inc {
+                // Check if excluded
+                if let Some(exc) = exclude
+                    && exc.iter().any(|p| p.eq_ignore_ascii_case(platform))
+                {
+                    continue;
+                }
+                // Skip twitter if x is present (x takes precedence)
+                if platform.eq_ignore_ascii_case("twitter") && has_x {
+                    continue;
+                }
+                // Case-insensitive lookup in socials
+                if let Some((key, url)) = socials
+                    .iter()
+                    .find(|(k, _)| k.eq_ignore_ascii_case(platform))
+                {
+                    let final_url = expand_social_url(key, url);
+                    social_links.push((key.clone(), final_url, None));
+                }
+            }
+        } else {
+            // No include filter - iterate over socials in defined order
+            for (platform, url) in socials {
+                // Apply exclude filter
+                if let Some(exc) = exclude
+                    && exc.iter().any(|p| p.eq_ignore_ascii_case(platform))
+                {
+                    continue;
+                }
+                // Skip twitter if x is present (x takes precedence)
+                if platform.eq_ignore_ascii_case("twitter") && has_x {
+                    continue;
+                }
+                let final_url = expand_social_url(platform, url);
+                social_links.push((platform.clone(), final_url, None));
+            }
+        }
+    }
+
+    // Add custom links (always appended after site.socials)
+    if let Some(custom_links) = custom {
+        // Check if "custom" is excluded
+        let custom_excluded = exclude
+            .as_ref()
+            .is_some_and(|e| e.iter().any(|p| p.eq_ignore_ascii_case("custom")));
+
+        if !custom_excluded {
+            for link in custom_links {
+                social_links.push((link.name.clone(), link.url.clone(), link.icon.clone()));
+            }
+        }
+    }
+
+    // If no links, return empty
+    if social_links.is_empty() {
+        return String::new();
+    }
+
+    // Get style settings with defaults
+    let style = style.unwrap_or_default();
+    let open_in_new_tab = new_tab.unwrap_or(true);
+
+    // Build link elements
+    let link_elements: Vec<String> = social_links
+        .iter()
+        .map(|(name, url, custom_icon)| {
+            let icon_class = custom_icon
+                .as_ref()
+                .map(|i| format!("i-{i}"))
+                .unwrap_or_else(|| get_social_icon_class(name));
+
+            let label = get_platform_label(name);
+
+            let inner_html = match style {
+                SocialLinksStyle::Icon => format!(r#"<span class="icon {icon_class}"></span>"#),
+                SocialLinksStyle::Text => format!(r#"<span class="text">{label}</span>"#),
+                SocialLinksStyle::Both => {
+                    format!(r#"<span class="icon {icon_class}"></span><span class="text">{label}</span>"#)
+                }
+            };
+
+            let target_attrs = if open_in_new_tab {
+                r#" target="_blank" rel="noopener noreferrer""#
+            } else {
+                ""
+            };
+
+            format!(
+                r#"<a href="{url}" aria-label="{label}"{target_attrs}>{inner_html}</a>"#
+            )
+        })
+        .collect();
+
+    format!(
+        r#"<stencila-social-links>{}</stencila-social-links>"#,
+        link_elements.join("")
+    )
+}
+
+/// Get the icon class for a known social platform
+fn get_social_icon_class(platform: &str) -> String {
+    // Use simple-icons for brand icons via UnoCSS
+    match platform.to_lowercase().as_str() {
+        "bluesky" => "i-simple-icons:bluesky".to_string(),
+        "discord" => "i-simple-icons:discord".to_string(),
+        "facebook" => "i-simple-icons:facebook".to_string(),
+        "github" => "i-simple-icons:github".to_string(),
+        "gitlab" => "i-simple-icons:gitlab".to_string(),
+        "instagram" => "i-simple-icons:instagram".to_string(),
+        "linkedin" => "i-simple-icons:linkedin".to_string(),
+        "mastodon" => "i-simple-icons:mastodon".to_string(),
+        "reddit" => "i-simple-icons:reddit".to_string(),
+        "twitch" => "i-simple-icons:twitch".to_string(),
+        "twitter" | "x" => "i-simple-icons:x".to_string(),
+        "youtube" => "i-simple-icons:youtube".to_string(),
+        // Fallback to lucide link icon for unknown platforms
+        _ => "i-lucide:link".to_string(),
+    }
+}
+
+/// Get the display label for a platform
+fn get_platform_label(platform: &str) -> String {
+    match platform.to_lowercase().as_str() {
+        "bluesky" => "Bluesky".to_string(),
+        "discord" => "Discord".to_string(),
+        "facebook" => "Facebook".to_string(),
+        "github" => "GitHub".to_string(),
+        "gitlab" => "GitLab".to_string(),
+        "instagram" => "Instagram".to_string(),
+        "linkedin" => "LinkedIn".to_string(),
+        "mastodon" => "Mastodon".to_string(),
+        "reddit" => "Reddit".to_string(),
+        "twitch" => "Twitch".to_string(),
+        "twitter" => "Twitter".to_string(),
+        "x" => "X".to_string(),
+        "youtube" => "YouTube".to_string(),
+        // For custom links, preserve original casing
+        _ => platform.to_string(),
+    }
+}
+
+/// Expand a social link shortcut to a full URL
+///
+/// If the value already looks like a URL (starts with http:// or https://),
+/// returns it unchanged. Otherwise, expands platform-specific shortcuts:
+///
+/// - `bluesky = "handle.bsky.social"` → `https://bsky.app/profile/handle.bsky.social`
+/// - `discord = "invite"` → `https://discord.gg/invite`
+/// - `facebook = "page"` → `https://facebook.com/page`
+/// - `github = "org"` or `"org/repo"` → `https://github.com/org` or `.../org/repo`
+/// - `gitlab = "org"` or `"org/repo"` → `https://gitlab.com/org` or `.../org/repo`
+/// - `instagram = "handle"` → `https://instagram.com/handle`
+/// - `linkedin = "company/name"` → `https://linkedin.com/company/name`
+/// - `linkedin = "in/name"` → `https://linkedin.com/in/name`
+/// - `mastodon` - returned as-is (requires full URL due to federated instances)
+/// - `reddit = "r/sub"` → `https://reddit.com/r/sub`
+/// - `twitch = "channel"` → `https://twitch.tv/channel`
+/// - `x = "handle"` or `twitter = "handle"` → `https://x.com/handle`
+/// - `youtube = "@channel"` → `https://youtube.com/@channel`
+fn expand_social_url(platform: &str, value: &str) -> String {
+    // If already a URL, return as-is
+    if value.starts_with("http://") || value.starts_with("https://") {
+        return value.to_string();
+    }
+
+    match platform.to_lowercase().as_str() {
+        "bluesky" => {
+            let handle = value.trim_start_matches('@');
+            format!("https://bsky.app/profile/{handle}")
+        }
+        "discord" => format!("https://discord.gg/{value}"),
+        "facebook" => format!("https://facebook.com/{value}"),
+        "github" => format!("https://github.com/{value}"),
+        "gitlab" => format!("https://gitlab.com/{value}"),
+        "instagram" => {
+            let handle = value.trim_start_matches('@');
+            format!("https://instagram.com/{handle}")
+        }
+        "linkedin" => {
+            // Support both "in/name" and "company/name" formats
+            if value.starts_with("in/") || value.starts_with("company/") {
+                format!("https://linkedin.com/{value}")
+            } else {
+                // Default to personal profile
+                format!("https://linkedin.com/in/{value}")
+            }
+        }
+        "reddit" => {
+            // Support r/subreddit and u/user formats
+            if value.starts_with("r/") || value.starts_with("u/") {
+                format!("https://reddit.com/{value}")
+            } else {
+                // Default to subreddit
+                format!("https://reddit.com/r/{value}")
+            }
+        }
+        "twitch" => format!("https://twitch.tv/{value}"),
+        "twitter" | "x" => {
+            let handle = value.trim_start_matches('@');
+            format!("https://x.com/{handle}")
+        }
+        "youtube" => {
+            // Support @channel, channel/ID, and c/custom formats
+            if value.starts_with('@') || value.starts_with("channel/") || value.starts_with("c/") {
+                format!("https://youtube.com/{value}")
+            } else {
+                format!("https://youtube.com/@{value}")
+            }
+        }
+        // Mastodon and unknown platforms: return as-is (may be invalid, but we don't know the instance)
+        _ => value.to_string(),
+    }
 }
 
 /// Get navigation order for prev/next links

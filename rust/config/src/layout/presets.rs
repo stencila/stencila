@@ -60,7 +60,8 @@ impl LayoutPreset {
                     ..Default::default()
                 })),
                 footer: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    end: Some(vec![ComponentSpec::Name("social-links".into())]),
                     ..Default::default()
                 })),
                 ..Default::default()
@@ -80,7 +81,8 @@ impl LayoutPreset {
                     ..Default::default()
                 })),
                 footer: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    end: Some(vec![ComponentSpec::Name("social-links".into())]),
                     ..Default::default()
                 })),
                 ..Default::default()
@@ -97,7 +99,8 @@ impl LayoutPreset {
                 bottom: Some(RegionSpec::Enabled(false)),
                 right_sidebar: Some(RegionSpec::Enabled(false)),
                 footer: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    end: Some(vec![ComponentSpec::Name("social-links".into())]),
                     ..Default::default()
                 })),
                 ..Default::default()
@@ -132,7 +135,8 @@ impl LayoutPreset {
                 })),
                 right_sidebar: Some(RegionSpec::Enabled(false)),
                 footer: Some(RegionSpec::Config(RegionConfig {
-                    middle: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    start: Some(vec![ComponentSpec::Name("copyright".into())]),
+                    end: Some(vec![ComponentSpec::Name("social-links".into())]),
                     ..Default::default()
                 })),
                 ..Default::default()

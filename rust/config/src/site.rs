@@ -4,6 +4,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use indexmap::IndexMap;
+
 use eyre::{OptionExt, Result, bail, eyre};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -446,6 +448,43 @@ pub struct SiteConfig {
     /// "Features" = "sparkles"
     /// ```
     pub icons: Option<HashMap<String, String>>,
+
+    /// Social/external links for the site
+    ///
+    /// Keyed by platform name (github, discord, linkedin, etc.). Values can be
+    /// shortcuts (expanded automatically) or full URLs. Used by the `social-links`
+    /// component. Icons are automatically determined from the platform key.
+    ///
+    /// Supported platforms and shortcuts:
+    ///
+    /// - `bluesky = "handle.bsky.social"` → bsky.app/profile/...
+    /// - `discord = "invite"` → discord.gg/invite
+    /// - `facebook = "page"` → facebook.com/page
+    /// - `github = "org"` or `"org/repo"` → github.com/org or github.com/org/repo
+    /// - `gitlab = "org"` or `"org/repo"` → gitlab.com/org or gitlab.com/org/repo
+    /// - `instagram = "handle"` → instagram.com/handle
+    /// - `linkedin = "in/name"` or `"company/name"` → linkedin.com/...
+    /// - `mastodon` → requires full URL (federated)
+    /// - `reddit = "r/sub"` or `"u/user"` → reddit.com/...
+    /// - `twitch = "channel"` → twitch.tv/channel
+    /// - `x = "handle"` or `twitter = "handle"` → x.com/handle
+    /// - `youtube = "@channel"` → youtube.com/@channel
+    ///
+    /// Note: `twitter` and `x` are treated as aliases. Both are accepted,
+    /// but `x` takes precedence if both are specified.
+    ///
+    /// Order is preserved - links appear in the order defined.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.socials]
+    /// github = "org/repo"
+    /// discord = "invite-code"
+    /// linkedin = "company/name"
+    /// x = "handle"
+    /// mastodon = "https://mastodon.social/@handle"
+    /// ```
+    pub socials: Option<IndexMap<String, String>>,
 
     /// Featured/promotional content for nav-menu dropdowns
     ///

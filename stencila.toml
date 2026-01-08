@@ -3,10 +3,29 @@ id = "wsron0azl0i2"
 watch = "wardj3nsovuj"
 
 [site]
+author = "Stencila"
 root = "site"
 exclude = ["tests/excluded.smd"]
+
+[site.icons]
+"/" = "home"
+
+[site.socials]
+github = "stencila/stencila"
+x = "stencila"
 
 [site.routes]
 "/tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
 "/tests/file/" = "tests/file.myst"
 "/tests/spread/{environ}/{region}/" = { file = "tests/spread.smd", arguments = { environ = ["earth", "sea", "sky"], region = ["north", "south"] } }
+
+[site.layout]
+preset = "landing"
+
+[[site.layout.overrides]]
+routes = ["/docs/**"]
+preset = "docs"
+bottom.rows = [
+    { middle = "prev-next" },
+    { start = { type = "edit-page", text = "Suggest changes" }}
+]

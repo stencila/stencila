@@ -332,6 +332,65 @@ pub enum ComponentConfig {
         #[serde(rename = "show-platform")]
         show_platform: Option<bool>,
     },
+
+    /// Social/external links (GitHub, Discord, LinkedIn, etc.)
+    ///
+    /// Displays links to social media and external platforms with automatic icons.
+    /// Uses `site.socials` as the primary data source. Component config can filter
+    /// the site-level configuration or add custom links.
+    ///
+    /// **Ordering:** Links from `site.socials` appear in the order defined there.
+    /// Use `include` to filter and reorder. Custom links are always appended.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.socials]
+    /// github = "org/repo"
+    /// discord = "invite-code"
+    /// x = "handle"
+    ///
+    /// [site.layout.footer]
+    /// end = "social-links"  # Uses all site.socials in order defined above
+    ///
+    /// # Filter and reorder with include (discord first, then github, x excluded):
+    /// end = { type = "social-links", include = ["discord", "github"] }
+    ///
+    /// # Add custom links (appended after site.socials):
+    /// end = { type = "social-links", custom = [{ name = "Blog", url = "https://blog.example.com", icon = "lucide:rss" }] }
+    /// ```
+    SocialLinks {
+        /// Display style (default: icon)
+        ///
+        /// - icon: Icons only
+        /// - text: Text labels only
+        /// - both: Icon and text
+        style: Option<SocialLinksStyle>,
+
+        /// Whether links open in new tab (default: true)
+        ///
+        /// When true, links include target="_blank" and rel="noopener noreferrer".
+        #[serde(rename = "new-tab")]
+        new_tab: Option<bool>,
+
+        /// Filter to specific platforms and optionally reorder
+        ///
+        /// Only platforms listed here (and present in `site.socials`) will be shown,
+        /// in the order specified. Default: all platforms from site.socials in their
+        /// defined order.
+        include: Option<Vec<String>>,
+
+        /// Exclude these platforms (validated against known platforms + "custom")
+        ///
+        /// Exclude takes precedence over include.
+        exclude: Option<Vec<String>>,
+
+        /// Custom links for platforms not in the known set
+        ///
+        /// Use this for blogs, documentation sites, or platforms without built-in
+        /// icon support. Each entry needs a name and URL; icon is optional.
+        /// Custom links are always appended after `site.socials` links.
+        custom: Option<Vec<CustomSocialLink>>,
+    },
 }
 
 /// Built-in component type names (kebab-case as used in TOML)
@@ -346,6 +405,7 @@ pub const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "color-mode",
     "copyright",
     "edit-page",
+    "social-links",
 ];
 
 /// Check if a name is a built-in component type
@@ -533,6 +593,74 @@ pub enum NavMenuDropdownStyle {
     Aligned,
 }
 
+/// Known social/external platforms with built-in icon support
+///
+/// Used for validation of platform names in `include`, `exclude`,
+/// and `site.socials` configuration.
+///
+/// Note: `Twitter` and `X` are treated as aliases. Both are accepted in config,
+/// but internally normalized to X. If both are specified, `x` takes precedence.
+#[derive(Debug, Clone, Copy, Display, Serialize, Deserialize, PartialEq, Eq, Hash, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum SocialLinkPlatform {
+    Bluesky,
+    Discord,
+    Facebook,
+    GitHub,
+    GitLab,
+    Instagram,
+    LinkedIn,
+    Mastodon,
+    Reddit,
+    Twitch,
+    Twitter,
+    X,
+    YouTube,
+}
+
+/// Display style for social links
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum SocialLinksStyle {
+    /// Icons only (default)
+    #[default]
+    Icon,
+
+    /// Text labels only
+    Text,
+
+    /// Icon and text
+    Both,
+}
+
+/// Custom social link for platforms not in the known set
+///
+/// Allows adding links to platforms not covered by `SocialLinkPlatform`,
+/// such as personal blogs, documentation sites, or lesser-known platforms.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+pub struct CustomSocialLink {
+    /// Display name for the link (required)
+    ///
+    /// Example: "Blog", "Docs", "Podcast"
+    pub name: String,
+
+    /// URL for the link (required)
+    pub url: String,
+
+    /// Icon identifier (optional)
+    ///
+    /// Can reference:
+    /// 1. Icon name from `site.icons` (if configured)
+    /// 2. Built-in icon library name (e.g., "rss", "link", "globe")
+    ///
+    /// If not provided or not found, falls back to displaying the text label.
+    pub icon: Option<String>,
+}
+
 #[cfg(test)]
 mod tests {
     use eyre::Result;
@@ -552,6 +680,7 @@ mod tests {
             r#"type = "color-mode""#,
             r#"type = "copyright""#,
             r#"type = "edit-page""#,
+            r#"type = "social-links""#,
         ];
 
         for component_toml in components {
@@ -572,6 +701,7 @@ mod tests {
         assert!(is_builtin_component_type("color-mode"));
         assert!(is_builtin_component_type("copyright"));
         assert!(is_builtin_component_type("edit-page"));
+        assert!(is_builtin_component_type("social-links"));
         assert!(!is_builtin_component_type("unknown"));
         assert!(!is_builtin_component_type("custom-nav"));
     }
@@ -1155,6 +1285,199 @@ show-platform = false"#,
             assert_eq!(show_platform, Some(false));
         } else {
             panic!("Expected ComponentConfig::EditPage");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_social_links_basic_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(r#"type = "social-links""#)?;
+        assert!(matches!(
+            config,
+            ComponentConfig::SocialLinks {
+                style: None,
+                new_tab: None,
+                include: None,
+                exclude: None,
+                custom: None,
+            }
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_social_links_style_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "social-links"
+style = "icon""#,
+        )?;
+        if let ComponentConfig::SocialLinks { style, .. } = config {
+            assert_eq!(style, Some(SocialLinksStyle::Icon));
+        } else {
+            panic!("Expected ComponentConfig::SocialLinks");
+        }
+
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "social-links"
+style = "text""#,
+        )?;
+        if let ComponentConfig::SocialLinks { style, .. } = config {
+            assert_eq!(style, Some(SocialLinksStyle::Text));
+        } else {
+            panic!("Expected ComponentConfig::SocialLinks");
+        }
+
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "social-links"
+style = "both""#,
+        )?;
+        if let ComponentConfig::SocialLinks { style, .. } = config {
+            assert_eq!(style, Some(SocialLinksStyle::Both));
+        } else {
+            panic!("Expected ComponentConfig::SocialLinks");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_social_links_new_tab_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "social-links"
+new-tab = false"#,
+        )?;
+        if let ComponentConfig::SocialLinks { new_tab, .. } = config {
+            assert_eq!(new_tab, Some(false));
+        } else {
+            panic!("Expected ComponentConfig::SocialLinks");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_social_links_include_exclude_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "social-links"
+include = ["github", "discord"]
+exclude = ["facebook"]"#,
+        )?;
+        if let ComponentConfig::SocialLinks {
+            include, exclude, ..
+        } = config
+        {
+            assert_eq!(
+                include,
+                Some(vec!["github".to_string(), "discord".to_string()])
+            );
+            assert_eq!(exclude, Some(vec!["facebook".to_string()]));
+        } else {
+            panic!("Expected ComponentConfig::SocialLinks");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_social_links_custom_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "social-links"
+[[custom]]
+name = "Blog"
+url = "https://blog.example.com"
+icon = "rss"
+
+[[custom]]
+name = "Docs"
+url = "https://docs.example.com""#,
+        )?;
+        if let ComponentConfig::SocialLinks { custom, .. } = config {
+            let custom = custom.expect("custom should be present");
+            assert_eq!(custom.len(), 2);
+            assert_eq!(custom[0].name, "Blog");
+            assert_eq!(custom[0].url, "https://blog.example.com");
+            assert_eq!(custom[0].icon, Some("rss".to_string()));
+            assert_eq!(custom[1].name, "Docs");
+            assert_eq!(custom[1].url, "https://docs.example.com");
+            assert_eq!(custom[1].icon, None);
+        } else {
+            panic!("Expected ComponentConfig::SocialLinks");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_social_links_all_options_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "social-links"
+style = "both"
+new-tab = true
+include = ["github", "discord"]
+exclude = ["twitter"]
+
+[[custom]]
+name = "Blog"
+url = "https://blog.example.com"
+icon = "lucide:rss""#,
+        )?;
+
+        if let ComponentConfig::SocialLinks {
+            style,
+            new_tab,
+            include,
+            exclude,
+            custom,
+        } = config
+        {
+            assert_eq!(style, Some(SocialLinksStyle::Both));
+            assert_eq!(new_tab, Some(true));
+            assert_eq!(
+                include,
+                Some(vec!["github".to_string(), "discord".to_string()])
+            );
+            assert_eq!(exclude, Some(vec!["twitter".to_string()]));
+            assert!(custom.is_some());
+        } else {
+            panic!("Expected ComponentConfig::SocialLinks");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_social_link_platform_parsing() -> Result<()> {
+        // Test that all platforms can be parsed via a wrapper struct
+        #[derive(Deserialize)]
+        struct Wrapper {
+            platform: SocialLinkPlatform,
+        }
+
+        let platforms = vec![
+            ("bluesky", SocialLinkPlatform::Bluesky),
+            ("discord", SocialLinkPlatform::Discord),
+            ("facebook", SocialLinkPlatform::Facebook),
+            ("github", SocialLinkPlatform::GitHub),
+            ("gitlab", SocialLinkPlatform::GitLab),
+            ("instagram", SocialLinkPlatform::Instagram),
+            ("linkedin", SocialLinkPlatform::LinkedIn),
+            ("mastodon", SocialLinkPlatform::Mastodon),
+            ("reddit", SocialLinkPlatform::Reddit),
+            ("twitch", SocialLinkPlatform::Twitch),
+            ("twitter", SocialLinkPlatform::Twitter),
+            ("x", SocialLinkPlatform::X),
+            ("youtube", SocialLinkPlatform::YouTube),
+        ];
+
+        for (name, expected) in platforms {
+            let toml_str = format!(r#"platform = "{name}""#);
+            let wrapper: Wrapper = toml::from_str(&toml_str)?;
+            assert_eq!(
+                wrapper.platform, expected,
+                "Failed to parse platform: {name}"
+            );
         }
 
         Ok(())

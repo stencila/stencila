@@ -43,10 +43,10 @@ mod watch;
 
 pub use {
     layout::{
-        ColorModeStyle, ComponentConfig, ComponentSpec, EditPageStyle, LayoutConfig,
-        LayoutOverride, LayoutPreset, NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons,
-        NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle, RegionConfig, RegionSpec,
-        RowConfig,
+        ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditPageStyle,
+        LayoutConfig, LayoutOverride, LayoutPreset, NavMenuDropdownStyle, NavMenuGroups,
+        NavMenuIcons, NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle, RegionConfig,
+        RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
     },
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
