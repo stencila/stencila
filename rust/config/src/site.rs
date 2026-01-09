@@ -272,15 +272,36 @@ impl NavItem {
 ///
 /// Displays promotional content in the dropdown panel of a nav group.
 /// Configured in `site.featured`, keyed by the dropdown's parent group route or label.
+///
+/// Example:
+/// ```toml
+/// [site.featured.docs]
+/// badge = "New"
+/// icon = "rocket"
+/// title = "Quick Start Guide"
+/// description = "Get up and running in minutes"
+/// cta = { label = "Get Started", route = "/docs/getting-started/" }
+/// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
 pub struct FeaturedContent {
-    /// Promotional title
-    pub title: String,
+    /// Badge text displayed above the title (e.g., "Featured", "New", "Spotlight")
+    ///
+    /// When set, displays a small uppercase label above the title to draw attention.
+    pub badge: Option<String>,
+
+    /// Icon name displayed above the title
+    ///
+    /// Icon format: "rocket" (default lucide set) or "tabler:rocket" (explicit library).
+    /// Displays in a rounded box with accent color background.
+    pub icon: Option<String>,
 
     /// Image path (relative to site root)
     pub image: Option<String>,
+
+    /// Promotional title
+    pub title: String,
 
     /// Short description text
     pub description: Option<String>,
@@ -297,6 +318,31 @@ pub struct FeaturedCta {
 
     /// Target route
     pub route: String,
+}
+
+impl FeaturedContent {
+    /// Validate featured content configuration
+    ///
+    /// Warns if both `icon` and `image` are specified (only one will be shown).
+    pub fn validate(&self, key: &str) {
+        if self.icon.is_some() && self.image.is_some() {
+            tracing::warn!(
+                "Featured content `{key}` has both `icon` and `image` specified; only the icon will be displayed"
+            );
+        }
+    }
+
+    /// Validate that image path exists relative to the site root
+    pub fn validate_image_path(&self, key: &str, site_root: &Path) {
+        if let Some(image) = &self.image {
+            let image_path = site_root.join(image);
+            if !image_path.exists() {
+                tracing::warn!(
+                    "Featured content `{key}` has image path `{image}` that does not exist in site root"
+                );
+            }
+        }
+    }
 }
 
 /// Simple JSON schema for Author - describes it as an object with type, name, and url
@@ -599,7 +645,26 @@ impl SiteConfig {
             layout.validate()?;
         }
 
+        // Validate featured content (icon + image conflict)
+        if let Some(featured) = &self.featured {
+            for (key, content) in featured {
+                content.validate(key);
+            }
+        }
+
         Ok(())
+    }
+
+    /// Validate paths in the site configuration
+    ///
+    /// Warns about missing image paths in featured content.
+    /// Call this after resolving the site root.
+    pub fn validate_paths(&self, site_root: &Path) {
+        if let Some(featured) = &self.featured {
+            for (key, content) in featured {
+                content.validate_image_path(key, site_root);
+            }
+        }
     }
 
     /// Get the root path

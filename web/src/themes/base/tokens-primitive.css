@@ -149,6 +149,7 @@
      * for responsive behavior on smaller screens. Previously we used clamp()
      * and `vw` for responsive font sizing but this does not work for
      * non-browser contexts where `vw` is non available.*/
+    --font-size-2xs: 0.75rem;
     --font-size-xs: 0.85rem;
     --font-size-sm: 0.95rem;
     --font-size-md: 1.1rem;

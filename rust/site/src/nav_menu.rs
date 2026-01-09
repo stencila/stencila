@@ -14,7 +14,7 @@ use crate::{
     RouteEntry,
     nav_common::{
         apply_descriptions, apply_icons, auto_generate_nav, filter_nav_items, label_to_segment,
-        render_icon_span, route_to_label,
+        normalize_icon_name, render_icon_span, route_to_label,
     },
 };
 
@@ -529,6 +529,23 @@ fn render_featured_content(
         return String::new();
     };
 
+    // Badge text (e.g., "Featured", "New", "Spotlight")
+    let badge_html = content
+        .badge
+        .as_ref()
+        .map(|b| format!(r#"<span class="featured-badge">{b}</span>"#))
+        .unwrap_or_default();
+
+    // Icon with accent background
+    let icon_html = content
+        .icon
+        .as_ref()
+        .map(|icon| {
+            let icon_class = format!("i-{}", normalize_icon_name(icon));
+            format!(r#"<span class="featured-icon {icon_class}"></span>"#)
+        })
+        .unwrap_or_default();
+
     let image_html = content
         .image
         .as_ref()
@@ -553,7 +570,7 @@ fn render_featured_content(
         .unwrap_or_default();
 
     format!(
-        r#"<aside class="featured">{image_html}<h4 class="featured-title">{}</h4>{desc_html}{cta_html}</aside>"#,
+        r#"<aside class="featured">{badge_html}{icon_html}{image_html}<h4 class="featured-title">{}</h4>{desc_html}{cta_html}</aside>"#,
         content.title
     )
 }

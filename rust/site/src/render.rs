@@ -148,6 +148,11 @@ where
         workspace_dir.clone()
     };
 
+    // Validate site configuration paths (warns about missing images, etc.)
+    if let Some(site) = &config.site {
+        site.validate_paths(&site_root);
+    }
+
     // Partition routes by type
     // TODO: document_routes is sorted by route path (alphabetically), which is used for
     // prev/next navigation. This may not match custom nav-tree ordering or groupings.
