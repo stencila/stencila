@@ -38,18 +38,18 @@
 @import url("./tables.css");
 @import url("./datatables.css");
 
-@import url("./site-layout.css");
-@import url("./site-icons.css");
+@import url("./layout.css");
+@import url("./icons.css");
 
-@import url("./site-breadcrumbs.css");
-@import url("./site-color-mode.css");
-@import url("./site-copyright.css");
-@import url("./site-edit-page.css");
-@import url("./site-logo.css");
-@import url("./site-nav-groups.css");
-@import url("./site-nav-menu.css");
-@import url("./site-nav-tree.css");
-@import url("./site-prev-next.css");
-@import url("./site-social-links.css");
-@import url("./site-title.css");
-@import url("./site-toc-tree.css");
+@import url("./breadcrumbs.css");
+@import url("./color-mode.css");
+@import url("./copyright.css");
+@import url("./edit-page.css");
+@import url("./logo.css");
+@import url("./nav-groups.css");
+@import url("./nav-menu.css");
+@import url("./nav-tree.css");
+@import url("./prev-next.css");
+@import url("./social-links.css");
+@import url("./title.css");
+@import url("./toc-tree.css");
