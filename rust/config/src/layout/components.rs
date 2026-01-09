@@ -280,6 +280,9 @@ pub enum ComponentConfig {
     /// and bitbucket.org. For self-hosted instances or other platforms, use
     /// the `base-url` option.
     ///
+    /// The icon shows the platform logo (GitHub, GitLab, or Bitbucket), the
+    /// default text is "Edit", and hovering shows "Edit source on <Platform>".
+    ///
     /// Example:
     /// ```toml
     /// [site.layout.footer]
@@ -292,7 +295,7 @@ pub enum ComponentConfig {
     /// end = { type = "edit-source", base-url = "https://gitlab.mycompany.com/team/docs/-/edit/main/" }
     /// ```
     EditSource {
-        /// Custom link text (default: "Edit on GitHub" / "Edit on GitLab" based on platform)
+        /// Custom link text (default: "Edit")
         text: Option<String>,
 
         /// Display style (default: both)
@@ -313,12 +316,6 @@ pub enum ComponentConfig {
         /// Path prefix within repo (e.g., "docs/" if content is in a subdirectory)
         #[serde(rename = "path-prefix")]
         path_prefix: Option<String>,
-
-        /// Whether to include platform name in default text (default: true)
-        ///
-        /// When true: "Edit on GitHub". When false: "Edit this page".
-        #[serde(rename = "show-platform")]
-        show_platform: Option<bool>,
     },
 
     /// Social/external links (GitHub, Discord, LinkedIn, etc.)
@@ -1227,7 +1224,6 @@ link = "https://acme.com""#,
                 base_url: None,
                 branch: None,
                 path_prefix: None,
-                show_platform: None,
             }
         ));
 
@@ -1322,7 +1318,6 @@ show-platform = false"#,
             base_url,
             branch,
             path_prefix,
-            show_platform,
         } = config
         {
             assert_eq!(text.as_deref(), Some("Edit on GitHub"));
@@ -1333,7 +1328,6 @@ show-platform = false"#,
             );
             assert_eq!(branch.as_deref(), Some("develop"));
             assert_eq!(path_prefix.as_deref(), Some("docs/"));
-            assert_eq!(show_platform, Some(false));
         } else {
             panic!("Expected ComponentConfig::EditSource");
         }

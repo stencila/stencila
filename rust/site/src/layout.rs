@@ -270,7 +270,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "social-links" => render_social_links(&None, &None, &None, &None, &None, context),
             "title" => render_title(&None, context),
             "toc-tree" => render_toc_tree(&None, &None),
-            "edit-source" => render_edit_source(&None, &None, &None, &None, &None, &None, context),
+            "edit-source" => render_edit_source(&None, &None, &None, &None, &None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -357,16 +357,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             base_url,
             branch,
             path_prefix,
-            show_platform,
-        } => render_edit_source(
-            text,
-            style,
-            base_url,
-            branch,
-            path_prefix,
-            show_platform,
-            context,
-        ),
+        } => render_edit_source(text, style, base_url, branch, path_prefix, context),
         ComponentConfig::SocialLinks {
             style,
             new_tab,
@@ -713,6 +704,15 @@ impl EditPlatform {
         }
     }
 
+    /// Icon class for this platform (using simple-icons via UnoCSS)
+    fn icon_class(&self) -> &'static str {
+        match self {
+            Self::GitHub => "i-simple-icons:github",
+            Self::GitLab => "i-simple-icons:gitlab",
+            Self::Bitbucket => "i-simple-icons:bitbucket",
+        }
+    }
+
     /// Construct edit URL for this platform
     fn edit_url(&self, origin: &str, branch: &str, path: &str) -> String {
         // URL-encode the path for special characters
@@ -749,7 +749,6 @@ fn render_edit_source(
     base_url: &Option<String>,
     branch: &Option<String>,
     path_prefix: &Option<String>,
-    show_platform: &Option<bool>,
     context: &RenderContext,
 ) -> String {
     // Get source_path from routes by matching current route
@@ -810,37 +809,41 @@ fn render_edit_source(
         (url, Some(platform))
     };
 
-    // Determine link text
-    let show_platform_name = show_platform.unwrap_or(true);
+    // Determine link text and title
     let link_text = if let Some(custom_text) = text {
         custom_text.clone()
-    } else if show_platform_name {
-        if let Some(p) = platform {
-            format!("Edit on {}", p.name())
-        } else {
-            "Edit this page".to_string()
-        }
     } else {
-        "Edit this page".to_string()
+        "Edit".to_string()
+    };
+
+    // Build title attribute for hover tooltip
+    let title_attr = if let Some(p) = platform {
+        format!(r#" title="Edit source on {}""#, p.name())
+    } else {
+        r#" title="Edit source""#.to_string()
     };
 
     // Get style with default
     let style = style.unwrap_or_default();
 
+    // Get icon class - use platform icon if available, otherwise fallback to pencil
+    let icon_class = platform
+        .map(|p| p.icon_class())
+        .unwrap_or("i-lucide:square-pen");
+
     // Build inner HTML based on style
-    // Uses UnoCSS i-lucide:square-pen icon class
     let inner_html = match style {
-        EditSourceStyle::Icon => r#"<span class="icon i-lucide:square-pen"></span>"#.to_string(),
+        EditSourceStyle::Icon => format!(r#"<span class="icon {icon_class}"></span>"#),
         EditSourceStyle::Text => format!(r#"<span class="text">{link_text}</span>"#),
         EditSourceStyle::Both => {
             format!(
-                r#"<span class="icon i-lucide:square-pen"></span><span class="text">{link_text}</span>"#
+                r#"<span class="icon {icon_class}"></span><span class="text">{link_text}</span>"#
             )
         }
     };
 
     format!(
-        r#"<stencila-edit-source><a href="{edit_url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-source>"#
+        r#"<stencila-edit-source><a href="{edit_url}"{title_attr} target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-source>"#
     )
 }
 

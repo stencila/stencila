@@ -4,9 +4,9 @@
  *
  * Structure:
  * - stencila-edit-source: Custom element container
- *   - a: Edit link (opens in new tab)
- *     - span.icon.i-lucide:square-pen: Edit icon (via UnoCSS)
- *     - span.text: Link text (e.g., "Edit on GitHub")
+ *   - a: Edit link (opens in new tab, with title for hover tooltip)
+ *     - span.icon: Platform icon (e.g., i-simple-icons:github) via UnoCSS
+ *     - span.text: Link text (default: "Edit")
  *
  * Design tokens:
  * - --edit-source-icon-size: Size of the icon
@@ -19,7 +19,7 @@
 :root {
     --edit-source-font-family: var(--layout-font-family);
     --edit-source-icon-size: 1em;
-    --edit-source-font-size: var(--font-size-sm);
+    --edit-source-font-size: var(--font-size-xs);
     --edit-source-gap: var(--space-2);
     --edit-source-color: var(--text-color-secondary);
     --edit-source-color-hover: var(--text-color-primary);
@@ -52,7 +52,7 @@ stencila-edit-source a:focus-visible {
     border-radius: var(--border-radius-default);
 }
 
-/* Icon - styled via UnoCSS i-lucide:square-pen class */
+/* Icon - styled via UnoCSS icon classes (e.g., i-simple-icons:github) */
 stencila-edit-source .icon {
     display: inline-block;
     width: var(--edit-source-icon-size);
