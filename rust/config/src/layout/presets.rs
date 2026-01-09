@@ -79,14 +79,25 @@ impl LayoutPreset {
             ..Default::default()
         }));
 
+        // Note: Regions must be explicitly disabled with `RegionSpec::Enabled(false)`
+        // rather than omitted (`None`). When presets are used in route overrides,
+        // `None` means "inherit from base config" during merging, so omitting a
+        // region would cause it to be inherited rather than disabled.
         match self {
             Self::Landing => LayoutConfig {
                 header,
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                top: Some(RegionSpec::Enabled(false)),
+                bottom: Some(RegionSpec::Enabled(false)),
+                right_sidebar: Some(RegionSpec::Enabled(false)),
                 footer,
                 ..Default::default()
             },
             Self::Blog => LayoutConfig {
                 header,
+                left_sidebar: Some(RegionSpec::Enabled(false)),
+                top: Some(RegionSpec::Enabled(false)),
+                bottom: Some(RegionSpec::Enabled(false)),
                 right_sidebar,
                 footer,
                 ..Default::default()
@@ -105,6 +116,7 @@ impl LayoutPreset {
                 left_sidebar,
                 top,
                 bottom,
+                right_sidebar: Some(RegionSpec::Enabled(false)),
                 footer,
                 ..Default::default()
             },
