@@ -13,7 +13,8 @@ use stencila_config::{
 use crate::{
     RouteEntry,
     nav_common::{
-        apply_icons, auto_generate_nav, filter_nav_items, render_icon_span, route_to_label,
+        apply_descriptions, apply_icons, auto_generate_nav, filter_nav_items, render_icon_span,
+        route_to_label,
     },
 };
 
@@ -53,6 +54,9 @@ pub(crate) fn render_nav_menu(
 
     // Apply icons from site.icons
     let nav_items = apply_icons(nav_items, &context.site_config.icons);
+
+    // Apply descriptions from site.descriptions
+    let nav_items = apply_descriptions(nav_items, &context.site_config.descriptions);
 
     // Apply filtering
     let nav_items = filter_nav_items(nav_items, include, exclude);
@@ -368,8 +372,12 @@ fn render_nav_menu_dropdown(
             } => {
                 // Nested groups in dropdown - render as nested list (not full dropdown)
                 if !nested_children.is_empty() {
-                    let nested_items =
-                        render_nested_dropdown_items(nested_children, current_route, icons_mode);
+                    let nested_items = render_nested_dropdown_items(
+                        nested_children,
+                        current_route,
+                        icons_mode,
+                        descriptions,
+                    );
                     // Only render if nested_items produced output
                     if !nested_items.is_empty() {
                         section_items.push_str(&format!(
@@ -419,6 +427,7 @@ fn render_nested_dropdown_items(
     items: &[NavItem],
     current_route: &str,
     icons_mode: &NavMenuIcons,
+    descriptions: bool,
 ) -> String {
     let mut html = String::new();
 
@@ -433,17 +442,29 @@ fn render_nested_dropdown_items(
                 // Route items have no icon, but need placeholder for alignment if others have icons
                 let icon_html = render_menu_icon(&None, icons_mode, true, has_icons);
                 html.push_str(&format!(
-                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
+                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
             NavItem::Link {
-                label, route, icon, ..
+                label,
+                route,
+                icon,
+                description,
+                ..
             } => {
                 let is_active = route == current_route;
                 let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
+                let desc_html = if descriptions {
+                    description
+                        .as_ref()
+                        .map(|d| format!(r#"<span class="description">{d}</span>"#))
+                        .unwrap_or_default()
+                } else {
+                    String::new()
+                };
                 html.push_str(&format!(
-                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
+                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span>{desc_html}</span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -458,7 +479,7 @@ fn render_nested_dropdown_items(
                     let is_active = group_route == current_route;
                     let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                     html.push_str(&format!(
-                        r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
+                        r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
                     ));
                 }

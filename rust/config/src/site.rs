@@ -419,6 +419,21 @@ pub struct SiteConfig {
     /// ```
     pub icons: Option<HashMap<String, String>>,
 
+    /// Descriptions for navigation items
+    ///
+    /// Maps routes or labels to description text. Used by navigation components
+    /// (e.g., `nav-menu`) to display descriptions without requiring inline definitions
+    /// in the `nav` array. Descriptions specified directly on NavItem take precedence.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.descriptions]
+    /// "/docs/" = "Documentation and guides"
+    /// "/docs/getting-started/" = "Quick start guide"
+    /// "Features" = "Explore all capabilities"
+    /// ```
+    pub descriptions: Option<HashMap<String, String>>,
+
     /// Social/external links for the site
     ///
     /// Keyed by platform name (github, discord, linkedin, etc.). Values can be

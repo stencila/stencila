@@ -468,3 +468,128 @@ pub(crate) fn render_icon_span(icon: &str) -> String {
     ]
     .concat()
 }
+
+// =============================================================================
+// Description Resolution
+// =============================================================================
+
+/// Apply descriptions from site.descriptions to nav items
+///
+/// For each Link item, if item.description is already set, keep it (explicit takes precedence).
+/// Otherwise, try matching item.route in descriptions map, then item.label.
+pub(crate) fn apply_descriptions(
+    items: Vec<NavItem>,
+    descriptions: &Option<HashMap<String, String>>,
+) -> Vec<NavItem> {
+    let Some(descriptions) = descriptions else {
+        return items;
+    };
+
+    items
+        .into_iter()
+        .map(|item| apply_description_to_item(item, descriptions))
+        .collect()
+}
+
+fn apply_description_to_item(item: NavItem, descriptions: &HashMap<String, String>) -> NavItem {
+    match item {
+        NavItem::Route(route) => {
+            // Route shorthand - check if route has a description, convert to Link if so
+            if let Some(description) =
+                lookup_description(&Some(route.clone()), &route_to_label(&route), descriptions)
+            {
+                NavItem::Link {
+                    id: None,
+                    label: route_to_label(&route),
+                    route,
+                    icon: None,
+                    description: Some(description),
+                }
+            } else {
+                NavItem::Route(route)
+            }
+        }
+        NavItem::Link {
+            id,
+            label,
+            route,
+            icon,
+            description,
+        } => {
+            let resolved_description = description
+                .or_else(|| lookup_description(&Some(route.clone()), &label, descriptions));
+            NavItem::Link {
+                id,
+                label,
+                route,
+                icon,
+                description: resolved_description,
+            }
+        }
+        NavItem::Group {
+            id,
+            label,
+            route,
+            children,
+            icon,
+            section_title,
+        } => {
+            // Groups don't have descriptions, but recurse into children
+            let resolved_children = children
+                .into_iter()
+                .map(|c| apply_description_to_item(c, descriptions))
+                .collect();
+            NavItem::Group {
+                id,
+                label,
+                route,
+                children: resolved_children,
+                icon,
+                section_title,
+            }
+        }
+    }
+}
+
+/// Look up a description from the descriptions map, trying route first, then label
+fn lookup_description(
+    route: &Option<String>,
+    label: &str,
+    descriptions: &HashMap<String, String>,
+) -> Option<String> {
+    // Try route first (with and without trailing slash normalization)
+    if let Some(r) = route
+        && let Some(description) = lookup_description_by_route(r, descriptions)
+    {
+        return Some(description);
+    }
+
+    // Try label as-is
+    if let Some(description) = descriptions.get(label) {
+        return Some(description.clone());
+    }
+
+    // Try deriving a route from the label (for items without explicit routes)
+    // Convert "Getting Started" -> "/getting-started/" and try that
+    let derived_route = format!("/{}/", label_to_segment(label));
+    lookup_description_by_route(&derived_route, descriptions)
+}
+
+/// Try to find a description by route, with various slash normalizations
+fn lookup_description_by_route(
+    route: &str,
+    descriptions: &HashMap<String, String>,
+) -> Option<String> {
+    let normalized = route.trim_end_matches('/');
+    if let Some(description) = descriptions.get(route) {
+        return Some(description.clone());
+    }
+    if let Some(description) = descriptions.get(normalized) {
+        return Some(description.clone());
+    }
+    let with_slash = format!("{normalized}/");
+    if let Some(description) = descriptions.get(&with_slash) {
+        return Some(description.clone());
+    }
+    None
+}
