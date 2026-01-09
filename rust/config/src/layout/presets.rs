@@ -73,7 +73,6 @@ impl LayoutPreset {
                     start: Some(vec![ComponentSpec::Name("color-mode".into())]),
                     middle: Some(vec![ComponentSpec::Name("copyright".into())]),
                     end: Some(vec![ComponentSpec::Name("social-links".into())]),
-                    ..Default::default()
                 },
             ]),
             ..Default::default()

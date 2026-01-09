@@ -383,17 +383,6 @@ pub struct SiteConfig {
     /// ```
     pub author: Option<AuthorSpec>,
 
-    /// Root directory for site content
-    ///
-    /// Path relative to the config file containing this setting.
-    /// When set, only files within this directory will be published
-    /// to the site, and routes will be calculated relative to this
-    /// directory rather than the workspace root.
-    ///
-    /// Example: If set to "docs" in /myproject/stencila.toml,
-    /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
-    pub root: Option<ConfigRelativePath>,
-
     /// Site logo configuration
     ///
     /// Can be a simple path string or a responsive configuration with
@@ -413,25 +402,6 @@ pub struct SiteConfig {
     /// mobile = "logo-mobile.svg"
     /// ```
     pub logo: Option<LogoSpec>,
-
-    /// Site navigation structure
-    ///
-    /// Defines the hierarchical navigation used by nav-tree and prev-next components.
-    /// If not specified, navigation is auto-generated from document routes.
-    ///
-    /// Example:
-    /// ```toml
-    /// [site]
-    /// nav = [
-    ///   "/",
-    ///   { label = "Docs", children = [
-    ///     "/docs/getting-started/",
-    ///     "/docs/configuration/",
-    ///   ]},
-    ///   "/about/",
-    /// ]
-    /// ```
-    pub nav: Option<Vec<NavItem>>,
 
     /// Icon assignments for nav items
     ///
@@ -501,6 +471,36 @@ pub struct SiteConfig {
     /// }
     /// ```
     pub featured: Option<HashMap<String, FeaturedContent>>,
+
+    /// Site navigation structure
+    ///
+    /// Defines the hierarchical navigation used by nav-tree and prev-next components.
+    /// If not specified, navigation is auto-generated from document routes.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site]
+    /// nav = [
+    ///   "/",
+    ///   { label = "Docs", children = [
+    ///     "/docs/getting-started/",
+    ///     "/docs/configuration/",
+    ///   ]},
+    ///   "/about/",
+    /// ]
+    /// ```
+    pub nav: Option<Vec<NavItem>>,
+
+    /// Root directory for site content
+    ///
+    /// Path relative to the config file containing this setting.
+    /// When set, only files within this directory will be published
+    /// to the site, and routes will be calculated relative to this
+    /// directory rather than the workspace root.
+    ///
+    /// Example: If set to "docs" in /myproject/stencila.toml,
+    /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
+    pub root: Option<ConfigRelativePath>,
 
     /// Glob patterns for files to exclude when publishing
     ///
