@@ -18,6 +18,18 @@ use crate::{
     layout::LayoutConfig, validate_placeholders,
 };
 
+/// Additional formats to generate alongside HTML during site rendering
+///
+/// Controls which format files are generated and which format-specific
+/// buttons (e.g., copy-markdown) are displayed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum SiteFormat {
+    /// Markdown format (generates page.md files)
+    Md,
+    // Future: JsonLd, Docx, Pdf etc
+}
+
 /// Logo configuration - simple string or responsive object
 ///
 /// Supports both simple usage with a single logo path and advanced usage
@@ -628,6 +640,22 @@ pub struct SiteConfig {
     /// prefetch = 25
     /// ```
     pub glide: Option<GlideConfig>,
+
+    /// Additional formats to generate alongside HTML
+    ///
+    /// Controls which format files are generated during site rendering and
+    /// which format-specific buttons are displayed. When a format is not
+    /// in this list, its corresponding button (e.g., copy-markdown) is hidden.
+    ///
+    /// Default: `["md"]` (generates page.md files)
+    ///
+    /// Example:
+    /// ```toml
+    /// [site]
+    /// formats = ["md"]  # Generate page.md files, show copy-markdown button
+    /// formats = []      # No additional formats, hide format buttons
+    /// ```
+    pub formats: Option<Vec<SiteFormat>>,
 }
 
 impl SiteConfig {
@@ -670,6 +698,20 @@ impl SiteConfig {
     /// Get the root path
     pub fn resolve_root(&self, base_dir: &Path) -> Option<PathBuf> {
         self.root.as_ref().map(|root| root.resolve(base_dir))
+    }
+
+    /// Check if a format is enabled for generation
+    ///
+    /// Returns true if the format is in the `formats` list.
+    /// When `formats` is None, defaults to `["md"]`.
+    pub fn is_format_enabled(&self, format: SiteFormat) -> bool {
+        self.formats
+            .as_ref()
+            .map(|f| f.contains(&format))
+            .unwrap_or_else(|| {
+                // Default: md is enabled
+                matches!(format, SiteFormat::Md)
+            })
     }
 }
 

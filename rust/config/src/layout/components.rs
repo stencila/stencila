@@ -318,6 +318,28 @@ pub enum ComponentConfig {
         path_prefix: Option<String>,
     },
 
+    /// Copy page as Markdown button
+    ///
+    /// Displays a button that copies the current page content as Markdown
+    /// to the clipboard. The markdown file is generated alongside the HTML
+    /// during site rendering.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.footer]
+    /// end = "copy-markdown"  # Uses defaults
+    ///
+    /// # With custom text:
+    /// end = { type = "copy-markdown", text = "Copy as MD" }
+    /// ```
+    CopyMarkdown {
+        /// Custom button text (default: "Copy")
+        text: Option<String>,
+
+        /// Display style (default: both)
+        style: Option<CopyMarkdownStyle>,
+    },
+
     /// Social/external links (GitHub, Discord, LinkedIn, etc.)
     ///
     /// Displays links to social media and external platforms with automatic icons.
@@ -434,6 +456,7 @@ pub const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "color-mode",
     "copyright",
     "edit-source",
+    "copy-markdown",
     "social-links",
 ];
 
@@ -468,6 +491,24 @@ pub enum ColorModeStyle {
 #[strum(serialize_all = "lowercase")]
 pub enum EditSourceStyle {
     /// Pencil/edit icon only
+    Icon,
+
+    /// Text only
+    Text,
+
+    /// Icon and text (default)
+    #[default]
+    Both,
+}
+
+/// Display style for copy markdown button
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum CopyMarkdownStyle {
+    /// Clipboard icon only
     Icon,
 
     /// Text only
@@ -726,6 +767,7 @@ mod tests {
             r#"type = "color-mode""#,
             r#"type = "copyright""#,
             r#"type = "edit-source""#,
+            r#"type = "copy-markdown""#,
             r#"type = "social-links""#,
         ];
 
@@ -749,6 +791,7 @@ mod tests {
         assert!(is_builtin_component_type("color-mode"));
         assert!(is_builtin_component_type("copyright"));
         assert!(is_builtin_component_type("edit-source"));
+        assert!(is_builtin_component_type("copy-markdown"));
         assert!(is_builtin_component_type("social-links"));
         assert!(!is_builtin_component_type("unknown"));
         assert!(!is_builtin_component_type("custom-nav"));
@@ -1330,6 +1373,73 @@ show-platform = false"#,
             assert_eq!(path_prefix.as_deref(), Some("docs/"));
         } else {
             panic!("Expected ComponentConfig::EditSource");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copy_markdown_basic_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(r#"type = "copy-markdown""#)?;
+        assert!(matches!(
+            config,
+            ComponentConfig::CopyMarkdown {
+                text: None,
+                style: None,
+            }
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copy_markdown_style_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copy-markdown"
+style = "icon""#,
+        )?;
+        if let ComponentConfig::CopyMarkdown { style, .. } = config {
+            assert_eq!(style, Some(CopyMarkdownStyle::Icon));
+        } else {
+            panic!("Expected ComponentConfig::CopyMarkdown");
+        }
+
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copy-markdown"
+style = "text""#,
+        )?;
+        if let ComponentConfig::CopyMarkdown { style, .. } = config {
+            assert_eq!(style, Some(CopyMarkdownStyle::Text));
+        } else {
+            panic!("Expected ComponentConfig::CopyMarkdown");
+        }
+
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copy-markdown"
+style = "both""#,
+        )?;
+        if let ComponentConfig::CopyMarkdown { style, .. } = config {
+            assert_eq!(style, Some(CopyMarkdownStyle::Both));
+        } else {
+            panic!("Expected ComponentConfig::CopyMarkdown");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_copy_markdown_all_options_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(
+            r#"type = "copy-markdown"
+text = "Copy as MD"
+style = "both""#,
+        )?;
+
+        if let ComponentConfig::CopyMarkdown { text, style } = config {
+            assert_eq!(text.as_deref(), Some("Copy as MD"));
+            assert_eq!(style, Some(CopyMarkdownStyle::Both));
+        } else {
+            panic!("Expected ComponentConfig::CopyMarkdown");
         }
 
         Ok(())

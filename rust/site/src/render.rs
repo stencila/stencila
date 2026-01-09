@@ -18,7 +18,8 @@ use tokio::{
 };
 
 use stencila_codec::{EncodeOptions, stencila_schema::Node};
-use stencila_config::{RedirectStatus, SiteConfig};
+use stencila_codec_markdown::to_markdown;
+use stencila_config::{RedirectStatus, SiteConfig, SiteFormat};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 use crate::{RouteEntry, RouteType, glide::render_glide, layout::render_layout, list};
@@ -419,7 +420,14 @@ async fn render_document_route(
     if let Some(parent) = html_file.parent() {
         create_dir_all(parent).await?;
     }
-    write(html_file, html).await?;
+    write(&html_file, html).await?;
+
+    // Generate markdown if format is enabled
+    if site_config.is_format_enabled(SiteFormat::Md) {
+        let md_file = html_file.with_file_name("page.md");
+        let markdown = to_markdown(&node);
+        write(&md_file, markdown).await?;
+    }
 
     // Collect NEW media files created during this document's encoding
     let mut media_files = Vec::new();

@@ -1,4 +1,5 @@
 import './color-mode'
+import './copy-markdown'
 import './copyright'
 import './layout'
 import './nav-groups'

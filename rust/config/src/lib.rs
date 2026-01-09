@@ -43,10 +43,11 @@ mod watch;
 
 pub use {
     layout::{
-        ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditSourceStyle,
-        LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons, NavMenuDropdownStyle,
-        NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle,
-        RegionConfig, RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
+        ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
+        EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
+        NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeExpanded,
+        NavTreeIcons, PrevNextStyle, RegionConfig, RegionSpec, RowConfig, SocialLinkPlatform,
+        SocialLinksStyle,
     },
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
@@ -55,8 +56,8 @@ pub use {
     },
     site::{
         AuthorSpec, FeaturedContent, FeaturedCta, GlideConfig, LogoConfig, LogoSpec, NavItem,
-        RedirectStatus, RouteSpread, SiteConfig, config_add_redirect_route, config_add_route,
-        config_remove_route, config_set_route_spread,
+        RedirectStatus, RouteSpread, SiteConfig, SiteFormat, config_add_redirect_route,
+        config_add_route, config_remove_route, config_set_route_spread,
     },
     utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file},
     watch::watch,

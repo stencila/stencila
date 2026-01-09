@@ -7,9 +7,9 @@ use std::path::Path;
 
 use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditSourceStyle,
-    LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec, RowConfig, SiteConfig,
-    SocialLinksStyle,
+    ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
+    EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec, RowConfig,
+    SiteConfig, SiteFormat, SocialLinksStyle,
 };
 
 use crate::{
@@ -271,6 +271,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "title" => render_title(&None, context),
             "toc-tree" => render_toc_tree(&None, &None),
             "edit-source" => render_edit_source(&None, &None, &None, &None, &None, context),
+            "copy-markdown" => render_copy_markdown(&None, &None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -358,6 +359,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             branch,
             path_prefix,
         } => render_edit_source(text, style, base_url, branch, path_prefix, context),
+        ComponentConfig::CopyMarkdown { text, style } => render_copy_markdown(text, style, context),
         ComponentConfig::SocialLinks {
             style,
             new_tab,
@@ -844,6 +846,49 @@ fn render_edit_source(
 
     format!(
         r#"<stencila-edit-source><a href="{edit_url}"{title_attr} target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-source>"#
+    )
+}
+
+/// Render a copy markdown button component
+///
+/// Displays a button that copies the page's markdown to clipboard.
+/// The web component handles fetching the markdown file and clipboard operations.
+/// Returns empty string if markdown format is not enabled in site.formats.
+fn render_copy_markdown(
+    text: &Option<String>,
+    style: &Option<CopyMarkdownStyle>,
+    context: &RenderContext,
+) -> String {
+    // Hide if markdown format is not enabled
+    if !context.site_config.is_format_enabled(SiteFormat::Md) {
+        return String::new();
+    }
+
+    // Get style with default
+    let style = style.unwrap_or_default();
+
+    // Get button text
+    let button_text = text.clone().unwrap_or_else(|| "Copy".to_string());
+
+    // Use relative URL so it works with any base path deployment
+    let md_url = "page.md";
+
+    // Icon class - using lucide clipboard icon
+    let icon_class = "i-lucide:clipboard-copy";
+
+    // Build inner HTML based on style
+    let inner_html = match style {
+        CopyMarkdownStyle::Icon => format!(r#"<span class="icon {icon_class}"></span>"#),
+        CopyMarkdownStyle::Text => format!(r#"<span class="text">{button_text}</span>"#),
+        CopyMarkdownStyle::Both => {
+            format!(
+                r#"<span class="icon {icon_class}"></span><span class="text">{button_text}</span>"#
+            )
+        }
+    };
+
+    format!(
+        r#"<stencila-copy-markdown data-url="{md_url}"><button type="button" title="Copy page as Markdown" aria-label="Copy page as Markdown">{inner_html}</button></stencila-copy-markdown>"#
     )
 }
 
