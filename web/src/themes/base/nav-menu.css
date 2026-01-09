@@ -70,7 +70,7 @@
     --nav-menu-dropdown-bg: var(--surface-elevated);
     --nav-menu-dropdown-border: var(--border-color-default);
     --nav-menu-dropdown-shadow: var(--shadow-lg);
-    --nav-menu-item-border-color: var(--border-color-muted);
+    --nav-menu-item-border-color: var(--border-color-default);
 
     /* Structure */
     --nav-menu-item-padding-x: var(--space-3);
@@ -97,7 +97,7 @@
     --nav-menu-featured-padding: var(--space-4);
 
     /* Section titles */
-    --nav-menu-section-title-font-size: var(--font-size-xs);
+    --nav-menu-section-title-font-size: var(--font-size-2xs);
     --nav-menu-section-title-font-weight: var(--font-weight-semibold);
     --nav-menu-section-title-color: var(--text-color-muted);
     --nav-menu-section-title-margin-bottom: var(--space-2);
@@ -122,9 +122,6 @@
     /* Mobile */
     --nav-menu-mobile-padding: var(--space-4);
     --nav-menu-accordion-max-height: 70vh;
-
-    /* Z-index - must be above header content like breadcrumbs */
-    --nav-menu-dropdown-z-index: calc(var(--layout-z-header) + 50);
 }
 
 /* ====================
@@ -308,6 +305,11 @@ stencila-nav-menu .dropdown:has(.featured) {
     align-items: stretch;
 }
 
+/* Mobile: stack featured content vertically */
+stencila-nav-menu[data-mobile-mode="true"] .dropdown:has(.featured) {
+    flex-direction: column;
+}
+
 /* Main dropdown content */
 stencila-nav-menu .dropdown-main {
     flex: 1;
@@ -403,7 +405,7 @@ stencila-nav-menu .featured {
     width: var(--nav-menu-featured-width);
     padding: var(--nav-menu-featured-padding);
     background: var(--nav-menu-featured-bg);
-    border-left: 1px solid var(--nav-menu-dropdown-border);
+    border-left: 1px solid var(--border-color-muted);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
@@ -557,6 +559,11 @@ stencila-nav-menu[data-mobile-mode="true"] {
     --nav-menu-transition-duration: var(--nav-menu-accordion-transition-duration);
 }
 
+/* When mobile menu is expanded, hide sidebar toggles (they're not needed with full-screen menu) */
+stencila-layout:has(stencila-nav-menu[data-mobile-mode="true"][mobile-expanded]) .sidebar-toggle {
+    display: none;
+}
+
 stencila-nav-menu[data-mobile-mode="true"][mobile-expanded] .list {
     display: flex;
 }
@@ -631,8 +638,21 @@ stencila-nav-menu[data-mobile-mode="true"] .featured {
     margin-top: var(--space-4);
     padding-top: var(--space-4);
     border-left: none;
-    border-top: 1px solid var(--nav-menu-dropdown-border);
+    border-top: 1px solid var(--border-color-muted);
     border-radius: 0;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .featured-image {
+    display: none;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .featured-cta {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+stencila-nav-menu[data-mobile-mode="true"] .chevron {
+    display: inline-flex;
 }
 
 stencila-nav-menu[data-mobile-mode="true"] .nested-list {
