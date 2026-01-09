@@ -197,8 +197,11 @@ stencila-left-sidebar .sidebar-content {
     position: sticky;
     top: var(--layout-header-height);
     max-height: calc(100vh - var(--layout-header-height));
+    min-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--sidebar-padding);
+    display: flex;
+    flex-direction: column;
 }
 
 
@@ -218,14 +221,18 @@ stencila-right-sidebar .sidebar-content {
     position: sticky;
     top: var(--layout-header-height);
     max-height: calc(100vh - var(--layout-header-height));
+    min-height: calc(100vh - var(--layout-header-height));
     overflow-y: auto;
     padding: var(--sidebar-padding);
+    display: flex;
+    flex-direction: column;
 }
 
 /* When no header, sidebar content starts at viewport top */
 stencila-layout:not([header]) .sidebar-content {
     top: 0;
     max-height: 100vh;
+    min-height: 100vh;
 }
 
 /* =================================
@@ -332,6 +339,17 @@ stencila-footer [data-subregion="middle"] > * {
     gap: var(--subregion-gap);
     flex-shrink: 0;
     margin-left: auto;
+}
+
+/* Sidebar subregions: vertical layout with end at bottom */
+.sidebar-content [data-subregion] {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.sidebar-content [data-subregion="end"] {
+    margin-left: 0;
+    margin-top: auto;
 }
 
 /* =================================
@@ -543,12 +561,14 @@ stencila-layout[header] .sidebar-overlay {
 
     /* Reset sticky behavior for mobile drawers
      * - Prevents 64px gap from sticky top offset
-     * - Avoids nested scroll containers (parent sidebar has overflow-y: auto) */
+     * - Avoids nested scroll containers (parent sidebar has overflow-y: auto)
+     * - min-height: 100% fills drawer height so end subregion stays at bottom */
     stencila-left-sidebar .sidebar-content,
     stencila-right-sidebar .sidebar-content {
         position: static;
         top: auto;
         max-height: none;
+        min-height: 100%;
         overflow-y: visible;
         padding: var(--sidebar-padding);
     }

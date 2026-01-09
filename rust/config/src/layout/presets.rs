@@ -54,12 +54,13 @@ impl LayoutPreset {
         }));
 
         let left_sidebar = Some(RegionSpec::Config(RegionConfig {
-            middle: Some(vec![ComponentSpec::Name("nav-tree".into())]),
+            start: Some(vec![ComponentSpec::Name("nav-tree".into())]),
             ..Default::default()
         }));
 
         let right_sidebar = Some(RegionSpec::Config(RegionConfig {
             start: Some(vec![ComponentSpec::Name("toc-tree".into())]),
+            end: Some(vec![ComponentSpec::Name("edit-page".into())]),
             ..Default::default()
         }));
 
