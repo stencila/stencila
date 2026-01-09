@@ -619,7 +619,8 @@ pub enum NavMenuIcons {
     Hide,
 
     /// Only show icons inside dropdown panels
-    DropdownsOnly,
+    #[serde(alias = "dropdown")]
+    Dropdowns,
 }
 
 /// Dropdown trigger behavior for nav-menu

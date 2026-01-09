@@ -285,7 +285,7 @@ fn render_menu_icon(
     let should_show = match mode {
         NavMenuIcons::Show => true,
         NavMenuIcons::Hide => false,
-        NavMenuIcons::DropdownsOnly => in_dropdown,
+        NavMenuIcons::Dropdowns => in_dropdown,
     };
 
     if !should_show {

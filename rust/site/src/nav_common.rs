@@ -409,22 +409,43 @@ fn lookup_icon(
     icons: &HashMap<String, String>,
 ) -> Option<String> {
     // Try route first (with and without trailing slash normalization)
-    if let Some(r) = route {
-        let normalized = r.trim_end_matches('/');
-        if let Some(icon) = icons.get(r) {
-            return Some(icon.clone());
-        }
-        if let Some(icon) = icons.get(normalized) {
-            return Some(icon.clone());
-        }
-        let with_slash = format!("{normalized}/");
-        if let Some(icon) = icons.get(&with_slash) {
-            return Some(icon.clone());
-        }
+    if let Some(r) = route
+        && let Some(icon) = lookup_icon_by_route(r, icons)
+    {
+        return Some(icon);
     }
 
-    // Try label
-    icons.get(label).cloned()
+    // Try label as-is
+    if let Some(icon) = icons.get(label) {
+        return Some(icon.clone());
+    }
+
+    // Try deriving a route from the label (for groups without explicit routes)
+    // Convert "Getting Started" -> "/getting-started/" and try that
+    let derived_route = format!("/{}/", label_to_segment(label));
+    lookup_icon_by_route(&derived_route, icons)
+}
+
+/// Try to find an icon by route, with various slash normalizations
+fn lookup_icon_by_route(route: &str, icons: &HashMap<String, String>) -> Option<String> {
+    let normalized = route.trim_end_matches('/');
+    if let Some(icon) = icons.get(route) {
+        return Some(icon.clone());
+    }
+    if let Some(icon) = icons.get(normalized) {
+        return Some(icon.clone());
+    }
+    let with_slash = format!("{normalized}/");
+    if let Some(icon) = icons.get(&with_slash) {
+        return Some(icon.clone());
+    }
+    None
+}
+
+/// Convert a label back to a URL segment
+/// "Getting Started" -> "getting-started"
+fn label_to_segment(label: &str) -> String {
+    label.to_lowercase().replace(' ', "-")
 }
 
 /// Normalize an icon name by adding the default "lucide:" prefix if no icon set is specified
