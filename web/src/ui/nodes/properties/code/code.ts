@@ -322,6 +322,14 @@ export class UINodeCode extends LitElement {
       },
     }),
     LanguageDescription.of({
+      name: 'toml',
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/toml').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.toml))
+        )
+      },
+    }),
+    LanguageDescription.of({
       name: 'xml',
       alias: ['mathml', 'svg'],
       load: async () => {
