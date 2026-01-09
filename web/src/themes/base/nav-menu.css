@@ -48,6 +48,7 @@
  * - Typography: font-family, font-size, item-font-weight
  * - Colors: color, color-hover, color-active, dropdown-bg
  * - Structure: height, item-padding, dropdown-max-width
+ * - Icons: icon-size, icon-gap, chevron-display (none|inline-flex), chevron-size
  * - Featured: featured-width, featured-bg
  * - Animation: transition-duration
  * - Focus: focus-ring-width, focus-ring-color
@@ -81,6 +82,9 @@
     /* Icons */
     --nav-menu-icon-size: 1.25rem;
     --nav-menu-icon-gap: var(--space-2);
+
+    /* Chevron (dropdown indicator on trigger buttons) */
+    --nav-menu-chevron-display: none; /* Set to inline-flex to show */
     --nav-menu-chevron-size: 0.5em;
 
     /* Descriptions */
@@ -212,7 +216,6 @@ stencila-nav-menu .trigger {
 stencila-nav-menu .item > a:hover,
 stencila-nav-menu .trigger:hover {
     color: var(--nav-menu-color-hover);
-    background-color: var(--surface-sunken);
 }
 
 /* Active state */
@@ -230,9 +233,9 @@ stencila-nav-menu .icon {
     flex-shrink: 0;
 }
 
-/* Chevron for dropdowns */
+/* Chevron for dropdowns (hidden by default, enable via --nav-menu-chevron-display) */
 stencila-nav-menu .chevron {
-    display: inline-flex;
+    display: var(--nav-menu-chevron-display);
     align-items: center;
     justify-content: center;
     width: var(--space-4);
