@@ -49,24 +49,6 @@ export class StencilaNavMenu extends LitElement {
   dropdownStyle: 'full-width' | 'aligned' = 'full-width'
 
   /**
-   * Delay in ms before opening dropdown on hover
-   */
-  @property({ type: Number, attribute: 'hover-delay' })
-  hoverDelay = 150
-
-  /**
-   * Delay in ms before closing dropdown on mouse leave
-   */
-  @property({ type: Number, attribute: 'close-delay' })
-  closeDelay = 300
-
-  /**
-   * Viewport width below which to show mobile menu
-   */
-  @property({ type: Number, attribute: 'mobile-breakpoint' })
-  mobileBreakpoint = 1024
-
-  /**
    * Whether mobile menu is expanded
    */
   @property({ type: Boolean, attribute: 'mobile-expanded', reflect: true })
@@ -103,6 +85,39 @@ export class StencilaNavMenu extends LitElement {
    */
   protected override createRenderRoot() {
     return this
+  }
+
+  /**
+   * Get a CSS variable value as a number (parsing ms/px units)
+   */
+  private getCssVar(name: string, fallback: number): number {
+    const style = getComputedStyle(this)
+    const value = style.getPropertyValue(name).trim()
+    if (!value) return fallback
+    // Parse numeric value, stripping units like 'ms' or 'px'
+    const parsed = parseFloat(value)
+    return isNaN(parsed) ? fallback : parsed
+  }
+
+  /**
+   * Get hover delay from CSS variable
+   */
+  private get hoverDelay(): number {
+    return this.getCssVar('--nav-menu-hover-delay', 150)
+  }
+
+  /**
+   * Get close delay from CSS variable
+   */
+  private get closeDelay(): number {
+    return this.getCssVar('--nav-menu-close-delay', 300)
+  }
+
+  /**
+   * Get mobile breakpoint from CSS variable
+   */
+  private get mobileBreakpoint(): number {
+    return this.getCssVar('--nav-menu-mobile-breakpoint', 1024)
   }
 
   override connectedCallback() {

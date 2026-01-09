@@ -167,18 +167,6 @@ pub enum ComponentConfig {
         /// Dropdown panel style (default: full-width)
         #[serde(rename = "dropdown-style")]
         dropdown_style: Option<NavMenuDropdownStyle>,
-
-        /// Hover delay in ms before opening (default: 150)
-        #[serde(rename = "hover-delay")]
-        hover_delay: Option<u16>,
-
-        /// Close delay in ms after mouse leaves (default: 300)
-        #[serde(rename = "close-delay")]
-        close_delay: Option<u16>,
-
-        /// Mobile breakpoint in pixels (default: 1024)
-        #[serde(rename = "mobile-breakpoint")]
-        mobile_breakpoint: Option<u16>,
     },
 
     /// Table of contents tree from document headings

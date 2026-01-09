@@ -37,10 +37,12 @@
  * - descriptions: true|false - show item descriptions in dropdowns
  * - trigger: hover|click - dropdown trigger mode
  * - dropdown-style: full-width|aligned - dropdown positioning
- * - hover-delay: ms before opening on hover
- * - close-delay: ms before closing on mouse leave
- * - mobile-breakpoint: viewport width for mobile mode
  * - mobile-expanded: whether mobile menu is open
+ *
+ * CSS variables (read by JavaScript for behavior):
+ * - --nav-menu-hover-delay: ms before opening on hover (default: 150ms)
+ * - --nav-menu-close-delay: ms before closing on mouse leave (default: 300ms)
+ * - --nav-menu-mobile-breakpoint: viewport width for mobile mode (default: 1024px)
  *
  * Design tokens (prefixed with --nav-menu-):
  * - Typography: font-family, font-size, item-font-weight
@@ -50,6 +52,8 @@
  * - Animation: transition-duration
  * - Focus: focus-ring-width, focus-ring-color
  * - Mobile: item-border-color, accordion-transition-duration
+ * - Interaction: hover-delay, close-delay (read by JS)
+ * - Responsive: mobile-breakpoint (read by JS)
  */
 
 :root {
@@ -97,6 +101,13 @@
     /* Animation */
     --nav-menu-transition-duration: var(--transition-duration-base);
     --nav-menu-accordion-transition-duration: var(--transition-duration-slowest);
+
+    /* Interaction timing (read by JavaScript) */
+    --nav-menu-hover-delay: 150ms;
+    --nav-menu-close-delay: 300ms;
+
+    /* Responsive breakpoint (read by JavaScript) */
+    --nav-menu-mobile-breakpoint: 1024px;
 
     /* Focus */
     --nav-menu-focus-ring-width: var(--focus-ring-width);

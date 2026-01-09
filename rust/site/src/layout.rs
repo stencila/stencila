@@ -236,9 +236,6 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
                     &None,
                     &None,
                     &None,
-                    &None,
-                    &None,
-                    &None,
                     &menu_context,
                 )
             }
@@ -300,9 +297,6 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             descriptions,
             trigger,
             dropdown_style,
-            hover_delay,
-            close_delay,
-            mobile_breakpoint,
         } => {
             let menu_context = NavMenuContext {
                 site_config: context.site_config,
@@ -318,9 +312,6 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
                 descriptions,
                 trigger,
                 dropdown_style,
-                hover_delay,
-                close_delay,
-                mobile_breakpoint,
                 &menu_context,
             )
         }

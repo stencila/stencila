@@ -35,9 +35,6 @@ pub(crate) fn render_nav_menu(
     descriptions: &Option<bool>,
     trigger: &Option<NavMenuTrigger>,
     dropdown_style: &Option<NavMenuDropdownStyle>,
-    hover_delay: &Option<u16>,
-    close_delay: &Option<u16>,
-    mobile_breakpoint: &Option<u16>,
     context: &NavMenuContext,
 ) -> String {
     // Get config values with defaults
@@ -46,9 +43,6 @@ pub(crate) fn render_nav_menu(
     let descriptions = descriptions.unwrap_or(true);
     let trigger = trigger.unwrap_or_default();
     let dropdown_style = dropdown_style.unwrap_or_default();
-    let hover_delay = hover_delay.unwrap_or(150);
-    let close_delay = close_delay.unwrap_or(300);
-    let mobile_breakpoint = mobile_breakpoint.unwrap_or(1024);
 
     // Resolve nav items: site.nav or auto-generated
     let nav_items = context
@@ -90,7 +84,7 @@ pub(crate) fn render_nav_menu(
 
     // Build attributes
     let attrs = format!(
-        r#" groups="{groups}" icons="{icons_mode}" descriptions="{descriptions}" trigger="{trigger}" dropdown-style="{dropdown_style}" hover-delay="{hover_delay}" close-delay="{close_delay}" mobile-breakpoint="{mobile_breakpoint}""#
+        r#" groups="{groups}" icons="{icons_mode}" descriptions="{descriptions}" trigger="{trigger}" dropdown-style="{dropdown_style}""#
     );
 
     format!(
