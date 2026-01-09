@@ -549,7 +549,18 @@ fn render_featured_content(
     let image_html = content
         .image
         .as_ref()
-        .map(|src| format!(r#"<img src="{src}" alt="" class="featured-image">"#))
+        .map(|src| {
+            // Ensure path is absolute so it resolves from site root (unless external URL)
+            let src = if src.starts_with('/')
+                || src.starts_with("http://")
+                || src.starts_with("https://")
+            {
+                src.to_string()
+            } else {
+                format!("/{src}")
+            };
+            format!(r#"<img src="{src}" alt="" class="featured-image">"#)
+        })
         .unwrap_or_default();
 
     let desc_html = content
