@@ -720,7 +720,7 @@ mod tests {
             [bottom]
             rows = [
                 { middle = "prev-next" },
-                { start = "edit-page", end = "copyright" }
+                { start = "edit-source", end = "copyright" }
             ]
         "#;
         let config: LayoutConfig = toml::from_str(toml)?;

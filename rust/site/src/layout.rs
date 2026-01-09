@@ -7,8 +7,9 @@ use std::path::Path;
 
 use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditPageStyle, LayoutConfig,
-    LogoConfig, NavItem, PrevNextStyle, RegionSpec, RowConfig, SiteConfig, SocialLinksStyle,
+    ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditSourceStyle,
+    LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec, RowConfig, SiteConfig,
+    SocialLinksStyle,
 };
 
 use crate::{
@@ -185,7 +186,7 @@ fn render_region(
 /// Each row is wrapped in a `<div data-row="N">` container with its own
 /// start/middle/end sub-regions. This enables multi-row layouts like:
 /// - Row 0: prev-next navigation in the middle
-/// - Row 1: edit-page on the left, last-edited on the right
+/// - Row 1: edit-source on the left, last-edited on the right
 fn render_rows(rows: &[RowConfig], context: &RenderContext) -> String {
     rows.iter()
         .enumerate()
@@ -269,7 +270,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "social-links" => render_social_links(&None, &None, &None, &None, &None, context),
             "title" => render_title(&None, context),
             "toc-tree" => render_toc_tree(&None, &None),
-            "edit-page" => render_edit_page(&None, &None, &None, &None, &None, &None, context),
+            "edit-source" => render_edit_source(&None, &None, &None, &None, &None, &None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -350,14 +351,14 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => render_prev_next(style, prev_text, next_text, separator, context),
         ComponentConfig::Title { text } => render_title(text, context),
         ComponentConfig::TocTree { title, depth } => render_toc_tree(title, depth),
-        ComponentConfig::EditPage {
+        ComponentConfig::EditSource {
             text,
             style,
             base_url,
             branch,
             path_prefix,
             show_platform,
-        } => render_edit_page(
+        } => render_edit_source(
             text,
             style,
             base_url,
@@ -731,7 +732,7 @@ impl EditPlatform {
     }
 }
 
-/// Render an edit page link component
+/// Render an edit source link component
 ///
 /// Displays a link to edit the current page on GitHub/GitLab/Bitbucket.
 /// Auto-detects the repository from git origin for supported hosts.
@@ -742,9 +743,9 @@ impl EditPlatform {
 /// - Not in a git repository
 /// - No git origin is configured and no `base-url` is provided
 /// - Origin host is not supported and no `base-url` is provided
-fn render_edit_page(
+fn render_edit_source(
     text: &Option<String>,
-    style: &Option<EditPageStyle>,
+    style: &Option<EditSourceStyle>,
     base_url: &Option<String>,
     branch: &Option<String>,
     path_prefix: &Option<String>,
@@ -829,9 +830,9 @@ fn render_edit_page(
     // Build inner HTML based on style
     // Uses UnoCSS i-lucide:square-pen icon class
     let inner_html = match style {
-        EditPageStyle::Icon => r#"<span class="icon i-lucide:square-pen"></span>"#.to_string(),
-        EditPageStyle::Text => format!(r#"<span class="text">{link_text}</span>"#),
-        EditPageStyle::Both => {
+        EditSourceStyle::Icon => r#"<span class="icon i-lucide:square-pen"></span>"#.to_string(),
+        EditSourceStyle::Text => format!(r#"<span class="text">{link_text}</span>"#),
+        EditSourceStyle::Both => {
             format!(
                 r#"<span class="icon i-lucide:square-pen"></span><span class="text">{link_text}</span>"#
             )
@@ -839,7 +840,7 @@ fn render_edit_page(
     };
 
     format!(
-        r#"<stencila-edit-page><a href="{edit_url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-page>"#
+        r#"<stencila-edit-source><a href="{edit_url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-source>"#
     )
 }
 

@@ -60,7 +60,7 @@ impl LayoutPreset {
 
         let right_sidebar = Some(RegionSpec::Config(RegionConfig {
             start: Some(vec![ComponentSpec::Name("toc-tree".into())]),
-            end: Some(vec![ComponentSpec::Name("edit-page".into())]),
+            end: Some(vec![ComponentSpec::Name("edit-source".into())]),
             ..Default::default()
         }));
 

@@ -273,7 +273,7 @@ pub enum ComponentConfig {
         link: Option<String>,
     },
 
-    /// Edit page link for GitHub/GitLab/Bitbucket
+    /// Edit source link for GitHub/GitLab/Bitbucket
     ///
     /// Displays a link to edit the current page on the source repository.
     /// Auto-detects the repository from git origin for github.com, gitlab.com,
@@ -283,20 +283,20 @@ pub enum ComponentConfig {
     /// Example:
     /// ```toml
     /// [site.layout.footer]
-    /// end = "edit-page"  # Auto-detect from git origin
+    /// end = "edit-source"  # Auto-detect from git origin
     ///
     /// # With custom text:
-    /// end = { type = "edit-page", text = "Suggest changes" }
+    /// end = { type = "edit-source", text = "Suggest changes" }
     ///
     /// # For self-hosted GitLab:
-    /// end = { type = "edit-page", base-url = "https://gitlab.mycompany.com/team/docs/-/edit/main/" }
+    /// end = { type = "edit-source", base-url = "https://gitlab.mycompany.com/team/docs/-/edit/main/" }
     /// ```
-    EditPage {
+    EditSource {
         /// Custom link text (default: "Edit on GitHub" / "Edit on GitLab" based on platform)
         text: Option<String>,
 
         /// Display style (default: both)
-        style: Option<EditPageStyle>,
+        style: Option<EditSourceStyle>,
 
         /// Full edit URL prefix (e.g., "https://github.com/org/repo/edit/main/")
         ///
@@ -436,7 +436,7 @@ pub const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "prev-next",
     "color-mode",
     "copyright",
-    "edit-page",
+    "edit-source",
     "social-links",
 ];
 
@@ -463,13 +463,13 @@ pub enum ColorModeStyle {
     Both,
 }
 
-/// Display style for edit page link
+/// Display style for edit source link
 #[derive(
     Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
 )]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
-pub enum EditPageStyle {
+pub enum EditSourceStyle {
     /// Pencil/edit icon only
     Icon,
 
@@ -728,7 +728,7 @@ mod tests {
             r#"type = "prev-next""#,
             r#"type = "color-mode""#,
             r#"type = "copyright""#,
-            r#"type = "edit-page""#,
+            r#"type = "edit-source""#,
             r#"type = "social-links""#,
         ];
 
@@ -751,7 +751,7 @@ mod tests {
         assert!(is_builtin_component_type("prev-next"));
         assert!(is_builtin_component_type("color-mode"));
         assert!(is_builtin_component_type("copyright"));
-        assert!(is_builtin_component_type("edit-page"));
+        assert!(is_builtin_component_type("edit-source"));
         assert!(is_builtin_component_type("social-links"));
         assert!(!is_builtin_component_type("unknown"));
         assert!(!is_builtin_component_type("custom-nav"));
@@ -1217,11 +1217,11 @@ link = "https://acme.com""#,
     }
 
     #[test]
-    fn test_edit_page_basic_parsing() -> Result<()> {
-        let config: ComponentConfig = toml::from_str(r#"type = "edit-page""#)?;
+    fn test_edit_source_basic_parsing() -> Result<()> {
+        let config: ComponentConfig = toml::from_str(r#"type = "edit-source""#)?;
         assert!(matches!(
             config,
-            ComponentConfig::EditPage {
+            ComponentConfig::EditSource {
                 text: None,
                 style: None,
                 base_url: None,
@@ -1235,79 +1235,79 @@ link = "https://acme.com""#,
     }
 
     #[test]
-    fn test_edit_page_style_parsing() -> Result<()> {
+    fn test_edit_source_style_parsing() -> Result<()> {
         let config: ComponentConfig = toml::from_str(
-            r#"type = "edit-page"
+            r#"type = "edit-source"
 style = "icon""#,
         )?;
-        if let ComponentConfig::EditPage { style, .. } = config {
-            assert_eq!(style, Some(EditPageStyle::Icon));
+        if let ComponentConfig::EditSource { style, .. } = config {
+            assert_eq!(style, Some(EditSourceStyle::Icon));
         } else {
-            panic!("Expected ComponentConfig::EditPage");
+            panic!("Expected ComponentConfig::EditSource");
         }
 
         let config: ComponentConfig = toml::from_str(
-            r#"type = "edit-page"
+            r#"type = "edit-source"
 style = "text""#,
         )?;
-        if let ComponentConfig::EditPage { style, .. } = config {
-            assert_eq!(style, Some(EditPageStyle::Text));
+        if let ComponentConfig::EditSource { style, .. } = config {
+            assert_eq!(style, Some(EditSourceStyle::Text));
         } else {
-            panic!("Expected ComponentConfig::EditPage");
+            panic!("Expected ComponentConfig::EditSource");
         }
 
         let config: ComponentConfig = toml::from_str(
-            r#"type = "edit-page"
+            r#"type = "edit-source"
 style = "both""#,
         )?;
-        if let ComponentConfig::EditPage { style, .. } = config {
-            assert_eq!(style, Some(EditPageStyle::Both));
+        if let ComponentConfig::EditSource { style, .. } = config {
+            assert_eq!(style, Some(EditSourceStyle::Both));
         } else {
-            panic!("Expected ComponentConfig::EditPage");
+            panic!("Expected ComponentConfig::EditSource");
         }
 
         Ok(())
     }
 
     #[test]
-    fn test_edit_page_with_text() -> Result<()> {
+    fn test_edit_source_with_text() -> Result<()> {
         let config: ComponentConfig = toml::from_str(
-            r#"type = "edit-page"
+            r#"type = "edit-source"
 text = "Suggest changes""#,
         )?;
 
-        if let ComponentConfig::EditPage { text, .. } = config {
+        if let ComponentConfig::EditSource { text, .. } = config {
             assert_eq!(text.as_deref(), Some("Suggest changes"));
         } else {
-            panic!("Expected ComponentConfig::EditPage");
+            panic!("Expected ComponentConfig::EditSource");
         }
 
         Ok(())
     }
 
     #[test]
-    fn test_edit_page_with_base_url() -> Result<()> {
+    fn test_edit_source_with_base_url() -> Result<()> {
         let config: ComponentConfig = toml::from_str(
-            r#"type = "edit-page"
+            r#"type = "edit-source"
 base-url = "https://github.com/org/repo/edit/main/""#,
         )?;
 
-        if let ComponentConfig::EditPage { base_url, .. } = config {
+        if let ComponentConfig::EditSource { base_url, .. } = config {
             assert_eq!(
                 base_url.as_deref(),
                 Some("https://github.com/org/repo/edit/main/")
             );
         } else {
-            panic!("Expected ComponentConfig::EditPage");
+            panic!("Expected ComponentConfig::EditSource");
         }
 
         Ok(())
     }
 
     #[test]
-    fn test_edit_page_all_options_parsing() -> Result<()> {
+    fn test_edit_source_all_options_parsing() -> Result<()> {
         let config: ComponentConfig = toml::from_str(
-            r#"type = "edit-page"
+            r#"type = "edit-source"
 text = "Edit on GitHub"
 style = "both"
 base-url = "https://github.com/org/repo/edit/main/"
@@ -1316,7 +1316,7 @@ path-prefix = "docs/"
 show-platform = false"#,
         )?;
 
-        if let ComponentConfig::EditPage {
+        if let ComponentConfig::EditSource {
             text,
             style,
             base_url,
@@ -1326,7 +1326,7 @@ show-platform = false"#,
         } = config
         {
             assert_eq!(text.as_deref(), Some("Edit on GitHub"));
-            assert_eq!(style, Some(EditPageStyle::Both));
+            assert_eq!(style, Some(EditSourceStyle::Both));
             assert_eq!(
                 base_url.as_deref(),
                 Some("https://github.com/org/repo/edit/main/")
@@ -1335,7 +1335,7 @@ show-platform = false"#,
             assert_eq!(path_prefix.as_deref(), Some("docs/"));
             assert_eq!(show_platform, Some(false));
         } else {
-            panic!("Expected ComponentConfig::EditPage");
+            panic!("Expected ComponentConfig::EditSource");
         }
 
         Ok(())

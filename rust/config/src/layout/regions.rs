@@ -87,7 +87,7 @@ pub struct RegionConfig {
     /// [site.layout.bottom]
     /// rows = [
     ///   { middle = "prev-next" },
-    ///   { start = "edit-page", end = "last-edited" }
+    ///   { start = "edit-source", end = "last-edited" }
     /// ]
     /// ```
     pub rows: Option<Vec<RowConfig>>,
@@ -108,7 +108,7 @@ pub struct RegionConfig {
 /// [site.layout.bottom]
 /// rows = [
 ///   { middle = "prev-next" },
-///   { start = "edit-page", end = "last-edited" }
+///   { start = "edit-source", end = "last-edited" }
 /// ]
 /// ```
 #[skip_serializing_none]
@@ -606,7 +606,7 @@ mod tests {
         let toml = r#"
             rows = [
                 { middle = "prev-next" },
-                { start = "edit-page", end = "copyright" }
+                { start = "edit-source", end = "copyright" }
             ]
         "#;
         let config: RegionConfig = toml::from_str(toml)?;
@@ -637,7 +637,7 @@ mod tests {
                     ..Default::default()
                 },
                 RowConfig {
-                    start: Some(vec![ComponentSpec::Name("edit-page".into())]),
+                    start: Some(vec![ComponentSpec::Name("edit-source".into())]),
                     ..Default::default()
                 },
             ]),
@@ -677,7 +677,7 @@ mod tests {
         let override_spec = Some(RegionSpec::Config(RegionConfig {
             rows: Some(vec![
                 RowConfig {
-                    start: Some(vec![ComponentSpec::Name("edit-page".into())]),
+                    start: Some(vec![ComponentSpec::Name("edit-source".into())]),
                     ..Default::default()
                 },
                 RowConfig {

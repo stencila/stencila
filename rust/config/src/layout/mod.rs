@@ -28,7 +28,7 @@ mod presets;
 mod regions;
 
 pub use components::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditPageStyle,
+    ColorModeStyle, ComponentConfig, ComponentSpec, CustomSocialLink, EditSourceStyle,
     NavGroupsIcons, NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger,
     NavTreeExpanded, NavTreeIcons, PrevNextStyle, SocialLinkPlatform, SocialLinksStyle,
 };
