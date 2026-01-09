@@ -426,25 +426,64 @@ fn lookup_icon(
     lookup_icon_by_route(&derived_route, icons)
 }
 
-/// Try to find an icon by route, with various slash normalizations
+/// Try to find an icon by route, with various normalizations
+///
+/// Tries multiple key formats to find a match:
+/// - Exact route, without/with trailing slash
+/// - Without leading slash (e.g., "docs/config" for "/docs/config/")
+/// - Bare segment (e.g., "docs" for "/docs/")
 fn lookup_icon_by_route(route: &str, icons: &HashMap<String, String>) -> Option<String> {
+    lookup_by_route(route, icons, |v| v.clone())
+}
+
+/// Generic route lookup with various normalizations
+fn lookup_by_route<T, F>(route: &str, map: &HashMap<String, T>, clone_fn: F) -> Option<T>
+where
+    F: Fn(&T) -> T,
+{
+    // Try exact route
+    if let Some(value) = map.get(route) {
+        return Some(clone_fn(value));
+    }
+
+    // Normalize: trim trailing slash
     let normalized = route.trim_end_matches('/');
-    if let Some(icon) = icons.get(route) {
-        return Some(icon.clone());
+    if let Some(value) = map.get(normalized) {
+        return Some(clone_fn(value));
     }
-    if let Some(icon) = icons.get(normalized) {
-        return Some(icon.clone());
+
+    // Try with trailing slash
+    let with_trailing = format!("{normalized}/");
+    if let Some(value) = map.get(&with_trailing) {
+        return Some(clone_fn(value));
     }
-    let with_slash = format!("{normalized}/");
-    if let Some(icon) = icons.get(&with_slash) {
-        return Some(icon.clone());
+
+    // Try without leading slash (e.g., "/docs/config/" -> "docs/config/", "docs/config")
+    let without_leading = normalized.trim_start_matches('/');
+    if without_leading != normalized {
+        if let Some(value) = map.get(without_leading) {
+            return Some(clone_fn(value));
+        }
+        let with_trailing = format!("{without_leading}/");
+        if let Some(value) = map.get(&with_trailing) {
+            return Some(clone_fn(value));
+        }
     }
+
+    // Try bare segment (e.g., "/docs/" -> "docs", "/docs/config/" -> "config")
+    let segment = without_leading.rsplit('/').next().unwrap_or("");
+    if !segment.is_empty()
+        && let Some(value) = map.get(segment)
+    {
+        return Some(clone_fn(value));
+    }
+
     None
 }
 
 /// Convert a label back to a URL segment
 /// "Getting Started" -> "getting-started"
-fn label_to_segment(label: &str) -> String {
+pub(crate) fn label_to_segment(label: &str) -> String {
     label.to_lowercase().replace(' ', "-")
 }
 
@@ -575,21 +614,10 @@ fn lookup_description(
     lookup_description_by_route(&derived_route, descriptions)
 }
 
-/// Try to find a description by route, with various slash normalizations
+/// Try to find a description by route, with various normalizations
 fn lookup_description_by_route(
     route: &str,
     descriptions: &HashMap<String, String>,
 ) -> Option<String> {
-    let normalized = route.trim_end_matches('/');
-    if let Some(description) = descriptions.get(route) {
-        return Some(description.clone());
-    }
-    if let Some(description) = descriptions.get(normalized) {
-        return Some(description.clone());
-    }
-    let with_slash = format!("{normalized}/");
-    if let Some(description) = descriptions.get(&with_slash) {
-        return Some(description.clone());
-    }
-    None
+    lookup_by_route(route, descriptions, |v| v.clone())
 }

@@ -270,19 +270,8 @@ impl NavItem {
 
 /// Featured/promotional content for nav-menu dropdowns
 ///
-/// Used to display promotional or highlighted content in mega menu panels.
-/// Keyed by group label or route in `site.featured` configuration.
-///
-/// Example:
-/// ```toml
-/// [site.featured]
-/// "Features" = {
-///   title = "Interactive Charts",
-///   image = "/images/charts-promo.png",
-///   description = "Explore data with dynamic visualizations",
-///   cta = { label = "See examples", route = "/features/charts/" }
-/// }
-/// ```
+/// Displays promotional content in the dropdown panel of a nav group.
+/// Configured in `site.featured`, keyed by the dropdown's parent group route or label.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
@@ -405,32 +394,47 @@ pub struct SiteConfig {
 
     /// Icon assignments for nav items
     ///
-    /// Keyed by route or label, applied during nav construction.
-    /// Icons specified directly on NavItem take precedence.
+    /// Applied during nav construction. Icons specified directly on NavItem take precedence.
     ///
-    /// Icon format: "banana" (default set) or "lucide:banana" (explicit library)
+    /// **Key formats** (lookup order, most to least specific):
+    /// 1. Full route: `"/docs/config/"` - exact match
+    /// 2. Without slashes: `"docs/config"` - flexible path matching
+    /// 3. Label: `"Features"` - matches nav item labels
+    /// 4. Bare segment: `config` - matches last path segment (e.g., both `/docs/config/` and `/api/config/`)
+    ///
+    /// For unambiguous matching of nested routes, use full routes or paths without leading slash.
+    ///
+    /// **Icon format**: `"banana"` (default lucide set) or `"lucide:banana"` (explicit library)
     ///
     /// Example:
     /// ```toml
     /// [site.icons]
     /// "/" = "home"
-    /// "/docs/" = "book"
-    /// "Features" = "sparkles"
+    /// "docs/config" = "bolt"  # Specific: only /docs/config/
+    /// docs = "book"           # Matches any route ending in /docs/
+    /// "Features" = "sparkles" # Matches by label
     /// ```
     pub icons: Option<HashMap<String, String>>,
 
     /// Descriptions for navigation items
     ///
-    /// Maps routes or labels to description text. Used by navigation components
-    /// (e.g., `nav-menu`) to display descriptions without requiring inline definitions
-    /// in the `nav` array. Descriptions specified directly on NavItem take precedence.
+    /// Used by nav components (e.g., `nav-menu`) to display descriptions.
+    /// Descriptions specified directly on NavItem take precedence.
+    ///
+    /// **Key formats** (lookup order, most to least specific):
+    /// 1. Full route: `"/docs/config/"` - exact match
+    /// 2. Without slashes: `"docs/config"` - flexible path matching
+    /// 3. Label: `"Features"` - matches nav item labels
+    /// 4. Bare segment: `config` - matches last path segment
+    ///
+    /// For unambiguous matching of nested routes, use full routes or paths without leading slash.
     ///
     /// Example:
     /// ```toml
     /// [site.descriptions]
-    /// "/docs/" = "Documentation and guides"
-    /// "/docs/getting-started/" = "Quick start guide"
-    /// "Features" = "Explore all capabilities"
+    /// "docs/getting-started" = "Quick start guide"  # Specific
+    /// docs = "Documentation and guides"             # Any /docs/ route
+    /// "Features" = "Explore all capabilities"       # By label
     /// ```
     pub descriptions: Option<HashMap<String, String>>,
 
@@ -473,17 +477,23 @@ pub struct SiteConfig {
 
     /// Featured/promotional content for nav-menu dropdowns
     ///
-    /// Keyed by group label or route. Only used by nav-menu component.
+    /// Displays promotional content in the dropdown panel of a nav group.
+    /// Keyed by the **dropdown's parent group** (not leaf items).
+    ///
+    /// **Key formats** (lookup order, most to least specific):
+    /// 1. Full route: `"/docs/config/"` - exact match
+    /// 2. Without slashes: `"docs/config"` - flexible path matching
+    /// 3. Label: `"Features"` - matches nav group labels
+    /// 4. Bare segment: `config` - matches last path segment
+    ///
+    /// For unambiguous matching, use full routes or paths without leading slash.
     ///
     /// Example:
     /// ```toml
-    /// [site.featured]
-    /// "Features" = {
-    ///   title = "Interactive Charts",
-    ///   image = "/images/charts-promo.png",
-    ///   description = "Explore data with dynamic visualizations",
-    ///   cta = { label = "See examples", route = "/features/charts/" }
-    /// }
+    /// [site.featured.docs]  # Matches /docs/ dropdown (bare segment)
+    /// title = "Quick Start"
+    /// description = "Get up and running"
+    /// cta = { label = "Start", route = "/docs/getting-started/" }
     /// ```
     pub featured: Option<HashMap<String, FeaturedContent>>,
 

@@ -13,8 +13,8 @@ use stencila_config::{
 use crate::{
     RouteEntry,
     nav_common::{
-        apply_descriptions, apply_icons, auto_generate_nav, filter_nav_items, render_icon_span,
-        route_to_label,
+        apply_descriptions, apply_icons, auto_generate_nav, filter_nav_items, label_to_segment,
+        render_icon_span, route_to_label,
     },
 };
 
@@ -240,6 +240,7 @@ fn render_nav_menu_items(
                         icons_mode,
                         descriptions,
                         label,
+                        route,
                         featured,
                     );
 
@@ -305,6 +306,7 @@ fn render_nav_menu_dropdown(
     icons_mode: &NavMenuIcons,
     descriptions: bool,
     group_label: &str,
+    group_route: &Option<String>,
     featured: &Option<HashMap<String, FeaturedContent>>,
 ) -> String {
     let mut main_html = String::new();
@@ -417,7 +419,7 @@ fn render_nav_menu_dropdown(
     let main_content = format!(r#"<div class="dropdown-main">{main_html}</div>"#);
 
     // Add featured content if available
-    let featured_html = render_featured_content(group_label, featured);
+    let featured_html = render_featured_content(group_route, group_label, featured);
 
     format!("{main_content}{featured_html}")
 }
@@ -506,7 +508,13 @@ fn wrap_section(title: &Option<String>, items: &str) -> String {
 }
 
 /// Render featured content for a dropdown (from site.featured)
+///
+/// Lookup priority (same as icons/descriptions):
+/// 1. Route (with slash normalization)
+/// 2. Label
+/// 3. Derived route from label (e.g., "Getting Started" -> "/getting-started/")
 fn render_featured_content(
+    group_route: &Option<String>,
     group_label: &str,
     featured: &Option<HashMap<String, FeaturedContent>>,
 ) -> String {
@@ -514,8 +522,8 @@ fn render_featured_content(
         return String::new();
     };
 
-    // Try to find featured content by label
-    let content = featured_map.get(group_label);
+    // Try to find featured content using the same lookup pattern as icons/descriptions
+    let content = lookup_featured(group_route, group_label, featured_map);
 
     let Some(content) = content else {
         return String::new();
@@ -548,4 +556,78 @@ fn render_featured_content(
         r#"<aside class="featured">{image_html}<h4 class="featured-title">{}</h4>{desc_html}{cta_html}</aside>"#,
         content.title
     )
+}
+
+/// Look up featured content from the map, trying route first, then label
+fn lookup_featured<'a>(
+    route: &Option<String>,
+    label: &str,
+    featured: &'a HashMap<String, FeaturedContent>,
+) -> Option<&'a FeaturedContent> {
+    // Try route first (with and without trailing slash normalization)
+    if let Some(r) = route
+        && let Some(content) = lookup_featured_by_route(r, featured)
+    {
+        return Some(content);
+    }
+
+    // Try label as-is
+    if let Some(content) = featured.get(label) {
+        return Some(content);
+    }
+
+    // Try deriving a route from the label (for groups without explicit routes)
+    // Convert "Getting Started" -> "/getting-started/" and try that
+    let derived_route = format!("/{}/", label_to_segment(label));
+    lookup_featured_by_route(&derived_route, featured)
+}
+
+/// Try to find featured content by route, with various normalizations
+///
+/// Tries multiple key formats to find a match:
+/// - Exact route, without/with trailing slash
+/// - Without leading slash (e.g., "docs/config" for "/docs/config/")
+/// - Bare segment (e.g., "docs" for "/docs/")
+fn lookup_featured_by_route<'a>(
+    route: &str,
+    featured: &'a HashMap<String, FeaturedContent>,
+) -> Option<&'a FeaturedContent> {
+    // Try exact route
+    if let Some(content) = featured.get(route) {
+        return Some(content);
+    }
+
+    // Normalize: trim trailing slash
+    let normalized = route.trim_end_matches('/');
+    if let Some(content) = featured.get(normalized) {
+        return Some(content);
+    }
+
+    // Try with trailing slash
+    let with_trailing = format!("{normalized}/");
+    if let Some(content) = featured.get(&with_trailing) {
+        return Some(content);
+    }
+
+    // Try without leading slash (e.g., "/docs/config/" -> "docs/config/", "docs/config")
+    let without_leading = normalized.trim_start_matches('/');
+    if without_leading != normalized {
+        if let Some(content) = featured.get(without_leading) {
+            return Some(content);
+        }
+        let with_trailing = format!("{without_leading}/");
+        if let Some(content) = featured.get(&with_trailing) {
+            return Some(content);
+        }
+    }
+
+    // Try bare segment (e.g., "/docs/" -> "docs", "/docs/config/" -> "config")
+    let segment = without_leading.rsplit('/').next().unwrap_or("");
+    if !segment.is_empty()
+        && let Some(content) = featured.get(segment)
+    {
+        return Some(content);
+    }
+
+    None
 }
