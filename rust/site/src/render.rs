@@ -354,6 +354,7 @@ where
 }
 
 /// Render a file-based route to an index.html file
+#[allow(clippy::too_many_arguments)]
 async fn render_document_route(
     route: &str,
     mut node: Node,
