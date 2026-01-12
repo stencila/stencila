@@ -54,13 +54,15 @@ impl MarkdownCodec for IncludeBlock {
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
 
-        if matches!(context.format, Format::Llmd) || context.render {
-            context
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    self.content.to_markdown(context)
-                })
-                .exit_node();
+        // If rendering, or format is LLM Markdown, encode only the included `content` (if any)
+        if context.render || matches!(context.format, Format::Llmd) {
+            if let Some(content) = &self.content {
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
+            }
 
+            context.exit_node();
             return;
         }
 

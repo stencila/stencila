@@ -69,8 +69,9 @@ impl MarkdownCodec for IfBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_exec_options!(self));
 
-        if matches!(context.format, Format::Llmd) || context.render {
-            // Render the first active clause only
+        // If rendering, or format anything other than Stencila Markdown,
+        // encode the first active clause only
+        if context.render || !matches!(context.format, Format::Smd) {
             for clause in &self.clauses {
                 if clause.is_active.unwrap_or_default() {
                     context.push_prop_fn(NodeProperty::Content, |context| {
@@ -79,29 +80,23 @@ impl MarkdownCodec for IfBlock {
                     break;
                 }
             }
-            context.exit_node();
 
+            context.exit_node();
             return;
         }
 
         for (index, clause @ IfBlockClause { code, .. }) in self.clauses.iter().enumerate() {
             let keyword = if index == 0 {
-                "if"
+                " if "
             } else if code.is_empty() && index == self.clauses.len() - 1 {
-                "else"
+                " else"
             } else {
-                "elif"
-            };
-
-            let start = if matches!(context.format, Format::Myst) {
-                ["{", keyword, if keyword == "else" { "}" } else { "} " }].concat()
-            } else {
-                [" ", keyword, " "].concat()
+                " elif "
             };
 
             context
                 .push_colons()
-                .push_str(&start)
+                .push_str(keyword)
                 .increase_depth()
                 .push_prop_fn(NodeProperty::Clauses, |context| clause.to_markdown(context))
                 .decrease_depth();

@@ -51,20 +51,15 @@ impl LatexCodec for ForBlock {
 
 impl MarkdownCodec for ForBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render {
-            context
-                .merge_losses(lost_props!(self, variable, code, content))
-                .push_prop_fn(NodeProperty::Iterations, |context| {
-                    self.iterations.to_markdown(context)
-                })
-                .exit_node();
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .merge_losses(lost_exec_options!(self));
 
-            return;
-        }
-
-        if matches!(context.format, Format::Llmd) {
-            // Encode iterations only (unwrapping the `Section` representing each as is
-            // usually the case) but if none, render any `otherwise`
+        // If rendering, or format anything other than Stencila Markdown,
+        // encode iterations only (unwrapping the `Section` representing each as
+        // is usually the case). If non iterations, render any `otherwise`
+        if context.render || !matches!(context.format, Format::Smd) {
             for iteration in self.iterations.iter().flatten() {
                 if let Block::Section(Section { content, .. }) = iteration {
                     content.to_markdown(context);
@@ -82,28 +77,18 @@ impl MarkdownCodec for ForBlock {
                 otherwise.to_markdown(context)
             }
 
+            context.exit_node();
             return;
         }
 
         context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_exec_options!(self));
-
-        let (for_, else_) = if matches!(context.format, Format::Myst) {
-            ("{for} ", "{else}")
-        } else {
-            (" for ", " else")
-        };
-
-        context
             .push_colons()
-            .push_str(for_)
+            .push_str(" for ")
             .push_prop_str(NodeProperty::Variable, &self.variable)
             .push_str(" in ")
             .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
-        if matches!(context.format, Format::Markdown | Format::Smd | Format::Qmd)
-            && let Some(lang) = &self.programming_language
+        if let Some(lang) = &self.programming_language
             && !lang.is_empty()
         {
             context
@@ -123,8 +108,7 @@ impl MarkdownCodec for ForBlock {
         if let Some(otherwise) = &self.otherwise {
             context
                 .push_colons()
-                .push_str(else_)
-                .push_str("\n\n")
+                .push_str(" else\n\n")
                 .increase_depth()
                 .push_prop_fn(NodeProperty::Otherwise, |context| {
                     otherwise.to_markdown(context)

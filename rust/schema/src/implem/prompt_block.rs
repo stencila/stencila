@@ -48,67 +48,52 @@ impl PromptBlock {
 
 impl MarkdownCodec for PromptBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if matches!(context.format, Format::Llmd) {
-            // Do not encode at all
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
 
-        if matches!(context.format, Format::Myst) {
-            context
-                .myst_directive(
-                    '`',
-                    "prompt",
-                    |context| {
-                        if let Some(target) = &self.target {
-                            context.space().push_prop_str(NodeProperty::Target, target);
-                        }
-                    },
-                    |_| {},
-                    |_| {},
-                )
-                .exit_node()
-                .newline();
-        } else {
-            context.push_colons().push_str(" prompt");
-
-            if let Some(instruction_type) = &self.instruction_type {
-                context.space().push_prop_str(
-                    NodeProperty::InstructionType,
-                    &instruction_type.to_string().to_lowercase(),
-                );
-            }
-
-            if let Some(value) = &self.relative_position {
-                context.space().push_prop_str(
-                    NodeProperty::RelativePosition,
-                    &value.to_string().to_lowercase(),
-                );
-            }
-
-            if let Some(value) = self.node_types.iter().flatten().next() {
-                context
-                    .space()
-                    .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
-            }
-
-            if let Some(target) = &self.target
-                && !target.ends_with("?")
-            {
-                context
-                    .push_str(" @")
-                    .push_prop_str(NodeProperty::Target, target);
-            }
-
-            if let Some(query) = &self.query {
-                context.space().push_prop_str(NodeProperty::Query, query);
-            }
-
-            context.newline().exit_node().newline();
+        // If rendering, or format is any format other than Stencila Markdown,
+        // do not encode anything
+        if context.render || !matches!(context.format, Format::Smd) {
+            context.exit_node();
+            return;
         }
+
+        context.push_colons().push_str(" prompt");
+
+        if let Some(instruction_type) = &self.instruction_type {
+            context.space().push_prop_str(
+                NodeProperty::InstructionType,
+                &instruction_type.to_string().to_lowercase(),
+            );
+        }
+
+        if let Some(value) = &self.relative_position {
+            context.space().push_prop_str(
+                NodeProperty::RelativePosition,
+                &value.to_string().to_lowercase(),
+            );
+        }
+
+        if let Some(value) = self.node_types.iter().flatten().next() {
+            context
+                .space()
+                .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
+        }
+
+        if let Some(target) = &self.target
+            && !target.ends_with("?")
+        {
+            context
+                .push_str(" @")
+                .push_prop_str(NodeProperty::Target, target);
+        }
+
+        if let Some(query) = &self.query {
+            context.space().push_prop_str(NodeProperty::Query, query);
+        }
+
+        context.newline().exit_node().newline();
     }
 }

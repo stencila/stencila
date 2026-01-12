@@ -25,7 +25,21 @@ impl MarkdownCodec for CallBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, content))
+            .merge_losses(lost_options!(self, id));
+
+        // If rendering, or format is anything other than Stencila Markdown, then encode `content` only (if any)
+        if context.render || !matches!(context.format, Format::Smd) {
+            if let Some(content) = &self.content {
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
+            }
+
+            context.exit_node();
+            return;
+        }
+
+        context
             .merge_losses(lost_exec_options!(self))
             .push_colons()
             .push_str(" call ")
@@ -74,16 +88,6 @@ impl MarkdownCodec for CallBlock {
             context.push_str("}");
         }
 
-        context.newline();
-
-        if let (Format::Llmd, Some(content)) = (&context.format, &self.content) {
-            context
-                .push_str("\n=>\n\n")
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    content.to_markdown(context)
-                });
-        }
-
-        context.exit_node().newline();
+        context.newline().exit_node().newline();
     }
 }

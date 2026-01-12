@@ -434,19 +434,23 @@ impl PatchNode for InstructionBlock {
 
 impl MarkdownCodec for InstructionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if matches!(context.format, Format::Llmd) {
-            // Encode content only
-            if let Some(content) = &self.content {
-                content.to_markdown(context);
-            }
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, execution_mode))
             .merge_losses(lost_exec_options!(self));
+
+        // If rendering, or format is anything other than Stencila Markdown or
+        // MyST, then encode `content` only (if any)
+        if context.render || !matches!(context.format, Format::Smd | Format::Myst) {
+            if let Some(content) = &self.content {
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
+            }
+
+            context.exit_node();
+            return;
+        }
 
         let instruction_type = self.instruction_type.to_string().to_lowercase();
 

@@ -350,18 +350,45 @@ impl MarkdownCodec for CodeChunk {
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
 
-        if context.render {
-            context.merge_losses(lost_props!(self, code, execution_mode, execution_bounds));
-
-            for (index, output) in self.outputs.iter().flatten().enumerate() {
-                if index > 0 {
-                    context.push_str("\n\n");
+        // If rendering, or format is LLM Markdown, and if outputs are not intended to
+        // be hidden, then encode `outputs` only
+        if (context.render || matches!(context.format, Format::Llmd))
+            && !self.is_hidden.unwrap_or_default()
+        {
+            if matches!(self.label_type, Some(LabelType::TableLabel)) {
+                context.push_str("Table ");
+                if let Some(label) = &self.label {
+                    context.push_prop_str(NodeProperty::Label, label);
                 }
-                output.to_markdown(context);
+                if let Some(caption) = &self.caption {
+                    context.push_prop_fn(NodeProperty::Caption, |context| {
+                        caption.to_markdown(context);
+                    });
+                }
             }
 
-            context.push_str("\n\n").exit_node();
+            context.push_prop_fn(NodeProperty::Content, |context| {
+                for output in self.outputs.iter().flatten() {
+                    output.to_markdown(context);
+                    if !context.content.ends_with("\n\n") {
+                        context.push_str("\n\n");
+                    }
+                }
+            });
 
+            if matches!(self.label_type, Some(LabelType::FigureLabel)) {
+                context.push_str("Figure ");
+                if let Some(label) = &self.label {
+                    context.push_prop_str(NodeProperty::Label, label);
+                }
+                if let Some(caption) = &self.caption {
+                    context.push_prop_fn(NodeProperty::Caption, |context| {
+                        caption.to_markdown(context);
+                    });
+                }
+            }
+
+            context.exit_node();
             return;
         }
 
@@ -601,26 +628,6 @@ impl MarkdownCodec for CodeChunk {
 
             if wrapped {
                 context.newline().push_colons().newline();
-            }
-
-            if matches!(context.format, Format::Llmd)
-                && !self.is_hidden.unwrap_or_default()
-                && !self
-                    .outputs
-                    .as_ref()
-                    .map(|outputs| outputs.is_empty())
-                    .unwrap_or(true)
-            {
-                // Encode outputs as separate paragraphs (ensuring blank line after each)
-                context.push_str("\n=>\n\n");
-                for output in self.outputs.iter().flatten() {
-                    output.to_markdown(context);
-                    if !context.content.ends_with("\n\n") {
-                        context.push_str("\n\n");
-                    }
-                }
-            } else {
-                context.merge_losses(lost_options!(self, outputs));
             }
 
             context.exit_node().newline();

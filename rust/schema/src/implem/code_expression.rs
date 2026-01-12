@@ -69,15 +69,13 @@ impl MarkdownCodec for CodeExpression {
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
 
-        if context.render {
-            context.merge_losses(lost_props!(self, code, execution_mode, execution_bounds));
-
+        // If rendering, or format is LLM Markdown, then encode `output` only
+        if context.render || matches!(context.format, Format::Llmd) {
             if let Some(output) = &self.output {
-                output.to_markdown(context);
+                context.push_prop_fn(NodeProperty::Output, |context| output.to_markdown(context));
             }
 
             context.exit_node();
-
             return;
         }
 
@@ -148,14 +146,6 @@ impl MarkdownCodec for CodeExpression {
             }
 
             context.push_str("}");
-        }
-
-        if let (Format::Llmd, Some(output)) = (&context.format, &self.output) {
-            context
-                .push_str(" => ")
-                .push_prop_fn(NodeProperty::Output, |context| output.to_markdown(context));
-        } else {
-            context.merge_losses(lost_options!(self, output));
         }
 
         context.exit_node();

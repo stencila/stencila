@@ -58,9 +58,15 @@ impl LatexCodec for RawBlock {
 
 impl MarkdownCodec for RawBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if matches!(context.format, Format::Llmd) {
-            // Encode content if format of RawBlock is any Markdown flavor
-            if Format::from_name(&self.format).is_markdown_flavor() {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
+
+        // If rendering, or if format is LLM Markdown, encode `content` if
+        // `format` is any Markdown flavor, HTML or LaTeX
+        if context.render || matches!(context.format, Format::Llmd) {
+            let format = Format::from_name(&self.format);
+            if format.is_markdown_flavor() || matches!(format, Format::Html | Format::Latex) {
                 context.push_str(&self.content);
 
                 // Add as many newlines to separate from following blocks
@@ -73,22 +79,39 @@ impl MarkdownCodec for RawBlock {
             }
         }
 
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id));
-
-        context
-            .push_str("````")
-            .push_prop_str(NodeProperty::Format, &self.format)
-            .push_str(" raw\n")
-            .push_prop_fn(NodeProperty::Code, |context| {
-                self.content.to_markdown(context)
-            });
-
-        if !self.content.ends_with('\n') {
-            context.newline();
+        match context.format {
+            Format::Myst => {
+                context
+                    .push_str("````{raw} ")
+                    .push_prop_str(NodeProperty::Format, &self.format)
+                    .push_str("\n");
+            }
+            Format::Qmd => {
+                context
+                    .push_str("````{=")
+                    .push_prop_str(NodeProperty::Format, &self.format)
+                    .push_str("}\n");
+            }
+            Format::Smd => {
+                context
+                    .push_str("````")
+                    .push_prop_str(NodeProperty::Format, &self.format)
+                    .push_str(" raw\n");
+            }
+            _ => {}
         }
 
-        context.push_str("````\n").exit_node().newline();
+        context.push_prop_fn(NodeProperty::Code, |context| {
+            self.content.to_markdown(context)
+        });
+
+        if matches!(context.format, Format::Myst | Format::Qmd | Format::Smd) {
+            if !self.content.ends_with('\n') {
+                context.newline();
+            }
+            context.push_str("````\n");
+        }
+
+        context.exit_node().newline();
     }
 }

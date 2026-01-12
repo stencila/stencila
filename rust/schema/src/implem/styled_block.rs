@@ -56,13 +56,6 @@ impl LatexCodec for StyledBlock {
 
 impl MarkdownCodec for StyledBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if matches!(context.format, Format::Llmd) {
-            // Only encode content
-            self.content.to_markdown(context);
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, style_language))
@@ -74,25 +67,26 @@ impl MarkdownCodec for StyledBlock {
                 class_list
             ));
 
-        if matches!(context.format, Format::Myst) {
+        // If rendering, or format is anything other than Stencila or Quarto
+        // Markdown, then encode `content` only (if any)
+        if context.render || !matches!(context.format, Format::Smd | Format::Qmd) {
+            context.push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            });
+
+            context.exit_node();
+            return;
+        }
+
+        if matches!(context.format, Format::Qmd) {
             context
-                .myst_directive(
-                    ':',
-                    "style",
-                    |context| {
-                        context
-                            .push_str(" ")
-                            .push_prop_str(NodeProperty::Code, &self.code);
-                    },
-                    |_| {},
-                    |context| {
-                        context.push_prop_fn(NodeProperty::Content, |context| {
-                            self.content.to_markdown(context)
-                        });
-                    },
-                )
-                .exit_node()
-                .newline();
+                .push_str("::: {")
+                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
+                .push_str("}\n\n")
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                })
+                .push_str(":::");
         } else {
             context
                 .push_colons()
@@ -104,10 +98,9 @@ impl MarkdownCodec for StyledBlock {
                     self.content.to_markdown(context)
                 })
                 .decrease_depth()
-                .push_colons()
-                .newline()
-                .exit_node()
-                .newline();
+                .push_colons();
         }
+
+        context.newline().exit_node().newline();
     }
 }

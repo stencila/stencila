@@ -492,6 +492,7 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
             (take_while(3.., ':'), space0),
             alt((
                 admonition_qmd,
+                styled_block_qmd,
                 appendix_break,
                 call_block,
                 include_block,
@@ -1074,6 +1075,18 @@ fn styled_block(input: &mut Located<&str>) -> ModalResult<Block> {
         })
     })
     .parse_next(input)
+}
+
+/// Parse a [`StyledBlock`] node from QMD format (e.g. `::: {.class-a .class-b}`)
+fn styled_block_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
+    delimited('{', take_until(0.., '}'), '}')
+        .map(|code: &str| {
+            Block::StyledBlock(StyledBlock {
+                code: code.trim().into(),
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
 }
 
 /// Parse a [`Page`] node
@@ -2377,6 +2390,45 @@ mod tests {
             styled_block(&mut Located::new("style color:red;")).unwrap(),
             Block::StyledBlock(StyledBlock {
                 code: "color:red;".into(),
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
+    fn test_styled_block_qmd() {
+        // Single class
+        assert_eq!(
+            styled_block_qmd(&mut Located::new("{.class-a}")).unwrap(),
+            Block::StyledBlock(StyledBlock {
+                code: ".class-a".into(),
+                ..Default::default()
+            })
+        );
+
+        // Multiple classes
+        assert_eq!(
+            styled_block_qmd(&mut Located::new("{.class-a .class-b}")).unwrap(),
+            Block::StyledBlock(StyledBlock {
+                code: ".class-a .class-b".into(),
+                ..Default::default()
+            })
+        );
+
+        // With extra spacing (trimmed)
+        assert_eq!(
+            styled_block_qmd(&mut Located::new("{ .class-a  .class-b }")).unwrap(),
+            Block::StyledBlock(StyledBlock {
+                code: ".class-a  .class-b".into(),
+                ..Default::default()
+            })
+        );
+
+        // Multiple classes with underscores and numbers
+        assert_eq!(
+            styled_block_qmd(&mut Located::new("{.tw-flex .tw-items-center .col-2}")).unwrap(),
+            Block::StyledBlock(StyledBlock {
+                code: ".tw-flex .tw-items-center .col-2".into(),
                 ..Default::default()
             })
         );

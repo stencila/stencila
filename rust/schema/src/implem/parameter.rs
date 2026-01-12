@@ -32,19 +32,23 @@ impl Parameter {
 
 impl MarkdownCodec for Parameter {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .merge_losses(lost_exec_options!(self));
+
+        // If rendering, or format anything other than Stencila Markdown,
+        // encode the current value, or default
         if matches!(context.format, Format::Llmd) {
-            // Only encode current value, or default
             if let Some(value) = self.value.as_ref().or(self.options.default.as_ref()) {
                 value.to_markdown(context);
             }
 
+            context.exit_node();
             return;
         }
 
         context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id))
-            .merge_losses(lost_exec_options!(self))
             .push_str("&[")
             .push_prop_str(NodeProperty::Name, &self.name)
             .push_str("]");
