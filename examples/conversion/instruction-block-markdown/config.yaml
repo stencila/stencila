@@ -12,3 +12,7 @@ myst:
 pandoc:
   decode:
     skip: true
+
+qmd:
+  decode:
+    skip: true

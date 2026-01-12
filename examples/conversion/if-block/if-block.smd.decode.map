@@ -10,25 +10,25 @@ start     end        offsets   node_type+property                   authorship
    195    214       (68, 21)   Paragraph
    235    273       (40, 59)   Paragraph
    216    274       (-19, 1)   IfBlockClause
-   291    325       (75, 51)   Paragraph
-   275    330       (-16, 5)   IfBlockClause
-   216    330       (-59, 0)   IfBlock
-   332    353      (116, 23)   Paragraph
-   374    418       (42, 65)   Paragraph
-   355    419       (-19, 1)   IfBlockClause
-   441    486       (86, 67)   Paragraph
-   420    487       (-21, 1)   IfBlockClause
-   508    548       (88, 61)   Paragraph
-   488    549       (-20, 1)   IfBlockClause
-   570    639       (82, 90)   Paragraph
-   550    640       (-20, 1)   IfBlockClause
-   657    725      (107, 85)   Paragraph
-   641    730       (-16, 5)   IfBlockClause
-   355    730      (-286, 0)   IfBlock
-   732    748      (377, 18)   Paragraph
-   793    831       (61, 83)   Paragraph
-   768    840       (-25, 9)   IfBlockClause
-   768    840         (0, 0)   IfBlock
-   750    845       (-18, 5)   IfBlockClause
-   750    845         (0, 0)   IfBlock
-     0    846      (-750, 1)   Article
+   290    324       (74, 50)   Paragraph
+   275    329       (-15, 5)   IfBlockClause
+   216    329       (-59, 0)   IfBlock
+   331    352      (115, 23)   Paragraph
+   373    417       (42, 65)   Paragraph
+   354    418       (-19, 1)   IfBlockClause
+   440    485       (86, 67)   Paragraph
+   419    486       (-21, 1)   IfBlockClause
+   507    547       (88, 61)   Paragraph
+   487    548       (-20, 1)   IfBlockClause
+   569    638       (82, 90)   Paragraph
+   549    639       (-20, 1)   IfBlockClause
+   655    723      (106, 84)   Paragraph
+   640    728       (-15, 5)   IfBlockClause
+   354    728      (-286, 0)   IfBlock
+   730    746      (376, 18)   Paragraph
+   791    829       (61, 83)   Paragraph
+   766    838       (-25, 9)   IfBlockClause
+   766    838         (0, 0)   IfBlock
+   748    843       (-18, 5)   IfBlockClause
+   748    843         (0, 0)   IfBlock
+     0    844      (-748, 1)   Article

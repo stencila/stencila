@@ -1,11 +1,11 @@
-With a number output `6 * 7`{python exec} => 42.
+With a number output 42.
 
-With a string output `'a string'`{python exec} => a string.
+With a string output a string.
 
-With an array output `[1, 2, 3]`{python exec} => 1 2 3 .
+With an array output 1 2 3 .
 
-With an object output `dict(a=1,b=dict())`{python exec} => 1  .
+With an object output 1  .
 
-With no language specified and no output `a + b`{exec}.
+With no language specified and no output .
 
-With execution mode specified and no output `c * d`{javascript exec lock}.
+With execution mode specified and no output .

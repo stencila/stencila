@@ -1,10 +1,12 @@
 start     end        offsets   node_type+property                   authorship
      0     35        (0, 35)   Paragraph
-    37    206      (37, 171)   StyledBlock
-   208    238      (171, 32)   Paragraph
-   240    332       (32, 94)   StyledBlock
-   334    355       (94, 23)   Paragraph
-   357    544      (23, 189)   StyledBlock
-   546    581      (189, 37)   Paragraph
-   583    709      (37, 128)   StyledBlock
-     0    710      (-583, 1)   Article
+    37     58       (37, 23)   Paragraph
+    60     81       (23, 23)   Paragraph
+    83    113       (23, 32)   Paragraph
+   115    132       (32, 19)   Paragraph
+   134    155       (19, 23)   Paragraph
+   157    173       (23, 18)   Paragraph
+   175    191       (18, 18)   Paragraph
+   193    228       (18, 37)   Paragraph
+   230    259       (37, 31)   Paragraph
+     0    260      (-230, 1)   Article

@@ -20,7 +20,7 @@ With an else clause
     
     This paragraph should NOT be shown
 
-::: else 
+::: else
     
     This paragraph should be shown
 
@@ -44,7 +44,7 @@ With multiple clauses
     
     This fourth paragraph should NOT be shown because above clause is
 
-::: else 
+::: else
     
     This final paragraph should NOT be shown because above clause is
 

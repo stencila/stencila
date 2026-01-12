@@ -6,7 +6,8 @@ compact.jats.xml:
 
 myst:
   decode:
-    strip-props:
-      # MyST does not support lang currently
-      - IfBlockClause.programming_language
+    skip: true # Not supported
 
+qmd:
+  decode:
+    skip: true # Not supported

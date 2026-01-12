@@ -12,15 +12,13 @@ smd:
 
 myst:
   decode:
-    strip-props:
-      # As for Markdown
-      - StyledBlock.style_language
+    skip: true # Not supported
 
 qmd:
   decode:
     strip-props:
-      # As for Markdown
-      - StyledBlock.style_language
+      - StyledBlock.style_language # Not supported
+      - StyledBlock.code # Supported but does not parse double closing braces in one of these examples
 
 pandoc:
   decode:

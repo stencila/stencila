@@ -6,12 +6,14 @@ compact.jats.xml:
 
 myst:
   decode:
-    strip-props:
-      # MyST does not support lang currently
-      - ForBlock.programming_language
+    skip: true # Not supported
 
 pandoc:
   decode:
     strip-props:
       # Not yet supported
       - ForBlock.otherwise
+
+qmd:
+  decode:
+    skip: true # Not supported

@@ -4,9 +4,16 @@ compact.jats.xml:
       # TODO: implement encoding and decoding for `CallBlock`
       - CallBlock
 
+myst:
+  decode:
+    skip: true # Not supported
+
 pandoc:
   decode:
     strip-props:
       # Not currently supported
       - CallArgument.value
 
+qmd:
+  decode:
+    skip: true # Not supported
