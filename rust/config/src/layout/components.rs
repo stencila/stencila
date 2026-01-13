@@ -281,7 +281,7 @@ pub enum ComponentConfig {
     /// the `base-url` option.
     ///
     /// The icon shows the platform logo (GitHub, GitLab, or Bitbucket), the
-    /// default text is "Edit", and hovering shows "Edit source on <Platform>".
+    /// default text is "Edit on <Platform>", and hovering shows "Edit source on <Platform>".
     ///
     /// Example:
     /// ```toml
@@ -295,7 +295,7 @@ pub enum ComponentConfig {
     /// end = { type = "edit-source", base-url = "https://gitlab.mycompany.com/team/docs/-/edit/main/" }
     /// ```
     EditSource {
-        /// Custom link text (default: "Edit")
+        /// Custom link text (default: "Edit on <Platform>" or "Edit source" for custom base-url)
         text: Option<String>,
 
         /// Display style (default: both)
@@ -333,7 +333,7 @@ pub enum ComponentConfig {
     /// end = { type = "copy-markdown", text = "Copy as MD" }
     /// ```
     CopyMarkdown {
-        /// Custom button text (default: "Copy")
+        /// Custom button text (default: "Copy as Markdown")
         text: Option<String>,
 
         /// Display style (default: both)

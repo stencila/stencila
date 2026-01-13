@@ -814,15 +814,10 @@ fn render_edit_source(
     // Determine link text and title
     let link_text = if let Some(custom_text) = text {
         custom_text.clone()
+    } else if let Some(p) = platform {
+        format!("Edit on {}", p.name())
     } else {
-        "Edit".to_string()
-    };
-
-    // Build title attribute for hover tooltip
-    let title_attr = if let Some(p) = platform {
-        format!(r#" title="Edit source on {}""#, p.name())
-    } else {
-        r#" title="Edit source""#.to_string()
+        "Edit source".to_string()
     };
 
     // Get style with default
@@ -845,7 +840,7 @@ fn render_edit_source(
     };
 
     format!(
-        r#"<stencila-edit-source><a href="{edit_url}"{title_attr} target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-source>"#
+        r#"<stencila-edit-source><a href="{edit_url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-source>"#
     )
 }
 
@@ -868,7 +863,9 @@ fn render_copy_markdown(
     let style = style.unwrap_or_default();
 
     // Get button text
-    let button_text = text.clone().unwrap_or_else(|| "Copy".to_string());
+    let button_text = text
+        .clone()
+        .unwrap_or_else(|| "Copy as Markdown".to_string());
 
     // Use relative URL so it works with any base path deployment
     let md_url = "page.md";
@@ -888,7 +885,7 @@ fn render_copy_markdown(
     };
 
     format!(
-        r#"<stencila-copy-markdown data-url="{md_url}"><button type="button" title="Copy page as Markdown" aria-label="Copy page as Markdown">{inner_html}</button></stencila-copy-markdown>"#
+        r#"<stencila-copy-markdown data-url="{md_url}"><button type="button" aria-label="Copy page as Markdown">{inner_html}</button></stencila-copy-markdown>"#
     )
 }
 
