@@ -209,6 +209,13 @@ where
     let glide_config = config.site.as_ref().and_then(|site| site.glide.as_ref());
     let glide_attrs = render_glide(glide_config);
 
+    // Get workspace ID (for edit-on component)
+    let workspace_id = config
+        .workspace
+        .as_ref()
+        .and_then(|w| w.id.as_deref())
+        .map(String::from);
+
     // Get site configuration (used for all document routes)
     let site_config = config.site.unwrap_or_default();
 
@@ -269,6 +276,7 @@ where
                 source_path,
                 output_dir,
                 &document_routes,
+                workspace_id.as_deref(),
             )
             .await
         }
@@ -365,6 +373,7 @@ async fn render_document_route(
     source_file: &Path,
     output_dir: &Path,
     routes: &[RouteEntry],
+    workspace_id: Option<&str>,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -401,7 +410,13 @@ async fn render_document_route(
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Render layout for the route
-    let layout_html = render_layout(site_config, site_root, &route, routes);
+    let layout_html = render_layout(
+        site_config,
+        site_root,
+        &route,
+        routes,
+        workspace_id.as_deref(),
+    );
 
     // Generate site body
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");

@@ -29,9 +29,9 @@ mod regions;
 
 pub use components::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
-    EditSourceStyle, NavGroupsIcons, NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons,
-    NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle, SocialLinkPlatform,
-    SocialLinksStyle,
+    EditOnService, EditSourceStyle, NavGroupsIcons, NavMenuDropdownStyle, NavMenuGroups,
+    NavMenuIcons, NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle,
+    SocialLinkPlatform, SocialLinksStyle,
 };
 pub use config::LayoutConfig;
 pub use overrides::LayoutOverride;

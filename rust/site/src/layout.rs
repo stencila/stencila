@@ -8,8 +8,8 @@ use std::path::Path;
 use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
-    EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec, RowConfig,
-    SiteConfig, SiteFormat, SocialLinksStyle,
+    EditOnService, EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec,
+    RowConfig, SiteConfig, SiteFormat, SocialLinksStyle,
 };
 
 use crate::{
@@ -25,6 +25,7 @@ pub(crate) struct RenderContext<'a> {
     pub site_root: &'a Path,
     pub route: &'a str,
     pub routes: &'a [RouteEntry],
+    pub workspace_id: Option<&'a str>,
 }
 
 /// Render a Stencila site layout for a specific route
@@ -34,17 +35,20 @@ pub(crate) struct RenderContext<'a> {
 /// * `site_root` - Path to the site root directory
 /// * `route` - Current route being rendered
 /// * `routes` - All document routes for prev/next navigation etc
+/// * `workspace_id` - Optional workspace ID from config
 pub(crate) fn render_layout(
     site_config: &SiteConfig,
     site_root: &Path,
     route: &str,
     routes: &[RouteEntry],
+    workspace_id: Option<&str>,
 ) -> String {
     let context = RenderContext {
         site_config,
         site_root,
         route,
         routes,
+        workspace_id,
     };
 
     // Resolve the config for the route
@@ -272,6 +276,8 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "toc-tree" => render_toc_tree(&None, &None),
             "edit-source" => render_edit_source(&None, &None, &None, &None, &None, context),
             "copy-markdown" => render_copy_markdown(&None, &None, context),
+            "edit-on:gdocs" => render_edit_on(&EditOnService::GDocs, &None, &None, context),
+            "edit-on:m365" => render_edit_on(&EditOnService::M365, &None, &None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
         },
         ComponentSpec::Config(config) => render_component_config(config, context),
@@ -380,6 +386,11 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             };
             nav_groups::render_nav_groups(include, exclude, depth, icons, &groups_context)
         }
+        ComponentConfig::EditOn {
+            service,
+            text,
+            style,
+        } => render_edit_on(service, text, style, context),
     }
 }
 
@@ -886,6 +897,80 @@ fn render_copy_markdown(
 
     format!(
         r#"<stencila-copy-markdown data-url="{md_url}"><button type="button" aria-label="Copy page as Markdown">{inner_html}</button></stencila-copy-markdown>"#
+    )
+}
+
+/// Render an edit-on cloud service component
+///
+/// Displays a link to edit the current page on Google Docs or Microsoft 365
+/// via Stencila Cloud. Only renders if `workspace.id` is configured.
+fn render_edit_on(
+    service: &EditOnService,
+    text: &Option<String>,
+    style: &Option<EditSourceStyle>,
+    context: &RenderContext,
+) -> String {
+    // Only render if workspace_id is configured
+    let Some(workspace_id) = context.workspace_id else {
+        return String::new();
+    };
+
+    // Get source file path for current route
+    let source_path = context
+        .routes
+        .iter()
+        .find(|r| r.route == context.route)
+        .and_then(|r| r.source_path.as_ref());
+
+    let Some(source_path) = source_path else {
+        return String::new();
+    };
+
+    // Get git info to get repo-relative path
+    let Ok(info) = git_info(source_path) else {
+        return String::new();
+    };
+
+    let Some(relative_path) = info.path else {
+        return String::new();
+    };
+
+    // Build URL
+    let service_param = match service {
+        EditOnService::GDocs => "gdocs",
+        EditOnService::M365 => "m365",
+    };
+    let file_path = percent_encode_path(&relative_path);
+    let url = format!(
+        "https://stencila.cloud/workspaces/{workspace_id}/edit?file={file_path}&service={service_param}"
+    );
+
+    // Determine link text
+    let link_text = text.clone().unwrap_or_else(|| match service {
+        EditOnService::GDocs => "Edit on Google Docs".to_string(),
+        EditOnService::M365 => "Edit on Microsoft 365".to_string(),
+    });
+
+    // Get icon class
+    let icon_class = match service {
+        EditOnService::GDocs => "i-bi:google",
+        EditOnService::M365 => "i-bi:microsoft",
+    };
+
+    // Build HTML based on style (similar to edit-source)
+    let style = style.unwrap_or_default();
+    let inner_html = match style {
+        EditSourceStyle::Icon => format!(r#"<span class="icon {icon_class}"></span>"#),
+        EditSourceStyle::Text => format!(r#"<span class="text">{link_text}</span>"#),
+        EditSourceStyle::Both => {
+            format!(
+                r#"<span class="icon {icon_class}"></span><span class="text">{link_text}</span>"#
+            )
+        }
+    };
+
+    format!(
+        r#"<stencila-edit-on service="{service_param}"><a href="{url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-on>"#
     )
 }
 

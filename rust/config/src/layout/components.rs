@@ -441,6 +441,32 @@ pub enum ComponentConfig {
         /// - hide: Never show icons (default, cleaner footer style)
         icons: Option<NavGroupsIcons>,
     },
+
+    /// Edit on cloud service (Google Docs or Microsoft 365)
+    ///
+    /// Displays a link to edit the current page on Google Docs or Microsoft 365
+    /// via Stencila Cloud. Only renders if `workspace.id` is configured.
+    ///
+    /// Example:
+    /// ```toml
+    /// [site.layout.footer]
+    /// end = "edit-on:gdocs"  # Edit on Google Docs
+    /// # or
+    /// end = "edit-on:m365"   # Edit on Microsoft 365
+    ///
+    /// # With custom text:
+    /// end = { type = "edit-on", service = "gdocs", text = "Open in Google Docs" }
+    /// ```
+    EditOn {
+        /// Cloud service to edit on (gdocs or m365)
+        service: EditOnService,
+
+        /// Custom link text (default: "Edit on Google Docs" or "Edit on Microsoft 365")
+        text: Option<String>,
+
+        /// Display style (default: both)
+        style: Option<EditSourceStyle>,
+    },
 }
 
 /// Built-in component type names (kebab-case as used in TOML)
@@ -456,6 +482,8 @@ pub const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "color-mode",
     "copyright",
     "edit-source",
+    "edit-on:gdocs",
+    "edit-on:m365",
     "copy-markdown",
     "social-links",
 ];
@@ -517,6 +545,21 @@ pub enum CopyMarkdownStyle {
     /// Icon and text (default)
     #[default]
     Both,
+}
+
+/// Cloud service for edit-on component
+#[derive(
+    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum EditOnService {
+    /// Google Docs
+    #[default]
+    GDocs,
+
+    /// Microsoft 365
+    M365,
 }
 
 /// Display style for prev/next navigation

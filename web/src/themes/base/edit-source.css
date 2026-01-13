@@ -19,7 +19,7 @@
 :root {
     --edit-source-font-family: var(--layout-font-family);
     --edit-source-icon-size: 1em;
-    --edit-source-font-size: var(--font-size-xs);
+    --edit-source-font-size: var(--font-size-2xs);
     --edit-source-gap: var(--space-2);
     --edit-source-color: var(--text-color-secondary);
     --edit-source-color-hover: var(--text-color-primary);

@@ -21,7 +21,7 @@
 :root {
     --copy-markdown-font-family: var(--layout-font-family);
     --copy-markdown-icon-size: 1em;
-    --copy-markdown-font-size: var(--font-size-xs);
+    --copy-markdown-font-size: var(--font-size-2xs);
     --copy-markdown-gap: var(--space-2);
     --copy-markdown-color: var(--text-color-secondary);
     --copy-markdown-color-hover: var(--text-color-primary);
