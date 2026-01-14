@@ -104,7 +104,9 @@ impl MarkdownCodec for CodeExpression {
                     .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
                     .push_str("} ");
             } else {
-                context.push_str("{}");
+                // If programming language is missing, assume R so that we generate syntactically
+                // valid inline code expression for QMD
+                context.push_str("{r} ");
             }
 
             context

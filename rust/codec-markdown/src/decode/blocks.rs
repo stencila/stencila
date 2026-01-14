@@ -543,7 +543,13 @@ fn admonition_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
 
         let title = options.swap_remove("title").and_then(|value| match value {
             Some(Node::String(value)) => {
-                Some(inlines(&value).into_iter().map(|(node, ..)| node).collect())
+                // This is a QMD-specific parser, so use QMD format
+                Some(
+                    inlines(&value, &Format::Qmd)
+                        .into_iter()
+                        .map(|(node, ..)| node)
+                        .collect(),
+                )
             }
             _ => None,
         });

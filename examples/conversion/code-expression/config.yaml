@@ -24,6 +24,12 @@ qmd:
       # The following properties are not supported in QMD
       - CodeExpression.execution_mode
       - CodeExpression.output
+  decode:
+    strip-props:
+      # Because there is an example with no programming language and for those
+      # we assume R (to have valid QMD), we have to strip lang on decode so
+      # that round trip passes
+      - CodeExpression.programming_language
 
 pandoc:
   decode:

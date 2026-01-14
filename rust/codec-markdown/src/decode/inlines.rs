@@ -40,7 +40,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
         if let mdast::Node::Text(mdast::Text { value, position }) = md {
             // Parse the text string for extensions not handled by the `markdown` crate e.g.
             // inline code, subscripts, superscripts etc and sentinel text like EDIT_END
-            let mut inlines = inlines(&value)
+            let mut inlines = inlines(&value, &context.format)
                 .into_iter()
                 .map(|(inline, span)| {
                     let span = position
@@ -198,38 +198,43 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<(Inline, Optio
 }
 
 /// Parse a text string into a vector of `Inline` nodes with spans
-pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
-    repeat(
-        0..,
-        alt((
-            myst_role,
-            qmd_inline_code,
-            code_attrs,
-            double_braces,
-            citation_group,
-            citation_parenthetical,
-            citation_narrative,
-            parameter,
-            button,
-            styled_inline,
-            quote,
-            strikeout,
-            subscript,
-            superscript,
-            underline,
-            html,
-            string,
-            character,
-        ))
-        .with_span(),
-    )
-    .parse(Located::new(input))
-    .unwrap_or_else(|_| vec![(Inline::Text(Text::from(input)), 0..input.len())])
+pub(super) fn inlines(input: &str, format: &Format) -> Vec<(Inline, Range<usize>)> {
+    let common = alt((
+        code_attrs,
+        double_braces,
+        citation_group,
+        citation_parenthetical,
+        citation_narrative,
+        parameter,
+        button,
+        styled_inline,
+        quote,
+        strikeout,
+        subscript,
+        superscript,
+        underline,
+        html,
+        string,
+        character,
+    ));
+
+    let text = |_| vec![(Inline::Text(Text::from(input)), 0..input.len())];
+    let located = Located::new(input);
+    match format {
+        Format::Myst => repeat(0.., alt((myst_role, common)).with_span()).parse(located),
+        Format::Qmd => repeat(0.., alt((code_expression_qmd, common)).with_span()).parse(located),
+        _ => repeat(0.., common.with_span()).parse(located),
+    }
+    .unwrap_or_else(text)
 }
 
-/// Parse a text string into a vector of `Inline` nodes
+/// Parse a text string into a vector of `Inline` nodes (without spans)
+///
+/// Used for nested inline content (e.g., inside strong or emphasis) where format specific
+/// syntax e.g. QMD-style code expressions are not expected.
 fn inlines_only(input: &str) -> Vec<Inline> {
-    inlines(input)
+    // Use default format (non-QMD) for nested content
+    inlines(input, &Format::default())
         .into_iter()
         .map(|(inlines, ..)| inlines)
         .collect()
@@ -275,11 +280,20 @@ fn myst_role(input: &mut Located<&str>) -> ModalResult<Inline> {
         .parse_next(input)
 }
 
-// Parse a QMD inline expression
-fn qmd_inline_code(input: &mut Located<&str>) -> ModalResult<Inline> {
+/// Parse a QMD inline expression (aka inline code) e.g. `{python} 1 + 1` or `r 1 + 1`
+/// Only matches if language is word characters only (no whitespace/symbols)
+/// and there is non-empty code content after the language.
+fn code_expression_qmd(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
-        alt((delimited("`{", take_until(0.., '}'), '}'), "`r ".value("r"))),
-        delimited(multispace0, take_until(0.., '`'), '`'),
+        alt((
+            delimited(
+                "`{",
+                take_while(1.., |c: char| c.is_alphanumeric() || c == '_'),
+                '}',
+            ),
+            "`r ".value("r"),
+        )),
+        delimited(multispace0, take_while(1.., |c| c != '`'), '`'),
     )
         .map(|(lang, value): (&str, &str)| {
             Inline::CodeExpression(CodeExpression {
@@ -986,21 +1000,21 @@ mod tests {
         assert!(code_attrs(&mut Located::new("= `2+2`")).is_err());
 
         // Two or more dollars in code is OK (previous got split out as math)
-        let is = inlines(&Located::new("`${a} ${b}`"));
+        let is = inlines("`${a} ${b}`", &Format::default());
         assert_eq!(is.len(), 1);
         assert_eq!(is[0].0.node_type(), NodeType::CodeInline);
     }
 
     #[test]
     fn test_subscript() {
-        let res = inlines("before H~2~0 after");
+        let res = inlines("before H~2~0 after", &Format::default());
         assert_eq!(res.len(), 3);
         assert_eq!(to_text(&res[0].0), "before H");
         assert!(matches!(res[1].0, Inline::Subscript(..)));
         assert_eq!(to_text(&res[1].0), "2");
         assert_eq!(to_text(&res[2].0), "0 after");
 
-        let res = inlines("before <sub>subscripted</sub> after");
+        let res = inlines("before <sub>subscripted</sub> after", &Format::default());
         assert_eq!(res.len(), 3);
         assert!(matches!(res[1].0, Inline::Subscript(..)));
         assert_eq!(to_text(&res[1].0), "subscripted");
@@ -1008,14 +1022,14 @@ mod tests {
 
     #[test]
     fn test_superscript() {
-        let res = inlines("before CO^2^ after");
+        let res = inlines("before CO^2^ after", &Format::default());
         assert_eq!(res.len(), 3);
         assert_eq!(to_text(&res[0].0), "before CO");
         assert!(matches!(res[1].0, Inline::Superscript(..)));
         assert_eq!(to_text(&res[1].0), "2");
         assert_eq!(to_text(&res[2].0), " after");
 
-        let res = inlines("before <sup>superscripted</sup> after");
+        let res = inlines("before <sup>superscripted</sup> after", &Format::default());
         assert_eq!(res.len(), 3);
         assert!(matches!(res[1].0, Inline::Superscript(..)));
         assert_eq!(to_text(&res[1].0), "superscripted");
@@ -1026,8 +1040,47 @@ mod tests {
         underline(&mut Located::new("<u></u>")).unwrap();
         underline(&mut Located::new("<u>underlined</u>")).unwrap();
 
-        let inlines = inlines("before <u>underlined</u> after");
+        let inlines = inlines("before <u>underlined</u> after", &Format::default());
         assert_eq!(inlines.len(), 3);
         assert!(matches!(inlines[1].0, Inline::Underline(..)));
+    }
+
+    #[test]
+    fn test_code_expression_qmd() {
+        // QMD format: `{python} 1 + 1` should create CodeExpression
+        let res = inlines("`{python} 1 + 1`", &Format::Qmd);
+        assert_eq!(res.len(), 1);
+        assert!(matches!(res[0].0, Inline::CodeExpression(..)));
+        if let Inline::CodeExpression(expr) = &res[0].0 {
+            assert_eq!(expr.programming_language, Some("python".to_string()));
+            assert_eq!(expr.code.as_str(), "1 + 1");
+        }
+
+        // Non-QMD format: `{python} 1 + 1` should NOT create CodeExpression
+        let res = inlines("`{python} 1 + 1`", &Format::default());
+        assert_eq!(res.len(), 1);
+        // Should be parsed as CodeInline with code_attrs, not CodeExpression
+        assert!(matches!(res[0].0, Inline::CodeInline(..)));
+
+        // Invalid: braces with non-word chars should not match
+        let res = inlines("`{foo: bar} + 1`", &Format::Qmd);
+        assert_eq!(res.len(), 1);
+        // Should fall through to code_attrs and be CodeInline
+        assert!(matches!(res[0].0, Inline::CodeInline(..)));
+
+        // Invalid: empty content after braces should not match
+        let res = inlines("`{foo}`", &Format::Qmd);
+        assert_eq!(res.len(), 1);
+        // Should fall through to code_attrs and be CodeInline
+        assert!(matches!(res[0].0, Inline::CodeInline(..)));
+
+        // R shorthand: `r expr` should work in QMD mode
+        let res = inlines("`r 1 + 1`", &Format::Qmd);
+        assert_eq!(res.len(), 1);
+        assert!(matches!(res[0].0, Inline::CodeExpression(..)));
+        if let Inline::CodeExpression(expr) = &res[0].0 {
+            assert_eq!(expr.programming_language, Some("r".to_string()));
+            assert_eq!(expr.code.as_str(), "1 + 1");
+        }
     }
 }
