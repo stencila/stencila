@@ -1489,9 +1489,20 @@ fn is_empty_list(list: &stencila_schema::List) -> bool {
             .all(|item| to_text(item).trim().is_empty())
 }
 
-/// Check if a text node contains only whitespace
+/// Check if a text node is effectively empty and should be removed
+///
+/// Returns true for truly empty text or excessive whitespace, but NOT for
+/// a single space character which serves as a meaningful separator between
+/// inline elements (e.g., between Strong and CodeInline).
 fn is_empty_text(text: &Text) -> bool {
-    text.value.trim().is_empty()
+    let value = text.value.as_str();
+
+    // A single space is a meaningful separator, not "empty"
+    if value == " " {
+        false
+    } else {
+        value.trim().is_empty()
+    }
 }
 
 /// Extract numbering from heading text and calculate its depth
@@ -1844,7 +1855,11 @@ mod tests {
         let empty_text = Text::new("".into());
         assert!(is_empty_text(&empty_text));
 
-        // Whitespace-only text
+        // Single space is NOT empty (serves as separator between inline elements)
+        let single_space = Text::new(" ".into());
+        assert!(!is_empty_text(&single_space));
+
+        // Multiple whitespace (excessive whitespace) IS considered empty
         let whitespace_text = Text::new("   \n\t  ".into());
         assert!(is_empty_text(&whitespace_text));
 
