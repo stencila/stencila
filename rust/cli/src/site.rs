@@ -17,12 +17,12 @@ use stencila_cli_utils::{
 use stencila_cloud::ensure_workspace;
 use stencila_cloud::sites::{
     default_site_url, delete_site_branch, delete_site_domain, get_site, get_site_domain_status,
-    list_site_branches, set_site_domain, update_site_access,
+    list_site_branches, set_site_domain, update_site_access, update_site_reviews,
 };
 use stencila_config::{
-    ConfigTarget, LayoutConfig, RouteSpread, SpreadMode, config, config_add_redirect_route,
-    config_add_route, config_remove_route, config_set, config_set_route_spread, config_unset,
-    validate_placeholders,
+    ConfigTarget, LayoutConfig, ReviewsSpec, RouteSpread, SpreadMode, config,
+    config_add_redirect_route, config_add_route, config_remove_route, config_set,
+    config_set_route_spread, config_unset, validate_placeholders,
 };
 use stencila_server::{ServeOptions, SiteMessage, get_server_token};
 use tokio::sync::{broadcast, mpsc};
@@ -82,6 +82,7 @@ enum SiteCommand {
     Preview(Preview),
     Push(Push),
     Access(Access),
+    Reviews(Reviews),
     Domain(Domain),
     Branch(Branch),
 }
@@ -99,6 +100,7 @@ impl Site {
             SiteCommand::Preview(preview) => preview.run().await,
             SiteCommand::Push(push) => push.run().await,
             SiteCommand::Access(access) => access.run().await,
+            SiteCommand::Reviews(reviews) => reviews.run().await,
             SiteCommand::Domain(domain) => domain.run().await,
             SiteCommand::Branch(branch) => branch.run().await,
         }
@@ -178,7 +180,7 @@ impl Show {
             access
         );
 
-        message!("🌐 {info}");
+        message!("🌐 {}", info);
 
         Ok(())
     }
@@ -607,7 +609,11 @@ impl Render {
                         documents,
                         static_files,
                     } => {
-                        message!("📊 Found {documents} documents, {static_files} static files");
+                        message!(
+                            "📊 Found {} documents, {} static files",
+                            documents,
+                            static_files
+                        );
                     }
                     RenderProgress::EncodingDocument {
                         relative_path,
@@ -622,7 +628,7 @@ impl Render {
                     }
                     RenderProgress::CopyingStatic { copied, total } => {
                         if copied == total {
-                            message!("📦 Copied {total} static files");
+                            message!("📦 Copied {} static files", total);
                         }
                     }
                     _ => {}
@@ -910,16 +916,16 @@ impl Preview {
                         Ok(new_config) => {
                             layout = new_config.site.and_then(|s| s.layout);
                             message!("🔄 Config changed, re-rendering...");
-                            if let Err(e) = Self::render_site(site_root, output, layout.as_ref()).await {
-                                message!("❌ Render error: {e}");
+                            if let Err(error) = Self::render_site(site_root, output, layout.as_ref()).await {
+                                message!("❌ Render error: {}", error);
                                 // Continue watching - don't exit on render errors
                             } else {
                                 // Notify browser to reload after successful re-render
                                 let _ = site_notify.send(SiteMessage::ConfigChange);
                             }
                         }
-                        Err(e) => {
-                            message!("⚠️ Config error: {e}");
+                        Err(error) => {
+                            message!("⚠️ Config error: {}", error);
                         }
                     }
                 }
@@ -938,8 +944,8 @@ impl Preview {
                     };
                     message!("🔄 Files changed: {}{}, re-rendering...", changed.join(", "), suffix);
 
-                    if let Err(e) = Self::render_site(site_root, output, layout.as_ref()).await {
-                        message!("❌ Render error: {e}");
+                    if let Err(error) = Self::render_site(site_root, output, layout.as_ref()).await {
+                        message!("❌ Render error: {}", error);
                         // Continue watching - don't exit on render errors
                     } else {
                         // Notify browser to reload after successful re-render
@@ -1020,7 +1026,10 @@ impl Push {
         // Ensure workspace exists, creating it if needed
         let (workspace_id, already_existed) = ensure_workspace(&path).await?;
         if !already_existed {
-            message!("✨ Workspace registered: https://{workspace_id}.stencila.site");
+            message!(
+                "✨ Workspace registered: https://{}.stencila.site",
+                workspace_id
+            );
         }
 
         // Set up progress channel
@@ -1037,7 +1046,11 @@ impl Push {
                         documents,
                         static_files,
                     } => {
-                        message!("📊 Found {documents} documents, {static_files} static files");
+                        message!(
+                            "📊 Found {} documents, {} static files",
+                            documents,
+                            static_files
+                        );
                     }
                     PushProgress::EncodingDocument {
                         relative_path,
@@ -1052,7 +1065,7 @@ impl Push {
                         message!("❌ Failed: {}: {}", path.display(), error);
                     }
                     PushProgress::UploadStarting { total } => {
-                        message!("☁️ Uploading {total} files");
+                        message!("☁️ Uploading {} files", total);
                     }
                     PushProgress::Processing {
                         processed,
@@ -1062,7 +1075,10 @@ impl Push {
                         if processed == total {
                             let unchanged = total - uploaded;
                             message!(
-                                "⚙️ Uploaded {uploaded}/{total} files ({unchanged} unchanged)"
+                                "⚙️ Uploaded {}/{} files ({} unchanged)",
+                                uploaded,
+                                total,
+                                unchanged
                             );
                         }
                     }
@@ -1074,7 +1090,7 @@ impl Push {
             }
         });
 
-        message!("☁️ Pushing directory `{path_display}` to workspace site");
+        message!("☁️ Pushing directory `{}` to workspace site", path_display);
 
         // Call push with a decoder function
         let result = stencila_site::push(
@@ -1138,7 +1154,7 @@ impl Push {
         let url = format!("https://{workspace_id}.stencila.site");
         let url = Url::parse(&url)?;
         let url = stencila_site::browseable_url(&url, Some(&path))?;
-        message!("🔗 Site available at: {url}");
+        message!("🔗 Site available at: {}", url);
 
         Ok(())
     }
@@ -1430,6 +1446,532 @@ impl AccessPassword {
     }
 }
 
+/// Manage site reviews configuration
+///
+/// Site reviews allow readers to submit comments and suggestions on site pages.
+/// The `public` and `anon` settings are enforced by Stencila Cloud and synced
+/// between local config and the cloud.
+#[derive(Debug, Parser)]
+#[command(after_long_help = REVIEWS_AFTER_LONG_HELP)]
+pub struct Reviews {
+    /// Path to the workspace directory
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+
+    #[command(subcommand)]
+    command: Option<ReviewsCommand>,
+}
+
+pub static REVIEWS_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Show current review settings</dim>
+  <b>stencila site reviews</>
+
+  <dim># Enable reviews with defaults</dim>
+  <b>stencila site reviews on</>
+
+  <dim># Disable reviews</dim>
+  <b>stencila site reviews off</>
+
+  <dim># Enable public submissions</dim>
+  <b>stencila site reviews config --public</>
+
+  <dim># Disable anonymous submissions</dim>
+  <b>stencila site reviews config --no-anon</>
+"
+);
+
+#[derive(Debug, Subcommand)]
+enum ReviewsCommand {
+    /// Enable reviews
+    On(ReviewsOn),
+    /// Disable reviews
+    Off(ReviewsOff),
+    /// Configure review settings
+    Config(ReviewsConfig),
+}
+
+impl Reviews {
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.clone().map_or_else(current_dir, Ok)?;
+
+        let cfg = config(&path)?;
+        let workspace_id = cfg.workspace.and_then(|w| w.id);
+
+        // If no subcommand, show current settings
+        let Some(command) = self.command else {
+            return Self::show(&path);
+        };
+
+        match command {
+            ReviewsCommand::On(on) => on.run(&path, workspace_id.as_deref()).await,
+            ReviewsCommand::Off(off) => off.run(&path, workspace_id.as_deref()).await,
+            ReviewsCommand::Config(config) => config.run(&path, workspace_id.as_deref()).await,
+        }
+    }
+
+    fn show(path: &Path) -> Result<()> {
+        let cfg = config(path)?;
+
+        let reviews_enabled = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.reviews.as_ref())
+            .map(|r| r.is_enabled())
+            .unwrap_or(false);
+
+        if !reviews_enabled {
+            message!("<bold>Reviews <dim>disabled</></>");
+            return Ok(());
+        }
+
+        let reviews_config = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.reviews.as_ref())
+            .map(|r| r.to_config())
+            .unwrap_or_default();
+
+        message!("<bold>Reviews <g>enabled</></>");
+        message!("──────────────────────");
+        if reviews_config.is_public() {
+            message!("Public submissions: <g>yes</>");
+        } else {
+            message!("Public submissions: <r>no</>");
+        }
+
+        if reviews_config.is_anon() {
+            message!("Anonymous submissions: <g>yes</>");
+        } else {
+            message!("Anonymous submissions: <r>no</>");
+        }
+
+        let position = match reviews_config.position() {
+            stencila_config::ReviewsPosition::BottomRight => "bottom-right",
+            stencila_config::ReviewsPosition::BottomLeft => "bottom-left",
+            stencila_config::ReviewsPosition::TopRight => "top-right",
+            stencila_config::ReviewsPosition::TopLeft => "top-left",
+        };
+        message!("Position: <m>{}</>", position);
+
+        message!(
+            "Min selection: <c>{}</> chars",
+            reviews_config.min_selection()
+        );
+        message!(
+            "Max selection: <c>{}</> chars",
+            reviews_config.max_selection()
+        );
+
+        if reviews_config.shortcuts_enabled() {
+            message!("Shortcuts: <g>enabled</>");
+        } else {
+            message!("Shortcuts: <dim>disabled</>");
+        }
+
+        if reviews_config.allows_comments() && reviews_config.allows_suggestions() {
+            message!("Types: <g>comments</>, <b>suggestions</>");
+        } else if reviews_config.allows_comments() {
+            message!("Types: <g>comments</> only");
+        } else if reviews_config.allows_suggestions() {
+            message!("Types: <b>suggestions</> only");
+        }
+
+        Ok(())
+    }
+}
+
+/// Enable reviews
+#[derive(Debug, Args)]
+#[command(after_long_help = REVIEWS_ON_AFTER_LONG_HELP)]
+pub struct ReviewsOn {
+    /// Allow public (non-team member) submissions
+    #[arg(long)]
+    public: bool,
+
+    /// Disallow public submissions
+    #[arg(long, conflicts_with = "public")]
+    no_public: bool,
+
+    /// Allow anonymous (no GitHub auth) submissions
+    #[arg(long)]
+    anon: bool,
+
+    /// Disallow anonymous submissions
+    #[arg(long, conflicts_with = "anon")]
+    no_anon: bool,
+}
+
+impl ReviewsOn {
+    async fn run(self, path: &Path, workspace_id: Option<&str>) -> Result<()> {
+        // Check if we need to convert from boolean to table form
+        // (can't set nested keys on a boolean value)
+        if is_reviews_boolean(path) {
+            let _ = config_unset("site.reviews", ConfigTarget::Nearest);
+        }
+
+        // Always use the table form to preserve existing settings
+        config_set("site.reviews.enabled", "true", ConfigTarget::Nearest)?;
+
+        // Set local config for public/anon if specified
+        if self.public {
+            config_set("site.reviews.public", "true", ConfigTarget::Nearest)?;
+        } else if self.no_public {
+            config_set("site.reviews.public", "false", ConfigTarget::Nearest)?;
+        }
+        if self.anon {
+            config_set("site.reviews.anon", "true", ConfigTarget::Nearest)?;
+        } else if self.no_anon {
+            config_set("site.reviews.anon", "false", ConfigTarget::Nearest)?;
+        }
+
+        // Sync to cloud if workspace_id is available
+        if let Some(workspace_id) = workspace_id {
+            let allow_public = if self.public {
+                Some(true)
+            } else if self.no_public {
+                Some(false)
+            } else {
+                None
+            };
+            let allow_anonymous = if self.anon {
+                Some(true)
+            } else if self.no_anon {
+                Some(false)
+            } else {
+                None
+            };
+
+            if let Err(e) =
+                update_site_reviews(workspace_id, Some(true), allow_public, allow_anonymous).await
+            {
+                message!(
+                    "⚠️  Local config updated, but failed to sync to cloud: {}",
+                    e
+                );
+            }
+        } else {
+            message!(
+                "💡 No workspace ID configured. Cloud sync skipped. Run <b>stencila site push</> to enable cloud sync."
+            );
+        }
+
+        message!("✅ Reviews enabled");
+
+        // Re-read config to show current settings
+        let cfg = config(path)?;
+        if let Some(site) = &cfg.site
+            && let Some(reviews) = &site.reviews
+        {
+            let config = reviews.to_config();
+            message!(
+                "   Public: {}, Anonymous: {}",
+                if config.is_public() { "yes" } else { "no" },
+                if config.is_anon() { "yes" } else { "no" }
+            );
+        }
+
+        Ok(())
+    }
+}
+
+pub static REVIEWS_ON_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Enable reviews with default settings</dim>
+  <b>stencila site reviews on</>
+
+  <dim># Enable reviews and allow public submissions</dim>
+  <b>stencila site reviews on --public</>
+
+  <dim># Enable reviews but require GitHub authentication</dim>
+  <b>stencila site reviews on --no-anon</>
+"
+);
+
+/// Disable reviews
+#[derive(Debug, Args)]
+#[command(after_long_help = REVIEWS_OFF_AFTER_LONG_HELP)]
+pub struct ReviewsOff;
+
+pub static REVIEWS_OFF_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Disable reviews</dim>
+  <b>stencila site reviews off</>
+"
+);
+
+impl ReviewsOff {
+    async fn run(self, _path: &Path, workspace_id: Option<&str>) -> Result<()> {
+        config_set("site.reviews", "false", ConfigTarget::Nearest)?;
+
+        // Sync to cloud if workspace_id is available
+        if let Some(workspace_id) = workspace_id {
+            if let Err(e) = update_site_reviews(workspace_id, Some(false), None, None).await {
+                message!(
+                    "⚠️  Local config updated, but failed to sync to cloud: {}",
+                    e
+                );
+            }
+        } else {
+            message!(
+                "💡 No workspace ID configured. Cloud sync skipped. Run <b>stencila site push</> to enable cloud sync."
+            );
+        }
+
+        message!("✅ Reviews disabled");
+        Ok(())
+    }
+}
+
+/// Configure review settings
+#[derive(Debug, Args)]
+#[command(after_long_help = REVIEWS_CONFIG_AFTER_LONG_HELP)]
+pub struct ReviewsConfig {
+    /// Allow public (non-team member) submissions
+    #[arg(long)]
+    public: bool,
+
+    /// Disallow public submissions
+    #[arg(long, conflicts_with = "public")]
+    no_public: bool,
+
+    /// Allow anonymous (no GitHub auth) submissions
+    #[arg(long)]
+    anon: bool,
+
+    /// Disallow anonymous submissions
+    #[arg(long, conflicts_with = "anon")]
+    no_anon: bool,
+
+    /// Position for the review affordance
+    #[arg(long, value_parser = ["bottom-right", "bottom-left", "top-right", "top-left"])]
+    position: Option<String>,
+
+    /// Allowed review types (can be specified multiple times)
+    #[arg(long = "types", value_parser = ["comment", "suggestion"])]
+    types: Option<Vec<String>>,
+
+    /// Minimum selection length in characters
+    #[arg(long)]
+    min_selection: Option<u32>,
+
+    /// Maximum selection length in characters
+    #[arg(long)]
+    max_selection: Option<u32>,
+
+    /// Enable keyboard shortcuts
+    #[arg(long)]
+    shortcuts: bool,
+
+    /// Disable keyboard shortcuts
+    #[arg(long, conflicts_with = "shortcuts")]
+    no_shortcuts: bool,
+
+    /// Glob patterns for paths to show reviews on (can be specified multiple times)
+    ///
+    /// If specified, reviews are only shown on pages matching these patterns.
+    /// Example: --include "docs/**" --include "guides/**"
+    #[arg(long = "include")]
+    include: Option<Vec<String>>,
+
+    /// Glob patterns for paths to hide reviews from (can be specified multiple times)
+    ///
+    /// Reviews are hidden on pages matching these patterns.
+    /// Example: --exclude "api/**" --exclude "changelog/**"
+    #[arg(long = "exclude")]
+    exclude: Option<Vec<String>>,
+}
+
+pub static REVIEWS_CONFIG_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Allow public submissions</dim>
+  <b>stencila site reviews config --public</>
+
+  <dim># Disallow anonymous submissions</dim>
+  <b>stencila site reviews config --no-anon</>
+
+  <dim># Set position to bottom-left</dim>
+  <b>stencila site reviews config --position bottom-left</>
+
+  <dim># Only allow comments (not suggestions)</dim>
+  <b>stencila site reviews config --types comment</>
+
+  <dim># Allow both comments and suggestions</dim>
+  <b>stencila site reviews config --types comment --types suggestion</>
+
+  <dim># Set selection limits</dim>
+  <b>stencila site reviews config --min-selection 10 --max-selection 2000</>
+
+  <dim># Enable keyboard shortcuts (Ctrl+Shift+C for comment, Ctrl+Shift+S for suggestion)</dim>
+  <b>stencila site reviews config --shortcuts</>
+
+  <dim># Only show reviews on docs and guides pages</dim>
+  <b>stencila site reviews config --include \"docs/**\" --include \"guides/**\"</>
+
+  <dim># Hide reviews from API reference and changelog</dim>
+  <b>stencila site reviews config --exclude \"api/**\" --exclude \"changelog/**\"</>
+
+<bold><b>Note</b></bold>
+  Configuring review settings will automatically enable reviews if not already enabled.
+  Use <b>stencila site reviews off</> afterward if you want to disable.
+"
+);
+
+impl ReviewsConfig {
+    async fn run(self, path: &Path, workspace_id: Option<&str>) -> Result<()> {
+        let mut updated = false;
+
+        // Check if we need to convert from boolean to table form
+        // (can't set nested keys on a boolean value)
+        if is_reviews_boolean(path) {
+            let _ = config_unset("site.reviews", ConfigTarget::Nearest);
+        }
+
+        // Handle public/no-public
+        if self.public {
+            config_set("site.reviews.public", "true", ConfigTarget::Nearest)?;
+            updated = true;
+        } else if self.no_public {
+            config_set("site.reviews.public", "false", ConfigTarget::Nearest)?;
+            updated = true;
+        }
+
+        // Handle anon/no-anon
+        if self.anon {
+            config_set("site.reviews.anon", "true", ConfigTarget::Nearest)?;
+            updated = true;
+        } else if self.no_anon {
+            config_set("site.reviews.anon", "false", ConfigTarget::Nearest)?;
+            updated = true;
+        }
+
+        // Handle position
+        if let Some(position) = &self.position {
+            config_set("site.reviews.position", position, ConfigTarget::Nearest)?;
+            updated = true;
+        }
+
+        // Handle types
+        if let Some(types) = &self.types {
+            let types_toml = format_toml_string_array(types);
+            config_set("site.reviews.types", &types_toml, ConfigTarget::Nearest)?;
+            updated = true;
+        }
+
+        // Handle min/max selection
+        if let Some(min) = self.min_selection {
+            config_set(
+                "site.reviews.min-selection",
+                &min.to_string(),
+                ConfigTarget::Nearest,
+            )?;
+            updated = true;
+        }
+        if let Some(max) = self.max_selection {
+            config_set(
+                "site.reviews.max-selection",
+                &max.to_string(),
+                ConfigTarget::Nearest,
+            )?;
+            updated = true;
+        }
+
+        // Handle shortcuts
+        if self.shortcuts {
+            config_set("site.reviews.shortcuts", "true", ConfigTarget::Nearest)?;
+            updated = true;
+        } else if self.no_shortcuts {
+            config_set("site.reviews.shortcuts", "false", ConfigTarget::Nearest)?;
+            updated = true;
+        }
+
+        // Handle include patterns
+        if let Some(include) = &self.include {
+            let include_toml = format_toml_string_array(include);
+            config_set("site.reviews.include", &include_toml, ConfigTarget::Nearest)?;
+            updated = true;
+        }
+
+        // Handle exclude patterns
+        if let Some(exclude) = &self.exclude {
+            let exclude_toml = format_toml_string_array(exclude);
+            config_set("site.reviews.exclude", &exclude_toml, ConfigTarget::Nearest)?;
+            updated = true;
+        }
+
+        if !updated {
+            // No changes specified, show current config
+            return Reviews::show(path);
+        }
+
+        // Ensure reviews are enabled if configuring settings
+        let cfg = config(path)?;
+        let reviews_enabled = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.reviews.as_ref())
+            .map(|r| r.is_enabled())
+            .unwrap_or(false);
+
+        if !reviews_enabled {
+            config_set("site.reviews.enabled", "true", ConfigTarget::Nearest)?;
+        }
+
+        // Re-read and validate the updated config
+        let cfg = config(path)?;
+        if let Some(site) = &cfg.site
+            && let Some(reviews) = &site.reviews
+        {
+            reviews.validate()?;
+        }
+
+        if !reviews_enabled {
+            message!("✅ Reviews enabled and configured");
+        } else {
+            message!("✅ Review settings updated");
+        }
+
+        // Sync public/anon to cloud if changed and workspace_id is available
+        if self.public || self.no_public || self.anon || self.no_anon {
+            if let Some(workspace_id) = workspace_id {
+                let allow_public = if self.public {
+                    Some(true)
+                } else if self.no_public {
+                    Some(false)
+                } else {
+                    None
+                };
+                let allow_anonymous = if self.anon {
+                    Some(true)
+                } else if self.no_anon {
+                    Some(false)
+                } else {
+                    None
+                };
+
+                if let Err(e) =
+                    update_site_reviews(workspace_id, None, allow_public, allow_anonymous).await
+                {
+                    message!(
+                        "⚠️  Local config updated, but failed to sync to cloud: {}",
+                        e
+                    );
+                } else {
+                    message!("   Synced to cloud");
+                }
+            } else {
+                message!(
+                    "💡 No workspace ID configured. Cloud sync skipped. Run <b>stencila site push</> to enable cloud sync."
+                );
+            }
+        }
+
+        Ok(())
+    }
+}
+
 /// Manage custom domain for the workspace site
 #[derive(Debug, Parser)]
 #[command(after_long_help = DOMAIN_AFTER_LONG_HELP)]
@@ -1663,7 +2205,7 @@ impl DomainStatus {
         } else if let Some("active") = status.status.as_deref()
             && let Some(domain) = &status.domain
         {
-            message!("🎉 Your site is live at https://{domain}");
+            message!("🎉 Your site is live at https://{}", domain);
         } else {
             let emoji = match status.status.as_deref() {
                 Some("active") => "✅",
@@ -1679,7 +2221,7 @@ impl DomainStatus {
 
             parts.push(status.message.clone());
 
-            message!("{emoji} {}", parts.join("\n "));
+            message!("{} {}", emoji, parts.join("\n "));
         }
 
         Ok(())
@@ -2008,4 +2550,35 @@ fn format_timestamp(iso: &str) -> String {
     } else {
         iso.to_string()
     }
+}
+
+/// Format a slice of strings as a TOML inline array
+///
+/// Properly escapes special characters in strings to produce valid TOML.
+/// Example: `["docs/**", "guides/**"]`
+fn format_toml_string_array(values: &[String]) -> String {
+    use toml_edit::Array;
+
+    let mut arr = Array::new();
+    for v in values {
+        arr.push(v.as_str());
+    }
+    arr.to_string()
+}
+
+/// Check if site.reviews is currently a boolean value (simple form)
+///
+/// Returns true if reviews is configured as `reviews = true` or `reviews = false`,
+/// rather than as a table `[site.reviews]`. We need to unset the boolean before
+/// setting nested keys like `site.reviews.enabled`.
+fn is_reviews_boolean(path: &Path) -> bool {
+    let Ok(cfg) = config(path) else {
+        return false;
+    };
+
+    cfg.site
+        .as_ref()
+        .and_then(|s| s.reviews.as_ref())
+        .map(|r| matches!(r, ReviewsSpec::Enabled(_)))
+        .unwrap_or(false)
 }

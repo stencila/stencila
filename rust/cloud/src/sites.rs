@@ -349,6 +349,59 @@ pub async fn update_site_access(
     check_response(response).await
 }
 
+/// Update site reviews settings
+///
+/// This function sends a PATCH request to `/workspaces/{workspace_id}/site/reviews` with
+/// optional fields to update enabled, public and anonymous submission settings.
+///
+/// These settings are enforced server-side by Stencila Cloud.
+///
+/// # Arguments
+///
+/// * `workspace_id` - The site identifier
+/// * `enabled` - Optional flag for whether reviews are enabled
+/// * `allow_public` - Optional flag for allowing public (non-team member) submissions
+/// * `allow_anonymous` - Optional flag for allowing anonymous (no GitHub auth) submissions
+#[tracing::instrument]
+pub async fn update_site_reviews(
+    workspace_id: &str,
+    enabled: Option<bool>,
+    allow_public: Option<bool>,
+    allow_anonymous: Option<bool>,
+) -> Result<()> {
+    let token = api_token()
+        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+
+    tracing::debug!("Updating reviews settings for site {workspace_id}");
+
+    let mut json = serde_json::Map::new();
+
+    if let Some(val) = enabled {
+        json.insert("enabled".to_string(), serde_json::Value::Bool(val));
+    }
+
+    if let Some(val) = allow_public {
+        json.insert("allowPublic".to_string(), serde_json::Value::Bool(val));
+    }
+
+    if let Some(val) = allow_anonymous {
+        json.insert("allowAnonymous".to_string(), serde_json::Value::Bool(val));
+    }
+
+    let client = Client::new();
+    let response = client
+        .patch(format!(
+            "{}/workspaces/{workspace_id}/site/reviews",
+            base_url()
+        ))
+        .bearer_auth(token)
+        .json(&json)
+        .send()
+        .await?;
+
+    check_response(response).await
+}
+
 /// Set a custom domain for a site
 ///
 /// This function sends a POST request to `/workspaces/{workspace_id}/site/domain` to configure

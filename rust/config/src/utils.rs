@@ -330,6 +330,17 @@ fn infer_toml_value(value_str: &str) -> Item {
         return value(f);
     }
 
+    // Try to parse as TOML array (e.g., ["value1", "value2"])
+    if value_str.starts_with('[') && value_str.ends_with(']') {
+        // Parse as a complete TOML document with a dummy key
+        let toml_doc = format!("arr = {value_str}");
+        if let Ok(doc) = toml_doc.parse::<DocumentMut>()
+            && let Some(item) = doc.get("arr")
+        {
+            return item.clone();
+        }
+    }
+
     // Default to string
     value(value_str)
 }
