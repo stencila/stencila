@@ -351,15 +351,15 @@ impl Init {
         message!("✅ Created stencila.toml");
 
         if let Some(ref id) = config.workspace_id {
-            message!("   🔗 Workspace: {id}");
+            message!("   🔗 Workspace: {}", id);
         }
 
         if let Some(ref root) = config.site_root {
-            message!("   📁 Site root: {root}");
+            message!("   📁 Site root: {}", root);
         }
 
         if let Some(ref home) = config.home_page {
-            message!("   🏠 Home page: {home} -> /");
+            message!("   🏠 Home page: {} -> /", home);
         }
 
         if !config.exclude_patterns.is_empty() {
@@ -691,7 +691,7 @@ impl Check {
                 if let Some(workspace) = &cfg.workspace
                     && let Some(id) = &workspace.id
                 {
-                    message!("   🔗 Workspace: {id}");
+                    message!("   🔗 Workspace: {}", id);
                 }
 
                 if let Some(site) = &cfg.site {
@@ -699,7 +699,7 @@ impl Check {
                         message!("   📁 Site root: {}", root.as_str());
                     }
                     if let Some(domain) = &site.domain {
-                        message!("   🌐 Site domain: {domain}");
+                        message!("   🌐 Site domain: {}", domain);
                     }
                     if let Some(routes) = &site.routes {
                         message!("   🔀 Site routes: {} configured", routes.len());

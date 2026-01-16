@@ -157,7 +157,7 @@ impl Cli {
             (service, remote_info.url.clone())
         };
 
-        message!("⬇️ Pulling from {} at {url}", service.display_name());
+        message!("⬇️ Pulling from {} at {}", service.display_name(), url);
 
         // Pull and update the local file
         let modified_files = stencila_codecs::pull(
@@ -214,7 +214,11 @@ impl Cli {
         let service = RemoteService::from_url(&url)
             .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
 
-        message!("⬇️ Pulling from {} at {url}", service.display_name_plural());
+        message!(
+            "⬇️ Pulling from {} at {}",
+            service.display_name_plural(),
+            url
+        );
 
         // Pull all files in one operation (fetches attachments once)
         // Returns (target_path, temp_file) pairs for us to convert/merge

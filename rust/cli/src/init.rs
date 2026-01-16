@@ -43,8 +43,8 @@ impl Cli {
         // Attempt to create workspace watch
         match try_setup_workspace_watch(&dir).await {
             Ok(()) => message!("👁️ Workspace watch enabled."),
-            Err(e) => {
-                message!("ℹ️ Could not enable workspace watch: {e}");
+            Err(error) => {
+                message!("ℹ️ Could not enable workspace watch: {}", error);
                 message!("   You can enable it later with: stencila watch");
             }
         }

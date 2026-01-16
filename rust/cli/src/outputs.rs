@@ -483,7 +483,7 @@ impl Push {
                 .map(|o| format!("`{o}`"))
                 .collect::<Vec<_>>()
                 .join(", ");
-            message!("ℹ️ No outputs match the specified patterns: {patterns}");
+            message!("ℹ️ No outputs match the specified patterns: {}", patterns);
             return Ok(());
         }
 
@@ -553,7 +553,7 @@ impl Push {
                     processed += 1;
 
                     if self.dry_run {
-                        message!("📝 Would upload `{final_output_key}`");
+                        message!("📝 Would upload `{}`", final_output_key);
                     } else {
                         // Determine content type from the output path
                         let content_type =
@@ -572,15 +572,15 @@ impl Push {
 
                         match result {
                             UploadResult::Uploaded => {
-                                message!("✅ Uploaded `{final_output_key}`");
+                                message!("✅ Uploaded `{}`", final_output_key);
                                 uploaded += 1;
                             }
                             UploadResult::ApprovalRequired => {
-                                message!("⏳ Pending approval `{final_output_key}`");
+                                message!("⏳ Pending approval `{}`", final_output_key);
                                 pending += 1;
                             }
                             UploadResult::Skipped => {
-                                message!("⏭️  Unchanged `{final_output_key}`");
+                                message!("⏭️  Unchanged `{}`", final_output_key);
                                 skipped += 1;
                             }
                         }
@@ -590,12 +590,21 @@ impl Push {
         }
 
         if self.dry_run {
-            message!("📋 Dry run complete. {processed} outputs would be processed.",);
+            message!(
+                "📋 Dry run complete. {} outputs would be processed.",
+                processed
+            );
         } else {
             message!(
-                "✅ Done. {uploaded} uploaded, {pending} uploaded and pending approval, {skipped} unchanged."
+                "✅ Done. {} uploaded, {} uploaded and pending approval, {} unchanged.",
+                uploaded,
+                pending,
+                skipped
             );
-            message!("🔗 Outputs available at: https://{workspace_id}.stencila.build");
+            message!(
+                "🔗 Outputs available at: https://{}.stencila.build",
+                workspace_id
+            );
         }
 
         Ok(())

@@ -391,7 +391,7 @@ impl Install {
     #[tracing::instrument(skip(self))]
     async fn install_tool(&self, name: &str) -> Result<()> {
         let Some(tool) = get(name) else {
-            message!("🔍 No known tool with name `{name}`");
+            message!("🔍 No known tool with name `{}`", name);
             exit(1)
         };
 
@@ -438,7 +438,7 @@ impl Install {
                 if let Some(path) = tool.path_in_env() {
                     message!("   Path: `{}`", strip_home_dir(&path));
                     if let Some(version) = tool.version_available_in_env() {
-                        message!("   Version: `{version}`");
+                        message!("   Version: `{}`", version);
                     }
                 }
             }

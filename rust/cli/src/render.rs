@@ -208,7 +208,7 @@ impl Cli {
         }
 
         if self.execute_options.ignore_errors {
-            message!("▶️ Ignoring {errors} execution errors");
+            message!("▶️ Ignoring {} execution errors", errors);
             return Ok(true);
         }
 
@@ -276,7 +276,10 @@ impl Cli {
             if outputs.len() == 1
                 && let Some(mode) = infer_spread_mode(&outputs[0].to_string_lossy(), &arguments)
             {
-                message!("ℹ️ Auto-detected spread mode `{mode}` from output path template");
+                message!(
+                    "ℹ️ Auto-detected spread mode `{}` from output path template",
+                    mode
+                );
                 return Some(mode);
             }
             None
@@ -315,7 +318,12 @@ impl Cli {
                 )
             };
 
-            message!("📊 Spread rendering {input_display} ({mode} mode, {run_count} runs)");
+            message!(
+                "📊 Spread rendering {} ({} mode, {} runs)",
+                input_display,
+                mode,
+                run_count
+            );
 
             // Emit spread warnings
             for warning in config.check_warnings(run_count, &output_template, &self.arguments) {
@@ -381,7 +389,10 @@ impl Cli {
                 }
             }
 
-            message!("✅ Spread render complete: {run_count} runs finished successfully");
+            message!(
+                "✅ Spread render complete: {} runs finished successfully",
+                run_count
+            );
         } else {
             // Dry-run: just print what would be rendered and exit
             if self.execute_options.dry_run {
@@ -393,13 +404,13 @@ impl Cli {
                         .map(|format| Format::from_name(format))
                         .or_else(|| input_is_stdin.then_some(Format::Markdown))
                     {
-                        message!("📋 Would render: {input_display} → stdout ({format})");
+                        message!("📋 Would render: {} → stdout ({})", input_display, format);
                     } else {
-                        message!("📋 Would render: {input_display} → browser");
+                        message!("📋 Would render: {} → browser", input_display);
                     }
                 } else {
                     for output in outputs {
-                        message!("📋 Would render: {input_display} → {}", output.display());
+                        message!("📋 Would render: {} → {}", output.display(), input_display);
                     }
                 }
                 message("✅ Preview complete (no files rendered)");

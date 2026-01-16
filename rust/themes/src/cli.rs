@@ -136,7 +136,7 @@ impl Show {
             }
             None => {
                 let name = self.name.as_deref().unwrap_or("default");
-                message!("🔍 Theme `{name}` not found");
+                message!("🔍 Theme `{}` not found", name);
                 Ok(())
             }
         }
