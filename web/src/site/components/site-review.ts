@@ -338,6 +338,7 @@ export class StencilaSiteReview extends LitElement {
     document.addEventListener('mouseup', this.handleMouseUp)
     document.addEventListener('visibilitychange', this.handleVisibilityChange)
     document.addEventListener('keydown', this.handleKeyDown)
+    window.addEventListener('scroll', this.handleScroll, { passive: true })
     window.addEventListener(GlideEvents.END, this.handleGlideEnd)
 
     // Apply highlights after initial load (with small delay for DOM to be ready)
@@ -354,6 +355,7 @@ export class StencilaSiteReview extends LitElement {
     document.removeEventListener('mouseup', this.handleMouseUp)
     document.removeEventListener('visibilitychange', this.handleVisibilityChange)
     document.removeEventListener('keydown', this.handleKeyDown)
+    window.removeEventListener('scroll', this.handleScroll)
     window.removeEventListener(GlideEvents.END, this.handleGlideEnd)
 
     // Clear highlights when component is removed
@@ -1530,6 +1532,38 @@ export class StencilaSiteReview extends LitElement {
 
     // Small delay to ensure selection is finalized
     setTimeout(() => this.processSelection(), 10)
+  }
+
+  /**
+   * Handle scroll to update floating button/popover position
+   */
+  private handleScroll = () => {
+    if (!this.currentSelection) return
+
+    // Recreate range to get updated viewport-relative rect
+    const { start, end } = this.currentSelection
+    if (!start.nodeId || !end.nodeId) return
+
+    const startEl = document.getElementById(start.nodeId)
+    const endEl = document.getElementById(end.nodeId)
+    if (!startEl || !endEl) return
+
+    const startPos = this.findTextPosition(startEl, start.offset)
+    const endPos = this.findTextPosition(endEl, end.offset)
+    if (!startPos || !endPos) return
+
+    try {
+      const range = document.createRange()
+      range.setStart(startPos.node, startPos.offset)
+      range.setEnd(endPos.node, endPos.offset)
+
+      this.currentSelection = {
+        ...this.currentSelection,
+        rect: range.getBoundingClientRect(),
+      }
+    } catch {
+      this.currentSelection = null
+    }
   }
 
   /**

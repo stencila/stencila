@@ -195,7 +195,7 @@ stencila-site-review .alert.error {
 /* Floating button - appears near selection */
 stencila-site-review .floating-button {
     position: fixed;
-    z-index: 9999;
+    z-index: 50;
     display: flex;
     gap: 2px;
     background: white;
@@ -387,7 +387,7 @@ stencila-site-review .modal.input .item-path {
 
 /* Input popover - positioned near selection */
 stencila-site-review-item .review-input-popover {
-    z-index: 10001;
+    z-index: 50;
     background: white;
     border: 1px solid var(--site-review-color-border);
     border-radius: var(--site-review-radius-lg);
