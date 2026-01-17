@@ -8,41 +8,41 @@ import type { ReviewItem, ReviewItemAnchor } from './site-review-types'
  * Selection info passed from parent for input mode
  */
 export interface SelectionInfo {
-  start: ReviewItemAnchor
-  end: ReviewItemAnchor
-  selectedText: string
+  start: ReviewItemAnchor;
+  end: ReviewItemAnchor;
+  selectedText: string;
 }
 
 /**
  * Event detail for item-add event
  */
 export interface ItemAddDetail {
-  type: 'comment' | 'suggestion'
-  content: string
-  selection: SelectionInfo | null
+  type: 'comment' | 'suggestion';
+  content: string;
+  selection: SelectionInfo | null;
 }
 
 /**
  * Event detail for item-edit event
  */
 export interface ItemEditDetail {
-  index: number
-  content: string
+  index: number;
+  content: string;
 }
 
 /**
  * Event detail for item-delete event
  */
 export interface ItemDeleteDetail {
-  index: number
+  index: number;
 }
 
 /**
  * Event detail for item-click event
  */
 export interface ItemClickDetail {
-  index: number
-  item: ReviewItem
+  index: number;
+  item: ReviewItem;
 }
 
 /**
@@ -106,11 +106,11 @@ export class StencilaSiteReviewItem extends LitElement {
    */
   @property({ type: Object })
   popoverPosition?: {
-    top: number
-    left: number
-    maxWidth: number
-    arrow: 'top' | 'bottom'
-    arrowLeft: number
+    top: number;
+    left: number;
+    maxWidth: number;
+    arrow: 'top' | 'bottom';
+    arrowLeft: number;
   } | null
 
   /**
@@ -269,7 +269,7 @@ export class StencilaSiteReviewItem extends LitElement {
           detail: { index: this.index, item: this.item },
           bubbles: true,
           composed: true,
-        })
+        }),
       )
     }
   }
@@ -320,7 +320,7 @@ export class StencilaSiteReviewItem extends LitElement {
           detail: { index: this.index, content: this.editContent.trim() },
           bubbles: true,
           composed: true,
-        })
+        }),
       )
     }
 
@@ -351,7 +351,7 @@ export class StencilaSiteReviewItem extends LitElement {
           detail: { index: this.index },
           bubbles: true,
           composed: true,
-        })
+        }),
       )
     }
 
@@ -402,7 +402,7 @@ export class StencilaSiteReviewItem extends LitElement {
           },
           bubbles: true,
           composed: true,
-        })
+        }),
       )
 
       // Reset state after dispatch
@@ -450,7 +450,7 @@ export class StencilaSiteReviewItem extends LitElement {
       new CustomEvent('item-cancel', {
         bubbles: true,
         composed: true,
-      })
+      }),
     )
 
     this.inputContent = ''
@@ -511,7 +511,8 @@ export class StencilaSiteReviewItem extends LitElement {
             ? html`
                 <div
                   class="item-menu-dropdown"
-                  style="position: fixed; top: ${this.menuPosition.top}px; right: ${this.menuPosition.right}px;"
+                  style="position: fixed; top: ${this.menuPosition
+                    .top}px; right: ${this.menuPosition.right}px;"
                 >
                   <button @click=${this.startEditing}>
                     <span class="i-lucide:pencil"></span>
@@ -525,13 +526,16 @@ export class StencilaSiteReviewItem extends LitElement {
               `
             : null}
         </div>
-        <div class="item-header">
-          <span class="type-icon i-lucide:${this.item.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
-          <span class="item-type">${this.item.type === 'comment' ? 'Comment' : 'Suggestion'}</span>
+        <div class="item-body">
+          <span
+            class="type-icon i-lucide:${this.item.type === 'comment'
+              ? 'message-circle'
+              : 'pencil'}"
+            data-type="${this.item.type}"
+            title="${this.item.type === 'comment' ? 'Comment' : 'Suggestion'}"
+          ></span>
+          <span class="item-content">${this.item.content}</span>
         </div>
-        ${this.item.type === 'comment'
-          ? html`<div class="item-content">${this.item.content}</div>`
-          : html`<div class="replacement-text">${this.item.content}</div>`}
       </div>
     `
   }
@@ -546,24 +550,34 @@ export class StencilaSiteReviewItem extends LitElement {
 
     return html`
       <div class="review-item editing" data-index=${this.index}>
-        <div class="item-header">
-          <span class="type-icon i-lucide:${this.item.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
-          <span class="item-type">${this.item.type === 'comment' ? 'Comment' : 'Suggestion'}</span>
+        <div class="item-body">
+          <span
+            class="type-icon i-lucide:${this.item.type === 'comment'
+              ? 'message-circle'
+              : 'pencil'}"
+            data-type="${this.item.type}"
+            title="${this.item.type === 'comment' ? 'Comment' : 'Suggestion'}"
+          ></span>
+          <textarea
+            ${ref(this.textareaRef)}
+            class="edit-textarea"
+            .value=${this.editContent}
+            @input=${(e: Event) =>
+              (this.editContent = (e.target as HTMLTextAreaElement).value)}
+            @keydown=${this.handleEditKeydown}
+          ></textarea>
         </div>
-        <textarea
-          ${ref(this.textareaRef)}
-          class="edit-textarea"
-          .value=${this.editContent}
-          @input=${(e: Event) => (this.editContent = (e.target as HTMLTextAreaElement).value)}
-          @keydown=${this.handleEditKeydown}
-        ></textarea>
         <div class="edit-actions">
-          <button class="edit-btn cancel" @click=${this.cancelEdit}>Cancel</button>
+          <button class="edit-btn cancel" @click=${this.cancelEdit}>
+            Cancel
+          </button>
           <button
             class="edit-btn save"
             @click=${this.saveEdit}
             ?disabled=${!this.hasEditChanges}
-          >Save</button>
+          >
+            Save
+          </button>
         </div>
       </div>
     `
@@ -590,7 +604,8 @@ export class StencilaSiteReviewItem extends LitElement {
           <textarea
             ${ref(this.textareaRef)}
             .value=${this.inputContent}
-            @input=${(e: Event) => (this.inputContent = (e.target as HTMLTextAreaElement).value)}
+            @input=${(e: Event) =>
+              (this.inputContent = (e.target as HTMLTextAreaElement).value)}
             @keydown=${this.handleInputKeydown}
             placeholder=${this.type === 'comment'
               ? `Add comment ${submitTip}`
@@ -611,15 +626,25 @@ export class StencilaSiteReviewItem extends LitElement {
 
     // Fallback to centered modal (page-level comments without selection)
     return html`
-      <div ${ref(this.inputContainerRef)} class="modal input ${this.isFlying ? 'flying' : ''}">
+      <div
+        ${ref(this.inputContainerRef)}
+        class="modal input ${this.isFlying ? 'flying' : ''}"
+      >
         <div class="item-header">
-          <span class="type-icon i-lucide:${this.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
-          <span class="item-path">${this.pageTitle || window.location.pathname}</span>
+          <span
+            class="type-icon i-lucide:${this.type === 'comment'
+              ? 'message-circle'
+              : 'pencil'}"
+          ></span>
+          <span class="item-path"
+            >${this.pageTitle || window.location.pathname}</span
+          >
         </div>
         <textarea
           ${ref(this.textareaRef)}
           .value=${this.inputContent}
-          @input=${(e: Event) => (this.inputContent = (e.target as HTMLTextAreaElement).value)}
+          @input=${(e: Event) =>
+            (this.inputContent = (e.target as HTMLTextAreaElement).value)}
           @keydown=${this.handleInputKeydown}
           placeholder=${this.type === 'comment'
             ? `Add your comment ${submitTip}`
@@ -640,6 +665,6 @@ export class StencilaSiteReviewItem extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'stencila-site-review-item': StencilaSiteReviewItem
+    'stencila-site-review-item': StencilaSiteReviewItem;
   }
 }

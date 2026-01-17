@@ -69,7 +69,8 @@ export class StencilaSiteReview extends LitElement {
    * Position of the review affordance on the page
    */
   @property({ type: String })
-  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' = 'bottom-right'
+  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' =
+    'bottom-right'
 
   /**
    * Allowed review types (comma-separated: "comment", "suggestion", or "comment,suggestion")
@@ -140,10 +141,10 @@ export class StencilaSiteReview extends LitElement {
    */
   @state()
   private currentSelection: {
-    start: ReviewItemAnchor
-    end: ReviewItemAnchor
-    selectedText: string
-    rect: DOMRect
+    start: ReviewItemAnchor;
+    end: ReviewItemAnchor;
+    selectedText: string;
+    rect: DOMRect;
   } | null = null
 
   /**
@@ -253,9 +254,9 @@ export class StencilaSiteReview extends LitElement {
    * Used for click detection on highlights
    */
   private highlightRanges: Array<{
-    range: Range
-    itemIndex: number
-    type: 'comment' | 'suggestion'
+    range: Range;
+    itemIndex: number;
+    type: 'comment' | 'suggestion';
   }> = []
 
   /**
@@ -302,7 +303,10 @@ export class StencilaSiteReview extends LitElement {
     super.disconnectedCallback()
     document.removeEventListener('selectionchange', this.handleSelectionChange)
     document.removeEventListener('mouseup', this.handleMouseUp)
-    document.removeEventListener('visibilitychange', this.handleVisibilityChange)
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange,
+    )
     document.removeEventListener('keydown', this.handleKeyDown)
     window.removeEventListener('scroll', this.handleScroll)
     window.removeEventListener(GlideEvents.END, this.handleGlideEnd)
@@ -353,7 +357,11 @@ export class StencilaSiteReview extends LitElement {
           this.handlePageComment()
         }
         e.preventDefault()
-      } else if (e.key === 'S' && this.currentSelection && this.allowsSuggestions) {
+      } else if (
+        e.key === 'S' &&
+        this.currentSelection &&
+        this.allowsSuggestions
+      ) {
         this.handleSuggest()
         e.preventDefault()
       }
@@ -377,12 +385,18 @@ export class StencilaSiteReview extends LitElement {
       const storedItems = localStorage.getItem(STORAGE_KEY_ITEMS)
       if (storedItems) {
         this.pendingItems = JSON.parse(storedItems)
-        console.log('[SiteReview] Loaded items from storage:', this.pendingItems.length)
+        console.log(
+          '[SiteReview] Loaded items from storage:',
+          this.pendingItems.length,
+        )
       }
       const storedSource = localStorage.getItem(STORAGE_KEY_SOURCE)
       if (storedSource) {
         this.sourceInfo = JSON.parse(storedSource)
-        console.log('[SiteReview] Loaded source info from storage:', this.sourceInfo)
+        console.log(
+          '[SiteReview] Loaded source info from storage:',
+          this.sourceInfo,
+        )
       }
     } catch (e) {
       console.error('[SiteReview] Failed to load from storage:', e)
@@ -394,13 +408,23 @@ export class StencilaSiteReview extends LitElement {
    */
   private saveToStorage() {
     try {
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(this.pendingItems))
+      localStorage.setItem(
+        STORAGE_KEY_ITEMS,
+        JSON.stringify(this.pendingItems),
+      )
       if (this.sourceInfo) {
-        localStorage.setItem(STORAGE_KEY_SOURCE, JSON.stringify(this.sourceInfo))
+        localStorage.setItem(
+          STORAGE_KEY_SOURCE,
+          JSON.stringify(this.sourceInfo),
+        )
       } else {
         localStorage.removeItem(STORAGE_KEY_SOURCE)
       }
-      console.log('[SiteReview] Saved to storage:', this.pendingItems.length, 'items')
+      console.log(
+        '[SiteReview] Saved to storage:',
+        this.pendingItems.length,
+        'items',
+      )
     } catch (e) {
       console.error('[SiteReview] Failed to save to storage:', e)
     }
@@ -434,7 +458,11 @@ export class StencilaSiteReview extends LitElement {
         this.expandCurrentPageGroup()
       })
 
-      console.log('[SiteReview] Loaded shared review:', data.items.length, 'items')
+      console.log(
+        '[SiteReview] Loaded shared review:',
+        data.items.length,
+        'items',
+      )
     }
 
     // Clean URL regardless of success (remove the parameter)
@@ -451,7 +479,7 @@ export class StencilaSiteReview extends LitElement {
         (existing) =>
           existing.path === item.path &&
           existing.start.nodeId === item.start.nodeId &&
-          existing.start.offset === item.start.offset
+          existing.start.offset === item.start.offset,
       )
 
     const uniqueItems = newItems.filter((item) => !isDuplicate(item))
@@ -462,7 +490,10 @@ export class StencilaSiteReview extends LitElement {
    * Generate share URL, copy to clipboard, and show tooltip
    */
   private async handleShare(): Promise<void> {
-    const result = await encodeReviewForUrl(this.pendingItems, this.sourceInfo ?? undefined)
+    const result = await encodeReviewForUrl(
+      this.pendingItems,
+      this.sourceInfo ?? undefined,
+    )
 
     const url = new URL(window.location.href)
     url.searchParams.set(SHARE_PARAM, result.encoded)
@@ -472,7 +503,9 @@ export class StencilaSiteReview extends LitElement {
 
       // Show appropriate tooltip message
       if (result.truncated) {
-        this.showShareTooltip(`Copied ${result.includedCount} of ${this.pendingItems.length}`)
+        this.showShareTooltip(
+          `Copied ${result.includedCount} of ${this.pendingItems.length}`,
+        )
       } else {
         this.showShareTooltip('Copied!')
       }
@@ -523,7 +556,7 @@ export class StencilaSiteReview extends LitElement {
    */
   private async apiFetch(
     path: string,
-    options: { method?: string; body?: unknown } = {}
+    options: { method?: string; body?: unknown } = {},
   ): Promise<Response> {
     const authHeaders = await this.getAuthHeaders()
     const headers: Record<string, string> = { ...authHeaders }
@@ -554,7 +587,10 @@ export class StencilaSiteReview extends LitElement {
       return
     }
 
-    console.log('[SiteReview] Fetching auth status from:', this.apiBase + REVIEW_AUTH_PATH)
+    console.log(
+      '[SiteReview] Fetching auth status from:',
+      this.apiBase + REVIEW_AUTH_PATH,
+    )
 
     try {
       const response = await this.apiFetch(REVIEW_AUTH_PATH)
@@ -563,7 +599,10 @@ export class StencilaSiteReview extends LitElement {
         this.authStatus = await response.json()
         console.log('[SiteReview] Auth status:', this.authStatus)
       } else {
-        console.error('[SiteReview] Failed to fetch auth status:', response.status)
+        console.error(
+          '[SiteReview] Failed to fetch auth status:',
+          response.status,
+        )
         // Use dev defaults on localhost when API unavailable
         this.applyDevDefaults()
       }
@@ -682,7 +721,8 @@ export class StencilaSiteReview extends LitElement {
     if (!config.allowPublic && !this.authStatus?.hasSiteAccess) return false
 
     // Must have GitHub if anonymous not allowed
-    if (!config.allowAnonymous && !this.authStatus?.github?.connected) return false
+    if (!config.allowAnonymous && !this.authStatus?.github?.connected)
+      return false
 
     // Blocked: private repo, no push access, no app installed
     if (this.isBlockedPrivateRepo) return false
@@ -783,7 +823,9 @@ export class StencilaSiteReview extends LitElement {
    * Get the sign-in URL with workspace ID and return URL
    */
   private get signInUrl(): string {
-    const url = new URL(`https://${this.workspaceId}.stencila.site/__stencila-signin`)
+    const url = new URL(
+      `https://${this.workspaceId}.stencila.site/__stencila-signin`,
+    )
     url.searchParams.set('return', window.location.href)
     return url.toString()
   }
@@ -1001,7 +1043,7 @@ export class StencilaSiteReview extends LitElement {
       commentRanges.length,
       'comments,',
       suggestionRanges.length,
-      'suggestions'
+      'suggestions',
     )
   }
 
@@ -1051,7 +1093,9 @@ export class StencilaSiteReview extends LitElement {
 
       this.inputHighlight = new Highlight(range)
       const highlightName =
-        this.inputType === 'comment' ? 'review-comment-active' : 'review-suggestion-active'
+        this.inputType === 'comment'
+          ? 'review-comment-active'
+          : 'review-suggestion-active'
       CSS.highlights.set(highlightName, this.inputHighlight)
     } catch (e) {
       console.warn('[SiteReview] Failed to create input highlight:', e)
@@ -1111,7 +1155,7 @@ export class StencilaSiteReview extends LitElement {
         // Scroll the item into view in the panel after render
         this.updateComplete.then(() => {
           const itemElement = this.shadowRoot?.querySelector(
-            `.review-item[data-index="${itemIndex}"]`
+            `.review-item[data-index="${itemIndex}"]`,
           )
           itemElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         })
@@ -1145,7 +1189,9 @@ export class StencilaSiteReview extends LitElement {
     if (supportsHighlightAPI()) {
       this.activeHighlight = new Highlight(range)
       const highlightName =
-        item.type === 'comment' ? 'review-comment-active' : 'review-suggestion-active'
+        item.type === 'comment'
+          ? 'review-comment-active'
+          : 'review-suggestion-active'
       CSS.highlights.set(highlightName, this.activeHighlight)
     }
   }
@@ -1192,8 +1238,14 @@ export class StencilaSiteReview extends LitElement {
   /**
    * Group pending items by page URL
    */
-  private get itemsByPage(): Map<string, { items: ReviewItem[]; indices: number[] }> {
-    const groups = new Map<string, { items: ReviewItem[]; indices: number[] }>()
+  private get itemsByPage(): Map<
+    string,
+    { items: ReviewItem[]; indices: number[] }
+  > {
+    const groups = new Map<
+      string,
+      { items: ReviewItem[]; indices: number[] }
+    >()
 
     this.pendingItems.forEach((item, index) => {
       const path = getPathname(item.url)
@@ -1237,7 +1289,7 @@ export class StencilaSiteReview extends LitElement {
     const currentPath = window.location.pathname
     // Only expand if there are items for this page
     const hasItemsForCurrentPage = this.pendingItems.some(
-      (item) => getPathname(item.url) === currentPath
+      (item) => getPathname(item.url) === currentPath,
     )
     if (hasItemsForCurrentPage && !this.expandedPageGroups.has(currentPath)) {
       this.expandedPageGroups.add(currentPath)
@@ -1337,7 +1389,10 @@ export class StencilaSiteReview extends LitElement {
 
     if (selectedText.length > this.maxSelection) {
       // Selection too large - could show warning in future
-      console.log('[SiteReview] Selection exceeds max length:', selectedText.length)
+      console.log(
+        '[SiteReview] Selection exceeds max length:',
+        selectedText.length,
+      )
       this.currentSelection = null
       return
     }
@@ -1351,7 +1406,7 @@ export class StencilaSiteReview extends LitElement {
     const startOffset = getCharOffset(
       startNode,
       range.startContainer,
-      range.startOffset
+      range.startOffset,
     )
 
     // Find end anchor (may be different node for multi-block)
@@ -1363,7 +1418,7 @@ export class StencilaSiteReview extends LitElement {
     const endOffset = getCharOffset(
       endNode,
       range.endContainer,
-      range.endOffset
+      range.endOffset,
     )
 
     const rect = range.getBoundingClientRect()
@@ -1486,7 +1541,9 @@ export class StencilaSiteReview extends LitElement {
 
     // On localhost with commit mismatch, silently update to current source
     if (isLocalhost() && !this.checkSourceConsistency(currentSource)) {
-      console.log('[SiteReview] Commit mismatch on localhost, updating source info')
+      console.log(
+        '[SiteReview] Commit mismatch on localhost, updating source info',
+      )
       this.sourceInfo = currentSource
     }
 
@@ -1596,7 +1653,8 @@ export class StencilaSiteReview extends LitElement {
   private handleSubmitError(error: ApiError, statusCode?: number) {
     // Handle HTTP status codes
     if (statusCode === 401) {
-      this.submitError = 'Authentication required. Please sign in and try again.'
+      this.submitError =
+        'Authentication required. Please sign in and try again.'
       return
     }
     if (statusCode === 403) {
@@ -1630,7 +1688,8 @@ export class StencilaSiteReview extends LitElement {
           'Failed to create fork for pull request. Please try again later.'
         break
       default:
-        this.submitError = error.message ?? 'Failed to submit review. Please try again.'
+        this.submitError =
+          error.message ?? 'Failed to submit review. Please try again.'
     }
   }
 
@@ -1657,7 +1716,7 @@ export class StencilaSiteReview extends LitElement {
     // Generate share URL for the review
     const shareResult = await encodeReviewForUrl(
       this.pendingItems,
-      this.sourceInfo ?? undefined
+      this.sourceInfo ?? undefined,
     )
     const shareUrl = new URL(window.location.href)
     shareUrl.searchParams.set(SHARE_PARAM, shareResult.encoded)
@@ -1673,8 +1732,12 @@ export class StencilaSiteReview extends LitElement {
       // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      const commentCount = this.pendingItems.filter((i) => i.type === 'comment').length
-      const suggestionCount = this.pendingItems.filter((i) => i.type === 'suggestion').length
+      const commentCount = this.pendingItems.filter(
+        (i) => i.type === 'comment',
+      ).length
+      const suggestionCount = this.pendingItems.filter(
+        (i) => i.type === 'suggestion',
+      ).length
 
       this.submitResult = {
         success: true,
@@ -1727,7 +1790,8 @@ export class StencilaSiteReview extends LitElement {
       this.saveToStorage()
     } catch (e) {
       console.error('[SiteReview] Submit failed:', e)
-      this.submitError = 'Failed to submit review. Please check your connection and try again.'
+      this.submitError =
+        'Failed to submit review. Please check your connection and try again.'
     } finally {
       this.submitting = false
     }
@@ -1789,13 +1853,9 @@ export class StencilaSiteReview extends LitElement {
 
   override render() {
     return html`
-      ${this.renderFab()}
-      ${this.renderSelection()}
-      ${this.renderInput()}
-      ${this.renderPanel()}
-      ${this.renderErrorModal()}
-      ${this.renderCommitMismatchModal()}
-      ${this.renderSubmitResultModal()}
+      ${this.renderFab()} ${this.renderSelection()} ${this.renderInput()}
+      ${this.renderPanel()} ${this.renderErrorModal()}
+      ${this.renderCommitMismatchModal()} ${this.renderSubmitResultModal()}
     `
   }
 
@@ -1817,7 +1877,9 @@ export class StencilaSiteReview extends LitElement {
       >
         <span class="i-lucide:message-square-plus fab-icon"></span>
         ${itemCount > 0
-          ? html`<span class="fab-badge">${itemCount > 99 ? '99+' : itemCount}</span>`
+          ? html`<span class="fab-badge"
+              >${itemCount > 99 ? '99+' : itemCount}</span
+            >`
           : null}
       </button>
     `
@@ -1836,7 +1898,13 @@ export class StencilaSiteReview extends LitElement {
     const rect = this.currentSelection.rect
     const buttonWidth = 76 // Approximate width of button group
     const margin = 8
-    const left = Math.max(margin, Math.min(rect.right - buttonWidth, window.innerWidth - buttonWidth - margin))
+    const left = Math.max(
+      margin,
+      Math.min(
+        rect.right - buttonWidth,
+        window.innerWidth - buttonWidth - margin,
+      ),
+    )
 
     return html`
       <div
@@ -1849,7 +1917,10 @@ export class StencilaSiteReview extends LitElement {
             </button>`
           : null}
         ${this.allowsSuggestions
-          ? html`<button @click=${this.handleSuggest} aria-label="Suggest change">
+          ? html`<button
+              @click=${this.handleSuggest}
+              aria-label="Suggest change"
+            >
               <span class="i-lucide:pencil"></span>
             </button>`
           : null}
@@ -1877,11 +1948,11 @@ export class StencilaSiteReview extends LitElement {
    * - Returns arrow position for visual connection to selection
    */
   private calculatePopoverPosition(): {
-    top: number
-    left: number
-    maxWidth: number
-    arrow: 'top' | 'bottom'
-    arrowLeft: number
+    top: number;
+    left: number;
+    maxWidth: number;
+    arrow: 'top' | 'bottom';
+    arrowLeft: number;
   } | null {
     if (!this.currentSelection) return null
 
@@ -1933,7 +2004,10 @@ export class StencilaSiteReview extends LitElement {
     // Minimum offset accounts for border-radius (~12px) + arrow half-width (8px) = 20px, use 24px for safety
     const selectionCenter = rect.left + rect.width / 2
     const arrowOffset = 24
-    const arrowLeft = Math.max(arrowOffset, Math.min(selectionCenter - left, popoverMinWidth - arrowOffset))
+    const arrowLeft = Math.max(
+      arrowOffset,
+      Math.min(selectionCenter - left, popoverMinWidth - arrowOffset),
+    )
 
     return { top, left, maxWidth, arrow, arrowLeft }
   }
@@ -2078,7 +2152,7 @@ export class StencilaSiteReview extends LitElement {
    */
   private renderPageGroup(
     path: string,
-    group: { items: ReviewItem[]; indices: number[] }
+    group: { items: ReviewItem[]; indices: number[] },
   ) {
     const isCurrent = this.isCurrentPage(path)
     // All page groups can be toggled; current page is auto-expanded on navigation
@@ -2104,14 +2178,15 @@ export class StencilaSiteReview extends LitElement {
           aria-expanded=${isExpanded}
         >
           <span class="page-path">${pageTitle}</span>
-          <span class="page-count">${group.items.length}</span>
-          <span class="chevron i-lucide:chevron-${isExpanded ? 'up' : 'down'}"></span>
+          <span
+            class="chevron i-lucide:chevron-${isExpanded ? 'up' : 'down'}"
+          ></span>
         </button>
         ${isExpanded
           ? html`
               <div class="page-group-items">
                 ${itemsWithIndices.map(({ item, index }) =>
-                  this.renderReviewItem(item, index)
+                  this.renderReviewItem(item, index),
                 )}
               </div>
             `
@@ -2146,7 +2221,10 @@ export class StencilaSiteReview extends LitElement {
       <div class="panel-footer">
         <button
           class="add-comment-fab"
-          @click=${(e: Event) => { e.stopPropagation(); this.handlePageComment() }}
+          @click=${(e: Event) => {
+            e.stopPropagation()
+            this.handlePageComment()
+          }}
           aria-label="Add page comment"
         >
           <span class="i-lucide:plus"></span>
@@ -2160,7 +2238,9 @@ export class StencilaSiteReview extends LitElement {
           <button
             class="btn primary"
             @click=${this.handleSubmitReview}
-            ?disabled=${this.authLoading || this.submitting || !this.canSubmitReview}
+            ?disabled=${this.authLoading ||
+            this.submitting ||
+            !this.canSubmitReview}
           >
             ${this.authLoading
               ? 'Loading...'
@@ -2173,7 +2253,10 @@ export class StencilaSiteReview extends LitElement {
           <div class="share-btn-container">
             <button
               class="btn secondary icon-only"
-              @click=${(e: Event) => { e.stopPropagation(); this.handleShare() }}
+              @click=${(e: Event) => {
+                e.stopPropagation()
+                this.handleShare()
+              }}
               aria-label="Share review"
               ?disabled=${this.pendingItems.length === 0}
             >
@@ -2186,7 +2269,6 @@ export class StencilaSiteReview extends LitElement {
         </div>
 
         ${this.renderAuthStatusSection()}
-
       </div>
     `
   }
@@ -2209,16 +2291,19 @@ export class StencilaSiteReview extends LitElement {
                 <span class="i-lucide:message-square-dashed empty-icon"></span>
                 <h4>Ready for your feedback</h4>
                 <p>Select text on the page to comment or suggest a change.</p>
-                <button class="btn secondary add-page-comment" @click=${(e: Event) => { e.stopPropagation(); this.handlePageComment() }}>
+                <button
+                  class="btn secondary add-page-comment"
+                  @click=${(e: Event) => {
+                    e.stopPropagation()
+                    this.handlePageComment()
+                  }}
+                >
                   <span class="i-lucide:message-circle btn-icon"></span>
                   Add page comment
                 </button>
               </div>
             `
-          : html`
-              ${this.renderPanelItems()}
-              ${this.renderPanelFooter()}
-            `}
+          : html` ${this.renderPanelItems()} ${this.renderPanelFooter()} `}
       </div>
     `
   }
@@ -2374,6 +2459,6 @@ export class StencilaSiteReview extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'stencila-site-review': StencilaSiteReview
+    'stencila-site-review': StencilaSiteReview;
   }
 }
