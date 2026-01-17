@@ -42,13 +42,65 @@
     --site-review-color-warning-border: #fcd34d;
     --site-review-color-warning-text: #92400e;
 
+    /* Action button colors */
+    --site-review-color-danger: #ef4444;
+    --site-review-color-danger-dark: #dc2626;
+    --site-review-color-warning-action: #f59e0b;
+    --site-review-color-warning-action-hover: #d97706;
+    --site-review-color-success-action: #22c55e;
+    --site-review-color-success-action-hover: #16a34a;
+
     /* Shadows & Radii */
     --site-review-shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --site-review-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     --site-review-radius-sm: 4px;
     --site-review-radius-md: 6px;
     --site-review-radius-lg: 8px;
+
+    /* Comment highlights - yellow/amber (Google Docs style) */
+    --site-review-highlight-comment: rgba(255, 212, 0, 0.3);
+    --site-review-highlight-comment-active: rgba(255, 212, 0, 0.5);
+    --site-review-highlight-comment-border: rgba(255, 180, 0, 0.8);
+
+    /* Suggestion highlights - green */
+    --site-review-highlight-suggestion: rgba(52, 211, 153, 0.25);
+    --site-review-highlight-suggestion-active: rgba(52, 211, 153, 0.45);
+    --site-review-highlight-suggestion-border: rgba(16, 185, 129, 0.8);
+
+    /* Dark mode highlight variants */
+    --site-review-highlight-comment-dark: rgba(251, 191, 36, 0.25);
+    --site-review-highlight-comment-active-dark: rgba(251, 191, 36, 0.4);
+    --site-review-highlight-comment-border-dark: rgba(245, 158, 11, 0.7);
+
+    --site-review-highlight-suggestion-dark: rgba(52, 211, 153, 0.2);
+    --site-review-highlight-suggestion-active-dark: rgba(52, 211, 153, 0.35);
+    --site-review-highlight-suggestion-border-dark: rgba(16, 185, 129, 0.7);
 }
+
+/* Dark mode - system preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
+        --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
+        --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
+
+        --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
+        --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
+        --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
+    }
+}
+
+/* Dark mode - explicit user choice */
+:root[data-color-scheme="dark"] {
+    --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
+    --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
+    --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
+
+    --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
+    --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
+    --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
+}
+
 
 /* Container */
 stencila-site-review {
@@ -90,8 +142,9 @@ stencila-site-review .modal .buttons {
     justify-content: flex-end;
 }
 
-/* Button base - works with both <button> and <a> */
-stencila-site-review .btn {
+/* Button base - works with both <button> and <a>, shared by both components */
+stencila-site-review .btn,
+stencila-site-review-item .btn {
     display: inline-block;
     padding: 8px 16px;
     border: none;
@@ -103,89 +156,52 @@ stencila-site-review .btn {
     box-sizing: border-box;
 }
 
-stencila-site-review .btn:disabled {
+stencila-site-review .btn:disabled,
+stencila-site-review-item .btn:disabled {
     cursor: not-allowed;
     opacity: 0.6;
 }
 
-stencila-site-review .btn.primary {
+stencila-site-review .btn.primary,
+stencila-site-review-item .btn.primary {
     background: var(--site-review-color-primary);
     color: white;
 }
 
-stencila-site-review .btn.primary:hover:not(:disabled) {
+stencila-site-review .btn.primary:hover:not(:disabled),
+stencila-site-review-item .btn.primary:hover:not(:disabled) {
     background: var(--site-review-color-primary-hover);
 }
 
-stencila-site-review .btn.secondary {
+stencila-site-review .btn.secondary,
+stencila-site-review-item .btn.secondary {
     background: var(--site-review-color-secondary);
     color: var(--site-review-color-text);
 }
 
-stencila-site-review .btn.secondary:hover:not(:disabled) {
+stencila-site-review .btn.secondary:hover:not(:disabled),
+stencila-site-review-item .btn.secondary:hover:not(:disabled) {
     background: var(--site-review-color-secondary-hover);
 }
 
-stencila-site-review .btn.danger {
-    background: #dc2626;
-    color: white;
-}
-
-stencila-site-review .btn.danger:hover:not(:disabled) {
-    background: #b91c1c;
-}
-
 stencila-site-review .btn.warning {
-    background: #f59e0b;
+    background: var(--site-review-color-warning-action);
     color: white;
 }
 
 stencila-site-review .btn.warning:hover:not(:disabled) {
-    background: #d97706;
-}
-
-stencila-site-review .btn.github {
-    background: #24292f;
-    color: white;
-}
-
-stencila-site-review .btn.github:hover:not(:disabled) {
-    background: #32383f;
+    background: var(--site-review-color-warning-action-hover);
 }
 
 stencila-site-review .btn.success-link {
     display: inline-block;
-    background: #22c55e;
+    background: var(--site-review-color-success-action);
     color: white;
     text-decoration: none;
 }
 
 stencila-site-review .btn.success-link:hover {
-    background: #16a34a;
-}
-
-stencila-site-review .btn.full {
-    width: 100%;
-}
-
-/* Alert base */
-stencila-site-review .alert {
-    padding: 8px 12px;
-    border: 1px solid;
-    border-radius: var(--site-review-radius-sm);
-    font-size: 13px;
-    line-height: 1.5;
-    margin-bottom: 8px;
-}
-
-stencila-site-review .alert p {
-    margin: 0 0 8px;
-}
-
-stencila-site-review .alert.error {
-    background: var(--site-review-color-error-bg);
-    border-color: var(--site-review-color-error-border);
-    color: var(--site-review-color-error-text);
+    background: var(--site-review-color-success-action-hover);
 }
 
 /* ==========================================================================
@@ -298,7 +314,7 @@ stencila-site-review .review-fab .fab-badge {
     height: 20px;
     padding: 0 6px;
     border-radius: 10px;
-    background: #ef4444;
+    background: var(--site-review-color-danger);
     color: white;
     font-size: 11px;
     font-weight: 600;
@@ -323,11 +339,6 @@ stencila-site-review .modal.input.flying {
     pointer-events: none;
 }
 
-stencila-site-review .backdrop.fading {
-    opacity: 0;
-    transition: opacity 0.3s ease-in;
-}
-
 stencila-site-review .modal.input textarea {
     width: 100%;
     min-height: 100px;
@@ -349,12 +360,6 @@ stencila-site-review .modal.input textarea:focus {
 
 stencila-site-review .modal.input .buttons {
     margin-top: 12px;
-}
-
-stencila-site-review .modal.input .keyboard-hint {
-    margin-right: auto;
-    font-size: 11px;
-    color: var(--site-review-color-text-faint);
 }
 
 stencila-site-review .modal.input .item-header {
@@ -452,42 +457,6 @@ stencila-site-review-item .review-input-popover .popover-actions {
 stencila-site-review-item .btn-sm {
     padding: 6px 12px;
     font-size: 13px;
-}
-
-/* Button styles for child component */
-stencila-site-review-item .btn {
-    display: inline-block;
-    padding: 8px 16px;
-    border: none;
-    border-radius: var(--site-review-radius-sm);
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: none;
-    text-align: center;
-    box-sizing: border-box;
-}
-
-stencila-site-review-item .btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-stencila-site-review-item .btn.primary {
-    background: var(--site-review-color-primary);
-    color: white;
-}
-
-stencila-site-review-item .btn.primary:hover:not(:disabled) {
-    background: var(--site-review-color-primary-hover);
-}
-
-stencila-site-review-item .btn.secondary {
-    background: var(--site-review-color-secondary);
-    color: var(--site-review-color-text);
-}
-
-stencila-site-review-item .btn.secondary:hover:not(:disabled) {
-    background: var(--site-review-color-secondary-hover);
 }
 
 /* Backdrop overlay */
@@ -613,36 +582,6 @@ stencila-site-review .review-item .item-type {
     letter-spacing: 0.03em;
 }
 
-/* Item link (URL path) */
-stencila-site-review .review-item .item-link {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--site-review-color-text);
-    text-decoration: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    transition: color 0.15s;
-}
-
-stencila-site-review .review-item .item-link:hover {
-    color: var(--site-review-color-primary-hover);
-}
-
-/* Selected text (original) */
-stencila-site-review .review-item .selected-text {
-    color: var(--site-review-color-text-muted);
-    font-style: italic;
-    font-size: 12px;
-    margin-bottom: 6px;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    white-space: pre-wrap;
-}
-
 /* Comment content */
 stencila-site-review .review-item .item-content {
     color: var(--site-review-color-text);
@@ -654,13 +593,6 @@ stencila-site-review .review-item .item-content {
     -webkit-box-orient: vertical;
     overflow: hidden;
     white-space: pre-wrap;
-}
-
-/* Suggestion arrow */
-stencila-site-review .review-item .suggestion-arrow {
-    color: var(--site-review-color-text-faint);
-    font-size: 12px;
-    margin: 2px 0;
 }
 
 /* Replacement text */
@@ -746,7 +678,7 @@ stencila-site-review .review-item .item-menu-dropdown button:hover {
 }
 
 stencila-site-review .review-item .item-menu-dropdown button.danger {
-    color: #ef4444;
+    color: var(--site-review-color-danger);
 }
 
 stencila-site-review .review-item .item-menu-dropdown button.danger:hover {
@@ -874,12 +806,6 @@ stencila-site-review .add-comment-fab span {
     background-color: currentColor;
 }
 
-/* Small button variant */
-stencila-site-review .btn.small {
-    padding: 4px 10px;
-    font-size: 12px;
-}
-
 /* Text button (minimal style) */
 stencila-site-review .btn.text {
     background: none;
@@ -899,66 +825,11 @@ stencila-site-review .modal.error {
 }
 
 stencila-site-review .modal.error h4 {
-    color: #dc2626;
+    color: var(--site-review-color-danger-dark);
 }
 
 stencila-site-review .modal.error p {
-    color: #7f1d1d;
-}
-
-/* Auth status display */
-stencila-site-review .auth-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    border-bottom: 1px solid var(--site-review-color-border);
-    margin-bottom: 8px;
-}
-
-stencila-site-review .auth-status .avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-}
-
-stencila-site-review .auth-status .user-name {
-    font-size: 12px;
-    color: var(--site-review-color-text);
-    flex: 1;
-}
-
-stencila-site-review .auth-status .sign-out-btn {
-    background: none;
-    border: none;
-    color: var(--site-review-color-text-faint);
-    cursor: pointer;
-    font-size: 12px;
-    padding: 2px 6px;
-}
-
-stencila-site-review .auth-status .sign-out-btn:hover {
-    color: var(--site-review-color-text-muted);
-}
-
-/* Sign-in prompt */
-stencila-site-review .sign-in-prompt {
-    padding: 12px;
-    text-align: center;
-}
-
-stencila-site-review .sign-in-prompt p {
-    margin: 0 0 12px;
-    font-size: 13px;
-    color: var(--site-review-color-text-muted);
-}
-
-/* Loading state */
-stencila-site-review .loading {
-    padding: 12px;
-    text-align: center;
-    color: var(--site-review-color-text-faint);
-    font-size: 13px;
+    color: var(--site-review-color-error-text);
 }
 
 /* Success modal - extends .modal */
@@ -974,7 +845,7 @@ stencila-site-review .modal.success h4 {
 }
 
 stencila-site-review .modal.success p {
-    color: #15803d;
+    color: var(--site-review-color-success-text);
     font-size: 14px;
 }
 
@@ -985,35 +856,6 @@ stencila-site-review .modal.success .counts {
 
 stencila-site-review .modal.success .pr-link {
     margin: 12px 0;
-}
-
-/* Blocked message */
-stencila-site-review .blocked-message {
-    padding: 12px;
-    background: var(--site-review-color-error-bg);
-    border: 1px solid var(--site-review-color-error-border);
-    border-radius: var(--site-review-radius-sm);
-    margin-bottom: 8px;
-}
-
-stencila-site-review .blocked-message p {
-    margin: 0 0 8px;
-    color: var(--site-review-color-error-text);
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-/* Connect GitHub prompt */
-stencila-site-review .connect-github {
-    padding: 12px;
-    text-align: center;
-    margin-bottom: 8px;
-}
-
-stencila-site-review .connect-github p {
-    margin: 0 0 8px;
-    font-size: 13px;
-    color: var(--site-review-color-text-muted);
 }
 
 /* Auth description (one-line status) */
@@ -1101,7 +943,7 @@ stencila-site-review .modal.warning {
 }
 
 stencila-site-review .modal.warning h4 {
-    color: #b45309;
+    color: var(--site-review-color-warning-text);
 }
 
 stencila-site-review .modal.warning p {
@@ -1149,60 +991,6 @@ stencila-site-review .share-tooltip::after {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* ==========================================================================
-   Document Highlight Styles
-   ========================================================================== */
-
-/*
- * In-document highlighting for review items (Google Docs style)
- * Applied via data attributes to document content elements
- */
-
-:root {
-    /* Comment highlights - yellow/amber (Google Docs style) */
-    --site-review-highlight-comment: rgba(255, 212, 0, 0.3);
-    --site-review-highlight-comment-active: rgba(255, 212, 0, 0.5);
-    --site-review-highlight-comment-border: rgba(255, 180, 0, 0.8);
-
-    /* Suggestion highlights - green */
-    --site-review-highlight-suggestion: rgba(52, 211, 153, 0.25);
-    --site-review-highlight-suggestion-active: rgba(52, 211, 153, 0.45);
-    --site-review-highlight-suggestion-border: rgba(16, 185, 129, 0.8);
-
-    /* Dark mode highlight variants */
-    --site-review-highlight-comment-dark: rgba(251, 191, 36, 0.25);
-    --site-review-highlight-comment-active-dark: rgba(251, 191, 36, 0.4);
-    --site-review-highlight-comment-border-dark: rgba(245, 158, 11, 0.7);
-
-    --site-review-highlight-suggestion-dark: rgba(52, 211, 153, 0.2);
-    --site-review-highlight-suggestion-active-dark: rgba(52, 211, 153, 0.35);
-    --site-review-highlight-suggestion-border-dark: rgba(16, 185, 129, 0.7);
-}
-
-/* Dark mode - system preference */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-color-scheme="light"]) {
-        --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
-        --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
-        --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
-
-        --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
-        --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
-        --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
-    }
-}
-
-/* Dark mode - explicit user choice */
-:root[data-color-scheme="dark"] {
-    --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
-    --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
-    --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
-
-    --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
-    --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
-    --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
 }
 
 /* ==========================================================================
