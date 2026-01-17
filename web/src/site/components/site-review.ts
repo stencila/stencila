@@ -315,6 +315,7 @@ export class StencilaSiteReview extends LitElement {
   private commentHighlight: Highlight | null = null
   private suggestionHighlight: Highlight | null = null
   private activeHighlight: Highlight | null = null
+  private inputHighlight: Highlight | null = null
 
   /**
    * Use Light DOM so theme CSS can style the component
@@ -1243,6 +1244,51 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
+   * Show a highlight for the current selection while input is open
+   */
+  private showInputHighlight() {
+    this.clearInputHighlight()
+
+    if (!this.supportsHighlightAPI || !this.currentSelection) return
+
+    // Create range from current selection
+    const { start, end } = this.currentSelection
+    if (!start.nodeId || !end.nodeId) return
+
+    const startEl = document.getElementById(start.nodeId)
+    const endEl = document.getElementById(end.nodeId)
+    if (!startEl || !endEl) return
+
+    const startPos = this.findTextPosition(startEl, start.offset)
+    const endPos = this.findTextPosition(endEl, end.offset)
+    if (!startPos || !endPos) return
+
+    try {
+      const range = document.createRange()
+      range.setStart(startPos.node, startPos.offset)
+      range.setEnd(endPos.node, endPos.offset)
+
+      this.inputHighlight = new Highlight(range)
+      const highlightName =
+        this.inputType === 'comment' ? 'review-comment-active' : 'review-suggestion-active'
+      CSS.highlights.set(highlightName, this.inputHighlight)
+    } catch (e) {
+      console.warn('[SiteReview] Failed to create input highlight:', e)
+    }
+  }
+
+  /**
+   * Clear the input highlight
+   */
+  private clearInputHighlight() {
+    if (this.supportsHighlightAPI && this.inputHighlight) {
+      CSS.highlights.delete('review-comment-active')
+      CSS.highlights.delete('review-suggestion-active')
+    }
+    this.inputHighlight = null
+  }
+
+  /**
    * Handle click on document to detect clicks on highlights
    */
   private handleDocumentClick = (e: MouseEvent) => {
@@ -1605,6 +1651,7 @@ export class StencilaSiteReview extends LitElement {
   private handleComment() {
     this.inputType = 'comment'
     this.showInput = true
+    this.showInputHighlight()
   }
 
   /**
@@ -1613,6 +1660,7 @@ export class StencilaSiteReview extends LitElement {
   private handleSuggest() {
     this.inputType = 'suggestion'
     this.showInput = true
+    this.showInputHighlight()
   }
 
   /**
@@ -1620,6 +1668,7 @@ export class StencilaSiteReview extends LitElement {
    */
   private handleCancel() {
     this.showInput = false
+    this.clearInputHighlight()
     this.currentSelection = null
     window.getSelection()?.removeAllRanges()
   }
@@ -1725,6 +1774,9 @@ export class StencilaSiteReview extends LitElement {
     this.pendingItems = newItems
     this.saveToStorage()
 
+    // Clear input highlight before reapplying all highlights
+    this.clearInputHighlight()
+
     // Reapply highlights to include the new item
     this.applyHighlights()
 
@@ -1753,6 +1805,7 @@ export class StencilaSiteReview extends LitElement {
    */
   private handleItemCancel() {
     this.showInput = false
+    this.clearInputHighlight()
     this.currentSelection = null
     window.getSelection()?.removeAllRanges()
   }
@@ -2049,6 +2102,57 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
+   * Calculate smart popover position based on selection rect
+   * - Positions below selection by default
+   * - Flips above if near bottom of viewport
+   * - Shifts horizontally to stay within viewport
+   */
+  private calculatePopoverPosition(): { top: number; left: number; maxWidth: number } | null {
+    if (!this.currentSelection) return null
+
+    const rect = this.currentSelection.rect
+    const viewportHeight = window.innerHeight
+    const viewportWidth = window.innerWidth
+
+    const popoverHeight = 160 // Approximate height of popover
+    const popoverMinWidth = 280
+    const popoverMaxWidth = 400
+    const margin = 8
+
+    // Calculate vertical position (using viewport coordinates for fixed positioning)
+    let top: number
+    const spaceBelow = viewportHeight - rect.bottom
+    const spaceAbove = rect.top
+
+    if (spaceBelow >= popoverHeight + margin) {
+      // Position below selection
+      top = rect.bottom + margin
+    } else if (spaceAbove >= popoverHeight + margin) {
+      // Position above selection
+      top = rect.top - popoverHeight - margin
+    } else {
+      // Not enough space either way, position below anyway
+      top = rect.bottom + margin
+    }
+
+    // Calculate horizontal position - align with selection start
+    let left = rect.left
+    const maxWidth = Math.min(popoverMaxWidth, viewportWidth - margin * 2)
+
+    // Ensure popover doesn't go off right edge
+    if (left + popoverMinWidth > viewportWidth - margin) {
+      left = viewportWidth - popoverMinWidth - margin
+    }
+
+    // Ensure popover doesn't go off left edge
+    if (left < margin) {
+      left = margin
+    }
+
+    return { top, left, maxWidth }
+  }
+
+  /**
    * Render the input modal for adding comments/suggestions
    */
   private renderInput() {
@@ -2056,6 +2160,27 @@ export class StencilaSiteReview extends LitElement {
       return null
     }
 
+    // Calculate popover position if we have a selection
+    const popoverPosition = this.calculatePopoverPosition()
+
+    // Use popover mode when we have selection (inline near text)
+    // Use modal mode for page-level comments (centered with backdrop)
+    if (popoverPosition) {
+      return html`
+        <div class="backdrop transparent" @click=${this.handleCancel}></div>
+        <stencila-site-review-item
+          mode="input"
+          type=${this.inputType}
+          .selection=${this.selectionInfo}
+          .popoverPosition=${popoverPosition}
+          page-title=${document.title || window.location.pathname}
+          @item-add=${this.handleItemAdd}
+          @item-cancel=${this.handleItemCancel}
+        ></stencila-site-review-item>
+      `
+    }
+
+    // Modal mode for page-level comments (no selection)
     return html`
       <div class="backdrop" @click=${this.handleCancel}></div>
       <stencila-site-review-item

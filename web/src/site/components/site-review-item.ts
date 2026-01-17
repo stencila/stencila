@@ -101,6 +101,13 @@ export class StencilaSiteReviewItem extends LitElement {
   selection?: SelectionInfo | null
 
   /**
+   * Position for popover mode (input mode only)
+   * When provided, renders as a positioned popover instead of centered modal
+   */
+  @property({ type: Object })
+  popoverPosition?: { top: number; left: number; maxWidth: number } | null
+
+  /**
    * Page title to show in input header
    */
   @property({ type: String, attribute: 'page-title' })
@@ -520,22 +527,46 @@ export class StencilaSiteReviewItem extends LitElement {
   }
 
   /**
-   * Get fly animation target styles based on FAB position
-   * TODO: Could accept position as property from parent
-   */
-  private get flyTargetStyles(): string {
-    // Default to bottom-right FAB position
-    return '--fly-x: calc(50vw - 64px); --fly-y: calc(50vh - 64px);'
-  }
-
-  /**
-   * Render the input mode (new item modal)
+   * Render the input mode (new item modal or popover)
    */
   private renderInput() {
-    const submitTip = `(${/Mac|iPhone|iPad|iPod/.test(navigator.userAgent) ? '⌘' : 'Ctrl'}+Enter to submit)`
+    const submitTip = `(${/Mac|iPhone|iPad|iPod/.test(navigator.userAgent) ? '⌘' : 'Ctrl'}+Enter)`
 
+    // Use popover positioning if available (selection-based input)
+    if (this.popoverPosition) {
+      const { top, left, maxWidth } = this.popoverPosition
+      const positionStyle = `position: fixed; top: ${top}px; left: ${left}px; max-width: ${maxWidth}px;`
+
+      return html`
+        <div
+          class="review-input-popover ${this.isFlying ? 'flying' : ''}"
+          style=${positionStyle}
+        >
+          <textarea
+            ${ref(this.textareaRef)}
+            .value=${this.inputContent}
+            @input=${(e: Event) => (this.inputContent = (e.target as HTMLTextAreaElement).value)}
+            @keydown=${this.handleInputKeydown}
+            placeholder=${this.type === 'comment'
+              ? `Add comment ${submitTip}`
+              : `Suggest replacement ${submitTip}`}
+            rows="3"
+          ></textarea>
+          <div class="popover-actions">
+            <button class="btn secondary btn-sm" @click=${this.handleCancel}>
+              Cancel
+            </button>
+            <button class="btn primary btn-sm" @click=${this.handleAdd}>
+              ${this.type === 'comment' ? 'Comment' : 'Suggest'}
+            </button>
+          </div>
+        </div>
+      `
+    }
+
+    // Fallback to centered modal (page-level comments without selection)
     return html`
-      <div class="modal input ${this.isFlying ? 'flying' : ''}" style="${this.flyTargetStyles}">
+      <div class="modal input ${this.isFlying ? 'flying' : ''}">
         <div class="item-header">
           <span class="type-icon i-lucide:${this.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
           <span class="item-path">${this.pageTitle || window.location.pathname}</span>

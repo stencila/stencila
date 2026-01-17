@@ -312,7 +312,8 @@ stencila-site-review .modal.input {
     z-index: 10000;
     background: white;
     border: 1px solid var(--site-review-color-border);
-    min-width: 300px;
+    min-width: 500px;
+    max-width: 600px;
     transition: transform 0.3s ease-in, opacity 0.3s ease-in;
 }
 
@@ -380,12 +381,125 @@ stencila-site-review .modal.input .item-path {
     white-space: nowrap;
 }
 
+/* ==========================================================================
+   Input Popover - Inline near selection
+   ========================================================================== */
+
+/* Input popover - positioned near selection */
+stencila-site-review-item .review-input-popover {
+    z-index: 10001;
+    background: white;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-lg);
+    padding: 12px;
+    min-width: 280px;
+    box-shadow: var(--site-review-shadow-lg);
+    font-family: var(--layout-font-family);
+    animation: popover-in 0.15s ease-out;
+}
+
+@keyframes popover-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+stencila-site-review-item .review-input-popover.flying {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Popover textarea */
+stencila-site-review-item .review-input-popover textarea {
+    width: 100%;
+    min-height: 72px;
+    padding: 8px;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-sm);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--site-review-color-text);
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+stencila-site-review-item .review-input-popover textarea:focus {
+    outline: none;
+    border-color: var(--site-review-color-primary);
+}
+
+stencila-site-review-item .review-input-popover textarea::placeholder {
+    color: var(--site-review-color-text-faint);
+}
+
+/* Popover action buttons */
+stencila-site-review-item .review-input-popover .popover-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+/* Small button variant for popover */
+stencila-site-review-item .btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+/* Button styles for child component */
+stencila-site-review-item .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--site-review-radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+stencila-site-review-item .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+stencila-site-review-item .btn.primary {
+    background: var(--site-review-color-primary);
+    color: white;
+}
+
+stencila-site-review-item .btn.primary:hover:not(:disabled) {
+    background: var(--site-review-color-primary-hover);
+}
+
+stencila-site-review-item .btn.secondary {
+    background: var(--site-review-color-secondary);
+    color: var(--site-review-color-text);
+}
+
+stencila-site-review-item .btn.secondary:hover:not(:disabled) {
+    background: var(--site-review-color-secondary-hover);
+}
+
 /* Backdrop overlay */
 stencila-site-review .backdrop {
     position: fixed;
     inset: 0;
     z-index: 9999;
     background: rgb(0 0 0 / 0.3);
+}
+
+/* Transparent backdrop for popover mode - catches clicks but invisible */
+stencila-site-review .backdrop.transparent {
+    background: transparent;
 }
 
 /* Review panel - shows pending items */
