@@ -6,36 +6,13 @@ import { GlideEvents } from '../glide/events'
 import { navigate } from '../glide/glide'
 import type { GlideEventDetail } from '../glide/types'
 
-/**
- * Anchor point for selection (supports multi-block)
- */
-interface Anchor {
-  nodeId: string
-  offset: number
-}
-
-/**
- * Individual annotation item within a review
- */
-interface ReviewItem {
-  type: 'comment' | 'suggestion'
-  path: string
-  url: string
-  title: string
-  start: Anchor
-  end: Anchor
-  selected: string
-  content: string
-}
-
-/**
- * Source info from the root element (stencila-article)
- * repository and commit are site-wide; path varies per page
- */
-interface SourceInfo {
-  repository: string
-  commit: string
-}
+import type { ReviewItem, ReviewItemAnchor, SourceInfo } from './site-review-types'
+import {
+  SHARE_PARAM,
+  encodeReviewForUrl,
+  extractSharedReview,
+  hasSharedReview,
+} from './site-review-url'
 
 /**
  * Auth status response from /__stencila-review/auth
@@ -207,8 +184,8 @@ export class StencilaSiteReview extends LitElement {
    */
   @state()
   private currentSelection: {
-    start: Anchor
-    end: Anchor
+    start: ReviewItemAnchor
+    end: ReviewItemAnchor
     selectedText: string
     rect: DOMRect
   } | null = null
@@ -363,6 +340,12 @@ export class StencilaSiteReview extends LitElement {
   private expandedPageGroups: Set<string> = new Set()
 
   /**
+   * Tooltip message to show near share button
+   */
+  @state()
+  private shareTooltip: string = ''
+
+  /**
    * Item index to activate after cross-page navigation completes
    */
   private pendingActivation: number | null = null
@@ -395,6 +378,12 @@ export class StencilaSiteReview extends LitElement {
     super.connectedCallback()
     this.loadFromStorage()
     this.refreshAuthStatus()
+
+    // Check for shared review in URL parameter
+    if (hasSharedReview()) {
+      this.loadSharedReviewFromUrl()
+    }
+
     document.addEventListener('selectionchange', this.handleSelectionChange)
     document.addEventListener('mouseup', this.handleMouseUp)
     document.addEventListener('visibilitychange', this.handleVisibilityChange)
@@ -517,6 +506,94 @@ export class StencilaSiteReview extends LitElement {
     } catch (e) {
       console.error('[SiteReview] Failed to save to storage:', e)
     }
+  }
+
+  // =========================================================================
+  // URL Sharing Methods
+  // =========================================================================
+
+  /**
+   * Load shared review from URL parameter
+   * Merges with existing items and cleans the URL
+   */
+  private async loadSharedReviewFromUrl(): Promise<void> {
+    const { data, cleanUrl } = await extractSharedReview()
+
+    if (data) {
+      // Merge with existing items (dedupe by path+nodeId+offset)
+      this.mergeSharedItems(data.items)
+
+      if (data.source && !this.sourceInfo) {
+        this.sourceInfo = data.source
+      }
+
+      this.saveToStorage()
+      this.panelOpen = true // Auto-open panel
+
+      // Apply highlights after a short delay for DOM to be ready
+      requestAnimationFrame(() => {
+        this.applyHighlights()
+        this.expandCurrentPageGroup()
+      })
+
+      console.log('[SiteReview] Loaded shared review:', data.items.length, 'items')
+    }
+
+    // Clean URL regardless of success (remove the parameter)
+    history.replaceState({}, '', cleanUrl)
+  }
+
+  /**
+   * Merge shared items with existing pending items
+   * Deduplicates by path + start.nodeId + start.offset
+   */
+  private mergeSharedItems(newItems: ReviewItem[]): void {
+    const isDuplicate = (item: ReviewItem) =>
+      this.pendingItems.some(
+        (existing) =>
+          existing.path === item.path &&
+          existing.start.nodeId === item.start.nodeId &&
+          existing.start.offset === item.start.offset
+      )
+
+    const uniqueItems = newItems.filter((item) => !isDuplicate(item))
+    this.pendingItems = [...this.pendingItems, ...uniqueItems]
+  }
+
+  /**
+   * Generate share URL, copy to clipboard, and show tooltip
+   */
+  private async handleShare(): Promise<void> {
+    const result = await encodeReviewForUrl(this.pendingItems, this.sourceInfo ?? undefined)
+
+    const url = new URL(window.location.href)
+    url.searchParams.set(SHARE_PARAM, result.encoded)
+
+    try {
+      await navigator.clipboard.writeText(url.toString())
+
+      // Show appropriate tooltip message
+      if (result.truncated) {
+        this.showShareTooltip(`Copied ${result.includedCount} of ${this.pendingItems.length}`)
+      } else {
+        this.showShareTooltip('Copied!')
+      }
+
+      console.log('[SiteReview] Share URL copied to clipboard')
+    } catch (e) {
+      console.error('[SiteReview] Failed to copy share URL:', e)
+      this.showShareTooltip('Failed to copy')
+    }
+  }
+
+  /**
+   * Show tooltip near share button briefly
+   */
+  private showShareTooltip(message: string, duration: number = 1500): void {
+    this.shareTooltip = message
+    setTimeout(() => {
+      this.shareTooltip = ''
+    }, duration)
   }
 
   // =========================================================================
@@ -2406,19 +2483,34 @@ export class StencilaSiteReview extends LitElement {
           ? html`<div class="submit-error">${this.submitError}</div>`
           : null}
 
-        <button
-          class="btn primary full"
-          @click=${this.handleSubmitReview}
-          ?disabled=${this.authLoading || this.submitting || !this.canSubmitReview}
-        >
-          ${this.authLoading
-            ? 'Loading...'
-            : this.submitting
-              ? 'Submitting...'
-              : this.canSubmitReview
-                ? 'Submit as PR'
-                : 'Sign in to Submit'}
-        </button>
+        <div class="footer-buttons">
+          <button
+            class="btn primary"
+            @click=${this.handleSubmitReview}
+            ?disabled=${this.authLoading || this.submitting || !this.canSubmitReview}
+          >
+            ${this.authLoading
+              ? 'Loading...'
+              : this.submitting
+                ? 'Submitting...'
+                : this.canSubmitReview
+                  ? 'Submit as PR'
+                  : 'Sign in to Submit'}
+          </button>
+          <div class="share-btn-container">
+            <button
+              class="btn secondary icon-only"
+              @click=${(e: Event) => { e.stopPropagation(); this.handleShare() }}
+              aria-label="Share review"
+              ?disabled=${this.pendingItems.length === 0}
+            >
+              <span class="i-lucide:share-2"></span>
+            </button>
+            ${this.shareTooltip
+              ? html`<div class="share-tooltip">${this.shareTooltip}</div>`
+              : null}
+          </div>
+        </div>
 
         ${this.renderAuthStatusSection()}
 

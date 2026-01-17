@@ -717,6 +717,16 @@ stencila-site-review .panel-footer {
     padding-top: 20px;
 }
 
+/* Footer buttons row (submit + share) */
+stencila-site-review .footer-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+stencila-site-review .footer-buttons .btn.primary {
+    flex: 1;
+}
+
 /* Add comment FAB - centered over the dividing line */
 stencila-site-review .add-comment-fab {
     position: absolute;
@@ -947,6 +957,23 @@ stencila-site-review .btn-icon {
     margin-right: 4px;
 }
 
+/* Icon-only button variant */
+stencila-site-review .btn.icon-only {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+}
+
+stencila-site-review .btn.icon-only span {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: currentColor;
+}
+
 /* Add page comment button in empty state */
 stencila-site-review .add-page-comment {
     margin-top: 16px;
@@ -965,6 +992,48 @@ stencila-site-review .modal.warning h4 {
 stencila-site-review .modal.warning p {
     color: var(--site-review-color-warning-text);
     margin-bottom: 16px;
+}
+
+/* Share button container (for tooltip positioning) */
+stencila-site-review .share-btn-container {
+    position: relative;
+}
+
+/* Share tooltip */
+stencila-site-review .share-tooltip {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 6px;
+    padding: 6px 10px;
+    background: var(--site-review-color-text);
+    color: white;
+    border-radius: var(--site-review-radius-sm);
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: var(--site-review-shadow-sm);
+    animation: tooltip-in 0.15s ease-out;
+}
+
+/* Tooltip arrow */
+stencila-site-review .share-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 12px;
+    border: 5px solid transparent;
+    border-top-color: var(--site-review-color-text);
+}
+
+@keyframes tooltip-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ==========================================================================
